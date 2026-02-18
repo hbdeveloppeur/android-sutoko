@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?><!--
+  ~ Copyright (C) PurpleTear, Inc - All Rights Reserved
+  ~ Unauthorized copying of this file, via any medium is strictly prohibited
+  ~ Proprietary and confidential
+  ~ Written by Hocine Belbouab <hbdeveloppeur@gmail.com>, 1/10/19 11:38 AM
+  ~
+-->
+
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" android:maxSdkVersion="18" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" android:maxSdkVersion="18" />
+    <uses-permission android:name="com.android.vending.BILLING" />
+
+    <application
+        android:name=".Main"
+        android:icon="@mipmap/ic_launcher"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:usesCleartextTraffic="true"
+        tools:ignore="GoogleAppIndexingWarning"
+        tools:replace="android:name"
+        tools:targetApi="n">
+        <uses-library android:name="org.apache.http.legacy" android:required="false" />
+        <activity
+            android:name=".activities.load.Load"
+            android:screenOrientation="portrait"
+            android:theme="@style/MenuTheme" />
+
+        <activity
+            android:name=".activities.main.Main"
+            android:screenOrientation="portrait"
+            android:theme="@style/MenuTheme" />
+
+        <activity
+            android:name=".activities.game.Game"
+            android:screenOrientation="portrait"
+            android:theme="@style/MenuTheme" />
+
+        <activity
+            android:name=".activities.textcinematic.TextCinematic"
+            android:screenOrientation="portrait"
+            android:theme="@style/MenuTheme" />
+
+
+        <uses-library android:name="org.apache.http.legacy" android:required="false"/>
+
+    </application>
+
+</manifest>

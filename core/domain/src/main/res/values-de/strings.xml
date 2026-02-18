@@ -1,0 +1,9 @@
+<resources>
+    <string name="date_relative_today">Heute</string>
+    <string name="date_relative_tomorrow">Morgen</string>
+    <string name="date_relative_day_after_tomorrow">Übermorgen</string>
+    <plurals name="date_relative_in_days">
+        <item quantity="one">In %d Tag</item>
+        <item quantity="other">In %d Tagen</item>
+    </plurals>
+</resources>

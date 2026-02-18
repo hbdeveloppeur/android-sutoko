@@ -1,0 +1,313 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/black"
+    android:id="@+id/mainactivity_shell.root">
+
+    <TextView
+        android:id="@+id/mainactivity_shell.middle.text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:textAllCaps="false"
+        android:textSize="12sp"
+        android:visibility="gone" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/main_shell_9"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.9" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/main_shell_8"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.12" />
+
+    <RelativeLayout
+        android:id="@+id/mainactivity_shell.background"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:background="@color/black"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent">
+
+        <VideoView
+            android:id="@+id/mainactivty.background.video"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentTop="true"
+            android:background="@color/transparent"
+            android:visibility="invisible" />
+
+        <ImageView
+            android:id="@+id/mainactivty.background.image"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:adjustViewBounds="true"
+            android:background="#000"
+            android:scaleType="centerCrop"
+            android:visibility="invisible"
+            tools:ignore="ContentDescription" />
+    </RelativeLayout>
+
+    <FrameLayout
+        android:id="@+id/mainactivity_shell.button"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginBottom="8dp"
+        android:background="@color/transparent"
+        android:orientation="horizontal"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/main_shell_9"
+        app:layout_constraintVertical_bias="0.0">
+
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginEnd="@dimen/shell_your_message_margin"
+            android:layout_marginLeft="@dimen/shell_your_message_margin"
+            android:layout_marginRight="@dimen/shell_your_message_margin"
+            android:layout_marginStart="@dimen/shell_your_message_margin"
+            android:adjustViewBounds="true"
+            android:background="@drawable/friendzone3_layout_bg_rounded"
+            tools:ignore="ContentDescription" />
+
+        <purpletear.fr.purpleteartools.fonts.OldPtSans
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="@string/mainactivity_your_message"
+            android:textColor="@color/headerBlue"
+            android:textSize="@dimen/shell_your_message" />
+    </FrameLayout>
+
+    <ImageView
+        android:id="@+id/mainactivity_shell.button.pause"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:adjustViewBounds="true"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toTopOf="@id/main_shell_28"
+        app:layout_constraintDimensionRatio="W, 1:1"
+        app:layout_constraintRight_toLeftOf="@id/main_shell_27"
+        app:layout_constraintTop_toBottomOf="@id/main_shell_22"
+        tools:ignore="ContentDescription" />
+
+    <ImageView
+        android:id="@+id/mainactivity_shell.button.sound"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:adjustViewBounds="true"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toTopOf="@id/main_shell_30"
+        app:layout_constraintDimensionRatio="W, 1:1"
+        app:layout_constraintRight_toLeftOf="@id/main_shell_27"
+        app:layout_constraintTop_toBottomOf="@id/main_shell_29"
+        tools:ignore="ContentDescription" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/mainactivity_shell.recyclerview"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:clickable="false"
+        android:focusable="false"
+        app:layout_constraintBottom_toTopOf="@id/shell_24"
+        app:layout_constraintEnd_toEndOf="@id/shell_23"
+        app:layout_constraintStart_toStartOf="@id/shell_22"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <FrameLayout
+        android:id="@+id/mainactivity_shell.filter"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#88000000"
+        android:clickable="true"
+        android:focusable="true"
+        android:visibility="visible">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:orientation="vertical"
+            android:paddingEnd="@dimen/shell_description_padding"
+            android:paddingLeft="@dimen/shell_description_padding"
+            android:paddingRight="@dimen/shell_description_padding"
+            android:paddingStart="@dimen/shell_description_padding">
+
+            <purpletear.fr.purpleteartools.fonts.OldPtSans
+                android:id="@+id/mainactivity_shell.title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:textColor="@color/white"
+                android:textSize="@dimen/shell_description_title"
+                android:textStyle="bold" />
+
+            <purpletear.fr.purpleteartools.fonts.OldPtSans
+                android:id="@+id/mainactivity_shell.description"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:textColor="@color/white"
+                android:textSize="@dimen/shell_description_content" />
+
+        </LinearLayout>
+    </FrameLayout>
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/main_shell_22"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent=".17" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/main_shell_27"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent=".96" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/main_shell_28"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent=".27" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/main_shell_29"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent=".33" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/main_shell_30"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent=".43" />
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/mainactivity_shell.choicebox.area"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#AA000000"
+        android:clickable="true"
+        android:focusable="true"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/main_shell_4"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent=".9" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/main_shell_3"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent=".1" />
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:background="@drawable/friendzone3_layout_bg_rounded_white"
+            android:orientation="vertical"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintLeft_toLeftOf="@id/main_shell_3"
+            app:layout_constraintRight_toRightOf="@id/main_shell_4"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingBottom="@dimen/choicebox_title_paddingBottom"
+                android:paddingEnd="@dimen/choicebox_title_paddingRight"
+                android:paddingLeft="@dimen/choicebox_title_paddingLeft"
+                android:paddingRight="@dimen/choicebox_title_paddingRight"
+                android:paddingStart="@dimen/choicebox_title_paddingLeft"
+                android:paddingTop="@dimen/choicebox_title_paddingTop"
+                android:text="@string/mainactivity_your_choice"
+                android:textColor="@color/headerBlue"
+                android:textSize="@dimen/choicebox_title_font"
+                android:textStyle="bold" />
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="#20000000" />
+
+            <LinearLayout
+                android:id="@+id/mainactivity_shell.choicebox.parent"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingBottom="@dimen/choicebox_title_paddingTop" />
+        </LinearLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/shell_22"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent=".015" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/shell_23"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent=".985" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/shell_24"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent=".885" />
+
+    <include
+        android:id="@+id/mainactivity_shell.overlay"
+        layout="@layout/fz3_phrase_notification"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginRight="8dp"
+        android:layout_marginTop="16dp"
+        android:visibility="invisible"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+
+        app:layout_constraintTop_toBottomOf="@id/main_shell_8"
+        android:layout_marginEnd="8dp" />
+</androidx.constraintlayout.widget.ConstraintLayout>

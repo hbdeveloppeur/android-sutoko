@@ -1,0 +1,204 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (C) PurpleTear, Inc - All Rights Reserved
+  ~ Unauthorized copying of this file, via any medium is strictly prohibited
+  ~ Proprietary and confidential
+  ~ Written by Hocine Belbouab <hbdeveloppeur@gmail.com>, 1/10/19 11:38 AM
+  ~
+  -->
+
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <ImageView
+        android:id="@+id/game.design.bg"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:adjustViewBounds="true"
+        android:scaleType="centerCrop"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:ignore="ContentDescription" />
+
+    <ImageView
+        android:id="@+id/game.design.floor"
+        android:layout_width="match_parent"
+        android:scaleType="centerCrop"
+        android:layout_height="110dp"
+        android:adjustViewBounds="true"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        tools:ignore="ContentDescription" />
+
+    <ImageView
+        android:id="@+id/game.character.zoe"
+        android:layout_width="0dp"
+        android:layout_height="140dp"
+        android:adjustViewBounds="true"
+        app:layout_constraintBottom_toTopOf="@+id/game.design.floor"
+        app:layout_constraintDimensionRatio="W,86:120"
+        app:layout_constraintStart_toStartOf="parent"
+        tools:ignore="ContentDescription" />
+
+    <ImageView
+        android:id="@+id/game.character.nick"
+        android:layout_width="0dp"
+        android:layout_height="140dp"
+        app:layout_constraintDimensionRatio="W,85:117"
+        android:adjustViewBounds="true"
+        app:layout_constraintBottom_toTopOf="@+id/game.design.floor"
+        app:layout_constraintLeft_toRightOf="@id/game.character.zoe"
+        tools:ignore="ContentDescription" />
+
+    <ImageView
+        android:id="@+id/game.character.bryan"
+        android:layout_width="0dp"
+        android:layout_height="140dp"
+        android:adjustViewBounds="true"
+        app:layout_constraintBottom_toTopOf="@+id/game.design.floor"
+        app:layout_constraintDimensionRatio="W,122:174"
+        app:layout_constraintRight_toRightOf="parent"
+        tools:ignore="ContentDescription" />
+
+    <ImageView
+        android:id="@+id/game.context"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:adjustViewBounds="true"
+        app:layout_constraintBottom_toTopOf="@id/game.character.zoe"
+        app:layout_constraintLeft_toRightOf="@id/guideline24"
+        app:layout_constraintRight_toLeftOf="@id/guideline25"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/game_context"
+        tools:ignore="ContentDescription" />
+
+    <ImageView
+        android:id="@+id/game.button.hit"
+        android:layout_width="wrap_content"
+        android:layout_height="0dp"
+        android:layout_marginBottom="16dp"
+        android:layout_marginTop="16dp"
+        android:adjustViewBounds="true"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="@id/game.design.floor"
+        app:srcCompat="@drawable/game_hit_btn"
+        tools:ignore="ContentDescription" />
+
+    <ImageView
+        android:id="@+id/game.button.left"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginRight="8dp"
+        android:layout_marginTop="8dp"
+        android:adjustViewBounds="true"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/game.button.hit"
+        app:layout_constraintTop_toTopOf="@+id/game.design.floor"
+        app:srcCompat="@drawable/game_arrow_left"
+        tools:ignore="ContentDescription" />
+
+    <ImageView
+        android:id="@+id/game.button.right"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginTop="8dp"
+        android:adjustViewBounds="true"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/game.button.hit"
+        app:layout_constraintTop_toTopOf="@+id/game.design.floor"
+        app:srcCompat="@drawable/game_arrow_right"
+        tools:ignore="ContentDescription" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline21"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent=".655" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline24"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent=".125" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline25"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent=".875" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline26"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal" />
+
+    <TextView
+        android:id="@+id/game.character.zoe.name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:textColor="#19960e"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toTopOf="@+id/guideline21"
+        app:layout_constraintEnd_toStartOf="@+id/game.character.nick"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <TextView
+        android:id="@+id/game.character.nick.name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textStyle="bold"
+        android:textColor="#19960e"
+        android:layout_marginBottom="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        app:layout_constraintBottom_toTopOf="@+id/guideline21"
+        app:layout_constraintEnd_toEndOf="@+id/game.character.nick"
+        app:layout_constraintStart_toStartOf="@+id/game.character.nick" />
+
+    <TextView
+        android:id="@+id/game.character.bryan.name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textStyle="bold"
+        android:layout_marginBottom="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:textColor="#19960e"
+        app:layout_constraintBottom_toTopOf="@+id/guideline21"
+        app:layout_constraintEnd_toEndOf="@+id/game.character.bryan"
+        app:layout_constraintStart_toStartOf="@+id/game.character.bryan" />
+
+    <ImageView
+        android:id="@+id/game.character.bryan.life"
+        android:visibility="invisible"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="24dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginRight="8dp"
+        android:adjustViewBounds="true"
+        app:layout_constraintBottom_toTopOf="@+id/game.character.bryan.name"
+        app:layout_constraintEnd_toEndOf="@+id/game.character.bryan"
+        app:layout_constraintStart_toStartOf="@+id/game.character.bryan"
+        tools:ignore="ContentDescription" />
+</androidx.constraintlayout.widget.ConstraintLayout>

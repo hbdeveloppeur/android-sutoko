@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="game_announce_update_today">Mettez à jour l\'application pour commencer</string>
+    <string name="game_announce_soon_available">Bientôt disponible</string>
+    <string name="game_announce_available">Disponible</string>
+    <string name="game_announce_title_create_stories">Créez vos histoires</string>
+    <string name="game_announce_subtitle_features">Avec des chapitres, des personnages, des vidéos, des sons, des images et des fins différentes.</string>
+    <string name="game_announce_button_remind_me">Me rappeler</string>
+    <string name="game_announce_button_update">Mettre à jour</string>
+</resources>

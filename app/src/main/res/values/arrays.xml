@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- List of supported locales for the app using IETF BCP 47 language tags -->
+    <string-array name="supported_locales">
+        <item>en</item>
+        <item>fr</item>
+        <item>de</item>
+        <item>es</item>
+        <item>es-ES</item>
+    </string-array>
+</resources>

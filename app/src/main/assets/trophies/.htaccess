@@ -1,0 +1,7 @@
+Options +FollowSymLinks
+RewriteEngine On
+RewriteBase /
+
+RewriteRule ^trophies/(([a-zA-Z]{2})-([a-zA-Z0-9]{2,3}))$ /trophies/trophies_$1.json [L]
+RewriteRule ^news/(([a-zA-Z]{2})-([a-zA-Z0-9]{2,3}))$ /news/news_$1.json [L]
+RewriteRule ^banned-words/(([a-zA-Z]{2})-([a-zA-Z0-9]{2,3}))$ /banned-words/$1.json [L]

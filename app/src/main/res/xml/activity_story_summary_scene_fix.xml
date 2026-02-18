@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="utf-8"?>
+<MotionScene xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:motion="http://schemas.android.com/apk/res-auto">
+
+
+    <Transition
+        motion:constraintSetEnd="@+id/end"
+        motion:constraintSetStart="@id/start"
+        motion:motionInterpolator="easeInOut">
+
+        <OnSwipe
+            motion:touchAnchorId="@+id/sutoko_storysumary_recyclerview"
+            motion:dragDirection="dragUp" />
+    </Transition>
+
+
+    <ConstraintSet android:id="@+id/start">
+        <Constraint
+            android:id="@+id/sutoko_storysumary_recyclerview"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            motion:layout_constraintBottom_toBottomOf="parent"
+            motion:layout_constraintTop_toBottomOf="@id/guideline105"
+            motion:layout_constraintWidth_max="500dp"
+            motion:layout_constraintStart_toEndOf="@id/guideline106"
+            motion:layout_constraintEnd_toStartOf="@id/guideline107"
+            />
+        <Constraint
+            android:id="@+id/sutoko_storysumary_header"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            motion:layout_constraintTop_toTopOf="@id/sutoko_storysumary_button_back"
+            motion:layout_constraintBottom_toBottomOf="@id/sutoko_storysumary_button_back"
+            motion:layout_constraintStart_toEndOf="@id/sutoko_storysumary_button_back"
+            android:layout_marginStart="6dp"
+            android:orientation="vertical"
+            android:alpha="1"
+            />
+        <Constraint
+            android:id="@+id/sutoko_storysumary_button_back"
+            android:layout_width="55dp"
+            android:layout_height="42dp"
+            motion:layout_constraintTop_toTopOf="parent"
+            motion:layout_constraintStart_toStartOf="parent"
+            android:layout_marginTop="20dp"
+            android:alpha="1"
+            />
+        <Constraint
+            android:id="@+id/sutoko_storysumary_progressbar"
+            android:layout_width="22dp"
+            android:layout_height="22dp"
+            motion:layout_constraintTop_toTopOf="@id/sutoko_storysumary_recyclerview"
+            motion:layout_constraintStart_toStartOf="@id/sutoko_storysumary_recyclerview"
+            motion:layout_constraintEnd_toEndOf="@id/sutoko_storysumary_recyclerview"
+            motion:layout_constraintBottom_toBottomOf="@id/sutoko_storysumary_recyclerview"
+            motion:visibilityMode="ignore"
+            />
+
+    </ConstraintSet>
+
+    <ConstraintSet android:id="@+id/end">
+        <Constraint
+            android:id="@+id/sutoko_storysumary_recyclerview"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            motion:layout_constraintBottom_toBottomOf="parent"
+            motion:layout_constraintTop_toTopOf="parent"
+            motion:layout_constraintWidth_max="500dp"
+            motion:layout_constraintStart_toEndOf="@id/guideline106"
+            motion:layout_constraintEnd_toStartOf="@id/guideline107"
+            />
+        <Constraint
+            android:id="@+id/sutoko_storysumary_header"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            motion:layout_constraintTop_toTopOf="@id/sutoko_storysumary_button_back"
+            motion:layout_constraintBottom_toBottomOf="@id/sutoko_storysumary_button_back"
+            motion:layout_constraintStart_toEndOf="@id/sutoko_storysumary_button_back"
+            android:layout_marginStart="6dp"
+            android:orientation="vertical"
+            android:alpha="0"
+            />
+        <Constraint
+            android:id="@+id/sutoko_storysumary_button_back"
+            android:layout_width="55dp"
+            android:layout_height="42dp"
+            motion:layout_constraintTop_toTopOf="parent"
+            motion:layout_constraintStart_toStartOf="parent"
+            android:layout_marginTop="20dp"
+            android:alpha="0"
+            />
+        <Constraint
+            android:id="@+id/sutoko_storysumary_progressbar"
+            android:layout_width="22dp"
+            android:layout_height="22dp"
+            motion:layout_constraintTop_toTopOf="@id/sutoko_storysumary_recyclerview"
+            motion:layout_constraintStart_toStartOf="@id/sutoko_storysumary_recyclerview"
+            motion:layout_constraintEnd_toEndOf="@id/sutoko_storysumary_recyclerview"
+            motion:layout_constraintBottom_toBottomOf="@id/sutoko_storysumary_recyclerview"
+            motion:visibilityMode="ignore"
+            />
+    </ConstraintSet>
+
+</MotionScene>

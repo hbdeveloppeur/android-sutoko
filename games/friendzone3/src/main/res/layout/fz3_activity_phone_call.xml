@@ -1,0 +1,193 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="friendzone3.purpletear.fr.friendzon3.PhoneCall">
+
+    <ImageView
+        android:id="@+id/fz3.phone.call.background"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="centerCrop"
+        tools:ignore="ContentDescription" />
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:background="@color/soft_black"
+        android:paddingBottom="10dp"
+        android:paddingTop="10dp"
+        app:layout_constraintBottom_toTopOf="@id/pcguideline28"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guideline46"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            app:layout_constraintGuide_percent=".2864" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guideline47"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            app:layout_constraintGuide_percent=".8058" />
+
+        <ImageView
+            android:id="@+id/fz3.phone.call.icon.1"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_marginLeft="20dp"
+            app:layout_constraintBottom_toBottomOf="@id/guideline47"
+            app:layout_constraintDimensionRatio="29:14"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintTop_toTopOf="@id/guideline46"
+            tools:ignore="ContentDescription"
+            android:layout_marginStart="20dp" />
+
+        <ImageView
+            android:id="@+id/fz3.phone.call.icon.2"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_marginRight="20dp"
+            app:layout_constraintBottom_toBottomOf="@id/guideline47"
+            app:layout_constraintDimensionRatio="23:14"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="@id/guideline46"
+            tools:ignore="ContentDescription"
+            android:layout_marginEnd="20dp" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/pcguideline28"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent=".068" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/pcguideline30"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent=".18" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/pcguideline31"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent=".82" />
+
+    <ImageView
+        android:id="@+id/phonecall.hour"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toTopOf="@id/pcguideline29"
+        app:layout_constraintDimensionRatio="217:62"
+        app:layout_constraintLeft_toRightOf="@id/pcguideline30"
+        app:layout_constraintRight_toLeftOf="@id/pcguideline31"
+        app:layout_constraintTop_toBottomOf="@id/pcguideline28"
+        tools:ignore="ContentDescription" />
+
+    <purpletear.fr.purpleteartools.fonts.OldPtSans
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingLeft="50dp"
+        android:paddingRight="50dp"
+        android:textColor="#FFF"
+        android:text="@string/mom_is_calling_you"
+        android:textSize="26sp"
+        android:textAlignment="center"
+        app:layout_constraintBottom_toTopOf="@id/pcguideline29"
+        app:layout_constraintLeft_toRightOf="@id/pcguideline30"
+        app:layout_constraintRight_toLeftOf="@id/pcguideline31"
+        app:layout_constraintTop_toBottomOf="@id/phonecall.hour"
+        app:layout_constraintVertical_bias="0.29000002"
+        android:gravity="center_horizontal" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/pcguideline29"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent=".82" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/pcguideline34"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent=".33" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/pcguideline35"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent=".66" />
+
+    <ImageView
+        android:id="@+id/fz3.phone.call.btn2"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="@id/pcguideline36"
+        app:layout_constraintDimensionRatio="56:52"
+        app:layout_constraintLeft_toLeftOf="@id/guideline41"
+        app:layout_constraintRight_toLeftOf="@id/guideline40"
+        app:layout_constraintTop_toBottomOf="@id/pcguideline29"
+        tools:ignore="ContentDescription" />
+
+    <ImageView
+        android:id="@+id/fz3.phone.call.btn1"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="@id/pcguideline36"
+        app:layout_constraintDimensionRatio="67:29"
+        app:layout_constraintLeft_toRightOf="@id/guideline43"
+        app:layout_constraintRight_toLeftOf="@id/guideline42"
+        app:layout_constraintTop_toBottomOf="@id/pcguideline29"
+        tools:ignore="ContentDescription" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/pcguideline36"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent=".96" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline40"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent=".25" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline41"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent=".10" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline42"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent=".9" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline43"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent=".75" />
+</androidx.constraintlayout.widget.ConstraintLayout>
+

@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".activities.poetry.Poetry">
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline173"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent=".08" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline174"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent=".92" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline175"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent=".08" />
+
+    <ImageView
+        android:id="@+id/poetry.background"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:clickable="true"
+        android:focusable="true"
+        android:focusableInTouchMode="true"
+        android:scaleType="centerCrop"
+        tools:ignore="ContentDescription" />
+
+    <ScrollView
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:fadeScrollbars="false"
+        android:scrollbars="vertical"
+        app:layout_constrainedWidth="true"
+        app:layout_constraintBottom_toTopOf="@+id/poetry.button.next"
+        app:layout_constraintEnd_toStartOf="@id/guideline174"
+        app:layout_constraintStart_toEndOf="@id/guideline173"
+        app:layout_constraintTop_toBottomOf="@id/guideline175"
+        app:layout_constraintVertical_bias="0.06">
+
+        <purpletear.fr.purpleteartools.fonts.OldPtSans
+            android:id="@+id/poetry.text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:textColor="#FFF"
+            android:textSize="@dimen/poetry_text" />
+
+    </ScrollView>
+
+    <View
+        android:id="@+id/poetry.facticesquare"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintDimensionRatio="H, 1:1"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="@+id/guideline174" />
+
+    <purpletear.fr.purpleteartools.fonts.OldBebasNeue
+        android:id="@+id/poetry.button.next"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:background="@drawable/background_menu_button"
+        android:gravity="center"
+        android:letterSpacing=".1"
+        android:text="@string/main_button_continue"
+        android:textAllCaps="true"
+        android:textColor="@color/white"
+        android:textSize="@dimen/menu_button_text_size"
+        app:layout_constraintBottom_toTopOf="@id/poetry.facticesquare"
+        app:layout_constraintDimensionRatio="H, 6:1"
+        app:layout_constraintEnd_toStartOf="@id/guideline174"
+        app:layout_constraintStart_toEndOf="@id/guideline173"
+        tools:ignore="UnusedAttribute" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

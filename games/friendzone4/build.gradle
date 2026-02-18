@@ -1,0 +1,73 @@
+apply plugin: 'com.android.library'
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-parcelize'
+
+android {
+    compileSdk 35
+    defaultConfig {
+        minSdkVersion 24
+        targetSdkVersion 35
+        multiDexEnabled true
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        vectorDrawables.useSupportLibrary = true
+        versionCode 1
+        versionName "1.0"
+    }
+
+    buildFeatures {
+        buildConfig true
+    }
+
+    buildTypes {
+        debug {
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            buildConfigField("int", "VERSION_CODE", "${defaultConfig.versionCode}")
+            buildConfigField("String", "VERSION_NAME", "\"${defaultConfig.versionName}\"")
+        }
+
+        release {
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            buildConfigField("int", "VERSION_CODE", "${defaultConfig.versionCode}")
+            buildConfigField("String", "VERSION_NAME", "\"${defaultConfig.versionName}\"")
+        }
+    }
+    namespace 'fr.purpletear.friendzone4'
+
+    android {
+        compileOptions {
+            sourceCompatibility JavaVersion.VERSION_17
+            targetCompatibility JavaVersion.VERSION_17
+        }
+    }
+
+    kotlin {
+        jvmToolchain(17)
+    }
+}
+
+dependencies {
+
+    implementation project(path: ':sutokosharedelements')
+    implementation project(path: ':PurpleTearTools')
+
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation libs.androidx.constraintlayout
+    implementation "androidx.appcompat:appcompat:$appcompat_version"
+
+    implementation 'androidx.browser:browser:1.4.0'
+    implementation "androidx.core:core-ktx:$ktx_core_version"
+    implementation libs.gson
+    implementation "androidx.recyclerview:recyclerview:$recyclerview_version"
+    implementation libs.glide
+
+    // LIFECYCLE
+    implementation libs.androidx.ktx
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+    implementation 'com.github.amitshekhariitbhu:PRDownloader:1.0.2'
+    implementation project(':smsgame')
+    implementation project(':smartads')
+}
+repositories {
+    mavenCentral()
+    maven { url 'https://jitpack.io' }
+}

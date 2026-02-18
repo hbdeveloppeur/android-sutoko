@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/main.menu.stories"
+        android:enabled="true"
+        android:icon="@drawable/sutoko_ic_games"
+        android:title="@string/sutoko_main_bottom_navigationbar_stories"
+        app:showAsAction="withText"/>
+    <item
+        android:id="@+id/main.menu.calendar"
+        android:enabled="true"
+        android:icon="@drawable/ic_apps"
+        android:title="@string/coming_soon"
+        app:showAsAction="withText"/>
+    <item
+        android:id="@+id/main.menu.community"
+        android:enabled="true"
+        android:icon="@drawable/sutoko_ic_menu_users"
+        android:title="@string/sutoko_main_bottom_navigationbar_sommunity"
+        app:showAsAction="withText"/>
+
+    <item
+        android:id="@+id/main.menu.shop"
+        android:enabled="true"
+        android:icon="@drawable/ic_shop"
+        android:title="@string/sutoko_shop"
+        app:showAsAction="withText"/>
+</menu>

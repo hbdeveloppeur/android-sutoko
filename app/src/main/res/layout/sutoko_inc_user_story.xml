@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="115dp"
+    android:clickable="true"
+    android:focusable="true"
+    android:focusableInTouchMode="true"
+    tools:ignore="UnusedAttribute"
+    tools:viewBindingIgnore="true">
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/sutoko.item.userstory.card"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#1e1e1e"
+        android:elevation="0dp"
+        android:foreground="?attr/selectableItemBackground"
+        app:cardBackgroundColor="#1e1e1e"
+        app:cardCornerRadius="26dp"
+        app:cardElevation="0dp"
+        tools:ignore="UnusedAttribute">
+
+        <ImageView
+            android:id="@+id/sutoko.item.userstory.background.image"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:adjustViewBounds="true"
+            android:alpha="0.3"
+            android:scaleType="centerCrop"
+            tools:ignore="ContentDescription" />
+
+        <ImageView
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:layout_gravity="end|top"
+            android:scaleType="centerCrop"
+            android:src="@drawable/sutoko_ic_stars_bg"
+            tools:ignore="ContentDescription" />
+
+        <View
+            android:layout_width="150dp"
+            android:layout_height="match_parent"
+            android:alpha="0.1"
+            android:background="@drawable/gradient_white" />
+    </androidx.cardview.widget.CardView>
+
+
+    <com.example.sutokosharedelements.fonts.WorkSansRegular
+        android:id="@+id/sutoko.item.userstory.info.title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="6dp"
+        android:layout_marginEnd="6dp"
+        android:layout_marginBottom="8dp"
+        android:text="La cabane dans la forêt"
+        android:textColor="@color/white"
+        android:textFontWeight="800"
+        android:textSize="14sp"
+        app:layout_constraintBottom_toTopOf="@+id/sutoko.item.userstory.info.theme"
+        app:layout_constraintStart_toEndOf="@id/guideline54"
+        tools:ignore="HardcodedText" />
+
+    <com.example.sutokosharedelements.fonts.WorkSansRegular
+        android:id="@+id/sutoko.item.userstory.info.theme"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="6dp"
+        android:layout_marginEnd="6dp"
+        android:text="Horreur"
+        android:textColor="#dd7187"
+        android:textFontWeight="800"
+        android:textSize="14sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toEndOf="@id/guideline54"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:ignore="HardcodedText" />
+
+    <com.example.sutokosharedelements.fonts.WorkSansRegular
+        android:id="@+id/sutoko.item.userstory.info.type"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="6dp"
+        android:layout_marginEnd="6dp"
+        android:text="Histoire à choix"
+        android:textColor="#7CFFFFFF"
+        android:textFontWeight="800"
+        android:textSize="13sp"
+        app:layout_constraintBottom_toBottomOf="@id/sutoko.item.userstory.info.theme"
+        app:layout_constraintStart_toEndOf="@id/sutoko.item.userstory.info.theme"
+        app:layout_constraintTop_toTopOf="@id/sutoko.item.userstory.info.theme"
+
+        tools:ignore="HardcodedText" />
+
+    <LinearLayout
+        android:id="@+id/sutoko.item.userstory.info.author"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        app:layout_constraintStart_toEndOf="@id/guideline54"
+        app:layout_constraintTop_toBottomOf="@+id/sutoko.item.userstory.info.theme">
+
+        <FrameLayout
+            android:layout_width="26dp"
+            android:layout_height="26dp"
+            android:background="@drawable/background_circle_gray">
+
+            <ImageView
+                android:id="@+id/sutoko.item.userstory.avatar"
+                android:layout_width="22dp"
+                android:layout_height="22dp"
+                android:layout_gravity="center"
+                tools:ignore="ContentDescription" />
+        </FrameLayout>
+
+        <com.example.sutokosharedelements.fonts.WorkSansRegular
+            android:id="@+id/sutoko.item.userstory.info.author.name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="6dp"
+            android:layout_marginEnd="6dp"
+            android:layout_marginBottom="2dp"
+            android:drawablePadding="8dp"
+            android:gravity="center_vertical"
+            android:text="SeyawZ"
+            android:textColor="@color/white"
+            android:textSize="13sp"
+            tools:ignore="HardcodedText" />
+
+        <androidx.constraintlayout.utils.widget.ImageFilterView
+            android:id="@+id/sutoko.item.userstory.info.ispremium"
+            android:layout_width="12dp"
+            android:layout_height="12dp" />
+    </LinearLayout>
+
+    <ImageView
+        android:id="@+id/sutoko.item.userstory.info.likes.image"
+        android:layout_width="18dp"
+        android:layout_height="18dp"
+        app:layout_constraintBottom_toBottomOf="@id/sutoko.item.userstory.info.author"
+        app:layout_constraintEnd_toStartOf="@id/guideline17"
+        app:layout_constraintTop_toTopOf="@id/sutoko.item.userstory.info.author"
+        tools:ignore="ContentDescription" />
+
+    <com.example.sutokosharedelements.fonts.WorkSansRegular
+        android:id="@+id/sutoko.item.userstory.info.likes.text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:textColor="#FFF"
+        android:textSize="12sp"
+        app:layout_constraintBottom_toBottomOf="@id/sutoko.item.userstory.info.likes.image"
+        app:layout_constraintEnd_toStartOf="@id/sutoko.item.userstory.info.likes.image"
+        app:layout_constraintTop_toTopOf="@id/sutoko.item.userstory.info.likes.image" />
+
+
+    <ImageView
+        android:id="@+id/sutoko.item.userstory.info.isselected"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:layout_marginEnd="8dp"
+        app:layout_constraintBottom_toTopOf="@id/sutoko.item.userstory.info.likes.image"
+        app:layout_constraintEnd_toStartOf="@id/guideline17"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.7"
+        tools:ignore="ContentDescription" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline54"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.05" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline17"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.95" />
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

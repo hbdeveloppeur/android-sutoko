@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="130dp"
+    tools:viewBindingIgnore="true">
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/sutoko.card"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:elevation="0dp"
+        android:foreground="?android:attr/selectableItemBackground"
+        app:cardBackgroundColor="#252525"
+        app:cardCornerRadius="26dp"
+        app:cardElevation="0dp"
+        app:cardMaxElevation="0dp"
+        tools:ignore="UnusedAttribute">
+
+        <com.example.sutokosharedelements.views.MediaBackgroundView
+            android:id="@+id/sutoko.card.background"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+    </androidx.cardview.widget.CardView>
+
+
+    <com.example.sutokosharedelements.fonts.NunitoBold
+        android:id="@+id/sutoko.card.title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:text="L'Homme Clown"
+        android:textColor="@color/white"
+        android:textSize="14sp"
+        app:layout_constraintStart_toEndOf="@id/guideline119"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:gravity="center"
+        android:orientation="vertical"
+        app:layout_constraintBottom_toBottomOf="@id/sutoko.card.title"
+        app:layout_constraintStart_toEndOf="@id/sutoko.card.title"
+        app:layout_constraintTop_toTopOf="@id/sutoko.card.title">
+
+        <ImageView
+            android:id="@+id/sutoko_card_rate_icon"
+            android:layout_width="26dp"
+            android:layout_height="18dp"
+            android:scaleType="centerCrop"
+            tools:ignore="ContentDescription" />
+
+        <com.example.sutokosharedelements.fonts.NunitoRegular
+            android:id="@+id/sutoko.card.rate"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="-2dp"
+            android:textColor="@color/white"
+            android:textSize="10sp" />
+    </LinearLayout>
+
+    <com.example.sutokosharedelements.fonts.NunitoBold
+        android:id="@+id/sutoko.card.chapters.number.text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:textColor="@color/white"
+        android:textSize="11sp"
+        app:layout_constraintStart_toEndOf="@id/guideline119"
+        app:layout_constraintTop_toBottomOf="@id/sutoko.card.title" />
+
+    <com.example.sutokosharedelements.fonts.NunitoBold
+        android:id="@+id/sutoko.card.catchingphrase.text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:text="Aidez Emma à retrouver le tueur de son mari"
+        android:textColor="#D6D6D6"
+        android:textSize="11sp"
+
+        app:layout_constrainedWidth="true"
+
+        app:layout_constraintEnd_toStartOf="@id/guideline143"
+        app:layout_constraintHorizontal_bias="0"
+        app:layout_constraintStart_toEndOf="@id/guideline119"
+        app:layout_constraintTop_toBottomOf="@id/sutoko.card.chapters.number.text" />
+
+    <com.example.sutokosharedelements.fonts.NunitoBold
+        android:id="@+id/sutoko_card_keywords"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:text="Enquête • Clown • Thiller"
+        android:textColor="#FFF"
+        android:textSize="11sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toEndOf="@id/guideline119"
+        app:layout_constraintStart_toStartOf="@id/guideline119" />
+
+
+    <ImageView
+        android:id="@+id/sutoko.card.badges.gaming"
+        android:layout_width="18dp"
+        android:layout_height="12dp"
+        android:alpha="0.8"
+        app:layout_constraintBottom_toBottomOf="@id/sutoko_card_keywords"
+        app:layout_constraintEnd_toEndOf="@id/guideline144"
+        app:layout_constraintTop_toTopOf="@id/sutoko_card_keywords"
+        tools:ignore="ContentDescription" />
+
+    <ImageView
+        android:id="@+id/sutoko.card.badges.premium"
+        android:layout_width="18dp"
+        android:layout_height="18dp"
+        android:layout_marginEnd="8dp"
+        android:alpha="0.8"
+        app:layout_constraintBottom_toBottomOf="@id/sutoko_card_keywords"
+        app:layout_constraintEnd_toStartOf="@id/sutoko.card.badges.gaming"
+        app:layout_constraintTop_toTopOf="@id/sutoko_card_keywords"
+        tools:ignore="ContentDescription" />
+
+
+    <!-- GUIDELINES -->
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline119"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.05" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline143"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.618" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline144"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.95" />
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,0 +1,94 @@
+plugins {
+    id 'com.android.library'
+    id 'org.jetbrains.kotlin.android'
+    id 'kotlin-kapt'
+    id 'kotlin-parcelize'
+    id 'dagger.hilt.android.plugin'
+}
+
+android {
+    namespace 'fr.purpletear.sutoko.shop.presentation'
+    compileSdk 35
+
+    defaultConfig {
+        minSdk 24
+        targetSdk 35
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        consumerProguardFiles "consumer-rules.pro"
+    }
+
+    buildFeatures {
+        dataBinding true
+        viewBinding true
+        buildConfig true
+    }
+
+    buildTypes {
+        release {
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+
+    android {
+        compileOptions {
+            sourceCompatibility JavaVersion.VERSION_17
+            targetCompatibility JavaVersion.VERSION_17
+        }
+    }
+
+    kotlin {
+        jvmToolchain(17)
+    }
+
+    buildTypes.getByName("release") {
+        debuggable false
+    }
+
+    buildTypes.getByName("debug") {
+        debuggable true
+    }
+}
+
+dependencies {
+
+    implementation libs.androidx.ktx
+    implementation libs.androidx.appcompat
+    implementation libs.android.material
+    implementation project(path: ':sutokosharedelements')
+    implementation project(path: ':PurpleTearTools')
+    implementation project(path: ':shop:domain')
+    implementation libs.glide
+
+    implementation libs.firebase.config.ktx
+    implementation libs.billing
+
+    implementation libs.androidx.constraintlayout.compose
+    implementation libs.compose.foundation
+    implementation project(':in_app_purchase:in_app_purchase_domain')
+    implementation project(':in_app_purchase:in_app_purchase_data')
+    implementation project(':user:domain')
+
+
+    implementation libs.google.firebase.firestore.ktx
+    implementation platform("com.google.firebase:firebase-bom:$firebase_bom_platform_version")
+    implementation libs.google.firebase.analytics.ktx
+    implementation libs.google.firebase.crashlytics.ktx
+    implementation libs.gson
+    implementation libs.lottie
+    implementation libs.grpc.okhttp
+
+    implementation libs.lifecycle.viewmodel.ktx
+    implementation libs.androidx.lifecycle.runtime.ktx
+    implementation libs.androidx.lifecycle.livedata.ktx
+    implementation libs.androidx.lifecycle.viewmodel.savedstate
+
+    // Dagger - Hilt
+    implementation libs.dagger.hilt
+    kapt libs.dagger.hilt.compiler
+    kapt libs.androidx.hilt.compiler
+    implementation libs.androidx.hilt.navigation.compose
+
+    implementation(libs.kotlinx.coroutines.android)
+    implementation project(':game:game_domain')
+}

@@ -1,0 +1,41 @@
+<resources>
+    <string name="app_name">SutokoShop</string>
+    <string name="sutoko_shop">Shop</string>
+    <string name="sutoko_shop_title">Story coins packs</string>
+    <string name="sutoko_shop_subtitle">Don\'t keep the suspense going</string>
+    <string name="sutoko_shop_unlock_item_title_pack">Unlocked pack!</string>
+    <string name="sutoko_shop_unlock_item_title_premium">Unlocked Premium Key!</string>
+    <string name="sutoko_shop_unlock_item_pending_title">Thank you for your purchase</string>
+    <string name="sutoko_shop_unlock_item_pending_title_subtitle">Payment pending validation</string>
+    <string name="sutoko_shop_unlock_item_pending_title_description">You will receive your earnings when your payment is validated</string>
+    <string name="sutoko_shop_unlock_item_connection_warning">Connection error</string>
+    <string name="sutoko_congrats_item_unlocked">Congratulations! Congratulations! Article unlocked!</string>
+    <string name="sutoko_congrats">Congratulations</string>
+    <string name="sutoko_continue">Continue</string>
+    <string name="sutoko_weeks">Week</string>
+    <string name="sutoko_month">Month</string>
+    <string name="sutoko_year">Year</string>
+    <string name="premium_sentence_buy_free_days">Free for %1$d days, then %2$s / %3$s</string>
+    <string name="premium_sentence_buy_free_weeks">Free for %1$d week(s), then %2$s / %3$s</string>
+    <string name="premium_sentence_buy">%1$s / %2$s</string>
+    <string name="sutoko_shop_leaving_keys_label">Only %1$d  more keys available today</string>
+    <string name="sutoko_shop_leaving_keys_label_unlocked">You have access to all the content of the application</string>
+    <string name="sutoko_owned">Owned</string>
+    <string name="sutoko_pass_premium">Pass Premium</string>
+    <string name="sutoko_unlimited_access">Unlimited access</string>
+    <string name="sutoko_unlock_diamonds">Unlock %1$d diamonds</string>
+    <string name="sutoko_unlock_diamonds_done">Unlocked diamonds!</string>
+    <string name="sutoko_story_unlock_coins">You have just found %1$d pieces hidden in this chapter.</string>
+    <string name="sutoko_try_premium">Try premium</string>
+    <string name="sutoko_premium_description_cta">Unlock stories with the premium pass</string>
+    <string name="sutoko_check_google_play_connexion">Please, check that you are connected to Google Play</string>
+    <string name="sutoko_shop_pack_name_starter">Starter</string>
+    <string name="sutoko_shop_pack_name_treasure">Treasure</string>
+    <string name="sutoko_premium_game">Premium story</string>
+    <string name="sutoko_premium_presentation_1">Unlimited Stories Access</string>
+    <string name="sutoko_premium_presentation_2">Premium community rank</string>
+    <string name="sutoko_premium_presentation_3">No more ads</string>
+    <string name="sutoko_premium_presentation_subtitle">100%% Sutoko with no interruptions</string>
+    <string name="sutoko_premium_presentation_title">Premium pass unlocked</string>
+
+</resources>

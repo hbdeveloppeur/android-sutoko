@@ -1,0 +1,82 @@
+/*
+ * Copyright (C) PurpleTear, Inc - All Rights Reserved
+ * Unauthorized copying of this file, via any medium is strictly prohibited
+ * Proprietary and confidential
+ * Written by Hocine Belbouab <hbdeveloppeur@gmail.com>, 1/10/19 11:38 AM
+ *
+ */
+apply plugin: 'com.android.library'
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-parcelize'
+
+
+android {
+    compileSdk 35
+    defaultConfig {
+        minSdkVersion 24
+        targetSdkVersion 35
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        versionCode 1
+        versionName "1.0"
+    }
+
+    buildFeatures {
+        buildConfig true
+    }
+
+    buildTypes {
+        debug {
+            multiDexEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            buildConfigField("int", "VERSION_CODE", "${defaultConfig.versionCode}")
+            buildConfigField("String", "VERSION_NAME", "\"${defaultConfig.versionName}\"")
+        }
+        release {
+            multiDexEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro', 'proguard-rules-dependencies.pro'
+            buildConfigField("int", "VERSION_CODE", "${defaultConfig.versionCode}")
+            buildConfigField("String", "VERSION_NAME", "\"${defaultConfig.versionName}\"")
+        }
+    }
+
+    testOptions {
+        unitTests.returnDefaultValues = true
+    }
+    namespace 'fr.purpletear.friendzone'
+
+    android {
+        compileOptions {
+            sourceCompatibility JavaVersion.VERSION_17
+            targetCompatibility JavaVersion.VERSION_17
+        }
+    }
+
+    kotlin {
+        jvmToolchain(17)
+    }
+}
+
+dependencies {
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
+    implementation "androidx.appcompat:appcompat:$appcompat_version"
+    implementation "com.google.android.material:material:$google_android_material_version"
+    implementation 'androidx.cardview:cardview:1.0.0'
+    implementation "androidx.core:core-ktx:$ktx_core_version"
+    implementation "androidx.constraintlayout:constraintlayout:$constraintlayout_version"
+    implementation project(path: ':sutokosharedelements')
+    implementation project(path: ':PurpleTearTools')
+    implementation project(':smsgame')
+    implementation project(':smartads')
+
+    // Required -- JUnit 4 framework
+    testImplementation 'junit:junit:4.13.2'
+    implementation "androidx.recyclerview:recyclerview:$recyclerview_version"
+    implementation "com.google.code.gson:gson:$gson_version"
+    implementation "com.github.bumptech.glide:glide:$bumptech_glide_version"
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.0'
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+
+
+    // ANALYTICS
+    implementation 'androidx.annotation:annotation:1.5.0'
+}

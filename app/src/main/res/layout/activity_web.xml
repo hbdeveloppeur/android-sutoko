@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.purpletear.sutoko.presentation.activity.web.WebActivity"
+    tools:viewBindingIgnore="true">
+
+    <FrameLayout
+        android:id="@+id/sutoko.web.webview.container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <WebView
+            android:id="@+id/sutoko.web.webview"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scrollbarThumbVertical="@drawable/scrollbar_trophies"
+            android:scrollbarTrackVertical="@drawable/scrollbar_trophies"/>
+    </FrameLayout>
+
+
+    <View
+        android:id="@+id/sutoko.web.filter"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/mainActivityBackgroundColor"
+        />
+
+    <include
+        android:id="@+id/sutoko.web.buying.root"
+        layout="@layout/sutoko_inc_buying_order"
+        android:visibility="invisible"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        />
+
+    <ProgressBar
+        android:id="@+id/sutoko.web.progressbar"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_width="25dp"
+        android:layout_height="25dp"
+        android:indeterminate="true"
+        android:indeterminateTintMode="src_atop"
+        android:indeterminateTint="@color/chat_main_header_pinkyred"
+        tools:ignore="UnusedAttribute" />
+
+    <com.example.sutokosharedelements.fonts.RobotoRegular
+        android:id="@+id/sutoko.web.progressbar.text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="@color/white"
+        app:layout_constraintTop_toBottomOf="@id/sutoko.web.progressbar"
+        app:layout_constraintStart_toStartOf="@id/sutoko.web.progressbar"
+        app:layout_constraintEnd_toEndOf="@id/sutoko.web.progressbar"
+        android:layout_marginTop="12dp"
+        android:text="@string/loading"
+        />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

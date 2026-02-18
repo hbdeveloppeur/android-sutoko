@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    app:layout_constraintDimensionRatio="H, 865:181"
+    android:clickable="true"
+    android:focusable="true"
+    android:id="@+id/fz4_contact_row_action_clickable">
+
+    <ImageView
+        android:id="@+id/fz4_action_contacts.row.image"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:scaleType="centerCrop"
+        app:layout_constraintDimensionRatio="W, 1:1"
+        app:layout_constraintBottom_toTopOf="@id/fz4_action_guideline45"
+        app:layout_constraintEnd_toStartOf="@id/fz4_action_guideline48"
+        app:layout_constraintStart_toEndOf="@id/fz4_action_guideline47"
+        app:layout_constraintTop_toBottomOf="@id/fz4_action_guideline44"
+        tools:ignore="ContentDescription" />
+
+    <purpletear.fr.purpleteartools.fonts.OldPtSans
+        android:id="@+id/fz4_action_contacts.row.name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="#1f90f7"
+        android:textSize="13sp"
+        app:layout_constraintBottom_toTopOf="@id/fz4_action_guideline46"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.27"
+        app:layout_constraintStart_toEndOf="@id/fz4_action_guideline40" />
+
+    <purpletear.fr.purpleteartools.fonts.OldPtSans
+        android:id="@+id/fz4_action_contacts.row.text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:alpha=".7"
+        android:textColor="#0085fe"
+        android:textSize="13sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.27"
+        app:layout_constraintStart_toEndOf="@id/fz4_action_guideline40"
+        app:layout_constraintTop_toBottomOf="@id/fz4_action_guideline46" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/fz4_action_guideline40"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.25" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/fz4_action_guideline44"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.15" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/fz4_action_guideline46"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.5" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/fz4_action_guideline45"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.85" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/fz4_action_guideline47"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent=".03" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/fz4_action_guideline48"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent=".21" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/colorWhite"
+        app:layout_constraintBottom_toBottomOf="parent" />
+</androidx.constraintlayout.widget.ConstraintLayout>

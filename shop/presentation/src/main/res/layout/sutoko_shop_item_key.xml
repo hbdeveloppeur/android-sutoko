@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+    <androidx.cardview.widget.CardView
+            android:id="@+id/sutoko_coins_card_large_background_container"
+            android:layout_width="match_parent"
+            android:layout_height="155dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="4dp"
+            android:layout_marginEnd="8dp"
+            android:elevation="12dp"
+            app:cardBackgroundColor="#00000000"
+            app:cardCornerRadius="30dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:ignore="UnusedAttribute">
+
+        <ImageView
+                android:id="@+id/sutoko_coins_card_large_background_image"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:scaleType="centerCrop"
+                tools:ignore="ContentDescription" />
+    </androidx.cardview.widget.CardView>
+
+    <ImageView
+            android:id="@+id/sutoko_coins_card_large_key"
+            android:layout_width="0dp"
+            android:layout_height="170dp"
+            android:elevation="12dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintDimensionRatio="W, 1000:1016"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+    <com.example.sutokosharedelements.fonts.PoppinsBold
+            android:id="@+id/sutoko_coins_card_large_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="18dp"
+            android:elevation="12dp"
+            android:text="@string/sutoko_pass_premium"
+            android:textColor="#FFF"
+            android:textSize="20sp"
+            app:layout_constraintStart_toEndOf="@id/guideline151"
+            app:layout_constraintTop_toTopOf="@id/sutoko_coins_card_large_background_container" />
+
+    <LinearLayout
+            android:id="@+id/sutoko_coins_card_large_info_1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:elevation="12dp"
+            android:gravity="center"
+            app:layout_constraintStart_toStartOf="@id/sutoko_coins_card_large_name"
+            app:layout_constraintTop_toBottomOf="@id/sutoko_coins_card_large_name">
+
+        <ImageView
+                android:id="@+id/sutoko_coins_card_large_info_1_icon"
+                android:layout_width="12dp"
+                android:layout_height="12dp"
+                android:alpha="0.7"
+                tools:ignore="ContentDescription" />
+
+        <com.example.sutokosharedelements.fonts.PoppinsSemiBold
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="6dp"
+                android:text="@string/sutoko_unlimited_access"
+                android:textSize="12sp" />
+    </LinearLayout>
+
+    <com.example.sutokosharedelements.fonts.PoppinsSemiBold
+            android:id="@+id/sutoko_coins_card_large_info_description"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:layout_marginEnd="6dp"
+            android:elevation="12dp"
+            android:text="@string/sutoko_shop_leaving_keys_label"
+            android:textSize="12sp"
+            app:layout_constrainedWidth="true"
+            app:layout_constraintEnd_toEndOf="@id/sutoko_coins_card_large_background_container"
+            app:layout_constraintHorizontal_bias="0"
+            app:layout_constraintStart_toStartOf="@id/sutoko_coins_card_large_info_1"
+            app:layout_constraintTop_toBottomOf="@id/sutoko_coins_card_large_info_1" />
+
+    <LinearLayout
+            android:id="@+id/button0"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="16dp"
+            android:layout_marginBottom="16dp"
+            android:elevation="12dp"
+            android:gravity="center"
+            android:paddingStart="16dp"
+            android:paddingTop="6dp"
+            android:paddingEnd="16dp"
+            android:paddingBottom="6dp"
+            app:layout_constraintBottom_toBottomOf="@id/sutoko_coins_card_large_background_container"
+            app:layout_constraintEnd_toEndOf="@id/sutoko_coins_card_large_background_container">
+
+        <com.example.sutokosharedelements.fonts.PoppinsBold
+                android:id="@+id/button_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:elevation="16dp"
+                android:gravity="center"
+                android:includeFontPadding="false"
+                android:textAlignment="center"
+                android:textColor="#FFF"
+                android:textSize="13sp"
+                tools:ignore="UnusedAttribute" />
+
+        <ImageView
+                android:id="@+id/button_icon"
+                android:layout_width="18dp"
+                android:layout_height="18dp"
+                android:layout_marginStart="6dp"
+                android:visibility="gone"
+                tools:ignore="ContentDescription" />
+    </LinearLayout>
+
+    <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guideline151"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent="0.4" />
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:alpha="0.8"
+        android:background="#000"
+        android:clickable="true"
+        android:focusable="true"
+        android:focusableInTouchMode="true" />
+
+    <ImageView
+        android:id="@+id/header_background"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        app:layout_constraintDimensionRatio="H, 319:172"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintWidth_max="320dp"
+        tools:ignore="ContentDescription" />
+
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:orientation="vertical"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <com.example.sutokosharedelements.fonts.PoppinsBold
+            android:id="@+id/title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:maxWidth="300dp"
+            android:text="@string/sutoko_congrats"
+            android:textAlignment="center"
+            android:textColor="@color/darkModeWhite3"
+            android:textSize="22sp" />
+
+        <com.example.sutokosharedelements.fonts.PoppinsBold
+            android:id="@+id/packName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:maxWidth="300dp"
+            android:textAlignment="center"
+            android:textColor="@color/darkModeWhite"
+            android:textSize="28sp" />
+
+        <FrameLayout
+            android:id="@+id/image"
+            android:layout_width="200dp"
+            android:layout_height="200dp"
+            android:layout_marginTop="12dp">
+
+            <ImageView
+                android:id="@+id/sutoko_shop_buy_validation_item_image"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                tools:ignore="ContentDescription" />
+        </FrameLayout>
+
+
+        <LinearLayout
+            android:id="@+id/sutoko_coins_information"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:background="@drawable/sutoko_shop_rounded_background_black"
+            android:gravity="center"
+            android:paddingStart="18dp"
+            android:paddingTop="8dp"
+            android:paddingEnd="16dp"
+            android:paddingBottom="8dp">
+
+            <com.example.sutokosharedelements.fonts.PoppinsBoldAnimated
+                android:id="@+id/coins"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="-1"
+                android:textColor="#FFF"
+                android:textSize="18sp" />
+
+            <ImageView
+                android:id="@+id/sutoko_coins_image"
+                android:layout_width="23dp"
+                android:layout_height="23dp"
+                android:layout_marginStart="3dp"
+                android:adjustViewBounds="true"
+                android:rotation="45"
+                android:scaleType="centerCrop"
+                tools:ignore="ContentDescription" />
+
+            <com.example.sutokosharedelements.fonts.PoppinsBoldAnimated
+                android:id="@+id/diamonds"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="6dp"
+                android:text="-1"
+                android:textColor="#FFF"
+                android:textSize="18sp" />
+
+            <ImageView
+                android:id="@+id/sutoko_diamonds_image"
+                android:layout_width="23dp"
+                android:layout_height="23dp"
+                android:layout_marginStart="3dp"
+                android:adjustViewBounds="true"
+                android:rotation="45"
+                android:scaleType="centerCrop"
+                tools:ignore="ContentDescription" />
+
+        </LinearLayout>
+
+        <com.example.sutokosharedelements.fonts.PoppinsRegular
+            android:id="@+id/sutoko_auth_warning"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:maxWidth="300dp"
+            android:text="@string/sutoko_shop_unlock_item_connection_warning"
+            android:textAlignment="center"
+            android:textColor="@color/darkModeWhite3" />
+    </LinearLayout>
+
+    <FrameLayout
+        android:id="@+id/button_continue"
+        android:layout_width="210dp"
+        android:layout_height="50dp"
+        android:layout_marginBottom="90dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@drawable/sutoko_button_rounded_pink" />
+
+
+        <com.example.sutokosharedelements.fonts.PoppinsBold
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:clickable="false"
+            android:focusable="false"
+            android:focusableInTouchMode="false"
+            android:gravity="center"
+            android:text="@string/sutoko_continue"
+            android:textColor="@color/white" />
+
+    </FrameLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

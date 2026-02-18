@@ -1,0 +1,5 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+	<string name="app_name" translatable="true">Sutoko</string>
+	<string name="permission_required" translatable="true">Ihr Fortschritt wird nicht gespeichert werden können…</string> 
+</resources>

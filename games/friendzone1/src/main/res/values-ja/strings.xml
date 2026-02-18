@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?><!--
+  ~ Copyright (C) PurpleTear, Inc - All Rights Reserved
+  ~ Unauthorized copying of this file, via any medium is strictly prohibited
+  ~ Proprietary and confidential
+  ~ Written by Hocine Belbouab <hbdeveloppeur@gmail.com>, 1/10/19 11:38 AM
+  -->
+
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <string name="app_name">Got Friendzoned</string>
+
+    <!-- MENU -->
+    <string name="menu_confirm_reset">ゲームのデータが全て消去されます</string>
+    <string name="game_reseted">データがリセットされました</string>
+    <string name="game_reset">最初から始める</string>
+    <string name="game_play">始める</string>
+    <string name="game_bonus">広告を消す</string>
+    <string name="informations">情報</string>
+
+    <!-- MAIN -->
+    <string name="chapter_title">チャプター %1$d. %2$s</string>
+    <string name="quit_conv">終了しますか</string>
+    <string name="added_you_to_her_friendlist">彼女はあなたを友人リストに追加しました</string>
+    <string name="seen">既読</string>
+    <string name="mainactivity_next_chapter">このチャプターは間もなく終了します…</string>
+    <string name="mainactivity_online">オンライン</string>
+    <string name="mainactivity_offline">オフライン</string>
+    <string name="mainactivity_banned">このユーザーはあなたをブロックしました</string>
+    <string name="game_your_choice">返信する…</string>
+
+    <!-- ADS -->
+    <string name="adactivity_gonna_start">ダウンロードしています (%1$d seconds)</string>
+    <string name="adactivity_video_launching">次のチャプターを解禁するため、ビデオをダウンロードしています</string>
+    <string name="accepted_chat_request">さんがあなたのリクエストを承認しました</string>
+
+    <!-- CHAPTER DETAILS -->
+    <string name="chapter1_title">Eva Belle</string>
+    <string name="chapter1_description">あなたはEva Belleさんを友達リストに追加しました。今日出会ったきれいな女の子です。あなたは彼女と忘れがたい時間を過ごし、彼女についてもっと知りたいと思っています。</string>
+    <string name="chapter2_title">夜</string>
+    <string name="chapter2_description">日が暮れてから数時間ほどたちました。あなたはEvaから夜10時頃メッセージを送るよう頼まれましたが、賢明な選択でしょうか。物語を導くのはあなたです。</string>
+    <string name="chapter3_title">怖い話の会</string>
+    <string name="chapter3_description">EvaとZoéが企画していた怖い話の会が始まります。ちょうど午前0時になったところで、あなたは身の毛がよだつ時間を過ごす心の準備をしているところです…</string>
+    <string name="chapter4_title">翌朝…</string>
+    <string name="chapter5_title">一年後</string>
+    <string name="chapter5_description">Evaの失踪から早くも一年の月日が流れました。彼女の両親と警察が今も捜索を続けている中、中にはだんだん希望を失う人々も出てきました。あなたの日常は今もこの過去の出来事によって混乱しています…</string>
+    <string name="inconnue">通りすがりの女性</string>
+    <string name="chapter5_scn">街中</string>
+    <string name="chapter6_title">帰還？</string>
+    <string name="chapter6_description">La nuit suivante…</string>
+    <string name="chapter7a_title">Zoé</string>
+    <string name="chapter7a_description">翌朝、Zoéからメッセージを受信しました。</string>
+    <string name="chapter7a_scn">0X-XXXX-XXXX</string>
+    <string name="chapter8_title">約束</string>
+    <string name="chapter8_description">Zoéとの待ち合わせの時間になりました。</string>
+    <string name="chapter8_scn">Zoéとの夜</string>
+    <string name="chapter9_title">彼女</string>
+    <string name="chapter9_description">午後９時になりました。これまでに見たことのないような星空です。あなたたちは別れを惜しむようにゆっくり歩いています。</string>
+    <string name="end">終わり</string>
+    <string name="save">SAVE</string>
+
+    <!-- NAMES -->
+    <string name="default_name">ニック</string>
+    <string name="alias_zoe">ゾーエ</string>
+    <string name="alias_zoe_topaze">ゾーエ・トパーズ</string>
+    <string name="alias_eva">エヴァ</string>
+    <string name="alias_eva_belle">エヴァ・ベル</string>
+    <string name="alias_christophe">クリストファー</string>
+    <string name="alias_christophe_belle">クリストファー・ベル</string>
+    <string name="alias_bryan">ブライアン</string>
+    <string name="no_ads_version">Version without ads, thanks for the support :)</string>
+
+    <!-- END -->
+    <string name="available"> </string>
+    <string name="game_created_by">Game made by</string>
+
+    <!-- GLOBAL -->
+    <string name="chapter">チャプター</string>
+    <string name="abort" tools:ignore="ButtonCase">やめる</string>
+    <string name="ok">決定</string>
+    <string name="iap_service_unavailable">ネットワークに接続できません</string>
+    <string name="iap_unknown_error">エラーが発生したため購入手続きを中断しました</string>
+    <string name="yes">はい</string>
+    <string name="no">いいえ</string>
+    <string name="firstname">名前</string>
+    <string name="not_valid_name">この名前は使えません</string>
+    <string name="main_button_continue">続ける</string>
+
+    <!-- OTHER -->
+    <string name="zoe">@string/alias_zoe</string>
+    <string name="bryan">@string/alias_bryan</string>
+    <string name="b">b</string>
+    <string name="instagram">HocineHope</string>
+    <string name="check_google_play_connexion">Make sure you are connected to Google Play Store</string>
+    <string name="also_available_on_ios">Also available on iOs</string>
+</resources>

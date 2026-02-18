@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <string name="app_name">Friendzoned 3</string>
+    <string name="public_directory_app_name">Friendzone</string>
+    <string name="app_version">VERSION 1.1.2</string>
+    <string name="share">Let me know what you think about it :) %1$s</string>
+    <string name="default_name">Nick</string>
+    <string name="online">Online</string>
+    <string name="offline">Offline</string>
+    <string name="confirm_ok">OK</string>
+    <string name="confirm_discard">CANCEL</string>
+    <string name="splashscreenactivity_animation_logo">PurpleTear Logo animation</string>
+    <string name="menu_button_play">Play</string>
+    <string name="menu_button_reset">New Game</string>
+    <string name="menu_info_title">Information</string>
+    <string name="menu_chapters_previous">&lt; chapter %1$d</string>
+    <string name="menu_chapters_next">chapter %1$d &gt;</string>
+    <string name="menu_chapters_confirm_navigate">All current progress will be lost</string>
+    <string name="menu_confirm_reset">All current progress will be lost</string>
+    <string name="mainactivity_your_choice">Your choice…</string>
+    <string name="mainactivity_your_message">Your choice…</string>
+    <string name="mainactivity_chapter_title">Chapter %1$d : %2$s</string>
+    <string name="phrase_seen_text">Seen</string>
+    <string name="menu_your_first_name">Name</string>
+    <string name="phrase_typing_text">%1$s is typing…</string>
+    <string name="not_valid_name">Invalid entry</string>
+    <string name="abort">Cancel</string>
+    <string name="blocked">You blocked this user</string>
+    <string name="chapter">Chapter %1$d</string>
+    <string name="mainactivity_next_chapter">The chapter will end in a few seconds…</string>
+    <string name="mainactivity_2a_starter_libelle">Offline for 28 days…</string>
+    <string name="went_offline">%1$s has disconnected</string>
+    <string name="mainactivity_click_notification">Touch to join</string>
+    <string name="phrase_hidden">Message deleted</string>
+    <string name="a_connexion_interrupted_your_conversation">An error interrupted your conversation</string>
+    <string name="phrase_notification_first_sentence">You have received an invitation</string>
+    <string name="greater_than">&gt; </string>
+    <string name="zoe_phone_password">Zoe\'s cell phone requires a password.</string>
+    <string name="in_da_bus">On the bus</string>
+    <string name="error">Connection error</string>
+    <string name="go_to_the_chapter">Go to chapter</string>
+    <string name="fear_level">Level of fear desired:</string>
+    <string name="belle_family">The Belle family</string>
+    <string name="the_lake">At the lake</string>
+    <string name="in_forest">The foot of the mountain.</string>
+    <string name="eva_zoe">Amy &amp; Zoe</string>
+    <string name="adactivity_video_launching">Video loading to unlock the next chapter</string>
+    <string name="must_watch_ad">The ad allows you to unlock a chapter</string>
+    <string name="adactivity_gonna_start">The game will start in a moment</string>
+    <string name="mainactivity_confirm_quit">Are you sure you want to leave?</string>
+
+    <!-- CHAPTERS DESCRIPTION : FORMAT chapter_desc_<code> -->
+    <string name="fz3_chapter_desc_1a">The adventure continues: Two months have passed since you saved Amy. After everything you\'ve done for the Belle family, you begin to realize that something about her is being hidden from you</string>
+    <string name="fz3_chapter_desc_2a">The anonymous contact was right, you weren\'t able to stop yourself from going back and reading through the messages sent to Eva, and although the night was young and uneventful, it was about to get shaken up</string>
+    <string name="fz3_chapter_desc_3a">Your conversation has just been interrupted by x92. This person is convinced he is helping you, but should you really trust him? A mistake on your part could lead to bad consequences…</string>
+    <string name="fz3_chapter_desc_4a">After your conversation with x92, your phone rebooted and didn\'t turn back on for awhile. When it finally does, you discover two messages from Zoe sent an hour ago, one of them hidden</string>
+    <string name="fz3_chapter_desc_5a">At the lake</string>
+    <string name="fz3_chapter_desc_6a">What would you do if everything up to this point never even happened?</string>
+    <string name="fz3_chapter_desc_7a">On the day of the trip, you\'ve been on the bus with Zoe and her group of friends for several hours already. You are sitting next to Lena, and Zoe seems to be avoiding you.</string>
+    <string name="fz3_chapter_desc_7b">Walking down to the lake again, ready to meet up with Lucie, you find her already waiting for you there</string>
+    <string name="fz3_chapter_desc_8a">You\'re all now at the base of the mountain, at an altitude of several hundred feet. Still thinking over your previous decisions, something inside of you hopes that there won\'t be future decisions that you would come to regret</string>
+    <string name="fz3_chapter_desc_8b">You finally arrive in front of the house of the Belle family with Lucie. You\'ll finally be able to see Eva.</string>
+
+    <!-- POETRY : FORMAT poetry_starter_<code> -->
+    <string name="poetry_starter_5a" tools:ignore="Typos">The trip with Zoe is coming up, You realize that this trip will allow you to take a step closer towards getting to know her, but also that you will become more distant to Eva. \n\nYou go back to the lake, a week later, at dawn. Those waters that so often made your eyes gaze off into the distance are now covered by a thick fog that block you from seeing clearly ahead of you, both in reality and metaphorically.
+    </string>
+
+    <string name="poetry_starter_6a">
+        Lucie was right, a couple hours later, the lake was much more of a sight to behold and was creating in you inexplicable emotions. Emotions as inexplicable as Lucie\'s maturity, and her ability to manipulate conversations as well as stare down the people she would talk to. \n\nShe ended up putting you face to face with an interesting conundrum, that of choosing between Eva and Zoe. \n\nBut what if, in the end, you never even had to choose between those two girls, and that none of this had ever happened. How would you react?
+    </string>
+
+
+    <string name="poetry_starter_7b">
+        \n\nYou\'ve decided to go meet Eva instead of leaving with Zoe, Lena, Rick and Marwin \n\nYou\'re standing in front of that wonderful lake, so dearly loved by the Belle family, lost in thought… You are convinced that the unknown hacker succeeded in putting you back on the path toward Eva, but you\'re also aware that you\'re leaving the path that leads to Zoe
+    </string>
+
+
+    <string name="b">b</string>
+    <string name="bonjour">hello</string>
+    <string name="logo_de_l_application">Logo de l\'application</string>
+    <string name="instagram_hocinehope">Instagram @hocinehope</string>
+    <string name="game_by">Game made by</string>
+    <string name="donner_mon_avis_sur_google_play">Rate on Google Play</string>
+    <string name="partager_le_jeu_un_ami">Share the game to a friend</string>
+    <string name="nobody_found_x92">There are 2 good ends and 2 bad ends</string>
+    <string name="one_end_is_not_enough">One end is not enough to understand the whole story</string>
+    <string name="next_2018">Friendzoned 4 will soon be available</string>
+    <string name="zoe_lana">Zoe &amp; Lana</string>
+    <string name="zoe_lana_marwin">Zoe, Lana, Marwin</string>
+    <string name="zoe_lana_marwin_rick">Zoe, Lana, Marwin, Rick</string>
+
+
+
+    <!-- CHAPTERS TITLES DETAILS -->
+    <string name="fz3_chapter_title_1a">Amy Belle?</string>
+    <string name="fz3_chapter_title_2a">Sweet night</string>
+    <string name="fz3_chapter_title_3a">x92</string>
+    <string name="fz3_chapter_title_4a">Zoe\'s sunset</string>
+    <string name="fz3_chapter_title_5a">One week later</string>
+    <string name="fz3_chapter_title_6a">Back to reality?</string>
+    <string name="fz3_chapter_title_7a">The trip</string>
+    <string name="fz3_chapter_title_7b">The Belle Family</string>
+    <string name="fz3_chapter_title_8a">Things get heated at the campfire</string>
+    <string name="fz3_chapter_title_8b">The soul on the first floor</string>
+    <string name="fz3_ending">Ending</string>
+
+    <!-- CHAPTERS CONVERSATION NAMES -->
+    <string name="fz3_chapter_cn_1a">x92</string>
+    <string name="fz3_chapter_cn_2a">Amy Belle</string>
+    <string name="fz3_chapter_cn_3a"> </string>
+    <string name="fz3_chapter_cn_4a">Zoe Topaze</string>
+    <string name="fz3_chapter_cn_5a">At the lake</string>
+    <string name="fz3_chapter_cn_6a">Amy &amp; Zoe</string>
+    <string name="fz3_chapter_cn_7a">On the bus</string>
+    <string name="fz3_chapter_cn_7b">The Belle Family</string>
+    <string name="fz3_chapter_cn_8a">The foot of the mountain.</string>
+    <string name="fz3_chapter_cn_8b">The Belle Family</string>
+
+    <!-- CHARACTERS NAMES -->
+    <string name="fz3_personnage_bryan">Bryan</string>
+    <string name="fz3_personnage_chloe">Chloe</string>
+    <string name="fz3_personnage_chloe_winsplit">Chloe Winsplit</string>
+    <string name="fz3_personnage_sylvie">Sylvia</string>
+    <string name="fz3_personnage_sylvie_belle">Sylvia Belle</string>
+    <string name="fz3_personnage_zoe">Zoe</string>
+    <string name="fz3_personnage_zoe_topaze">Zoe Topaze</string>
+    <string name="fz3_personnage_eva">Amy</string>
+    <string name="fz3_personnage_eva_belle">Amy Belle</string>
+    <string name="fz3_personnage_lucie">Lucy</string>
+    <string name="fz3_personnage_lucie_belle">Lucy Belle</string>
+    <string name="fz3_personnage_lana">Lana</string>
+    <string name="fz3_personnage_christophe">Christopher</string>
+    <string name="fz3_personnage_christophe_belle">Christopher Belle</string>
+    <string name="mom_is_calling_you">Mom \n is calling you…</string>
+
+</resources>

@@ -1,0 +1,52 @@
+[
+  {
+    "start": 3724,
+    "end": 5628,
+    "text": "[Bruit d'orage]"
+  },
+  {
+    "start": 5830,
+    "end": 8555,
+    "text": "[Vibrations de téléphone]"
+  },
+  {
+    "start": 9000,
+    "end": 12000,
+    "text": "[Bruits de pas]"
+  },
+  {
+    "start": 16871,
+    "end": 19000,
+    "text": "[Message vocal] Hey Bryan... C'est Lucie..."
+  },
+  {
+    "start": 20453,
+    "end": 22000,
+    "text": "...La soeur d'Eva."
+  },
+  {
+    "start": 23000,
+    "end": 25200,
+    "text": "...Zoé m'a dit que tu ne répondais pas à ses messages..."
+  },
+  {
+    "start": 26000,
+    "end": 28400,
+    "text": "...On aimerait faire quelque chose pour se rattraper"
+  },
+  {
+    "start": 29000,
+    "end": 31000,
+    "text": "Euh... Rappelle-moi s'il te plaît"
+  },
+  {
+    "start": 31200,
+    "end": 33000,
+    "text": "[Bruit d'orage]"
+  },
+  {
+    "start": 34400,
+    "end": 37000,
+    "text": "[Bruits de pas]"
+  }
+]

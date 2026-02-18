@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#303030</color>
+    <color name="colorPrimaryDark">#181818</color>
+    <color name="colorAccent">#FF4081</color>
+    <color name="colorTransparent">#00ffffff</color>
+    <color name="colorRed">#ff0000</color>
+    <color name="colorSoftRed">#ac0a0a</color>
+    <color name="colorBlack">#000000</color>
+    <color name="colorSoftBlack">#ac000000</color>
+    <color name="colorCarbon">#1a1a1a</color>
+    <color name="colorPink">#d90cec</color>
+    <color name="colorWhite">#FFF</color>
+    <color name="colorSoftWhite">#cfcfcf</color>
+    <color name="colorWhiteChatConversationHeader">#cbcbcb</color>
+    <color name="colorSoftWhiteChatConversationHeader">#39ffffff</color>
+    <color name="colorMenuAppVersion">#000</color>
+    <color name="colorMenuButtonText">#FFF</color>
+    <color name="menu_chapters_next_disabled">#565758</color>
+    <color name="beauty">#669bd1</color>
+    <color name="main_header">#0085fe</color>
+    <color name="main_header_darker">#003361</color>
+    <color name="main_chat_darker">#003361</color>
+    <color name="phrase_info_text">#b4b4b4</color>
+    <color name="info_with_background_media">#afffffff</color>
+    <color name="phrase_seen_text">#818181</color>
+    <color name="meBackground">#A50084FF</color>
+    <color name="mainBackground">#B3EAEAEA</color>
+    <color name="secondBackground">#BFE297B8</color>
+    <color name="noSeenBackground">#63e70457</color>
+    <color name="noSeenBackgroundDarker">#636c0128</color>
+    <color name="noSeenMeBackground">#3effffff</color>
+    <color name="mainText">#9f000000</color>
+    <color name="mainactivity_choices_text">#707070</color>
+
+    <!-- CHAT -->
+    <color name="chat_main_header_pinkyred">#bd1a49</color>
+    <color name="chat_main_background">#e9e9e9</color>
+    <color name="chat_main_item_background">#60e5e5e5</color>
+
+    <!-- CHAT CONVERSATION MESSAGES -->
+    <color name="chat_conversation_messages">#d7d7d7</color>
+    <color name="chat_item_me_background">#7b6ec2</color>
+
+    <!-- CHAT STARTER -->
+    <color name="chat_starter_status_bar">#5e2f44</color>
+    <color name="chat_main_grey">#d7d7d7</color>
+
+    <!-- GAME -->
+    <color name="game_main_button_fade">#15ffffff</color>
+    <color name="game_main_button_fade_text">#75ffffff</color>
+    <color name="game_header_background">#0085fe</color>
+    <color name="game_header_transparent_background">#29000000</color>
+    <color name="game_header_notification">#0459a6</color>
+    <color name="game_window_background">#FAFAFA</color>
+    <color name="game_window_background_contact">#ededed</color>
+    <color name="notificationBlue">#0459a6</color>
+    <color name="notificationPurple">#ea120f35</color>
+    <color name="notificationYellow">#e0fcce79</color>
+
+</resources>

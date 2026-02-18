@@ -1,0 +1,225 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#88000000"
+    tools:viewBindingIgnore="true">
+
+    <View
+        android:id="@+id/sutoko.page.premium_success.cancel.hitbox"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/sutoko.page.premium_success.cardview"
+        android:layout_width="0dp"
+        android:layout_height="140dp"
+        android:elevation="0dp"
+        android:visibility="invisible"
+        app:cardCornerRadius="32dp"
+        app:cardElevation="0dp"
+        app:cardMaxElevation="0dp"
+        app:layout_constraintBottom_toTopOf="@+id/guideline120"
+        app:layout_constraintEnd_toStartOf="@id/guideline122"
+        app:layout_constraintStart_toStartOf="@id/guideline121"
+        tools:ignore="UnusedAttribute">
+
+        <ImageView
+            android:id="@+id/sutoko.page.premium_success.cardview.image"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:scaleType="centerCrop"
+            tools:ignore="ContentDescription" />
+
+    </androidx.cardview.widget.CardView>
+
+    <ImageView
+        android:id="@+id/sutoko.page.premium_success.characters"
+        android:layout_width="200dp"
+        android:layout_height="0dp"
+        android:layout_marginBottom="40dp"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toBottomOf="@id/sutoko.page.premium_success.cardview"
+        app:layout_constraintDimensionRatio="H, 1:1"
+        app:layout_constraintEnd_toEndOf="@id/sutoko.page.premium_success.cardview"
+        app:layout_constraintStart_toStartOf="@id/sutoko.page.premium_success.cardview"
+        tools:ignore="ContentDescription" />
+
+
+    <LinearLayout
+        android:id="@+id/sutoko.page.premium_success.content"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="80dp"
+        android:background="@drawable/background_rounded_premium_success_content"
+        android:orientation="vertical"
+        android:paddingStart="20dp"
+        android:paddingLeft="20dp"
+        android:paddingTop="34dp"
+        android:paddingEnd="20dp"
+        android:paddingRight="20dp"
+        android:paddingBottom="24dp"
+        android:visibility="invisible"
+        app:layout_constraintEnd_toStartOf="@id/guideline122"
+        app:layout_constraintStart_toStartOf="@id/guideline121"
+        app:layout_constraintTop_toTopOf="@id/sutoko.page.premium_success.cardview">
+
+        <com.example.sutokosharedelements.fonts.WorkSansRegular
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:letterSpacing="0.09"
+            android:text="@string/sutoko_premium_presentation_title"
+            android:textColor="#153872"
+            android:textSize="19sp"
+            tools:ignore="UnusedAttribute" />
+
+        <com.example.sutokosharedelements.fonts.WorkSansRegular
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="8dp"
+            android:text="@string/sutoko_premium_presentation_subtitle"
+            android:textColor="#577198"
+            android:textSize="14sp" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:orientation="horizontal"
+            tools:ignore="UseCompoundDrawables">
+
+            <ImageView
+                android:id="@+id/sutoko.premium.success.checked.1"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_gravity="center_vertical"
+                android:layout_marginStart="22dp"
+                android:layout_marginLeft="22dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="12dp"
+                android:layout_marginRight="12dp"
+                android:layout_marginBottom="8dp"
+                app:tint="#a5bce2"
+                tools:ignore="ContentDescription" />
+
+            <com.example.sutokosharedelements.fonts.WorkSansRegular
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:text="@string/sutoko_premium_presentation_1"
+                android:textColor="#737c8b" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            tools:ignore="UseCompoundDrawables">
+
+            <ImageView
+                android:id="@+id/sutoko.premium.success.checked.2"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_gravity="center_vertical"
+                android:layout_marginStart="22dp"
+                android:layout_marginLeft="22dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="12dp"
+                android:layout_marginRight="12dp"
+                android:layout_marginBottom="8dp"
+                app:tint="#a5bce2"
+                tools:ignore="ContentDescription" />
+
+            <com.example.sutokosharedelements.fonts.WorkSansRegular
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:text="@string/sutoko_premium_presentation_2"
+                android:textColor="#737c8b" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            tools:ignore="UseCompoundDrawables">
+
+            <ImageView
+                android:id="@+id/sutoko.premium.success.checked.3"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_gravity="center_vertical"
+                android:layout_marginStart="22dp"
+                android:layout_marginLeft="22dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="12dp"
+                android:layout_marginRight="12dp"
+                android:layout_marginBottom="8dp"
+                app:tint="#a5bce2"
+                tools:ignore="ContentDescription" />
+
+            <com.example.sutokosharedelements.fonts.WorkSansRegular
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:text="@string/sutoko_premium_presentation_3"
+                android:textColor="#737c8b" />
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/sutoko.page.premium_success.button.continue"
+            android:layout_width="match_parent"
+            android:layout_height="52dp"
+            android:layout_marginTop="12dp"
+            android:background="@drawable/background_button_rounded_blue"
+            android:gravity="center"
+            android:letterSpacing="0.1"
+            android:text="@string/sutoko_continue"
+            android:textColor="@color/white"
+            android:textSize="18sp"
+            tools:ignore="UnusedAttribute" />
+    </LinearLayout>
+
+    <com.airbnb.lottie.LottieAnimationView
+        android:id="@+id/sutoko.page.premium_success.animation"
+        android:layout_width="80dp"
+        android:layout_height="0dp"
+        android:background="@drawable/background_circle_f8f4f4"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toTopOf="@id/sutoko.page.premium_success.content"
+        app:layout_constraintDimensionRatio="H, 1:1"
+        app:layout_constraintEnd_toStartOf="@id/guideline122"
+        app:layout_constraintStart_toStartOf="@id/guideline121"
+        app:layout_constraintTop_toTopOf="@id/sutoko.page.premium_success.content"
+        app:lottie_autoPlay="true"
+        app:lottie_loop="true"
+        app:lottie_rawRes="@raw/sutoko_success_unlocked"
+
+        />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline120"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.44" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline121"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.05" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline122"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.95" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

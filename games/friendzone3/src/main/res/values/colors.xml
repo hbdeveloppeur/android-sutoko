@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#3F51B5</color>
+    <color name="colorPrimaryDark">#303F9F</color>
+    <color name="colorAccent">#FF4081</color>
+    <color name="robot">#ffffff</color>
+    <color name="robotCode">#9affffff</color>
+    <color name="beauty">#669bd1</color>
+    <color name="success">#307800</color>
+    <color name="soft_white">#c2ffffff</color>
+    <color name="soft_black">#4f000000</color>
+    <color name="black">#000000</color>
+    <color name="warning">#b70707</color>
+    <color name="transparent">#00FFFFFF</color>
+    <color name="white">#FFFFFF</color>
+    <color name="menu_button_play_reset">#FFFFFF</color>
+    <color name="menu_chapters_next_disabled">#565758</color>
+    <color name="headerBlue">#0085fe</color>
+    <color name="scaryHeader">#ba0085fe</color>
+    <color name="notificationBlue">#0459a6</color>
+    <color name="notificationPurple">#ea120f35</color>
+    <color name="backgroundGrey">#FAFAFA</color>
+    <color name="meBackground">#A50084FF</color>
+    <color name="mainSmsBackground">#a991a5</color>
+    <color name="meSmsBackground">#e0fcce79</color>
+    <color name="mainBackground">#B3EAEAEA</color>
+    <color name="secondBackground">#BFE297B8</color>
+    <color name="thirdBackground">#BF724110</color>
+    <color name="fourthBackground">#BF724110</color>
+    <color name="fifthBackground">#BF724110</color>
+    <color name="systemText">#767676</color>
+    <color name="mainText">#BF000000</color>
+    <color name="phrase_info_text">#707070</color>
+    <color name="phrase_seen_text">#818181</color>
+    <color name="mainactivity_choices_text">#707070</color>
+</resources>

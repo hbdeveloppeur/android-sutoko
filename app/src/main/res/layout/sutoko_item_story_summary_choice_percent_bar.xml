@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="8dp"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:viewBindingIgnore="true">
+    <View
+        android:id="@+id/sutoko_item_percent_bar_background"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:alpha="0.2"
+        android:background="@drawable/sutoko_background_progress_bar_percent_2" />
+    <View
+        android:id="@+id/sutoko_item_percent_bar_foreground"
+        android:layout_width="00dp"
+        android:layout_height="match_parent"
+        android:background="@drawable/sutoko_background_progress_bar_percent_1"/>
+</FrameLayout>

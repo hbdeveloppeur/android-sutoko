@@ -1,0 +1,72 @@
+package com.purpletear.ai_conversation.ui.component.angular
+
+import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+
+
+@Composable
+@Preview(name = "AngularLinesBox", showBackground = false, showSystemUi = false)
+private fun Preview() {
+    Box(
+        Modifier
+            .fillMaxWidth()
+            .background(Color.Black)
+    ) {
+        AngularLinesBox2()
+    }
+}
+
+@Composable
+fun AngularLinesBox2(modifier: Modifier = Modifier) {
+    Box(
+        modifier = modifier
+            .fillMaxSize()
+    ) {
+        Canvas(modifier = Modifier.fillMaxSize()) {
+            val startY = 40.dp.toPx()
+            val endX = size.width - 30.dp.toPx()
+            val color = Color.White
+
+            val strokeWidth = .5.dp.toPx()
+
+
+            // Draw right line
+            drawLine(
+                color = color,
+                start = Offset(endX + 50.dp.toPx(), startY),
+                end = Offset(endX, startY),
+                strokeWidth = strokeWidth,
+                cap = StrokeCap.Round
+            )
+
+
+            // Draw angled right upward
+            drawLine(
+                color = color,
+                start = Offset(endX, startY),
+                end = Offset(size.width - 50.dp.toPx(), 10.dp.toPx()),
+                strokeWidth = strokeWidth,
+                cap = StrokeCap.Round
+            )
+
+            // Draw horizontal middle
+            drawLine(
+                color = color,
+                start = Offset(size.width / 3, 10.dp.toPx()),
+                end = Offset(size.width - 50.dp.toPx(), 10.dp.toPx()),
+                strokeWidth = strokeWidth,
+                cap = StrokeCap.Round
+            )
+        }
+    }
+}

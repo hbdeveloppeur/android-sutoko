@@ -1,0 +1,739 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:background="@color/game_window_background_contact"
+            app:layout_constraintEnd_toStartOf="@id/fz4_guideline38"
+            app:layout_constraintStart_toStartOf="parent">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/fz4_main.contacts.header"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                app:layout_constraintBottom_toTopOf="@id/fz4_guideline40"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <ImageView
+                    android:id="@+id/fz4_main.contacts.options"
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:scaleType="centerCrop"
+                    app:layout_constraintBottom_toTopOf="@id/fz4_guideline42"
+                    app:layout_constraintDimensionRatio="W, 13:57"
+                    app:layout_constraintEnd_toStartOf="@id/fz4_guideline39"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/fz4_guideline41"
+                    tools:ignore="ContentDescription" />
+
+                <purpletear.fr.purpleteartools.fonts.OldPtSans
+                    android:id="@+id/fz4_main.contacts.name"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="#5f000000"
+                    android:textSize="18sp"
+                    app:layout_constraintBottom_toTopOf="@id/fz4_guideline43"
+                    app:layout_constraintStart_toEndOf="@id/fz4_guideline39" />
+
+                <purpletear.fr.purpleteartools.fonts.OldPtSans
+                    android:id="@+id/fz4_main.contacts.title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:alpha=".6"
+                    android:textColor="#5f000000"
+                    android:textSize="15sp"
+                    app:layout_constraintStart_toEndOf="@id/fz4_guideline39"
+                    app:layout_constraintTop_toBottomOf="@id/fz4_guideline43" />
+
+                <androidx.constraintlayout.widget.Guideline
+                    android:id="@+id/fz4_guideline39"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    app:layout_constraintGuide_percent=".15162" />
+
+                <androidx.constraintlayout.widget.Guideline
+                    android:id="@+id/fz4_guideline41"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    app:layout_constraintGuide_percent=".36405" />
+
+                <androidx.constraintlayout.widget.Guideline
+                    android:id="@+id/fz4_guideline42"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    app:layout_constraintGuide_percent=".617511" />
+
+                <androidx.constraintlayout.widget.Guideline
+                    android:id="@+id/fz4_guideline43"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    app:layout_constraintGuide_percent=".5" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/fz4_guideline40"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                app:layout_constraintGuide_percent=".12" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/fz4_main.contacts.recyclerviews"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/fz4_main.contacts.header" />
+
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/fz4_guideline38"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent=".8" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/fz4_mainactivity.root"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/game_window_background">
+
+        <View
+            android:id="@+id/fz4_mainactivity.focus.trash"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:focusable="true"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            android:focusableInTouchMode="true" />
+
+        <RelativeLayout
+            android:id="@+id/fz4_mainactivity.background"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:background="@color/colorBlack"
+            android:visibility="invisible"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <VideoView
+                android:id="@+id/fz4_mainactivty.background.video"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_alignParentStart="true"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentTop="true"
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentRight="true"
+                android:layout_alignParentBottom="true"
+                android:background="@color/colorTransparent"
+                android:visibility="invisible" />
+
+            <ImageView
+                android:id="@+id/fz4_mainactivty.background.image"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:adjustViewBounds="true"
+                android:background="#000"
+                android:scaleType="centerCrop"
+                android:visibility="invisible"
+                tools:ignore="ContentDescription" />
+
+            <View
+                android:id="@+id/fz4_mainactivity.image_filter"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="#000000"
+                android:visibility="invisible"
+                app:layout_constraintBottom_toBottomOf="parent"
+                tools:ignore="TooManyViews" />
+
+            <ImageView
+                android:id="@+id/fz4_mainactivty.background.filter"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:adjustViewBounds="true"
+                android:background="#66000000"
+                android:scaleType="centerCrop"
+                android:visibility="invisible"
+                tools:ignore="ContentDescription" />
+        </RelativeLayout>
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/fz4_mainactivity.header"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:background="@color/game_header_background"
+            app:layout_constraintBottom_toBottomOf="@id/fz4_main_guideline8"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <View
+                android:id="@+id/fz4_mainactivity.header.black_filter"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="#151515"
+                android:visibility="invisible" />
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/fz4_main_guideline14"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                app:layout_constraintGuide_percent="0.216318" />
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/fz4_main_guideline15"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                app:layout_constraintGuide_percent="0.6020492"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintLeft_toRightOf="@+id/fz4_main_guideline14" />
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/fz4_main_guideline16"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                app:layout_constraintGuide_percent="0.7405492" />
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/fz4_main_guideline17"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                app:layout_constraintGuide_percent="0.8657" />
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/fz4_main_guideline18"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                app:layout_constraintGuide_percent="0.5" />
+
+            <ImageView
+                android:id="@+id/fz4_mainactivity.photo"
+                android:layout_width="wrap_content"
+                android:layout_height="0dp"
+                android:adjustViewBounds="true"
+                app:layout_constraintBottom_toTopOf="@id/fz4_guideline37"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toLeftOf="@id/fz4_mainactivity.name"
+                app:layout_constraintTop_toBottomOf="@id/fz4_guideline36"
+                tools:ignore="ContentDescription" />
+
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/fz4_guideline36"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                app:layout_constraintGuide_percent=".225" />
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/fz4_guideline37"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                app:layout_constraintGuide_percent=".775" />
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/fz4_guideline20"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                app:layout_constraintGuide_percent=".025" />
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/fz4_guideline28"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                app:layout_constraintGuide_percent=".18" />
+
+            <TextView
+                android:id="@+id/fz4_mainactivity.name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginLeft="8dp"
+                android:layout_marginBottom="2dp"
+                android:textColor="@color/colorWhite"
+                android:textSize="@dimen/main_header_name"
+                app:layout_constraintBottom_toTopOf="@+id/fz4_main_guideline18"
+                app:layout_constraintStart_toStartOf="@+id/fz4_main_guideline14" />
+
+            <TextView
+                android:id="@+id/fz4_mainactivity.status"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginLeft="8dp"
+                android:layout_marginTop="2dp"
+                android:textColor="@color/colorWhite"
+                android:textSize="@dimen/main_header_status"
+                app:layout_constraintStart_toStartOf="@+id/fz4_main_guideline14"
+                app:layout_constraintTop_toTopOf="@+id/fz4_main_guideline18" />
+
+            <ImageView
+                android:id="@+id/fz4_mainactivity.online_point"
+                android:layout_width="@dimen/main_header_online_point_size"
+                android:layout_height="@dimen/main_header_online_point_size"
+                android:layout_marginStart="6dp"
+                android:layout_marginLeft="6dp"
+                android:scaleType="centerInside"
+                app:layout_constraintBottom_toBottomOf="@+id/fz4_mainactivity.status"
+                app:layout_constraintStart_toEndOf="@+id/fz4_mainactivity.status"
+                app:layout_constraintTop_toTopOf="@+id/fz4_mainactivity.status"
+                app:layout_constraintVertical_bias="0.65999997"
+                tools:ignore="ContentDescription" />
+
+            <LinearLayout
+                android:id="@+id/fz4_mainactivity.icons"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="8dp"
+                android:orientation="horizontal"
+                android:weightSum="3"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintDimensionRatio="H,6:1"
+                app:layout_constraintLeft_toLeftOf="@+id/fz4_main_guideline15"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <ImageView
+                    android:id="@+id/fz4_mainactivity.icons.call"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:alpha=".8"
+                    android:scaleType="centerInside"
+                    tools:ignore="ContentDescription" />
+
+                <ImageView
+                    android:id="@+id/fz4_mainactivity.icons.share"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:adjustViewBounds="true"
+                    android:alpha=".8"
+                    android:scaleType="centerInside"
+                    tools:ignore="ContentDescription" />
+
+                <ImageView
+                    android:id="@+id/fz4_mainactivity.icons.info"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:adjustViewBounds="true"
+                    android:alpha=".8"
+                    android:scaleType="centerInside"
+                    tools:ignore="ContentDescription" />
+            </LinearLayout>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/fz4_mainactivity.notification"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:background="@color/game_header_notification"
+            android:visibility="invisible"
+            app:layout_constraintBottom_toBottomOf="@id/fz4_main_guideline8"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/fz4_main_guideline19"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                app:layout_constraintGuide_percent="0.216318" />
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/fz4_main_guideline23"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                app:layout_constraintGuide_percent="0.5" />
+
+            <ImageView
+                android:id="@+id/fz4_mainactivity.notification.photo"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="8dp"
+                android:adjustViewBounds="false"
+                android:scaleType="centerInside"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="@id/fz4_main_guideline19"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:ignore="ContentDescription" />
+
+            <ImageView
+                android:id="@+id/fz4_mainactivity.notification.icon"
+                android:layout_width="0dp"
+                android:layout_height="15dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="8dp"
+                app:layout_constraintBottom_toBottomOf="@+id/fz4_mainactivity.notification.photo"
+                app:layout_constraintStart_toEndOf="@+id/fz4_mainactivity.notification.photo"
+                app:layout_constraintTop_toTopOf="@+id/fz4_mainactivity.notification.photo"
+                tools:ignore="ContentDescription" />
+
+            <TextView
+
+                android:id="@+id/fz4_mainactivity.notification.name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginLeft="8dp"
+                android:layout_marginBottom="4dp"
+                android:textColor="@color/colorWhite"
+                android:textSize="@dimen/main_header_name"
+                app:layout_constraintBottom_toTopOf="@id/fz4_main_guideline23"
+                app:layout_constraintStart_toEndOf="@id/fz4_mainactivity.notification.icon" />
+
+            <TextView
+                android:id="@+id/fz4_mainactivity.notification.libelle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginLeft="8dp"
+                android:layout_marginTop="4dp"
+                android:textColor="@color/colorWhite"
+                android:textSize="@dimen/main_header_status"
+                app:layout_constraintStart_toEndOf="@id/fz4_mainactivity.notification.icon"
+                app:layout_constraintTop_toTopOf="@id/fz4_main_guideline23" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/fz4_main_guideline9"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            app:layout_constraintGuide_percent="0.9" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/fz4_main_guideline8"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            app:layout_constraintGuide_percent="0.12" />
+
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/fz4_guideline27"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent=".8" />
+
+        <FrameLayout
+            android:id="@+id/fz4_mainactivity.button"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_marginBottom="8dp"
+            android:background="@color/colorTransparent"
+            android:orientation="horizontal"
+            android:visibility="invisible"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintHorizontal_bias="1.0"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/fz4_main_guideline9"
+            app:layout_constraintVertical_bias="0.0">
+
+            <ImageView
+                android:id="@+id/fz4_mainactivity.button.bg"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginStart="@dimen/main_your_message_margin"
+                android:layout_marginLeft="@dimen/main_your_message_margin"
+                android:layout_marginEnd="@dimen/main_your_message_margin"
+                android:layout_marginRight="@dimen/main_your_message_margin"
+                android:adjustViewBounds="true"
+                android:background="@drawable/fz4_layout_bg_rounded"
+                tools:ignore="ContentDescription" />
+
+            <purpletear.fr.purpleteartools.fonts.OldPtSans
+                android:id="@+id/fz4_mainactivity.button.text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:text="@string/game_your_choice"
+                android:textColor="@color/game_header_background"
+                android:textSize="@dimen/main_your_message" />
+        </FrameLayout>
+
+        <LinearLayout
+            android:id="@+id/fz4_main.ll"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:animateLayoutChanges="true"
+            app:layout_constraintBottom_toTopOf="@id/fz4_guideline24"
+            app:layout_constraintEnd_toEndOf="@id/fz4_guideline23"
+            app:layout_constraintStart_toStartOf="@id/fz4_guideline22"
+            app:layout_constraintTop_toBottomOf="@id/fz4_main_guideline8">
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/fz4_mainActivity.recyclerview.fix"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
+        </LinearLayout>
+
+        <ImageView
+            android:id="@+id/fz4_mainactivity.button.pause"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:adjustViewBounds="true"
+            android:paddingBottom="10dp"
+            app:layout_constraintBottom_toTopOf="@id/fz4_main_guideline28"
+            app:layout_constraintDimensionRatio="W, 1:1"
+            app:layout_constraintRight_toLeftOf="@id/fz4_main_guideline27"
+            app:layout_constraintTop_toBottomOf="@id/fz4_main_guideline22"
+            tools:ignore="ContentDescription" />
+
+        <ImageView
+            android:id="@+id/fz4_mainactivity.button.faster.build"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:adjustViewBounds="true"
+            android:paddingBottom="10dp"
+            android:visibility="invisible"
+            app:layout_constraintBottom_toTopOf="@id/fz4_main_guideline30"
+            app:layout_constraintDimensionRatio="W, 1:1"
+            app:layout_constraintRight_toLeftOf="@id/fz4_main_guideline27"
+            app:layout_constraintTop_toBottomOf="@id/fz4_main_guideline29"
+            tools:ignore="ContentDescription" />
+
+        <FrameLayout
+            android:id="@+id/fz4_mainactivity.filter"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="#c9000000"
+            android:clickable="true"
+            android:focusable="true">
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:orientation="vertical"
+                android:paddingStart="@dimen/main_description_padding"
+                android:paddingLeft="@dimen/main_description_padding"
+                android:paddingEnd="@dimen/main_description_padding"
+                android:paddingRight="@dimen/main_description_padding">
+
+                <purpletear.fr.purpleteartools.fonts.OldPtSans
+                    android:id="@+id/fz4_mainactivity.description.title"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:textColor="@color/colorWhite"
+                    android:textSize="@dimen/main_description_title"
+                    android:textStyle="bold" />
+
+                <purpletear.fr.purpleteartools.fonts.OldPtSans
+                    android:id="@+id/fz4_mainactivity.description.content"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:alpha=".85"
+                    android:textColor="@color/colorWhite"
+                    android:textSize="@dimen/main_description_content" />
+
+                <purpletear.fr.purpleteartools.fonts.OldBebasNeue
+                    android:id="@+id/fz4_main.button.continue"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:background="@drawable/fz4_background_menu_button"
+                    android:gravity="center"
+                    android:letterSpacing=".1"
+                    android:paddingTop="12dp"
+                    android:paddingBottom="12dp"
+                    android:text="@string/main_button_continue"
+                    android:textAllCaps="true"
+                    android:textColor="#FFF"
+                    android:textSize="18sp"
+                    tools:ignore="UnusedAttribute" />
+            </LinearLayout>
+        </FrameLayout>
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/fz4_main_guideline22"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            app:layout_constraintGuide_percent=".17" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/fz4_main_guideline27"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent=".96" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/fz4_main_guideline28"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            app:layout_constraintGuide_percent=".27" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/fz4_main_guideline29"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            app:layout_constraintGuide_percent=".30" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/fz4_main_guideline30"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            app:layout_constraintGuide_percent=".40" />
+
+        <include
+            layout="@layout/fz4_include_choice_box"
+            android:visibility="invisible" />
+
+        <FrameLayout
+            android:id="@+id/fz4_mainactivity.glitch.black_filter"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:background="@color/colorBlack"
+            android:visibility="invisible"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/fz4_mainactivity.header">
+
+            <purpletear.fr.purpleteartools.fonts.OldPtSans
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:text="@string/error"
+                android:textColor="@color/colorRed"
+                android:textSize="14sp" />
+
+        </FrameLayout>
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/fz4_guideline22"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent=".02" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/fz4_guideline23"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent=".98" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/fz4_guideline24"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            app:layout_constraintGuide_percent=".885" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/fz4_guideline10"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            app:layout_constraintGuide_percent=".43" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/fz4_guideline21"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            app:layout_constraintGuide_percent=".53" />
+
+        <View
+            android:id="@+id/fz4_mainactivity.overlay.filter"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:background="#59ffffff"
+            android:visibility="invisible"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintTop_toTopOf="@id/fz4_main_guideline8"
+            tools:ignore="TooManyViews" />
+
+        <include
+            android:id="@+id/fz4_mainactivity.overlay"
+            layout="@layout/fz4_phrase_notification"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginRight="8dp"
+            android:visibility="invisible"
+            app:layout_constraintLeft_toLeftOf="parent"
+
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/fz4_main_guideline8" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/fz4_guideline998"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent=".20" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/fz4_guideline999"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent=".80" />
+
+        <ImageView
+            android:id="@+id/fz4_main.lost"
+            android:visibility="gone"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            app:layout_constraintDimensionRatio="H, 300:241"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toEndOf="@id/fz4_guideline998"
+            app:layout_constraintEnd_toStartOf="@id/fz4_guideline999"
+            tools:ignore="ContentDescription,TooManyViews" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <View
+        android:id="@+id/fz4_main.main_filter_black"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#000" />
+</FrameLayout>

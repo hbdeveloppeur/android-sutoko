@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+  ~ Copyright (C) PurpleTear, Inc - All Rights Reserved
+  ~ Unauthorized copying of this file, via any medium is strictly prohibited
+  ~ Proprietary and confidential
+  ~ Written by Hocine Belbouab <hbdeveloppeur@gmail.com>, 1/10/19 11:38 AM
+  ~
+  -->
+
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/mainactivity.choicebox.area"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#AA000000"
+    android:clickable="true"
+    android:focusable="true">
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/main_guideline4"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent=".9" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/main_guideline3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent=".1" />
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:background="@drawable/layout_bg_rounded_white"
+        android:clickable="true"
+        android:focusable="true"
+        android:focusableInTouchMode="true"
+        android:orientation="vertical"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="@id/main_guideline3"
+        app:layout_constraintRight_toRightOf="@id/main_guideline4"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <purpletear.fr.purpleteartools.fonts.OldPtSans
+            android:id="@+id/choicebox.text.counter"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="#1983e6"
+            app:layout_constraintBottom_toBottomOf="@id/choicebox.title"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.93"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/choicebox.title"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:paddingStart="@dimen/choicebox_title_paddingLeft"
+            android:paddingLeft="@dimen/choicebox_title_paddingLeft"
+            android:paddingTop="@dimen/choicebox_title_paddingTop"
+            android:paddingEnd="@dimen/choicebox_title_paddingRight"
+            android:paddingRight="@dimen/choicebox_title_paddingRight"
+            android:paddingBottom="@dimen/choicebox_title_paddingBottom"
+            android:text="@string/game_your_choice"
+            android:textColor="@color/beauty"
+            android:textSize="@dimen/choicebox_title_font"
+            android:textStyle="bold" />
+
+        <View
+            android:id="@+id/choicebox.separator"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="#20000000"
+            app:layout_constraintTop_toBottomOf="@id/choicebox.title" />
+
+        <View
+            android:id="@+id/choicebox.progressbar"
+            android:layout_width="match_parent"
+            android:layout_height="2dp"
+            android:background="#1e8cf2"
+            android:visibility="invisible"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/choicebox.title" />
+
+        <LinearLayout
+            android:id="@+id/mainactivity.choicebox.parent"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="1dp"
+            android:orientation="vertical"
+            android:paddingBottom="@dimen/choicebox_title_paddingTop"
+            app:layout_constraintTop_toBottomOf="@id/choicebox.title" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

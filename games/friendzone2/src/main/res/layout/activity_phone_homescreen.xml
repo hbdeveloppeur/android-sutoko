@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".activities.phone.homescreen.HomeScreen">
+
+    <ImageView
+        android:id="@+id/phone.homescreen.background"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="centerCrop"
+        tools:ignore="ContentDescription" />
+
+    <include
+        android:id="@+id/phone.homescreen.statusbar"
+        layout="@layout/inc_phone_statusbar" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline39"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent=".83" />
+
+    <View
+        android:id="@+id/phone.homescreen.app_area"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:background="#2f000000"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/guideline39" />
+
+    <ImageView
+        android:id="@+id/phone.homescreen.button.call"
+        android:layout_width="@dimen/phone_homescreen_btn"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="@id/phone.homescreen.app_area"
+        app:layout_constraintDimensionRatio="W, 1:1"
+        app:layout_constraintEnd_toEndOf="@id/phone.homescreen.app_area"
+        app:layout_constraintStart_toStartOf="@id/phone.homescreen.app_area"
+        app:layout_constraintTop_toTopOf="@id/phone.homescreen.app_area"
+        tools:ignore="ContentDescription" />
+
+    <ImageView
+        android:id="@+id/phone.homescreen.button.back"
+        android:layout_width="32dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="@id/phone.homescreen.app_area"
+        app:layout_constraintDimensionRatio="W, 150:115"
+        app:layout_constraintEnd_toStartOf="@id/phone.homescreen.button.call"
+        app:layout_constraintHorizontal_bias="0.2"
+        app:layout_constraintStart_toStartOf="@id/phone.homescreen.app_area"
+        app:layout_constraintTop_toTopOf="@id/phone.homescreen.app_area"
+        tools:ignore="ContentDescription" />
+
+    <ImageView
+        android:id="@+id/phone.homescreen.clock"
+        android:layout_width="0dp"
+        android:layout_height="180dp"
+        app:layout_constraintBottom_toTopOf="@id/phone.homescreen.app_area"
+        app:layout_constraintDimensionRatio="W, 119:204"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/phone.homescreen.statusbar"
+        app:layout_constraintVertical_bias="0.2"
+        tools:ignore="ContentDescription" />
+
+    <ImageView
+        android:id="@+id/phone.homescreen.button.sms"
+        android:layout_width="@dimen/phone_homescreen_btn"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toTopOf="@id/phone.homescreen.app_area"
+        app:layout_constraintDimensionRatio="W, 1:1"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/phone.homescreen.clock"
+        app:layout_constraintVertical_bias="0.6"
+        tools:ignore="ContentDescription" />
+
+    <ImageView
+        android:id="@+id/phone.homescreen.button.pictures"
+        android:layout_width="@dimen/phone_homescreen_btn"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toTopOf="@id/phone.homescreen.app_area"
+        app:layout_constraintDimensionRatio="W, 1:1"
+        app:layout_constraintEnd_toStartOf="@id/phone.homescreen.button.sms"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/phone.homescreen.clock"
+        app:layout_constraintVertical_bias="0.6"
+        tools:ignore="ContentDescription" />
+
+    <ImageView
+        android:id="@+id/phone.homescreen.button.music"
+        android:layout_width="@dimen/phone_homescreen_btn"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toTopOf="@id/phone.homescreen.app_area"
+        app:layout_constraintDimensionRatio="W, 1:1"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/phone.homescreen.button.sms"
+        app:layout_constraintTop_toBottomOf="@id/phone.homescreen.clock"
+        app:layout_constraintVertical_bias="0.6"
+        tools:ignore="ContentDescription" />
+
+    <Switch
+        android:id="@+id/phone.homescreen.switch"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toTopOf="@id/phone.homescreen.app_area"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.6"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/phone.homescreen.button.sms" />
+
+    <purpletear.fr.purpleteartools.fonts.OldPtSans
+        android:id="@+id/phone.homescreen.switch.label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:layout_marginRight="8dp"
+        android:text="@string/activate_signal"
+        android:textColor="@color/red"
+        android:textSize="14sp"
+        app:layout_constraintBottom_toBottomOf="@id/phone.homescreen.switch"
+        app:layout_constraintEnd_toStartOf="@id/phone.homescreen.switch"
+        app:layout_constraintTop_toTopOf="@id/phone.homescreen.switch" />
+
+    <purpletear.fr.purpleteartools.fonts.OldPtSans
+        android:id="@+id/phone.homescreen.button.sms.notification"
+        android:visibility="gone"
+        android:layout_width="0dp"
+        android:layout_height="35dp"
+        android:includeFontPadding="false"
+        android:gravity="center"
+        android:background="@drawable/radius_bottom_top_orange"
+        android:text="9+"
+        android:textColor="@color/white"
+        app:layout_constraintDimensionRatio="1:1"
+        android:textSize="14sp"
+        app:layout_constraintStart_toStartOf="@id/phone.homescreen.button.sms"
+        app:layout_constraintEnd_toStartOf="@id/phone.homescreen.button.sms"
+        app:layout_constraintBottom_toTopOf="@id/phone.homescreen.button.sms"
+        app:layout_constraintTop_toTopOf="@id/phone.homescreen.button.sms"
+        tools:ignore="HardcodedText" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

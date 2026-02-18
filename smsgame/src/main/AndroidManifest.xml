@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools">
+
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+
+    <application
+            android:allowBackup="true"
+            android:icon="@mipmap/ic_launcher"
+            android:label="@string/app_name"
+            android:supportsRtl="true"
+            android:theme="@style/Theme.SmsGame"
+            tools:replace="android:theme">
+
+
+        <activity
+                android:name=".activities.smsgamevideointroduction.SmsGameVideoIntro"
+                android:screenOrientation="portrait"
+                android:theme="@style/SimpleStoryPreview"
+                tools:ignore="LockedOrientationActivity" />
+
+        <activity
+                android:name=".activities.smsgame.SmsGameTransition"
+                android:screenOrientation="portrait"
+                android:theme="@style/Load"
+                tools:ignore="LockedOrientationActivity" />
+
+        <activity
+                android:name=".activities.smsgameloader.SmsGameLoaderActivity"
+                android:screenOrientation="portrait"
+                android:theme="@style/Load"
+                tools:ignore="LockedOrientationActivity" />
+
+        <activity
+                android:name=".activities.manga.MangaPageActivity"
+                android:screenOrientation="portrait"
+                android:theme="@style/SmsGame"
+                tools:ignore="LockedOrientationActivity" />
+        <activity
+                android:name=".activities.smsgame.SmsGameActivity"
+                android:screenOrientation="portrait"
+                android:theme="@style/SmsGameActivity2"
+                tools:ignore="LockedOrientationActivity" />
+    </application>
+
+</manifest>

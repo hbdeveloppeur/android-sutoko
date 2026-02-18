@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="sutoko_shared_elements_trophy_new_trophy_found">You \'ve won a new trophy!</string>
+
+    <string name="security_check_delete_account_title">Account security</string>
+    <string name="security_check_delete_account_message">To ensure that you are the account holder, you must log in again before deleting the account</string>
+    <string name="ok">Ok</string>
+    <string name="abort">You \'ve won a new trophy!</string>
+    <string name="sutoko_theme_horror">Horror</string>
+    <string name="sutoko_theme_drama">Drama</string>
+    <string name="sutoko_theme_love">Love</string>
+    <string name="sutoko_default_name">Nick</string>
+    <string name="sutoko_firstname">First name</string>
+    <string name="sutoko_choose_name">Choose the first name of your character</string>
+
+</resources>

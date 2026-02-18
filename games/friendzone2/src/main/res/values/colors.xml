@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#3F51B5</color>
+    <color name="colorPrimaryDark">#303F9F</color>
+    <color name="colorAccent">#FF4081</color>
+    <color name="transparent">#00000000</color>
+    <color name="black">#000000</color>
+    <color name="softBlack">#7a000000</color>
+    <color name="white">#FFFFFF</color>
+    <color name="softWhite">#d7d7d7</color>
+    <color name="red">#FF0000</color>
+    <color name="beauty">#669bd1</color>
+
+    <!-- ACTIVITY: MAIN -->
+    <color name="game_window_background">#FAFAFA</color>
+    <color name="game_header_background">#0977da</color>
+    <color name="game_header_notification_background">#144776</color>
+
+    <!-- NIGHT MODE-->
+    <color name="phrase_dest_night_mode_background">#84000000</color>
+    <color name="phrase_dest_night_mode_text">#c4ffffff</color>
+    <color name="phrase_me_night_mode_background">#74ffffff</color>
+    <color name="phrase_me_night_mode_text">#90000000</color>
+
+    <!-- LAYOUT: PHRASE-->
+    <color name="phrase_info_text">#b4b4b4</color>
+    <color name="meBackground">#A50084FF</color>
+    <color name="mainBackground">#B3EAEAEA</color>
+    <color name="secondBackground">#BFE297B8</color>
+    <color name="thirdBackground">#bf451703</color>
+    <color name="noSeenBackground">#63e70457</color>
+    <color name="noSeenBackgroundDarker">#636c0128</color>
+    <color name="noSeenMeBackground">#3effffff</color>
+    <color name="mainText">#9f000000</color>
+    <color name="mainChoicesText">#707070</color>
+    <color name="meBackgroundSms">#7effffff</color>
+    <color name="mainBackgroundSms">#9f531429</color>
+    <color name="friendzone2_phone_background_me">#BC000000</color>
+    <color name="friendzone2_phone_text_me">#BCFFFFFF</color>
+    <color name="friendzone2_phone_background_dest">#BC310909</color>
+    <color name="friendzone2_phone_text_dest">#BCFFFFFF</color>
+</resources>

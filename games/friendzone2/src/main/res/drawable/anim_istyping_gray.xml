@@ -1,0 +1,15 @@
+<!--
+  ~ Copyright (C) PurpleTear, Inc - All Rights Reserved
+  ~ Unauthorized copying of this file, via any medium is strictly prohibited
+  ~ Proprietary and confidential
+  ~ Written by Hocine Belbouab <hbdeveloppeur@gmail.com>, 1/10/19 11:38 AM
+  ~
+  -->
+
+<animation-list xmlns:android="http://schemas.android.com/apk/res/android"
+    android:oneshot="false">
+    <item android:drawable="@drawable/istypinggray01" android:duration="225" />
+    <item android:drawable="@drawable/istypinggray02" android:duration="225" />
+    <item android:drawable="@drawable/istypinggray03" android:duration="225" />
+    <item android:drawable="@drawable/istypinggray04" android:duration="225" />
+</animation-list>

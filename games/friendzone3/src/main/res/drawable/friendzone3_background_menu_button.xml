@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shape
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle"   >
+
+    <solid
+        android:color="#1fffffff" >
+    </solid>
+    <corners
+        android:bottomLeftRadius="@dimen/menu_background_button"
+        android:bottomRightRadius="@dimen/menu_background_button"
+        android:topRightRadius="@dimen/menu_background_button"
+        android:topLeftRadius="@dimen/menu_background_button"
+        >
+    </corners>
+
+</shape>

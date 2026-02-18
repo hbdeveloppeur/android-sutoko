@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="60dp">
+
+    <Button
+        android:id="@+id/sutoko.main.topnavbar.button.account"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:background="#00FFFFFF"
+        app:layout_constraintDimensionRatio="W, 1:1"
+        app:layout_constraintEnd_toStartOf="@id/guideline125"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <ImageView
+        android:id="@+id/sutoko.main.topnavbar.button.account.image"
+        android:layout_width="22dp"
+        android:layout_height="22dp"
+        android:contentDescription="@string/sutoko_main_topnavbar_button_account_description"
+        app:layout_constraintBottom_toBottomOf="@id/sutoko.main.topnavbar.button.account"
+        app:layout_constraintEnd_toEndOf="@id/sutoko.main.topnavbar.button.account"
+        app:layout_constraintStart_toStartOf="@id/sutoko.main.topnavbar.button.account"
+        app:layout_constraintTop_toTopOf="@id/sutoko.main.topnavbar.button.account" />
+
+    <Button
+        android:id="@+id/sutoko.main.topnavbar.button.options"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:background="#00FFFFFF"
+        app:layout_constraintDimensionRatio="W, 1:1"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/guideline126" />
+
+    <ImageView
+        android:id="@+id/sutoko.main.topnavbar.button.options.image"
+        android:layout_width="26dp"
+        android:layout_height="26dp"
+        android:contentDescription="@string/sutoko_main_topnavbar_button_options_description"
+        app:layout_constraintBottom_toBottomOf="@id/sutoko.main.topnavbar.button.options"
+        app:layout_constraintEnd_toEndOf="@id/sutoko.main.topnavbar.button.options"
+        app:layout_constraintStart_toStartOf="@id/sutoko.main.topnavbar.button.options"
+        app:layout_constraintTop_toTopOf="@id/sutoko.main.topnavbar.button.options" />
+
+
+    <LinearLayout
+        android:id="@+id/sutoko_main_top_nav_bar_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:orientation="horizontal"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <com.example.sutokosharedelements.fonts.WorkSansRegular
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Dark"
+            android:textColor="#C5C5C5"
+            tools:ignore="HardcodedText" />
+
+        <com.example.sutokosharedelements.fonts.WorkSansRegular
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="6dp"
+            android:text="@string/app_name"
+            android:textColor="#FF698C" />
+
+    </LinearLayout>
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline125"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.3" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline126"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.7" />
+</androidx.constraintlayout.widget.ConstraintLayout>

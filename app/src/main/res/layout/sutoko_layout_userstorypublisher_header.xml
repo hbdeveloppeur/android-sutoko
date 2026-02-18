@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="100dp"
+    tools:viewBindingIgnore="true">
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:background="@drawable/gradient_outlet_header"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintDimensionRatio="H, 100:60"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <com.example.sutokosharedelements.fonts.WorkSansRegular
+        android:id="@+id/sutoko.myorders.header.text.title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:text="@string/sutoko_my_orders_title"
+        android:textSize="20sp"
+        app:layout_constraintBottom_toTopOf="@id/sutoko.myorders.header.text.subtitle"
+        app:layout_constraintStart_toEndOf="@id/guideline103" />
+
+    <com.example.sutokosharedelements.fonts.WorkSansRegular
+        android:id="@+id/textView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="12dp"
+        android:layout_marginLeft="12dp"
+        android:text="@string/app_name"
+        android:textColor="#8c8c8c"
+        android:textSize="20sp"
+        app:layout_constraintBottom_toBottomOf="@id/sutoko.myorders.header.text.title"
+        app:layout_constraintStart_toEndOf="@id/sutoko.myorders.header.text.title"
+        app:layout_constraintTop_toTopOf="@id/sutoko.myorders.header.text.title" />
+
+    <TextView
+        android:id="@+id/sutoko.myorders.header.text.subtitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/sutoko_my_orders_subtitle"
+        app:layout_constraintBottom_toTopOf="@id/guideline104"
+        app:layout_constraintStart_toEndOf="@id/guideline103" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline103"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.08" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline104"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.8" />
+</androidx.constraintlayout.widget.ConstraintLayout>

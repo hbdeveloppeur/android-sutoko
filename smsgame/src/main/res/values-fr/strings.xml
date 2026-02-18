@@ -1,0 +1,42 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+    <string name="app_name">Sutoko</string>
+    <string name="sutoko_smsgame_make_a_choice">Faites un choix</string>
+    <string name="sutoko_smsgame_item_nextchapter_button_play_text">Chapitre suivant</string>
+    <string name="sutoko_smsgame_item_nextchapter_chapter_unlocked">Chapitre %1$d débloqué !</string>
+    <string name="sutoko_continue">Continuer</string>
+    <string name="sutoko_see">Voir</string>
+    <string name="sutoko_item_manga_page_sentence">La fin du chapitre est disponible sous forme de manga</string>
+    <string name="sutoko_congrats">Félicitations</string>
+    <string name="sutoko_shop_unlock_item_connection_warning">Pensez à vous connecter pour sauvegarder vos points et achats</string>
+    <string name="end">Fin</string>
+    <string name="sutoko_sms_game_channel_description">Les personnages vous envoient un message en temps réel</string>
+    <string name="sutoko_unlock_diamonds">Débloquer %1$d diamants</string>
+    <string name="sutoko_report_ustory_confirm_title">Signaler cette histoire à un administrateur</string>
+    <string name="sutoko_report_ustory_confirm_text">Êtes-vous certain(e) de vouloir signaler cette histoire?</string>
+    <string name="sutoko_report">Signaler</string>
+    <string name="sutoko_abort">Annuler</string>
+    <string name="sutoko_report_story_done">L\'histoire a été signalée, merci</string>
+    <string name="sutoko_chose_an_answer">Choisissez une réponse</string>
+    <string name="sutoko_answer">Réponse</string>
+    <string name="sutoko_cancel">Annuler</string>
+    <string name="cancel">Cancel</string>
+    <string name="ok">OK</string>
+    <string name="sutoko_sms_game_real_time_activated">Mode activé</string>
+    <string name="sutoko_sms_game_real_time_activated_alert">Mode activé, pensez à activer les notifications pour Sutoko</string>
+    <string name="sutoko_not_enough_diamonds">Vous n\'avez pas assez de diamants </string>
+    <string name="sutoko_story_unlock_coins">Vous venez de trouvé %1$d pièces cachées dans ce chapitre.</string>
+    <string name="sutoko_user_story_not_found">L\'histoire de l\'utilisateur n\'a pas été trouvée</string>
+    <string name="sutoko_error_unknown">Veuillez vérifier votre connectivité Internet.</string>
+    <string name="sutoko_error_story_not_found">Histoire non trouvée.</string>
+    <string name="sutoko_error_you_must_be_connected">Vous devez être connecté</string>
+    <string name="sutoko_error_check_connection">Veuillez vérifier votre connectivité Internet.</string>
+    <string name="sutoko_error_permission_denied">Vous n\'êtes pas autorisé à faire cela.</string>
+    <string name="sutoko_sent">Envoyé</string>
+    <string name="sutoko_seen">Vu</string>
+    <string name="sutoko_created_by">Créée par %1$s</string>
+    <string name="sutoko_you_are_playing">Vous jouez à</string>
+    <string name="sutoko_secret_choice">Choix secret</string>
+    <string name="sutoko_rate_story_title">Évaluer le jeu</string>
+    <string name="sutoko_rate_story_subtitle">As-tu aimé y jouer ?</string>
+</resources>

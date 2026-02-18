@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="sutoko_index_chapter_plural">%1$d Capítulos</string>
+    <string name="game_buy_story_error_check_internet">No se pudo comprar la historia, verifica tu conexión a internet.</string>
+    <string name="game_story_preview_buy_story_unknown_error_occured_you_have_been_refunded">Ha ocurrido un error desconocido, se te ha reembolsado.</string>
+    <string name="game_story_preview_buy_story_story_not_buyable_anymore">Esta historia ya no se puede comprar</string>
+
+    <!-- Already bought alert strings -->
+    <string name="already_bought_alert_title">¡Ya tenías la historia!</string>
+    <string name="already_bought_alert_description">Parece que ya compraste la historia, ¡así que conservas tus monedas!</string>
+    <string name="already_bought_alert_button">Continuar</string>
+
+    <!-- Insufficient funds alert strings -->
+    <string name="insufficient_funds_alert_title">Fondos Insuficientes</string>
+    <string name="insufficient_funds_alert_description">No tienes suficientes monedas para comprar este artículo.</string>
+    <string name="insufficient_funds_alert_button">Continuar</string>
+    <string name="game_story_chapters_button_chapters">Capítulos</string>
+    <string name="game_story_chapters_button_chapters_count">%1$d capítulos</string>
+
+    <!-- Game menu state strings -->
+    <string name="game_menu_play">Jugar</string>
+    <string name="game_menu_chapter_number">Capítulo %1$d</string>
+    <string name="game_menu_restart">Reiniciar</string>
+    <string name="game_menu_game_finished">Juego terminado</string>
+    <string name="game_menu_app_update_required">Actualización de la aplicación requerida</string>
+    <string name="game_menu_update_game">Actualizar Juego</string>
+    <string name="game_menu_game_update_required">Actualización del juego requerida</string>
+    <string name="game_menu_confirm_order">Confirmar pedido</string>
+    <string name="game_menu_coins">%1$d monedas</string>
+    <string name="game_menu_download_game">Descargar el juego</string>
+    <string name="game_menu_download_size">10 MB</string>
+    <string name="game_menu_downloading">Descargando…</string>
+    <string name="game_menu_download_progress">%.1f%%</string>
+    <string name="game_menu_reload_game">Recargar el juego</string>
+    <string name="game_menu_buy">Comprar</string>
+    <string name="game_menu_buy_to_continue">Compra el juego para continuar</string>
+    <string name="game_chapters_continue">Continuar</string>
+
+    <!-- Chapter selection popup strings -->
+    <string name="game_chapters_goto_title">Ir al capítulo %1$d</string>
+    <string name="game_chapters_goto_description">Perderás las elecciones hechas en la historia después de este capítulo. ¿Estás seguro de que quieres continuar?</string>
+
+    <!-- Chapters screen strings -->
+    <string name="game_chapters_no_chapters_available">No hay capítulos disponibles</string>
+    <string name="game_chapters_back">Atrás</string>
+    <string name="game_chapters_title">Capítulos</string>
+    <string name="game_chapters_select">Selecciona un capítulo</string>
+
+    <!-- Chapter item strings -->
+    <string name="game_chapter_locked">Bloqueado</string>
+    <string name="game_chapter_number">Capítulo %1$d</string>
+    <string name="game_chapter_number_title">%1$d - %2$s</string>
+    <string name="game_chapter_return">Volver a este capítulo</string>
+    <string name="game_chapter_current">Actual</string>
+
+    <!-- Game preview strings -->
+    <string name="game_preview_chapter_title">Capítulo %1$d: *%2$s*</string>
+    <string name="game_preview_loading_chapter">Cargando capítulo…</string>
+    <string name="game_preview_premium">Premium</string>
+    <string name="game_preview_premium_active">Premium Activo</string>
+    <string name="game_preview_unlocked">Desbloqueado</string>
+    <string name="game_preview_calendar_icon">Icono de calendario</string>
+    <string name="game_preview_next_chapter">Próximo capítulo - %1$s</string>
+    <string name="game_preview_free">Gratis</string>
+    
+    <!-- Confirmación de reinicio -->
+    <string name="game_restart_confirm_title">¿Reiniciar el juego?</string>
+    <string name="game_restart_confirm_description">Esto restablecerá tu progreso para el juego actual. No perderás el contenido comprado. ¿Deseas continuar?</string>
+    <string name="game_restart_confirm_button">Reiniciar</string>
+
+    <!-- Solicitud de nombre -->
+    <string name="first_name_prompt_title">Ingresa el nombre de tu personaje</string>
+    <string name="first_name_prompt_placeholder">Nick</string>
+</resources>

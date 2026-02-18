@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#88000000"
+    android:clickable="true"
+    android:focusable="true"
+    android:focusableInTouchMode="true"
+    tools:viewBindingIgnore="true">
+
+
+    <View
+        android:id="@+id/sutoko.popup.background"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/sutoko.popup.night"
+        android:layout_width="0dp"
+        android:layout_height="100dp"
+        android:visibility="invisible"
+        app:cardCornerRadius="32dp"
+        app:cardElevation="0dp"
+        app:layout_constraintBottom_toBottomOf="@id/guideline118"
+        app:layout_constraintEnd_toEndOf="@id/guideline114"
+        app:layout_constraintStart_toStartOf="@id/guideline113"
+        app:layout_constraintTop_toTopOf="@id/guideline118">
+
+        <ImageView
+            android:id="@+id/sutoko.popup.header.image"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scaleType="centerCrop"
+            tools:ignore="ContentDescription" />
+
+    </androidx.cardview.widget.CardView>
+
+    <ImageView
+        android:id="@+id/sutoko.popup.foreground.image"
+        android:layout_width="160dp"
+        android:layout_height="180dp"
+        android:layout_marginTop="30dp"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toBottomOf="@id/guideline117"
+        app:layout_constraintDimensionRatio="W, 1:1"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        tools:ignore="ContentDescription" />
+
+    <LinearLayout
+        android:id="@+id/sutoko.premium_popup.card"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:background="@drawable/background_rounded_premium_cta_card"
+        android:orientation="vertical"
+        android:padding="22dp"
+        android:visibility="invisible"
+        app:layout_constraintEnd_toEndOf="@id/guideline114"
+        app:layout_constraintStart_toStartOf="@id/guideline113"
+        app:layout_constraintTop_toBottomOf="@id/guideline115">
+
+        <TextView
+            android:id="@+id/sutoko.popup.description"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:lineSpacingExtra="3dp"
+            android:paddingStart="6dp"
+            android:paddingLeft="6dp"
+            android:paddingEnd="6dp"
+            android:paddingRight="6dp"
+            android:text="@string/sutoko_premium_description_cta"
+            android:textColor="#3e3e3e"
+            android:textSize="13sp"
+
+            />
+
+        <com.example.sutokosharedelements.fonts.WorkSansSemiBold
+            android:id="@+id/sutoko.popup.button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="16dp"
+            android:background="@drawable/background_button_blue_premium_cta"
+            android:gravity="center"
+            android:letterSpacing="0.09"
+            android:paddingTop="14dp"
+            android:paddingBottom="16dp"
+            android:text="@string/sutoko_try_premium"
+            android:textAllCaps="true"
+            android:textColor="@color/white"
+            android:textSize="13sp"
+            tools:ignore="UnusedAttribute"
+
+            />
+    </LinearLayout>
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline113"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.1" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline114"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.9" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline115"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.45" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline117"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.47" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline118"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.42" />
+</androidx.constraintlayout.widget.ConstraintLayout>

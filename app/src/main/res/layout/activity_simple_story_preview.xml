@@ -1,0 +1,441 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:tools="http://schemas.android.com/tools">
+
+    <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+            xmlns:app="http://schemas.android.com/apk/res-auto"
+            android:id="@+id/sutoko.simplestorypreview.root"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            tools:context=".screens.storyPreview.StoryPreviewActivity">
+
+        <com.example.sutokosharedelements.views.MediaBackgroundView
+                android:id="@+id/sutoko_simplestorypreview_background"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
+
+
+        <View
+                android:layout_width="match_parent"
+                android:layout_height="130dp"
+
+                android:alpha="0.7"
+                android:background="@drawable/sutoko_story_summary_title_gradient"
+                android:scaleY="-1"
+                app:layout_constraintBottom_toBottomOf="@id/_sutoko_simplestorypreview_information_image_container_fix" />
+
+        <View
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:alpha="0.7"
+                android:background="#0c0e13"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/_sutoko_simplestorypreview_information_image_container_fix" />
+
+        <View
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:alpha="0.4"
+                android:background="#2f2f2f" />
+
+        <include
+                android:id="@+id/sutoko_simplestory_preview_button_download"
+                layout="@layout/inc_simplestory_preview_button"
+                android:layout_width="0dp"
+                android:layout_height="60dp"
+                android:layout_marginStart="12dp"
+                android:layout_marginEnd="12dp"
+                android:layout_marginBottom="48dp"
+                android:visibility="gone"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@id/guideline139"
+                app:layout_constraintStart_toStartOf="@id/guideline61" />
+
+        <include
+                android:id="@+id/sutoko_simplestory_preview_button_buy"
+                layout="@layout/inc_simplestory_preview_button"
+                android:layout_width="0dp"
+                android:layout_height="60dp"
+                android:layout_marginStart="12dp"
+                android:layout_marginEnd="12dp"
+                android:layout_marginBottom="48dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@id/guideline62"
+                app:layout_constraintStart_toStartOf="@id/guideline61" />
+
+
+        <include
+                android:id="@+id/sutoko_simplestory_preview_button_try"
+                layout="@layout/inc_simplestory_preview_button"
+                android:layout_width="0dp"
+                android:layout_height="60dp"
+                android:layout_marginStart="12dp"
+                android:layout_marginEnd="12dp"
+                android:layout_marginBottom="48dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@id/guideline139"
+                app:layout_constraintStart_toStartOf="@id/guideline62" />
+
+        <include
+                android:id="@+id/sutoko_simplestory_preview_button_reset_or_update"
+                layout="@layout/inc_simplestory_preview_button"
+                android:layout_width="0dp"
+                android:layout_height="60dp"
+                android:layout_marginStart="12dp"
+                android:layout_marginTop="12dp"
+                android:layout_marginEnd="12dp"
+                android:layout_marginBottom="48dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@id/guideline62"
+                app:layout_constraintStart_toStartOf="@id/guideline61" />
+
+
+        <include
+                android:id="@+id/sutoko_simplestory_preview_button_chapters"
+                layout="@layout/sutoko_simplestory_include_subbutton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="20dp"
+                app:buttonText="@{@string/sutoko_see_chapters}"
+                app:layout_constraintBottom_toTopOf="@id/sutoko_simplestory_preview_description"
+                app:layout_constraintStart_toStartOf="@id/sutoko_simplestory_preview_description" />
+
+        <include
+                android:id="@+id/sutoko_simplestory_preview_button_choices"
+                layout="@layout/sutoko_simplestory_include_subbutton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="12dp"
+                android:layout_marginBottom="20dp"
+                app:buttonText="@{@string/sutoko_see_choices}"
+                app:layout_constraintBottom_toTopOf="@id/sutoko_simplestory_preview_description"
+                app:layout_constraintStart_toEndOf="@id/sutoko_simplestory_preview_button_chapters" />
+
+        <FrameLayout
+                android:id="@+id/sutoko_simplestory_button_option"
+                android:layout_width="22dp"
+                android:layout_height="32dp"
+                android:layout_marginStart="6dp"
+                android:visibility="invisible"
+                app:layout_constraintBottom_toBottomOf="@id/sutoko_simplestory_preview_information"
+                app:layout_constraintEnd_toEndOf="@id/guideline139"
+                app:layout_constraintHorizontal_bias="1"
+                app:layout_constraintTop_toTopOf="@id/sutoko_simplestory_preview_information">
+
+            <ImageView
+                    android:id="@+id/sutoko_simplestory_button_option_image"
+                    android:layout_width="22dp"
+                    android:layout_height="22dp"
+                    android:layout_gravity="center"
+                    android:adjustViewBounds="true"
+                    tools:ignore="ContentDescription" />
+
+        </FrameLayout>
+
+
+        <com.example.sutokosharedelements.fonts.WorkSansLight
+                android:id="@+id/sutoko_simplestory_preview_description"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                android:lineSpacingExtra="8dp"
+                android:textColor="#FFF"
+                android:textSize="14sp"
+                app:layout_constrainedWidth="true"
+                app:layout_constraintBottom_toTopOf="@+id/sutoko_simplestorypreview_copounds_1"
+                app:layout_constraintEnd_toEndOf="@id/guideline139"
+                app:layout_constraintStart_toStartOf="@+id/guideline61"
+                app:layout_goneMarginBottom="120dp" />
+
+        <LinearLayout
+                android:id="@+id/sutoko_simplestorypreview_copounds_1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="4dp"
+                android:layout_marginBottom="24dp"
+                android:gravity="center"
+                app:layout_constrainedWidth="true"
+                app:layout_constraintBottom_toTopOf="@id/sutoko_simplestory_preview_screenshots"
+                app:layout_constraintEnd_toStartOf="@id/guideline62"
+                app:layout_constraintHorizontal_bias="1"
+                app:layout_constraintStart_toEndOf="@id/guideline61"
+                app:layout_constraintWidth_max="500dp"
+                app:layout_goneMarginBottom="120dp">
+
+            <ImageView
+                    android:id="@+id/sutoko_simplestorypreview_copounds_1_image"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp" />
+
+            <com.example.sutokosharedelements.fonts.WorkSansSemiBold
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="6dp"
+                    android:text="@string/sutoko_simplestorypreview_announce_buy_ads"
+                    android:textSize="12sp" />
+
+        </LinearLayout>
+
+        <LinearLayout
+                android:id="@+id/sutoko_simplestorypreview_copounds_2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="4dp"
+                android:layout_marginBottom="24dp"
+                android:gravity="center"
+                app:layout_constrainedWidth="true"
+                app:layout_constraintBottom_toTopOf="@id/sutoko_simplestory_preview_screenshots"
+                app:layout_constraintEnd_toStartOf="@id/guideline139"
+                app:layout_constraintHorizontal_bias="0"
+                app:layout_constraintStart_toEndOf="@id/guideline62"
+                app:layout_constraintWidth_max="500dp"
+                app:layout_goneMarginBottom="120dp">
+
+            <ImageView
+                    android:id="@+id/sutoko_simplestorypreview_copounds_2_image"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp" />
+
+            <com.example.sutokosharedelements.fonts.WorkSansSemiBold
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="6dp"
+                    android:text="@string/sutoko_simplestorypreview_announce_hidden_coins"
+                    android:textSize="12sp" />
+
+        </LinearLayout>
+
+
+        <androidx.cardview.widget.CardView
+                android:id="@+id/_sutoko_simplestorypreview_information_image_container_fix"
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                android:layout_marginBottom="16dp"
+                android:elevation="6dp"
+                app:cardCornerRadius="18dp"
+                app:cardElevation="6dp"
+                app:cardMaxElevation="6dp"
+                app:layout_constraintBottom_toTopOf="@+id/sutoko_simplestory_preview_button_chapters"
+                app:layout_constraintStart_toStartOf="@+id/guideline61"
+                tools:ignore="UnusedAttribute">
+
+            <ImageView
+                    android:id="@+id/sutoko_simplestorypreview_information_image_fix"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:scaleType="centerCrop"
+                    tools:ignore="ContentDescription" />
+
+            <ImageView
+                    android:id="@+id/sutoko_simplestorypreview_information_image_logo"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:layout_gravity="center"
+                    android:visibility="gone"
+                    tools:ignore="ContentDescription" />
+
+
+        </androidx.cardview.widget.CardView>
+
+        <LinearLayout
+                android:id="@+id/sutoko_simplestory_preview_information"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="12dp"
+                android:orientation="vertical"
+                app:layout_constrainedWidth="true"
+                app:layout_constraintBottom_toBottomOf="@+id/_sutoko_simplestorypreview_information_image_container_fix"
+                app:layout_constraintEnd_toStartOf="@id/sutoko_simplestory_button_option"
+                app:layout_constraintHorizontal_bias="0"
+                app:layout_constraintStart_toEndOf="@id/_sutoko_simplestorypreview_information_image_container_fix"
+                app:layout_constraintTop_toTopOf="@+id/_sutoko_simplestorypreview_information_image_container_fix">
+
+            <com.example.sutokosharedelements.fonts.WorkSansBold
+                    android:id="@+id/sutoko_simplestory_preview_title_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Best friend in South Korea"
+                    android:textColor="@color/white"
+                    android:textSize="19sp" />
+
+            <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+
+                <com.example.sutokosharedelements.fonts.WorkSansLight
+                        android:id="@+id/sutoko_simplestory_downloads_text"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="20k+ téléchargements"
+                        android:textColor="@color/darkModeWhite4"
+                        android:textSize="12sp" />
+
+                <com.example.sutokosharedelements.fonts.WorkSansSemiBold
+                        android:id="@+id/sutoko_simplestory_preview_mark_text"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="9dp"
+                        android:alpha="0.6"
+                        android:text="4.8"
+                        android:textColor="@color/darkModeWhite3"
+                        android:textSize="12sp" />
+
+
+                <ImageView
+                        android:id="@+id/sutoko_simplestory_preview_mark_star_icon"
+                        android:layout_width="16dp"
+                        android:layout_height="16dp"
+                        android:layout_marginStart="6dp"
+                        android:alpha="0.6"
+                        tools:ignore="ContentDescription" />
+
+                <com.example.sutokosharedelements.fonts.NunitoBold
+                        android:id="@+id/sutoko_simplestory_preview_age_restriction_icon"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="6dp"
+                        android:background="@drawable/background_rounded_soft_white2"
+                        android:paddingStart="6dp"
+                        android:paddingTop="2dp"
+                        android:paddingEnd="6dp"
+                        android:paddingBottom="2dp"
+                        android:text="16+"
+                        android:textAlignment="center"
+                        android:textColor="@color/white"
+                        android:textSize="10sp"
+                        tools:ignore="SmallSp" />
+            </LinearLayout>
+
+            <com.example.sutokosharedelements.fonts.WorkSansBold
+                    android:id="@+id/sutoko_simplestory_preview_nb_chapters"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:textColor="@color/darkModeWhite3"
+                    android:textSize="12sp" />
+
+        </LinearLayout>
+
+
+        <View
+                android:id="@+id/sutoko_simplestory_preview_button_sound_hitbox"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_marginTop="48dp"
+                app:layout_constraintBottom_toTopOf="@+id/_sutoko_simplestorypreview_information_image_container_fix"
+                app:layout_constraintEnd_toStartOf="@id/guideline139"
+                app:layout_constraintStart_toStartOf="@+id/guideline61"
+                app:layout_constraintTop_toTopOf="parent" />
+
+        <ImageView
+                android:id="@+id/sutoko_simplestory_preview_button_sound_icon"
+                android:layout_width="22dp"
+                android:layout_height="22dp"
+                android:layout_marginTop="32dp"
+                android:layout_marginEnd="6dp"
+                android:alpha="0.75"
+                android:clickable="false"
+
+                android:focusable="false"
+                android:focusableInTouchMode="false"
+                app:layout_constraintEnd_toEndOf="@id/sutoko_simplestory_preview_button_sound_hitbox"
+                app:layout_constraintHorizontal_bias="0.75"
+                app:layout_constraintTop_toTopOf="@id/sutoko_simplestory_preview_button_sound_hitbox"
+                tools:ignore="ContentDescription" />
+
+
+        <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/guideline61"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                app:layout_constraintGuide_percent="0.04" />
+
+        <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/guideline62"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                app:layout_constraintGuide_percent="0.5" />
+
+        <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/guideline139"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                app:layout_constraintGuide_percent="0.96" />
+
+        <HorizontalScrollView
+                android:id="@+id/sutoko_simplestory_preview_screenshots"
+                android:layout_width="0dp"
+                android:layout_height="180dp"
+                android:layout_marginBottom="24dp"
+                android:scrollbars="none"
+                app:layout_constraintBottom_toTopOf="@id/sutoko_simplestory_preview_button_buy"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent">
+
+            <LinearLayout
+                    android:id="@+id/sutoko_simplestory_preview_screenshots_container"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:orientation="horizontal">
+
+            </LinearLayout>
+        </HorizontalScrollView>
+
+        <include
+                android:id="@+id/sutoko_simplestory_preview_button_play"
+                layout="@layout/inc_simplestory_preview_button"
+                android:layout_width="0dp"
+                android:layout_height="60dp"
+                android:layout_marginStart="12dp"
+                android:layout_marginEnd="12dp"
+                android:layout_marginBottom="48dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@id/guideline139"
+                app:layout_constraintStart_toStartOf="@id/guideline62" />
+
+        <View
+                android:id="@+id/sutoko_simplestory_preview_loading_filter"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="#88000000"
+                android:clickable="true"
+                android:focusable="true" />
+
+        <ProgressBar
+                android:id="@+id/sutoko_simplestory_preview_loading_progressbar"
+                android:layout_width="22dp"
+                android:layout_height="22dp"
+                android:elevation="7dp"
+                android:indeterminateTint="@android:color/white"
+                app:layout_constraintBottom_toBottomOf="@id/_sutoko_simplestorypreview_information_image_container_fix"
+                app:layout_constraintEnd_toEndOf="@id/_sutoko_simplestorypreview_information_image_container_fix"
+                app:layout_constraintStart_toStartOf="@id/_sutoko_simplestorypreview_information_image_container_fix"
+                app:layout_constraintTop_toTopOf="@id/_sutoko_simplestorypreview_information_image_container_fix"
+                tools:ignore="UnusedAttribute" />
+
+        <FrameLayout
+                android:id="@+id/loadingView"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="#88000000"
+                android:visibility="invisible"
+
+                >
+
+            <ProgressBar
+                    android:id="@+id/loadingViewProgressbar"
+                    android:layout_width="22dp"
+                    android:layout_height="22dp"
+                    android:layout_gravity="center"
+                    android:layout_marginBottom="100dp" />
+        </FrameLayout>
+
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

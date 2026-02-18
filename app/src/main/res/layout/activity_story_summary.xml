@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.motion.widget.MotionLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    app:layoutDescription="@xml/activity_story_summary_scene_fix"
+    tools:context=".screens.storySummary.StorySummaryActivity">
+
+
+    <ImageView
+        android:id="@+id/sutoko_storysumary_header_background"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:scaleType="centerCrop"
+        app:layout_constraintDimensionRatio="H, 420:252" />
+
+    <View
+        android:id="@+id/sutoko_storysumary_background_filter"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:alpha="0.90"
+        android:background="#0c0e13" />
+
+    <View
+        android:id="@+id/sutoko_storysumary_header_gradient_patron"
+        android:layout_width="match_parent"
+        android:layout_height="90dp"
+        android:background="@drawable/sutoko_story_summary_title_gradient"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <View
+        android:id="@+id/sutoko_storysumary_list_gradient_patron"
+        android:layout_width="match_parent"
+        android:layout_height="90dp"
+        android:background="@drawable/sutoko_story_summary_title_gradient"
+        android:scaleY="-1"
+        app:layout_constraintBottom_toBottomOf="@id/sutoko_storysumary_header_background" />
+
+    <ProgressBar
+        android:id="@+id/sutoko_storysumary_progressbar"
+        android:layout_width="22dp"
+        android:layout_height="22dp"
+
+        app:layout_constraintBottom_toBottomOf="@id/sutoko_storysumary_recyclerview"
+        app:layout_constraintEnd_toEndOf="@id/sutoko_storysumary_recyclerview"
+        app:layout_constraintStart_toStartOf="@id/sutoko_storysumary_recyclerview"
+        app:layout_constraintTop_toTopOf="@id/sutoko_storysumary_recyclerview" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/sutoko_storysumary_recyclerview"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:overScrollMode="never"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/guideline107"
+        app:layout_constraintStart_toEndOf="@id/guideline106"
+        app:layout_constraintTop_toBottomOf="@id/guideline105"
+        app:layout_constraintWidth_max="500dp" />
+
+
+    <FrameLayout
+        android:id="@+id/sutoko_storysumary_button_back"
+        android:layout_width="55dp"
+        android:layout_height="42dp"
+        android:layout_marginTop="20dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <ImageView
+            android:id="@+id/sutoko_storysumary_button_back_image"
+            android:layout_width="21dp"
+            android:layout_height="21dp"
+            android:layout_gravity="center"
+            android:layout_marginTop="1dp"
+            android:alpha="0.7" />
+
+    </FrameLayout>
+
+    <LinearLayout
+        android:id="@+id/sutoko_storysumary_header"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="6dp"
+        android:orientation="vertical"
+        app:layout_constraintBottom_toBottomOf="@id/sutoko_storysumary_button_back"
+        app:layout_constraintStart_toEndOf="@id/sutoko_storysumary_button_back"
+        app:layout_constraintTop_toTopOf="@id/sutoko_storysumary_button_back">
+
+        <com.example.sutokosharedelements.fonts.WorkSansSemiBold
+            android:id="@+id/sutoko_storysumary_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Choix et avancée de l'histoire"
+            android:textColor="@color/darkModeWhite2"
+            android:textSize="15sp" />
+
+        <com.example.sutokosharedelements.fonts.WorkSansRegular
+            android:id="@+id/sutoko_storysumary_subtitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:text="Avez-vous fait les bons choix?"
+            android:textColor="@color/darkModeWhite3"
+            android:textSize="14sp" />
+    </LinearLayout>
+
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline105"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_begin="160dp" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline106"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.06" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline107"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.94" />
+
+</androidx.constraintlayout.motion.widget.MotionLayout>

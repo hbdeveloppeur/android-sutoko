@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".screens.params.SutokoParamsActivity"
+    android:background="#05070C"
+    tools:viewBindingIgnore="true"
+    android:paddingTop="32dp">
+
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/sutoko.params.toolbars"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:minHeight="80dp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:navigationIcon="?attr/homeAsUpIndicator"
+        app:title="@string/sutoko_options" />
+ 
+
+    <include
+        android:id="@+id/sutoko.params.privacy.hitbox"
+        layout="@layout/recyclerview_sutoko_params_item_simple"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        app:layout_constraintTop_toBottomOf="@id/sutoko.params.toolbars" />
+
+
+    <include
+        android:id="@+id/sutoko.params.user.reload"
+        layout="@layout/recyclerview_sutoko_params_item_simple"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        app:layout_constraintTop_toBottomOf="@id/sutoko.params.privacy.hitbox" />
+
+    <include
+        android:id="@+id/sutoko.params.user.delete"
+        layout="@layout/recyclerview_sutoko_params_item_simple"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        app:layout_constraintTop_toBottomOf="@id/sutoko.params.user.reload" />
+
+    <include
+        android:id="@+id/sutoko.params.social.share"
+        layout="@layout/recyclerview_sutoko_params_item_simple"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        app:layout_constraintTop_toBottomOf="@id/sutoko.params.user.delete" />
+
+
+    <include
+        android:id="@+id/sutoko.params.account.disconnect"
+        layout="@layout/recyclerview_sutoko_params_item_simple"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        app:layout_constraintTop_toBottomOf="@id/sutoko.params.social.share" />
+
+
+    <ProgressBar
+        android:id="@+id/sutoko.params.user.delete.progress"
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:layout_margin="12dp"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="@id/sutoko.params.user.delete"
+        app:layout_constraintEnd_toEndOf="@id/sutoko.params.user.delete"
+        app:layout_constraintTop_toTopOf="@id/sutoko.params.user.delete" />
+
+    <ProgressBar
+        android:id="@+id/sutoko.params.user.reload.progress"
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:layout_margin="12dp"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="@id/sutoko.params.user.reload"
+        app:layout_constraintEnd_toEndOf="@id/sutoko.params.user.reload"
+        app:layout_constraintTop_toTopOf="@id/sutoko.params.user.reload" />
+
+    <View
+        android:id="@+id/sutoko.params.divider"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_margin="12dp"
+        android:background="#1DFFFFFF"
+        app:layout_constraintTop_toBottomOf="@id/sutoko.params.account.disconnect" />
+
+    <com.example.sutokosharedelements.fonts.WorkSansRegular
+        android:id="@+id/sutoko.params.version"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="18dp"
+        android:alpha="0.6"
+        android:textColor="@color/white"
+        android:textSize="12sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/sutoko.params.divider" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

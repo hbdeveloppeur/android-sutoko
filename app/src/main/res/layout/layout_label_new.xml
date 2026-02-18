@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.example.sutokosharedelements.fonts.WorkSansLight xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:paddingTop="5dp"
+    android:paddingBottom="6dp"
+    android:paddingStart="14dp"
+    android:paddingEnd="14dp"
+    android:textColor="#ed186e"
+    android:textSize="12sp"
+    android:text="@string/sutoko_new"
+    android:background="@drawable/background_rounded_soft_white"
+    />

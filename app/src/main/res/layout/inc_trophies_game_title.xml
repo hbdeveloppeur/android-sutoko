@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+        xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:orientation="vertical"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:viewBindingIgnore="true"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+>
+
+    <com.example.sutokosharedelements.fonts.RobotoBold
+            android:id="@+id/sutoko.trophies.gametitle.text.title"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toEndOf="@id/sutoko.guideline36"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:includeFontPadding="false"
+            android:letterSpacing="0.07"
+            android:textColor="#F0F0F0"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="8dp"
+            android:textSize="22sp"/>
+
+    <com.example.sutokosharedelements.fonts.RobotoBold
+            android:id="@+id/sutoko.trophies.gametitle.text.count"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toEndOf="@id/sutoko.trophies.gametitle.text.title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="20dp"
+            android:layout_marginStart="20dp"
+            android:includeFontPadding="false"
+            android:letterSpacing="0.06"
+            android:textColor="#FFF"
+            android:textSize="12sp"
+            android:paddingTop="4dp"
+            android:paddingBottom="4dp"
+            android:paddingStart="8dp"
+            android:paddingLeft="8dp"
+            android:paddingEnd="8dp"
+            android:paddingRight="8dp"
+            android:background="@drawable/background_button_pink"
+    />
+
+
+
+    <androidx.constraintlayout.widget.Guideline
+            android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:id="@+id/sutoko.guideline36" app:layout_constraintGuide_percent="0.04"
+            android:orientation="vertical"/>
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

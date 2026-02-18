@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="#02FFFFFF"
+    android:paddingBottom="24dp"
+    tools:viewBindingIgnore="true">
+
+    <TextView
+        android:id="@+id/sutoko.storychapters.item.available_chapter.number.text"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:background="@drawable/background_circle_stroke_only"
+        android:gravity="center"
+        android:textColor="@color/white"
+        app:layout_constraintBottom_toBottomOf="@id/sutoko.storychapters.item.available_chapter.patron.1"
+        app:layout_constraintEnd_toEndOf="@id/sutoko.storychapters.item.available_chapter.patron.1"
+        app:layout_constraintStart_toStartOf="@id/sutoko.storychapters.item.available_chapter.patron.1"
+        app:layout_constraintTop_toTopOf="@id/sutoko.storychapters.item.available_chapter.patron.1" />
+
+    <com.example.sutokosharedelements.fonts.WorkSansSemiBold
+        android:id="@+id/sutoko.storychapters.item.available_chapter.title.text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="@color/white"
+        android:textSize="17sp"
+        app:layout_constraintBottom_toBottomOf="@id/sutoko.storychapters.item.available_chapter.number.text"
+        app:layout_constraintStart_toEndOf="@id/sutoko.storychapters.item.available_chapter.patron.1"
+        app:layout_constraintTop_toTopOf="@id/sutoko.storychapters.item.available_chapter.number.text" />
+
+    <com.example.sutokosharedelements.fonts.WorkSansRegular
+        android:id="@+id/sutoko.storychapters.item.available_chapter.description.text"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="20dp"
+        android:letterSpacing="0.02"
+        android:lineSpacingExtra="3dp"
+        android:textColor="#94FFFFFF"
+        android:textSize="14sp"
+        app:layout_constrainedWidth="true"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/sutoko.storychapters.item.available_chapter.number.text"
+        app:layout_constraintWidth_max="400dp"
+        tools:ignore="UnusedAttribute" />
+
+    <View
+        android:id="@+id/sutoko.storychapters.item.available_chapter.patron.1"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintDimensionRatio="H, 1:1"
+        app:layout_constraintEnd_toStartOf="@id/guideline131"
+        app:layout_constraintHorizontal_bias="0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0"
+        app:layout_constraintWidth_max="100dp" />
+
+    <TextView
+        android:id="@+id/sutoko.storychapters.item.available_chapter.button.select"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="22dp"
+        android:layout_marginEnd="24dp"
+        android:background="@drawable/background_rounded_main_title"
+        android:paddingStart="12dp"
+        android:paddingTop="4dp"
+        android:paddingEnd="12dp"
+        android:paddingBottom="4dp"
+        android:textSize="13sp"
+        android:visibility="invisible"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/sutoko.storychapters.item.available_chapter.description.text" />
+
+
+    <LinearLayout
+        android:id="@+id/sutoko.storychapters.item.available_chapter.button.download"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/background_rounded_main_title"
+        android:gravity="center_vertical"
+        android:paddingStart="12dp"
+        android:paddingTop="5dp"
+        android:paddingEnd="12dp"
+        android:paddingBottom="6dp"
+        android:textSize="13sp"
+        android:visibility="invisible"
+        app:layout_constraintEnd_toEndOf="@id/sutoko.storychapters.item.available_chapter.button.select"
+        app:layout_constraintTop_toTopOf="@id/sutoko.storychapters.item.available_chapter.button.select">
+
+        <FrameLayout
+            android:layout_width="16dp"
+            android:layout_height="16dp">
+
+            <ImageView
+                android:id="@+id/sutoko.storychapters.item.available_chapter.button.download.icon"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                tools:ignore="ContentDescription" />
+
+            <ProgressBar
+                android:id="@+id/sutoko.storychapters.item.available_chapter.button.download.progressbar"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:visibility="invisible" />
+        </FrameLayout>
+
+        <TextView
+            android:id="@+id/sutoko.storychapters.item.available_chapter.button.download.text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:includeFontPadding="false"
+            android:paddingStart="6dp"
+            android:paddingEnd="0dp"
+            android:text="@string/sutoko_download"
+            android:textColor="@color/white"
+            android:textSize="13sp" />
+
+    </LinearLayout>
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline131"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.175" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,0 +1,52 @@
+[
+  {
+    "start": 3724,
+    "end": 5628,
+    "text": "[Storm]"
+  },
+  {
+    "start": 5830,
+    "end": 8555,
+    "text": "[Phone Vibrations]"
+  },
+  {
+    "start": 9000,
+    "end": 12000,
+    "text": "[Footsteps]"
+  },
+  {
+    "start": 16719,
+    "end": 18500,
+    "text": "[Voice message] Hey Bryan..."
+  },
+  {
+    "start": 18840,
+    "end": 21526,
+    "text": "[Voice message] It's Lucy... Amy's sister"
+  },
+  {
+    "start": 22200,
+    "end": 25200,
+    "text": "...Zoe told me you are not returning her texts..."
+  },
+  {
+    "start": 26000,
+    "end": 29000,
+    "text": "...We'd like to do something to make it up to you..."
+  },
+  {
+    "start": 29500,
+    "end": 31500,
+    "text": "Please... Call me back"
+  },
+  {
+    "start": 32500,
+    "end": 34000,
+    "text": "[Storm]"
+  },
+  {
+    "start": 34500,
+    "end": 37000,
+    "text": "[Footsteps]"
+  }
+]

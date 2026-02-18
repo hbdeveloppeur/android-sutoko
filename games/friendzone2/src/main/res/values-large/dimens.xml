@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (C) PurpleTear, Inc - All Rights Reserved
+  ~ Unauthorized copying of this file, via any medium is strictly prohibited
+  ~ Proprietary and confidential
+  ~ Written by Hocine Belbouab <hbdeveloppeur@gmail.com>, 1/10/19 11:38 AM
+  ~
+  -->
+
+<resources>
+    <!-- MENU -->
+    <dimen name="purpletear_button_font">26sp</dimen>
+    <dimen name="menu_info_title_font">40sp</dimen>
+    <dimen name="menu_info_content_font">26sp</dimen>
+    <dimen name="menu_title_font">26sp</dimen>
+
+    <!-- MAIN -->
+    <dimen name="main_description_title">26sp</dimen>
+    <dimen name="main_description_content">22sp</dimen>
+    <dimen name="main_your_message">22sp</dimen>
+    <dimen name="choice_text_font">20sp</dimen>
+    <dimen name="main_header_name">22sp</dimen>
+    <dimen name="main_header_status">18sp</dimen>
+    <dimen name="main_header_online_point_size">8dp</dimen>
+
+    <!-- MAIN CHOICE BOX -->
+    <dimen name="choicebox_title_paddingTop">10dp</dimen>
+    <dimen name="choicebox_title_paddingLeft">16dp</dimen>
+    <dimen name="choicebox_title_paddingRight">16dp</dimen>
+    <dimen name="choicebox_title_paddingBottom">10dp</dimen>
+    <dimen name="choicebox_title_font">28sp</dimen>
+
+    <!-- PHRASE : DEST -->
+    <dimen name="phrase_dest_text">22sp</dimen>
+    <dimen name="phrase_dest_paddingLeft">36dp</dimen>
+    <dimen name="phrase_dest_text_paddingHorizontal">18dp</dimen>
+    <dimen name="phrase_dest_text_paddingVertical">11dp</dimen>
+    <dimen name="phrase_dest_me_radius">24dp</dimen>
+
+    <!-- PHRASE : INFO -->
+    <dimen name="phrase_info_text">20sp</dimen>
+
+    <!-- CINEMATIC TEXT -->
+    <dimen name="textcinematic_font">24sp</dimen>
+    <dimen name="poetry_text">24sp</dimen>
+    <dimen name="choiceActivityTextSize">24sp</dimen>
+    <dimen name="textcinematic_font_sub">16sp</dimen>
+</resources>

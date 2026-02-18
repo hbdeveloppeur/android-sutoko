@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+  ~ Copyright (C) PurpleTear, Inc - All Rights Reserved
+  ~ Unauthorized copying of this file, via any medium is strictly prohibited
+  ~ Proprietary and confidential
+  ~ Written by Hocine Belbouab <hbdeveloppeur@gmail.com>, 1/10/19 11:38 AM
+  ~
+  -->
+
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/sutoko_mainactivity.choicebox.area"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#AA000000"
+    android:clickable="true"
+    android:focusable="true"
+    android:visibility="invisible"
+    tools:viewBindingIgnore="true">
+
+    <View
+        android:id="@+id/sutoko_choicebox_background_hitbox"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_margin="30dp"
+        android:clickable="true"
+        android:focusable="true"
+        android:focusableInTouchMode="true" />
+
+    <LinearLayout
+        android:id="@+id/sutoko.smsgame.choicebox"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:background="@drawable/sutoko_smsgame_choicebox_background_darkmode"
+        android:clickable="true"
+        android:focusable="true"
+        android:focusableInTouchMode="true"
+        android:orientation="vertical"
+        app:layout_constrainedWidth="true"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="@id/guideline148"
+        app:layout_constraintStart_toStartOf="@id/guideline147"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintWidth_max="340dp">
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/sutoko.smsgame.choicebox.title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_marginStart="20dp"
+                android:text="@string/sutoko_smsgame_make_a_choice"
+                android:textColor="@color/darkModeWhite2"
+                android:textSize="17sp" />
+
+            <FrameLayout
+                android:id="@+id/sutoko.smsgame.choicebox.button.darkmode"
+                android:layout_width="60dp"
+                android:layout_height="match_parent"
+                android:layout_gravity="end"
+                android:background="#00FFFFFF">
+
+                <ImageView
+                    android:id="@+id/sutoko.smsgame.choicebox.button.darkmode.icon"
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
+                    android:layout_gravity="center"
+                    tools:ignore="ContentDescription" />
+
+            </FrameLayout>
+        </FrameLayout>
+
+        <View
+            android:id="@+id/sutoko.smsgame.choicebox.line_separator"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="#353535" />
+
+        <LinearLayout
+            android:id="@+id/sutoko_mainactivity_choicebox_parent"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingTop="7dp"
+            android:paddingBottom="26dp">
+
+        </LinearLayout>
+    </LinearLayout>
+
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline147"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.08" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline148"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.92" />
+</androidx.constraintlayout.widget.ConstraintLayout>

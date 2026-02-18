@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="cinematic_text">28sp</dimen>
+    <dimen name="main_header_name">26sp</dimen>
+    <dimen name="main_header_status">20sp</dimen>
+    <dimen name="main_header_online_point_size">8dp</dimen>
+    <dimen name="main_button_yourchoice">14sp</dimen>
+    <dimen name="main_description_text">16sp</dimen>
+    <dimen name="main_description_title">18sp</dimen>
+    <dimen name="layout_bg_rounded_white_rounds">23dp</dimen>
+    <dimen name="phrase_dest_compensation">1dp</dimen>
+    <dimen name="choice_text_font">26sp</dimen>
+    <dimen name="choicebox_title_paddingTop">12dp</dimen>
+    <dimen name="choicebox_title_paddingLeft">16dp</dimen>
+    <dimen name="choicebox_title_paddingRight">16dp</dimen>
+    <dimen name="choicebox_title_paddingBottom">12dp</dimen>
+    <dimen name="choicebox_title_font">30sp</dimen>
+    <dimen name="phrase_info_text">22sp</dimen>
+    <dimen name="phrase_seen_text">18sp</dimen>
+    <dimen name="phrase_dest_text">22sp</dimen>
+    <dimen name="phrase_dest_text_paddingHorizontal">16dp</dimen>
+    <dimen name="phrase_dest_text_paddingVertical">10dp</dimen>
+    <dimen name="phrase_dest_paddingLeft">28dp</dimen>
+    <dimen name="phrase_image_image">200dp</dimen>
+    <dimen name="phrase_me_marginleft">16dp</dimen>
+    <dimen name="announcement_text">28sp</dimen>
+
+    <!-- MENU -->
+    <dimen name="menu_informations_title">32sp</dimen>
+    <dimen name="menu_informations_text">28sp</dimen>
+    <dimen name="menu_button_play">28sp</dimen>
+    <dimen name="menu_version_name">24sp</dimen>
+    <dimen name="menu_background_button">17dp</dimen>
+    <dimen name="menu_description_title">28sp</dimen>
+    <dimen name="menu_description_content">24sp</dimen>
+
+    <!-- SHELL -->
+    <dimen name="shell_description_title">32sp</dimen>
+    <dimen name="shell_description_content">28sp</dimen>
+    <dimen name="shell_description_padding">30dp</dimen>
+    <dimen name="shell_your_message">28sp</dimen>
+    <dimen name="shell_your_message_margin">20dp</dimen>
+
+    <!-- PHRASE:ROBOT -->
+    <dimen name="phrase_robot_text">22sp</dimen>
+    <dimen name="phrase_robot_text_padding_right">8dp</dimen>
+    <dimen name="phrase_robot_text_margin_vertical">16dp</dimen>
+    <dimen name="phrase_robot_text_margin_horizontal">8dp</dimen>
+
+    <!-- PHRASE:ROBOTCODE -->
+    <dimen name="phrase_robot_code_text">18sp</dimen>
+    <dimen name="phrase_robot_code_text_margin">8dp</dimen>
+
+    <!-- PHRASE:IMAGE -->
+    <dimen name="phrase_image_margin_start">16dp</dimen>
+
+    <!-- POETRY -->
+    <dimen name="poetry_story_text">34sp</dimen>
+    <dimen name="poetry_story_padding">30dp</dimen>
+    <dimen name="poetry_go_to_chapter_text">26sp</dimen>
+
+    <!-- PORTABLE -->
+    <dimen name="phone_icone_top_height">30dp</dimen>
+
+    <!-- END -->
+    <dimen name="end_text">22sp</dimen>
+    <dimen name="end_wrote_by">22sp</dimen>
+</resources>

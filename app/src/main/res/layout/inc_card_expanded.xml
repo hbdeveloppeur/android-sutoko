@@ -1,0 +1,388 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    tools:viewBindingIgnore="true"
+    app:layout_constraintDimensionRatio="H, 507:180">
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/sutoko.card.cardview"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:clickable="false"
+        android:focusable="false"
+        android:focusableInTouchMode="false"
+        app:cardCornerRadius="@dimen/home_card_content_background_radius"
+        app:cardElevation="0dp"
+        app:layout_constraintDimensionRatio="H, 507:180"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <VideoView
+            android:id="@+id/sutoko.card.preview.video"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="gone"
+            />
+
+        <ImageView
+            android:id="@+id/sutoko.card.images.background"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:clickable="false"
+            android:focusable="false"
+            android:focusableInTouchMode="false"
+            tools:ignore="ContentDescription" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="#10FFFFFF" />
+
+        <View
+            android:id="@+id/sutoko.card.filter"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:alpha="0.3"
+            android:background="#000000" />
+
+
+        <View
+            android:id="@+id/sutoko.card.background.hitbox"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:clickable="true"
+            android:focusable="true"
+            android:focusableInTouchMode="true" />
+    </androidx.cardview.widget.CardView>
+
+    <View
+        android:id="@+id/sutoko.card.patron.3"
+        android:layout_width="10dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintDimensionRatio="1:1"
+        app:layout_constraintStart_toStartOf="parent" />
+
+
+    <ImageView
+        android:id="@+id/sutoko.card.preview.lock.image"
+        android:layout_width="0dp"
+        android:layout_height="20dp"
+        android:adjustViewBounds="true"
+        app:layout_constraintBottom_toTopOf="@id/sutoko.card.patron.3"
+        app:layout_constraintDimensionRatio="W, 1:1"
+        app:layout_constraintStart_toEndOf="@id/sutoko.card.patron.3"
+        tools:ignore="ContentDescription" />
+
+    <ImageView
+        android:id="@+id/sutoko.card.preview.eye.image"
+        android:layout_width="wrap_content"
+        android:layout_height="22dp"
+        android:adjustViewBounds="true"
+        app:layout_constraintBottom_toTopOf="@id/sutoko.card.patron.3"
+        app:layout_constraintDimensionRatio="W, 1:1"
+        app:layout_constraintStart_toEndOf="@id/sutoko.card.patron.3"
+        android:alpha="0.4"
+        tools:ignore="ContentDescription" />
+
+    <ImageView
+        android:id="@+id/sutoko.card.preview.logo"
+        android:layout_width="wrap_content"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toTopOf="@id/sutoko.guideline12"
+        app:layout_constraintEnd_toStartOf="@id/sutoko.guideline10"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@id/sutoko.guideline11"
+        tools:ignore="ContentDescription" />
+
+    <View
+        android:id="@+id/sutoko.card.preview.hitbox"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:clickable="true"
+        android:focusable="true"
+        android:focusableInTouchMode="true"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/sutoko.card.content.background"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <View
+        android:id="@+id/sutoko.card.content.background"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:background="@drawable/background_card_content"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/sutoko.guideline10"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <View
+        android:id="@+id/sutoko.card.patron.1"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toTopOf="@id/sutoko.guideline6"
+        app:layout_constraintDimensionRatio="W, 1:1"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <ImageView
+        android:id="@+id/sutoko.card.button.options.image"
+        android:layout_width="0dp"
+        android:layout_height="21dp"
+        android:layout_marginEnd="2dp"
+        android:layout_marginRight="2dp"
+        app:layout_constraintDimensionRatio="8:32"
+        app:layout_constraintEnd_toStartOf="@id/sutoko.card.patron.1"
+        app:layout_constraintTop_toBottomOf="@id/sutoko.card.patron.1"
+        app:srcCompat="@drawable/ic_more_vert"
+        android:visibility="invisible"
+        tools:ignore="ContentDescription" />
+
+    <View
+        android:id="@+id/sutoko.card.button.options.hitbox"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="@id/sutoko.card.button.options.image"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="@id/sutoko.guideline10"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <ImageView
+        android:id="@+id/sutoko.card.text.icon"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        app:layout_constraintBottom_toBottomOf="@id/sutoko.card.button.options.image"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toEndOf="@id/sutoko.guideline7"
+        app:layout_constraintVertical_bias="0.8"
+        android:visibility="invisible"
+        android:alpha="0.5"
+        tools:ignore="ContentDescription" />
+
+    <com.example.sutokosharedelements.fonts.RobotoCondensedRegular
+        android:id="@+id/sutoko.card.text.title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:clickable="false"
+        android:focusable="false"
+        android:focusableInTouchMode="false"
+        android:letterSpacing="0.1"
+        android:layout_marginBottom="2dp"
+        android:textColor="#121212"
+        android:textSize="18sp"
+        android:visibility="invisible"
+        android:layout_marginLeft="8dp"
+        android:layout_marginStart="8dp"
+        app:layout_constraintBottom_toBottomOf="@id/sutoko.card.button.options.image"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toEndOf="@id/sutoko.card.text.icon"
+        app:layout_constraintVertical_bias="0.8" />
+
+    <com.example.sutokosharedelements.fonts.RobotoCondensedRegular
+        android:id="@+id/sutoko.card.text.tag"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:clickable="false"
+        android:focusable="false"
+        android:focusableInTouchMode="false"
+        android:letterSpacing="0.06"
+        android:textAllCaps="true"
+        android:textColor="#c50e3b"
+        android:textSize="13sp"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toBottomOf="@id/sutoko.card.characteristics.0"
+        app:layout_constraintStart_toEndOf="@id/sutoko.guideline7"
+        app:layout_constraintTop_toTopOf="@id/sutoko.card.characteristics.0" />
+
+    <com.example.sutokosharedelements.fonts.RobotoCondensedRegular
+        android:id="@+id/sutoko.card.text.catchingPhrase"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:clickable="false"
+        android:focusable="false"
+        android:focusableInTouchMode="false"
+        android:letterSpacing="0.03"
+        android:textColor="#4D4D4D"
+        android:textSize="14sp"
+        android:lineSpacingExtra="3dp"
+        android:visibility="invisible"
+        app:layout_constrainedWidth="true"
+        app:layout_constraintBottom_toTopOf="@id/sutoko.card.text.tag"
+        app:layout_constraintEnd_toStartOf="@id/sutoko.guideline9"
+        app:layout_constraintHorizontal_bias="0"
+        app:layout_constraintStart_toEndOf="@id/sutoko.guideline7"
+        app:layout_constraintTop_toBottomOf="@id/sutoko.card.text.title"
+        app:layout_constraintVertical_bias="0.5" />
+
+    <View
+        android:id="@+id/sutoko.card.patron.2"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintDimensionRatio="W, 1:1"
+        app:layout_constraintEnd_toStartOf="@id/sutoko.guideline10"
+        app:layout_constraintTop_toBottomOf="@id/sutoko.guideline8" />
+
+    <View
+        android:id="@+id/sutoko.card.tongue"
+        android:layout_width="8dp"
+        android:layout_height="32dp"
+        android:layout_marginEnd="6dp"
+        android:layout_marginRight="6dp"
+        android:alpha="0.7"
+        android:background="@drawable/background_card_tongue"
+        android:clickable="false"
+        android:focusable="false"
+        android:focusableInTouchMode="false"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/sutoko.card.content.background"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.5" />
+
+    <View
+        android:id="@+id/sutoko.card.tongue.hitbox.bis"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="@id/sutoko.card.content.background"
+        app:layout_constraintStart_toStartOf="@id/sutoko.card.content.background"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <View
+        android:id="@+id/sutoko.card.tongue.hitbox"
+        android:layout_width="0dp"
+        android:layout_height="60dp"
+        android:clickable="true"
+        android:focusable="true"
+        android:focusableInTouchMode="true"
+        app:layout_constraintBottom_toBottomOf="@id/sutoko.card.tongue"
+        app:layout_constraintDimensionRatio="W, 1:1"
+        app:layout_constraintEnd_toEndOf="@id/sutoko.card.tongue"
+        app:layout_constraintStart_toStartOf="@id/sutoko.card.tongue"
+        app:layout_constraintTop_toTopOf="@id/sutoko.card.tongue" />
+
+
+    <ImageView
+        android:id="@+id/sutoko.card.characteristics.0"
+        android:layout_width="@dimen/home_card_characteristics_icon_height"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toTopOf="@id/sutoko.card.patron.2"
+        app:layout_constraintDimensionRatio="H, 1:1"
+        app:layout_constraintEnd_toStartOf="@id/sutoko.card.patron.2"
+        tools:ignore="ContentDescription" />
+
+
+    <ImageView
+        android:id="@+id/sutoko.card.characteristics.1"
+        android:layout_width="@dimen/home_card_characteristics_icon_height"
+        android:layout_height="0dp"
+        android:layout_marginEnd="@dimen/mainactivity_card_characteristics_right_margin"
+        android:layout_marginRight="@dimen/mainactivity_card_characteristics_right_margin"
+        app:layout_constraintBottom_toBottomOf="@id/sutoko.card.characteristics.0"
+        app:layout_constraintDimensionRatio="H, 1:1"
+        app:layout_constraintEnd_toStartOf="@id/sutoko.card.characteristics.0"
+        app:layout_constraintTop_toTopOf="@id/sutoko.card.characteristics.0"
+        tools:ignore="ContentDescription" />
+
+    <ImageView
+        android:id="@+id/sutoko.card.characteristics.2"
+        android:layout_width="@dimen/home_card_characteristics_icon_height"
+        android:layout_height="0dp"
+        android:layout_marginEnd="@dimen/mainactivity_card_characteristics_right_margin"
+        android:layout_marginRight="@dimen/mainactivity_card_characteristics_right_margin"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="@id/sutoko.card.characteristics.0"
+        app:layout_constraintDimensionRatio="H, 1:1"
+        app:layout_constraintEnd_toStartOf="@id/sutoko.card.characteristics.1"
+        app:layout_constraintTop_toTopOf="@id/sutoko.card.characteristics.0"
+        tools:ignore="ContentDescription" />
+
+    <ImageView
+        android:id="@+id/sutoko.card.characteristics.3"
+        android:layout_width="@dimen/home_card_characteristics_icon_height"
+        android:layout_height="0dp"
+        android:layout_marginEnd="@dimen/mainactivity_card_characteristics_right_margin"
+        android:layout_marginRight="@dimen/mainactivity_card_characteristics_right_margin"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="@id/sutoko.card.characteristics.0"
+        app:layout_constraintDimensionRatio="H, 1:1"
+        app:layout_constraintEnd_toStartOf="@id/sutoko.card.characteristics.2"
+        app:layout_constraintTop_toTopOf="@id/sutoko.card.characteristics.0"
+        tools:ignore="ContentDescription" />
+
+    <ImageView
+        android:id="@+id/sutoko.card.characteristics.4"
+        android:layout_width="@dimen/home_card_characteristics_icon_height"
+        android:layout_height="0dp"
+        android:layout_marginEnd="@dimen/mainactivity_card_characteristics_right_margin"
+        android:layout_marginRight="@dimen/mainactivity_card_characteristics_right_margin"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="@id/sutoko.card.characteristics.0"
+        app:layout_constraintDimensionRatio="H, 1:1"
+        app:layout_constraintEnd_toStartOf="@id/sutoko.card.characteristics.3"
+        app:layout_constraintTop_toTopOf="@id/sutoko.card.characteristics.0"
+        tools:ignore="ContentDescription" />
+
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/sutoko.guideline5"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.8" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/sutoko.guideline6"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.15" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/sutoko.guideline7"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_begin="70dp" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/sutoko.guideline8"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.899" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/sutoko.guideline9"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.906" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/sutoko.guideline10"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.87" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/sutoko.guideline11"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.2" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/sutoko.guideline12"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.8" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

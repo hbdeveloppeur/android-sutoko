@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#000000"
+    android:theme="@style/SplashScreenTheme">
+
+
+    <ImageView
+        android:id="@+id/fz4_audio_cinematic.image.audio"
+        android:layout_width="60dp"
+        android:layout_height="0dp"
+        android:layout_marginBottom="10dp"
+        android:alpha=".6"
+        app:layout_constraintBottom_toTopOf="@id/fz4_audio_cinematic.text.title"
+        app:layout_constraintDimensionRatio="H, 1:1"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintVertical_bias="0.56"
+        tools:ignore="ContentDescription" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="2dp"
+        android:alpha=".3"
+        android:background="@drawable/fz4_dotted"
+        android:layerType="software"
+        app:layout_constraintBottom_toBottomOf="@id/fz4_audio_cinematic.image.audio"
+        app:layout_constraintTop_toTopOf="@id/fz4_audio_cinematic.image.audio" />
+
+    <View
+        android:id="@+id/fz4_audio_cinematic.progress.background"
+        android:layout_width="match_parent"
+        android:layout_height="2dp"
+        android:alpha=".1"
+        android:background="#e2450b"
+        app:layout_constraintBottom_toBottomOf="parent" />
+
+    <View
+        android:id="@+id/fz4_audio_cinematic.progress.bar"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:background="#e2450b"
+        app:layout_constraintBottom_toBottomOf="@id/fz4_audio_cinematic.progress.background"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@id/fz4_audio_cinematic.progress.background" />
+
+    <ImageView
+        android:id="@+id/fz4_audio_cinematic.button.play.icon"
+        android:layout_width="0dp"
+        android:layout_height="20dp"
+        android:layout_marginLeft="15dp"
+        android:alpha=".6"
+        app:layout_constraintBottom_toBottomOf="@id/fz4_audio_cinematic.button.play"
+        app:layout_constraintDimensionRatio="W, 1:1"
+        app:layout_constraintStart_toStartOf="@id/fz4_audio_cinematic.button.play"
+        app:layout_constraintTop_toTopOf="@id/fz4_audio_cinematic.button.play"
+        tools:ignore="ContentDescription,RtlHardcoded" />
+
+    <purpletear.fr.purpleteartools.fonts.OldBebasNeue
+        android:id="@+id/fz4_audio_cinematic.button.next"
+        android:visibility="invisible"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginBottom="12dp"
+        android:background="@drawable/fz4_layout_bg_round_soft_white"
+        android:gravity="center"
+        android:letterSpacing=".1"
+        android:text="@string/main_button_continue"
+        android:textSize="@dimen/audio_description_btn_text"
+        app:layout_constraintBottom_toTopOf="@id/fz4_audio_cinematic.button.play"
+        app:layout_constraintDimensionRatio="H, 6:1"
+        app:layout_constraintEnd_toStartOf="@id/fz4_guideline18"
+        app:layout_constraintStart_toEndOf="@id/fz4_guideline17" />
+
+    <purpletear.fr.purpleteartools.fonts.OldBebasNeue
+        android:id="@+id/fz4_audio_cinematic.button.play"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginBottom="30dp"
+        android:background="@drawable/fz4_layout_bg_round_soft_white"
+        android:gravity="center"
+        android:letterSpacing=".1"
+        android:text="@string/audio_cinematic_button_play"
+        android:textSize="@dimen/audio_description_btn_text"
+        app:layout_constraintBottom_toTopOf="@id/fz4_audio_cinematic.text.earphones"
+        app:layout_constraintDimensionRatio="H, 6:1"
+        app:layout_constraintEnd_toStartOf="@id/fz4_guideline18"
+        app:layout_constraintStart_toEndOf="@id/fz4_guideline17" />
+
+    <purpletear.fr.purpleteartools.fonts.OldPtSans
+        android:id="@+id/fz4_audio_cinematic.text.earphones"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="40dp"
+        android:text="@string/audio_cinematic_button_recomandation"
+        android:textColor="#79ffffff"
+        android:textSize="@dimen/audio_description_indication"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <purpletear.fr.purpleteartools.fonts.OldPtSans
+        android:id="@+id/fz4_audio_cinematic.text.title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:alpha=".6"
+        android:text="@string/audio_cinematic_title"
+        android:textColor="#FFF"
+        android:textSize="@dimen/audio_description"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.56" />
+
+    <purpletear.fr.purpleteartools.fonts.OldPtSans
+        android:id="@+id/fz4_audio_cinematic.text.audio_description"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:textColor="#e2450b"
+        app:layout_constraintBottom_toTopOf="@id/fz4_audio_cinematic.image.audio"
+        app:layout_constraintEnd_toEndOf="@id/fz4_guideline19"
+        app:layout_constraintStart_toStartOf="@id/fz4_guideline16"
+        android:gravity="center"
+        android:textSize="@dimen/audio_description"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constrainedWidth="true" />
+
+    <View
+        android:id="@+id/fz4_audio_cinematic.filter.black"
+        android:background="@color/colorBlack"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/fz4_guideline15"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent=".55" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/fz4_guideline17"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent=".15" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/fz4_guideline18"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent=".85" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/fz4_guideline16"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent=".08" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/fz4_guideline19"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent=".92" />
+</androidx.constraintlayout.widget.ConstraintLayout>

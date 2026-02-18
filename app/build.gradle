@@ -1,0 +1,302 @@
+plugins {
+    id 'com.android.application'
+    id 'kotlin-android'
+    id 'kotlin-parcelize'
+    id 'dagger.hilt.android.plugin'
+    id 'com.google.gms.google-services'
+    id 'kotlin-kapt'
+    alias libs.plugins.compose.compiler
+    id 'com.google.firebase.crashlytics'
+}
+
+def localProperties = new Properties()
+def localPropertiesFile = rootProject.file('local.properties')
+if (localPropertiesFile.exists()) {
+    localProperties.load(new FileInputStream(localPropertiesFile))
+}
+
+
+android {
+    signingConfigs {
+        release {
+            def storeFilePath = localProperties.get("storeFile")
+            if (storeFilePath != null && !storeFilePath.isEmpty()) {
+                storeFile file(storeFilePath)
+                storePassword localProperties.get("storePassword")
+                keyPassword localProperties.get("keyPassword")
+                keyAlias localProperties.get("keyAlias")
+            }
+            v1SigningEnabled true
+            v2SigningEnabled true
+        }
+    }
+
+    compileSdk 35
+
+    defaultConfig {
+        applicationId "fr.purpletear.sutoko"
+        minSdkVersion 24
+        targetSdk 35
+        versionCode rootProject.versionCode
+        versionName "Your Turn"
+        vectorDrawables.useSupportLibrary true
+        resourceConfigurations += ['fr', 'es', 'es-rES', 'en', 'de']
+        // externalNativeBuild {
+        //     // For ndk-build, instead use the ndkBuild block.
+        //     cmake {
+        //         // Passes optional arguments to CMake.
+        //         arguments "-DANDROID_SUPPORT_FLEXIBLE_PAGE_SIZES=ON"
+        //     }
+        // }
+    }
+
+    signingConfigs {
+        debug {
+            def debugStoreFile = localProperties.get("storeFile")
+            if (debugStoreFile != null && !debugStoreFile.isEmpty()) {
+                storeFile file(debugStoreFile)
+                storePassword localProperties.get("storePassword")
+                keyPassword localProperties.get("keyPassword")
+                keyAlias localProperties.get("keyAlias")
+            }
+        }
+        release {
+            def releaseStoreFile = localProperties.get("storeFile")
+            if (releaseStoreFile != null && !releaseStoreFile.isEmpty()) {
+                storeFile file(releaseStoreFile)
+                storePassword localProperties.get("storePassword")
+                keyPassword localProperties.get("keyPassword")
+                keyAlias localProperties.get("keyAlias")
+            }
+        }
+    }
+
+
+    buildFeatures {
+        dataBinding true
+        viewBinding true
+        compose true
+        buildConfig true
+    }
+
+    buildTypes {
+        release {
+            signingConfig signingConfigs.release
+            minifyEnabled true
+            shrinkResources true
+            multiDexEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules-dependencies.pro', 'proguard-rules-app.pro'
+            buildConfigField("int", "VERSION_CODE", "${defaultConfig.versionCode}")
+            buildConfigField("String", "VERSION_NAME", "\"${defaultConfig.versionName}\"")
+            buildConfigField "boolean", "SEE_ADS", "true"
+            manifestPlaceholders = [admob_app_id: "ca-app-pub-8906119025049365~7282270985"]
+            ndk {
+                debugSymbolLevel 'FULL'
+            }
+
+        }
+
+        debug {
+            minifyEnabled false
+            shrinkResources false
+            multiDexEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules-dependencies.pro', 'proguard-rules-app.pro'
+            buildConfigField("String", "VERSION_NAME", "\"${defaultConfig.versionName}\"")
+            buildConfigField("int", "VERSION_CODE", "${defaultConfig.versionCode}")
+            buildConfigField "boolean", "SEE_ADS", "false"
+            manifestPlaceholders = [admob_app_id: "ca-app-pub-8906119025049365~7282270985"]
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+
+    kotlin {
+        jvmToolchain(17)
+    }
+
+    buildTypes.getByName("release") {
+        debuggable false
+    }
+
+    buildTypes.getByName("debug") {
+        debuggable true
+    }
+
+    namespace 'fr.purpletear.sutoko'
+    composeOptions {
+        kotlinCompilerExtensionVersion '1.4.2'
+    }
+    packagingOptions {
+        resources {
+            excludes += '/META-INF/{AL2.0,LGPL2.1}'
+        }
+        jniLibs {
+            useLegacyPackaging = false
+        }
+    }
+}
+
+dependencies {
+    // Import the BoM for the Firebase platform
+    implementation project(path: ':sutokosharedelements')
+    implementation platform("com.google.firebase:firebase-bom:$firebase_bom_platform_version")
+    implementation("com.google.protobuf:protobuf-javalite") {
+        version {
+            strictly '3.21.7'
+        }
+    }
+    implementation platform(libs.compose.bom)
+    // implementation 'androidx.compose.ui:ui-graphics'
+    implementation project(path: ':alert:alert_presentation')
+    implementation project(path: ':popup:popup_domain')
+    implementation project(':in_app_purchase:in_app_purchase_data')
+    implementation project(':in_app_purchase:in_app_purchase_domain')
+    implementation project(':ai-conversation:domain')
+    implementation project(':ai-conversation:presentation')
+    implementation project(':ai-conversation:data')
+    implementation project(':ai-conversation:core')
+    implementation project(':shop:presentation')
+    implementation project(':shop:domain')
+    implementation project(':shop:data')
+    implementation project(':user:domain')
+    implementation project(':user:data')
+    implementation project(':core:presentation')
+    implementation project(':popup:pop_data')
+    implementation project(':Framework')
+    implementation project(':popup:popup_presentation')
+    implementation project(':game:game_domain')
+    implementation project(':game:game_data')
+    implementation project(':game:game_presentation')
+    implementation project(':version:version_presentation')
+    implementation project(':core:presentation')
+
+    // DESUGARING
+    coreLibraryDesugaring "com.android.tools:desugar_jdk_libs:$desugar_jdk_libs_version"
+
+    implementation libs.activity.compose
+    implementation libs.navigation.compose
+    implementation libs.accompanist.insets
+    implementation libs.accompanist.pager
+    implementation libs.accompanist.systemuicontroller
+    implementation libs.material.compose
+
+    implementation libs.androidx.material3
+    implementation libs.androidx.material3.window.size
+    implementation project(path: ':PurpleTearTools')
+
+    implementation libs.compose.foundation
+    implementation libs.compose.ui
+    implementation libs.compose.ui.tooling.preview
+    implementation libs.android.material
+
+    implementation libs.androidx.constraintlayout.compose
+    implementation project(path: ':smsgame')
+    implementation libs.lazyColumnScrollbar
+
+
+    // Room
+    kapt(libs.room.compiler)
+    implementation(libs.room.runtime)
+    implementation(libs.room.ktx)
+
+    // Retrofit
+    implementation libs.retrofit
+    implementation libs.retrofit.gson
+
+    // OkHttp
+    implementation libs.okhttp3
+    implementation libs.logging.interceptor
+
+    // Startup runtime
+    implementation libs.androidx.startup.runtime
+
+    // Coil
+    implementation libs.coil.compose
+
+    // Lifecycle
+    implementation libs.lifecycle.viewmodel.ktx
+    implementation libs.androidx.lifecycle.viewmodel.savedstate
+    implementation libs.androidx.lifecycle.livedata.ktx
+    implementation libs.androidx.lifecycle.runtime.ktx
+    implementation libs.androidx.lifecycle.common.java8
+    implementation libs.androidx.lifecycle.process
+
+    implementation libs.chrisbanes.photoView
+
+    //Dagger - Hilt
+    implementation libs.dagger.hilt
+    kapt libs.dagger.hilt.compiler
+    kapt libs.androidx.hilt.compiler
+    implementation libs.androidx.hilt.navigation.compose
+
+    implementation libs.lottie.compose
+
+    // For apps targeting Android 12, add WorkManager dependency.
+    constraints {
+        implementation('androidx.work:work-runtime:2.7.0') {
+            because '''androidx.work:work-runtime:2.1.0 pulled from play-services-ads
+                   has a bug using PendingIntent without FLAG_IMMUTABLE or
+                   FLAG_MUTABLE and will fail in apps targeting S+.'''
+        }
+    }
+
+    implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.1.0")
+    implementation 'com.google.firebase:firebase-crashlytics-ktx'
+    implementation 'com.google.firebase:firebase-analytics-ktx'
+    implementation 'com.google.firebase:firebase-firestore-ktx'
+    implementation 'com.google.firebase:firebase-storage-ktx'
+    implementation 'com.google.firebase:firebase-auth-ktx'
+    implementation 'com.google.firebase:firebase-inappmessaging-display-ktx'
+    implementation 'com.google.firebase:firebase-messaging-ktx'
+    implementation 'com.google.firebase:firebase-config-ktx'
+    implementation "com.google.firebase:firebase-crashlytics"
+
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation libs.kotlinx.coroutines.android
+    implementation libs.androidx.appcompat
+    implementation libs.androidx.constraintlayout
+    implementation libs.glide
+    kapt "com.github.bumptech.glide:compiler:$bumptech_glide_version"
+    implementation libs.androidx.cardview
+    implementation libs.android.material
+    implementation libs.androidx.multidex
+    implementation libs.lottie
+
+
+    implementation libs.prdownloader
+    implementation 'com.android.billingclient:billing:6.0.1'
+    implementation libs.androidx.ktx
+
+    implementation libs.androidx.media3.ui
+    implementation libs.androidx.media3.exoplayer
+
+    implementation libs.conscrypt.android
+
+    implementation libs.grpc.okhttp
+    implementation libs.gson
+    implementation libs.kittinunf.fuel
+
+    configurations {
+        implementation.exclude module: 'protobuf-lite'
+    }
+
+    debugImplementation libs.androidx.ui.tooling
+
+    implementation project(path: ':games:friendzone1')
+    implementation project(path: ':games:friendzone2')
+    implementation project(path: ':games:friendzone3')
+    implementation project(path: ':games:friendzone4')
+    implementation project(path: ':smartads')
+    implementation project(path: ':permission:domain')
+    implementation project(path: ':permission:data')
+    implementation project(path: ':core:domain')
+    implementation project(path: ':core:core_data')
+    implementation project(path: ':notification:domain')
+    implementation project(path: ':notification:data')
+    implementation project(path: ':news:news_domain')
+    implementation project(path: ':news:news_data')
+    implementation project(path: ':news:news_presentation')
+}

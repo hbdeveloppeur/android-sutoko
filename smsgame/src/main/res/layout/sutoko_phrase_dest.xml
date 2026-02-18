@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        tools:viewBindingIgnore="true">
+
+    <ImageView
+            android:id="@+id/sutoko.phrase_dest.avatar.image"
+            android:layout_width="@dimen/sutoko_sms_game_avatar"
+            android:layout_height="@dimen/sutoko_sms_game_avatar"
+            android:layout_marginStart="8dp"
+            android:shadowColor="#1D82CF"
+            android:shadowDx="1"
+            android:shadowDy="1"
+            android:shadowRadius="10"
+            android:transitionName="dontyoubreakingmyheart"
+            app:layout_constraintStart_toStartOf="@+id/guideline70"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:ignore="ContentDescription,UnusedAttribute" />
+
+
+    <com.example.sutokosharedelements.fonts.RobotoBold
+            android:id="@+id/sutoko.phrase_dest.name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="5dp"
+            android:padding="3dp"
+            android:textColor="#FF90DA"
+            android:textSize="16sp"
+            app:layout_constraintBottom_toBottomOf="@id/sutoko.phrase_dest.avatar.image"
+            app:layout_constraintStart_toEndOf="@id/sutoko.phrase_dest.avatar.image"
+            app:layout_constraintTop_toTopOf="@id/sutoko.phrase_dest.avatar.image" />
+
+    <com.example.sutokosharedelements.fonts.RobotoRegular
+            android:id="@+id/sutoko.phrase_dest.time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="12dp"
+            android:textColor="#ECECEC"
+            android:textSize="16sp"
+            app:layout_constraintBottom_toBottomOf="@id/sutoko.phrase_dest.name"
+            app:layout_constraintEnd_toStartOf="@+id/guideline68"
+            app:layout_constraintTop_toTopOf="@id/sutoko.phrase_dest.name" />
+
+    <com.example.sutokosharedelements.fonts.WorkSansRegular
+            android:id="@+id/sutoko.phrase_dest.message"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:animateLayoutChanges="true"
+            android:lineSpacingExtra="2dp"
+            android:paddingStart="16dp"
+            android:paddingLeft="16dp"
+            android:paddingTop="9dp"
+            android:paddingEnd="16dp"
+            android:paddingRight="16dp"
+            android:paddingBottom="11dp"
+            android:textColor="#FFF"
+            android:textSize="@dimen/sutoko_phrase_message_text_size"
+            app:layout_constraintHorizontal_bias="0"
+            app:layout_constraintStart_toEndOf="@id/guideline70"
+            app:layout_constraintTop_toBottomOf="@id/sutoko.phrase_dest.name" />
+    <!-- GUIDELINES -->
+
+    <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guideline68"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent="0.63" />
+
+    <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guideline70"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent="0.02" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

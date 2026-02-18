@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/black">
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline19"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.3" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline31"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.7" />
+
+    <purpletear.fr.purpleteartools.fonts.OldPtSans
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="@color/white"
+        android:textSize="13sp"
+        app:layout_constraintBottom_toTopOf="@id/cs.edittext"
+        app:layout_constraintStart_toEndOf="@id/guideline19"
+        android:text="Chapter's code"
+        android:layout_marginBottom="8dp"
+        tools:ignore="HardcodedText" />
+
+    <EditText
+        android:id="@+id/cs.edittext"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toEndOf="@id/guideline19"
+        app:layout_constraintEnd_toStartOf="@id/guideline31"
+        app:layout_constraintVertical_bias="0.4"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:background="@color/softWhite"
+        android:textColor="@color/black"
+        android:hint="1a"
+        tools:ignore="HardcodedText"
+        android:textColorHint="@color/softBlack"
+        android:maxLength="2"
+        android:lines="1"
+        android:padding="2dp"
+        android:inputType="text" />
+
+    <Button
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toEndOf="@id/guideline19"
+        app:layout_constraintEnd_toStartOf="@id/guideline31"
+        app:layout_constraintTop_toBottomOf="@id/cs.edittext"
+        android:text="@string/save"
+        android:layout_marginTop="12dp"
+        android:onClick="save" />
+</androidx.constraintlayout.widget.ConstraintLayout>

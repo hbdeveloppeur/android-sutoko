@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".game.activities.poetry.Poetry">
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/fz4_guideline173"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent=".1" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/fz4_guideline174"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent=".9" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/fz4_guideline175"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent=".1" />
+
+
+    <ImageView
+        android:id="@+id/fz4_poetry.background"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="centerCrop"
+        tools:ignore="ContentDescription"
+        android:clickable="true"
+        android:focusable="true"
+        android:focusableInTouchMode="true" />
+
+    <purpletear.fr.purpleteartools.fonts.OldPtSans
+        android:id="@+id/fz4_poetry.f"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/fz4_guideline175"
+        app:layout_constrainedWidth="true"
+        android:textSize="@dimen/poetry_text"
+        android:textColor="#77ffffff"
+        android:text="@string/appuyez_sur_l_image_pour_la_voir_enti_rement" />
+
+    <purpletear.fr.purpleteartools.fonts.OldPtSans
+        android:id="@+id/fz4_poetry.text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:textColor="#FFF"
+        android:textSize="@dimen/poetry_text"
+        app:layout_constrainedWidth="true"
+        app:layout_constraintBottom_toTopOf="@+id/fz4_poetry.button.next"
+        app:layout_constraintEnd_toStartOf="@id/fz4_guideline174"
+        app:layout_constraintStart_toEndOf="@id/fz4_guideline173"
+        app:layout_constraintTop_toBottomOf="@id/fz4_poetry.f"
+        app:layout_constraintVertical_bias="0.060000002" />
+
+    <View
+        android:visibility="invisible"
+        android:id="@+id/fz4_poetry.facticesquare"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintDimensionRatio="H, 1:1"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="@+id/fz4_guideline174" />
+
+
+    <purpletear.fr.purpleteartools.fonts.OldBebasNeue
+        android:id="@+id/fz4_poetry.button.next"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:background="@drawable/fz4_background_menu_button"
+        android:gravity="center"
+        android:letterSpacing=".1"
+        android:text="CONTINUER"
+        android:textAllCaps="true"
+        android:textColor="@color/colorWhite"
+        android:textSize="@dimen/menu_button_text_size"
+        app:layout_constraintBottom_toTopOf="@id/fz4_poetry.facticesquare"
+        app:layout_constraintDimensionRatio="H, 6:1"
+        app:layout_constraintStart_toEndOf="@id/fz4_guideline173"
+        app:layout_constraintEnd_toStartOf="@id/fz4_guideline174"
+        tools:ignore="UnusedAttribute" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

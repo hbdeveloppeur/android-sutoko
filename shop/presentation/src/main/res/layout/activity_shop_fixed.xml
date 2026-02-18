@@ -1,0 +1,225 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:tools="http://schemas.android.com/tools">
+
+    <androidx.constraintlayout.motion.widget.MotionLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#9d3c4d"
+        app:layoutDescription="@xml/activity_shop_scene_fix">
+
+        <com.example.sutokosharedelements.views.MediaBackgroundView
+            android:id="@+id/sutoko_shop_background"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+        <View
+            android:id="@+id/sutoko_shop_background_filter"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="#000" />
+
+        <View
+            android:id="@+id/sutoko_shop_fake_statusbar"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+
+            />
+
+        <com.example.sutokosharedelements.fonts.PoppinsSemiBold
+            android:id="@+id/sutoko_shop_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="28dp"
+            android:alpha="1"
+            android:text="@string/sutoko_shop_title"
+            android:textAlignment="center"
+            android:textAllCaps="true"
+            android:textColor="#feffff"
+            android:textSize="22sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <com.example.sutokosharedelements.fonts.PoppinsRegular
+            android:id="@+id/sutoko_shop_subtitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="3dp"
+            android:alpha="1"
+            android:maxWidth="300dp"
+            android:text="@string/sutoko_shop_subtitle"
+            android:textAlignment="center"
+            android:textAllCaps="false"
+            android:textColor="#f4f4f4"
+            android:textSize="14sp"
+            app:layout_constrainedWidth="true"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/sutoko_shop_title" />
+
+        <ProgressBar
+            android:id="@+id/sutoko_coins_information_progressbar"
+            android:layout_width="22dp"
+            android:layout_height="22dp"
+            android:layout_marginStart="12dp"
+            android:visibility="invisible"
+            app:layout_constraintBottom_toBottomOf="@id/sutoko_coins_information"
+            app:layout_constraintStart_toEndOf="@id/sutoko_coins_information"
+            app:layout_constraintTop_toTopOf="@id/sutoko_coins_information" />
+
+        <LinearLayout
+            android:id="@+id/sutoko_coins_information"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:background="@drawable/sutoko_shop_rounded_background_black"
+            android:gravity="center"
+            android:paddingStart="18dp"
+            android:paddingTop="8dp"
+            android:paddingEnd="16dp"
+            android:paddingBottom="8dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/sutoko_shop_subtitle">
+
+            <com.example.sutokosharedelements.fonts.PoppinsBoldAnimated
+                android:id="@+id/sutoko_coins"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="-1"
+                android:textColor="#FFF" />
+
+            <ImageView
+                android:id="@+id/sutoko_coins_image"
+                android:layout_width="16dp"
+                android:layout_height="16dp"
+                android:layout_marginStart="3dp"
+                android:adjustViewBounds="true"
+                android:rotation="45"
+                android:scaleType="centerCrop"
+                android:src="@drawable/sutoko_item_coin"
+                tools:ignore="ContentDescription" />
+
+            <com.example.sutokosharedelements.fonts.PoppinsBoldAnimated
+                android:id="@+id/sutoko_diamonds"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="6dp"
+                android:text="-1"
+                android:textColor="#FFF" />
+
+            <ImageView
+                android:id="@+id/sutoko_diamonds_image"
+                android:layout_width="16dp"
+                android:layout_height="16dp"
+                android:layout_marginStart="3dp"
+                android:adjustViewBounds="true"
+                android:rotation="45"
+                android:scaleType="centerCrop"
+                android:src="@drawable/sutoko_ic_diamond"
+                tools:ignore="ContentDescription" />
+
+        </LinearLayout>
+
+        <androidx.core.widget.NestedScrollView
+            android:id="@+id/sutoko_shop_scrollview"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:overScrollMode="never"
+            app:layout_constrainedWidth="true"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/guideline150"
+            app:layout_constraintVertical_bias="1"
+            app:layout_constraintWidth_max="400dp">
+
+            <LinearLayout
+                android:id="@+id/sutoko_shop_root"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+
+                android:gravity="center"
+                android:orientation="vertical"
+                android:paddingBottom="8dp">
+
+                <LinearLayout
+                    android:id="@+id/sutoko_shop_cards"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="14dp"
+                    android:layout_marginEnd="14dp"
+                    android:baselineAligned="false"
+                    android:maxWidth="460dp"
+                    android:weightSum="2"
+                    app:layout_constraintWidth_max="460dp">
+
+                    <include
+                        android:id="@+id/sutoko_shop_card_1"
+                        layout="@layout/shop_coins_card"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        app:cardName="@{@string/sutoko_shop_pack_name_starter}"
+                        app:gradientBackground="@{@drawable/sutoko_shop_gradient_purple}" />
+
+                    <include
+                        android:id="@+id/sutoko_shop_card_2"
+                        layout="@layout/shop_coins_card"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        app:cardName="@{@string/sutoko_shop_pack_name_treasure}"
+                        app:gradientBackground="@{@drawable/sutoko_shop_gradient_green}" />
+                </LinearLayout>
+
+                <include
+                    android:id="@+id/sutoko_shop_card_3"
+                    layout="@layout/shop_coins_large_card"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="12dp"
+                    android:layout_marginEnd="12dp"
+                    android:maxWidth="460dp"
+                    app:layout_constraintTop_toBottomOf="@id/sutoko_shop_cards"
+                    app:layout_constraintWidth_max="460dp" />
+
+            </LinearLayout>
+        </androidx.core.widget.NestedScrollView>
+
+
+        <FrameLayout
+            android:id="@+id/sutoko_shop_button_back"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_marginStart="6dp"
+            app:layout_constraintBottom_toBottomOf="@id/sutoko_shop_title"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@id/sutoko_shop_title">
+
+            <ImageView
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:layout_gravity="center"
+                android:alpha="0.7" />
+
+        </FrameLayout>
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guideline150"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            app:layout_constraintGuide_percent="0.25" />
+
+        <include
+            android:id="@+id/buyValidation"
+            layout="@layout/layout_shop_buy_validation"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="invisible" />
+
+
+    </androidx.constraintlayout.motion.widget.MotionLayout>
+</layout>

@@ -1,0 +1,12 @@
+<!--
+  ~ Copyright (C) PurpleTear, Inc - All Rights Reserved
+  ~ Unauthorized copying of this file, via any medium is strictly prohibited
+  ~ Proprietary and confidential
+  ~ Written by Hocine Belbouab <hbdeveloppeur@gmail.com>, 1/10/19 11:38 AM
+  ~
+  -->
+
+<vector android:height="24dp" android:viewportHeight="40"
+    android:viewportWidth="40" android:width="24dp" xmlns:android="http://schemas.android.com/apk/res/android">
+    <path android:fillColor="#efefef" android:fillType="evenOdd" android:pathData="M3.416,23.459l8.385,-4.515c1.25,0.741 2.678,1.16 4.195,1.16v0.004h0.001H16v-0.004c1.517,-0.001 2.945,-0.419 4.194,-1.16l4.814,2.592v3.47h-3.658c-1.286,0 -2.329,1.043 -2.329,2.327v2.664H3.799c-0.999,0 -1.814,-0.814 -1.814,-1.813v-2.331C1.985,24.826 2.512,23.945 3.416,23.459L3.416,23.459zM20.976,27.021v3.97h6.018v6.018h4.033v-6.018h5.987v-3.97h-5.987v-6.048h-4.033v6.048H20.976L20.976,27.021zM15.999,1.975v0.003h-0.001h-0.002V1.975c-1.987,0 -3.794,0.91 -5.107,2.381c-1.335,1.495 -2.162,3.568 -2.162,5.862h0.003v0.001v0.003H8.726c0.001,2.293 0.827,4.363 2.161,5.859c1.268,1.42 2.996,2.317 4.902,2.378c0.06,0.003 0.118,0.004 0.178,0.004h0.003h0.003h0.003h0.003h0.003h0.004h0.003h0.003h0.003v-0.004l0,0h0.001H16l0,0v0.004h0.002h0.003h0.003h0.003h0.003h0.004h0.003h0.003h0.003c0.059,-0.001 0.119,-0.001 0.177,-0.004c1.907,-0.061 3.635,-0.958 4.902,-2.377c1.335,-1.496 2.161,-3.568 2.162,-5.862h-0.003v-0.001v-0.003h0.003c0,-2.29 -0.828,-4.362 -2.164,-5.859l0.001,-0.001C19.794,2.885 17.987,1.975 15.999,1.975z"/>
+</vector>

@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".activities.choice.Choice">
+
+    <ImageView
+        android:id="@+id/choice.image.first"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginStart="6dp"
+        android:layout_marginTop="6dp"
+        android:layout_marginEnd="6dp"
+        android:layout_marginBottom="3dp"
+        android:scaleType="centerCrop"
+        app:layout_constraintBottom_toTopOf="@id/guideline32"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:ignore="ContentDescription" />
+
+    <ImageView
+        android:id="@+id/choice.image.second"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginStart="6dp"
+        android:layout_marginTop="3dp"
+        android:layout_marginEnd="6dp"
+        android:layout_marginBottom="6dp"
+        android:scaleType="centerCrop"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/guideline32"
+        tools:ignore="ContentDescription" />
+
+    <purpletear.fr.purpleteartools.fonts.OldPtSans
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:text="@string/face_light"
+        android:textColor="@color/white"
+        android:textSize="@dimen/choiceActivityTextSize"
+        app:layout_constrainedWidth="true"
+        app:layout_constraintBottom_toBottomOf="@id/choice.image.first"
+        app:layout_constraintEnd_toStartOf="@id/guideline38"
+        app:layout_constraintStart_toEndOf="@id/guideline33"
+        app:layout_constraintTop_toTopOf="@id/choice.image.first" />
+
+    <purpletear.fr.purpleteartools.fonts.OldPtSans
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:text="@string/face_shadow"
+        android:textColor="@color/white"
+        android:textSize="@dimen/choiceActivityTextSize"
+        app:layout_constrainedWidth="true"
+        app:layout_constraintBottom_toBottomOf="@id/choice.image.second"
+        app:layout_constraintEnd_toStartOf="@id/guideline38"
+        app:layout_constraintStart_toEndOf="@id/guideline33"
+        app:layout_constraintTop_toTopOf="@id/choice.image.second" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline32"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent=".5" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline33"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.15" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline38"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.85" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

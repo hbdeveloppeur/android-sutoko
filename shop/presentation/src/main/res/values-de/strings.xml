@@ -1,0 +1,41 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+	<string name="app_name">Sutoko</string>
+	<string name="sutoko_shop">Shop</string>
+	<string name="sutoko_shop_title">Story Coins Packs</string>
+	<string name="sutoko_shop_subtitle">Lassen Sie die Spannung nicht länger auf sich warten</string>
+	<string name="sutoko_shop_unlock_item_title_pack">Unlocked Pack!</string>
+	<string name="sutoko_shop_unlock_item_title_premium">Unlocked Premium Key!</string>
+	<string name="sutoko_shop_unlock_item_pending_title">Vielen Dank für Ihren Einkauf.</string>
+	<string name="sutoko_shop_unlock_item_pending_title_subtitle">Zahlung wartet auf Bestätigung</string>
+	<string name="sutoko_shop_unlock_item_pending_title_description">Sie erhalten Ihren Gewinn, sobald Ihre Zahlung bestätigt wurde.</string>
+	<string name="sutoko_shop_unlock_item_connection_warning">Denken Sie daran, sich einzuloggen, um Ihre Punkte und Einkäufe zu sichern.</string>
+	<string name="sutoko_congrats_item_unlocked">Herzlichen Glückwunsch! Gegenstand freigeschaltet!</string>
+	<string name="sutoko_congrats">Herzlichen Glückwunsch</string>
+	<string name="sutoko_continue">Weiter</string>
+	<string name="sutoko_weeks">Woche</string>
+	<string name="sutoko_month">Monat</string>
+	<string name="sutoko_year">Jahr</string>
+	<string name="premium_sentence_buy_free_days">Frei für %1$d Tag(e), dann %2$s / %3$s</string>
+	<string name="premium_sentence_buy_free_weeks">Frei für %1$d Woche(n), dann %2$s / %3$s</string>
+	<string name="premium_sentence_buy">%1$s / %2$s</string>
+	<string name="sutoko_shop_leaving_keys_label">Heute nur noch %1$d Schlüssel verfügbar</string>
+	<string name="sutoko_shop_leaving_keys_label_unlocked">Sie haben Zugriff auf den gesamten Inhalt der Anwendung</string>
+	<string name="sutoko_owned">Ungesperrt</string>
+	<string name="sutoko_pass_premium">Premium-Pass</string>
+	<string name="sutoko_unlimited_access">Unbegrenzter Zugang</string>
+	<string name="sutoko_unlock_diamonds">%1$d Diamanten entsperren</string>
+	<string name="sutoko_unlock_diamonds_done">Diamanten freigeschaltet!</string>
+	<string name="sutoko_story_unlock_coins">Sie haben in diesem Kapitel gerade %1$d versteckte Münzen gefunden.</string>
+	<string name="sutoko_try_premium">Premium ausprobieren</string>
+	<string name="sutoko_premium_description_cta">Mit dem Premium-Zugang Geschichten freischalten</string>
+	<string name="sutoko_check_google_play_connexion">Bitte überprüfen Sie, ob Sie mit Google Play verbunden sind.</string>
+	<string name="sutoko_shop_pack_name_starter">Starter</string>
+	<string name="sutoko_shop_pack_name_treasure">Treasure</string>
+	<string name="sutoko_premium_game">Premium-Geschichte</string>
+	<string name="sutoko_premium_presentation_1">Unbegrenzter Zugang zu Geschichten</string>
+	<string name="sutoko_premium_presentation_2">Premium-Community-Rang</string>
+	<string name="sutoko_premium_presentation_3">Keine Werbung mehr</string>
+	<string name="sutoko_premium_presentation_subtitle">100%% Sutoko ohne Unterbrechungen</string>
+	<string name="sutoko_premium_presentation_title">Premium-Zugang freigeschaltet</string>
+</resources>

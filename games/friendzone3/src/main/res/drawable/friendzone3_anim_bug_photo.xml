@@ -1,0 +1,23 @@
+<animation-list xmlns:android="http://schemas.android.com/apk/res/android"
+    android:oneshot="true">
+    <item android:drawable="@drawable/friendzone3_avatar_bug_anim_00001" android:duration="24" />
+    <item android:drawable="@drawable/friendzone3_avatar_bug_anim_00002" android:duration="24" />
+    <item android:drawable="@drawable/friendzone3_avatar_bug_anim_00003" android:duration="24" />
+    <item android:drawable="@drawable/friendzone3_avatar_bug_anim_00004" android:duration="24" />
+    <item android:drawable="@drawable/friendzone3_avatar_bug_anim_00005" android:duration="24" />
+    <item android:drawable="@drawable/friendzone3_avatar_bug_anim_00006" android:duration="24" />
+    <item android:drawable="@drawable/friendzone3_avatar_bug_anim_00007" android:duration="24" />
+    <item android:drawable="@drawable/friendzone3_avatar_bug_anim_00008" android:duration="24" />
+    <item android:drawable="@drawable/friendzone3_avatar_bug_anim_00009" android:duration="24" />
+    <item android:drawable="@drawable/friendzone3_avatar_bug_anim_00010" android:duration="24" />
+    <item android:drawable="@drawable/friendzone3_avatar_bug_anim_00011" android:duration="24" />
+    <item android:drawable="@drawable/friendzone3_avatar_bug_anim_00012" android:duration="24" />
+    <item android:drawable="@drawable/friendzone3_avatar_bug_anim_00013" android:duration="24" />
+    <item android:drawable="@drawable/friendzone3_avatar_bug_anim_00014" android:duration="24" />
+    <item android:drawable="@drawable/friendzone3_avatar_bug_anim_00015" android:duration="24" />
+    <item android:drawable="@drawable/friendzone3_avatar_bug_anim_00016" android:duration="24" />
+    <item android:drawable="@drawable/friendzone3_avatar_bug_anim_00017" android:duration="24" />
+    <item android:drawable="@drawable/friendzone3_avatar_bug_anim_00018" android:duration="24" />
+    <item android:drawable="@drawable/friendzone3_avatar_bug_anim_00019" android:duration="24" />
+    <item android:drawable="@drawable/friendzone3_avatar_bug_anim_00020" android:duration="24" />
+</animation-list>

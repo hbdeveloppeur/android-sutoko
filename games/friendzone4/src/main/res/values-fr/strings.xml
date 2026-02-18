@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- APP -->
+    <string name="app_name">Friendzoné 4</string>
+    <string name="app_version">VERSION 1.1.6</string>
+    <string name="internet_access_error">Erreur. Vérifier votre connexion à Internet</string>
+    <string name="main_confirm_leave">Êtes-vous certain(e) de vouloir quitter la conversation ?</string>
+    <string name="instagram_hocinehope">Instagram @hocinehope</string>
+    <string name="game_by">Jeu par</string>
+
+    <!-- MENU -->
+    <string name="menu_confirm_reset">Les sauvegardes du jeu seront supprimées</string>
+    <string name="menu_confirm_reset_done">Partie supprimée</string>
+    <string name="menu_confirm_play_from">Les données à partir du chapitre %1$d seront supprimées</string>
+    <string name="menu_info_history">Vous pourrez revenir en arrière une fois le jeu fini</string>
+
+    <!-- MAIN -->
+    <string name="title_format">Chapitre %1$d. %2$s</string>
+    <string name="online">En ligne</string>
+    <string name="offline">Hors-ligne</string>
+    <string name="menu_button_boutique">Boutique</string>
+    <string name="menu_button_play">Jouer</string>
+    <string name="menu_button_reset">Recommencer</string>
+    <string name="menu_info_title">Informations</string>
+    <string name="game_logo">Logo du jeu</string>
+    <string name="menu_chapters_previous">&lt; chap. %1$d</string>
+    <string name="menu_chapters_next">chapitre %1$d &gt;</string>
+    <string name="lucide_to_morse">·−·· ··− −·−· ·· −·· ·</string>
+    <string name="first_name">Prénom</string>
+    <string name="default_name">Nick</string>
+    <string name="not_valid_name">Prénom non valide</string>
+    <string name="abort">ANNULER</string>
+    <string name="ok">OK</string>
+    <string name="mainactivity_your_choice">Votre choix:</string>
+    <string name="main_your_choice">Votre choix…</string>
+    <string name="mainactivity_next_chapter">Le chapitre va se finir dans quelques secondes…</string>
+    <string name="b">b</string>
+    <string name="notification_friend_name">%1$s %1$s</string>
+    <string name="added_you_to_its_friendslist">Vous a ajouté dans sa liste d\'ami(s)</string>
+    <string name="accepted_you_to_its_friendslist">A accepté votre demande en ami(e)</string>
+
+    <!-- CINEMATIC INTRO -->
+    <string name="audio_cinematic_button_play">Écouter</string>
+    <string name="audio_cinematic_button_stop">Arreter</string>
+    <string name="audio_cinematic_button_restart">Réecouter</string>
+    <string name="audio_cinematic_button_recomandation">L\'utilisation d\'un casque est recommandée</string>
+    <string name="audio_cinematic_title">Cinématique sonore</string>
+
+
+    <!-- Main -->
+    <string name="mainactivity_description_title">Chapitre %1$d : %2$s</string>
+
+
+    <!-- GAME -->
+    <string name="game_your_choice">Votre choix…</string>
+    <string name="error">ERROR</string>
+    <string name="notification_first_sentence">Zoé vous invite dans une conversation</string>
+    <string name="horror_night">Soirée horreur</string>
+    <string name="seen">Vu.</string>
+    <string name="game_paused">Vous avez mis le jeu en pause</string>
+    <string name="main_button_continue">Continuer</string>
+    <string name="contact_messages">Liste des contacts</string>
+    <string name="is_calling_you">Vous appelle…</string>
+    <string name="counter_text_format">00:%1$s</string>
+    <string name="struggle">Débattez-vous!</string>
+    <string name="keep_push">Maintenir appuyé</string>
+    <string name="donner_mon_avis_sur_google_play">Donner mon avis sur google play</string>
+    <string name="merci_tout_ceux_qui_ont_suivi_l_aventure">Merci aux joueurs et youtubers qui ont suivi l\'aventure :)\n Rejoignez la communauté sur Instagram pour de futurs nouveaux jeux</string>
+
+
+    <string name="love_yourself">"Aime-toi, parce que dans les passages les plus sombres de ta vie, tu étais là quand personne ne l\'était"</string>
+    <string name="appuyez_sur_l_image_pour_la_voir_enti_rement">Appuyez sur l\'image pour la voir</string>
+
+    <!-- Days -->
+    <string name="fz4_day_monday">Lundi</string>
+    <string name="fz4_day_tuesday">Mardi</string>
+    <string name="fz4_day_wednesday">Mercredi</string>
+    <string name="fz4_day_thursday">Jeudi</string>
+    <string name="fz4_day_friday">Vendredi</string>
+    <string name="fz4_day_saturday">Samedi</string>
+    <string name="fz4_day_sunday">Dimanche</string>
+
+    <string name="fz4_action_push_him_back">Repoussez-le!</string>
+    <string name="fz4_action_dodge">Esquivez-le!</string>
+    <string name="fz4_action_fend_off">Parez son coup!</string>
+    <string name="fz4_action_counter_attack">Contre-attaquez!</string>
+    <string name="fz4_action_face_your_fears">Affrontez la peur!</string>
+    <string name="fz4_action_dont_fait">Ne vous évanouissez pas!</string>
+    <string name="chloe_sentence_nobody_touches_erika">Personne ne touche à Erika.</string>
+    <string name="before_description_sentence_1">Salut Eva</string>
+    <string name="before_description_sentence_2">Enfin... Bonjour</string>
+    <string name="before_description_sentence_3">J\'ai longtemps hésité avant de t\'écrire</string>
+    <string name="before_description_sentence_4">Je voulais juste te dire que si tu as besoin de moi pour quoi que ce soit, je suis toujours présent</string>
+    <string name="before_description_sentence_5">Alors... N\'hésite pas, c\'est avec plaisir que je serai là</string>
+    <string name="before_description_sentence_6">Il y a 3 semaines</string>
+    <string name="before_description_sentence_7">Je le pense sincèrement, j\'ai hâte de pouvoir discuter avec toi</string>
+
+    <!-- CHARACTERS NAMES -->
+    <string name="fz4_personnage_bryan">Bryan</string>
+    <string name="fz4_personnage_chloe">Chloé</string>
+    <string name="fz4_personnage_chloe_winsplit">Chloé Winsplit</string>
+    <string name="fz4_personnage_sylvie">Sylvie</string>
+    <string name="fz4_personnage_sylvie_belle">Sylvie Belle</string>
+    <string name="fz4_personnage_zoe">Zoé</string>
+    <string name="fz4_personnage_zoe_topaze">Zoé Topaze</string>
+    <string name="fz4_personnage_eva">Eva</string>
+    <string name="fz4_personnage_eva_belle">Eva Belle</string>
+    <string name="fz4_personnage_lucie">Lucie</string>
+    <string name="fz4_personnage_lucie_belle">Lucie Belle</string>
+    <string name="fz4_personnage_lana">Lana</string>
+    <string name="fz4_personnage_christophe">Christophe</string>
+    <string name="fz4_personnage_christophe_belle">Christophe Belle</string>
+
+    <string name="fz4_contact_list_action_1">Aller au bar avec Zoé</string>
+    <string name="fz4_contact_list_action_2">Zoé à des infos à vous donner</string>
+    <string name="fz4_contact_list_action_3">Rester et parler à Eva</string>
+    <string name="fz4_contact_list_action_4">Eva aimerait discuter avec vous</string>
+    <string name="fz4_contact_list_action_5">Lucie Belle</string>
+    <string name="fz4_contact_list_action_6">Passe une bonne soirée :)</string>
+    <string name="fz4_contact_list_action_7">On voit ça plus tard, okay?</string>
+    <string name="fz4_contact_list_action_8">Peut-être, ...</string>
+    <string name="fz4_contact_list_action_9">Je ne l\'ai pas vu...</string>
+    <string name="fz4_contact_list_action_10">T\'es con xD...</string>
+    <string name="fz4_poetry_7a">Lucie m’a convaincu de rejoindre Yorokobi. Pour moi, cette personne incarne le mystère en personne mais ce n’est pas la première fois que mon jugement est soumis à un choix entre la connaissance et la confiance donnée aveuglément.  Ce n’est donc pas longtemps après que je la rejoignais à un endroit inattendu, le toit d’un immeuble qui m’est lui aussi inconnu…</string>
+    <string name="fz4_poetry_7b">J’ai décidé de refuser de suivre Yorokobi. Mais j’ai peut-être surtout voulu ne pas faire pleinement confiance à Lucie…  Si elle disait que le programme de x00 était offert pour aider une personne dans le besoin, alors x92 avait-il de réelles raisons de me le donner?  Je me souviens des écritures sur son logiciel qui affichaient “Ne la crois pas, ne la crois pas”. Peut-être était-il déjà au courant que Lucie avait ses secrets.  Beaucoup de questions se posent… Comme toujours...</string>
+    <string name="fz4_poetry_8a">Je la laissais me guider vers la fameuse salle informatique, avec l’impression que l’escalier ne se terminerait jamais. Mes yeux se perdaient dans ces marches plus rouges les unes que les autres et des portraits posés sur deux murs de briques parallèles.  On se rapprochait enfin des informations dont on avait besoin avant de pouvoir se les partager. Yorokobi attend de moi que j’utilise le “don” de x00 en échange des informations sur Bryan.  Je me rappellerai d’elle, pieds joints, si proche du vide. Comment un esprit aussi rationnel peut-il accepter d’oublier ses propres peurs? Cela impliquerait de se mentir à soi-même.</string>
+    <string name="fz4_poetry_8b">Je ressens le partage entre Zoé et Eva accompagné d’une pression intense montant depuis plusieurs jours. Nous étions tous en danger ce jour-là mais croyez-moi, ce n’était rien à côté du sentiment de revivre deux fois le même cauchemar  Eva était-elle en danger? Je n’avais pas l’ombre d’une seconde pour réfléchir, il fallait agir pour ne pas regretter les erreurs des choix faits sous l’influence du temps</string>
+    <string name="fz4_poetry_9a">Yorokobi me laissait seul face à une horrible découverte.  Je courais vers la maison de la famille Belle et chaque fois que je ressentais la secousse créée par mes pas sur le sols, mon corps et mon coeur s\'alourdissaient. Je savais déjà que c’était la fin.  Encore une fois, il y avait cette incroyable sensation que procure une situation de danger mêlée à un environnement merveilleux. Dans le noir même le plus beau des éléments naturels peut faire peur mais heureusement, il y a des lumières qui ne s’éteignent jamais</string>
+    <string name="fz4_poetry_9c">Quelqu’un jouait avec nous, j’avais la sensation d’avoir été manipulé pour que Zoé et moi nous retrouvions ici devant le lac et la maison de la famille Belle.  Le ciel s’assombrissait un peu trop à mon goût et la porte ouverte était loin d’être la signature de la Lucie qu’on connaissait.  La beauté du ciel gris, de l’air frais et des traits provoqués par les éclairs étaient mêlés à une horrible sensation d’horreur dont personne ne voulait. C’est comme si le mal se mélangeait au bien pour nous faire ressentir une émotion encore jamais connue</string>
+
+
+    <!-- TITLES -->
+    <string name="fz4_chapter_1a_title">Lucie lucide</string>
+    <string name="fz4_chapter_2a_title">La petite soeur</string>
+    <string name="fz4_chapter_3a_title">La soirée horreur</string>
+    <string name="fz4_chapter_4a_title">Douce nuit</string>
+    <string name="fz4_chapter_4b_title">Elle est au courant</string>
+    <string name="fz4_chapter_5a_title">Une drôle de rencontre</string>
+    <string name="fz4_chapter_6a_title">Le lac</string>
+    <string name="fz4_chapter_7a_title">Yorokobi</string>
+    <string name="fz4_chapter_7b_title">Quand le cauchemar recommence</string>
+    <string name="fz4_chapter_8a_title">La salle des serveurs</string>
+    <string name="fz4_chapter_8b_title">Douce Zoé</string>
+    <string name="fz4_chapter_9a_title">Douce nuit</string>
+    <string name="fz4_chapter_9c_title">La fin</string>
+    <string name="fz4_chapter_10a_title">20 ans plus tard</string>
+    <string name="fz4_chapter_10b_title">20 ans plus tard</string>
+    <string name="fz4_chapter_10c_title">Easter Egg, sacré cauchemar</string>
+    <string name="fz4_chapter_11a_title">Final</string>
+    <string name="fz4_chapter_11b_title">Final</string>
+    <string name="fz4_chapter_11k_title">Final</string>
+
+    <!-- DESCRIPTIONS -->
+    <string name="fz4_chapter_1a_description">Vous venez de reçevoir 2 messages de Zoé</string>
+    <string name="fz4_chapter_2a_description">Vous avez été invité dans la conversation avec Zoé plus tôt que prévu. Lucie est aussi présente</string>
+    <string name="fz4_chapter_3a_description">Vous repassez voir les anciens messages envoyés à Eva avant d\'être enfin invité dans la conversation</string>
+    <string name="fz4_chapter_4b_description">Vous avez décidé de laisser Zoé seule et d\'aller parler à Eva.</string>
+    <string name="fz4_chapter_5a_description">La soirée se termine mais une rencontre va peut-être perturber vos états d\'esprit.</string>
+    <string name="fz4_chapter_5abis_description">Après la conversation avec Eva, vous vous empressez de rejoindre Zoé au bar, une rencontre va peut-être perturber votre état d\'esprit.</string>
+    <string name="fz4_chapter_6a_description">Le lendemain matin vous vous rendez au lac et vous y croisez quelqu\'un de familier</string>
+    <string name="fz4_chapter_7a_description">Deux jours plus tard, avec l\'aide de Lucie, vous rejoignez Yorokobi sur le toit d\'un immeuble.  Celle-ci vous explique que c\'est ici que tout va commencer</string>
+    <string name="fz4_chapter_8a_description">Vous parvenez à entrer dans la salle des serveurs avec Yorokobi, vous êtes à deux doigt de découvrir ce que Bryan compte faire</string>
+    <string name="fz4_chapter_8b_description">En sortant pour rejoindre Eva, vous remarquez que Zoé est là, devant vous</string>
+    <string name="fz4_chapter_9a_description">Vous arrivez devant la maison des Belle, il n\'y a personne, tout est vide</string>
+    <string name="fz4_chapter_9c_description">Vous vous êtes rendu compte que la porte de la maison des Belle était grande ouverte</string>
+
+    <!-- CONVERSATION NAMES -->
+    <string name="fz4_chapter_4a_cname">Fin de soirée</string>
+    <string name="fz4_chapter_5a_cname">Soirée avec Zoé</string>
+    <string name="fz4_chapter_5abis_cname">Fin de soirée</string>
+    <string name="fz4_chapter_6a_cname">Au lac</string>
+    <string name="fz4_chapter_8b_cname">En route</string>
+    <string name="fz4_chapter_9a_cname">Au lac</string>
+    <string name="fz4_chapter_9c_cname">Devant la maison d\'Eva</string>
+
+    <!-- CONVERSATION STATUS -->
+    <string name="fz4_chapter_4a_cstatus">Avec Zoé</string>
+    <string name="fz4_chapter_7a_cstatus">Sur le toit d\'un immeuble</string>
+    <string name="fz4_chapter_8a_cstatus">Salle des serveurs</string>
+    <string name="fz4_chapter_8b_cstatus">Début de soirée</string>
+    <string name="fz4_chapter_9a_cstatus">Nuit</string>
+
+    <string name="store_link">https://teespring.com/stores/friendzon-la-boutique</string>
+</resources>

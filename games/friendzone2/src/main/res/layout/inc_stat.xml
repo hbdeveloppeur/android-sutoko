@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <ImageView
+        android:id="@+id/inc_stats_background"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        app:layout_constraintDimensionRatio="H, 340:33"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/inc_stat.text"
+        app:layout_constraintVertical_bias="0.9"
+        tools:ignore="ContentDescription" />
+
+    <View
+        android:id="@+id/inc_stats_bar"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintTop_toTopOf="@id/inc_stats_background"
+        app:layout_constraintBottom_toBottomOf="@id/inc_stats_background"
+        app:layout_constraintStart_toStartOf="@id/inc_stats_background"
+        android:background="@drawable/rounded_orange" />
+
+    <purpletear.fr.purpleteartools.fonts.OldPtSans
+        android:id="@+id/inc_stat.text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="@color/white"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:padding="4dp"
+        android:textSize="14sp"
+        app:layout_constrainedWidth="true"
+        android:gravity="center_horizontal" />
+
+    <purpletear.fr.purpleteartools.fonts.OldBebasNeue
+        android:id="@+id/stats.text.percent"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toTopOf="@id/inc_stats_background"
+        app:layout_constraintBottom_toBottomOf="@id/inc_stats_background"
+        app:layout_constraintEnd_toEndOf="@id/inc_stats_background"
+        android:text="2%"
+        android:textSize="16sp"
+        android:includeFontPadding="false"
+        android:textColor="@color/white"
+        android:layout_marginEnd="10dp"
+        android:layout_marginRight="10dp" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

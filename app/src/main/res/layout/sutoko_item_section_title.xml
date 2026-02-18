@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:viewBindingIgnore="true"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingTop="6dp"
+    android:paddingBottom="4dp">
+
+    <com.example.sutokosharedelements.fonts.WorkSansSemiBold
+        android:id="@+id/sutoko.item.section_title.title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="@color/darkModeWhite"
+        android:textSize="16sp"
+        app:layout_constraintStart_toEndOf="@id/guideline55"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <com.example.sutokosharedelements.fonts.WorkSansLight
+        android:id="@+id/sutoko.item.section_title.subtitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:textColor="@color/systemText"
+        android:textSize="14sp"
+        app:layout_constraintStart_toEndOf="@id/guideline55"
+        app:layout_constraintTop_toBottomOf="@id/sutoko.item.section_title.title" />
+
+    <ImageView
+        android:id="@+id/sutoko.item.section_title.icon"
+        android:layout_width="22dp"
+        android:visibility="invisible"
+        android:layout_height="22dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/guideline135"
+        app:layout_constraintTop_toTopOf="parent"
+        android:alpha="0.8"
+        tools:ignore="ContentDescription" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline55"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.055" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline135"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.945"/>
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

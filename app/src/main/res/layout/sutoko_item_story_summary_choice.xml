@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    tools:viewBindingIgnore="true">
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/sutoko_item_story_summary_choice_cardview"
+        android:layout_width="73dp"
+        android:layout_height="73dp"
+        android:layout_marginTop="12dp"
+        android:layout_marginEnd="12dp"
+        android:layout_marginBottom="12dp"
+        app:cardBackgroundColor="@color/transparent"
+        app:cardCornerRadius="12dp"
+        app:cardElevation="0dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <ImageView
+            android:id="@+id/sutoko_item_story_summary_choice_image"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:layout_gravity="center"
+            android:scaleType="centerCrop"
+            tools:ignore="ContentDescription" />
+
+        <ImageView
+            android:id="@+id/sutoko_item_story_summary_choice_lock_image"
+            android:layout_width="22dp"
+            android:layout_height="22dp"
+            android:layout_gravity="center"
+            tools:ignore="ContentDescription" />
+
+    </androidx.cardview.widget.CardView>
+
+    <LinearLayout
+        android:id="@+id/sutoko_item_story_summary_choice_information"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="18dp"
+        android:layout_marginEnd="8dp"
+        android:gravity="start"
+        android:orientation="vertical"
+        app:layout_constrainedWidth="true"
+        app:layout_constraintBottom_toBottomOf="@id/sutoko_item_story_summary_choice_cardview"
+        app:layout_constraintEnd_toStartOf="@id/sutoko_item_story_summary_choice_information_percent"
+        app:layout_constraintHorizontal_bias="0"
+        app:layout_constraintStart_toEndOf="@id/sutoko_item_story_summary_choice_cardview"
+        app:layout_constraintTop_toTopOf="@id/sutoko_item_story_summary_choice_cardview">
+
+        <com.example.sutokosharedelements.fonts.WorkSansRegular
+            android:id="@+id/sutoko_item_story_summary_choice_information_description"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Inviter Yumi à dormir chez elle pour que ça se termine bien."
+            android:textColor="@color/darkModeWhite" />
+
+        <include
+            android:id="@+id/sutoko_item_story_summary_choice_information_percent_bar"
+            layout="@layout/sutoko_item_story_summary_choice_percent_bar"
+            android:layout_width="match_parent"
+            android:layout_height="8dp"
+            android:layout_marginTop="8dp" />
+
+        <com.example.sutokosharedelements.fonts.WorkSansRegular
+            android:id="@+id/sutoko_item_story_summary_choice_information_percent_description"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="80% des joueurs et vous"
+            android:textColor="@color/darkModeWhite4"
+            android:textSize="12sp" />
+    </LinearLayout>
+
+    <com.example.sutokosharedelements.fonts.PoppinsBold
+        android:id="@+id/sutoko_item_story_summary_choice_information_percent"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="2dp"
+        android:text="80"
+        android:textColor="@color/darkModeWhite2"
+        android:textSize="24sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/sutoko_item_story_summary_choice_information_percent_sigle"
+        app:layout_constraintHorizontal_bias="0"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <com.example.sutokosharedelements.fonts.PoppinsBold
+        android:id="@+id/sutoko_item_story_summary_choice_information_percent_sigle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="%"
+        android:textColor="@color/darkModeWhite2"
+        android:textSize="12sp"
+
+        app:layout_constraintBottom_toBottomOf="@id/sutoko_item_story_summary_choice_information_percent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0"
+        app:layout_constraintTop_toTopOf="@id/sutoko_item_story_summary_choice_information_percent" />
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

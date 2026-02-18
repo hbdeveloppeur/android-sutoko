@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        tools:viewBindingIgnore="true"
+        android:paddingBottom="32dp"
+        android:paddingTop="32dp"
+        android:background="#66000000">
+
+    <View
+            android:id="@+id/sutoko.item.manga.image.container"
+            android:layout_width="72dp"
+            android:layout_height="72dp"
+            android:background="@drawable/background_circle_gray"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+    <ImageView
+            android:id="@+id/sutoko.item.manga.image"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_margin="8dp"
+            app:layout_constraintBottom_toBottomOf="@id/sutoko.item.manga.image.container"
+            app:layout_constraintEnd_toEndOf="@id/sutoko.item.manga.image.container"
+            app:layout_constraintStart_toStartOf="@id/sutoko.item.manga.image.container"
+            app:layout_constraintTop_toTopOf="@id/sutoko.item.manga.image.container"
+            tools:ignore="ContentDescription" />
+
+    <TextView
+            android:id="@+id/sutoko.item.manga.text.cta"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintEnd_toStartOf="@id/guideline129"
+            app:layout_constraintStart_toEndOf="@id/guideline128"
+            app:layout_constraintTop_toBottomOf="@id/sutoko.item.manga.image.container"
+            android:layout_marginTop="18dp"
+            android:textSize="12sp"
+            android:textColor="#FFFFFF"
+            android:lineSpacingExtra="4dp"
+            app:layout_constrainedWidth="true"
+            android:textAlignment="center"
+            android:text="@string/sutoko_item_manga_page_sentence" />
+
+    <TextView
+            android:id="@+id/sutoko.item.manga.button.open"
+            android:layout_width="125dp"
+            android:layout_height="38dp"
+            android:gravity="center"
+            app:layout_constraintTop_toBottomOf="@id/sutoko.item.manga.text.cta"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginTop="18dp"
+            android:textColor="@color/white"
+            android:paddingBottom="1dp"
+            android:text="@string/sutoko_see"
+            android:textSize="13sp"
+            android:background="@drawable/sutoko_button_rounded_pink"
+            android:focusable="true"
+            android:focusableInTouchMode="true"
+            android:clickable="true" />
+
+    <View
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            android:layout_marginEnd="24dp"
+            android:alpha="0.14"
+            android:background="@color/white"
+            app:layout_constraintBottom_toBottomOf="@id/sutoko.item.manga.image.container"
+            app:layout_constraintEnd_toStartOf="@id/sutoko.item.manga.image.container"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@id/sutoko.item.manga.image.container" />
+
+    <View
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            android:layout_marginStart="24dp"
+            android:alpha="0.14"
+            android:background="@color/white"
+            app:layout_constraintBottom_toBottomOf="@id/sutoko.item.manga.image.container"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/sutoko.item.manga.image.container"
+            app:layout_constraintTop_toTopOf="@id/sutoko.item.manga.image.container" />
+
+    <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guideline128"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent="0.25" />
+
+    <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guideline129"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent="0.75" />
+</androidx.constraintlayout.widget.ConstraintLayout>

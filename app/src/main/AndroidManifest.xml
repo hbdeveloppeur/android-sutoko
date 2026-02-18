@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission
+        android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC"
+        android:minSdkVersion="34" />
+    <uses-permission android:name="com.google.android.gms.permission.AD_ID" />
+    <uses-permission android:name="android.permission.VIBRATE" />
+
+    <!-- AllowBackup is needed to true -->
+    <application
+        android:name=".Application"
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/sutoko_app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/AppTheme"
+        tools:ignore="GoogleAppIndexingWarning"
+        tools:replace="android:icon,android:theme,android:name,android:label">
+
+        <service
+            android:name="com.purpletear.framework.services.MyFirebaseMessagingService"
+            android:exported="false"
+            android:foregroundServiceType="dataSync"
+            tools:targetApi="34">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+            </intent-filter>
+        </service>
+
+        <activity
+            android:name=".screens.themes_flavors_settings.ThemesFlavorActivity"
+            android:exported="false"
+            android:label="@string/title_activity_themes_flavor" />
+        <activity
+            android:name=".screens.account.AccountActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".screens.MainActivity"
+            android:exported="true"
+            android:launchMode="singleTop"
+            android:screenOrientation="portrait"
+            android:theme="@style/Main"
+            android:windowSoftInputMode="adjustResize"
+            tools:ignore="LockedOrientationActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+                <action android:name="conversation_message" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name=".screens.players_ranks.PlayersRankActivity"
+            android:exported="false" />
+
+
+        <provider
+            android:name="androidx.startup.InitializationProvider"
+            android:authorities="${applicationId}.androidx-startup"
+            android:exported="false"
+            tools:node="merge" />
+        <meta-data
+            android:name="fr.purpletear.sutoko.custom.ComposeInitializer"
+            android:value="androidx.startup" />
+
+        <activity
+            android:name="com.android.billingclient.api.ProxyBillingActivity"
+            android:theme="@style/BillingProxy"
+            android:exported="false"
+            tools:replace="android:theme" />
+
+        <activity
+            android:name=".screens.accountConnection.AccountConnectionActivity"
+            android:exported="false"
+            android:screenOrientation="portrait"
+            android:theme="@style/AccountCreation"
+            android:windowSoftInputMode="adjustPan"
+            tools:ignore="LockedOrientationActivity" />
+
+        <meta-data
+            android:name="com.google.android.gms.ads.APPLICATION_ID"
+            android:value="${admob_app_id}" />
+
+        <activity
+            android:name=".screens.directive.DirectivesActivity"
+            android:exported="false"
+            android:screenOrientation="portrait"
+            android:theme="@style/SmsGame"
+            tools:ignore="LockedOrientationActivity" />
+        <activity
+            android:name="com.purpletear.smsgame.activities.userStoryLoader.UserStoryLoaderActivity"
+            android:exported="true"
+            android:noHistory="true"
+            android:screenOrientation="portrait"
+            android:theme="@style/Main"
+            tools:ignore="LockedOrientationActivity">
+            <intent-filter
+                android:autoVerify="true"
+                tools:ignore="UnusedAttribute">
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data
+                    android:host="sutoko.app"
+                    android:pathPrefix="/share/sms-game"
+                    android:scheme="https" />
+            </intent-filter>
+        </activity>
+
+
+        <activity
+            android:name="fr.purpletear.sutoko.screens.web.WebActivity"
+            android:exported="false"
+            android:screenOrientation="portrait"
+            android:theme="@style/Main"
+            tools:ignore="LockedOrientationActivity" />
+        <activity
+            android:name=".screens.params.SutokoParamsActivity"
+            android:exported="false"
+            android:screenOrientation="portrait"
+            android:theme="@style/Main"
+            tools:ignore="LockedOrientationActivity" />
+        <activity
+            android:name="com.purpletear.smsgame.activities.previewVisualMedia.PreviewVisualMedias"
+            android:exported="false"
+            android:screenOrientation="portrait"
+            android:theme="@style/Main"
+            tools:ignore="LockedOrientationActivity" />
+
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_channel_id"
+            android:value="sutoko_fcm" />
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_icon"
+            android:resource="@drawable/ic_stat_name" />
+    </application>
+
+</manifest>

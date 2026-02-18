@@ -1,0 +1,227 @@
+<?xml version="1.0" encoding="utf-8"?><!--
+  ~ Copyright (C) PurpleTear, Inc - All Rights Reserved
+  ~ Unauthorized copying of this file, via any medium is strictly prohibited
+  ~ Proprietary and confidential
+  ~ Written by Hocine Belbouab <hbdeveloppeur@gmail.com>, 1/10/19 11:38 AM
+  ~
+  -->
+
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/black">
+
+    <VideoView
+        android:id="@+id/menu.videoview"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/menu.page.main"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <purpletear.fr.purpleteartools.fonts.OldPtSans
+            android:id="@+id/menu.page.main.title"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:textColor="@color/white"
+            android:textSize="@dimen/menu_title_font"
+            app:layout_constraintBottom_toBottomOf="@id/menu.page.main.lf"
+            app:layout_constraintEnd_toStartOf="@id/menu.page.main.rf"
+            app:layout_constraintStart_toEndOf="@id/menu.page.main.lf"
+            app:layout_constraintTop_toTopOf="@id/menu.page.main.lf" />
+
+        <ImageView
+            android:id="@+id/menu.page.main.logo"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintDimensionRatio="H, 300:243"
+            app:layout_constraintEnd_toStartOf="@id/guideline3"
+            app:layout_constraintStart_toEndOf="@id/guideline2"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.14"
+            tools:ignore="ContentDescription" />
+
+        <ImageView
+            android:id="@+id/menu.page.main.lf"
+            android:layout_width="0dp"
+            android:layout_height="65dp"
+            app:layout_constraintBottom_toTopOf="@id/menu.page.main.button.play"
+            app:layout_constraintDimensionRatio="W, 1:1"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/menu.page.main.logo"
+            tools:ignore="ContentDescription" />
+
+        <ImageView
+            android:id="@+id/menu.page.main.rf"
+            android:layout_width="0dp"
+            android:layout_height="65dp"
+            android:rotation="180"
+            app:layout_constraintBottom_toTopOf="@id/menu.page.main.button.play"
+            app:layout_constraintDimensionRatio="W, 1:1"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/menu.page.main.logo"
+            tools:ignore="ContentDescription" />
+
+        <purpletear.fr.purpleteartools.fonts.OldBebasNeue
+            android:id="@+id/menu.page.main.button.play"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_marginBottom="16dp"
+            android:background="@drawable/layout_bg_round_white"
+            android:gravity="center"
+            android:letterSpacing=".01"
+            android:text="@string/game_play"
+            android:textAlignment="center"
+            android:textAllCaps="true"
+            android:textColor="@color/white"
+            android:textSize="@dimen/purpletear_button_font"
+            app:layout_constraintBottom_toTopOf="@id/menu.page.main.button.reset"
+            app:layout_constraintDimensionRatio="H, 6:1"
+            app:layout_constraintEnd_toStartOf="@id/guideline"
+            app:layout_constraintStart_toEndOf="@id/guideline1"
+            tools:ignore="UnusedAttribute" />
+
+        <purpletear.fr.purpleteartools.fonts.OldBebasNeue
+            android:id="@+id/menu.page.main.button.reset"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_marginBottom="16dp"
+            android:background="@drawable/layout_bg_round_white"
+            android:gravity="center"
+            android:letterSpacing=".01"
+            android:text="@string/game_reset"
+            android:textAlignment="center"
+            android:textAllCaps="true"
+            android:textColor="@color/white"
+            android:textSize="@dimen/purpletear_button_font"
+            app:layout_constraintBottom_toTopOf="@id/menu.page.main.button.info"
+            app:layout_constraintDimensionRatio="H, 6:1"
+            app:layout_constraintEnd_toStartOf="@id/guideline"
+            app:layout_constraintStart_toEndOf="@id/guideline1"
+            tools:ignore="UnusedAttribute" />
+
+        <ImageView
+            android:id="@+id/menu.page.main.button.info.image"
+            android:layout_width="25dp"
+            android:layout_height="25dp"
+            app:layout_constraintBottom_toBottomOf="@id/menu.page.main.button.info"
+            app:layout_constraintEnd_toEndOf="@id/menu.page.main.button.info"
+            app:layout_constraintStart_toStartOf="@id/menu.page.main.button.info"
+            app:layout_constraintTop_toTopOf="@id/menu.page.main.button.info"
+            tools:ignore="ContentDescription" />
+
+        <View
+            android:id="@+id/menu.page.main.button.info"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_marginEnd="7dp"
+            android:layout_marginRight="7dp"
+            android:layout_marginBottom="7dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guideline"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent=".9" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guideline1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent=".1" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guideline2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent=".22" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guideline3"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent=".78" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/menu.page.info"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <purpletear.fr.purpleteartools.fonts.OldPtSans
+            android:id="@+id/menu.page.info.title"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="@string/informations"
+            android:textColor="@color/white"
+            android:textSize="@dimen/menu_info_title_font"
+            app:layout_constraintEnd_toStartOf="@id/guideline5"
+            app:layout_constraintStart_toEndOf="@id/guideline4"
+            app:layout_constraintTop_toBottomOf="@id/guideline6" />
+
+        <purpletear.fr.purpleteartools.fonts.OldPtSans
+            android:id="@+id/menu.page.info.content"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/menu_info_content_font"
+            android:textColor="@color/white"
+            android:textSize="15sp"
+            app:layout_constraintEnd_toStartOf="@id/guideline5"
+            app:layout_constraintStart_toEndOf="@id/guideline4"
+            app:layout_constraintTop_toBottomOf="@id/menu.page.info.title" />
+
+        <purpletear.fr.purpleteartools.fonts.OldPtSans
+            android:id="@+id/menu.page.info.privacy"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:padding="5dp"
+            android:text="@string/privacy_policy_click_here"
+            android:textColor="@color/white"
+            android:textSize="14sp"
+            app:layout_constraintEnd_toStartOf="@id/guideline5"
+            app:layout_constraintStart_toEndOf="@id/guideline4"
+            app:layout_constraintTop_toBottomOf="@id/menu.page.info.content" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guideline4"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent=".055" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guideline5"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent=".945" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guideline6"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            app:layout_constraintGuide_percent=".035" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <View
+        android:id="@+id/menu_black_filter"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/black" />
+</androidx.constraintlayout.widget.ConstraintLayout>

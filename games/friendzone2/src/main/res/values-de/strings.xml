@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <string name="app_name">Gefriendzoned 2</string>
+    <string name="app_version">VERSION 3.0.1</string>
+
+    <!-- MAIN -->
+    <string name="mainactivity_next_chapter">Das Kapitel ist in wenigen Sekunden vorbei…</string>
+    <string name="game_your_choice">Deine Wahl:</string>
+    <string name="quit_conv">Sind Sie sicher?</string>
+    <string name="yes">JA</string>
+    <string name="no">NEIN</string>
+    <string name="mainactivity_banned" tools:ignore="Typos">Dieser Kontakt hat dich blockiert.</string>
+    <string name="mainactivity_online">Online</string>
+    <string name="mainactivity_offline">Offline</string>
+    <string name="chapter_title">Kapitel %1$d. %2$s</string>
+    <string name="seen">Seen.</string>
+    <string name="b">b</string>
+    <string name="main_button_continue">Weitermachen</string>
+    <string name="added_you_to_her_friendlist">Sie wurden zur Freundesliste hinzugefügt</string>
+    <string name="bryan_denounced_5b">Oh, und… Sylvie wird dir wahrscheinlich dafür danken, dass du Bryan denunziert hast.</string>
+    <string name="bryan_not_denounced_5b">Oh, und… Ich muss sagen, wir verstehen nicht, warum du Bryan nicht angeprangert hast… Aber keine Sorge, Christophe und Syvlie geben dir nicht die Schuld dafür.</string>
+
+    <!-- MENU -->
+    <string name="chapter">Kapitel</string>
+    <string name="menu_confirm_reset">Daten werden gelöscht</string>
+    <string name="firstname">Dein Vorname</string>
+    <string name="game_reseted">Das Spiel wurde zurückgesetzt</string>
+    <string name="game_reset">Neues Spiel</string>
+    <string name="game_play">Spielen</string>
+    <string name="informations">Informationen</string>
+    <string name="default_name">Nick</string>
+    <string name="not_valid_name">Ungültige Eingabe</string>
+    <string name="cancel" tools:ignore="ButtonCase">Abbrechen</string>
+    <string name="ok">OK</string>
+    <string name="save">Save</string>
+
+    <!-- NAMES -->
+    <string name="alias_zoe">Zoe</string>
+    <string name="alias_zoe_topaze">Zoe Topaze</string>
+    <string name="alias_eva">Eva</string>
+    <string name="alias_eva_belle">Eva Belle</string>
+    <string name="alias_christophe">Christof</string>
+    <string name="alias_christophe_belle">Christof belle</string>
+    <string name="alias_bryan">Bryan</string>
+    <string name="alias_sylvie">Sylvie</string>
+    <string name="alias_sylvie_belle">Sylvie Belle</string>
+    <string name="alias_lucie">Lucy</string>
+    <string name="alias_lucie_belle">Lucy Belle</string>
+    <string name="alias_chloe">Chloe</string>
+    <string name="alias_chloe_winsplit">Chloe Winsplit</string>
+
+    <!-- ADS -->
+    <string name="adactivity_gonna_start">Das Spiel beginnt gleich</string>
+    <string name="adactivity_video_launching">Laden des Videos zum Entsperren des nächsten Kapitels</string>
+
+    <string name="chloe_notif_libelle_a">SMS: Bin in einer Stunde…</string>
+    <string name="chloe_notif_libelle_b">SMS: Sei um 20:45 Uhr fertig…</string>
+    <string name="face_light">Den erleuchteten Weg wählen</string>
+    <string name="face_shadow">Dem dunklen Weg zuwenden</string>
+    <string name="close_eva_phone_confirm">Das Telefon ausschalten?</string>
+    <string name="activate_signal">Netzwerk aktivieren</string>
+    <string name="laze_shiro">Laze - Shiroï</string>
+
+    <!-- END -->
+    <string name="friendzone2_available">"Wenn der Moment kommt, zwischen Schatten und Licht zu wählen, wende dich dem Schlimmsten zu, um das Beste anzuziehen." Hocine</string>
+    <string name="game_created_by">Spiel erstellt von</string>
+    <string name="instagram">HocineHope</string>
+
+    <!-- Eva's phone -->
+    <string name="alias_amourette">Lucie</string>
+    <string name="alias_ma_petite_lucie">My little Lucie</string>
+    <string name="number_format">+49 XXX XXXXXX</string>
+    <string name="klo_mobile">KLO MOBILE</string>
+    <string name="message_preview_other_1">Unsere Gruppe wurde ausgewählt</string>
+    <string name="message_preview_other_2">Nein, ich komme nicht.</string>
+    <string name="_1_an">1 YEAR+</string>
+    <string name="is_calling_you">ruft nach dir</string>
+    <string name="signal_too_low">Das Signal ist zu schwach.</string>
+
+    <!-- POETRY -->
+    <string name="poetry_not_found">Text not found for this chapter</string>
+    <string name="go_to_the_chapter">Zum Kapitel</string>
+
+    <string name="poetry_6a">\t\tIn dieser Nacht wusste ich, dass sie durch Chloés Ankündigung verletzt werden würde. Sie ist eine schöne Seele, die nur auf den Dünen des Vertrauens tanzen will, und je höher sie sind, desto stärker wird ihr Wunsch, sich mit gleichgesinnten Seelen zu umgeben.
+\n\nVertrauen ist für sie der wertvollste Schatz der Welt.... Warum denkt sie das wohl? Sicher ist, dass sie auf Bindungen, die sie hat, unglaublich viel Wert legt, weil sie diese nur sehr selten selbst erleben konnte.
+\n\nIch weiß nicht alles über sie, aber was sie mit mir teilt, ist immer transparent und ermöglicht es mir,diese Verantwortung mit ihr zu teilen. Sie zählt viel auf mich, ich darf sie nicht so enttäuschen, wie in der Nacht, als sie mich bat, Eva nicht zu enttäuschen</string>
+
+    <string name="poetry_6b">\t\tZoe wollte sich etwas Zeit nehmen, um mit mir zu reden. Was einst ein zurückgezogener Mensch ohne Freunde war, begann, ein Mensch zu werden, der für eine unendliche Anzahl von Themen offen war.
+\n\nSie hatte Recht, als sie sagte, dass es in unserer Welt so viel zu lernen und zu entdecken gibt.
+\n\nSie zeigte uns schließlich, dass sie diejenige war, die keine Grenzen hatte und dass wir nie das Ende ihrer Seele würden erkennen können. Um immer mehr über sie zu erfahren.
+\n\nEndlich würde ich Lucie treffen, Evas kleine Schwester.</string>
+
+    <string name="poetry_7a_plage" tools:ignore="Typos">\t\tIch fange an zu glauben, dass ich keine bessere Wahl hätte treffen können, als Zoe an diesem Abend zu einem Spaziergang einzuladen.
+\n\nDas von den kleinen Wellen des frühen Abends projizierte Wasser lud sich zu unserem Gespräch ein, um ihre Sätze zu mildern und ihre Emotionen zu verstärken. Es stimmt, dass wir nicht vergessen dürfen, Antworten auf unsere Fragen zu geben, denn wir haben uns seit Evas Verschwinden viele Fragen gestellt. Mein Gewissen war nicht so betroffen wie das von Zoe.
+\n\nJe mehr Fragen gestellt werden, desto mehr Möglichkeiten habe ich und desto langsamer komme ich voran. Wir müssen handeln, und zwar mit dem Mut, von dem Lucie, Evas kleine Schwester, gesprochen hat.</string>
+
+    <string name="poetry_7a_parc" tools:ignore="Typos">\t\tIch fange an zu glauben, dass ich keine bessere Wahl hätte treffen können, als Zoe an diesem Abend zu einem Spaziergang einzuladen.
+\n\nEs stimmt, dass wir nicht vergessen dürfen, Antworten auf unsere Fragen zu geben, denn wir haben uns seit Evas Verschwinden viele Fragen gestellt. Mein Gewissen war nicht so betroffen wie das von Zoe.
+\n\nJe mehr Fragen gestellt werden, desto mehr Möglichkeiten habe ich und desto langsamer komme ich voran. Wir müssen handeln, und zwar mit dem Mut, von dem Lucie, Evas kleine Schwester, gesprochen hat.</string>
+
+    <string name="poetry_9a1">\t\tAlso beschloss ich, vom Vordereingang aus einzutreten. Im Gegensatz zu dem, was man denken könnte, war das Haus sehr gut erhalten. Das Grün drum herum wurde sorgfältig geschnitten, aber es gab keine anderen Häuser in der Nähe.\n\n
+Ich konnte nicht eine Sekunde verschwenden.\n\n
+Die Tür war offen… Hätten sie durch die Vordertür eintreten können? Es war zwar ein Einbruch, aber man betritt ein bewohntes Haus nicht so leicht.\n\n
+Der Flur war sehr schön, er war mit Pflanzen gefüllt, die trotz des Mangels an Licht Farbe gaben. Als wir ankamen, führte eine offene Tür in den Keller. Ich musste mutig sein und gehen.</string>
+
+    <string name="poetry_9a2">\t\tDa fragte ich mich: "Wie konnte so ein schönes Himmelspaar sich mit so einem düsteren Moment verbinden?"\n\n
+Also beschloss ich, hinten ins Haus zu gehen. Es war notwendig, einen schmalen Weg zu nehmen, und wenn die Vorderseite des Hauses gut gepflegt schien, war hinten rein gar nichts angeordnet, nur eine Schubkarre und einige Werkzeuge schienen richtig angeordnet zu sein.\n\n
+Ich erkannte bald, dass ich nicht hinein gelangen konnte, also nahm ich eines der Werkzeuge und brach das erste Fenster, das ich fand.\n\n
+Das Geräusch der Äste der Bäume, die sich aneinander rieben, hatte die Lautstärke des Metalls erstickt,welches beim Einschlagen des Fensters entstand, aber wenn jemand im Haus war, bin ich sicher, dass er oder sie mich hörte.</string>
+
+    <!-- Chapter details -->
+    <!-- 1A -->
+    <string name="chapter_1a_title">Ein Jahr zuvor</string>
+    <string name="chapter_1a_description">Der Morgen von Evas Verschwinden</string>
+    <string name="chapter_1a_scn">Fremder</string>
+
+    <!--2A -->
+    <string name="chapter_2a_title">Bryan!?</string>
+    <string name="chapter_2a_description">Zurück in der Gegenwart. Evas Mutter hat dir gerade eine Nachricht geschickt</string>
+
+    <!-- 3A -->
+    <string name="chapter_3a_title">Ein neuer Hinweis</string>
+    <string name="chapter_3a_description">Einen Tag später. Eine neue Person taucht in deinem Leben auf…</string>
+
+    <!-- 4A -->
+    <string name="chapter_4a_title">Der Keller</string>
+    <string name="chapter_4a_description">Eine Woche später… Vor dir befindet sich eine Tür, aber wo bist du?</string>
+    <string name="chapter_4a_scn">Keller</string>
+    <string name="chapter_4a_ssn">Ortung nicht möglich…</string>
+
+    <!-- 5A -->
+    <string name="chapter_5a_title">Zoe und ich</string>
+    <string name="chapter_5a_description">Du hast vor mehr als 15 Minuten eine Sprachnachricht von Zoe erhalten</string>
+
+    <!-- 5B -->
+    <string name="chapter_5b_title">Tut mir leid, Zoe</string>
+    <string name="chapter_5b_description">Du hast dich entschieden, Zoé nicht auf deinen Ausflug mit Chloé mitzunehmen. Zoé hat dir vor mehr als 15 Minuten zwei Nachrichten geschickt</string>
+
+    <!-- 6A -->
+    <string name="chapter_6a_title">Näher kommen</string>
+    <string name="chapter_6a_description">Du hast ein Treffen mit Zoé. Genieße diesen Moment, solange du kannst, denn in Kürze erwartet dich ein Abenteuer</string>
+    <string name="chapter_6a_scn">Rendez Vous</string>
+
+    <!-- 6B -->
+    <string name="chapter_6b_title">Ein Abend mit der Familie Belle</string>
+    <string name="chapter_6b_description">Einige Stunden später…</string>
+    <string name="chapter_6b_scn">Treffen mit der Familie Belle</string>
+    <string name="chapter_6b_ssn">Bei der Belle\'s Haus</string>
+
+    <!-- 7A -->
+    <string name="chapter_7a_title">Gehen wir!</string>
+    <string name="chapter_7a_description">Du kamst 30 Minuten später am Treffpunkt an. Zoé ist von der Angst geplagt, eine negative Antwort auf all die Fragen zu geben, die sie sich seit über einem Jahr stellt</string>
+    <string name="chapter_7a_scn">Chloe &amp; Zoe</string>
+    <string name="chapter_7b_title">Gehen wir!</string>
+    <string name="chapter_7b_description">Du kommst am Treffpunkt an. Zwei Personen warten dort auf dich.</string>
+    <string name="chapter_7b_scn">Chloe &amp; Lucie</string>
+
+    <!-- 9A -->
+    <string name="chapter_9a_title">Der Keller</string>
+    <string name="chapter_9a_description">In ein paar Minuten erfährst du, ob du die Sache unversehrt überstehen wirst</string>
+    <string name="chapter_9a_scn">Keller</string>
+    <string name="chapter_9a_scs">Ortung nicht möglich…</string>
+
+    <string name="forest">Der Wald</string>
+    <string name="forest_as_status">Wald</string>
+    <string name="main_path">Der erleuchtete Weg</string>
+    <string name="main_path_as_status">Erleuchtete Weg</string>
+    <string name="end">Ende</string>
+    <string name="sea_status">Am Strand</string>
+    <string name="parc_status">Im Park</string>
+    <string name="stats_p1">%1$d%% der Spieler haben Eva gerettet.</string>
+    <string name="stats_p2">%1$d%% der Spieler verursachten Zoes Tod.</string>
+    <string name="stats_p3">%1$d%% der Spieler verursachten Lucies Tod.</string>
+    <string name="stats_p4">%1$d%% der Spieler verursachten den Tod von zwei Personen.</string>
+    <string name="privacy_policy_click_here">Privacy policy : click here</string>
+</resources>

@@ -1,0 +1,6 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+	<string name="app_name">Sutoko</string>
+	<string name="permission_required">Your progress cannot be saved…</string>
+	<string name="pptools_no_web_navigator_found" translatable="false">Please, install a web browser.</string>
+</resources>

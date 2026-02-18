@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="friendzone3.purpletear.fr.friendzon3.Phone">
+
+    <ImageView
+        android:id="@+id/fz3.phone.background"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="centerCrop"
+        tools:ignore="ContentDescription" />
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:background="@color/soft_black"
+        android:paddingBottom="10dp"
+        android:paddingTop="10dp"
+        app:layout_constraintBottom_toTopOf="@id/guideline28"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guideline44"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            app:layout_constraintGuide_percent=".2864"/>
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guideline45"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            app:layout_constraintGuide_percent=".8058"/>
+
+        <ImageView
+            android:id="@+id/fz3.phone.ico.call"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_marginLeft="20dp"
+            app:layout_constraintBottom_toBottomOf="@id/guideline45"
+            app:layout_constraintDimensionRatio="29:14"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintTop_toTopOf="@id/guideline44"
+            tools:ignore="ContentDescription"
+            android:layout_marginStart="20dp" />
+
+        <ImageView
+            android:id="@+id/fz3.phone.ico.battery"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_marginRight="20dp"
+            app:layout_constraintBottom_toBottomOf="@id/guideline45"
+            app:layout_constraintDimensionRatio="23:14"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="@id/guideline44"
+            tools:ignore="ContentDescription"
+            android:layout_marginEnd="20dp" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline28"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent=".068" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline30"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent=".18" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline31"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent=".82" />
+
+    <ImageView
+        android:id="@+id/fz3.phone.clock"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toTopOf="@id/guideline29"
+        app:layout_constraintDimensionRatio="217:62"
+        app:layout_constraintLeft_toRightOf="@id/guideline30"
+        app:layout_constraintRight_toLeftOf="@id/guideline31"
+        app:layout_constraintTop_toBottomOf="@id/guideline28"
+        tools:ignore="ContentDescription" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline29"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent=".82" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline34"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent=".33" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline35"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent=".66" />
+
+    <ImageView
+        android:id="@+id/phone.btn.call"
+        android:layout_width="60dp"
+        app:layout_constraintDimensionRatio="H, 1:1"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="@id/guideline36"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toLeftOf="@id/guideline34"
+        app:layout_constraintTop_toBottomOf="@id/guideline29"
+        tools:ignore="ContentDescription" />
+
+    <ImageView
+        android:id="@+id/phone.btn.photos"
+        android:layout_width="60dp"
+        app:layout_constraintDimensionRatio="H, 1:1"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="@id/guideline36"
+        app:layout_constraintLeft_toRightOf="@id/guideline34"
+        app:layout_constraintRight_toLeftOf="@id/guideline35"
+        app:layout_constraintTop_toBottomOf="@id/guideline29"
+        tools:ignore="ContentDescription" />
+
+    <ImageView
+        android:id="@+id/phone.btn.messages"
+        android:layout_width="60dp"
+        app:layout_constraintDimensionRatio="H, 1:1"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="@id/guideline36"
+        app:layout_constraintLeft_toRightOf="@id/guideline35"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/guideline29"
+        tools:ignore="ContentDescription" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline36"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent=".96" />
+</androidx.constraintlayout.widget.ConstraintLayout>

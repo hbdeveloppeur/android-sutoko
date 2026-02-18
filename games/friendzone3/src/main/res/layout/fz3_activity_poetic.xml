@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="friendzone3.purpletear.fr.friendzon3.PoeticActivity">
+
+    <ImageView
+        android:id="@+id/poetic.background.image"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:adjustViewBounds="true"
+        android:scaleType="centerCrop"
+        tools:ignore="ContentDescription" />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#22547cff"
+        android:fadeScrollbars="false"
+        android:scrollbarSize="5dp"
+        android:scrollbarThumbVertical="@android:color/white">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <FrameLayout
+                android:id="@+id/poetic.button.top"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginBottom="20dp"
+                android:layout_marginTop="20dp"
+                android:background="@drawable/friendzone3_rounder_white"
+                android:paddingBottom="15dp"
+                android:paddingEnd="20dp"
+                android:paddingLeft="20dp"
+                android:paddingRight="20dp"
+                android:paddingStart="20dp"
+                android:paddingTop="15dp">
+
+                <purpletear.fr.purpleteartools.fonts.OldPtSans
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:text="@string/go_to_the_chapter"
+                    android:textAlignment="center"
+                    android:textColor="#afafaf"
+                    android:textSize="@dimen/poetry_go_to_chapter_text" />
+            </FrameLayout>
+
+            <purpletear.fr.purpleteartools.fonts.OldPtSans
+                android:id="@+id/poetic.text.story"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingBottom="20dp"
+                android:paddingEnd="@dimen/poetry_story_padding"
+                android:paddingLeft="@dimen/poetry_story_padding"
+                android:paddingRight="@dimen/poetry_story_padding"
+                android:paddingStart="@dimen/poetry_story_padding"
+                android:textColor="#f5f5f5"
+                android:textSize="@dimen/poetry_story_text" />
+
+            <FrameLayout
+                android:id="@+id/poetic.button.bottom"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginBottom="20dp"
+                android:background="@drawable/friendzone3_rounder_white"
+                android:paddingBottom="15dp"
+                android:paddingEnd="20dp"
+                android:paddingLeft="20dp"
+                android:paddingRight="20dp"
+                android:paddingStart="20dp"
+                android:paddingTop="15dp">
+
+                <purpletear.fr.purpleteartools.fonts.OldPtSans
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:text="@string/go_to_the_chapter"
+                    android:textAlignment="center"
+                    android:textColor="#afafaf"
+                    android:textSize="@dimen/poetry_go_to_chapter_text" />
+            </FrameLayout>
+
+        </LinearLayout>
+    </ScrollView>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

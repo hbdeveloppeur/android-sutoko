@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (C) PurpleTear, Inc - All Rights Reserved
+  ~ Unauthorized copying of this file, via any medium is strictly prohibited
+  ~ Proprietary and confidential
+  ~ Written by Hocine Belbouab <hbdeveloppeur@gmail.com>, 1/10/19 11:38 AM
+  ~
+  -->
+
+<EditText xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/name_edit_text"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:hint="@string/default_name"
+    android:maxLength="18"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    tools:ignore="Autofill,TextFields"
+    android:imeActionLabel="Done"
+    android:singleLine="true" />

@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?><!--
+  ~ Copyright (C) PurpleTear, Inc - All Rights Reserved
+  ~ Unauthorized copying of this file, via any medium is strictly prohibited
+  ~ Proprietary and confidential
+  ~ Written by Hocine Belbouab <hbdeveloppeur@gmail.com>, 1/10/19 11:38 AM
+  -->
+
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <string name="app_name">Friendzoné</string>
+
+    <!-- MENU -->
+    <string name="menu_confirm_reset">Les données du jeu seront supprimées</string>
+    <string name="game_reseted">Partie supprimée</string>
+    <string name="game_reset">Recommencer</string>
+    <string name="game_play">Jouer</string>
+    <string name="game_bonus">Supprimer les publicités</string>
+    <string name="informations">Informations</string>
+
+    <!-- MAIN -->
+    <string name="chapter_title">Chapitre %1$d. %2$s</string>
+    <string name="quit_conv">Quitter la conversation?</string>
+    <string name="added_you_to_her_friendlist">Vous a ajouté à sa liste d\'amis</string>
+    <string name="seen">Vu.</string>
+    <string name="mainactivity_next_chapter">Le chapitre va se terminer dans quelques secondes…</string>
+    <string name="mainactivity_online">Connecté(e)</string>
+    <string name="mainactivity_offline">Déconnecté(e)</string>
+    <string name="mainactivity_banned">Votre correspondant(e) vous a bloqué.</string>
+    <string name="game_your_choice">Votre choix…</string>
+
+    <!-- ADS -->
+    <string name="adactivity_gonna_start">Impossible de lancer la pub, vous devez attendre %1$d secondes pour continuer à jouer.</string>
+    <string name="adactivity_video_launching">Chargement de la vidéo pour débloquer le prochain chapitre</string>
+    <string name="accepted_chat_request">Eva a accepté votre demande d\'ajout</string>
+
+    <!-- CHAPTER DETAILS -->
+    <string name="chapter1_title">Eva Belle</string>
+    <string name="chapter1_description">Vous venez d\'ajouter Eva Belle, une jolie fille que vous avez rencontré plus tôt dans la journée. Après un moment inoubliable, vous souhaitez faire plus ample connaissance avec elle.</string>
+    <string name="chapter2_title">Tombée de la nuit</string>
+    <string name="chapter2_description">La nuit est tombée depuis déjà quelques heures, Eva vous a demandé de lui envoyer un message à 22 h 00, est-il judicieux de suivre ses indications ?\nVous êtes le seul maître de votre histoire.</string>
+    <string name="chapter3_title">La soirée horreur</string>
+    <string name="chapter3_description">La soirée prévue par Eva et Zoé commence, il est tout juste minuit et vous vous apprêtez à vivre un moment effrayant…</string>
+    <string name="chapter4_title">Le lendemain matin…</string>
+    <string name="chapter5_title">Un an plus tard</string>
+    <string name="chapter5_description">Voilà déjà un an qu\'Eva a disparu, ses parents et les services de police ne lâchent pas prise. \n\nAlors que pour certains, l\'espoir laisse place au désespoir, un élément du passé va venir chambouler votre journée…</string>
+    <string name="inconnue">Inconnue</string>
+    <string name="chapter5_scn">Dans la rue</string>
+    <string name="chapter6_title">Un mystérieux retour</string>
+    <string name="chapter6_description">La nuit suivante…</string>
+    <string name="chapter7a_title">Friend Zoé</string>
+    <string name="chapter7a_description">Le lendemain matin, vous recevez un message de Zoé</string>
+    <string name="chapter7a_scn">+336 XX XX XX XX</string>
+    <string name="chapter8_title">Le rendez-vous</string>
+    <string name="chapter8_description">Il est temps de rejoindre Zoé</string>
+    <string name="chapter8_scn">Soirée avec Zoé</string>
+    <string name="chapter9_title">Elle</string>
+    <string name="chapter9_description">Il est 21h00 et le ciel n\'a jamais été aussi étoilé. Vous marchez lentement pour faire durer le moment…</string>
+    <string name="end">Fin</string>
+    <string name="save">SAVE</string>
+
+    <!-- END -->
+    <string name="available">Friendzoné 2 est disponible gratuitement      Donner une note au jeu encourage l\'histoire à continuer d\'exister ❤️      Merci beaucoup ☺</string>
+    <string name="game_created_by">Jeu créé par</string>
+
+    <!-- NAMES -->
+    <string name="default_name">Nick</string>
+    <string name="alias_zoe">Zoé</string>
+    <string name="alias_zoe_topaze">Zoé Topaze</string>
+    <string name="alias_eva">Eva</string>
+    <string name="alias_eva_belle">Eva Belle</string>
+    <string name="alias_christophe">Christophe</string>
+    <string name="alias_christophe_belle">Christophe Belle</string>
+    <string name="alias_bryan">Bryan</string>
+    <string name="no_ads_version">Version sans pub, merci du soutien :)</string>
+
+    <!-- GLOBAL -->
+    <string name="chapter">Chapitre</string>
+    <string name="abort" tools:ignore="ButtonCase">ANNULER</string>
+    <string name="ok">OK</string>
+    <string name="iap_service_unavailable">Connexion internet perdue, achat annulé</string>
+    <string name="iap_unknown_error">Une erreur s\'est produite, achat annulé</string>
+    <string name="yes">OUI</string>
+    <string name="no">NON</string>
+    <string name="firstname">Prénom</string>
+    <string name="not_valid_name">Entrée invalide</string>
+    <string name="main_button_continue">Continuer</string>
+
+    <!-- OTHER -->
+    <string name="zoe">@string/alias_zoe</string>
+    <string name="bryan">@string/alias_bryan</string>
+    <string name="b">b</string>
+    <string name="instagram">HocineHope</string>
+    <string name="check_google_play_connexion">Vérifiez que vous êtes bien connecté à Google Play Store</string>
+    <string name="also_available_on_ios">Disponible aussi sur iOs</string>
+</resources>

@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Validierungsmeldungen -->
+    <string name="ai_conversation_the_first_name_is_too_short">Der Vorname ist zu kurz.</string>
+    <string name="ai_conversation_image_saved_to_image_gallery">Bild in der Bildergalerie gespeichert.</string>
+    <string name="ai_conversation_error_couldn_t_save_the_image">Fehler, das Bild konnte nicht gespeichert werden.</string>
+
+    <!-- KI-Gespräch -->
+    <string name="ai_conversation_restart_title">Möchten Sie das Gespräch wirklich neu starten?</string>
+    <string name="ai_conversation_restart">Neustarten</string>
+    <string name="ai_conversation_character_blocked_user">%s hat Sie blockiert</string>
+
+    <!-- Startbildschirm -->
+    <string name="ai_conversation_sutoko_home_title">Sutoko *Echt*</string>
+    <string name="ai_conversation_home_subtitle">Erstelle ihr Gesicht, ihre Einstellung, in jedem Stil</string>
+    <string name="ai_conversation_home_image_action_title">Erhalte Münzen\nund *spiele*</string>
+    <string name="ai_conversation_home_qrules">Kann ich *alles* tun?</string>
+    <string name="ai_conversation_home_qrules_quote">Alles ist möglich, solange es nicht vulgär, unmoralisch oder gefährlich ist.</string>
+    <string name="ai_conversation_start_conversation">Gespräch starten</string>
+    <string name="ai_conversation_presentation_try">Kostenlos ausprobieren</string>
+    <string name="ai_conversation_presentation_try_with_ad">Erhalte 5 kostenlose Münzen mit einer Werbung</string>
+
+    <!-- Buttons -->
+    <string name="ai_conversation_button_discuss_name">Diskutiere mit %1$s</string>
+    <string name="ai_conversation_button_buy_coins_title">Mehr Nachrichten kaufen</string>
+    <string name="ai_conversation_button_buy_coins_subtitle">Sie haben noch %1$s Münzen</string>
+    <string name="ai_conversation_buy_coins">Münzen kaufen</string>
+
+    <!-- Charaktererstellung -->
+    <string name="ai_conversation_title_create_character">Erstelle einen *Charakter*</string>
+    <string name="ai_conversation_subtitle_create_character">Erstelle bis zu 10 Charaktere, deiner Fantasie sind keine Grenzen gesetzt</string>
+    <string name="ai_conversation_gender_female">Frau</string>
+    <string name="ai_conversation_gender_male">Mann</string>
+    <string name="ai_conversation_sutoko_first_name">Vorname</string>
+    <string name="ai_conversation_sutoko_last_name">Nachname</string>
+    <string name="ai_conversation_describe_your_character">Beschreibe deinen Charakter</string>
+    <string name="ai_conversation_character_description_hint">Erzählen Sie uns von der Persönlichkeit, den Interessen und dem Hintergrund Ihres Charakters.</string>
+    <string name="ai_conversation_description_placeholder">Beschreibung…</string>
+
+    <!-- Stil Auswahl -->
+    <string name="ai_conversation_pick_one_graphic_style">Wähle einen Grafikstil</string>
+    <string name="ai_conversation_how_do_you_want_them_to_appear">Wie sollen sie erscheinen?</string>
+
+    <!-- Aktionen -->
+    <string name="ai_conversation_button_import">Importieren</string>
+    <string name="ai_conversation_button_random">Zufällig</string>
+    <string name="ai_conversation_button_use_ai">KI verwenden</string>
+    <string name="ai_conversation_generate">Generieren</string>
+    <string name="ai_conversation_signin_to_generate">Melden Sie sich an, um Ihren Charakter hinzuzufügen</string>
+    <string name="ai_conversation_demo">Demo</string>
+    <string name="ai_conversation_invite">Einladen</string>
+    <string name="ai_conversation_confirm_invite_title">Charaktere einladen</string>
+    <string name="ai_conversation_confirm_invite_description">Sind Sie sicher, dass Sie %1$s zum Gespräch einladen möchten?</string>
+
+    <string name="ai_conversation_delete_characters">Einladen</string>
+    <string name="ai_conversation_confirm_delete_title">Charaktere einladen</string>
+    <string name="ai_conversation_confirm_delete_description">Sind Sie sicher, dass Sie %1$s löschen möchten?</string>
+
+    <!-- Discord -->
+    <string name="ai_conversation_cta_join_discord">Tritt\nunserem *Discord* bei</string>
+    <string name="ai_conversation_cta_open_discord">Discord öffnen</string>
+    <string name="ai_conversation_image_viewer_gesture_indication">Sie können mit einer Kneifbewegung ein- und auszoomen</string>
+    <string name="ai_conversation_image_generator_title_prompt">Stellen Sie sich Ihr Bild vor</string>
+    <string name="ai_conversation_image_generator_prompt_placeholder_title">Klicken Sie hier: Bildbeschreibung…</string>
+    <string name="ai_conversation_image_generator_prompt_placeholder_subtitle">Mann in einem Wald mit Freunden, eine geheimnisvolle Person (ein Mann) steht ihnen gegenüber, neben einer Tür.</string>
+    <string name="ai_conversation_image_generator_button_generate">Bild generieren mit %1$s Münzen</string>
+    <string name="ai_conversation_download">Herunterladen</string>
+    <string name="ai_conversation_remove">Entfernen</string>
+    <string name="ai_conversation_select_image">Bild auswählen</string>
+
+    <!-- Kaufdialog -->
+    <string name="ai_conversation_presentation_title_try">Probiere das KI-Gespräch aus</string>
+    <string name="ai_conversation_presentation_title_buy">KI-Nachrichten kaufen</string>
+    <string name="ai_conversation_presentation_message_default">Diskutiere mit den Story-Charakteren, die du besitzt</string>
+    <string name="ai_conversation_cta_get_coins">Erhalten %1$s Nachrichten</string>
+    <string name="ai_conversation_insufficient_coins">Sie haben nicht genug Münzen</string>
+    <string name="ai_conversation_presentation_message_confirm_buy_pack">Möchten Sie das Paket mit %1$d Nachrichten kaufen?</string>
+    <string name="ai_conversation_cancel">Abbrechen</string>
+    <string name="ai_conversation_buy">Kaufen</string>
+    <string name="ai_conversation_start">Start</string>
+    <string name="ai_conversation_count_try">10 Nachrichten</string>
+    <string name="ai_conversation_presentation_open_shop">Shop öffnen</string>
+    <string name="ai_conversation_presentation_success_buy">Sie haben %1$d Nachrichten freigeschaltet. Verwenden Sie diese, um mit den Charakteren aus den freigeschalteten Spielen zu sprechen! Viel Spaß!</string>
+    <string name="ai_conversation_presentation_success_try">Freigeschaltet! Sie haben %1$d neue Nachrichtenmünzen.</string>
+    <string name="ai_conversation_presentation_error_trial_consumed">Probezeit bereits begonnen</string>
+
+    <!-- Konto -->
+    <string name="ai_conversation_loading">Laden…</string>
+    <string name="ai_conversation_presentation_error_user_not_logged_in">Sie müssen eingeloggt sein, um fortzufahren</string>
+    <string name="ai_conversation_signin">Anmelden</string>
+
+    <!-- Fehler -->
+    <string name="ai_conversation_error_network">Ein Netzwerkfehler ist aufgetreten, sind Sie verbunden?</string>
+    <string name="ai_conversation_presentation_error_unknown">Ein unbekannter Fehler ist aufgetreten</string>
+
+    <string name="ai_conversation_you_are_not_connected">Sie sind nicht verbunden</string>
+    <string name="ai_conversation_open">Öffnen</string>
+    <string name="ai_conversation_conversation_dialog_username_title">Wie ist der Name Ihres Charakters?</string>
+    <string name="ai_conversation_conversation_dialog_username_placeholder">Nick</string>
+    <string name="ai_conversation_error_insert_media_conversation_empty">Sie können kein Bild einfügen, wenn das Gespräch leer ist.</string>
+    <string name="ai_conversation_settings_screen_title">Einstellungen</string>
+    <string name="ai_conversation_image_generator_title">Ein Bild generieren</string>
+    <string name="ai_conversation_generate_image_prompt_required">Geben Sie ein Text-Prompt ein</string>
+    <string name="ai_conversation_error_occured_refund">Ein Fehler ist aufgetreten, Sie wurden erstattet.</string>
+    <string name="ai_conversation_missing_coins">Sie haben nicht genug Münzen</string>
+    <string name="ai_conversation_continue">Fortfahren</string>
+    <string name="ai_conversation_no_avatar_selected">Kein Avatar ausgewählt</string>
+    <string name="ai_conversation_file_rejected">Die Datei ist ungültig</string>
+    <string name="ai_conversation_pop_up_characters_limit_reached_title">Limit erreicht</string>
+    <string name="ai_conversation_pop_up_characters_limit_reached_description">Sie haben das Limit von 10 Charakteren erreicht</string>
+    <string name="ai_conversation_add_character_cta_use_ai_title">Generate your own images</string>
+    <string name="ai_conversation_add_character_cta_use_ai_subtitle">With AI</string>
+    <string name="ai_conversation_add_x_days_ago">Added %1$d days ago</string>
+    <string name="ai_conversation_message_invite_characters_singular">%1$s wurde in das Gespräch eingeladen</string>
+    <string name="ai_conversation_message_invite_characters_plural">%1$s wurden in das Gespräch eingeladen</string>
+    <string name="ai_conversation_use_image">Dieses Bild verwenden</string>
+    <string name="ai_conversation_save_gallery">In der Galerie speichern</string>
+    <string name="ai_conversation_delete">Löschen</string>
+    <string name="ai_conversation_edit_text_placeholder_message">Tu mensaje</string>
+    <string name="ai_conversation_status_close_to_you">In deiner Nähe</string>
+    <string name="ai_conversation_status_online">Online</string>
+    <string name="ai_conversation_title_invite_character">Einen Charakter einladen</string>
+    <string name="ai_conversation_invite_characters_names">Invite %1$s</string>
+    <string name="ai_conversation_restart_conversation">Gespräch löschen und neu beginnen</string>
+</resources>

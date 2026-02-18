@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <FrameLayout
+        android:id="@+id/fz4_noseen_phrase.dest.background"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/fz4_layout_bg_roundedtest"
+        android:paddingBottom="@dimen/phrase_dest_compensation"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="@id/fz4_noseen_guideline26"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toEndOf="@id/fz4_noseen_guideline"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constrainedWidth="true">
+
+        <purpletear.fr.purpleteartools.fonts.OldPtSans
+            android:id="@+id/fz4_noseen_phrase.dest.text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingBottom="@dimen/phrase_dest_text_paddingVertical"
+            android:paddingEnd="@dimen/phrase_dest_text_paddingHorizontal"
+            android:paddingLeft="@dimen/phrase_dest_text_paddingHorizontal"
+            android:paddingRight="@dimen/phrase_dest_text_paddingHorizontal"
+            android:paddingStart="@dimen/phrase_dest_text_paddingHorizontal"
+            android:paddingTop="@dimen/phrase_dest_text_paddingVertical"
+            android:textSize="@dimen/phrase_dest_text" />
+    </FrameLayout>
+
+    <ImageView
+        android:id="@+id/fz4_noseen_phrase.dest.profil"
+        android:layout_width="20dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintDimensionRatio="1:1"
+        app:layout_constraintEnd_toStartOf="@id/fz4_noseen_guideline"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:ignore="ContentDescription" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/fz4_noseen_guideline"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.1" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/fz4_noseen_guideline26"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent=".70" />
+</androidx.constraintlayout.widget.ConstraintLayout>

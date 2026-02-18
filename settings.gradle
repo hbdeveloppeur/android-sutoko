@@ -1,0 +1,61 @@
+pluginManagement {
+    repositories {
+        gradlePluginPortal()
+        google()
+        mavenCentral()
+        maven { url 'https://jitpack.io' }
+    }
+}
+
+
+include ':app', ':friendzone1', ':friendzone2', ':friendzone3', ':friendzone4'
+include ':smsgame'
+include ':sutokosharedelements'
+
+
+include ':PurpleTearTools'
+include ':error:presentation'
+include ':alert:alert_presentation'
+include ':popup:popup_domain'
+include ':ai_conversation:ai_conversation_domain'
+include ':ai_conversation:ai_conversation_data'
+include ':ai_conversation:ai_conversation_presentation'
+include ':games:friendzone1'
+include ':games:friendzone2'
+include ':games:friendzone3'
+include ':games:friendzone4'
+include ':in_app_purchase:in_app_purchase_domain'
+include ':in_app_purchase:in_app_purchase_data'
+include ':smartads'
+include ':ai-conversation:core'
+include ':ai-conversation:domain'
+include ':ai-conversation:data'
+include ':ai-conversation:presentation'
+include ':shop:presentation'
+include ':shop:domain'
+include ':shop:data'
+include ':user:domain'
+include ':user:data'
+include ':core:presentation'
+include ':popup:pop_data'
+include ':Framework'
+include ':permission:domain'
+include ':permission:data'
+include ':popup:popup_presentation'
+include ':core:domain'
+include ':core:core_data'
+include ':notification:domain'
+include ':notification:data'
+include ':game:game_domain'
+include ':game:game_data'
+include ':game:game_presentation'
+include ':news:news_domain'
+include ':news:news_data'
+include ':news:news_presentation'
+include ':version:version_domain'
+include ':version:version_infrastructure'
+include ':version:version_presentation'
+
+project(":version:version_domain").projectDir = new File(rootDir, "version/domain")
+project(":version:version_infrastructure").projectDir = new File(rootDir, "version/infrastructure")
+project(":version:version_presentation").projectDir = new File(rootDir, "version/version_presentation")

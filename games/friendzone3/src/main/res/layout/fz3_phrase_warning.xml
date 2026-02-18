@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingBottom="@dimen/phrase_dest_compensation"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0"
+        android:background="@drawable/friendzone3_background_round_black">
+
+        <TextView
+            android:id="@+id/phrase.warning.text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingBottom="@dimen/phrase_dest_text_paddingVertical"
+            android:paddingEnd="@dimen/phrase_dest_text_paddingHorizontal"
+            android:paddingLeft="@dimen/phrase_dest_text_paddingHorizontal"
+            android:paddingRight="@dimen/phrase_dest_text_paddingHorizontal"
+            android:paddingStart="@dimen/phrase_dest_text_paddingHorizontal"
+            android:paddingTop="@dimen/phrase_dest_text_paddingVertical"
+            android:textColor="@color/soft_white"
+            app:layout_constrainedWidth="true"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            android:textSize="@dimen/phrase_info_text"/>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

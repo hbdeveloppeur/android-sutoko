@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- APP -->
+    <string name="app_name">Friendzoneado 4</string>
+    <string name="app_version">VERSION 1.1.6</string>
+    <string name="internet_access_error">Error. Compruebe su conexión a Internet</string>
+    <string name="main_confirm_leave">¿Estás seguro de que quieres dejar la conversación?</string>
+    <string name="instagram_hocinehope">Instagram @hocinehope</string>
+    <string name="game_by">Juego por</string>
+
+    <!-- MENU -->
+    <string name="menu_confirm_reset">Todo el progreso actual se perderá</string>
+    <string name="menu_confirm_reset_done">Datos del juego eliminados</string>
+    <string name="menu_confirm_play_from">Los datos del capítulo %1$d serán borrados</string>
+    <string name="menu_info_history">Puedes volver una vez que hayas terminado el juego.</string>
+
+    <!-- MAIN -->
+    <string name="title_format">Capítulo %1$d. %2$s</string>
+    <string name="online">En línea</string>
+    <string name="offline">Fuera de línea</string>
+    <string name="menu_button_boutique">Tienda</string>
+    <string name="menu_button_play">Jugar</string>
+    <string name="menu_button_reset">Nuevo juego</string>
+    <string name="menu_info_title">Información</string>
+    <string name="game_logo">Game logo</string>
+    <string name="menu_chapters_previous">&lt; Capítulo. %1$d</string>
+    <string name="menu_chapters_next">Capítulo %1$d &gt;</string>
+    <string name="lucide_to_morse">·−·· ··− −·−· ·· −·· ·</string>
+    <string name="first_name">Nombre</string>
+    <string name="default_name">Nick</string>
+    <string name="not_valid_name">Entrada inválida</string>
+    <string name="abort">CANCELAR</string>
+    <string name="ok">OK</string>
+    <string name="mainactivity_your_choice">Su elección:</string>
+    <string name="main_your_choice">Su elección…</string>
+    <string name="mainactivity_next_chapter">El capítulo terminará en unos pocos segundos…</string>
+    <string name="b">b</string>
+    <string name="notification_friend_name">%1$s 2s</string>
+    <string name="added_you_to_its_friendslist">Te añadió a su lista de amigos</string>
+    <string name="accepted_you_to_its_friendslist">Aceptó su solicitud de amistad</string>
+
+    <!-- CINEMATIC INTRO -->
+    <string name="audio_cinematic_button_play">Escuchar</string>
+    <string name="audio_cinematic_button_stop">Deténgase</string>
+    <string name="audio_cinematic_button_restart">Replay</string>
+    <string name="audio_cinematic_button_recomandation">Se recomienda el uso de auriculares</string>
+    <string name="audio_cinematic_title">Trailers de sonido</string>
+
+    <!-- Main -->
+    <string name="mainactivity_description_title">Capítulo %1$d : %2$s</string>
+
+
+    <!-- GAME -->
+    <string name="game_your_choice">Su elección…</string>
+    <string name="error">ERROR</string>
+    <string name="notification_first_sentence">Zoe te invita a un convento.</string>
+    <string name="horror_night">Noche de terror</string>
+    <string name="seen">Visto.</string>
+    <string name="game_paused">Usted detuvo el juego…</string>
+    <string name="main_button_continue">Continuar</string>
+    <string name="contact_messages">Lista de amigos</string>
+    <string name="is_calling_you">Te está llamando…</string>
+    <string name="counter_text_format">00:%1$s</string>
+    <string name="struggle">¡Pelea!</string>
+    <string name="keep_push">Manténgase presionado</string>
+    <string name="donner_mon_avis_sur_google_play">Dar una tarifa en Google Play</string>
+    <string name="merci_tout_ceux_qui_ont_suivi_l_aventure">Gracias a los que siguieron la aventura :)\n Este año se añadirán más juegos a Sutoko</string>
+    <string name="love_yourself">"Ámate a ti mismo, porque en las partes más oscuras de tu vida, estuviste ahí cuando nadie más estaba…"</string>
+    <string name="appuyez_sur_l_image_pour_la_voir_enti_rement">Presiona la imagen para verla</string>
+
+    <!-- Days -->
+    <string name="fz4_day_monday">Lunes</string>
+    <string name="fz4_day_tuesday">Martes</string>
+    <string name="fz4_day_wednesday">Miércoles</string>
+    <string name="fz4_day_thursday">Jueves</string>
+    <string name="fz4_day_friday">Viernes</string>
+    <string name="fz4_day_saturday">Sábado</string>
+    <string name="fz4_day_sunday">Sunday</string>
+
+    <string name="fz4_action_push_him_back">¡Empújalo de vuelta!</string>
+    <string name="fz4_action_dodge">¡Evitarlo!</string>
+    <string name="fz4_action_fend_off">Fend off!</string>
+    <string name="fz4_action_counter_attack">¡Ataque de contador!</string>
+    <string name="fz4_action_face_your_fears">Enfrenta tu miedo!</string>
+    <string name="fz4_action_dont_fait">¡No te desmayes!</string>
+    <string name="chloe_sentence_nobody_touches_erika">Nadie va a hacer daño a Erika.</string>
+    <string name="before_description_sentence_1">Hi Amy</string>
+    <string name="before_description_sentence_2">Quiero decir… Hola</string>
+    <string name="before_description_sentence_3">Dudé mucho @tiempo antes de escribirte…</string>
+    <string name="before_description_sentence_4">Sólo quería decirte que si lo necesitas, siempre estoy aquí.</string>
+    <string name="before_description_sentence_5">Así que… no dudes, estaré feliz de estar allí…</string>
+    <string name="before_description_sentence_6">Hace 3 semanas</string>
+    <string name="before_description_sentence_7">Lo digo en serio. No puedo esperar a hablar contigo… </string>
+
+    <!-- CHARACTERS NAMES -->
+    <string name="fz4_personnage_bryan">Bryan</string>
+    <string name="fz4_personnage_chloe">Chloe</string>
+    <string name="fz4_personnage_chloe_winsplit">Chloe Winsplit</string>
+    <string name="fz4_personnage_sylvie">Sylvia</string>
+    <string name="fz4_personnage_sylvie_belle">Sylvia Belle</string>
+    <string name="fz4_personnage_zoe">Zoe</string>
+    <string name="fz4_personnage_zoe_topaze">Zoe Luna</string>
+    <string name="fz4_personnage_eva">Eva</string>
+    <string name="fz4_personnage_eva_belle">Eva Belle</string>
+    <string name="fz4_personnage_lucie">Lucía</string>
+    <string name="fz4_personnage_lucie_belle">Lucía Belle</string>
+    <string name="fz4_personnage_lana">Lana</string>
+    <string name="fz4_personnage_christophe">Cristofer</string>
+    <string name="fz4_personnage_christophe_belle">Cristofer Belle</string>
+
+    <!-- CONTACT LIST -->
+    <string name="fz4_contact_list_action_1">Ve al bar con Zoe</string>
+    <string name="fz4_contact_list_action_2">Zoe tiene alguna información para darte</string>
+    <string name="fz4_contact_list_action_3">Quédate y habla con Eva</string>
+    <string name="fz4_contact_list_action_4">A Eva le gustaría discutir con usted</string>
+    <string name="fz4_contact_list_action_5">Lucía Belle</string>
+    <string name="fz4_contact_list_action_6">Que tengas una buena noche :)</string>
+    <string name="fz4_contact_list_action_7">Lo resolveremos más tarde, ¿de acuerdo?</string>
+    <string name="fz4_contact_list_action_8">Tal vez…</string>
+    <string name="fz4_contact_list_action_9">No la he visto…</string>
+    <string name="fz4_contact_list_action_10">Eres un estúpido xD…</string>
+
+    <!-- POETRIES -->
+    <string name="fz4_poetry_7a">Lucía me convenció de que me uniera a Yorokobi. Así que no pasó mucho tiempo para que me uniera a ella en un lugar inesperado, el techo de un edificio que también es desconocido para mí…</string>
+    <string name="fz4_poetry_7b">He decidido negarme a seguir a Yorokobi. No quería confiar en Lucía… Si el programa de x00 se ofrece para ayudar a alguien necesitado, entonces cuando x92 me lo dio… quizás ya sabía que Lucy estaba escondiendo algo.</string>
+    <string name="fz4_poetry_8a">Dejé que me llevara a la famosa sala de ordenadores, con la sensación de que las escaleras nunca terminarían. Mis ojos se perdieron en estos escalones, cada uno más rojo que el siguiente, y los retratos en dos paredes de ladrillo paralelas. Yorokobi espera que use el "regalo" de x00 a cambio de la información sobre Bryan. La recordaré, con los pies juntos, cerca del vacío. ¿Cómo puede una mente tan racional estar dispuesta a olvidar sus propios miedos? Implicaría mentirse a sí misma.</string>
+    <string name="fz4_poetry_8b">Todos estábamos en peligro ese día, pero créeme, no era nada comparado con la sensación de revivir la misma pesadilla dos veces. No tuve ni un segundo para pensar, tuve que actuar para no arrepentirme de los errores de las decisiones tomadas bajo la influencia del tiempo.</string>
+    <string name="fz4_poetry_9a">Yorokobi me dejó sola para enfrentar un horrible descubrimiento. Corrí a la casa de la familia Belle y cada vez que sentí la sacudida creada por mis pasos en el suelo, mi cuerpo y mi corazón se hicieron más pesados. Ya sabía que este era el final. Una vez más, había esa sensación de peligro mezclada con un ambiente maravilloso. En la oscuridad, incluso el más bello de los elementos naturales puede ser aterrador, pero afortunadamente hay luces que nunca se apagan.</string>
+    <string name="fz4_poetry_9c">Alguien estaba jugando con nosotros, tuve la sensación de que había sido manipulado para que Zoé y yo nos encontráramos aquí frente al lago y la casa de la familia Belle. Era como si el mal se mezclara con el bien para hacernos sentir una emoción que nunca antes habíamos sentido.</string>
+
+
+    <!-- TITLES -->
+    <string name="fz4_chapter_1a_title">La lucidez de Lucy</string>
+    <string name="fz4_chapter_2a_title">La hermana pequeña</string>
+    <string name="fz4_chapter_3a_title">El espectáculo de terror</string>
+    <string name="fz4_chapter_4a_title">Noche dulce</string>
+    <string name="fz4_chapter_4b_title">Ella sabe…</string>
+    <string name="fz4_chapter_5a_title">Un encuentro extraño</string>
+    <string name="fz4_chapter_6a_title">El lago</string>
+    <string name="fz4_chapter_7a_title">Yorokobi</string>
+    <string name="fz4_chapter_7b_title">Cuando la pesadilla comienza de nuevo</string>
+    <string name="fz4_chapter_8a_title">La sala de servidores</string>
+    <string name="fz4_chapter_8b_title">Dulce Zoe</string>
+    <string name="fz4_chapter_9a_title">Noche dulce</string>
+    <string name="fz4_chapter_9c_title">End</string>
+    <string name="fz4_chapter_10a_title">20 years later</string>
+    <string name="fz4_chapter_10b_title">20 years later</string>
+    <string name="fz4_chapter_10c_title">Huevo de Pascua, ¡qué pesadilla!</string>
+    <string name="fz4_chapter_11a_title">Ending</string>
+    <string name="fz4_chapter_11b_title">Ending</string>
+    <string name="fz4_chapter_11k_title">Ending</string>
+
+    <!-- DESCRIPTIONS -->
+    <string name="fz4_chapter_1a_description">Acabas de recibir dos mensajes de Zoe</string>
+    <string name="fz4_chapter_2a_description">Fuiste invitado a la conversación con Zoe antes de lo esperado. Lucía también está presente</string>
+    <string name="fz4_chapter_3a_description">Estás leyendo viejos mensajes enviados a Eva antes de que finalmente seas invitado a la conversación…</string>
+    <string name="fz4_chapter_4b_description">Decidiste dejar a Zoe en paz e ir a hablar con Eva</string>
+    <string name="fz4_chapter_5a_description">La noche está llegando a su fin, pero algo podría alterar su estado de ánimo.</string>
+    <string name="fz4_chapter_5abis_description">Después de la conversación con Eva, te apresuras a unirte a Zoe en el bar, algo puede perturbar tu estado mental.</string>
+    <string name="fz4_chapter_6a_description">A la mañana siguiente vas al lago. Te encuentras con alguien conocido…</string>
+    <string name="fz4_chapter_7a_description">Dos días después, con la ayuda de Lucy, te encuentras con Yorokobi en el tejado de un edificio. Ella te dice que aquí es donde todo comienza…</string>
+    <string name="fz4_chapter_8a_description">Si consigues entrar en la sala de servidores con Yorokobi, estarás cerca de averiguar lo que Bryan planea hacer.</string>
+    <string name="fz4_chapter_8b_description">Cuando sales para reunirte con Eva, te das cuenta de que Zoe está ahí, delante de ti</string>
+    <string name="fz4_chapter_9a_description">Llegas delante de la casa de la Bella, no hay nadie allí, todo está vacío…</string>
+    <string name="fz4_chapter_9c_description">Te diste cuenta de que la puerta de la casa de las Bellezas estaba abierta de par en par…</string>
+
+    <!-- CONVERSATION NAMES -->
+    <string name="fz4_chapter_4a_cname">A última hora de la noche…</string>
+    <string name="fz4_chapter_5a_cname">Noche con Zoe</string>
+    <string name="fz4_chapter_5abis_cname">A última hora de la noche…</string>
+    <string name="fz4_chapter_6a_cname">En el lago</string>
+    <string name="fz4_chapter_8b_cname">En el camino</string>
+    <string name="fz4_chapter_9a_cname">En el lago</string>
+    <string name="fz4_chapter_9c_cname">Frente a la casa de Amy.</string>
+
+    <!-- CONVERSATION STATUS -->
+    <string name="fz4_chapter_4a_cstatus">Con Zoe</string>
+    <string name="fz4_chapter_7a_cstatus">En el techo de un edificio</string>
+    <string name="fz4_chapter_8a_cstatus">Sala de servidores</string>
+    <string name="fz4_chapter_8b_cstatus">Temprano de la noche</string>
+    <string name="fz4_chapter_9a_cstatus">Noche</string>
+
+    <string name="store_link">https://teespring.com/es/stores/friendzoneado</string>
+
+</resources>

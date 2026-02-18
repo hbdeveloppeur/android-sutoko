@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <string name="app_name">Gefriendzoned 3</string>
+    <string name="public_directory_app_name">Friendzone</string>
+    <string name="app_version">VERSION 1.1.2</string>
+    <string name="share">Du kannst mir sagen, was du davon hältst! :) %1$s</string>
+    <string name="default_name">Nick</string>
+    <string name="online">Verbunden</string>
+    <string name="offline">Nicht verbunden</string>
+    <string name="confirm_ok">OKAY</string>
+    <string name="confirm_discard">Abbrechen</string>
+    <string name="splashscreenactivity_animation_logo">PurpleTear Logo animation</string>
+    <string name="menu_button_play">Spielen</string>
+    <string name="menu_button_reset">Neues Spiel</string>
+    <string name="menu_info_title">Informationen</string>
+    <string name="menu_chapters_previous">&lt; Kapitel %1$d</string>
+    <string name="menu_chapters_next">Kapitel %1$d &gt;</string>
+    <string name="menu_chapters_confirm_navigate"> </string>
+    <string name="menu_confirm_reset">Die Spiel-Backups werden gelöscht.</string>
+    <string name="mainactivity_your_choice">Deine Wahl…</string>
+    <string name="mainactivity_your_message">Deine Wahl…</string>
+    <string name="mainactivity_chapter_title">Kapitel %1$d : %2$s</string>
+    <string name="phrase_seen_text">Seen</string>
+    <string name="menu_your_first_name">Vorname</string>
+    <string name="phrase_typing_text">%1$s schreibt…</string>
+    <string name="not_valid_name">Ungültige Eingabe</string>
+    <string name="abort">Abbrechen</string>
+    <string name="blocked">Gesperrter Benutzer</string>
+    <string name="chapter">Kapitel %1$d</string>
+    <string name="mainactivity_next_chapter">Das Kapitel endet in wenigen Sekunden…</string>
+    <string name="mainactivity_2a_starter_libelle">Offline für 28 Tage</string>
+    <string name="went_offline">%1$s hat sich selbst getrennt.</string>
+    <string name="mainactivity_click_notification">Berühren Sie zum Beitreten</string>
+    <string name="phrase_hidden">Nachricht gelöscht</string>
+    <string name="a_connexion_interrupted_your_conversation">Ein Fehler hat Ihr Gespräch unterbrochen.</string>
+    <string name="phrase_notification_first_sentence">Du hast eine Einladung erhalten.</string>
+    <string name="greater_than">&gt; </string>
+    <string name="zoe_phone_password">Zoes Handy benötigt ein Passwort.</string>
+    <string name="in_da_bus">Im Bus</string>
+    <string name="error">Verbindungsfehler</string>
+    <string name="go_to_the_chapter">Zum Kapitel gehen</string>
+    <string name="fear_level">Grad der gewünschten Angst:</string>
+    <string name="belle_family">Die Familie Belle</string>
+    <string name="the_lake">Am See</string>
+    <string name="in_forest">Fuß der Berge</string>
+    <string name="eva_zoe">Eva &amp; Zoe</string>
+    <string name="adactivity_video_launching">Das Video wird geladen, um das nächste Kapitel freizuschaltene</string>
+    <string name="must_watch_ad">Das Video ermöglicht es Ihnen, ein Kapitel freizuschalten.</string>
+    <string name="adactivity_gonna_start">Die Anzeige konnte nicht gestartet werden, Sie müssen %1$d Sekunden warten, um die Wiedergabe fortzusetzen.</string>
+    <string name="mainactivity_confirm_quit">Bist du sicher, dass du gehen willst?</string>
+
+    <!-- CHAPTERS DESCRIPTION : FORMAT chapter_desc_<code> -->
+    <string name="fz3_chapter_desc_1a">Das Abenteuer geht weiter: Zwei Monate sind vergangen, seit du Eva gerettet hast. Nach allem, was du für die Familie Belle getan hast, fängst du an zu erkennen, dass sie etwas vor dir verbergen.</string>
+    <string name="fz3_chapter_desc_2a">Der anonyme Kontakt hatte recht, du konntest nicht anders, als zurückzugehen und die an Eva gesendeten Nachrichten zu lesen, und obwohl die Nacht jung und ereignislos war, war sie im Begriff, von Grund auf erschüttert zu werden.</string>
+    <string name="fz3_chapter_desc_3a">Dein Gespräch wurde gerade durch x92 unterbrochen. Diese Person ist überzeugt, dass er dir hilft, aber solltest du ihm wirklich vertrauen? Ein Fehler Ihrerseits kann zu schlechten Folgen führen.....</string>
+    <string name="fz3_chapter_desc_4a">Nach Ihrem Gespräch mit x92 wurde Ihr Telefon neu gestartet und für eine Weile nicht wieder eingeschaltet. Als es endlich soweit ist, entdecken Sie zwei Nachrichten von Zoe, die vor einer Stunde geschickt wurden- eine davon versteckt.</string>
+    <string name="fz3_chapter_desc_5a">Am See</string>
+    <string name="fz3_chapter_desc_6a">Was würdest du tun, wenn alles bis zu diesem Punkt nie passiert wäre?</string>
+    <string name="fz3_chapter_desc_7a">Am Tag der Reise bist du bereits seit mehreren Stunden mit Zoe und ihrer Freundesgruppe im Bus. Du sitzt neben Lena, und Zoe scheint dich zu meiden.</string>
+    <string name="fz3_chapter_desc_7b">Während du wieder herunter zum See läufst, bereit, dich mit Lucy zu treffen, findest du sie bereits dort auf dich wartend.</string>
+    <string name="fz3_chapter_desc_8a">Ihr seid jetzt alle am Fuße des Berges, in einer Höhe von mehreren hundert Meter. Immer noch über deine früheren Entscheidungen nachdenkend, hofft etwas in dir, dass es keine zukünftigen Entscheidungen geben wird, die du bereuen werden wirst.</string>
+    <string name="fz3_chapter_desc_8b">Du kommst schließlich mit Lucy vor dem Haus der Familie Belle an. Du wirst endlich Eva sehen können.</string>
+
+    <!-- POETRY : FORMAT poetry_starter_<code> -->
+    <string name="poetry_starter_5a" tools:ignore="Typos">
+        Die Reise mit Zoe steht bevor. Du erkennst, dass diese Reise es Dir ermöglichen wird, ihr einen Schritt näher zu kommen und sie kennenzulernen. Du siehst aber auch, dass Du Dich weiter von Eva entfernen wirst. \nDu gehst eine Woche später, im Morgengrauen, zurück zum See. Das Wasser, das so oft deinen Blick in die Ferne schweifen ließ, ist jetzt von einem dichten Nebel bedeckt, der dich daran hindert, die Dinge vor dir deutlich zu erkennen - sowohl in Wirklichkeit als auch metaphorisch.
+    </string>
+
+    <string name="poetry_starter_6a">
+        Lucie hatte Recht, ein paar Stunden später war der See viel mehr ein Anblick und schuf in dir unerklärliche Emotionen. Emotionen, die so unerklärlich sind wie Lucies Reife, und ihre Fähigkeit, Gespräche zu manipulieren und die Menschen, mit denen sie spricht, anzustarren. \nAm Ende hat sie dich von Angesicht zu Angesicht mit einem interessanten Rätsel konfrontiert - dem der Wahl zwischen Eva und Zoe. \n\nAber was wäre, wenn du dich am Ende nicht einmal zwischen diesen beiden Mädchen entscheiden müsstest, und nichts davon jemals passiert wäre? Wie würdest du reagieren?
+    </string>
+
+
+    <string name="poetry_starter_7b">
+        Du hast dich entschieden, Eva zu treffen, anstatt mit Zoe, Lena, Rick und Marwin zu gehen. \n\nDu stehst vor diesem wunderbaren See, der von der Familie Belle so sehr geliebt wird und bist in Gedanken versunken..... Du bist überzeugt, dass es dem unbekannten Hacker gelungen ist, dich wieder auf den Weg zu Eva zu bringen, aber du weißt auch, dass du den Weg verlässt, der zu Zoe führt.
+    </string>
+
+
+    <string name="b">b</string>
+    <string name="bonjour">bonjour</string>
+    <string name="logo_de_l_application">Logo de l\'application</string>
+    <string name="instagram_hocinehope">Instagram @hocinehope</string>
+    <string name="game_by">Spiel erstellt von</string>
+    <string name="donner_mon_avis_sur_google_play">Bewerten Sie das Spiel auf Google Play</string>
+    <string name="partager_le_jeu_un_ami">Das Spiel mit einem Freund teilen</string>
+    <string name="nobody_found_x92">Es gibt 2 gute Enden und 2 schlechte Enden.</string>
+    <string name="one_end_is_not_enough">Ein Ende reicht nicht aus, um die ganze Geschichte zu verstehen.</string>
+    <string name="next_2018">Gefriendzoned 4 wird in Kürze verfügbar sein.</string>
+    <string name="zoe_lana">Zoe &amp; Lana</string>
+    <string name="zoe_lana_marwin">Zoe, Lana, Marwin</string>
+    <string name="zoe_lana_marwin_rick">Zoe, Lana, Marwin, Rick</string>
+
+
+
+    <!-- CHAPTERS TITLES DETAILS -->
+    <string name="fz3_chapter_title_1a">Eva Belle?</string>
+    <string name="fz3_chapter_title_2a">Süße Nachte</string>
+    <string name="fz3_chapter_title_3a">x92</string>
+    <string name="fz3_chapter_title_4a">Zoes Sonnenuntergang</string>
+    <string name="fz3_chapter_title_5a">Eine Woche später</string>
+    <string name="fz3_chapter_title_6a">Zurück in die Realität?</string>
+    <string name="fz3_chapter_title_7a">Die Reise</string>
+    <string name="fz3_chapter_title_7b">Die Familie Belle</string>
+    <string name="fz3_chapter_title_8a">Am Feuer heizen sich die Dinge auf</string>
+    <string name="fz3_chapter_title_8b">Die Seele im ersten Stockwerk</string>
+    <string name="fz3_ending">Final</string>
+
+    <!-- CHAPTERS CONVERSATION NAMES -->
+    <string name="fz3_chapter_cn_1a">x92</string>
+    <string name="fz3_chapter_cn_2a">Eva Belle</string>
+    <string name="fz3_chapter_cn_3a"> </string>
+    <string name="fz3_chapter_cn_4a">Zoé Topaze</string>
+    <string name="fz3_chapter_cn_5a">Am See</string>
+    <string name="fz3_chapter_cn_6a">Eva &amp; Zoe</string>
+    <string name="fz3_chapter_cn_7a">Im Bus</string>
+    <string name="fz3_chapter_cn_7b">Die Familie Belle</string>
+    <string name="fz3_chapter_cn_8a">Am Fuße der Berge</string>
+    <string name="fz3_chapter_cn_8b">Die Familie Belle</string>
+
+    <!-- CHARACTERS NAMES -->
+    <string name="fz3_personnage_bryan">Bryan</string>
+    <string name="fz3_personnage_chloe">Chloe</string>
+    <string name="fz3_personnage_chloe_winsplit">Chloe Winsplit</string>
+    <string name="fz3_personnage_sylvie">Sylvia</string>
+    <string name="fz3_personnage_sylvie_belle">Sylvia Belle</string>
+    <string name="fz3_personnage_zoe">Zoe</string>
+    <string name="fz3_personnage_zoe_topaze">Zoe Topaze</string>
+    <string name="fz3_personnage_eva">Eva</string>
+    <string name="fz3_personnage_eva_belle">Eva Belle</string>
+    <string name="fz3_personnage_lucie">Lucy</string>
+    <string name="fz3_personnage_lucie_belle">Lucy Belle</string>
+    <string name="fz3_personnage_lana">Lana</string>
+    <string name="fz3_personnage_christophe">Christof</string>
+    <string name="fz3_personnage_christophe_belle">Christof Belle</string>
+    <string name="mom_is_calling_you">Mom \nruft dich…</string>
+</resources>

@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="friendzone3.purpletear.fr.friendzon3.End">
+
+    <ImageView
+        android:id="@+id/friendzone3.end.image.background"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:adjustViewBounds="true"
+        android:scaleType="centerCrop"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:ignore="ContentDescription" />
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#99000000"
+        tools:ignore="ContentDescription" />
+
+    <ImageView
+        android:id="@+id/friendzone3.end.logo"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:contentDescription="@string/logo_de_l_application"
+        android:src="@drawable/friendzone3_logo"
+        app:layout_constraintDimensionRatio="H, 219:171"
+        app:layout_constraintEnd_toStartOf="@id/guideline38"
+        app:layout_constraintStart_toEndOf="@id/guideline37"
+        app:layout_constraintTop_toBottomOf="@id/guideline39" />
+
+    <purpletear.fr.purpleteartools.fonts.OldPtSans
+        android:id="@+id/end.text.intro"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:textSize="@dimen/end_text"
+        android:text="@string/nobody_found_x92"
+        app:layout_constraintBottom_toTopOf="@id/end.text.developpment"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/friendzone3.end.logo"
+        app:layout_constraintVertical_bias="0.90999997"
+        android:textColor="@color/white" />
+
+    <purpletear.fr.purpleteartools.fonts.OldPtSans
+        android:id="@+id/end.text.developpment"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/friendzone3.end.logo"
+        app:layout_constraintBottom_toTopOf="@id/end.button.comment"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:textColor="#c1c1c1"
+        android:gravity="center"
+        android:textSize="@dimen/end_text"
+        android:text="@string/one_end_is_not_enough" />
+
+    <purpletear.fr.purpleteartools.fonts.OldPtSans
+        android:id="@+id/end.text.announce"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:textSize="@dimen/end_text"
+        android:text="@string/next_2018"
+        app:layout_constraintBottom_toTopOf="@id/end.instagram"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/end.text.developpment"
+        app:layout_constraintVertical_bias="0.07999998"
+        android:textColor="@color/white" />
+
+    <ImageView
+        android:id="@+id/end.button.comment"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintStart_toEndOf="@id/guideline51"
+        app:layout_constraintEnd_toStartOf="@id/guideline52"
+        app:layout_constraintBottom_toTopOf="@id/end.instagram"
+        app:layout_constraintTop_toBottomOf="@id/end.text.announce"
+        android:layout_marginBottom="10dp"
+        app:layout_constraintDimensionRatio="H, 300:87"
+        android:src="@drawable/friendzone3_rate"
+        android:contentDescription="@string/donner_mon_avis_sur_google_play" />
+
+    <ImageView
+        android:id="@+id/end.instagram"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginStart="4dp"
+        android:layout_marginLeft="4dp"
+        android:contentDescription="@string/instagram_hocinehope"
+        app:layout_constraintBottom_toTopOf="@id/guideline50"
+        app:layout_constraintDimensionRatio="H, 207:44"
+        app:layout_constraintEnd_toStartOf="@id/guideline49"
+        app:layout_constraintStart_toStartOf="@id/guideline48"
+        tools:visibility="invisible" />
+
+    <purpletear.fr.purpleteartools.fonts.OldPtSans
+        android:layout_width="wrap_content"
+        android:layout_height="0dp"
+        android:gravity="center_vertical"
+        android:paddingStart="10dp"
+        android:paddingEnd="10dp"
+        android:text="@string/game_by"
+        android:textSize="@dimen/end_wrote_by"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toTopOf="@id/guideline50"
+        app:layout_constraintEnd_toStartOf="@id/guideline48"
+        app:layout_constraintTop_toTopOf="@id/end.instagram" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline37"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent=".197" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline38"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent=".803" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline39"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent=".083" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline48"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent=".46388" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline49"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent=".74166" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline50"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent=".929" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline51"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent=".22" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline52"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent=".78" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

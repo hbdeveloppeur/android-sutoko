@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".game.activities.phonecall.PhoneCall"
+    android:background="#2c2c2c">
+
+    <purpletear.fr.purpleteartools.fonts.OldPtSans
+        android:id="@+id/fz4_phone.call.text.contact_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="@color/colorWhite"
+        android:textSize="@dimen/phone_call_contact_name"
+        app:layout_constraintBottom_toTopOf="@id/fz4_phone.call.image.contact"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.65999997" />
+
+    <purpletear.fr.purpleteartools.fonts.OldPtSans
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/is_calling_you"
+        android:textColor="#c4c4c4"
+        android:textSize="@dimen/phone_call_is_calling"
+        app:layout_constraintBottom_toTopOf="@id/fz4_phone.call.image.contact"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/fz4_phone.call.text.contact_name"
+        app:layout_constraintVertical_bias="0.13" />
+
+    <ImageView
+        android:id="@+id/fz4_phone.call.image.filter"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintDimensionRatio="H, 2:3"
+        tools:ignore="ContentDescription"
+        android:alpha=".01" />
+
+    <ImageView
+        android:id="@+id/fz4_phone.call.button.ok"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toTopOf="@id/fz4_guideline160"
+        app:layout_constraintStart_toEndOf="@id/fz4_guideline162"
+        app:layout_constraintEnd_toStartOf="@id/fz4_guideline163"
+        app:layout_constraintDimensionRatio="H, 1:1"
+        tools:ignore="ContentDescription" />
+
+
+    <ImageView
+        android:id="@+id/fz4_phone.call.button.abort"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toTopOf="@id/fz4_guideline160"
+        app:layout_constraintStart_toEndOf="@id/fz4_guideline164"
+        app:layout_constraintEnd_toStartOf="@id/fz4_guideline165"
+        app:layout_constraintDimensionRatio="H, 1:1"
+        tools:ignore="ContentDescription" />
+
+    <purpletear.fr.purpleteartools.fonts.OldPtSans
+        android:id="@+id/fz4_phone.call.text.counter"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="@dimen/phone_call_counter"
+        app:layout_constraintTop_toBottomOf="@id/fz4_phone.call.image.contact"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <ImageView
+        android:id="@+id/fz4_phone.call.image.contact"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintDimensionRatio="H, 1:1"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toEndOf="@id/fz4_guideline51"
+        app:layout_constraintEnd_toStartOf="@id/fz4_guideline52"
+        tools:ignore="ContentDescription" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/fz4_guideline51"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent=".375" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/fz4_guideline52"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent=".625" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/fz4_guideline160"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent=".88028" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/fz4_guideline162"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent=".085" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/fz4_guideline163"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent=".29" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/fz4_guideline164"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent=".71" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/fz4_guideline165"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent=".915" />
+</androidx.constraintlayout.widget.ConstraintLayout>

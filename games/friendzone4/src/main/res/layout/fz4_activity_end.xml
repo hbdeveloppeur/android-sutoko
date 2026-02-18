@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".game.activities.end.End">
+
+    <ImageView
+        android:id="@+id/fz4_end.background"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:adjustViewBounds="true"
+        android:scaleType="centerCrop"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:ignore="ContentDescription" />
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#99000000"
+        tools:ignore="ContentDescription" />
+
+    <ImageView
+        android:id="@+id/fz4_end.logo"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toTopOf="@id/fz4_end.sentence"
+        app:layout_constraintDimensionRatio="H, 200:171"
+        app:layout_constraintEnd_toStartOf="@id/fz4_guideline38"
+        app:layout_constraintStart_toEndOf="@id/fz4_guideline37"
+        app:layout_constraintTop_toBottomOf="@id/fz4_guideline39"
+        app:layout_constraintVertical_bias="0.6" />
+
+    <purpletear.fr.purpleteartools.fonts.OldPtSans
+        android:id="@+id/fz4_end.sentence"
+        android:layout_width="0dp"
+        app:layout_constrainedWidth="true"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:padding="5dp"
+        android:text="@string/love_yourself"
+        android:textColor="@color/colorWhite"
+        android:textSize="@dimen/end_text"
+        app:layout_constraintBottom_toTopOf="@id/fz4_end.button.comment"
+        app:layout_constraintEnd_toStartOf="@id/fz4_guideline178"
+        app:layout_constraintStart_toEndOf="@id/fz4_guideline177"
+        app:layout_constraintTop_toBottomOf="@id/fz4_end.logo"
+
+        />
+
+    <purpletear.fr.purpleteartools.fonts.OldPtSans
+        android:id="@+id/fz4_end.text.intro"
+        android:layout_width="0dp"
+        app:layout_constrainedWidth="true"
+        android:layout_height="wrap_content"
+        android:alpha=".8"
+        android:gravity="center"
+        android:padding="5dp"
+        android:text="@string/merci_tout_ceux_qui_ont_suivi_l_aventure"
+        android:textColor="@color/colorWhite"
+        android:textSize="@dimen/end_text"
+        app:layout_constraintBottom_toTopOf="@id/fz4_end.wrote_by"
+        app:layout_constraintEnd_toStartOf="@id/fz4_guideline178"
+        app:layout_constraintStart_toEndOf="@id/fz4_guideline177"
+        app:layout_constraintTop_toBottomOf="@id/fz4_end.button.comment"
+        app:layout_constraintVertical_bias="0.90999997" />
+
+    <purpletear.fr.purpleteartools.fonts.OldPtSans
+        android:id="@+id/fz4_end.wrote_by"
+        android:layout_width="wrap_content"
+        android:layout_height="0dp"
+        android:paddingStart="10dp"
+        android:paddingEnd="10dp"
+        android:visibility="invisible"
+        android:text="@string/game_by"
+        android:textSize="@dimen/end_wrote_by"
+        app:layout_constraintBottom_toTopOf="@id/fz4_guideline50"
+        app:layout_constraintEnd_toStartOf="@id/fz4_guideline48"
+        app:layout_constraintTop_toTopOf="@id/fz4_end.instagram" />
+
+    <ImageView
+        android:id="@+id/fz4_end.button.comment"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginBottom="10dp"
+        android:contentDescription="@string/donner_mon_avis_sur_google_play"
+        app:layout_constraintBottom_toTopOf="@id/fz4_end.text.intro"
+        app:layout_constraintDimensionRatio="H, 300:87"
+        app:layout_constraintEnd_toStartOf="@id/fz4_guideline52"
+        app:layout_constraintStart_toEndOf="@id/fz4_guideline51"
+        app:layout_constraintTop_toBottomOf="@id/fz4_end.sentence" />
+
+    <ImageView
+        android:id="@+id/fz4_end.instagram"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:contentDescription="@string/instagram_hocinehope"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toTopOf="@id/fz4_guideline50"
+        app:layout_constraintDimensionRatio="H, 207:44"
+        app:layout_constraintEnd_toStartOf="@id/fz4_guideline49"
+        app:layout_constraintStart_toStartOf="@id/fz4_guideline48" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/fz4_guideline37"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent=".197" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/fz4_guideline38"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent=".803" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/fz4_guideline39"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent=".083" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/fz4_guideline48"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent=".46388" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/fz4_guideline49"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent=".74166" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/fz4_guideline50"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent=".929" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/fz4_guideline51"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent=".22" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/fz4_guideline52"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent=".78" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/fz4_guideline176"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_begin="20dp" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/fz4_guideline177"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent=".1" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/fz4_guideline178"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent=".9" />
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

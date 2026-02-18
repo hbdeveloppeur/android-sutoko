@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        tools:viewBindingIgnore="true">
+
+    <ImageView
+            android:id="@+id/sutoko.phrase_me.avatar.image"
+            android:layout_width="@dimen/sutoko_sms_game_avatar"
+            android:layout_height="@dimen/sutoko_sms_game_avatar"
+            android:layout_marginEnd="6dp"
+            android:layout_marginRight="6dp"
+            android:transitionName="dontyoubreakingmyheart"
+            app:layout_constraintEnd_toStartOf="@id/guideline68"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:ignore="ContentDescription" />
+
+    <com.example.sutokosharedelements.fonts.RobotoBold
+            android:id="@+id/sutoko.phrase_me.name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="5dp"
+            android:layout_marginEnd="5dp"
+            android:padding="3dp"
+            android:textColor="#FFF"
+            android:textSize="16sp"
+            app:layout_constraintBottom_toBottomOf="@id/sutoko.phrase_me.avatar.image"
+            app:layout_constraintEnd_toStartOf="@+id/sutoko.phrase_me.avatar.image"
+            app:layout_constraintTop_toTopOf="@id/sutoko.phrase_me.avatar.image"
+            tools:ignore="UnusedAttribute" />
+
+    <com.example.sutokosharedelements.fonts.RobotoRegular
+            android:id="@+id/sutoko.phrase_me.time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="12dp"
+            android:layout_marginEnd="12dp"
+            android:text="09:10"
+            android:textColor="#ECECEC"
+            android:textSize="16sp"
+            app:layout_constraintBottom_toBottomOf="@id/sutoko.phrase_me.name"
+            app:layout_constraintStart_toEndOf="@id/guideline70"
+            app:layout_constraintTop_toTopOf="@id/sutoko.phrase_me.name" />
+
+    <com.example.sutokosharedelements.fonts.WorkSansRegular
+            android:id="@+id/sutoko.phrase_me.message"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/sutoko_phrase_margin_top"
+            android:lineSpacingExtra="2dp"
+            android:paddingStart="@dimen/sutoko_phrase_padding_horizontal"
+            android:paddingLeft="@dimen/sutoko_phrase_padding_horizontal"
+            android:paddingTop="@dimen/sutoko_phrase_padding_vertical"
+            android:paddingEnd="@dimen/sutoko_phrase_padding_horizontal"
+            android:paddingRight="@dimen/sutoko_phrase_padding_horizontal"
+            android:paddingBottom="@dimen/sutoko_phrase_padding_vertical"
+            android:text=""
+            android:textColor="#FFF"
+            android:textSize="@dimen/sutoko_phrase_message_text_size"
+            app:layout_constraintEnd_toStartOf="@id/guideline68"
+            app:layout_constraintHorizontal_bias="1"
+            app:layout_constraintTop_toBottomOf="@id/sutoko.phrase_me.name" />
+
+    <LinearLayout
+            android:id="@+id/sutoko_item_phrase_me_seen"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:layout_marginEnd="6dp"
+            android:gravity="center"
+            android:visibility="gone"
+            app:layout_constraintEnd_toEndOf="@id/sutoko.phrase_me.message"
+            app:layout_constraintTop_toBottomOf="@id/sutoko.phrase_me.message">
+
+        <TextView
+                android:id="@+id/sutoko_item_phrase_me_seen_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="6dp"
+                android:text="Envoyé"
+                android:textColor="#A1A1A1"
+                android:textSize="11sp" />
+
+        <ImageView
+                android:id="@+id/sutoko_item_phrase_me_seen_image"
+                android:layout_width="16dp"
+                android:layout_height="16dp"
+                app:srcCompat="@drawable/sutoko_ic_sent" />
+
+    </LinearLayout>
+
+    <!-- GUIDELINES -->
+    <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guideline68"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent="0.98" />
+
+    <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guideline70"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent="0.37" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

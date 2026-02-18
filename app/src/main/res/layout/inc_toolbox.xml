@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    tools:viewBindingIgnore="true"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <View
+        android:id="@+id/sutoko.toolbox.buttons.instagram.background"
+        android:layout_width="0dp"
+        android:layout_height="50dp"
+        android:background="@drawable/background_button_pink"
+        android:clickable="true"
+        android:focusable="true"
+        android:focusableInTouchMode="true"
+        android:foreground="@drawable/selectable_item_background_rounded"
+        app:layout_constraintDimensionRatio="W, 81:50"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:ignore="UnusedAttribute" />
+
+    <ImageView
+        android:id="@+id/sutoko.toolbox.buttons.instagram.icon"
+        android:layout_width="0dp"
+        android:layout_height="20dp"
+        android:alpha="0.67"
+        app:layout_constraintBottom_toBottomOf="@id/sutoko.toolbox.buttons.instagram.background"
+        app:layout_constraintEnd_toEndOf="@id/sutoko.toolbox.buttons.instagram.background"
+        app:layout_constraintStart_toStartOf="@id/sutoko.toolbox.buttons.instagram.background"
+        app:layout_constraintTop_toTopOf="@id/sutoko.toolbox.buttons.instagram.background"
+        app:srcCompat="@drawable/sutoko_ic_menu_instagram"
+        tools:ignore="ContentDescription" />
+
+
+    <View
+        android:id="@+id/sutoko.toolbox.buttons.outlet.background"
+        android:layout_width="0dp"
+        android:layout_height="50dp"
+        android:background="@drawable/background_button_pink"
+        android:clickable="true"
+        android:focusable="true"
+        android:focusableInTouchMode="true"
+        android:foreground="@drawable/selectable_item_background_rounded"
+        app:layout_constraintDimensionRatio="W, 81:50"
+        app:layout_constraintEnd_toStartOf="@id/sutoko.toolbox.buttons.instagram.background"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:ignore="UnusedAttribute" />
+
+    <ImageView
+        android:id="@+id/sutoko.toolbox.buttons.outlet.icon"
+        android:layout_width="0dp"
+        android:layout_height="22dp"
+        android:alpha="0.67"
+        android:clickable="false"
+        android:focusable="false"
+        android:focusableInTouchMode="false"
+        app:layout_constraintBottom_toBottomOf="@id/sutoko.toolbox.buttons.outlet.background"
+        app:layout_constraintEnd_toEndOf="@id/sutoko.toolbox.buttons.outlet.background"
+        app:layout_constraintStart_toStartOf="@id/sutoko.toolbox.buttons.outlet.background"
+        app:layout_constraintTop_toTopOf="@id/sutoko.toolbox.buttons.outlet.background"
+        app:srcCompat="@drawable/ic_cart"
+        tools:ignore="ContentDescription" />
+
+
+    <View
+        android:id="@+id/sutoko.toolbox.buttons.account.background"
+        android:layout_width="0dp"
+        android:layout_height="50dp"
+        android:background="@drawable/background_button_pink"
+        android:clickable="true"
+        android:focusable="true"
+        android:focusableInTouchMode="true"
+        android:foreground="@drawable/selectable_item_background_rounded"
+        app:layout_constraintDimensionRatio="W, 81:50"
+        app:layout_constraintEnd_toStartOf="@id/sutoko.toolbox.buttons.outlet.background"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:ignore="UnusedAttribute" />
+
+    <ImageView
+        android:id="@+id/sutoko.toolbox.buttons.account.icon"
+        android:layout_width="0dp"
+        android:layout_height="25dp"
+        android:alpha="0.67"
+        android:clickable="false"
+        android:focusable="false"
+        android:focusableInTouchMode="false"
+        app:layout_constraintBottom_toBottomOf="@id/sutoko.toolbox.buttons.account.background"
+        app:layout_constraintEnd_toEndOf="@id/sutoko.toolbox.buttons.account.background"
+        app:layout_constraintStart_toStartOf="@id/sutoko.toolbox.buttons.account.background"
+        app:layout_constraintTop_toTopOf="@id/sutoko.toolbox.buttons.account.background"
+        app:srcCompat="@drawable/ic_user"
+        tools:ignore="ContentDescription" />
+
+
+    <View
+        android:id="@+id/sutoko.toolbox.buttons.points.background"
+        android:layout_width="0dp"
+        android:layout_height="50dp"
+        android:background="@drawable/background_button_swhite"
+        android:focusableInTouchMode="true"
+        android:clickable="true"
+        android:focusable="true"
+        app:layout_constraintEnd_toStartOf="@id/sutoko.toolbox.buttons.account.background"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <View
+        android:id="@+id/sutoko.toolbox.buttons.points.icon.patron"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:focusableInTouchMode="false"
+        android:clickable="false"
+        android:focusable="false"
+        app:layout_constraintBottom_toBottomOf="@id/sutoko.toolbox.buttons.points.background"
+        app:layout_constraintDimensionRatio="W, 1:1"
+        app:layout_constraintStart_toStartOf="@id/sutoko.toolbox.buttons.points.background"
+        app:layout_constraintTop_toTopOf="@id/sutoko.toolbox.buttons.points.background" />
+
+
+    <com.airbnb.lottie.LottieAnimationView
+        app:layout_constraintBottom_toBottomOf="@id/sutoko.toolbox.buttons.points.background"
+        app:layout_constraintStart_toStartOf="@id/sutoko.toolbox.buttons.points.background"
+        app:layout_constraintTop_toTopOf="@id/sutoko.toolbox.buttons.points.background"
+        android:id="@+id/sutoko.toolbox.animation"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_gravity="center"
+        app:layout_constraintDimensionRatio="W, 1:1"
+        android:scaleType="centerCrop"
+        app:lottie_autoPlay="false"
+        app:lottie_loop="true"
+        app:lottie_rawRes="@raw/data2" />
+
+    <ImageView
+        android:id="@+id/sutoko.toolbox.buttons.points.icon.image"
+        android:layout_width="20dp"
+        android:layout_height="0dp"
+        android:alpha="0.6"
+        android:focusableInTouchMode="false"
+        android:clickable="false"
+        android:focusable="false"
+        app:layout_constraintBottom_toBottomOf="@id/sutoko.toolbox.buttons.points.icon.patron"
+        app:layout_constraintDimensionRatio="H, 1:1"
+        app:layout_constraintEnd_toEndOf="@id/sutoko.toolbox.buttons.points.icon.patron"
+        app:layout_constraintStart_toStartOf="@id/sutoko.toolbox.buttons.points.icon.patron"
+        app:layout_constraintTop_toTopOf="@id/sutoko.toolbox.buttons.points.icon.patron"
+        app:srcCompat="@drawable/ic_logo_white" />
+
+    <com.example.sutokosharedelements.fonts.RobotoBold
+        android:id="@+id/sutoko.toolbox.buttons.points.text"
+        android:layout_width="0dp"
+        android:layout_height="23dp"
+        android:alpha="0.6"
+        android:textColor="#FFF"
+        android:focusableInTouchMode="false"
+        android:clickable="false"
+        android:focusable="false"
+        android:textAlignment="center"
+        android:gravity="center"
+        android:text="30000"
+        android:letterSpacing="0.1"
+        app:autoSizeMaxTextSize="100sp"
+        app:autoSizeMinTextSize="2sp"
+        app:autoSizeStepGranularity="2sp"
+        app:autoSizeTextType="uniform"
+        android:paddingLeft="12dp"
+        android:paddingStart="12dp"
+        android:paddingEnd="12dp"
+        android:paddingRight="12dp"
+        android:lines="1"
+        android:maxLines="1"
+        app:layout_constraintBottom_toBottomOf="@id/sutoko.toolbox.buttons.points.background"
+        app:layout_constraintEnd_toEndOf="@id/sutoko.toolbox.buttons.points.background"
+        app:layout_constraintStart_toEndOf="@id/sutoko.toolbox.buttons.points.icon.image"
+        app:layout_constraintTop_toTopOf="@id/sutoko.toolbox.buttons.points.background" />
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?><!--
+  ~ Copyright (C) PurpleTear, Inc - All Rights Reserved
+  ~ Unauthorized copying of this file, via any medium is strictly prohibited
+  ~ Proprietary and confidential
+  ~ Written by Hocine Belbouab <hbdeveloppeur@gmail.com>, 1/10/19 11:38 AM
+  ~
+  -->
+
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/sutoko_item_nextchapter_button_play"
+    android:layout_width="match_parent"
+    android:layout_height="200dp"
+    tools:viewBindingIgnore="true">
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:orientation="vertical"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <LinearLayout
+            android:id="@+id/sutoko_item_nextchapter_unlocked"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:gravity="center"
+            android:orientation="horizontal"
+            app:layout_constraintBottom_toTopOf="@id/sutoko_item_nextchapter_button_play"
+            app:layout_constraintEnd_toEndOf="@id/sutoko_item_nextchapter_button_play"
+            app:layout_constraintStart_toStartOf="@id/sutoko_item_nextchapter_button_play"
+
+            >
+
+            <ImageView
+                android:id="@+id/sutoko_item_nextchapter_unlocked_icon"
+                android:layout_width="16dp"
+                android:layout_height="16dp"
+                tools:ignore="ContentDescription" />
+
+            <com.example.sutokosharedelements.fonts.PoppinsBold
+                android:id="@+id/sutoko_item_nextchapter_unlocked_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp" />
+
+        </LinearLayout>
+
+        <include
+            android:id="@+id/sutoko_smsgame_nextchapter_button_diamonds"
+            layout="@layout/sutoko_inc_button_next_chapter"
+            android:layout_width="300dp"
+            android:layout_height="56dp"
+            android:layout_marginTop="6dp" />
+
+        <include
+            android:id="@+id/sutoko_smsgame_nextchapter_button_play"
+            layout="@layout/sutoko_inc_button_next_chapter"
+            android:layout_width="300dp"
+            android:layout_height="56dp"
+            android:layout_marginTop="12dp" />
+    </LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

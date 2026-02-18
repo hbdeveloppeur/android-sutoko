@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- MENU -->
+    <dimen name="menu_button_text_size">26sp</dimen>
+    <dimen name="menu_information_title_text_size">40sp</dimen>
+    <dimen name="menu_information_content_text_size">26sp</dimen>
+    <dimen name="menu_description_title_text_size">26sp</dimen>
+    <dimen name="menu_chapters_info_history_text">18sp</dimen>
+    <dimen name="menu_button_sound_size">35dp</dimen>
+
+    <!-- MAIN -->
+    <dimen name="main_description_title">26sp</dimen>
+    <dimen name="main_description_content">22sp</dimen>
+    <dimen name="main_your_message">22sp</dimen>
+    <dimen name="choice_text_font">20sp</dimen>
+    <dimen name="main_header_name">22sp</dimen>
+    <dimen name="main_header_status">18sp</dimen>
+    <dimen name="main_header_online_point_size">8dp</dimen>
+
+    <!-- MAIN CHOICE BOX -->
+    <dimen name="choicebox_title_paddingTop">10dp</dimen>
+    <dimen name="choicebox_title_paddingLeft">16dp</dimen>
+    <dimen name="choicebox_title_paddingRight">16dp</dimen>
+    <dimen name="choicebox_title_paddingBottom">10dp</dimen>
+    <dimen name="choicebox_title_font">28sp</dimen>
+
+    <!-- PHRASE : DEST -->
+    <dimen name="phrase_dest_text">22sp</dimen>
+    <dimen name="phrase_dest_paddingLeft">36dp</dimen>
+    <dimen name="phrase_dest_text_paddingHorizontal">18dp</dimen>
+    <dimen name="phrase_dest_text_paddingVertical">11dp</dimen>
+    <dimen name="phrase_dest_me_radius">24dp</dimen>
+
+    <!-- PHRASE : INFO -->
+    <dimen name="phrase_info_text">20sp</dimen>
+
+    <!-- PHRASE : CODE -->
+    <dimen name="phrase_code_text">18sp</dimen>
+
+    <!-- PHONE CALL -->
+    <dimen name="phone_call_contact_name">32sp</dimen>
+    <dimen name="phone_call_is_calling">22sp</dimen>
+    <dimen name="phone_call_counter">22sp</dimen>
+
+    <!-- AUDIO DESCRIPTION -->
+    <dimen name="audio_description">22sp</dimen>
+    <dimen name="audio_description_indication">18sp</dimen>
+    <dimen name="audio_description_btn_text">26sp</dimen>
+
+    <!-- POETRY -->
+    <dimen name="poetry_text">14sp</dimen>
+
+    <!-- END -->
+    <dimen name="end_text">22sp</dimen>
+    <dimen name="end_wrote_by">22sp</dimen>
+</resources>

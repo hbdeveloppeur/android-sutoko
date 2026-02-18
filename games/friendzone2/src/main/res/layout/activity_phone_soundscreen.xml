@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".activities.phone.sound.SoundScreen">
+
+    <ImageView
+        android:id="@+id/phone.soundscreen.background"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="centerCrop"
+        tools:ignore="ContentDescription" />
+
+    <include
+        android:id="@+id/phone.statusbar"
+        layout="@layout/inc_phone_statusbar"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <View
+        android:id="@+id/phone.soundscreen.toparea"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:background="#19ffffff"
+        app:layout_constraintBottom_toTopOf="@id/guideline42"
+        app:layout_constraintTop_toBottomOf="@id/phone.statusbar" />
+
+    <ImageView
+        android:id="@+id/phone.soundscreen.button.back.image"
+        android:layout_width="0dp"
+        android:layout_height="25dp"
+        android:layout_marginStart="15dp"
+        android:layout_marginLeft="15dp"
+        app:layout_constraintBottom_toBottomOf="@id/phone.soundscreen.toparea"
+        app:layout_constraintDimensionRatio="W, 150:115"
+        app:layout_constraintStart_toStartOf="@id/phone.soundscreen.toparea"
+        app:layout_constraintTop_toTopOf="@id/phone.soundscreen.toparea"
+        tools:ignore="ContentDescription" />
+
+    <View
+        android:id="@+id/phone.soundscreen.button.back.button"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="@id/phone.soundscreen.toparea"
+        app:layout_constraintEnd_toEndOf="@id/phone.soundscreen.button.back.image"
+        app:layout_constraintStart_toStartOf="@id/phone.soundscreen.toparea"
+        app:layout_constraintTop_toTopOf="@id/phone.soundscreen.toparea" />
+
+
+    <ImageView
+        android:id="@+id/phone.soundscreen.shirosound"
+        android:layout_width="0dp"
+        android:layout_height="32dp"
+        android:layout_marginBottom="20dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintDimensionRatio="W, 197:52"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        tools:ignore="ContentDescription" />
+
+    <ImageView
+        android:id="@+id/phone.soundscreen.album"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toTopOf="@id/phone.soundscreen.shirosound"
+        app:layout_constraintDimensionRatio="H, 278:179"
+        app:layout_constraintEnd_toStartOf="@id/guideline44"
+        app:layout_constraintStart_toEndOf="@id/guideline43"
+        app:layout_constraintTop_toBottomOf="@id/phone.soundscreen.toparea"
+        app:layout_constraintVertical_bias=".5"
+        tools:ignore="ContentDescription" />
+
+    <View
+        android:id="@+id/phone.soundscreen.album.top"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:alpha="0.8"
+        android:background="@drawable/layout_bg_rounded_top"
+        app:layout_constraintBottom_toTopOf="@id/phone.soundscreen.album"
+        app:layout_constraintDimensionRatio="100:20"
+        app:layout_constraintEnd_toEndOf="@id/phone.soundscreen.album"
+        app:layout_constraintStart_toStartOf="@id/phone.soundscreen.album" />
+
+
+    <View
+        android:id="@+id/phone.soundscreen.album.bottom"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:background="@drawable/layout_bg_rounded_bottom"
+        app:layout_constraintDimensionRatio="100:30"
+        app:layout_constraintEnd_toEndOf="@id/phone.soundscreen.album"
+        app:layout_constraintStart_toStartOf="@id/phone.soundscreen.album"
+        app:layout_constraintTop_toBottomOf="@id/phone.soundscreen.album" />
+
+    <ImageView
+        android:id="@+id/phone.soundscreen.button.sound"
+        android:layout_width="0dp"
+        android:layout_height="55dp"
+        app:layout_constraintBottom_toBottomOf="@id/phone.soundscreen.album.bottom"
+        app:layout_constraintDimensionRatio="W, 1:1"
+        app:layout_constraintEnd_toEndOf="@id/phone.soundscreen.album.bottom"
+        app:layout_constraintStart_toStartOf="@id/phone.soundscreen.album.bottom"
+        app:layout_constraintTop_toTopOf="@id/phone.soundscreen.album.bottom"
+        tools:ignore="ContentDescription" />
+
+
+    <purpletear.fr.purpleteartools.fonts.OldPtSans
+        android:text="@string/laze_shiro"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="#ff5e00"
+        android:textSize="18sp"
+        app:layout_constraintBottom_toBottomOf="@id/phone.soundscreen.album.top"
+        app:layout_constraintEnd_toEndOf="@id/phone.soundscreen.album.top"
+        app:layout_constraintStart_toStartOf="@id/phone.soundscreen.album.top"
+        app:layout_constraintTop_toTopOf="@id/phone.soundscreen.album.top" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline42"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent=".15" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline43"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.17" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline44"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.83" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

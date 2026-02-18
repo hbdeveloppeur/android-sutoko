@@ -1,0 +1,392 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <VideoView
+        android:id="@+id/fz4_menu.background.video"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/fz4_menu.page.main"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="visible">
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/fz4_guideline3"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            app:layout_constraintGuide_percent=".89" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/fz4_guideline4"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent=".1" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/fz4_guideline5"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent=".9" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/fz4_guideline6"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent=".222" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/fz4_guideline7"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent=".777" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/fz4_guideline8"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent=".94" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/fz4_guideline9"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent=".87" />
+
+        <purpletear.fr.purpleteartools.fonts.OldBebasNeue
+            android:id="@+id/fz4_menu.button.boutique"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_marginBottom="16dp"
+            android:background="@drawable/fz4_background_menu_button_games"
+            android:gravity="center"
+            android:letterSpacing=".1"
+            android:text="@string/menu_button_boutique"
+            android:textAllCaps="true"
+            android:textColor="#FFF"
+            android:textSize="@dimen/menu_button_text_size"
+            android:visibility="invisible"
+            app:layout_constraintBottom_toTopOf="@id/fz4_guideline3"
+            app:layout_constraintDimensionRatio="H, 6:1"
+            app:layout_constraintEnd_toStartOf="@+id/fz4_guideline5"
+            app:layout_constraintStart_toStartOf="@+id/fz4_guideline4"
+            tools:ignore="UnusedAttribute" />
+
+        <purpletear.fr.purpleteartools.fonts.OldBebasNeue
+            android:id="@+id/fz4_menu.button.play"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_marginBottom="16dp"
+            android:background="@drawable/fz4_background_menu_button"
+            android:gravity="center"
+            android:letterSpacing=".1"
+            android:text="@string/menu_button_play"
+            android:textAllCaps="true"
+            android:textColor="#FFF"
+            android:textSize="@dimen/menu_button_text_size"
+            android:visibility="invisible"
+            app:layout_constraintBottom_toTopOf="@id/fz4_menu.button.boutique"
+            app:layout_constraintDimensionRatio="H, 6:1"
+            app:layout_constraintEnd_toStartOf="@+id/fz4_guideline5"
+            app:layout_constraintStart_toStartOf="@+id/fz4_guideline4"
+            tools:ignore="UnusedAttribute" />
+
+        <ImageView
+            android:id="@+id/fz4_menu.page.main.image.logo"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:contentDescription="@string/game_logo"
+            android:visibility="invisible"
+            app:layout_constraintBottom_toTopOf="@id/fz4_menu.button.play"
+            app:layout_constraintDimensionRatio="H, 200:171"
+            app:layout_constraintEnd_toStartOf="@id/fz4_guideline7"
+            app:layout_constraintStart_toEndOf="@id/fz4_guideline6"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <ImageView
+            android:id="@+id/fz4_menu.main.btn.sound"
+            android:layout_width="0dp"
+            android:layout_height="@dimen/menu_button_sound_size"
+            android:layout_marginEnd="25dp"
+            android:layout_marginRight="25dp"
+            android:alpha=".7"
+            android:visibility="invisible"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintDimensionRatio="W, 1:1"
+            app:layout_constraintEnd_toStartOf="@id/fz4_guideline8"
+            app:layout_constraintStart_toEndOf="@id/fz4_guideline9"
+            app:layout_constraintTop_toBottomOf="@id/fz4_menu.button.boutique"
+            tools:ignore="ContentDescription" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/fz4_menu.page.info"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="invisible">
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/fz4_guideline10"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent=".03" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/fz4_guideline11"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            app:layout_constraintGuide_percent=".03" />
+
+        <purpletear.fr.purpleteartools.fonts.OldPtSans
+            android:id="@+id/fz4_menu.page.info.title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginLeft="8dp"
+            android:layout_marginTop="8dp"
+            android:letterSpacing=".07"
+            android:text="@string/menu_info_title"
+            android:textColor="@color/colorWhite"
+            android:textSize="@dimen/menu_information_title_text_size"
+            app:layout_constraintStart_toStartOf="@+id/fz4_guideline10"
+            app:layout_constraintTop_toTopOf="@+id/fz4_guideline11"
+            tools:ignore="UnusedAttribute" />
+
+        <purpletear.fr.purpleteartools.fonts.OldPtSans
+            android:id="@+id/fz4_menu.page.info.content"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginLeft="8dp"
+            android:layout_marginTop="22dp"
+            android:layout_marginBottom="8dp"
+            android:paddingStart="0dp"
+            android:paddingLeft="0dp"
+            android:paddingEnd="24dp"
+            android:paddingRight="24dp"
+            android:textSize="@dimen/menu_information_content_text_size"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="@+id/fz4_guideline10"
+            app:layout_constraintTop_toBottomOf="@+id/fz4_menu.page.info.title"
+            app:layout_constraintVertical_bias="0.0" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/fz4_menu.page.chapters"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="invisible">
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/fz4_guideline12"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent=".9" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/fz4_guideline13"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent=".1" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/fz4_guideline14"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            app:layout_constraintGuide_percent=".875" />
+
+        <purpletear.fr.purpleteartools.fonts.OldBebasNeue
+            android:id="@+id/fz4_menu.page.chapitres.play"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_marginBottom="16dp"
+            android:background="@drawable/fz4_background_menu_button"
+            android:gravity="center"
+            android:letterSpacing=".1"
+            android:text="@string/menu_button_play"
+            android:textAllCaps="true"
+            android:textColor="@color/colorWhite"
+            android:textSize="@dimen/menu_button_text_size"
+            app:layout_constraintBottom_toTopOf="@id/fz4_menu.page.chapitres.reset"
+            app:layout_constraintDimensionRatio="H, 6:1"
+            app:layout_constraintEnd_toStartOf="@+id/fz4_guideline12"
+            app:layout_constraintStart_toEndOf="@+id/fz4_guideline13"
+            tools:ignore="UnusedAttribute" />
+
+        <purpletear.fr.purpleteartools.fonts.OldBebasNeue
+            android:id="@+id/fz4_menu.page.chapitres.reset"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_marginBottom="8dp"
+            android:background="@drawable/fz4_background_menu_button"
+            android:gravity="center"
+            android:letterSpacing=".1"
+            android:text="@string/menu_button_reset"
+            android:textAllCaps="true"
+            android:textColor="@color/colorWhite"
+            android:textSize="@dimen/menu_button_text_size"
+            app:layout_constraintBottom_toTopOf="@id/fz4_guideline14"
+            app:layout_constraintDimensionRatio="H, 6:1"
+            app:layout_constraintEnd_toStartOf="@+id/fz4_guideline12"
+            app:layout_constraintStart_toEndOf="@+id/fz4_guideline13"
+            tools:ignore="UnusedAttribute" />
+
+        <purpletear.fr.purpleteartools.fonts.OldPtSans
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAlignment="center"
+            android:textColor="@color/colorSoftWhite"
+            android:textSize="@dimen/menu_chapters_info_history_text"
+            app:layout_constrainedWidth="true"
+            android:text="@string/menu_info_history"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/fz4_guideline172"
+            app:layout_constraintStart_toEndOf="@id/fz4_guideline171"
+            app:layout_constraintTop_toBottomOf="@id/fz4_menu.page.chapitres.reset"
+            app:layout_constraintVertical_bias=".2"
+            android:alpha=".7"
+            android:gravity="center_horizontal" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/fz4_guideline171"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent="0.2" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/fz4_guideline172"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent="0.8" />
+
+        <purpletear.fr.purpleteartools.fonts.OldPtSans
+            android:id="@+id/fz4_menu.chapters.previous"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:alpha=".9"
+            android:letterSpacing=".1"
+            android:paddingStart="6dp"
+            android:paddingLeft="6dp"
+            android:paddingTop="12dp"
+            android:paddingEnd="6dp"
+            android:paddingRight="6dp"
+            android:paddingBottom="20dp"
+            android:text="@string/menu_chapters_previous"
+            android:textAllCaps="true"
+            android:textColor="#FFF"
+            android:textSize="12sp"
+            app:layout_constraintBottom_toTopOf="@id/fz4_menu.page.chapitres.play"
+            app:layout_constraintStart_toStartOf="@+id/fz4_guideline13"
+            tools:targetApi="lollipop" />
+
+        <purpletear.fr.purpleteartools.fonts.OldPtSans
+            android:id="@+id/fz4_menu.chapters.next"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:alpha=".9"
+            android:letterSpacing=".1"
+            android:paddingStart="0dp"
+            android:paddingLeft="0dp"
+            android:paddingTop="12dp"
+            android:paddingEnd="6dp"
+            android:paddingRight="6dp"
+            android:paddingBottom="20dp"
+            android:text="@string/menu_chapters_next"
+            android:textAllCaps="true"
+            android:textColor="#FFF"
+            android:textSize="12sp"
+            app:layout_constraintBottom_toTopOf="@id/fz4_menu.page.chapitres.play"
+            app:layout_constraintEnd_toStartOf="@+id/fz4_guideline12"
+            tools:targetApi="lollipop" />
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintBottom_toTopOf="@id/fz4_menu.chapters.next"
+            app:layout_constraintEnd_toStartOf="@id/fz4_guideline12"
+            app:layout_constraintStart_toEndOf="@id/fz4_guideline13"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <TextView
+                android:id="@+id/fz4_menu.chapters.description.title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:textColor="@color/colorWhite"
+                android:textSize="@dimen/menu_description_title_text_size" />
+
+            <TextView
+                android:id="@+id/fz4_menu.chapters.description.content"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8sp"
+                android:lineSpacingExtra="2dp"
+                android:textColor="@color/colorWhite"
+                android:textSize="16sp" />
+        </LinearLayout>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <purpletear.fr.purpleteartools.fonts.OldPtSans
+        android:id="@+id/fz4_menu.text.appversion"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/fz4_background_menu_version"
+        android:paddingStart="10dp"
+        android:paddingLeft="10dp"
+        android:paddingTop="3dp"
+        android:paddingEnd="10dp"
+        android:paddingRight="10dp"
+        android:paddingBottom="3dp"
+        android:text="@string/app_version"
+        android:textColor="@color/colorMenuAppVersion"
+        android:textSize="12sp"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toTopOf="@id/fz4_guideline2"
+        app:layout_constraintLeft_toRightOf="@id/fz4_guideline1" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/fz4_guideline1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent=".03532" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/fz4_guideline2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent=".9893" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

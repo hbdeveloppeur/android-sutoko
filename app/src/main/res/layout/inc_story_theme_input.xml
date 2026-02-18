@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="wrap_content"
+    tools:viewBindingIgnore="true"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/sutoko.story_theme_input.emoji"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:layout_margin="8dp"
+        android:gravity="center"
+        android:textColor="@color/white"
+        android:background="@drawable/background_rounded_mystories_swhite2"/>
+
+    <TextView
+        android:id="@+id/sutoko.story_theme_input.text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:textSize="11sp"
+        android:textAllCaps="true"
+        android:letterSpacing="0.06"
+        android:textColor="@color/white"
+        tools:ignore="SmallSp,UnusedAttribute" />
+</LinearLayout>

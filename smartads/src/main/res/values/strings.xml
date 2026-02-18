@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name" translatable="false">SmartAds</string>
+    <string name="iap_service_unavailable" translatable="false">Network connection lost, purchase cancelled</string>
+    <string name="iap_unknown_error" translatable="false">An error has occurred, purchase cancelled</string>
+    <string name="check_google_play_connexion" translatable="false">Make sure you are connected to Google Play Store</string>
+    <string name="adactivity_gonna_start" translatable="false">%1$d</string>
+    <string name="adactivity_video_launching" translatable="false">Video loading.</string>
+</resources>

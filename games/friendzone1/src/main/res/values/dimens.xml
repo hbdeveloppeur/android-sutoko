@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (C) PurpleTear, Inc - All Rights Reserved
+  ~ Unauthorized copying of this file, via any medium is strictly prohibited
+  ~ Proprietary and confidential
+  ~ Written by Hocine Belbouab <hbdeveloppeur@gmail.com>, 1/10/19 11:38 AM
+  ~
+  -->
+
+<resources xmlns:tools="http://schemas.android.com/tools">
+
+    <!-- ACTIVITY: MAIN -->
+    <dimen name="main_header_name">14sp</dimen>
+    <dimen name="main_header_status">12sp</dimen>
+    <dimen name="main_header_online_point_size">4dp</dimen>
+    <dimen name="main_button_yourchoice">14sp</dimen>
+    <dimen name="main_description_text">16sp</dimen>
+    <dimen name="main_description_title">18sp</dimen>
+    <dimen name="main_description_content">16sp</dimen>
+    <dimen name="main_your_message">14sp</dimen>
+    <dimen name="main_your_message_margin">8dp</dimen>
+    <dimen name="main_description_padding">32dp</dimen>
+    <dimen name="layout_bg_rounded_white_rounds">13dp</dimen>
+    <dimen name="choicebox_title_paddingTop">5dp</dimen>
+    <dimen name="choicebox_title_paddingLeft">8dp</dimen>
+    <dimen name="choicebox_title_paddingRight">8dp</dimen>
+    <dimen name="choicebox_title_paddingBottom">5dp</dimen>
+    <dimen name="choicebox_title_font">22sp</dimen>
+    <dimen name="phrase_info_text">13sp</dimen>
+    <dimen name="phrase_seen_text">12sp</dimen>
+
+    <dimen name="phrase_dest_text">14sp</dimen>
+    <dimen name="phrase_dest_text_paddingHorizontal">12dp</dimen>
+    <dimen name="phrase_dest_text_paddingVertical">7dp</dimen>
+    <dimen name="phrase_dest_me_radius">17dp</dimen>
+    <dimen name="phrase_dest_sms_radius">8dp</dimen>
+
+    <dimen name="phrase_dest_text_paddingHorizontalMin">8dp</dimen>
+    <dimen name="phrase_dest_text_paddingHorizontalMax">20dp</dimen>
+    <dimen name="phrase_dest_text_paddingVerticalMin">4dp</dimen>
+    <dimen name="phrase_dest_text_paddingVerticalMax">17dp</dimen>
+    <dimen name="phrase_dest_paddingLeft">12dp</dimen>
+
+    <dimen name="phrase_image_image">200dp</dimen>
+    <dimen name="phrase_me_marginleft">16dp</dimen>
+    <dimen name="phrase_dest_compensation">2dp</dimen>
+    <dimen name="phrase_image_margin_start">8dp</dimen>
+    <dimen name="choice_text_font">14sp</dimen>
+    <dimen name="design_bottom_navigation_text_size" tools:override="true">11sp</dimen>
+    <dimen name="design_bottom_navigation_active_text_size" tools:override="true">11sp</dimen>
+
+    <dimen name="purpletear_button_font">20sp</dimen>
+    <dimen name="purpletear_button_font_min">18sp</dimen>
+    <dimen name="menu_info_title_font">26sp</dimen>
+    <dimen name="menu_info_content_font">14sp</dimen>
+    <dimen name="message_min_radius">8dp</dimen>
+    <dimen name="message_max_radius">34dp</dimen>
+    <dimen name="menu_title_font">16sp</dimen>
+    <dimen name="textcinematic_font">18sp</dimen>
+    <dimen name="textcinematic_font_sub">14sp</dimen>
+    <dimen name="intro_image_size">25dp</dimen>
+</resources>

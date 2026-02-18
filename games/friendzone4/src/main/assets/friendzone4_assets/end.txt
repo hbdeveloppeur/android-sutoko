@@ -1,0 +1,226 @@
+[0200] Initial connexion asked by x94.
+[0200] Selected cursor X00.PROGRAM.ORPHANING
+[0200] Packaging the initial hack
+[1000] Packaging the new one...
+[1000] Success
+[0050] Progression testing : %d%
+[0050] Progression testing : %d%
+[0050] Progression testing : %d%
+[0050] Progression testing : %d%
+[0050] Progression testing : %d%
+[0050] Progression testing : %d%
+[0050] Progression testing : %d%
+[0050] Progression testing : %d%
+[0050] Progression testing : %d%
+[0050] Progression testing : %d%
+[0050] Progression testing : %d%
+[0050] Progression testing : %d%
+[0050] Progression testing : %d%
+[0050] Progression testing : %d%
+[0050] Progression testing : %d%
+[0050] Progression testing : %d%
+[0050] Progression testing : %d%
+[0050] Progression testing : %d%
+[0050] Progression testing : %d%
+[0050] Progression testing : %d%
+[0050] Progression testing : %d%
+[0050] Progression testing : %d%
+[0050] Progression testing : %d%
+[0050] Progression testing : %d%
+[0050] Progression testing : %d%
+[0050] Progression testing : %d%
+[0050] Progression testing : %d%
+[0050] Progression testing : %d%
+[0050] Progression testing : %d%
+[0050] Progression testing : %d%
+[0050] Progression testing : %d%
+[0050] Progression testing : %d%
+[0050] Progression testing : %d%
+[0050] Progression testing : %d%
+[0050] Progression testing : %d%
+[0050] Progression testing : %d%
+[0050] Progression testing : %d%
+[0050] Progression testing : %d%
+[0050] Progression testing : %d%
+[0050] Progression testing : %d%
+[0050] Progression testing : %d%
+[0050] Progression testing : %d%
+[0050] Progression testing : %d%
+[0050] Progression testing : %d%
+[0050] Progression testing : %d%
+[0050] Progression testing : %d%
+[0050] Progression testing : %d%
+[0050] Progression testing : %d%
+[0050] Progression testing : %d%
+[0050] Progression testing : %d%
+[0050] Progression testing : %d%
+[0050] Progression testing : %d%
+[0050] Progression testing : %d%
+[0050] Progression testing : %d%
+[0050] Progression testing : %d%
+[0050] Progression testing : %d%
+[0050] Progression testing : %d%
+[0050] Progression testing : %d%
+[0050] Progression testing : %d%
+[0050] Progression testing : %d%
+[0050] Progression testing : %d%
+[0050] Progression testing : %d%
+[0050] Progression testing : %d%
+[0050] Progression testing : %d%
+[0050] Progression testing : %d%
+[0050] Progression testing : %d%
+[0050] Progression testing : %d%
+[0050] Progression testing : %d%
+[0050] Progression testing : %d%
+[0050] Progression testing : %d%
+[0050] Progression testing : %d%
+[0050] Progression testing : %d%
+[0050] Progression testing : %d%
+[0050] Progression testing : %d%
+[0050] Progression testing : %d%
+[0050] Progression testing : %d%
+[0050] Progression testing : %d%
+[0050] Progression testing : %d%
+[0050] Progression testing : %d%
+[0050] Progression testing : %d%
+[0050] Progression testing : %d%
+[0050] Progression testing : %d%
+[0050] Progression testing : %d%
+[0050] Progression testing : %d%
+[0050] Progression testing : %d%
+[0050] Progression testing : %d%
+[0050] Progression testing : %d%
+[0050] Progression testing : %d%
+[0050] Progression testing : %d%
+[0050] Progression testing : %d%
+[0050] Progression testing : %d%
+[0050] Progression testing : %d%
+[0050] Progression testing : %d%
+[0050] Progression testing : %d%
+[0050] Progression testing : %d%
+[0050] Progression testing : %d%
+[0050] Progression testing : %d%
+[0050] Progression testing : %d%
+[0050] Progression testing : %d%
+[0050] Progression testing : %d%
+[0050] DONE --------------------
+[0050] RESOLVING Killable process
+[0050] Creating new content
+[0050] DONE --------------------
+[0050] RESOLVING Killable process
+[0050] Creating new content
+[0050] DONE --------------------
+[0050] RESOLVING Killable process
+[0050] Creating new content
+[0050] DONE --------------------
+[0050] RESOLVING Killable process
+[0050] Creating new content
+[0050] DONE --------------------
+[0050] RESOLVING Killable process
+[0050] Creating new content
+[0050] DONE --------------------
+[0050] RESOLVING Killable process
+[0050] Creating new content
+[0050] DONE --------------------
+[0050] RESOLVING Killable process
+[0050] Creating new content
+[0050] DONE --------------------
+[0050] RESOLVING Killable process
+[0050] Creating new content
+[0050] DONE --------------------
+[0050] RESOLVING Killable process
+[0050] Creating new content
+[0050] DONE --------------------
+[0050] RESOLVING Killable process
+[0050] Creating new content
+[0050] DONE --------------------
+[0050] RESOLVING Killable process
+[0050] Creating new content
+[0050] DONE --------------------
+[0050] RESOLVING Killable process
+[0050] Creating new content
+[0050] DONE --------------------
+[0050] RESOLVING Killable process
+[0050] Creating new content
+[0050] DONE --------------------
+[0050] RESOLVING Killable process
+[0050] Creating new content
+[0050] DONE --------------------
+[0050] RESOLVING Killable process
+[0050] Creating new content
+[0050] DONE --------------------
+[0050] RESOLVING Killable process
+[0050] Creating new content
+[0050] DONE --------------------
+[0050] RESOLVING Killable process
+[0050] Creating new content
+[0050] DONE --------------------
+[0050] RESOLVING Killable process
+[0050] Creating new content
+[0050] DONE --------------------
+[0050] RESOLVING Killable process
+[0050] Creating new content
+[0050] DONE --------------------
+[0050] RESOLVING Killable process
+[0050] Creating new content
+[0050] DONE --------------------
+[0050] RESOLVING Killable process
+[0050] Creating new content
+[0050] DONE --------------------
+[0050] RESOLVING Killable process
+[0050] Creating new content
+[0050] DONE --------------------
+[0050] RESOLVING Killable process
+[0050] Creating new content
+[0050] DONE --------------------
+[0050] RESOLVING Killable process
+[0050] Creating new content
+[0050] DONE --------------------
+[0050] RESOLVING Killable process
+[0050] Creating new content
+[0050] DONE --------------------
+[0050] RESOLVING Killable process
+[0050] Creating new content
+[0050] DONE --------------------
+[0050] RESOLVING Killable process
+[0050] Creating new content
+[0050] Creating new content
+[0050] DONE --------------------
+[0050] RESOLVING Killable process
+[0050] Creating new content
+[0050] Creating new content
+[0050] DONE --------------------
+[0050] RESOLVING Killable process
+[0050] Creating new content
+[0050] Creating new content
+[0050] DONE --------------------
+[0050] RESOLVING Killable process
+[0050] Creating new content
+[0050] Creating new content
+[0050] DONE --------------------
+[0050] RESOLVING Killable process
+[0050] Creating new content
+[0050] Creating new content
+[0050] DONE --------------------
+[0050] RESOLVING Killable process
+[0050] Creating new content
+[0050] Creating new content
+[0050] DONE --------------------
+[0050] RESOLVING Killable process
+[0050] Creating new content
+[0050] Creating new content
+[0050] DONE --------------------
+[0050] RESOLVING Killable process
+[0050] Creating new content
+[0050] Creating new content
+[0050] DONE --------------------
+[0050] RESOLVING Killable process
+[0050] Creating new content
+[0050] Creating new content
+[0050] DONE --------------------
+[0050] RESOLVING Killable process
+[0050] Creating new content
+[0050] Creating new content
+[0050] DONE --------------------
+[0050] RESOLVING Killable process
+[0050] Creating new content
