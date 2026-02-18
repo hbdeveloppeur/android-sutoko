@@ -27,8 +27,8 @@ include ':games:friendzone1'
 include ':games:friendzone2'
 include ':games:friendzone3'
 include ':games:friendzone4'
-include ':in_app_purchase:in_app_purchase_domain'
-include ':in_app_purchase:in_app_purchase_data'
+include ':in-app-purchase:domain'
+include ':in-app-purchase:data'
 include ':smartads'
 include ':ai-conversation:core'
 include ':ai-conversation:domain'
@@ -62,3 +62,5 @@ include ':version:version_presentation'
 project(":version:version_domain").projectDir = new File(rootDir, "version/domain")
 project(":version:version_infrastructure").projectDir = new File(rootDir, "version/infrastructure")
 project(":version:version_presentation").projectDir = new File(rootDir, "version/version_presentation")
+project(":in-app-purchase:domain").projectDir = new File(rootDir, "in-app-purchase/domain")
+project(":in-app-purchase:data").projectDir = new File(rootDir, "in-app-purchase/data")

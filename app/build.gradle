@@ -134,8 +134,8 @@ dependencies {
     // implementation 'androidx.compose.ui:ui-graphics'
     implementation project(path: ':alert:alert_presentation')
     implementation project(path: ':popup:popup_domain')
-    implementation project(':in_app_purchase:in_app_purchase_data')
-    implementation project(':in_app_purchase:in_app_purchase_domain')
+    implementation project(':in-app-purchase:data')
+    implementation project(':in-app-purchase:domain')
     implementation project(':ai-conversation:domain')
     implementation project(':ai-conversation:presentation')
     implementation project(':ai-conversation:data')

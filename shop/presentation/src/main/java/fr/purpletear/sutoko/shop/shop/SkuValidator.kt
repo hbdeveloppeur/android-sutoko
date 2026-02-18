@@ -24,8 +24,8 @@ import com.android.billingclient.api.QueryPurchasesParams
 import com.example.sharedelements.BuildConfig
 import com.example.sharedelements.SutokoSharedElementsData
 import fr.purpletear.sutoko.shop.presentation.R
-import fr.sutoko.in_app_purchase_data.utils.AppProductDetailFromGooglePlayBilling
-import fr.sutoko.in_app_purchase_domain.model.AppProductDetails
+import fr.sutoko.inapppurchase.data.utils.AppProductDetailFromGooglePlayBilling
+import fr.sutoko.inapppurchase.domain.model.AppProductDetails
 
 interface SkuValidatorListener {
     fun onBillingServicesNotAvailable()

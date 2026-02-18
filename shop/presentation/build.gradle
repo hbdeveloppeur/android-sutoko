@@ -65,8 +65,8 @@ dependencies {
 
     implementation libs.androidx.constraintlayout.compose
     implementation libs.compose.foundation
-    implementation project(':in_app_purchase:in_app_purchase_domain')
-    implementation project(':in_app_purchase:in_app_purchase_data')
+    implementation project(':in-app-purchase:domain')
+    implementation project(':in-app-purchase:data')
     implementation project(':user:domain')
 
 

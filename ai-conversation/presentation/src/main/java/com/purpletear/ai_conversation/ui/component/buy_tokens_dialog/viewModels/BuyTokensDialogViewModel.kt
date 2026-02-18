@@ -25,13 +25,13 @@ import com.purpletear.shop.domain.usecase.ProcessPurchaseUseCase
 import com.purpletear.shop.domain.usecase.TryMessagePackUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import fr.purpletear.sutoko.shop.coinsLogic.Customer
-import fr.sutoko.in_app_purchase_domain.data_service.BillingDataService
-import fr.sutoko.in_app_purchase_domain.enums.AppPurchaseType
-import fr.sutoko.in_app_purchase_domain.model.AppPurchaseDetails
-import fr.sutoko.in_app_purchase_domain.usecase.AcknowledgeProductUseCase
-import fr.sutoko.in_app_purchase_domain.usecase.ConnectToGooglePlayUseCase
-import fr.sutoko.in_app_purchase_domain.usecase.GetInAppProductsUseCase
-import fr.sutoko.in_app_purchase_domain.usecase.LaunchBillingFlowUseCase
+import fr.sutoko.inapppurchase.domain.data_service.BillingDataService
+import fr.sutoko.inapppurchase.domain.enums.AppPurchaseType
+import fr.sutoko.inapppurchase.domain.model.AppPurchaseDetails
+import fr.sutoko.inapppurchase.domain.usecase.AcknowledgeProductUseCase
+import fr.sutoko.inapppurchase.domain.usecase.ConnectToGooglePlayUseCase
+import fr.sutoko.inapppurchase.domain.usecase.GetInAppProductsUseCase
+import fr.sutoko.inapppurchase.domain.usecase.LaunchBillingFlowUseCase
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 

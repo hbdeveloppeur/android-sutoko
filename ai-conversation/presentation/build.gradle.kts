@@ -57,7 +57,7 @@ dependencies {
 
     implementation(libs.androidx.media3.ui)
     implementation(project(":shared-elements"))
-    implementation(project(":in_app_purchase:in_app_purchase_domain"))
+    implementation(project(":in-app-purchase:domain"))
     implementation(project(":popup:popup_domain"))
     implementation(project(":Framework"))
     testImplementation(libs.junit)

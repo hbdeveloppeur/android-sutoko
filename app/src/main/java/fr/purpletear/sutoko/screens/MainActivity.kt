@@ -98,9 +98,9 @@ import fr.purpletear.sutoko.shop.coinsLogic.Customer
 import fr.purpletear.sutoko.shop.coinsLogic.CustomerCallbacks
 import fr.purpletear.sutoko.shop.coinsLogic.objects.operations.Order
 import fr.purpletear.sutoko.shop.shop.ShopActivity
-import fr.sutoko.in_app_purchase_data.datasource.BillingDataSource
-import fr.sutoko.in_app_purchase_data.repository.BillingRepositoryImpl
-import fr.sutoko.in_app_purchase_domain.repository.BillingRepository
+import fr.sutoko.inapppurchase.data.datasource.BillingDataSource
+import fr.sutoko.inapppurchase.data.repository.BillingRepositoryImpl
+import fr.sutoko.inapppurchase.domain.repository.BillingRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.take

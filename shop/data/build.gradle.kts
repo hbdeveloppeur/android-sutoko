@@ -48,7 +48,7 @@ dependencies {
     implementation(libs.okhttp3)
 
     implementation(project(":shop:domain"))
-    implementation(project(":in_app_purchase:in_app_purchase_domain"))
+    implementation(project(":in-app-purchase:domain"))
     implementation(libs.androidx.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.android.material)

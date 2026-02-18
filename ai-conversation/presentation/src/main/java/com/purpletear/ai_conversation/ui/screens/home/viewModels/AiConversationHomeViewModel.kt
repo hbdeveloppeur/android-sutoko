@@ -27,7 +27,7 @@ import com.purpletear.sutoko.user.usecase.IsUserConnectedUseCase
 import com.purpletear.sutoko.user.usecase.OpenSignInPageUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import fr.purpletear.sutoko.shop.coinsLogic.Customer
-import fr.sutoko.in_app_purchase_domain.usecase.GetNonAcknowledgeProductUseCase
+import fr.sutoko.inapppurchase.domain.usecase.GetNonAcknowledgeProductUseCase
 import javax.inject.Inject
 
 @HiltViewModel

@@ -1,7 +1,7 @@
 package com.purpletear.shop.domain.model
 
 import androidx.annotation.Keep
-import fr.sutoko.in_app_purchase_domain.model.AppProductDetails
+import fr.sutoko.inapppurchase.domain.model.AppProductDetails
 
 @Keep
 data class AiMessagePack(
