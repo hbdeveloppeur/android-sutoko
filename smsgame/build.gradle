@@ -60,7 +60,7 @@ dependencies {
     implementation project(path: ':tools')
     implementation project(':smartads')
     implementation project(':shop:presentation')
-    implementation project(':game:game_domain')
+    implementation project(':game:domain')
     implementation project(':core:domain')
 
     constraints {

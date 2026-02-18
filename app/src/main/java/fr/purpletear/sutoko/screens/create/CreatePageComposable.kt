@@ -21,8 +21,8 @@ import androidx.constraintlayout.compose.ConstraintLayout
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.purpletear.core.presentation.components.AnimatedNewsGradient
-import com.purpletear.version_presentation.R
-import com.purpletear.version_presentation.components.announce_card.GameAnnounceCard
+import com.purpletear.version.presentation.R
+import com.purpletear.version.presentation.components.announce_card.GameAnnounceCard
 
 @Composable
 internal fun CreatePageComposable(modifier: Modifier = Modifier) {

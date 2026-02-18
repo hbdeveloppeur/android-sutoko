@@ -53,8 +53,8 @@ import com.purpletear.aiconversation.presentation.screens.home.viewModels.AiConv
 import com.purpletear.aiconversation.presentation.screens.image_viewer.ImageViewerScreen
 import com.purpletear.aiconversation.presentation.screens.media.image_generator.ImageGeneratorScreen
 import com.purpletear.aiconversation.presentation.screens.shopDialog.MessagesCoinsDialogComposable
-import com.purpletear.game_presentation.screens.ChaptersComposable
-import com.purpletear.game_presentation.screens.GamePreview
+import com.purpletear.game.presentation.screens.ChaptersComposable
+import com.purpletear.game.presentation.screens.GamePreview
 import com.purpletear.smartads.SmartAdsInterface
 import com.purpletear.smartads.adConsent.AdmobConsent
 import com.purpletear.smartads.adConsent.RGPDHelper
@@ -71,7 +71,7 @@ import com.purpletear.sutoko.notification.usecase.ObserveNotificationRequestUseC
 import com.purpletear.sutoko.notification.usecase.SetCurrentScreenUseCase
 import com.purpletear.sutoko.permission.domain.repository.PermissionRepository
 import com.purpletear.sutoko.permission.domain.sealed.Permission
-import com.purpletear.sutoko.popup_presentation.PopUpComposable
+import com.purpletear.sutoko.popup.presentation.PopUpComposable
 import com.purpletear.sutoko.user.usecase.OpenSignInPageObservableUseCase
 import dagger.hilt.android.AndroidEntryPoint
 import fr.purpletear.sutoko.custom.PlayerRankInfo

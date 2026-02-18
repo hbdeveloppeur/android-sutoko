@@ -24,8 +24,8 @@ import coil.request.ImageRequest
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.purpletear.aiconversation.presentation.navigation.AiConversationRouteDestination
 import com.purpletear.core.presentation.extensions.Resource
-import com.purpletear.game_presentation.components.GameCard
-import com.purpletear.game_presentation.components.GameSquares
+import com.purpletear.game.presentation.components.GameCard
+import com.purpletear.game.presentation.components.GameSquares
 import fr.purpletear.sutoko.BuildConfig
 import fr.purpletear.sutoko.screens.main.domain.popup.util.MainMenuCategory
 import fr.purpletear.sutoko.screens.main.presentation.HomeScreenViewModel
@@ -35,8 +35,8 @@ import fr.purpletear.sutoko.screens.main.presentation.screens.TopNavigation
 import fr.purpletear.sutoko.screens.main.presentation.screens.home.components.AiConversationCard
 import fr.purpletear.sutoko.screens.main.presentation.screens.home.components.HeaderPager
 import fr.purpletear.sutoko.screens.main.presentation.screens.home.components.Menu
-import com.purpletear.game_presentation.util.ImmutableList as GameImmutableList
-import com.purpletear.game_presentation.util.ImmutableMap as GameImmutableMap
+import com.purpletear.game.presentation.util.ImmutableList as GameImmutableList
+import com.purpletear.game.presentation.util.ImmutableMap as GameImmutableMap
 
 /**
  * Home screen composable that displays the main content of the application.

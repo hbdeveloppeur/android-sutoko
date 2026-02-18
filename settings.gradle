@@ -19,7 +19,7 @@ include ':shared-elements'
 include ':tools'
 include ':error:presentation'
 include ':alert:alert_presentation'
-include ':popup:popup_domain'
+include ':popup:domain'
 include ':games:friendzone1'
 include ':games:friendzone2'
 include ':games:friendzone3'
@@ -37,28 +37,27 @@ include ':shop:data'
 include ':user:domain'
 include ':user:data'
 include ':core:presentation'
-include ':popup:pop_data'
+include ':popup:data'
 include ':Framework'
 include ':permission:domain'
 include ':permission:data'
-include ':popup:popup_presentation'
+include ':popup:presentation'
 include ':core:domain'
-include ':core:core_data'
+include ':core:data'
 include ':notification:domain'
 include ':notification:data'
-include ':game:game_domain'
-include ':game:game_data'
-include ':game:game_presentation'
+include ':game:domain'
+include ':game:data'
+include ':game:presentation'
 include ':news:domain'
 include ':news:data'
 include ':news:presentation'
-include ':version:version_domain'
-include ':version:version_infrastructure'
-include ':version:version_presentation'
+include ':version:domain'
+include ':version:infrastructure'
+include ':version:presentation'
 
-project(":version:version_domain").projectDir = new File(rootDir, "version/domain")
-project(":version:version_infrastructure").projectDir = new File(rootDir, "version/infrastructure")
-project(":version:version_presentation").projectDir = new File(rootDir, "version/version_presentation")
+
+project(":version:presentation").projectDir = new File(rootDir, "version/presentation")
 project(":in-app-purchase:domain").projectDir = new File(rootDir, "in-app-purchase/domain")
 project(":in-app-purchase:data").projectDir = new File(rootDir, "in-app-purchase/data")
 project(":news:domain").projectDir = new File(rootDir, "news/domain")
@@ -68,3 +67,10 @@ project(":ai-conversation:core").projectDir = new File(rootDir, "ai-conversation
 project(":ai-conversation:domain").projectDir = new File(rootDir, "ai-conversation/domain")
 project(":ai-conversation:data").projectDir = new File(rootDir, "ai-conversation/data")
 project(":ai-conversation:presentation").projectDir = new File(rootDir, "ai-conversation/presentation")
+project(":popup:domain").projectDir = new File(rootDir, "popup/domain")
+project(":popup:data").projectDir = new File(rootDir, "popup/data")
+project(":popup:presentation").projectDir = new File(rootDir, "popup/presentation")
+project(":core:data").projectDir = new File(rootDir, "core/data")
+project(":game:domain").projectDir = new File(rootDir, "game/domain")
+project(":game:data").projectDir = new File(rootDir, "game/data")
+project(":game:presentation").projectDir = new File(rootDir, "game/presentation")

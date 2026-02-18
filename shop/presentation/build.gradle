@@ -90,5 +90,5 @@ dependencies {
     implementation libs.androidx.hilt.navigation.compose
 
     implementation(libs.kotlinx.coroutines.android)
-    implementation project(':game:game_domain')
+    implementation project(':game:domain')
 }

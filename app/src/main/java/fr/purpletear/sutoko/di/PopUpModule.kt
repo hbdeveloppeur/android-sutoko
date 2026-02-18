@@ -1,6 +1,6 @@
 package fr.purpletear.sutoko.di
 
-import com.purpletear.sutoko.pop_data.PopUpRepositoryImpl
+import com.purpletear.sutoko.popup.data.PopUpRepositoryImpl
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn

@@ -43,7 +43,7 @@ android {
 }
 
 dependencies {
-    implementation(project(":version:version_domain"))
+    implementation(project(":version:domain"))
     implementation(project(":core:domain"))
 
     implementation(libs.androidx.ktx)
