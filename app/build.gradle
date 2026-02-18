@@ -17,20 +17,6 @@ if (localPropertiesFile.exists()) {
 
 
 android {
-    signingConfigs {
-        release {
-            def storeFilePath = localProperties.get("storeFile")
-            if (storeFilePath != null && !storeFilePath.isEmpty()) {
-                storeFile file(storeFilePath)
-                storePassword localProperties.get("storePassword")
-                keyPassword localProperties.get("keyPassword")
-                keyAlias localProperties.get("keyAlias")
-            }
-            v1SigningEnabled true
-            v2SigningEnabled true
-        }
-    }
-
     compileSdk 35
 
     defaultConfig {
@@ -51,15 +37,6 @@ android {
     }
 
     signingConfigs {
-        debug {
-            def debugStoreFile = localProperties.get("storeFile")
-            if (debugStoreFile != null && !debugStoreFile.isEmpty()) {
-                storeFile file(debugStoreFile)
-                storePassword localProperties.get("storePassword")
-                keyPassword localProperties.get("keyPassword")
-                keyAlias localProperties.get("keyAlias")
-            }
-        }
         release {
             def releaseStoreFile = localProperties.get("storeFile")
             if (releaseStoreFile != null && !releaseStoreFile.isEmpty()) {
@@ -67,6 +44,8 @@ android {
                 storePassword localProperties.get("storePassword")
                 keyPassword localProperties.get("keyPassword")
                 keyAlias localProperties.get("keyAlias")
+                v1SigningEnabled true
+                v2SigningEnabled true
             }
         }
     }
@@ -81,7 +60,10 @@ android {
 
     buildTypes {
         release {
-            signingConfig signingConfigs.release
+            def releaseStoreFile = localProperties.get("storeFile")
+            if (releaseStoreFile != null && !releaseStoreFile.isEmpty()) {
+                signingConfig signingConfigs.release
+            }
             minifyEnabled true
             shrinkResources true
             multiDexEnabled true
