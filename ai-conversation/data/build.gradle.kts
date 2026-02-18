@@ -7,7 +7,7 @@ plugins {
 }
 
 android {
-    namespace = "com.purpletear.ai_conversation.data"
+    namespace = "com.purpletear.aiconversation.data"
     compileSdk = 35
 
     defaultConfig {

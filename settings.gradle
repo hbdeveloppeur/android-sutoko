@@ -20,9 +20,6 @@ include ':tools'
 include ':error:presentation'
 include ':alert:alert_presentation'
 include ':popup:popup_domain'
-include ':ai_conversation:ai_conversation_domain'
-include ':ai_conversation:ai_conversation_data'
-include ':ai_conversation:ai_conversation_presentation'
 include ':games:friendzone1'
 include ':games:friendzone2'
 include ':games:friendzone3'
@@ -67,3 +64,7 @@ project(":in-app-purchase:data").projectDir = new File(rootDir, "in-app-purchase
 project(":news:domain").projectDir = new File(rootDir, "news/domain")
 project(":news:data").projectDir = new File(rootDir, "news/data")
 project(":news:presentation").projectDir = new File(rootDir, "news/presentation")
+project(":ai-conversation:core").projectDir = new File(rootDir, "ai-conversation/core")
+project(":ai-conversation:domain").projectDir = new File(rootDir, "ai-conversation/domain")
+project(":ai-conversation:data").projectDir = new File(rootDir, "ai-conversation/data")
+project(":ai-conversation:presentation").projectDir = new File(rootDir, "ai-conversation/presentation")

@@ -22,7 +22,7 @@ import androidx.navigation.NavController
 import coil.imageLoader
 import coil.request.ImageRequest
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
-import com.purpletear.ai_conversation.ui.navigation.AiConversationRouteDestination
+import com.purpletear.aiconversation.presentation.navigation.AiConversationRouteDestination
 import com.purpletear.core.presentation.extensions.Resource
 import com.purpletear.game_presentation.components.GameCard
 import com.purpletear.game_presentation.components.GameSquares

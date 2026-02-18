@@ -1,3 +1,0 @@
-package com.purpletear.ai_conversation.domain.messaging
-
-interface NewCharacterMessageHandler : MessageHandler

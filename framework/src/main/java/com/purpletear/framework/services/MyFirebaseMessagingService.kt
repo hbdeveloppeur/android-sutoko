@@ -3,10 +3,10 @@ package com.purpletear.framework.services
 import android.util.Log
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
-import com.purpletear.ai_conversation.domain.enums.ContentType
-import com.purpletear.ai_conversation.domain.messaging.ImageGenerationRequestMessageHandler
-import com.purpletear.ai_conversation.domain.messaging.NewCharacterMessageHandler
-import com.purpletear.ai_conversation.domain.repository.UserConfigRepository
+import com.purpletear.aiconversation.domain.enums.ContentType
+import com.purpletear.aiconversation.domain.messaging.ImageGenerationRequestMessageHandler
+import com.purpletear.aiconversation.domain.messaging.NewCharacterMessageHandler
+import com.purpletear.aiconversation.domain.repository.UserConfigRepository
 import dagger.hilt.android.AndroidEntryPoint
 import fr.purpletear.sutoko.shop.coinsLogic.Customer
 import kotlinx.coroutines.CoroutineScope
