@@ -57,7 +57,7 @@ dependencies {
 
     implementation "androidx.compose.ui:ui:$compose_ui_version"
     implementation project(path: ':popup:popup_domain')
-    implementation project(path: ':sutokosharedelements')
+    implementation project(path: ':shared-elements')
 
     implementation(libs.dagger.hilt)
     ksp(libs.dagger.hilt.compiler)

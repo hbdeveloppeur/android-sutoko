@@ -93,7 +93,7 @@ class TextCinematic : AppCompatActivity() {
                         model.collectedTrophies.add(this@TextCinematic, phrase.trophyId, GlobalData.Game.FRIENDZONE.id, VERSION_CODE)
                         model.collectedTrophies.save(this@TextCinematic)
                         val sh  = SimpleSound()
-                        sh.prepareAndPlay(this@TextCinematic, com.example.sutokosharedelements.R.raw.deduction, false, 0)
+                        sh.prepareAndPlay(this@TextCinematic, com.example.sharedelements.R.raw.deduction, false, 0)
                     }
                     if (model.hasNextPhrase(phrase)) {
                         model.currentPhrase = model.getNextPhrase(phrase)

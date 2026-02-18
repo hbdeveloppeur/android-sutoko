@@ -10,8 +10,8 @@ import androidx.compose.foundation.LocalOverscrollConfiguration
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.core.view.WindowCompat
 import dagger.hilt.android.AndroidEntryPoint
-import com.example.sutokosharedelements.Data
-import com.example.sutokosharedelements.theme.SutokoTheme
+import com.example.sharedelements.Data
+import com.example.sharedelements.theme.SutokoTheme
 import fr.purpletear.sutoko.screens.players_ranks.presentation.PlayersRankScreen
 import fr.purpletear.sutoko.screens.players_ranks.presentation.PlayersRankViewModel
 import fr.purpletear.sutoko.custom.PlayerRankInfo

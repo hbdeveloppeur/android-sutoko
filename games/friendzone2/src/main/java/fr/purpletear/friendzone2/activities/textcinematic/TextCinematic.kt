@@ -5,7 +5,7 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
-import com.example.sutokosharedelements.OnlineAssetsManager
+import com.example.sharedelements.OnlineAssetsManager
 import fr.purpletear.friendzone2.BuildConfig.VERSION_CODE
 import fr.purpletear.friendzone2.R
 import fr.purpletear.friendzone2.configs.DiscussionHandler
@@ -115,7 +115,7 @@ class TextCinematic : AppCompatActivity() {
                         model.collectedTrophies.add(this@TextCinematic, phrase.trophyId, GlobalData.Game.FRIENDZONE2.id, VERSION_CODE)
                         model.collectedTrophies.save(this@TextCinematic)
                         val sh  = SimpleSound()
-                        sh.prepareAndPlay(this@TextCinematic, com.example.sutokosharedelements.R.raw.deduction, false, 0)
+                        sh.prepareAndPlay(this@TextCinematic, com.example.sharedelements.R.raw.deduction, false, 0)
                     }
                     if(model.hasNextPhrase(phrase)) {
                         model.currentPhrase = model.getNextPhrase(phrase)

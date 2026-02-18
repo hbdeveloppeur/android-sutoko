@@ -43,7 +43,7 @@
             android:layout_height="25dp"
             android:layout_gravity="center_horizontal" />
 
-        <com.example.sutokosharedelements.fonts.WorkSansRegular
+        <com.example.sharedelements.fonts.WorkSansRegular
             android:id="@+id/sutoko.userstoryloader.content.text.context"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -55,7 +55,7 @@
             android:textSize="14sp"
             android:visibility="invisible" />
 
-        <com.example.sutokosharedelements.fonts.WorkSansRegular
+        <com.example.sharedelements.fonts.WorkSansRegular
             android:id="@+id/sutoko.userstoryloader.content.text.title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -78,7 +78,7 @@
             android:visibility="invisible"
             tools:ignore="UseCompoundDrawables">
 
-            <com.example.sutokosharedelements.fonts.WorkSansRegular
+            <com.example.sharedelements.fonts.WorkSansRegular
                 android:id="@+id/sutoko.userstoryloader.content.credits.text"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"

@@ -9,7 +9,7 @@ import androidx.annotation.Keep
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
-import com.example.sutokosharedelements.Data
+import com.example.sharedelements.Data
 import purpletear.fr.purpleteartools.CFiles
 import purpletear.fr.purpleteartools.Language
 import purpletear.fr.purpleteartools.Std

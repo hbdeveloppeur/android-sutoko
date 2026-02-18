@@ -12,8 +12,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.RequestManager;
-import com.example.sutokosharedelements.SutokoSharedElementsData;
-import com.example.sutokosharedelements.tables.trophies.TableOfCollectedTrophies;
+import com.example.sharedelements.SutokoSharedElementsData;
+import com.example.sharedelements.tables.trophies.TableOfCollectedTrophies;
 
 import java.io.IOException;
 import java.util.ArrayList;

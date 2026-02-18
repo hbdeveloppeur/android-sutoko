@@ -9,14 +9,14 @@
         app:layout_constraintStart_toStartOf="parent"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content">
-        <com.example.sutokosharedelements.fonts.PoppinsBold
+        <com.example.sharedelements.fonts.PoppinsBold
             android:id="@+id/sutoko_item_story_summary_title_text1"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textColor="@color/darkModeWhite2"
             android:textSize="20sp"
             />
-        <com.example.sutokosharedelements.fonts.PoppinsBold
+        <com.example.sharedelements.fonts.PoppinsBold
             android:id="@+id/sutoko_item_story_summary_title_text2"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

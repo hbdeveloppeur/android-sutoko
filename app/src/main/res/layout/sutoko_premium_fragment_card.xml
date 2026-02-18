@@ -55,7 +55,7 @@
         app:layout_constraintTop_toTopOf="@id/sutoko.premium.card"
         tools:ignore="UnusedAttribute" />
 
-    <com.example.sutokosharedelements.fonts.WorkSansRegular
+    <com.example.sharedelements.fonts.WorkSansRegular
         android:id="@+id/sutoko.premium.card.text.title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

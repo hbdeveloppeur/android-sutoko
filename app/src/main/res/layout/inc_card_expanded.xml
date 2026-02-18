@@ -164,7 +164,7 @@
         android:alpha="0.5"
         tools:ignore="ContentDescription" />
 
-    <com.example.sutokosharedelements.fonts.RobotoCondensedRegular
+    <com.example.sharedelements.fonts.RobotoCondensedRegular
         android:id="@+id/sutoko.card.text.title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -183,7 +183,7 @@
         app:layout_constraintStart_toEndOf="@id/sutoko.card.text.icon"
         app:layout_constraintVertical_bias="0.8" />
 
-    <com.example.sutokosharedelements.fonts.RobotoCondensedRegular
+    <com.example.sharedelements.fonts.RobotoCondensedRegular
         android:id="@+id/sutoko.card.text.tag"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -199,7 +199,7 @@
         app:layout_constraintStart_toEndOf="@id/sutoko.guideline7"
         app:layout_constraintTop_toTopOf="@id/sutoko.card.characteristics.0" />
 
-    <com.example.sutokosharedelements.fonts.RobotoCondensedRegular
+    <com.example.sharedelements.fonts.RobotoCondensedRegular
         android:id="@+id/sutoko.card.text.catchingPhrase"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

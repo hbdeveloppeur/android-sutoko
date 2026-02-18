@@ -87,7 +87,7 @@
         app:layout_constraintStart_toEndOf="@id/sutoko_storysumary_button_back"
         app:layout_constraintTop_toTopOf="@id/sutoko_storysumary_button_back">
 
-        <com.example.sutokosharedelements.fonts.WorkSansSemiBold
+        <com.example.sharedelements.fonts.WorkSansSemiBold
             android:id="@+id/sutoko_storysumary_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -95,7 +95,7 @@
             android:textColor="@color/darkModeWhite2"
             android:textSize="15sp" />
 
-        <com.example.sutokosharedelements.fonts.WorkSansRegular
+        <com.example.sharedelements.fonts.WorkSansRegular
             android:id="@+id/sutoko_storysumary_subtitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

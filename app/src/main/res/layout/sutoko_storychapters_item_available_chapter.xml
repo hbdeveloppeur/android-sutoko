@@ -20,7 +20,7 @@
         app:layout_constraintStart_toStartOf="@id/sutoko.storychapters.item.available_chapter.patron.1"
         app:layout_constraintTop_toTopOf="@id/sutoko.storychapters.item.available_chapter.patron.1" />
 
-    <com.example.sutokosharedelements.fonts.WorkSansSemiBold
+    <com.example.sharedelements.fonts.WorkSansSemiBold
         android:id="@+id/sutoko.storychapters.item.available_chapter.title.text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -30,7 +30,7 @@
         app:layout_constraintStart_toEndOf="@id/sutoko.storychapters.item.available_chapter.patron.1"
         app:layout_constraintTop_toTopOf="@id/sutoko.storychapters.item.available_chapter.number.text" />
 
-    <com.example.sutokosharedelements.fonts.WorkSansRegular
+    <com.example.sharedelements.fonts.WorkSansRegular
         android:id="@+id/sutoko.storychapters.item.available_chapter.description.text"
         android:layout_width="0dp"
         android:layout_height="wrap_content"

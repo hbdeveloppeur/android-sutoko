@@ -1,8 +1,8 @@
 package com.purpletear.smsgame.activities.smsgameloader
 
 import android.content.Intent
-import com.example.sutokosharedelements.Data
-import com.example.sutokosharedelements.SutokoSharedElementsData
+import com.example.sharedelements.Data
+import com.example.sharedelements.SutokoSharedElementsData
 import com.purpletear.smsgame.activities.smsgame.SmsGameActivity
 import com.purpletear.smsgame.activities.smsgame.objects.StoryChapter
 import com.purpletear.smsgame.activities.smsgame.tables.StoryType

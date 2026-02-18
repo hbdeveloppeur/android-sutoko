@@ -11,7 +11,7 @@ import androidx.lifecycle.lifecycleScope
 import com.android.billingclient.api.Purchase
 import com.bumptech.glide.Glide
 import com.bumptech.glide.RequestManager
-import com.example.sutokosharedelements.SutokoAppParams
+import com.example.sharedelements.SutokoAppParams
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.purpletear.shop.domain.model.Balance
 import com.purpletear.shop.domain.usecase.GetShopBalanceUseCase

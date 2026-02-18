@@ -9,7 +9,7 @@
 package friendzone3.purpletear.fr.friendzon3.tables;
 
 import android.content.Context
-import com.example.sutokosharedelements.SmsGameTreeStructure
+import com.example.sharedelements.SmsGameTreeStructure
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import friendzone3.purpletear.fr.friendzon3.Data

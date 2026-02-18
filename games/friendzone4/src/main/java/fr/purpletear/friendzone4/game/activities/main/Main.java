@@ -19,7 +19,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
-import com.example.sutokosharedelements.SutokoSharedElementsData;
+import com.example.sharedelements.SutokoSharedElementsData;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -601,7 +601,7 @@ public class Main extends AppCompatActivity implements MainInterface {
                         model.collectedTrophies.save(Main.this);
                         try {
                             SimpleSound sh = new SimpleSound();
-                            sh.prepareAndPlay(Main.this, com.example.sutokosharedelements.R.raw.deduction, false, 0);
+                            sh.prepareAndPlay(Main.this, com.example.sharedelements.R.raw.deduction, false, 0);
                         } catch (Exception e) {
                             e.printStackTrace();
                         }

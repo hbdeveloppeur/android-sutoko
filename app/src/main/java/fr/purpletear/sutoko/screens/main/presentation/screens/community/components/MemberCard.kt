@@ -30,7 +30,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
-import com.example.sutokosharedelements.theme.SutokoTypography
+import com.example.sharedelements.theme.SutokoTypography
 import fr.purpletear.sutoko.R
 import fr.purpletear.sutoko.custom.PlayerRankInfo
 import fr.purpletear.sutoko.screens.main.presentation.HomeScreenViewModel

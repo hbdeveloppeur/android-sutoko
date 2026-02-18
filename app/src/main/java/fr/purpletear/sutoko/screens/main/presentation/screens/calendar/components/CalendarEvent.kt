@@ -30,7 +30,7 @@ import coil.request.ImageRequest
 import fr.purpletear.sutoko.R
 import fr.purpletear.sutoko.objects.CalendarEvent
 import fr.purpletear.sutoko.objects.nbPlayersToString
-import com.example.sutokosharedelements.theme.SutokoTypography
+import com.example.sharedelements.theme.SutokoTypography
 
 @Composable
 fun CalendarEvent(event: CalendarEvent, onClick: (CalendarEvent) -> Unit) {

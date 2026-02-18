@@ -6,7 +6,7 @@ import android.app.Activity
 import android.os.Handler
 import android.os.Looper
 import android.widget.Toast
-import com.example.sutokosharedelements.SutokoSharedElementsData
+import com.example.sharedelements.SutokoSharedElementsData
 import com.github.kittinunf.fuel.httpGet
 import com.purpletear.smsgame.R
 import purpletear.fr.purpleteartools.Std

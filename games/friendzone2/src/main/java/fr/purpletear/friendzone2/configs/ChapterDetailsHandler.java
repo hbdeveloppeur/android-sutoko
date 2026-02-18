@@ -10,7 +10,7 @@ package fr.purpletear.friendzone2.configs;
 
 import android.content.Context;
 
-import com.example.sutokosharedelements.OnlineAssetsManager;
+import com.example.sharedelements.OnlineAssetsManager;
 
 import fr.purpletear.friendzone2.R;
 import purpletear.fr.purpleteartools.GlobalData;

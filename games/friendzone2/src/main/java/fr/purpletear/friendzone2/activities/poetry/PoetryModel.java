@@ -4,7 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 
 import com.bumptech.glide.RequestManager;
-import com.example.sutokosharedelements.OnlineAssetsManager;
+import com.example.sharedelements.OnlineAssetsManager;
 
 import fr.purpletear.friendzone2.R;
 import purpletear.fr.purpleteartools.GlobalData;

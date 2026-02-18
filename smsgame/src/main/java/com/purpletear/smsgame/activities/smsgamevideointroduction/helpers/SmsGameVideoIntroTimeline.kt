@@ -3,8 +3,8 @@ package com.purpletear.smsgame.activities.smsgamevideointroduction.helpers
 import android.app.Activity
 import android.os.Handler
 import android.os.Looper
-import com.example.sutokosharedelements.BuildConfig
-import com.example.sutokosharedelements.Data
+import com.example.sharedelements.BuildConfig
+import com.example.sharedelements.Data
 import com.purpletear.smsgame.activities.smsgame.objects.Phrase
 import com.purpletear.smsgame.activities.smsgame.tables.TableOfLinks
 import com.purpletear.smsgame.activities.smsgame.tables.TableOfPhrases

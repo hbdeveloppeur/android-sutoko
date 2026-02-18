@@ -7,8 +7,8 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.view.updateLayoutParams
 import com.airbnb.lottie.LottieAnimationView
 import com.bumptech.glide.RequestManager
-import com.example.sutokosharedelements.SutokoSharedElementsData
-import com.example.sutokosharedelements.GraphicsPreference
+import com.example.sharedelements.SutokoSharedElementsData
+import com.example.sharedelements.GraphicsPreference
 import com.purpletear.smsgame.R
 import com.purpletear.smsgame.databinding.IncUserStoryInfoHeaderBinding
 import com.purpletear.smsgame.activities.smsgame.objects.Story

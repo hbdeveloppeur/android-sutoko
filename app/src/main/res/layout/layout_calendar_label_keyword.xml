@@ -14,7 +14,7 @@
     android:layout_width="24dp"
     android:layout_height="24dp"
     tools:ignore="ContentDescription" />
-    <com.example.sutokosharedelements.fonts.WorkSansLight
+    <com.example.sharedelements.fonts.WorkSansLight
         android:id="@+id/sutoko_calendar_event_label_keyword_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

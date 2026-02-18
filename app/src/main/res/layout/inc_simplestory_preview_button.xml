@@ -14,7 +14,7 @@
             android:orientation="vertical"
             android:gravity="center">
 
-        <com.example.sutokosharedelements.fonts.WorkSansSemiBold
+        <com.example.sharedelements.fonts.WorkSansSemiBold
                 android:id="@+id/sutoko_simplestorypreview_button_title"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -31,7 +31,7 @@
                 android:orientation="horizontal"
                 android:gravity="center">
 
-            <com.example.sutokosharedelements.fonts.WorkSansSemiBold
+            <com.example.sharedelements.fonts.WorkSansSemiBold
                     android:id="@+id/sutoko_simplestorypreview_button_subtitle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"

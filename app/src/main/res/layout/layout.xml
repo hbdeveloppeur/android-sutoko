@@ -18,7 +18,7 @@
         app:srcCompat="@drawable/ic_bug"
         tools:ignore="ContentDescription" />
 
-    <com.example.sutokosharedelements.fonts.WorkSansSemiBold
+    <com.example.sharedelements.fonts.WorkSansSemiBold
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="12dp"

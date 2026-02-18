@@ -41,7 +41,7 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import com.example.sutokosharedelements.theme.SutokoTypography
+import com.example.sharedelements.theme.SutokoTypography
 import com.purpletear.core.presentation.components.icon.Icon
 import com.purpletear.core.presentation.components.icon.IconComposable
 import fr.purpletear.sutoko.R

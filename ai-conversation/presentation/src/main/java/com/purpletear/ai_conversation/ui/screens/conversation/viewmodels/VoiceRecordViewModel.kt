@@ -10,7 +10,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.sutokosharedelements.utils.UiText
+import com.example.sharedelements.utils.UiText
 import com.purpletear.ai_conversation.data.exception.UserNameNotFoundException
 import com.purpletear.ai_conversation.domain.enums.MessageState
 import com.purpletear.ai_conversation.domain.model.messages.entities.Message

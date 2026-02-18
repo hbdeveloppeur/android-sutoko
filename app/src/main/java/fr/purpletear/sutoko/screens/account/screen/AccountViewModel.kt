@@ -7,9 +7,9 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.sutokosharedelements.Data
-import com.example.sutokosharedelements.OnlineAssetsManager
-import com.example.sutokosharedelements.SutokoAppParams
+import com.example.sharedelements.Data
+import com.example.sharedelements.OnlineAssetsManager
+import com.example.sharedelements.SutokoAppParams
 import com.purpletear.core.presentation.extensions.Resource
 import com.purpletear.core.presentation.extensions.awaitFlowResult
 import com.purpletear.core.presentation.extensions.executeFlowResultUseCase

@@ -58,7 +58,7 @@ dependencies {
     implementation "androidx.core:core-ktx:$ktx_core_version"
     implementation 'androidx.media:media:1.6.0'
     implementation "androidx.constraintlayout:constraintlayout:$constraintlayout_version"
-    implementation project(path: ':sutokosharedelements')
+    implementation project(path: ':shared-elements')
     implementation project(path: ':tools')
     implementation "androidx.recyclerview:recyclerview:$recyclerview_version"
     implementation "com.google.code.gson:gson:$gson_version"

@@ -18,8 +18,8 @@ import com.android.billingclient.api.Purchase
 import com.android.billingclient.api.PurchasesUpdatedListener
 import com.android.billingclient.api.QueryProductDetailsParams
 import com.android.billingclient.api.QueryPurchasesParams
-import com.example.sutokosharedelements.BuildConfig
-import com.example.sutokosharedelements.SutokoSharedElementsData
+import com.example.sharedelements.BuildConfig
+import com.example.sharedelements.SutokoSharedElementsData
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.remoteconfig.ktx.remoteConfig
 import com.google.firebase.remoteconfig.ktx.remoteConfigSettings

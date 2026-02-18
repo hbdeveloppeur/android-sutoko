@@ -8,8 +8,8 @@ import android.os.Looper
 import android.util.Log
 import androidx.annotation.Keep
 import com.bumptech.glide.RequestManager
-import com.example.sutokosharedelements.SutokoParams
-import com.example.sutokosharedelements.SutokoSharedElementsData
+import com.example.sharedelements.SutokoParams
+import com.example.sharedelements.SutokoSharedElementsData
 import com.purpletear.smsgame.BuildConfig
 import com.purpletear.smsgame.activities.manga.MangaMessage
 import com.purpletear.smsgame.activities.smsgame.ConversationInterface

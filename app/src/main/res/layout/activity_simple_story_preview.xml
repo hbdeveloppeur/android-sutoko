@@ -8,7 +8,7 @@
             android:layout_height="match_parent"
             tools:context=".screens.storyPreview.StoryPreviewActivity">
 
-        <com.example.sutokosharedelements.views.MediaBackgroundView
+        <com.example.sharedelements.views.MediaBackgroundView
                 android:id="@+id/sutoko_simplestorypreview_background"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent" />
@@ -132,7 +132,7 @@
         </FrameLayout>
 
 
-        <com.example.sutokosharedelements.fonts.WorkSansLight
+        <com.example.sharedelements.fonts.WorkSansLight
                 android:id="@+id/sutoko_simplestory_preview_description"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
@@ -166,7 +166,7 @@
                     android:layout_width="24dp"
                     android:layout_height="24dp" />
 
-            <com.example.sutokosharedelements.fonts.WorkSansSemiBold
+            <com.example.sharedelements.fonts.WorkSansSemiBold
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="6dp"
@@ -195,7 +195,7 @@
                     android:layout_width="24dp"
                     android:layout_height="24dp" />
 
-            <com.example.sutokosharedelements.fonts.WorkSansSemiBold
+            <com.example.sharedelements.fonts.WorkSansSemiBold
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="6dp"
@@ -249,7 +249,7 @@
                 app:layout_constraintStart_toEndOf="@id/_sutoko_simplestorypreview_information_image_container_fix"
                 app:layout_constraintTop_toTopOf="@+id/_sutoko_simplestorypreview_information_image_container_fix">
 
-            <com.example.sutokosharedelements.fonts.WorkSansBold
+            <com.example.sharedelements.fonts.WorkSansBold
                     android:id="@+id/sutoko_simplestory_preview_title_text"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -265,7 +265,7 @@
                     android:orientation="horizontal">
 
 
-                <com.example.sutokosharedelements.fonts.WorkSansLight
+                <com.example.sharedelements.fonts.WorkSansLight
                         android:id="@+id/sutoko_simplestory_downloads_text"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -273,7 +273,7 @@
                         android:textColor="@color/darkModeWhite4"
                         android:textSize="12sp" />
 
-                <com.example.sutokosharedelements.fonts.WorkSansSemiBold
+                <com.example.sharedelements.fonts.WorkSansSemiBold
                         android:id="@+id/sutoko_simplestory_preview_mark_text"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -292,7 +292,7 @@
                         android:alpha="0.6"
                         tools:ignore="ContentDescription" />
 
-                <com.example.sutokosharedelements.fonts.NunitoBold
+                <com.example.sharedelements.fonts.NunitoBold
                         android:id="@+id/sutoko_simplestory_preview_age_restriction_icon"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -309,7 +309,7 @@
                         tools:ignore="SmallSp" />
             </LinearLayout>
 
-            <com.example.sutokosharedelements.fonts.WorkSansBold
+            <com.example.sharedelements.fonts.WorkSansBold
                     android:id="@+id/sutoko_simplestory_preview_nb_chapters"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"

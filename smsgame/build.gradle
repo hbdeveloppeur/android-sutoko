@@ -56,7 +56,7 @@ dependencies {
             strictly '3.21.7'
         }
     }
-    implementation project(path: ':sutokosharedelements')
+    implementation project(path: ':shared-elements')
     implementation project(path: ':tools')
     implementation project(':smartads')
     implementation project(':shop:presentation')

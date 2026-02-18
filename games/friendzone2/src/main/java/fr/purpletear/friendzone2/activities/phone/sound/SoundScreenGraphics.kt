@@ -5,7 +5,7 @@ import android.widget.ImageView
 import com.bumptech.glide.RequestManager
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.request.RequestOptions
-import com.example.sutokosharedelements.OnlineAssetsManager
+import com.example.sharedelements.OnlineAssetsManager
 import fr.purpletear.friendzone2.R
 import purpletear.fr.purpleteartools.GlobalData
 

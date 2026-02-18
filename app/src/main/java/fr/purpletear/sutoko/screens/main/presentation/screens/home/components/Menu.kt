@@ -28,7 +28,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.sutokosharedelements.theme.SutokoTypography
+import com.example.sharedelements.theme.SutokoTypography
 import fr.purpletear.sutoko.R
 import fr.purpletear.sutoko.screens.main.domain.popup.util.MainMenuCategory
 

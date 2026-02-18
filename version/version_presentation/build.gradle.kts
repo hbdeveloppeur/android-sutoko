@@ -50,7 +50,7 @@ dependencies {
     implementation(project(":core:presentation"))
     implementation(project(":user:domain"))
     implementation(project(":user:data"))
-    implementation(project(":sutokosharedelements"))
+    implementation(project(":shared-elements"))
     implementation(project(":game:game_presentation"))
     implementation(project(":news:news_presentation"))
 

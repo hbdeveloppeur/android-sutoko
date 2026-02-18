@@ -53,7 +53,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.example.sutokosharedelements.theme.Poppins
+import com.example.sharedelements.theme.Poppins
 import com.purpletear.ai_conversation.ui.theme.PinkColor
 import com.purpletear.core.presentation.components.video.VideoComponent
 import com.purpletear.game_presentation.viewmodels.GameAnnounceCardViewModel

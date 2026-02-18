@@ -3,7 +3,7 @@ package com.purpletear.smsgame.activities.smsgame.objects
 import android.os.Parcelable
 import android.text.format.DateFormat
 import androidx.annotation.Keep
-import com.example.sutokosharedelements.OnlineAssetsManager
+import com.example.sharedelements.OnlineAssetsManager
 import com.google.firebase.firestore.PropertyName
 import com.purpletear.smsgame.BuildConfig
 import kotlinx.parcelize.Parcelize

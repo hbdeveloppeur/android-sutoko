@@ -4,8 +4,8 @@ import android.app.Activity
 import android.content.Context
 import com.bumptech.glide.Glide
 import com.bumptech.glide.RequestManager
-import com.example.sutokosharedelements.OnlineAssetsManager
-import com.example.sutokosharedelements.tables.trophies.TableOfCollectedTrophies
+import com.example.sharedelements.OnlineAssetsManager
+import com.example.sharedelements.tables.trophies.TableOfCollectedTrophies
 import friendzone3.purpletear.fr.friendzon3.Load
 import friendzone3.purpletear.fr.friendzon3.R
 import friendzone3.purpletear.fr.friendzon3.custom.Phrase

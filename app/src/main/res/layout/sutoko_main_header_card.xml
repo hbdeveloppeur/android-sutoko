@@ -48,7 +48,7 @@
         app:layout_constraintTop_toTopOf="parent" />
 
 
-    <com.example.sutokosharedelements.fonts.WorkSansRegular
+    <com.example.sharedelements.fonts.WorkSansRegular
         android:id="@+id/sutoko.header.text.title"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -71,7 +71,7 @@
         app:layout_constraintVertical_bias="0.45"
         tools:ignore="UnusedAttribute" />
 
-    <com.example.sutokosharedelements.fonts.WorkSansLight
+    <com.example.sharedelements.fonts.WorkSansLight
         android:id="@+id/sutoko.header.text.catchingPhrase"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -84,7 +84,7 @@
         app:layout_constraintStart_toEndOf="@id/sutoko.guideline3" />
 
 
-    <com.example.sutokosharedelements.fonts.WorkSansLight
+    <com.example.sharedelements.fonts.WorkSansLight
         android:id="@+id/sutoko.header.text.tag"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

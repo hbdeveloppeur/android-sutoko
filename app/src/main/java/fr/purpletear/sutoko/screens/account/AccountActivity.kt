@@ -8,7 +8,7 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import com.example.sutokosharedelements.theme.SutokoTheme
+import com.example.sharedelements.theme.SutokoTheme
 import dagger.hilt.android.AndroidEntryPoint
 import fr.purpletear.sutoko.screens.account.screen.AccountEvents
 import fr.purpletear.sutoko.screens.account.screen.AccountScreen

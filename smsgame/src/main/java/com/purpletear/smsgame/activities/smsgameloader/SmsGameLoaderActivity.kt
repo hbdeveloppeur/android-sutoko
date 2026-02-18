@@ -8,7 +8,7 @@ import androidx.activity.result.ActivityResult
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
-import com.example.sutokosharedelements.Data
+import com.example.sharedelements.Data
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.purpletear.smartads.SmartAdsInterface
 import com.purpletear.smartads.adConsent.AdmobConsent

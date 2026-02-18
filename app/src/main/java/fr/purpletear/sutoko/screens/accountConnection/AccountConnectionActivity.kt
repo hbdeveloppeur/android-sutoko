@@ -6,8 +6,8 @@ import android.os.Bundle
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
-import com.example.sutokosharedelements.Data
-import com.example.sutokosharedelements.User
+import com.example.sharedelements.Data
+import com.example.sharedelements.User
 import com.purpletear.shop.domain.usecase.GetShopBalanceUseCase
 import com.purpletear.sutoko.user.repository.UserRepository
 import dagger.hilt.android.AndroidEntryPoint

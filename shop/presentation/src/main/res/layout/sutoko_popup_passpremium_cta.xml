@@ -77,7 +77,7 @@
 
             />
 
-        <com.example.sutokosharedelements.fonts.WorkSansSemiBold
+        <com.example.sharedelements.fonts.WorkSansSemiBold
             android:id="@+id/sutoko.popup.button"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

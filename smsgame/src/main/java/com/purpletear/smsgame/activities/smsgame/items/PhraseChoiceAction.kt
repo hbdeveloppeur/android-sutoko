@@ -6,8 +6,8 @@ import android.os.Looper
 import android.view.View
 import android.widget.TextView
 import com.bumptech.glide.RequestManager
-import com.example.sutokosharedelements.SmsGameTreeStructure
-import com.example.sutokosharedelements.GraphicsPreference
+import com.example.sharedelements.SmsGameTreeStructure
+import com.example.sharedelements.GraphicsPreference
 import com.purpletear.smsgame.R
 import com.purpletear.smsgame.activities.smsgame.objects.ChoiceAction
 import purpletear.fr.purpleteartools.FingerV2

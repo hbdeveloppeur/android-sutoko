@@ -18,7 +18,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <com.example.sutokosharedelements.fonts.WorkSansRegular
+    <com.example.sharedelements.fonts.WorkSansRegular
         android:id="@+id/sutoko.simplestorypreview.rank.title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -30,7 +30,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <com.example.sutokosharedelements.fonts.WorkSansRegular
+    <com.example.sharedelements.fonts.WorkSansRegular
         android:id="@+id/sutoko.simplestorypreview.rank.score.wrong"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -43,7 +43,7 @@
         app:layout_constraintStart_toEndOf="@id/sutoko.simplestorypreview.rank.central_guideline"
         app:layout_constraintTop_toBottomOf="@id/sutoko.simplestorypreview.rank.title" />
 
-    <com.example.sutokosharedelements.fonts.WorkSansRegular
+    <com.example.sharedelements.fonts.WorkSansRegular
         android:id="@+id/sutoko.simplestorypreview.rank.right.score"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -84,7 +84,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/sutoko.simplestorypreview.rank.right.score" />
 
-    <com.example.sutokosharedelements.fonts.WorkSansRegular
+    <com.example.sharedelements.fonts.WorkSansRegular
         android:id="@+id/sutoko.simplestorypreview.rank.score.wrong.label"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -94,7 +94,7 @@
         app:layout_constraintStart_toStartOf="@id/sutoko.simplestorypreview.rank.score.wrong"
         app:layout_constraintTop_toBottomOf="@id/sutoko.simplestorypreview.rank.score.wrong.bar" />
 
-    <com.example.sutokosharedelements.fonts.WorkSansRegular
+    <com.example.sharedelements.fonts.WorkSansRegular
         android:id="@+id/sutoko.simplestorypreview.rank.score.right.label"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

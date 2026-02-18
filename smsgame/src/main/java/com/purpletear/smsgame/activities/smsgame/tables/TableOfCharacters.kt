@@ -10,8 +10,8 @@ import java.io.*
 import java.lang.IllegalStateException
 import java.util.ArrayList
 import com.google.gson.reflect.TypeToken
-import com.example.sutokosharedelements.SmsGameTreeStructure
-import com.example.sutokosharedelements.SmsGameTreeStructure.Companion.userStorCharactersFileName
+import com.example.sharedelements.SmsGameTreeStructure
+import com.example.sharedelements.SmsGameTreeStructure.Companion.userStorCharactersFileName
 import com.purpletear.smsgame.activities.smsgame.objects.StoryCharacter
 import purpletear.fr.purpleteartools.CFiles
 

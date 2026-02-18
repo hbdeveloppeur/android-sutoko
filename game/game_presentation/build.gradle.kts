@@ -56,7 +56,7 @@ dependencies {
     implementation(project(":shop:domain"))
     implementation(project(":shop:data"))
     implementation(project(":shop:presentation"))
-    implementation(project(":sutokosharedelements"))
+    implementation(project(":shared-elements"))
 
     implementation(libs.androidx.ktx)
     implementation(libs.androidx.appcompat)

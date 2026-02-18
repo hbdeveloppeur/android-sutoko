@@ -7,7 +7,7 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
-import com.example.sutokosharedelements.utils.UiText
+import com.example.sharedelements.utils.UiText
 import com.purpletear.ai_conversation.domain.model.AiCharacter
 import com.purpletear.ai_conversation.domain.usecase.DeleteCharacterUseCase
 import com.purpletear.ai_conversation.presentation.R

@@ -6,7 +6,7 @@
     android:layout_height="wrap_content"
     tools:viewBindingIgnore="true">
 
-    <com.example.sutokosharedelements.fonts.WorkSansSemiBold
+    <com.example.sharedelements.fonts.WorkSansSemiBold
         android:id="@+id/sutoko.phrase.info.text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

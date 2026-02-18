@@ -19,8 +19,8 @@ import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.RequestManager;
-import com.example.sutokosharedelements.OnlineAssetsManager;
-import com.example.sutokosharedelements.tables.trophies.TrophyItemDecoration;
+import com.example.sharedelements.OnlineAssetsManager;
+import com.example.sharedelements.tables.trophies.TrophyItemDecoration;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -177,7 +177,7 @@ public class ConversationAdapter extends RecyclerView.Adapter<ConversationAdapte
                 inflated = LayoutInflater.from(parent.getContext()).inflate(R.layout.fz3_phrase_warning, parent, false);
                 break;
             case trophy:
-                inflated = LayoutInflater.from(parent.getContext()).inflate(com.example.sutokosharedelements.R.layout.inc_trophy_unlocked, parent, false);
+                inflated = LayoutInflater.from(parent.getContext()).inflate(com.example.sharedelements.R.layout.inc_trophy_unlocked, parent, false);
                 break;
             default:
                 throw new IllegalArgumentException("Unknown Phrase.Type in ConversationAdapter.onCreateViewHolder");

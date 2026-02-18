@@ -12,8 +12,8 @@ import android.app.Activity
 import android.content.Context
 import android.os.Bundle
 import com.bumptech.glide.RequestManager
-import com.example.sutokosharedelements.SutokoSharedElementsData
-import com.example.sutokosharedelements.tables.trophies.TableOfCollectedTrophies
+import com.example.sharedelements.SutokoSharedElementsData
+import com.example.sharedelements.tables.trophies.TableOfCollectedTrophies
 import fr.purpletear.friendzone.Data
 import fr.purpletear.friendzone.R
 import fr.purpletear.friendzone.config.*

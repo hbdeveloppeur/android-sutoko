@@ -148,7 +148,7 @@
         app:layout_constraintTop_toTopOf="@id/sutoko.toolbox.buttons.points.icon.patron"
         app:srcCompat="@drawable/ic_logo_white" />
 
-    <com.example.sutokosharedelements.fonts.RobotoBold
+    <com.example.sharedelements.fonts.RobotoBold
         android:id="@+id/sutoko.toolbox.buttons.points.text"
         android:layout_width="0dp"
         android:layout_height="23dp"

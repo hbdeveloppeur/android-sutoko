@@ -18,7 +18,7 @@
             tools:ignore="ContentDescription"/>
 
 
-    <com.example.sutokosharedelements.fonts.RobotoBold
+    <com.example.sharedelements.fonts.RobotoBold
             android:id="@+id/sutoko.account.row.text.title"
             app:layout_constraintTop_toTopOf="@id/sutoko.account.row.icon"
             app:layout_constraintBottom_toBottomOf="@id/sutoko.account.row.icon"
@@ -30,7 +30,7 @@
             android:letterSpacing="0.05"
     />
 
-    <com.example.sutokosharedelements.fonts.RobotoRegular
+    <com.example.sharedelements.fonts.RobotoRegular
             android:id="@+id/sutoko.account.row.text.description"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -64,7 +64,7 @@
             tools:ignore="UnusedAttribute"/>
 
 
-    <com.example.sutokosharedelements.fonts.RobotoRegular
+    <com.example.sharedelements.fonts.RobotoRegular
             android:id="@+id/sutoko.account.row.button.text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

@@ -23,7 +23,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
-import com.example.sutokosharedelements.utils.UiText
+import com.example.sharedelements.utils.UiText
 import com.purpletear.ai_conversation.presentation.R
 
 @Composable

@@ -8,7 +8,7 @@
         android:background="#9d3c4d"
         app:layoutDescription="@xml/activity_shop_scene_fix">
 
-        <com.example.sutokosharedelements.views.MediaBackgroundView
+        <com.example.sharedelements.views.MediaBackgroundView
             android:id="@+id/sutoko_shop_background"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
@@ -26,7 +26,7 @@
 
             />
 
-        <com.example.sutokosharedelements.fonts.PoppinsSemiBold
+        <com.example.sharedelements.fonts.PoppinsSemiBold
             android:id="@+id/sutoko_shop_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -41,7 +41,7 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
-        <com.example.sutokosharedelements.fonts.PoppinsRegular
+        <com.example.sharedelements.fonts.PoppinsRegular
             android:id="@+id/sutoko_shop_subtitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -83,7 +83,7 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/sutoko_shop_subtitle">
 
-            <com.example.sutokosharedelements.fonts.PoppinsBoldAnimated
+            <com.example.sharedelements.fonts.PoppinsBoldAnimated
                 android:id="@+id/sutoko_coins"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -101,7 +101,7 @@
                 android:src="@drawable/sutoko_item_coin"
                 tools:ignore="ContentDescription" />
 
-            <com.example.sutokosharedelements.fonts.PoppinsBoldAnimated
+            <com.example.sharedelements.fonts.PoppinsBoldAnimated
                 android:id="@+id/sutoko_diamonds"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"

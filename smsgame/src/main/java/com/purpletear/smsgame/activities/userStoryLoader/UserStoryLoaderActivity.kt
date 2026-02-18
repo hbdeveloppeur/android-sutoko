@@ -5,7 +5,7 @@ import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
-import com.example.sutokosharedelements.Data
+import com.example.sharedelements.Data
 import com.purpletear.smsgame.activities.smsgame.objects.Story
 
 class UserStoryLoaderActivity : AppCompatActivity() {

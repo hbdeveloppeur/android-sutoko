@@ -7,7 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.RequestManager
-import com.example.sutokosharedelements.SutokoParams
+import com.example.sharedelements.SutokoParams
 import com.purpletear.smsgame.R
 import com.purpletear.smsgame.activities.smsgame.ConversationInterface
 import com.purpletear.smsgame.activities.smsgame.items.PhraseChoiceAction

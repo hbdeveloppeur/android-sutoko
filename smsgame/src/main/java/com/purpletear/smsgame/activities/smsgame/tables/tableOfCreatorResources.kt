@@ -4,7 +4,7 @@ import android.os.Handler
 import android.os.Looper
 import android.os.Parcel
 import android.os.Parcelable
-import com.example.sutokosharedelements.SutokoSharedElementsData
+import com.example.sharedelements.SutokoSharedElementsData
 import com.github.kittinunf.fuel.httpGet
 import com.github.kittinunf.result.Result
 import com.google.gson.Gson

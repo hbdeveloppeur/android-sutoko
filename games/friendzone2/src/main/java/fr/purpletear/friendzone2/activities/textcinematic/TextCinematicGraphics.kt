@@ -11,7 +11,7 @@ import com.bumptech.glide.request.RequestOptions
 import com.bumptech.glide.request.target.Target.SIZE_ORIGINAL
 import fr.purpletear.friendzone2.R
 import android.animation.ValueAnimator
-import com.example.sutokosharedelements.OnlineAssetsManager
+import com.example.sharedelements.OnlineAssetsManager
 import fr.purpletear.friendzone2.tables.Character
 import purpletear.fr.purpleteartools.*
 

@@ -73,7 +73,7 @@
             tools:ignore="ContentDescription" />
 
 
-        <com.example.sutokosharedelements.fonts.PoppinsBold
+        <com.example.sharedelements.fonts.PoppinsBold
             android:id="@+id/sutoko_coins_card_large_name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -104,7 +104,7 @@
                 android:scaleType="centerCrop"
                 tools:ignore="ContentDescription" />
 
-            <com.example.sutokosharedelements.fonts.PoppinsBold
+            <com.example.sharedelements.fonts.PoppinsBold
                 android:id="@+id/sutoko_coins_card_large_gain_info_coins_text"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -122,7 +122,7 @@
                 android:scaleType="centerCrop"
                 tools:ignore="ContentDescription" />
 
-            <com.example.sutokosharedelements.fonts.PoppinsBold
+            <com.example.sharedelements.fonts.PoppinsBold
                 android:id="@+id/sutoko_coins_card_large_gain_info_diamond_text"
 
                 android:layout_width="wrap_content"
@@ -134,7 +134,7 @@
         </LinearLayout>
 
 
-        <com.example.sutokosharedelements.fonts.PoppinsRegular
+        <com.example.sharedelements.fonts.PoppinsRegular
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="6dp"
@@ -150,7 +150,7 @@
             app:layout_constraintStart_toStartOf="@id/sutoko_coins_card_large_gain_info"
             app:layout_constraintTop_toBottomOf="@id/sutoko_coins_card_large_gain_info" />
 
-        <com.example.sutokosharedelements.fonts.PoppinsBold
+        <com.example.sharedelements.fonts.PoppinsBold
             android:id="@+id/sutoko_coins_card_large_button_buy"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

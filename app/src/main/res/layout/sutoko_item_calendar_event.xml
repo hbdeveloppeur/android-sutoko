@@ -26,7 +26,7 @@
     </androidx.cardview.widget.CardView>
 
 
-    <com.example.sutokosharedelements.fonts.WorkSansLight
+    <com.example.sharedelements.fonts.WorkSansLight
         android:id="@+id/sutoko_item_calendar_info_subtitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -37,7 +37,7 @@
         app:layout_constraintBottom_toTopOf="@id/guideline141"
         />
 
-    <com.example.sutokosharedelements.fonts.WorkSansSemiBold
+    <com.example.sharedelements.fonts.WorkSansSemiBold
         android:id="@+id/sutoko_item_calendar_info_chapter"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -49,7 +49,7 @@
         app:layout_constraintBottom_toTopOf="@id/guideline141"
         />
 
-    <com.example.sutokosharedelements.fonts.WorkSansSemiBold
+    <com.example.sharedelements.fonts.WorkSansSemiBold
         android:id="@+id/sutoko_item_calendar_info_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -75,7 +75,7 @@
         app:layout_constraintVertical_bias="0.3"
         tools:ignore="ContentDescription" />
 
-    <com.example.sutokosharedelements.fonts.WorkSansLight
+    <com.example.sharedelements.fonts.WorkSansLight
         android:id="@+id/sutoko_item_calendar_event_icon_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

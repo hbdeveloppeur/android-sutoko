@@ -47,7 +47,7 @@
         android:layout_gravity="center_vertical|end"
         android:orientation="horizontal">
 
-        <com.example.sutokosharedelements.fonts.PoppinsBold
+        <com.example.sharedelements.fonts.PoppinsBold
             android:id="@+id/sutoko_item_nextchapter_cta_text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

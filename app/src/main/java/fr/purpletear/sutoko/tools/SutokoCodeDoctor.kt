@@ -1,7 +1,7 @@
 package fr.purpletear.sutoko.tools
 
 import android.content.Context
-import com.example.sutokosharedelements.SmsGameTreeStructure
+import com.example.sharedelements.SmsGameTreeStructure
 import purpletear.fr.purpleteartools.Language
 import java.io.File
 

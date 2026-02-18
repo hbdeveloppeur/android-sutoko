@@ -4,8 +4,8 @@ import android.app.Activity
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
-import com.example.sutokosharedelements.R
-import com.example.sutokosharedelements.User
+import com.example.sharedelements.R
+import com.example.sharedelements.User
 import com.github.kittinunf.fuel.core.FuelError
 import com.github.kittinunf.fuel.core.requests.CancellableRequest
 import com.github.kittinunf.fuel.httpPost

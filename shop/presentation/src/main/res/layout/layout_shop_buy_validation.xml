@@ -36,7 +36,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
-        <com.example.sutokosharedelements.fonts.PoppinsBold
+        <com.example.sharedelements.fonts.PoppinsBold
             android:id="@+id/title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -46,7 +46,7 @@
             android:textColor="@color/darkModeWhite3"
             android:textSize="22sp" />
 
-        <com.example.sutokosharedelements.fonts.PoppinsBold
+        <com.example.sharedelements.fonts.PoppinsBold
             android:id="@+id/packName"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -81,7 +81,7 @@
             android:paddingEnd="16dp"
             android:paddingBottom="8dp">
 
-            <com.example.sutokosharedelements.fonts.PoppinsBoldAnimated
+            <com.example.sharedelements.fonts.PoppinsBoldAnimated
                 android:id="@+id/coins"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -99,7 +99,7 @@
                 android:scaleType="centerCrop"
                 tools:ignore="ContentDescription" />
 
-            <com.example.sutokosharedelements.fonts.PoppinsBoldAnimated
+            <com.example.sharedelements.fonts.PoppinsBoldAnimated
                 android:id="@+id/diamonds"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -120,7 +120,7 @@
 
         </LinearLayout>
 
-        <com.example.sutokosharedelements.fonts.PoppinsRegular
+        <com.example.sharedelements.fonts.PoppinsRegular
             android:id="@+id/sutoko_auth_warning"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -146,7 +146,7 @@
             android:background="@drawable/sutoko_button_rounded_pink" />
 
 
-        <com.example.sutokosharedelements.fonts.PoppinsBold
+        <com.example.sharedelements.fonts.PoppinsBold
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"

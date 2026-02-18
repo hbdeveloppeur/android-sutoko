@@ -1,0 +1,81 @@
+plugins {
+    id 'com.android.library'
+    id 'org.jetbrains.kotlin.android'
+    id 'kotlin-kapt'
+    id 'kotlin-parcelize'
+    alias libs.plugins.compose.compiler
+}
+
+android {
+    namespace 'com.example.sharedelements'
+    compileSdk 35
+
+    defaultConfig {
+        minSdk 24
+        targetSdk 35
+        multiDexEnabled true
+        consumerProguardFiles "consumer-rules.pro"
+    }
+
+    buildFeatures {
+        dataBinding false
+        viewBinding false
+        compose true
+        buildConfig true
+    }
+    composeOptions {
+        kotlinCompilerExtensionVersion libs.versions.kotlinCompilerExtensionVersion.get()
+    }
+
+    buildTypes {
+        release {
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+
+    android {
+        compileOptions {
+            sourceCompatibility JavaVersion.VERSION_17
+            targetCompatibility JavaVersion.VERSION_17
+        }
+    }
+
+    kotlin {
+        jvmToolchain(17)
+    }
+
+    buildTypes.getByName("release") {
+        debuggable false
+    }
+
+    buildTypes.getByName("debug") {
+        debuggable true
+    }
+}
+
+
+dependencies {
+
+    // Firebase
+    implementation platform(libs.firebase.bom)
+    implementation 'com.google.firebase:firebase-firestore-ktx'
+    implementation 'com.google.firebase:firebase-auth-ktx'
+    implementation 'com.google.firebase:firebase-storage-ktx'
+
+    implementation libs.glide
+    implementation libs.androidx.appcompat
+    implementation libs.androidx.constraintlayout
+    implementation libs.androidx.ktx
+    implementation libs.gson
+
+    // Compose
+    implementation platform(libs.compose.bom)
+
+    implementation libs.compose.ui
+    implementation libs.accompanist.systemuicontroller
+    implementation libs.material.compose
+    implementation libs.compose.ui.tooling.preview
+    implementation project(':tools')
+
+    // Modules
+}

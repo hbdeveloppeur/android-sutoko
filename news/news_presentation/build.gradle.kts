@@ -50,7 +50,7 @@ dependencies {
     implementation(project(":news:news_domain"))
     implementation(project(":core:domain"))
     implementation(project(":core:presentation"))
-    implementation(project(":sutokosharedelements"))
+    implementation(project(":shared-elements"))
 
     implementation(libs.androidx.ktx)
     implementation(libs.androidx.appcompat)

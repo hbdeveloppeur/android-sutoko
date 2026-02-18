@@ -6,7 +6,7 @@ import android.view.ViewGroup
 import android.widget.TextView
 import com.airbnb.lottie.LottieAnimationView
 import com.bumptech.glide.RequestManager
-import com.example.sutokosharedelements.SutokoSharedElementsData
+import com.example.sharedelements.SutokoSharedElementsData
 import com.purpletear.smsgame.R
 import com.purpletear.smsgame.activities.smsgame.ConversationInterface
 import com.purpletear.sutoko.game.model.Game

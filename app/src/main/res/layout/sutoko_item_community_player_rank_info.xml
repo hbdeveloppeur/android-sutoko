@@ -35,7 +35,7 @@
             />
     </FrameLayout>
 
-    <com.example.sutokosharedelements.fonts.NunitoBold
+    <com.example.sharedelements.fonts.NunitoBold
         android:id="@+id/sutoko_item_community_players_rank_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -45,7 +45,7 @@
         android:layout_marginTop="-10dp"
         />
 
-    <com.example.sutokosharedelements.fonts.NunitoBold
+    <com.example.sharedelements.fonts.NunitoBold
         android:id="@+id/sutoko_item_community_players_rank_subtitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

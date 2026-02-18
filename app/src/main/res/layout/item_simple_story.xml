@@ -67,14 +67,14 @@
         android:focusableInTouchMode="false"
         android:clickable="false">
 
-        <com.example.sutokosharedelements.fonts.WorkSansSemiBold
+        <com.example.sharedelements.fonts.WorkSansSemiBold
             android:id="@+id/sutoko.item.simplestory.info.title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textSize="14sp"
             android:textColor="@color/darkModeWhite" />
 
-        <com.example.sutokosharedelements.fonts.WorkSansLight
+        <com.example.sharedelements.fonts.WorkSansLight
             android:id="@+id/sutoko.item.simplestory.info.subtitle"
             android:layout_width="200dp"
             android:layout_height="wrap_content"

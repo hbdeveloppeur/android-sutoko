@@ -16,7 +16,7 @@ import android.view.View
 import android.widget.VideoView
 import androidx.appcompat.app.AppCompatActivity
 import com.bumptech.glide.Glide
-import com.example.sutokosharedelements.SutokoSharedElementsData
+import com.example.sharedelements.SutokoSharedElementsData
 import fr.purpletear.friendzone.BuildConfig.VERSION_CODE
 import fr.purpletear.friendzone.Data
 import fr.purpletear.friendzone.R
@@ -496,7 +496,7 @@ class Main : AppCompatActivity(), MainInterface {
                         val sh = SimpleSound()
                         sh.prepareAndPlay(
                             this@Main,
-                            com.example.sutokosharedelements.R.raw.deduction,
+                            com.example.sharedelements.R.raw.deduction,
                             false,
                             0
                         )

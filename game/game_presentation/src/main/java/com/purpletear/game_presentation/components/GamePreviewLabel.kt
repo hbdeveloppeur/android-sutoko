@@ -18,7 +18,7 @@ import androidx.compose.ui.unit.sp
 import com.purpletear.game_presentation.modifiers.gradientBorder
 import com.purpletear.game_presentation.sealed.Background
 import com.purpletear.game_presentation.sealed.toBrush
-import com.example.sutokosharedelements.R as SharedElementsR
+import com.example.sharedelements.R as SharedElementsR
 
 @Composable
 internal fun GamePreviewLabel(

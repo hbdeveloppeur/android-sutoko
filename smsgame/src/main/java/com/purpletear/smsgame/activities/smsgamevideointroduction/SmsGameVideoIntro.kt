@@ -2,7 +2,7 @@ package com.purpletear.smsgame.activities.smsgamevideointroduction
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import com.example.sutokosharedelements.SmsGameTreeStructure
+import com.example.sharedelements.SmsGameTreeStructure
 import com.google.firebase.crashlytics.ktx.crashlytics
 import com.google.firebase.ktx.Firebase
 import com.purpletear.smsgame.activities.smsgamevideointroduction.helpers.SmsGameVideoIntroCallbacks

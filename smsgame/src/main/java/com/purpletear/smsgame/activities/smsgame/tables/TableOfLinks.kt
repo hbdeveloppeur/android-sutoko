@@ -12,7 +12,7 @@ import android.app.Activity
 import android.os.Parcel
 import android.os.Parcelable
 import androidx.annotation.Keep
-import com.example.sutokosharedelements.SmsGameTreeStructure
+import com.example.sharedelements.SmsGameTreeStructure
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import purpletear.fr.purpleteartools.CFiles

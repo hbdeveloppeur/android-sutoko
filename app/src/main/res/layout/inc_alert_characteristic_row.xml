@@ -29,7 +29,7 @@
         android:layout_weight="8"
 
         >
-        <com.example.sutokosharedelements.fonts.RobotoRegular
+        <com.example.sharedelements.fonts.RobotoRegular
             android:id="@+id/characteristic.text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

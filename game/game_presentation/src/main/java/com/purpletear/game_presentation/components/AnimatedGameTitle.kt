@@ -14,7 +14,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.sp
-import com.example.sutokosharedelements.theme.PlayfairDisplayFontFamily
+import com.example.sharedelements.theme.PlayfairDisplayFontFamily
 import kotlinx.coroutines.delay
 
 

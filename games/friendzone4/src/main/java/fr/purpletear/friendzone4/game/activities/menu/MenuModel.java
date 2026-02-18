@@ -8,7 +8,7 @@ import android.text.Spanned;
 import android.widget.Toast;
 
 import com.bumptech.glide.RequestManager;
-import com.example.sutokosharedelements.SutokoSharedElementsData;
+import com.example.sharedelements.SutokoSharedElementsData;
 
 import fr.purpletear.friendzone4.R;
 import fr.purpletear.friendzone4.factories.Std;

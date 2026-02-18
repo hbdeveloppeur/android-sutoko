@@ -4,7 +4,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.os.Parcelable
 import androidx.appcompat.app.AppCompatActivity
-import com.example.sutokosharedelements.Data
+import com.example.sharedelements.Data
 import com.purpletear.smartads.SmartAdsInterface
 import com.purpletear.sutoko.game.model.Game
 

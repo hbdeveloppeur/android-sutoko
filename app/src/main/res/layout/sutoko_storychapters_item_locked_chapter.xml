@@ -36,7 +36,7 @@
             android:layout_height="22dp"
             tools:ignore="ContentDescription" />
 
-        <com.example.sutokosharedelements.fonts.WorkSansSemiBold
+        <com.example.sharedelements.fonts.WorkSansSemiBold
             android:id="@+id/sutoko.storychapters.item.locked_chapter.title.text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -46,7 +46,7 @@
             android:textSize="17sp" />
     </LinearLayout>
 
-    <com.example.sutokosharedelements.fonts.WorkSansRegular
+    <com.example.sharedelements.fonts.WorkSansRegular
         android:id="@+id/sutoko.storychapters.item.locked_chapter.description.text"
         android:layout_width="0dp"
         android:layout_height="wrap_content"

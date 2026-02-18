@@ -43,7 +43,7 @@
                 android:layout_height="16dp"
                 tools:ignore="ContentDescription" />
 
-            <com.example.sutokosharedelements.fonts.PoppinsBold
+            <com.example.sharedelements.fonts.PoppinsBold
                 android:id="@+id/sutoko_item_nextchapter_unlocked_text"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"

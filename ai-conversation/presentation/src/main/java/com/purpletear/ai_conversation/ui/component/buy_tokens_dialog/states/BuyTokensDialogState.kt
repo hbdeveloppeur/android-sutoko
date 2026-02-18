@@ -1,6 +1,6 @@
 package com.purpletear.ai_conversation.ui.component.buy_tokens_dialog.states
 
-import com.example.sutokosharedelements.utils.UiText
+import com.example.sharedelements.utils.UiText
 import com.purpletear.shop.domain.model.AiMessagePack
 
 sealed class BuyTokensDialogState {

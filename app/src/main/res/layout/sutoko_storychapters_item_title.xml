@@ -7,7 +7,7 @@
     tools:viewBindingIgnore="true"
     android:background="#02FFFFFF">
 
-    <com.example.sutokosharedelements.fonts.WorkSansSemiBold
+    <com.example.sharedelements.fonts.WorkSansSemiBold
         android:id="@+id/sutoko_storychapters.item.title.text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

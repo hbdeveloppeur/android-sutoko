@@ -8,7 +8,7 @@ import android.os.Handler
 import android.os.Looper
 import com.bumptech.glide.Glide
 import com.bumptech.glide.RequestManager
-import com.example.sutokosharedelements.Data
+import com.example.sharedelements.Data
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.FirebaseFirestoreException
 import com.purpletear.smsgame.activities.smsgame.SmsGameActivity

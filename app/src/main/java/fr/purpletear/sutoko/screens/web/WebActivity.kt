@@ -7,12 +7,12 @@ import android.os.Bundle
 import android.os.Parcelable
 import android.webkit.WebViewClient
 import android.widget.Toast
-import com.example.sutokosharedelements.SutokoPlayerPointsManager
-import com.example.sutokosharedelements.SutokoSharedElementsData
+import com.example.sharedelements.SutokoPlayerPointsManager
+import com.example.sharedelements.SutokoSharedElementsData
 import com.google.firebase.FirebaseException
-import com.example.sutokosharedelements.Data
+import com.example.sharedelements.Data
 import fr.purpletear.sutoko.R
-import com.example.sutokosharedelements.SutokoAppParams
+import com.example.sharedelements.SutokoAppParams
 import purpletear.fr.purpleteartools.Std
 import purpletear.fr.purpleteartools.TableOfSymbols
 import java.lang.IllegalStateException

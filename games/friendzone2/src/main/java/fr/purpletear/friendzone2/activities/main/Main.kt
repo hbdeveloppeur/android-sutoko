@@ -17,8 +17,8 @@ import android.view.View
 import android.widget.VideoView
 import androidx.appcompat.app.AppCompatActivity
 import com.bumptech.glide.Glide
-import com.example.sutokosharedelements.OnlineAssetsManager
-import com.example.sutokosharedelements.SutokoSharedElementsData
+import com.example.sharedelements.OnlineAssetsManager
+import com.example.sharedelements.SutokoSharedElementsData
 import fr.purpletear.friendzone2.BuildConfig.VERSION_CODE
 import fr.purpletear.friendzone2.Data
 import fr.purpletear.friendzone2.activities.choice.Choice
@@ -482,7 +482,7 @@ class Main : AppCompatActivity(), MainInterface {
                         model.collectedTrophies.add(this@Main, p.trophyId, GlobalData.Game.FRIENDZONE2.id, VERSION_CODE)
                         model.collectedTrophies.save(this@Main)
                         val sh  = SimpleSound()
-                        sh.prepareAndPlay(this@Main, com.example.sutokosharedelements.R.raw.deduction, false, 0)
+                        sh.prepareAndPlay(this@Main, com.example.sharedelements.R.raw.deduction, false, 0)
                         insert(p, Phrase.Type.trophy)
                     }
                     discussForward(p, isTest)

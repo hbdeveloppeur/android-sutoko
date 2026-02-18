@@ -33,7 +33,7 @@
             android:layout_height="42dp"
             tools:ignore="ContentDescription" />
 
-        <com.example.sutokosharedelements.fonts.WorkSansRegular
+        <com.example.sharedelements.fonts.WorkSansRegular
             android:id="@+id/sutoko.storychapters.header.title.text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

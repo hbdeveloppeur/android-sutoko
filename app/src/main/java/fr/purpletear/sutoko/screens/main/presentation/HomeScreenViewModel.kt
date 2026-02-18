@@ -12,9 +12,9 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.sutokosharedelements.Data
-import com.example.sutokosharedelements.SutokoAppParams
-import com.example.sutokosharedelements.utils.UiText
+import com.example.sharedelements.Data
+import com.example.sharedelements.SutokoAppParams
+import com.example.sharedelements.utils.UiText
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.purpletear.core.presentation.extensions.Resource
 import com.purpletear.core.presentation.extensions.executeFlowUseCase
@@ -220,10 +220,10 @@ class HomeScreenViewModel @Inject constructor(
         this._squareIcons = mutableStateOf(
             ImmutableMap(
                 mapOf(
-                    159 to com.example.sutokosharedelements.R.drawable.logo_card_159,
-                    161 to com.example.sutokosharedelements.R.drawable.logo_card_161,
-                    162 to com.example.sutokosharedelements.R.drawable.logo_card_162,
-                    163 to com.example.sutokosharedelements.R.drawable.logo_card_163,
+                    159 to com.example.sharedelements.R.drawable.logo_card_159,
+                    161 to com.example.sharedelements.R.drawable.logo_card_161,
+                    162 to com.example.sharedelements.R.drawable.logo_card_162,
+                    163 to com.example.sharedelements.R.drawable.logo_card_163,
                 )
             )
         )

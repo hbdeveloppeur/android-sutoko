@@ -9,7 +9,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.example.sutokosharedelements.tables.trophies.TableOfCollectedTrophies;
+import com.example.sharedelements.tables.trophies.TableOfCollectedTrophies;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -155,7 +155,7 @@ class TextCinematicModel {
                         collectedTrophies.add(a, p.getTrophyId(), GlobalData.Game.FRIENDZONE4.getId(), BuildConfig.VERSION_CODE);
                         collectedTrophies.save(a);
                         SimpleSound sh = new SimpleSound();
-                        sh.prepareAndPlay(a, com.example.sutokosharedelements.R.raw.deduction, false, 0);
+                        sh.prepareAndPlay(a, com.example.sharedelements.R.raw.deduction, false, 0);
 
                         if (tableOfLinks.hasAnswer(currentPhrase.getId())) {
                             discuss(a, currentPhrase = tableOfPhrases.getPhrase(tableOfLinks.getDest(p.getId()).get(0)));

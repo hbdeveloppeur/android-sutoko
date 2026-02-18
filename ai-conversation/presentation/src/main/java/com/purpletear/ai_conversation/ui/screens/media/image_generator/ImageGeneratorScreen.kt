@@ -43,7 +43,7 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
-import com.example.sutokosharedelements.utils.UiText
+import com.example.sharedelements.utils.UiText
 import com.purpletear.ai_conversation.presentation.R
 import com.purpletear.ai_conversation.ui.component.coins_indicator.CoinsIndicatorComposable
 import com.purpletear.ai_conversation.ui.component.multiline_input.TextAreaComposable

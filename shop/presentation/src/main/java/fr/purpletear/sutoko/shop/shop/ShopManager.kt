@@ -4,7 +4,7 @@ import android.app.Activity
 import android.widget.Toast
 import com.android.billingclient.api.Purchase
 import com.bumptech.glide.RequestManager
-import com.example.sutokosharedelements.SutokoAppParams
+import com.example.sharedelements.SutokoAppParams
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.firestore.FirebaseFirestore
 import fr.purpletear.sutoko.shop.coinsLogic.CoinsBuyerListener

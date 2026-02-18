@@ -43,7 +43,7 @@ import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.animateLottieCompositionAsState
 import com.airbnb.lottie.compose.rememberLottieComposition
-import com.example.sutokosharedelements.theme.SutokoTypography
+import com.example.sharedelements.theme.SutokoTypography
 import com.purpletear.game_presentation.components.AnimatedGradientBorderBox
 import com.purpletear.game_presentation.components.GradientThemes
 import fr.purpletear.sutoko.R

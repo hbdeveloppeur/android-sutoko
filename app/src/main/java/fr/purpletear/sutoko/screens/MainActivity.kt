@@ -36,10 +36,10 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.android.billingclient.api.BillingClientStateListener
 import com.android.billingclient.api.BillingResult
-import com.example.sutokosharedelements.Data
-import com.example.sutokosharedelements.SutokoAppParams
-import com.example.sutokosharedelements.theme.SutokoTheme
-import com.example.sutokosharedelements.utils.UiText
+import com.example.sharedelements.Data
+import com.example.sharedelements.SutokoAppParams
+import com.example.sharedelements.theme.SutokoTheme
+import com.example.sharedelements.utils.UiText
 import com.purpletear.ai_conversation.presentation.R
 import com.purpletear.ai_conversation.ui.common.utils.executeFlowUseCase
 import com.purpletear.ai_conversation.ui.navigation.AiConversationRouteDestination

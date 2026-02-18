@@ -23,7 +23,7 @@
             app:lottie_rawRes="@raw/coin_animation" />
     </FrameLayout>
 
-    <com.example.sutokosharedelements.fonts.PoppinsBold
+    <com.example.sharedelements.fonts.PoppinsBold
         android:id="@+id/sutoko_coins_button_earn_amount"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

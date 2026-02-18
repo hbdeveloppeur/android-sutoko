@@ -56,7 +56,7 @@ dependencies {
     implementation(libs.android.material)
 
     implementation(libs.androidx.media3.ui)
-    implementation(project(":sutokosharedelements"))
+    implementation(project(":shared-elements"))
     implementation(project(":in_app_purchase:in_app_purchase_domain"))
     implementation(project(":popup:popup_domain"))
     implementation(project(":Framework"))

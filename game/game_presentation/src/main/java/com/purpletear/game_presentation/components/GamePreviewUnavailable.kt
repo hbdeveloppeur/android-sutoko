@@ -14,7 +14,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.sutokosharedelements.theme.PlusJakartaSansFontFamily
+import com.example.sharedelements.theme.PlusJakartaSansFontFamily
 import com.purpletear.game_presentation.R
 import com.purpletear.sutoko.game.model.Chapter
 import java.text.SimpleDateFormat

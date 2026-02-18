@@ -13,7 +13,7 @@
         android:layout_height="32dp"
         tools:ignore="ContentDescription" />
 
-    <com.example.sutokosharedelements.fonts.WorkSansRegular
+    <com.example.sharedelements.fonts.WorkSansRegular
         android:id="@+id/sutoko_inc_choice_icon_text"
         android:layout_width="100dp"
         android:layout_height="wrap_content"

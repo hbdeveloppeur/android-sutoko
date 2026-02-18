@@ -27,7 +27,7 @@
             android:scaleType="centerCrop" />
     </androidx.cardview.widget.CardView>
 
-    <com.example.sutokosharedelements.fonts.WorkSansRegular
+    <com.example.sharedelements.fonts.WorkSansRegular
         android:id="@+id/sutoko.simplestorypreview.information.title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -49,7 +49,7 @@
         app:layout_constraintBottom_toBottomOf="@id/sutoko.simplestorypreview.information.image.container"
         app:layout_constraintStart_toStartOf="@id/sutoko.simplestorypreview.information.title" />
 
-    <com.example.sutokosharedelements.fonts.WorkSansRegular
+    <com.example.sharedelements.fonts.WorkSansRegular
         android:id="@+id/sutoko.simplestorypreview.price"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -63,7 +63,7 @@
         app:layout_constraintTop_toTopOf="@id/sutoko.simplestorypreview.information.icon.game" />
 
 
-    <com.example.sutokosharedelements.fonts.WorkSansRegular
+    <com.example.sharedelements.fonts.WorkSansRegular
         android:id="@+id/sutoko.simplestorypreview.mark"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -104,7 +104,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/sutoko.simplestorypreview.information.image.container">
 
-        <com.example.sutokosharedelements.fonts.WorkSansSemiBold
+        <com.example.sharedelements.fonts.WorkSansSemiBold
             android:id="@+id/sutoko.simplestorypreview.information.chapter_number"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -116,7 +116,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp">
 
-            <com.example.sutokosharedelements.fonts.WorkSansRegular
+            <com.example.sharedelements.fonts.WorkSansRegular
                 android:id="@+id/sutoko.simplestorypreview.information.description"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

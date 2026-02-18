@@ -8,7 +8,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
 import dagger.hilt.android.AndroidEntryPoint
-import com.example.sutokosharedelements.theme.SutokoTheme
+import com.example.sharedelements.theme.SutokoTheme
 
 @AndroidEntryPoint
 class ThemesFlavorActivity : ComponentActivity() {

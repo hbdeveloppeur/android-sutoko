@@ -7,7 +7,7 @@ import android.os.Looper
 import android.view.ViewGroup
 import android.webkit.*
 import com.bumptech.glide.Glide
-import com.example.sutokosharedelements.Data
+import com.example.sharedelements.Data
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import fr.purpletear.sutoko.BuildConfig

@@ -6,7 +6,7 @@
     android:layout_height="80dp"
     tools:viewBindingIgnore="true">
 
-    <com.example.sutokosharedelements.fonts.RobotoRegular
+    <com.example.sharedelements.fonts.RobotoRegular
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:letterSpacing="0.09"

@@ -11,10 +11,10 @@ import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
-import com.example.sutokosharedelements.DarkModeHelper
-import com.example.sutokosharedelements.Data
-import com.example.sutokosharedelements.SmsGameTreeStructure
-import com.example.sutokosharedelements.SutokoSharedElementsData
+import com.example.sharedelements.DarkModeHelper
+import com.example.sharedelements.Data
+import com.example.sharedelements.SmsGameTreeStructure
+import com.example.sharedelements.SutokoSharedElementsData
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.purpletear.smartads.SmartAdsInterface
 import com.purpletear.smartads.adConsent.AdmobConsent

@@ -123,7 +123,7 @@ android {
 
 dependencies {
     // Import the BoM for the Firebase platform
-    implementation project(path: ':sutokosharedelements')
+    implementation project(path: ':shared-elements')
     implementation platform("com.google.firebase:firebase-bom:$firebase_bom_platform_version")
     implementation("com.google.protobuf:protobuf-javalite") {
         version {

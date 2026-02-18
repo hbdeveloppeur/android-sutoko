@@ -2,10 +2,10 @@ package com.purpletear.game_presentation.states
 
 import androidx.annotation.Keep
 import androidx.compose.ui.graphics.Color
-import com.example.sutokosharedelements.utils.UiText
+import com.example.sharedelements.utils.UiText
 import com.purpletear.core.presentation.components.icon.Icon
 import com.purpletear.game_presentation.R
-import com.example.sutokosharedelements.R as SutokoSharedElementsR
+import com.example.sharedelements.R as SutokoSharedElementsR
 
 /**
  * Sealed class representing the different states of a game menu.

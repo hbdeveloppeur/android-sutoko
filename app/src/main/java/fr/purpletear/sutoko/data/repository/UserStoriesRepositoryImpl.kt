@@ -1,7 +1,7 @@
 package fr.purpletear.sutoko.data.repository
 
-import com.example.sutokosharedelements.Data
-import com.example.sutokosharedelements.SutokoSharedElementsData
+import com.example.sharedelements.Data
+import com.example.sharedelements.SutokoSharedElementsData
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
 import com.purpletear.core.presentation.extensions.Resource

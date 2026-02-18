@@ -22,8 +22,8 @@ import androidx.compose.ui.text.PlatformTextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.sutokosharedelements.theme.Pink
-import com.example.sutokosharedelements.theme.SutokoTypography
+import com.example.sharedelements.theme.Pink
+import com.example.sharedelements.theme.SutokoTypography
 
 @Composable
 fun TitleSwitch(

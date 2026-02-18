@@ -5,7 +5,7 @@ import android.os.Parcel
 import android.os.Parcelable
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.example.sutokosharedelements.tables.trophies.TableOfCollectedTrophies
+import com.example.sharedelements.tables.trophies.TableOfCollectedTrophies
 import friendzone3.purpletear.fr.friendzon3.MainActivity.Support
 
 class MainActivityModel() : Parcelable {

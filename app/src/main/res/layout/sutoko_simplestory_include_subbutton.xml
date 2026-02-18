@@ -27,7 +27,7 @@
             android:layout_height="14dp"
             android:alpha="0.8" />
 
-        <com.example.sutokosharedelements.fonts.WorkSansRegular
+        <com.example.sharedelements.fonts.WorkSansRegular
             android:id="@+id/sutoko_simplestorypreview_button_subbutton_text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

@@ -51,7 +51,7 @@
             />
     </androidx.cardview.widget.CardView>
 
-    <com.example.sutokosharedelements.fonts.RobotoCondensedRegular
+    <com.example.sharedelements.fonts.RobotoCondensedRegular
         android:id="@+id/sutoko.squarecard.text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

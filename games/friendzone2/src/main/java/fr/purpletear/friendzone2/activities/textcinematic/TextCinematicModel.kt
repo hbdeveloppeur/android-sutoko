@@ -4,9 +4,9 @@ import android.app.Activity
 import android.content.Context
 import com.bumptech.glide.Glide
 import com.bumptech.glide.RequestManager
-import com.example.sutokosharedelements.OnlineAssetsManager
-import com.example.sutokosharedelements.OnlineAssetsManager.getImageFilePath
-import com.example.sutokosharedelements.tables.trophies.TableOfCollectedTrophies
+import com.example.sharedelements.OnlineAssetsManager
+import com.example.sharedelements.OnlineAssetsManager.getImageFilePath
+import com.example.sharedelements.tables.trophies.TableOfCollectedTrophies
 import fr.purpletear.friendzone2.Data
 import fr.purpletear.friendzone2.R
 import fr.purpletear.friendzone2.configs.Phrase

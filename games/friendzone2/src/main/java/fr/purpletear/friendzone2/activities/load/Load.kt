@@ -13,7 +13,7 @@ import android.os.Bundle
 import android.os.Parcelable
 import androidx.activity.result.ActivityResultLauncher
 import androidx.appcompat.app.AppCompatActivity
-import com.example.sutokosharedelements.SutokoSharedElementsData
+import com.example.sharedelements.SutokoSharedElementsData
 import com.purpletear.smartads.SmartAdsInterface
 import com.purpletear.smartads.adConsent.AdmobConsent
 import fr.purpletear.friendzone2.R

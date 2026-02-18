@@ -3,7 +3,7 @@ package fr.purpletear.friendzone4.factories;
 import android.content.Context;
 import android.content.res.AssetManager;
 
-import com.example.sutokosharedelements.OnlineAssetsManager;
+import com.example.sharedelements.OnlineAssetsManager;
 
 import java.io.IOException;
 import java.io.InputStream;

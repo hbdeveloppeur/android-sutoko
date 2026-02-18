@@ -13,7 +13,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.bumptech.glide.RequestManager
-import com.example.sutokosharedelements.tables.trophies.TrophyItemDecoration
+import com.example.sharedelements.tables.trophies.TrophyItemDecoration
 import fr.purpletear.friendzone.config.Phrase
 import fr.purpletear.friendzone.phrases.*
 import fr.purpletear.friendzone.tables.TableOfCharacters
@@ -110,7 +110,7 @@ class GameConversationAdapter(private var context: Context, private var array: A
             Phrase.Type.meImage -> PhraseMeImage.layoutId
             Phrase.Type.info -> PhraseInfo.layoutId
             Phrase.Type.nextChapter -> PhraseNextChapter.layoutId
-            Phrase.Type.trophy -> com.example.sutokosharedelements.R.layout.inc_trophy_unlocked
+            Phrase.Type.trophy -> com.example.sharedelements.R.layout.inc_trophy_unlocked
 
             else -> throw IllegalStateException("ERROR")
         }

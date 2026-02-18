@@ -1,6 +1,6 @@
 package fr.purpletear.friendzone4.game.activities.load;
 
-import com.example.sutokosharedelements.SutokoSharedElementsData;
+import com.example.sharedelements.SutokoSharedElementsData;
 
 import java.util.ArrayList;
 import java.util.List;

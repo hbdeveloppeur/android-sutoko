@@ -21,7 +21,7 @@ import com.bumptech.glide.load.engine.GlideException
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions.withCrossFade
 import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.target.Target
-import com.example.sutokosharedelements.SutokoSharedElementsData
+import com.example.sharedelements.SutokoSharedElementsData
 import fr.purpletear.sutoko.shop.presentation.R
 import fr.purpletear.sutoko.shop.presentation.databinding.ActivityShopFixedBinding
 import fr.purpletear.sutoko.shop.presentation.databinding.LayoutShopBuyValidationBinding

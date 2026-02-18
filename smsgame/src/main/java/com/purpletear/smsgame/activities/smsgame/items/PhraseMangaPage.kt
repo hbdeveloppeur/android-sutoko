@@ -3,7 +3,7 @@ package com.purpletear.smsgame.activities.smsgame.items
 import android.view.View
 import com.bumptech.glide.RequestManager
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions.withCrossFade
-import com.example.sutokosharedelements.GraphicsPreference
+import com.example.sharedelements.GraphicsPreference
 import com.purpletear.smsgame.R
 import purpletear.fr.purpleteartools.FingerV2
 

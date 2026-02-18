@@ -59,7 +59,7 @@ import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.animateLottieCompositionAsState
 import com.airbnb.lottie.compose.rememberLottieComposition
-import com.example.sutokosharedelements.theme.SutokoTypography
+import com.example.sharedelements.theme.SutokoTypography
 import com.purpletear.sutoko.popup.presentation.R
 import fr.purpletear.sutoko.popup.domain.EditTextPopUp
 import fr.purpletear.sutoko.popup.domain.PopUpIconAnimation

@@ -55,7 +55,7 @@ dependencies {
     implementation libs.androidx.ktx
     implementation libs.androidx.appcompat
     implementation libs.android.material
-    implementation project(path: ':sutokosharedelements')
+    implementation project(path: ':shared-elements')
     implementation project(path: ':tools')
     implementation project(path: ':shop:domain')
     implementation libs.glide

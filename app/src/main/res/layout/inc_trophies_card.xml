@@ -124,7 +124,7 @@
         app:layout_constraintStart_toStartOf="@id/sutoko.trophies.card.cardview" />
 
     <!-- STATE VALIDATED -->
-    <com.example.sutokosharedelements.fonts.RobotoBold
+    <com.example.sharedelements.fonts.RobotoBold
         android:id="@+id/sutoko.trophies.trophy.validated.text.title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -135,7 +135,7 @@
         app:layout_constraintStart_toEndOf="@id/sutoko.trophies.trophy.patron.1"
         app:layout_constraintTop_toBottomOf="@id/sutoko.trophies.trophy.patron.1" />
 
-    <com.example.sutokosharedelements.fonts.RobotoRegular
+    <com.example.sharedelements.fonts.RobotoRegular
         android:id="@+id/sutoko.trophies.trophy.validated.text.short_description"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -148,7 +148,7 @@
         app:layout_constraintHorizontal_bias="0"
         app:layout_constraintStart_toEndOf="@id/sutoko.trophies.trophy.patron.2" />
 
-    <com.example.sutokosharedelements.fonts.RobotoRegular
+    <com.example.sharedelements.fonts.RobotoRegular
         android:id="@+id/sutoko.trophies.trophy.validated.text.whateveryouwannaputhere"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -163,7 +163,7 @@
     <!-- END State Validated -->
 
     <!-- START State Unvalidated -->
-    <com.example.sutokosharedelements.fonts.RobotoBold
+    <com.example.sharedelements.fonts.RobotoBold
         android:id="@+id/sutoko.trophies.trophy.unvalidated.text.title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -176,7 +176,7 @@
         app:layout_constraintTop_toBottomOf="@id/sutoko.trophies.trophy.patron.1"
         app:layout_constraintVertical_bias="0.2" />
 
-    <com.example.sutokosharedelements.fonts.RobotoRegular
+    <com.example.sharedelements.fonts.RobotoRegular
         android:id="@+id/sutoko.trophies.trophy.unvalidated.text.whateveryouwannaputhere"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -200,7 +200,7 @@
         app:layout_constraintEnd_toEndOf="@id/sutoko.trophies.card.cardview"
         app:layout_constraintTop_toTopOf="@id/sutoko.trophies.card.cardview" />
 
-    <com.example.sutokosharedelements.fonts.RobotoRegular
+    <com.example.sharedelements.fonts.RobotoRegular
         android:id="@+id/sutoko.trophies.trophy.validated_opened.text.description"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

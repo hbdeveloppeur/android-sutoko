@@ -8,7 +8,7 @@
     android:orientation="horizontal"
     tools:viewBindingIgnore="true">
 
-    <com.example.sutokosharedelements.fonts.WorkSansRegular
+    <com.example.sharedelements.fonts.WorkSansRegular
         android:id="@+id/sutoko.premium.description.number"
         android:layout_width="32dp"
         android:layout_height="32dp"

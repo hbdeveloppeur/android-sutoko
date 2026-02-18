@@ -21,7 +21,7 @@
             tools:ignore="ContentDescription,UnusedAttribute" />
 
 
-    <com.example.sutokosharedelements.fonts.RobotoBold
+    <com.example.sharedelements.fonts.RobotoBold
             android:id="@+id/sutoko.phrase_dest.name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -33,7 +33,7 @@
             app:layout_constraintStart_toEndOf="@id/sutoko.phrase_dest.avatar.image"
             app:layout_constraintTop_toTopOf="@id/sutoko.phrase_dest.avatar.image" />
 
-    <com.example.sutokosharedelements.fonts.RobotoRegular
+    <com.example.sharedelements.fonts.RobotoRegular
             android:id="@+id/sutoko.phrase_dest.time"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -44,7 +44,7 @@
             app:layout_constraintEnd_toStartOf="@+id/guideline68"
             app:layout_constraintTop_toTopOf="@id/sutoko.phrase_dest.name" />
 
-    <com.example.sutokosharedelements.fonts.WorkSansRegular
+    <com.example.sharedelements.fonts.WorkSansRegular
             android:id="@+id/sutoko.phrase_dest.message"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

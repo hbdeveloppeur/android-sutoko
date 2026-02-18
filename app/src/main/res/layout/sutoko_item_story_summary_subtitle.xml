@@ -6,7 +6,7 @@
     android:layout_height="wrap_content"
     tools:viewBindingIgnore="true">
 
-    <com.example.sutokosharedelements.fonts.WorkSansRegular
+    <com.example.sharedelements.fonts.WorkSansRegular
         android:id="@+id/sutoko_item_story_summary_subtitle_text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

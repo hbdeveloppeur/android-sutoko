@@ -7,7 +7,7 @@ import android.os.Looper
 import android.util.Log
 import androidx.annotation.Keep
 import com.android.billingclient.api.Purchase
-import com.example.sutokosharedelements.User
+import com.example.sharedelements.User
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.SetOptions

@@ -3,7 +3,7 @@ package fr.purpletear.sutoko.helpers
 import android.app.Activity
 import android.os.Handler
 import android.os.Looper
-import com.example.sutokosharedelements.SutokoSharedElementsData
+import com.example.sharedelements.SutokoSharedElementsData
 import com.github.kittinunf.fuel.httpPost
 import fr.purpletear.sutoko.BuildConfig
 import purpletear.fr.purpleteartools.Language

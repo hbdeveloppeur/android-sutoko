@@ -32,7 +32,7 @@
         android:layout_marginStart="18dp"
         />
 
-    <com.example.sutokosharedelements.fonts.NunitoRegular
+    <com.example.sharedelements.fonts.NunitoRegular
         android:id="@+id/item.escape_game.rank.username"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -45,7 +45,7 @@
         android:text="HocineHope"
         />
 
-    <com.example.sutokosharedelements.fonts.NunitoRegular
+    <com.example.sharedelements.fonts.NunitoRegular
         android:id="@+id/item.escape_game.rank.slashes"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -59,7 +59,7 @@
         android:includeFontPadding="false"
         />
 
-    <com.example.sutokosharedelements.fonts.NunitoRegular
+    <com.example.sharedelements.fonts.NunitoRegular
         android:id="@+id/item.escape_game.rank.clock"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -73,7 +73,7 @@
         android:includeFontPadding="false"
         />
 
-    <com.example.sutokosharedelements.fonts.NunitoRegular
+    <com.example.sharedelements.fonts.NunitoRegular
         android:id="@+id/item.escape_game.rank.top"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

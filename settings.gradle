@@ -13,7 +13,7 @@ plugins {
 
 include ':app', ':friendzone1', ':friendzone2', ':friendzone3', ':friendzone4'
 include ':smsgame'
-include ':sutokosharedelements'
+include ':shared-elements'
 
 
 include ':tools'

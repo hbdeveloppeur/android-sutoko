@@ -26,8 +26,8 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.sutokosharedelements.theme.Pink
-import com.example.sutokosharedelements.theme.SutokoTypography
+import com.example.sharedelements.theme.Pink
+import com.example.sharedelements.theme.SutokoTypography
 import fr.purpletear.sutoko.R
 
 

@@ -59,7 +59,7 @@
         android:layout_height="match_parent"
         android:background="#39000000" />
 
-    <com.example.sutokosharedelements.fonts.RobotoRegular
+    <com.example.sharedelements.fonts.RobotoRegular
         android:id="@+id/account_creation.text.form"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -86,7 +86,7 @@
         app:layout_constraintStart_toEndOf="@id/guideline56"
         app:layout_constraintTop_toTopOf="parent">
 
-        <com.example.sutokosharedelements.fonts.RobotoRegular
+        <com.example.sharedelements.fonts.RobotoRegular
             android:id="@+id/account_creation.text.upload"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -99,7 +99,7 @@
             app:layout_constraintVertical_bias="0.6"
             tools:ignore="UnusedAttribute" />
 
-        <com.example.sutokosharedelements.fonts.RobotoRegular
+        <com.example.sharedelements.fonts.RobotoRegular
             android:id="@+id/account_creation.text.upload.2"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -130,7 +130,7 @@
         app:layout_constraintDimensionRatio="H, 1:1"
         app:layout_constraintEnd_toEndOf="parent" />
 
-    <com.example.sutokosharedelements.fonts.RobotoBold
+    <com.example.sharedelements.fonts.RobotoBold
         android:id="@+id/account_creation.button.next"
         android:layout_width="0dp"
         android:layout_height="0dp"
@@ -169,7 +169,7 @@
         app:layout_constraintTop_toTopOf="@+id/sutoko.account.creation.button.loader.patron" />
 
 
-    <com.example.sutokosharedelements.fonts.RobotoRegular
+    <com.example.sharedelements.fonts.RobotoRegular
         android:id="@+id/account_creation.introduction.text"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -188,7 +188,7 @@
         app:layout_constraintVertical_bias="0.44"
         tools:ignore="UnusedAttribute" />
 
-    <com.example.sutokosharedelements.fonts.RobotoRegular
+    <com.example.sharedelements.fonts.RobotoRegular
         android:id="@+id/account_creation.introduction.subtext"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -226,7 +226,7 @@
             app:lottie_loop="true"
             app:lottie_rawRes="@raw/email_confirmation_sent" />
 
-        <com.example.sutokosharedelements.fonts.RobotoRegular
+        <com.example.sharedelements.fonts.RobotoRegular
             android:id="@+id/account_creation.mail_validation.title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -241,7 +241,7 @@
             android:visibility="invisible"
             app:layout_constrainedWidth="true" />
 
-        <com.example.sutokosharedelements.fonts.RobotoRegular
+        <com.example.sharedelements.fonts.RobotoRegular
             android:id="@+id/account_creation.mail_validation.description"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

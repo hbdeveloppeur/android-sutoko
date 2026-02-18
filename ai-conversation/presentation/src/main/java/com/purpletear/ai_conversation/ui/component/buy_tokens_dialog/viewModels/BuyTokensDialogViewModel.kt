@@ -7,7 +7,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.sutokosharedelements.utils.UiText
+import com.example.sharedelements.utils.UiText
 import com.purpletear.ai_conversation.presentation.R
 import com.purpletear.ai_conversation.ui.component.buy_tokens_dialog.events.BuyTokensDialogAbort
 import com.purpletear.ai_conversation.ui.component.buy_tokens_dialog.states.BuyTokensCoinsDialogState

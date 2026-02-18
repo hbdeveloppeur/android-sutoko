@@ -2,7 +2,7 @@ package fr.purpletear.sutoko.tools
 
 import android.app.Activity
 import com.bumptech.glide.RequestManager
-import com.example.sutokosharedelements.GraphicsPreference
+import com.example.sharedelements.GraphicsPreference
 import fr.purpletear.sutoko.R
 import purpletear.fr.purpleteartools.FingerV2
 

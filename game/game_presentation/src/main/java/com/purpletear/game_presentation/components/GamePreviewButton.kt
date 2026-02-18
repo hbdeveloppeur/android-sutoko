@@ -74,7 +74,7 @@ internal fun GamePreviewButton(
                     text = title ?: "",
                     fontFamily = FontFamily(
                         Font(
-                            com.example.sutokosharedelements.R.font.font_worksans_semibold,
+                            com.example.sharedelements.R.font.font_worksans_semibold,
                             FontWeight.SemiBold
                         )
                     ),
@@ -89,7 +89,7 @@ internal fun GamePreviewButton(
                         text = it,
                         fontFamily = FontFamily(
                             Font(
-                                com.example.sutokosharedelements.R.font.font_worksans_regular,
+                                com.example.sharedelements.R.font.font_worksans_regular,
                                 FontWeight.Normal
                             )
                         ),

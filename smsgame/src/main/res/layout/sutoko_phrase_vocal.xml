@@ -16,7 +16,7 @@
         android:transitionName="dontyoubreakingmyheart"
         tools:ignore="ContentDescription" />
 
-    <com.example.sutokosharedelements.fonts.RobotoBold
+    <com.example.sharedelements.fonts.RobotoBold
         android:id="@+id/sutoko.phrase_vocal_me.name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -30,7 +30,7 @@
         app:layout_constraintStart_toEndOf="@id/sutoko.phrase_vocal_me.avatar.image"
         tools:ignore="UnusedAttribute" />
 
-    <com.example.sutokosharedelements.fonts.RobotoRegular
+    <com.example.sharedelements.fonts.RobotoRegular
         android:id="@+id/sutoko.phrase_vocal_me.time"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

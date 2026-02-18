@@ -63,7 +63,7 @@ dependencies {
     implementation 'androidx.cardview:cardview:1.0.0'
     implementation "androidx.core:core-ktx:$ktx_core_version"
     implementation "androidx.constraintlayout:constraintlayout:$constraintlayout_version"
-    implementation project(path: ':sutokosharedelements')
+    implementation project(path: ':shared-elements')
     implementation project(path: ':tools')
     implementation project(':smsgame')
     implementation project(':smartads')

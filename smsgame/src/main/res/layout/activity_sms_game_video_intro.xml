@@ -7,7 +7,7 @@
     android:background="@color/mainActivityBackgroundColor"
     tools:context=".activities.smsgamevideointroduction.SmsGameVideoIntro">
 
-    <com.example.sutokosharedelements.views.MediaBackgroundView
+    <com.example.sharedelements.views.MediaBackgroundView
         android:id="@+id/sutoko_smsgameintro_video_intro"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
@@ -26,7 +26,7 @@
         tools:ignore="ContentDescription" />
 
 
-    <com.example.sutokosharedelements.fonts.NunitoRegular
+    <com.example.sharedelements.fonts.NunitoRegular
         android:id="@+id/sutoko_smsgameintro_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

@@ -37,7 +37,7 @@ import com.purpletear.game_presentation.util.ImmutableList
 import com.purpletear.game_presentation.util.ImmutableMap
 import com.purpletear.game_presentation.viewmodels.GameSquareViewModel
 import com.purpletear.sutoko.game.model.Game
-import com.example.sutokosharedelements.R as SharedR
+import com.example.sharedelements.R as SharedR
 
 
 @Composable

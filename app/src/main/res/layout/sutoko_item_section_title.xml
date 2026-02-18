@@ -8,7 +8,7 @@
     android:paddingTop="6dp"
     android:paddingBottom="4dp">
 
-    <com.example.sutokosharedelements.fonts.WorkSansSemiBold
+    <com.example.sharedelements.fonts.WorkSansSemiBold
         android:id="@+id/sutoko.item.section_title.title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -17,7 +17,7 @@
         app:layout_constraintStart_toEndOf="@id/guideline55"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <com.example.sutokosharedelements.fonts.WorkSansLight
+    <com.example.sharedelements.fonts.WorkSansLight
         android:id="@+id/sutoko.item.section_title.subtitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

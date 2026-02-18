@@ -4,7 +4,7 @@ import android.os.Handler
 import android.os.Looper
 import com.bumptech.glide.Glide
 import com.bumptech.glide.RequestManager
-import com.example.sutokosharedelements.Data
+import com.example.sharedelements.Data
 import com.github.kittinunf.fuel.core.requests.CancellableRequest
 import com.google.firebase.auth.FirebaseAuth
 import fr.purpletear.sutoko.BuildConfig

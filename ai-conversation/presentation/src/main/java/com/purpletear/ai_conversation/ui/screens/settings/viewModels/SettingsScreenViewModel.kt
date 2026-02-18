@@ -7,7 +7,7 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
-import com.example.sutokosharedelements.utils.UiText
+import com.example.sharedelements.utils.UiText
 import com.purpletear.ai_conversation.domain.model.Version
 import com.purpletear.ai_conversation.domain.repository.MessageQueue
 import com.purpletear.ai_conversation.domain.usecase.GetVersionUseCase

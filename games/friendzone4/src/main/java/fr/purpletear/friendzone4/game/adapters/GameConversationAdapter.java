@@ -19,7 +19,7 @@ import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.RequestManager;
-import com.example.sutokosharedelements.tables.trophies.TrophyItemDecoration;
+import com.example.sharedelements.tables.trophies.TrophyItemDecoration;
 
 import java.util.ArrayList;
 
@@ -266,7 +266,7 @@ public class GameConversationAdapter extends RecyclerView.Adapter<GameConversati
                 break;
 
             case trophy:
-                inflated = LayoutInflater.from(parent.getContext()).inflate(com.example.sutokosharedelements.R.layout.inc_trophy_unlocked, parent, false);
+                inflated = LayoutInflater.from(parent.getContext()).inflate(com.example.sharedelements.R.layout.inc_trophy_unlocked, parent, false);
                 break;
             default:
                 throw new IllegalArgumentException("Unknown Phrase.Type in GameConversationAdapter.onCreateViewHolder " + "viewType(" + viewType + ") " + Phrase.determineTypeEnum(viewType).name());

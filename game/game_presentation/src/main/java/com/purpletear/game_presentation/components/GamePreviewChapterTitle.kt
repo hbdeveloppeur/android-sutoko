@@ -18,7 +18,7 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.sutokosharedelements.theme.PlusJakartaSansFontFamily
+import com.example.sharedelements.theme.PlusJakartaSansFontFamily
 
 @Composable
 internal fun GamePreviewChapterTitle(modifier: Modifier = Modifier, text: String) {
@@ -77,7 +77,7 @@ private fun buildColoredAnnotatedString(
                             color = color,
                             fontFamily = FontFamily(
                                 Font(
-                                    com.example.sutokosharedelements.R.font.font_worksans_semibold,
+                                    com.example.sharedelements.R.font.font_worksans_semibold,
                                     FontWeight.SemiBold
                                 )
                             ),

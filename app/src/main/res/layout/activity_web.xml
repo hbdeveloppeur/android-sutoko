@@ -51,7 +51,7 @@
         android:indeterminateTint="@color/chat_main_header_pinkyred"
         tools:ignore="UnusedAttribute" />
 
-    <com.example.sutokosharedelements.fonts.RobotoRegular
+    <com.example.sharedelements.fonts.RobotoRegular
         android:id="@+id/sutoko.web.progressbar.text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

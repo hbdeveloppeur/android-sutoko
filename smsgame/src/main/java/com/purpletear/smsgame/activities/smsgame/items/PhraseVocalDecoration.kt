@@ -8,8 +8,8 @@ import android.widget.TextView
 import androidx.cardview.widget.CardView
 import androidx.constraintlayout.widget.ConstraintLayout
 import com.bumptech.glide.RequestManager
-import com.example.sutokosharedelements.SmsGameTreeStructure
-import com.example.sutokosharedelements.GraphicsPreference
+import com.example.sharedelements.SmsGameTreeStructure
+import com.example.sharedelements.GraphicsPreference
 import com.purpletear.smsgame.R
 import com.purpletear.smsgame.activities.smsgame.objects.Phrase
 import com.purpletear.smsgame.activities.smsgame.objects.StoryCharacter

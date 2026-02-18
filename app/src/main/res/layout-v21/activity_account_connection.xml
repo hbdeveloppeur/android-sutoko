@@ -36,7 +36,7 @@
             android:layout_height="22dp"
             tools:ignore="ContentDescription" />
 
-        <com.example.sutokosharedelements.fonts.PoppinsSemiBold
+        <com.example.sharedelements.fonts.PoppinsSemiBold
             android:id="@+id/sutoko_account_connection_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -44,7 +44,7 @@
             android:textColor="#f2f2f2"
             android:textSize="26sp" />
 
-        <com.example.sutokosharedelements.fonts.PoppinsRegular
+        <com.example.sharedelements.fonts.PoppinsRegular
             android:id="@+id/sutoko_account_connection_subtitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -71,7 +71,7 @@
             android:background="@drawable/sutoko_button_rounded_pink" />
 
 
-        <com.example.sutokosharedelements.fonts.PoppinsBold
+        <com.example.sharedelements.fonts.PoppinsBold
             android:id="@+id/sutoko_account_connection_button_main_text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -105,21 +105,21 @@
         app:layout_constraintStart_toStartOf="@id/sutoko_account_connection_button_main"
         app:layout_constraintTop_toBottomOf="@id/sutoko_account_connection_button_main">
 
-        <com.example.sutokosharedelements.fonts.PoppinsRegular
+        <com.example.sharedelements.fonts.PoppinsRegular
             android:id="@+id/sutoko_account_connection_button_bottom_cta_text0"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:padding="12dp"
             android:textColor="#BEAEBF" />
 
-        <com.example.sutokosharedelements.fonts.PoppinsRegular
+        <com.example.sharedelements.fonts.PoppinsRegular
             android:id="@+id/sutoko_account_connection_button_bottom_cta_text1"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/sutoko_or"
             android:textColor="@color/white" />
 
-        <com.example.sutokosharedelements.fonts.PoppinsRegular
+        <com.example.sharedelements.fonts.PoppinsRegular
             android:id="@+id/sutoko_account_connection_button_bottom_cta_text2"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -317,7 +317,7 @@
             app:lottie_loop="true"
             app:lottie_rawRes="@raw/email_confirmation_sent" />
 
-        <com.example.sutokosharedelements.fonts.PoppinsRegular
+        <com.example.sharedelements.fonts.PoppinsRegular
             android:id="@+id/sutoko_account_connection_mail_confirmation_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -325,7 +325,7 @@
             android:textColor="@color/darkModeWhite2"
             android:textSize="13sp" />
 
-        <com.example.sutokosharedelements.fonts.PoppinsBold
+        <com.example.sharedelements.fonts.PoppinsBold
             android:id="@+id/sutoko_account_connection_mail_confirmation_mail"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -333,7 +333,7 @@
             android:textColor="@color/darkModeWhite2"
             android:textSize="18sp" />
 
-        <com.example.sutokosharedelements.fonts.PoppinsRegular
+        <com.example.sharedelements.fonts.PoppinsRegular
             android:id="@+id/sutoko_account_connection_mail_confirmation_subtitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

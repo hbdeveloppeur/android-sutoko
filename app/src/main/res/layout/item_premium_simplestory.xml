@@ -25,7 +25,7 @@
     </androidx.cardview.widget.CardView>
 
 
-    <com.example.sutokosharedelements.fonts.NunitoBold
+    <com.example.sharedelements.fonts.NunitoBold
         android:id="@+id/sutoko.card.title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -53,7 +53,7 @@
             android:scaleType="centerCrop"
             tools:ignore="ContentDescription" />
 
-        <com.example.sutokosharedelements.fonts.NunitoRegular
+        <com.example.sharedelements.fonts.NunitoRegular
             android:id="@+id/sutoko.card.rate"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -62,7 +62,7 @@
             android:textSize="10sp" />
     </LinearLayout>
 
-    <com.example.sutokosharedelements.fonts.NunitoBold
+    <com.example.sharedelements.fonts.NunitoBold
         android:id="@+id/sutoko.card.chapters.number.text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -72,7 +72,7 @@
         app:layout_constraintStart_toEndOf="@id/guideline119"
         app:layout_constraintTop_toBottomOf="@id/sutoko.card.title" />
 
-    <com.example.sutokosharedelements.fonts.NunitoBold
+    <com.example.sharedelements.fonts.NunitoBold
         android:id="@+id/sutoko.card.catchingphrase.text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -88,7 +88,7 @@
         app:layout_constraintStart_toEndOf="@id/guideline119"
         app:layout_constraintTop_toBottomOf="@id/sutoko.card.chapters.number.text" />
 
-    <com.example.sutokosharedelements.fonts.NunitoBold
+    <com.example.sharedelements.fonts.NunitoBold
         android:id="@+id/sutoko_card_keywords"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

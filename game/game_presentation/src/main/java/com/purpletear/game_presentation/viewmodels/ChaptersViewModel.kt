@@ -3,7 +3,7 @@ package com.purpletear.game_presentation.viewmodels
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.sutokosharedelements.utils.UiText
+import com.example.sharedelements.utils.UiText
 import com.purpletear.core.presentation.extensions.executeFlowUseCase
 import com.purpletear.game_presentation.R
 import com.purpletear.game_presentation.model.ChapterState

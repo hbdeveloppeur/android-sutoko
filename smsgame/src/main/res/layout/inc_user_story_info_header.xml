@@ -14,7 +14,7 @@
         android:layout_marginStart="18dp"
         android:orientation="vertical">
 
-        <com.example.sutokosharedelements.fonts.WorkSansBold
+        <com.example.sharedelements.fonts.WorkSansBold
             android:id="@+id/sutoko_inc_user_story_info_header_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -35,7 +35,7 @@
                 android:layout_height="22dp"
                 tools:ignore="ContentDescription" />
 
-            <com.example.sutokosharedelements.fonts.WorkSansLight
+            <com.example.sharedelements.fonts.WorkSansLight
                 android:id="@+id/sutoko_inc_user_story_info_header_author_nickname"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
