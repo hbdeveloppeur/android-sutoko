@@ -47,7 +47,7 @@ dependencies {
     implementation "androidx.appcompat:appcompat:$appcompat_version"
     implementation "androidx.core:core-ktx:$ktx_core_version"
     implementation project(path: ':sutokosharedelements')
-    implementation project(path: ':PurpleTearTools')
+    implementation project(path: ':tools')
     implementation "androidx.constraintlayout:constraintlayout:$constraintlayout_version"
     implementation "androidx.recyclerview:recyclerview:$recyclerview_version"
     implementation "com.google.code.gson:gson:$gson_version"

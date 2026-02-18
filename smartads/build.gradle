@@ -47,7 +47,7 @@ dependencies {
     // implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
     implementation libs.androidx.appcompat
     implementation libs.androidx.ktx
-    implementation project(path: ':PurpleTearTools')
+    implementation project(path: ':tools')
 
     // ADMOB
     implementation libs.play.services.ads

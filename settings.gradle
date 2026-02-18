@@ -6,6 +6,9 @@ pluginManagement {
         maven { url 'https://jitpack.io' }
     }
 }
+plugins {
+    id 'org.gradle.toolchains.foojay-resolver-convention' version '1.0.0'
+}
 
 
 include ':app', ':friendzone1', ':friendzone2', ':friendzone3', ':friendzone4'
@@ -13,7 +16,7 @@ include ':smsgame'
 include ':sutokosharedelements'
 
 
-include ':PurpleTearTools'
+include ':tools'
 include ':error:presentation'
 include ':alert:alert_presentation'
 include ':popup:popup_domain'

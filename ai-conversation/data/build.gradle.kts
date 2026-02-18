@@ -43,7 +43,7 @@ dependencies {
 
     implementation(project(":ai-conversation:domain"))
     implementation(project(":notification:domain"))
-    implementation(project(":PurpleTearTools"))
+    implementation(project(":tools"))
     implementation(project(":ai-conversation:core"))
 
     implementation(libs.androidx.ktx)

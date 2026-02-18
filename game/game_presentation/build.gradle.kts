@@ -68,7 +68,7 @@ dependencies {
     implementation(project(":popup:popup_domain"))
     implementation(project(":popup:pop_data"))
     implementation(project(":popup:popup_presentation"))
-    implementation(project(":PurpleTearTools"))
+    implementation(project(":tools"))
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

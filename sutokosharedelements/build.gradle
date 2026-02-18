@@ -75,7 +75,7 @@ dependencies {
     implementation libs.accompanist.systemuicontroller
     implementation libs.material.compose
     implementation libs.compose.ui.tooling.preview
-    implementation project(':PurpleTearTools')
+    implementation project(':tools')
 
     // Modules
 }

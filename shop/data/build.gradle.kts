@@ -59,7 +59,7 @@ dependencies {
 
     // Hilt
     implementation(libs.dagger.hilt)
-    implementation(project(":PurpleTearTools"))
+    implementation(project(":tools"))
     kapt(libs.dagger.hilt.compiler)
     kapt(libs.androidx.hilt.compiler)
     implementation(libs.androidx.hilt.work)
