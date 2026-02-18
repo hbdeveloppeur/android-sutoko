@@ -308,7 +308,7 @@ private fun CardDate(modifier: Modifier = Modifier, date: Long) {
             contentAlignment = Alignment.Center,
         ) {
             Image(
-                painter = painterResource(id = com.purpletear.news_presentation.R.drawable.news_calendar),
+                painter = painterResource(id = com.purpletear.news.presentation.R.drawable.news_calendar),
                 contentDescription = null,
                 modifier = Modifier.size(14.dp),
             )

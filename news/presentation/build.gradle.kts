@@ -7,11 +7,12 @@ plugins {
 }
 
 android {
-    namespace = "com.purpletear.version_presentation"
+    namespace = "com.purpletear.news.presentation"
     compileSdk = 35
 
     defaultConfig {
         minSdk = 24
+
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles("consumer-rules.pro")
     }
@@ -46,21 +47,23 @@ android {
 }
 
 dependencies {
+    implementation(project(":news:domain"))
     implementation(project(":core:domain"))
     implementation(project(":core:presentation"))
-    implementation(project(":user:domain"))
-    implementation(project(":user:data"))
     implementation(project(":shared-elements"))
-    implementation(project(":game:game_presentation"))
-    implementation(project(":news:presentation"))
 
-    // Compose + AndroidX
-    val composeBom = platform(libs.compose.bom)
-    implementation(composeBom)
-    androidTestImplementation(composeBom)
     implementation(libs.androidx.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.android.material)
+    implementation(project(":news:data"))
+    testImplementation(libs.junit)
+    androidTestImplementation(libs.androidx.junit)
+    androidTestImplementation(libs.androidx.espresso.core)
+
+    // Compose
+    val composeBom = platform(libs.compose.bom)
+    implementation(composeBom)
+    androidTestImplementation(composeBom)
     implementation(libs.androidx.material3)
     implementation(libs.material.compose)
     implementation(libs.compose.ui.tooling.preview)
@@ -69,6 +72,7 @@ dependencies {
     implementation(libs.androidx.lifecycle.viewmodel.compose)
     implementation(libs.navigation.compose)
     implementation(libs.androidx.constraintlayout.compose)
+
     implementation(libs.compose.ui)
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.runtime)
@@ -83,6 +87,6 @@ dependencies {
     implementation(libs.androidx.hilt.work)
     implementation(libs.androidx.hilt.navigation.compose)
 
-    // Coil for image loading (if needed by callers)
+    // Coil for image loading
     implementation(libs.coil.compose)
 }

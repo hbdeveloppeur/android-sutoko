@@ -52,9 +52,9 @@ include ':notification:data'
 include ':game:game_domain'
 include ':game:game_data'
 include ':game:game_presentation'
-include ':news:news_domain'
-include ':news:news_data'
-include ':news:news_presentation'
+include ':news:domain'
+include ':news:data'
+include ':news:presentation'
 include ':version:version_domain'
 include ':version:version_infrastructure'
 include ':version:version_presentation'
@@ -64,3 +64,6 @@ project(":version:version_infrastructure").projectDir = new File(rootDir, "versi
 project(":version:version_presentation").projectDir = new File(rootDir, "version/version_presentation")
 project(":in-app-purchase:domain").projectDir = new File(rootDir, "in-app-purchase/domain")
 project(":in-app-purchase:data").projectDir = new File(rootDir, "in-app-purchase/data")
+project(":news:domain").projectDir = new File(rootDir, "news/domain")
+project(":news:data").projectDir = new File(rootDir, "news/data")
+project(":news:presentation").projectDir = new File(rootDir, "news/presentation")

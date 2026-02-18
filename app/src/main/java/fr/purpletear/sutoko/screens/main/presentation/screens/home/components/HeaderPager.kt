@@ -10,7 +10,7 @@ import androidx.compose.ui.unit.dp
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.rememberPagerState
-import com.purpletear.news_presentation.components.NewsCard
+import com.purpletear.news.presentation.components.NewsCard
 import com.purpletear.sutoko.core.domain.appaction.AppAction
 import com.purpletear.sutoko.news.model.News
 import fr.purpletear.sutoko.presentation.util.LogCompositions

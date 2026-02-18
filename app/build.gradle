@@ -278,7 +278,7 @@ dependencies {
     implementation project(path: ':core:core_data')
     implementation project(path: ':notification:domain')
     implementation project(path: ':notification:data')
-    implementation project(path: ':news:news_domain')
-    implementation project(path: ':news:news_data')
-    implementation project(path: ':news:news_presentation')
+    implementation project(path: ':news:domain')
+    implementation project(path: ':news:data')
+    implementation project(path: ':news:presentation')
 }
