@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -49,8 +50,8 @@ internal fun StoryCard(
             contentDescription = null,
             contentScale = ContentScale.Crop,
             modifier = Modifier
-                .size(64.dp)
-                .clip(RoundedCornerShape(12.dp))
+                .size(48.dp)
+                .clip(RoundedCornerShape(8.dp))
         )
 
         Column(
@@ -61,15 +62,19 @@ internal fun StoryCard(
                 text = title,
                 fontFamily = Poppins,
                 fontWeight = FontWeight.SemiBold,
-                fontSize = 16.sp,
-                color = Color.White
+                fontSize = 14.sp,
+                color = Color.White,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
             )
             Text(
                 text = author,
                 fontFamily = Poppins,
                 fontWeight = FontWeight.Normal,
-                fontSize = 14.sp,
-                color = Color(0xFF9CA3AF)
+                fontSize = 12.sp,
+                color = Color(0xFF9CA3AF),
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
             )
         }
 
@@ -77,17 +82,17 @@ internal fun StoryCard(
             text = "Get",
             fontFamily = Poppins,
             fontWeight = FontWeight.Medium,
-            fontSize = 14.sp,
+            fontSize = 12.sp,
             color = Color.White,
             modifier = Modifier
-                .clip(RoundedCornerShape(20.dp))
+                .clip(RoundedCornerShape(16.dp))
                 .background(Color(0xFF2A2A2A))
                 .clickable(
                     interactionSource = remember { MutableInteractionSource() },
                     indication = null,
                     onClick = onGetClick
                 )
-                .padding(horizontal = 20.dp, vertical = 10.dp)
+                .padding(horizontal = 14.dp, vertical = 6.dp)
         )
     }
 }
