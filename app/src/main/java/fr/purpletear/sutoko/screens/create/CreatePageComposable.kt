@@ -3,11 +3,11 @@ package fr.purpletear.sutoko.screens.create
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -17,7 +17,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import androidx.compose.foundation.layout.padding
 import fr.purpletear.sutoko.R
 import fr.purpletear.sutoko.screens.create.components.section_title.SectionTitle
 import fr.purpletear.sutoko.screens.main.presentation.screens.TopNavigation
@@ -35,28 +34,32 @@ internal fun CreatePageComposable(modifier: Modifier = Modifier) {
     ) {
         Background()
 
-        Column(
+        LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
-                .systemBarsPadding()
+                .padding(top = 12.dp),
         ) {
-            TopNavigation(
-                modifier = Modifier
-                    .padding(horizontal = 16.dp)
-                    .padding(top = 12.dp),
-                coins = 960,
-                diamonds = 0,
-                isLoading = false,
-                onAccountButtonPressed = { /* TODO */ },
-                onCoinsButtonPressed = { /* TODO: Navigate to shop */ },
-                onDiamondsButtonPressed = { /* TODO */ },
-                onOptionsButtonPressed = { /* TODO: Show options menu */ }
-            )
+            item {
+                TopNavigation(
+                    modifier = Modifier
+                        .padding(horizontal = 16.dp)
+                        .padding(start = 8.dp),
+                    coins = 960,
+                    diamonds = 0,
+                    isLoading = false,
+                    onAccountButtonPressed = { /* TODO */ },
+                    onCoinsButtonPressed = { /* TODO: Navigate to shop */ },
+                    onDiamondsButtonPressed = { /* TODO */ },
+                    onOptionsButtonPressed = { /* TODO: Show options menu */ }
+                )
+            }
 
-            SectionTitle(
-                text = "Histoires de la communauté",
-                modifier = Modifier.padding(top = 8.dp)
-            )
+            item {
+                SectionTitle(
+                    text = "Histoires de la communauté",
+                    modifier = Modifier.padding(top = 16.dp)
+                )
+            }
         }
     }
 }

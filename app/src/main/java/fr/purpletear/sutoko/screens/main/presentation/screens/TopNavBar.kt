@@ -31,7 +31,7 @@ const val AccountTestTag = "AccountTestTag"
 
 @Composable
 fun TopNavigation(
-    modifier: Modifier,
+    modifier: Modifier = Modifier,
     coins: Int,
     diamonds: Int,
     isLoading: Boolean,
