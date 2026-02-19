@@ -5,10 +5,9 @@ import android.os.Bundle
 import android.os.Parcelable
 import androidx.appcompat.app.AppCompatActivity
 import com.example.sharedelements.Data
-import com.purpletear.smartads.SmartAdsInterface
 import com.purpletear.sutoko.game.model.Game
 
-class SmsGameTransition : AppCompatActivity(), SmartAdsInterface {
+class SmsGameTransition : AppCompatActivity() {
     private var isGranted: Boolean = false
     private lateinit var card: Game
 
@@ -23,8 +22,10 @@ class SmsGameTransition : AppCompatActivity(), SmartAdsInterface {
     override fun onWindowFocusChanged(hasFocus: Boolean) {
         super.onWindowFocusChanged(hasFocus)
         if (hasFocus) {
-            // smartAds.startAdIfNecessary(this, card.id, isGranted)
-            onAdSuccessfullyWatched()
+            val intent = Intent(this, SmsGameActivity::class.java)
+            intent.putExtra(Data.Companion.Extra.ITEM.id, card as Parcelable)
+            startActivityForResult(intent, 123)
+            overridePendingTransition(0, 0)
         }
     }
 
@@ -47,24 +48,5 @@ class SmsGameTransition : AppCompatActivity(), SmartAdsInterface {
     override fun onRestoreInstanceState(savedInstanceState: Bundle) {
         super.onRestoreInstanceState(savedInstanceState)
         isGranted = (savedInstanceState.getBoolean("isGranted", false))
-    }
-
-    override fun onAdAborted() {
-        finish()
-    }
-
-    override fun onAdSuccessfullyWatched() {
-        val intent = Intent(this, SmsGameActivity::class.java)
-        intent.putExtra(Data.Companion.Extra.ITEM.id, card as Parcelable)
-        startActivityForResult(intent, 123)
-        overridePendingTransition(0, 0)
-    }
-
-    override fun onAdRemovedPaid() {
-        isGranted = true
-    }
-
-    override fun onErrorFound(code: String?, message: String?, adUnit: String?) {
-
     }
 }

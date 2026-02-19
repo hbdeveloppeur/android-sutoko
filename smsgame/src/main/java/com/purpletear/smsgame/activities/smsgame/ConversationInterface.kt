@@ -94,6 +94,5 @@ interface ConversationInterface {
     fun onMangaPageButtonPressed(filename: String)
     fun onIntroFound(id: Int)
     fun onNextChapterPressed()
-    fun onWatchAdsForDiamonds(id: Int)
 
 }

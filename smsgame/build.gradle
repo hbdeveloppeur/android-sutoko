@@ -58,7 +58,7 @@ dependencies {
     }
     implementation project(path: ':shared-elements')
     implementation project(path: ':tools')
-    implementation project(':smartads')
+    // implementation project(':smartads')  // REMOVED: SmartAds dependency removed
     implementation project(':shop:presentation')
     implementation project(':game:domain')
     implementation project(':core:domain')

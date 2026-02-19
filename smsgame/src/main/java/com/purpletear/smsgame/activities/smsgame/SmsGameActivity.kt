@@ -16,8 +16,6 @@ import com.example.sharedelements.Data
 import com.example.sharedelements.SmsGameTreeStructure
 import com.example.sharedelements.SutokoSharedElementsData
 import com.google.firebase.analytics.FirebaseAnalytics
-import com.purpletear.smartads.SmartAdsInterface
-import com.purpletear.smartads.adConsent.AdmobConsent
 import com.purpletear.smsgame.R
 import com.purpletear.smsgame.activities.manga.MangaPageActivity
 import com.purpletear.smsgame.activities.previewVisualMedia.PreviewVisualMedias
@@ -52,7 +50,7 @@ import java.io.Serializable
 
 
 class SmsGameActivity : AppCompatActivity(), ConversationInterface, ChoiceControllerInterface,
-    SmsGamePhraseVocalListener, SmartAdsInterface, CustomerCallbacks {
+    SmsGamePhraseVocalListener, CustomerCallbacks {
     lateinit var binding: ActivitySmsGameBinding
     private lateinit var firebaseAnalytics: FirebaseAnalytics
     private lateinit var model: SmsGameModel
@@ -60,7 +58,6 @@ class SmsGameActivity : AppCompatActivity(), ConversationInterface, ChoiceContro
     private var shouldProvokNextOnFirstStart: Boolean = true
     private lateinit var mangaActivityResultLauncher: ActivityResultLauncher<Intent>
     private lateinit var introActivityResultLauncher: ActivityResultLauncher<Intent>
-    private lateinit var adsActivityResultLauncher: ActivityResultLauncher<Intent>
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -70,7 +67,6 @@ class SmsGameActivity : AppCompatActivity(), ConversationInterface, ChoiceContro
 
         this.mangaActivityResultLauncher = this.registerMangaActivityResultLauncher()
         this.introActivityResultLauncher = this.registerIntroActivityResultLauncher()
-        this.adsActivityResultLauncher = AdmobConsent.registerActivityResultLauncher(this, this)
 
         setContentView(binding.root)
         Std.hideStatusBar(this)
@@ -197,10 +193,6 @@ class SmsGameActivity : AppCompatActivity(), ConversationInterface, ChoiceContro
     override fun onNextChapterPressed() {
         setResult(Activity.RESULT_OK)
         this.model.goToNextChapter(this@SmsGameActivity)
-    }
-
-    override fun onWatchAdsForDiamonds(id: Int) {
-        AdmobConsent.start(this, this.adsActivityResultLauncher)
     }
 
     override fun onUserInputRequestFound(symboleName: String) {
@@ -1068,53 +1060,4 @@ class SmsGameActivity : AppCompatActivity(), ConversationInterface, ChoiceContro
         }
     }
 
-    override fun onAdAborted() {
-
-    }
-
-    override fun onAdSuccessfullyWatched() {
-        // Display filter + progressbar
-        SmsGameGraphics.setLoadingScreenVisibility(this, true)
-        this.model.conversation.adapter.reloadLastItem()
-        this.model.customer.onSeenAds(this, 30) { isSuccessful, exception ->
-            if (this.isFinishing) {
-                return@onSeenAds
-            }
-            // Hide filter + progressbar
-            SmsGameGraphics.setLoadingScreenVisibility(this, false)
-            // Display success screen
-            /*val diamondsBinding =
-                LayoutShopBuyValidationBinding.bind(binding.coinsDiamondsValidation.root)
-
-            FingerV2.register(diamondsBinding.buttonContinue, null) {
-                diamondsBinding.root.visibility = View.GONE
-            }
-            SmsGameGraphics.setUnlockItemImageSize(this)
-            ShopActivityGraphics.setUnlockDiamondsByWatchingAds(
-                this,
-                diamondsBinding,
-                this.model.requestManager,
-                this.model.customer.isUserConnected()
-            ) {
-                if (this.isFinishing) {
-                    return@setUnlockDiamondsByWatchingAds
-                }
-
-                ShopActivityGraphics.animateUnlockItem(
-                    this,
-                    diamondsBinding,
-                    this.model.customer.getCoins(),
-                    this.model.customer.getDiamonds()
-                )
-            } */
-        }
-    }
-
-    override fun onAdRemovedPaid() {
-
-    }
-
-    override fun onErrorFound(code: String?, message: String?, adUnit: String?) {
-
-    }
 }

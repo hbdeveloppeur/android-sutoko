@@ -10,8 +10,6 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import com.example.sharedelements.Data
 import com.google.firebase.crashlytics.FirebaseCrashlytics
-import com.purpletear.smartads.SmartAdsInterface
-import com.purpletear.smartads.adConsent.AdmobConsent
 import com.purpletear.smsgame.activities.smsgame.SmsGameActivity
 import com.purpletear.smsgame.activities.smsgame.objects.StoryChapter
 import com.purpletear.smsgame.activities.smsgame.tables.StoryType
@@ -21,18 +19,16 @@ import fr.purpletear.sutoko.shop.coinsLogic.Customer
 import purpletear.fr.purpleteartools.Language
 import purpletear.fr.purpleteartools.TableOfSymbols
 
-class SmsGameLoaderActivity : AppCompatActivity(), SmartAdsInterface {
+class SmsGameLoaderActivity : AppCompatActivity() {
     private lateinit var model: SmsGameLoaderModel
     private lateinit var smsGameActivityResultLauncher: ActivityResultLauncher<Intent>
     private lateinit var premiumActivityResultLauncher: ActivityResultLauncher<Intent>
-    private lateinit var adsActivityResultLauncher: ActivityResultLauncher<Intent>
     private var hasGameActivityResult: Boolean = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         this.smsGameActivityResultLauncher = this.registerSmsGameActivityResultLauncher()
         this.premiumActivityResultLauncher = this.registerPremiumActivityResultLauncher()
-        this.adsActivityResultLauncher = AdmobConsent.registerActivityResultLauncher(this, this)
         this.model = SmsGameLoaderModel(this)
         FirebaseCrashlytics.getInstance().setCustomKey("story_id", model.card.id)
         FirebaseCrashlytics.getInstance()
@@ -60,15 +56,9 @@ class SmsGameLoaderActivity : AppCompatActivity(), SmartAdsInterface {
     override fun onWindowFocusChanged(hasFocus: Boolean) {
         super.onWindowFocusChanged(hasFocus)
         if (hasFocus) {
-            if (this.model.shouldWatchAd(this) && AdmobConsent.canShowAd()) {
-                AdmobConsent.start(this, this.adsActivityResultLauncher)
-            } else if (this.model.shouldStartPremiumActivity(this)) {
-                this.finish()
-                return
-            } else if (!hasGameActivityResult) {
+            if (!hasGameActivityResult) {
                 this.startActivityForResult()
             }
-
             this.overridePendingTransition(0, 0)
         }
     }
@@ -175,22 +165,5 @@ class SmsGameLoaderActivity : AppCompatActivity(), SmartAdsInterface {
                 StoryType.OFFICIAL_STORY
             )
         }
-    }
-
-    override fun onAdAborted() {
-        setResult(RESULT_CANCELED)
-        finish()
-    }
-
-    override fun onAdSuccessfullyWatched() {
-        model.updateWatchAdTime()
-    }
-
-    override fun onAdRemovedPaid() {
-
-    }
-
-    override fun onErrorFound(code: String?, message: String?, adUnit: String?) {
-
     }
 }
