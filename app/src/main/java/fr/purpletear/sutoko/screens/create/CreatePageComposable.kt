@@ -17,7 +17,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.compose.foundation.layout.padding
 import fr.purpletear.sutoko.R
+import fr.purpletear.sutoko.screens.create.components.section_title.SectionTitle
 import fr.purpletear.sutoko.screens.main.presentation.screens.TopNavigation
 
 private const val BACKGROUND_ALPHA = 0.15f
@@ -46,6 +48,11 @@ internal fun CreatePageComposable(modifier: Modifier = Modifier) {
                 onCoinsButtonPressed = { /* TODO: Navigate to shop */ },
                 onDiamondsButtonPressed = { /* TODO */ },
                 onOptionsButtonPressed = { /* TODO: Show options menu */ }
+            )
+
+            SectionTitle(
+                text = "Histoires de la communauté",
+                modifier = Modifier.padding(top = 16.dp)
             )
         }
     }
