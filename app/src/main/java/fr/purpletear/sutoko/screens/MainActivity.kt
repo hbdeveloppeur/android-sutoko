@@ -55,9 +55,6 @@ import com.purpletear.aiconversation.presentation.screens.media.image_generator.
 import com.purpletear.aiconversation.presentation.screens.shopDialog.MessagesCoinsDialogComposable
 import com.purpletear.game.presentation.screens.ChaptersComposable
 import com.purpletear.game.presentation.screens.GamePreview
-import com.purpletear.smartads.SmartAdsInterface
-import com.purpletear.smartads.adConsent.AdmobConsent
-import com.purpletear.smartads.adConsent.RGPDHelper
 import com.purpletear.smsgame.activities.smsgame.objects.Story
 import com.purpletear.smsgame.activities.smsgame.objects.StoryChapter
 import com.purpletear.smsgame.activities.smsgameloader.SmsGameLoaderActivity
@@ -117,11 +114,10 @@ import friendzone3.purpletear.fr.friendzon3.Load as Friendzoned3Loader
 class MainActivity @Inject constructor(
 
 ) : ComponentActivity(),
-    CustomerCallbacks, BillingClientStateListener, SmartAdsInterface {
+    CustomerCallbacks, BillingClientStateListener {
     private lateinit var loginLauncher: ActivityResultLauncher<Intent>
     private lateinit var optionsLauncher: ActivityResultLauncher<Intent>
     private lateinit var userStoryLauncher: ActivityResultLauncher<Intent>
-    private lateinit var adsActivityResultLauncher: ActivityResultLauncher<Intent>
     private val viewModel: HomeScreenViewModel by viewModels()
     private var shopActivityLauncher: ActivityResultLauncher<Intent> =
         registerLaunchForResultShopActivity()
@@ -200,8 +196,6 @@ class MainActivity @Inject constructor(
         this.registerUserStoryLauncher()
         this.registerLoginLauncher()
         this.load()
-        this.adsActivityResultLauncher =
-            AdmobConsent.Companion.registerActivityResultLauncher(this, this)
 
         (billingRepository as BillingRepositoryImpl).setActivity(this)
 
@@ -392,11 +386,7 @@ class MainActivity @Inject constructor(
             }
         }
 
-        val rgpd = RGPDHelper()
         this.observers()
-        rgpd.checkRgpdAndRun(this) {
-
-        }
     }
 
     private val toasterObserver = Observer<UiText.StringResource> { text ->
@@ -718,26 +708,6 @@ class MainActivity @Inject constructor(
 
     override fun onBillingSetupFinished(p0: BillingResult) {
         // Billing setup completion is handled by BillingRepositoryImpl
-        // No additional action needed in MainActivity
-    }
-
-    override fun onAdAborted() {
-        // Ad abortion is handled by the SmartAds module
-        // No additional action needed in MainActivity
-    }
-
-    override fun onAdSuccessfullyWatched() {
-        // Ad watch completion is handled by the SmartAds module
-        // No additional action needed in MainActivity
-    }
-
-    override fun onAdRemovedPaid() {
-        // Ad removal due to payment is handled by the SmartAds module
-        // No additional action needed in MainActivity
-    }
-
-    override fun onErrorFound(code: String?, message: String?, adUnit: String?) {
-        // Ad errors are handled by the SmartAds module
         // No additional action needed in MainActivity
     }
 }

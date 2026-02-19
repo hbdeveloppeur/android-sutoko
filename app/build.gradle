@@ -271,7 +271,6 @@ dependencies {
     implementation project(path: ':games:friendzone2')
     implementation project(path: ':games:friendzone3')
     implementation project(path: ':games:friendzone4')
-    implementation project(path: ':smartads')
     implementation project(path: ':permission:domain')
     implementation project(path: ':permission:data')
     implementation project(path: ':core:domain')
