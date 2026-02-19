@@ -40,7 +40,7 @@ internal fun CreatePageComposable(modifier: Modifier = Modifier) {
                 .fillMaxSize()
                 .systemBarsPadding()
                 .padding(top = 12.dp),
-        ) {
+        ) { 
             item {
                 TopNavigation(
                     modifier = Modifier
