@@ -18,8 +18,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.compose.foundation.layout.Spacer
 import fr.purpletear.sutoko.R
 import fr.purpletear.sutoko.screens.create.components.section_title.SectionTitle
+import fr.purpletear.sutoko.screens.create.components.story_card.StoryCard
 import fr.purpletear.sutoko.screens.main.presentation.screens.TopNavigation
 
 private const val BACKGROUND_ALPHA = 0.15f
@@ -59,8 +61,21 @@ internal fun CreatePageComposable(modifier: Modifier = Modifier) {
             item {
                 SectionTitle(
                     text = "Histoires de la communauté",
-                    modifier = Modifier.padding(top = 16.dp)
+                    modifier = Modifier.padding(top = 16.dp, bottom = 16.dp)
                 )
+            }
+
+            item {
+                StoryCard(
+                    title = "The day my life ended",
+                    author = "Eva Weeks",
+                    imageUrl = "https://data.sutoko.app/resources/sutoko-ai/image/background_waiting_screen.jpg",
+                    onGetClick = { /* TODO */ }
+                )
+            }
+
+            item {
+                Spacer(modifier = Modifier.padding(bottom = 16.dp))
             }
         }
     }
