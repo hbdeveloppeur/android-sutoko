@@ -19,6 +19,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.ui.draw.alpha
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -27,7 +28,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -41,6 +41,7 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import androidx.navigation.compose.currentBackStackEntryAsState
 import com.example.sharedelements.theme.SutokoTypography
 import com.purpletear.core.presentation.components.icon.Icon
 import com.purpletear.core.presentation.components.icon.IconComposable
@@ -50,14 +51,15 @@ import fr.purpletear.sutoko.screens.main.presentation.screens.components.navigat
 @Composable
 fun BottomNavigation(
     navController: NavController,
-    onCreatePressed: () -> Unit,
     onShopPressed: () -> Unit,
 ) {
     val height = 92.dp
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
 
+    val navBackStackEntry by navController.currentBackStackEntryAsState()
+    val currentRoute = navBackStackEntry?.destination?.route
+
+    Box(
+        modifier = Modifier.fillMaxSize()
     ) {
         Box(
             modifier = Modifier
@@ -67,7 +69,6 @@ fun BottomNavigation(
                 .align(Alignment.BottomCenter)
                 .navigationBarsPadding()
         ) {
-            var currentMenu by remember { mutableStateOf(BottomNavItem.Home.icon) }
             Row(
                 modifier = Modifier
                     .align(Alignment.Center)
@@ -76,89 +77,80 @@ fun BottomNavigation(
                     .fillMaxWidth(0.9f),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-
-                Button(
-                    modifier = Modifier
-                        .weight(1f),
+                // Games (Home) Tab
+                NavButton(
+                    modifier = Modifier.weight(1f),
                     icon = Icon.Image(
                         R.drawable.sutoko_ic_games,
                         offsetY = -12,
                     ),
                     iconHeight = 22.dp,
                     label = BottomNavItem.Home.title,
-                    isSelected = currentMenu == BottomNavItem.Home.icon,
-                    onPress = onPress@{
-                        if (currentMenu == BottomNavItem.Home.icon) {
-                            return@onPress
-                        }
-                        // Add little pleasant vibration
-                        currentMenu = BottomNavItem.Home.icon
-                        navController.navigate(BottomNavItem.Home.route) {
-                            popUpTo(navController.graph.startDestinationId) { inclusive = true }
-                            launchSingleTop = true
+                    isSelected = currentRoute == BottomNavItem.Home.route,
+                    onPress = {
+                        if (currentRoute != BottomNavItem.Home.route) {
+                            navController.navigate(BottomNavItem.Home.route) {
+                                popUpTo(navController.graph.startDestinationId) {
+                                    saveState = true
+                                }
+                                launchSingleTop = true
+                                restoreState = true
+                            }
                         }
                     }
                 )
 
-                Button(
-                    modifier = Modifier
-                        .weight(1f),
+                // Create Tab
+                NavButton(
+                    modifier = Modifier.weight(1f),
                     icon = Icon.Image(
-                        R.drawable.sutoko_ic_menu_users, offsetY = -10,
+                        R.drawable.sutoko_add_magic,
+                        offsetY = -10,
                     ),
                     iconHeight = 22.dp,
                     label = BottomNavItem.Create.title,
-                    isSelected = currentMenu == BottomNavItem.Create.icon,
+                    isSelected = currentRoute == BottomNavItem.Create.route,
                     onPress = {
-                        currentMenu = BottomNavItem.Create.icon
-                        // Add little pleasant vibration
-                        onCreatePressed()
+                        if (currentRoute != BottomNavItem.Create.route) {
+                            navController.navigate(BottomNavItem.Create.route) {
+                                popUpTo(navController.graph.startDestinationId) {
+                                    saveState = true
+                                }
+                                launchSingleTop = true
+                                restoreState = true
+                            }
+                        }
                     }
                 )
 
-                Button(
+                // Shop Button (always 100% alpha, external navigation)
+                ShopButton(
                     modifier = Modifier.weight(1f),
-                    icon = Icon.LottieAnimation(
-                        R.raw.lottie_premium,
-                        offsetY = -12,
-                        iteration = 1000,
-                        scaleX = 1.7f,
-                        scaleY = 1.7f,
-                    ),
-                    iconHeight = 22.dp,
-                    label = BottomNavItem.Shop.title,
-                    isSelected = true,
-                    animatedText = true,
-                    onPress = {
-                        onShopPressed()
-                    }
+                    onPress = onShopPressed
                 )
-
             }
         }
     }
 }
 
 @Composable
-private fun Button(
+private fun NavButton(
     modifier: Modifier = Modifier,
     icon: Icon,
     iconHeight: Dp,
     label: Int,
     isSelected: Boolean,
-    animatedText: Boolean = false,
-    onPress: () -> Unit = {},
+    onPress: () -> Unit,
 ) {
     val haptic = LocalHapticFeedback.current
 
     Column(
-        modifier = Modifier
+        modifier = modifier
             .alpha(if (isSelected) 1f else 0.7f)
-            .then(modifier)
             .clickable(
                 indication = null,
-                interactionSource = remember { MutableInteractionSource() }) {
-                // subtle pleasant haptic on tap
+                interactionSource = remember { MutableInteractionSource() }
+            ) {
                 haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
                 onPress()
             },
@@ -169,30 +161,61 @@ private fun Button(
             IconComposable(icon)
         }
 
-        if (animatedText) {
-            GoldGradientText(
-                text = stringResource(id = label),
-            )
-        } else {
-            Text(
-                text = stringResource(id = label),
-                fontSize = 10.sp,
-                style = SutokoTypography.body1.copy(
-                    platformStyle = PlatformTextStyle(
-                        includeFontPadding = false
-                    )
+        Text(
+            text = stringResource(id = label),
+            fontSize = 10.sp,
+            style = SutokoTypography.body1.copy(
+                platformStyle = PlatformTextStyle(
+                    includeFontPadding = false
                 )
             )
-        }
+        )
     }
 }
 
 @Composable
-fun GoldGradientText(
+private fun ShopButton(
+    modifier: Modifier = Modifier,
+    onPress: () -> Unit,
+) {
+    val haptic = LocalHapticFeedback.current
+
+    Column(
+        modifier = modifier
+            .alpha(1f) // Always 100% alpha as requested
+            .clickable(
+                indication = null,
+                interactionSource = remember { MutableInteractionSource() }
+            ) {
+                haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                onPress()
+            },
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(1.dp)
+    ) {
+        Box(modifier = Modifier.size(22.dp)) {
+            IconComposable(
+                Icon.LottieAnimation(
+                    R.raw.lottie_premium,
+                    offsetY = -12,
+                    iteration = 1000,
+                    scaleX = 1.7f,
+                    scaleY = 1.7f,
+                )
+            )
+        }
+
+        GoldGradientText(
+            text = stringResource(id = BottomNavItem.Shop.title),
+        )
+    }
+}
+
+@Composable
+private fun GoldGradientText(
     text: String,
     modifier: Modifier = Modifier
 ) {
-    // Colors for a gold-like gradation
     val goldColors = listOf(
         Color(0xFFFDE08F),
         Color(0xFFF6C469),
@@ -203,25 +226,23 @@ fun GoldGradientText(
 
     val infiniteTransition = rememberInfiniteTransition(label = "goldGradientTransition")
 
-    // Animate horizontal shift of the gradient
     val gradientShift by infiniteTransition.animateFloat(
         initialValue = -1f,
         targetValue = 2f,
         animationSpec = infiniteRepeatable(
             animation = tween(
                 durationMillis = 3500,
-                easing = CubicBezierEasing(0.4f, 0f, 1f, 1f) // ease-in style
+                easing = CubicBezierEasing(0.4f, 0f, 1f, 1f)
             ),
             repeatMode = RepeatMode.Restart
         ),
         label = "gradientShift"
     )
 
-    // Use size to calculate gradient width relative to text
     var textSize by remember { mutableStateOf(IntSize.Zero) }
 
     val brush = remember(gradientShift, textSize) {
-        val width = textSize.width.toFloat().coerceAtLeast(1f) // guard division by zero
+        val width = textSize.width.toFloat().coerceAtLeast(1f)
         val startX = (gradientShift - 1f) * width
         val endX = gradientShift * width
 

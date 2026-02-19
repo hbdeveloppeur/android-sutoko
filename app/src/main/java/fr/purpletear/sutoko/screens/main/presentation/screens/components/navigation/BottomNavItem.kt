@@ -10,33 +10,29 @@ import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import fr.purpletear.sutoko.screens.animatedComposable
 import fr.purpletear.sutoko.R
 import fr.purpletear.sutoko.screens.main.presentation.HomeScreenViewModel
-import fr.purpletear.sutoko.screens.main.presentation.screens.calendar.CalendarScreen
-import fr.purpletear.sutoko.screens.main.presentation.screens.community.CommunityScreen
 import fr.purpletear.sutoko.screens.main.presentation.screens.home.HomeScreen
 
-sealed class BottomNavItem(var title: Int, var icon: Int, var route: String) {
-    object Home : BottomNavItem(
+sealed class BottomNavItem(val title: Int, val icon: Int, val route: String) {
+    data object Home : BottomNavItem(
         R.string.sutoko_main_bottom_navigationbar_stories,
         R.drawable.sutoko_ic_games,
         "home"
     )
 
-    object Calendar : BottomNavItem(R.string.coming_soon, R.drawable.ic_apps, "calendar")
-    object Community : BottomNavItem(
-        R.string.sutoko_main_bottom_navigationbar_sommunity,
-        R.drawable.sutoko_ic_menu_users,
-        "community"
-    )
-
-    object Create : BottomNavItem(
-        R.string.sutoko_main_bottom_navigationbar_sommunity,
+    data object Create : BottomNavItem(
+        R.string.sutoko_create,
         R.drawable.sutoko_add_magic,
         "create"
     )
 
-    object Shop : BottomNavItem(R.string.sutoko_shop, R.drawable.ic_shop, "shop")
+    data object Shop : BottomNavItem(
+        R.string.sutoko_shop,
+        R.drawable.ic_shop,
+        "shop"
+    )
 }
 
 @Composable
@@ -47,11 +43,13 @@ fun NavigationGraph(
     viewModel: HomeScreenViewModel,
 ) {
     NavHost(
-        navController, modifier = Modifier
+        navController = navController,
+        startDestination = BottomNavItem.Home.route,
+        modifier = Modifier
             .fillMaxHeight()
             .sizeIn(maxWidth = 500.dp)
             .navigationBarsPadding()
-            .then(modifier), startDestination = BottomNavItem.Home.route
+            .then(modifier)
     ) {
         composable(BottomNavItem.Home.route) {
             HomeScreen(
@@ -60,16 +58,8 @@ fun NavigationGraph(
             )
         }
 
-        composable(BottomNavItem.Calendar.route) {
-            CalendarScreen(
-                viewModel = viewModel
-            )
-        }
-
-        composable(BottomNavItem.Community.route) {
-            CommunityScreen(
-                viewModel = viewModel
-            )
+        animatedComposable(BottomNavItem.Create.route) {
+            fr.purpletear.sutoko.screens.create.CreatePageComposable()
         }
     }
 }

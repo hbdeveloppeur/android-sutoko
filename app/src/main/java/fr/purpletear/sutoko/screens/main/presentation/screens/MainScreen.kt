@@ -80,9 +80,6 @@ fun MainScreen(
 
             BottomNavigation(
                 navController = bottomNavigationController,
-                onCreatePressed = {
-                    mainNavController.navigate(MainScreenPages.Create.route)
-                },
                 onShopPressed = {
                     viewModel.onEvent(MainEvents.TapShop)
                 }
