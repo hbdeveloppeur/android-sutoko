@@ -4,16 +4,10 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Parcelable;
 
-import androidx.activity.result.ActivityResultLauncher;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.purpletear.smartads.SmartAdsInterface;
-import com.purpletear.smartads.adConsent.AdmobConsent;
-
 import org.jetbrains.annotations.NotNull;
-
-import java.util.ArrayList;
 
 import fr.purpletear.friendzone4.R;
 import fr.purpletear.friendzone4.game.config.ChapterDetailsHandler;
@@ -21,14 +15,13 @@ import fr.purpletear.friendzone4.game.config.Params;
 import purpletear.fr.purpleteartools.TableOfSymbols;
 
 
-public class Load extends AppCompatActivity implements SmartAdsInterface {
+public class Load extends AppCompatActivity {
     /**
      * Handles the model settings
      *
      * @see LoadModel
      */
     private LoadModel model;
-    private ActivityResultLauncher<Intent> adActivityResultLauncher = null;
 
     private boolean stop = false;
     private int hasSeenChapterNumber = -1;
@@ -36,7 +29,6 @@ public class Load extends AppCompatActivity implements SmartAdsInterface {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        this.adActivityResultLauncher = AdmobConsent.Companion.registerActivityResultLauncher(this, this);
         setContentView(R.layout.fz4_activity_load);
 
         load();
@@ -52,7 +44,6 @@ public class Load extends AppCompatActivity implements SmartAdsInterface {
         outState.putBoolean("hasSeenLoading", model.hasSeenLoading);
         outState.putBoolean("hasSeenTextCinematic", model.hasSeenTextCinematic);
         outState.putBoolean("hasSeenPoetry", model.hasSeenPoetry);
-        outState.putBoolean("model.isGranted", model.isGranted);
         outState.putBoolean("stop", stop);
     }
 
@@ -64,7 +55,6 @@ public class Load extends AppCompatActivity implements SmartAdsInterface {
         model.hasSeenLoading = savedInstanceState.getBoolean("hasSeenLoading");
         model.hasSeenTextCinematic = savedInstanceState.getBoolean("hasSeenTextCinematic");
         model.hasSeenPoetry = savedInstanceState.getBoolean("hasSeenPoetry");
-        model.isGranted = savedInstanceState.getBoolean("model.isGranted");
         stop = savedInstanceState.getBoolean("stop");
         model.setParams((Params) savedInstanceState.getParcelable("params"));
         model.setSymbols((TableOfSymbols) savedInstanceState.getParcelable("symbols"));
@@ -78,18 +68,9 @@ public class Load extends AppCompatActivity implements SmartAdsInterface {
             stop = false;
             return;
         }
-
-        ArrayList<Integer> ads = new ArrayList<>();
-        ads.add(1);
-        ads.add(4);
-        ads.add(6);
-        ads.add(9);
-        if (AdmobConsent.Companion.canShowAd() && ads.contains(model.getSymbols().getChapterNumber()) && !model.isGranted && this.hasSeenChapterNumber != model.getSymbols().getChapterNumber()) {
-            //noinspection ConstantConditions
-            AdmobConsent.Companion.start(this, this.adActivityResultLauncher);
-        } else {
-            onAdSuccessfullyWatched();
-        }
+        this.hasSeenChapterNumber = model.getSymbols().getChapterNumber();
+        stop = true;
+        navigate();
     }
 
     @Override
@@ -152,15 +133,13 @@ public class Load extends AppCompatActivity implements SmartAdsInterface {
      * Loads the Activity's vars
      */
     private void load() {
-        boolean isGranted = getIntent().getBooleanExtra("granted", false);
         TableOfSymbols symbols = getIntent().getParcelableExtra("symbols");
         Params params = new Params();
         params.read(this);
         params.setChapterCode(symbols.getChapterCode());
         model = new LoadModel(
                 params,
-                symbols,
-                isGranted);
+                symbols);
     }
 
     private void navigate() {
@@ -175,26 +154,4 @@ public class Load extends AppCompatActivity implements SmartAdsInterface {
         overridePendingTransition(0, 0);
     }
 
-    @Override
-    public void onAdAborted() {
-        finish();
-    }
-
-    @Override
-    public void onAdSuccessfullyWatched() {
-        this.hasSeenChapterNumber = model.getSymbols().getChapterNumber();
-        stop = true;
-        navigate();
-    }
-
-    @Override
-    public void onAdRemovedPaid() {
-        model.isGranted = true;
-    }
-
-
-    @Override
-    public void onErrorFound(@Nullable String code, @Nullable String message, @Nullable String adUnit) {
-
-    }
 }

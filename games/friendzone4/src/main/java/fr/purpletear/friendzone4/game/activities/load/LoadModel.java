@@ -5,7 +5,6 @@ import com.example.sharedelements.SutokoSharedElementsData;
 import java.util.ArrayList;
 import java.util.List;
 
-import fr.purpletear.friendzone4.GameData;
 import fr.purpletear.friendzone4.game.config.Chapter;
 import fr.purpletear.friendzone4.game.config.Params;
 import purpletear.fr.purpleteartools.TableOfSymbols;
@@ -27,7 +26,6 @@ class LoadModel {
     boolean hasSeenTextCinematic;
     boolean hasSeenLoading;
     boolean hasSeenPoetry;
-    boolean isGranted;
 
     /**
      * Handles the game data.
@@ -36,7 +34,7 @@ class LoadModel {
      */
     private Params params;
 
-    LoadModel(Params params, TableOfSymbols symbols, boolean isGranted) {
+    LoadModel(Params params, TableOfSymbols symbols) {
         hasSeenAudioCinematic = false;
         hasSeenTextCinematic = false;
         hasSeenLoading = false;
@@ -44,7 +42,6 @@ class LoadModel {
         nh = new NavigationHandler();
         this.params = params;
         this.symbols = symbols;
-        this.isGranted = isGranted;
     }
 
     void invalidate() {

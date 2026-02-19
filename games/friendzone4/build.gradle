@@ -65,7 +65,6 @@ dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
     implementation 'com.github.amitshekhariitbhu:PRDownloader:1.0.2'
     implementation project(':smsgame')
-    implementation project(':smartads')
 }
 repositories {
     mavenCentral()
