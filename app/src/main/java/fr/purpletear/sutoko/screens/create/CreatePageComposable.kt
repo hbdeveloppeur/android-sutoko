@@ -1,5 +1,6 @@
 package fr.purpletear.sutoko.screens.create
 
+import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -13,10 +14,12 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.purpletear.core.presentation.components.AnimatedNewsGradient
 import com.purpletear.version.presentation.R
-import com.purpletear.version.presentation.components.announce_card.GameAnnounceCard
+import com.purpletear.version.presentation.components.announcement.YourTurnAnnouncementCard
 
 @Composable
 internal fun CreatePageComposable(modifier: Modifier = Modifier) {
+    val backDispatcher = LocalOnBackPressedDispatcherOwner.current?.onBackPressedDispatcher
+
     Box(modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
         Box {
             AsyncImage(
@@ -36,6 +39,8 @@ internal fun CreatePageComposable(modifier: Modifier = Modifier) {
         }
 
         AnimatedNewsGradient(Modifier.fillMaxSize(), alpha = 0.02f)
-        GameAnnounceCard(Modifier)
+        YourTurnAnnouncementCard(
+            onDismiss = { backDispatcher?.onBackPressed() }
+        )
     }
 }

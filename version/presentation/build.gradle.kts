@@ -50,6 +50,7 @@ dependencies {
     implementation(project(":core:presentation"))
     implementation(project(":user:domain"))
     implementation(project(":user:data"))
+    implementation(project(":version:domain"))
     implementation(project(":shared-elements"))
     implementation(project(":game:presentation"))
     implementation(project(":news:presentation"))
