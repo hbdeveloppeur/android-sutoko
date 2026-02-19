@@ -24,7 +24,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import fr.purpletear.sutoko.R
-import fr.purpletear.sutoko.screens.main.presentation.screens.AmountLabel
+import fr.purpletear.sutoko.screens.create.components.coins_display.CoinsDisplay
 
 
 @Composable
@@ -106,21 +106,21 @@ private fun ConnectedView(
 
     Row {
         // User coins amount
-        AmountLabel(
+        CoinsDisplay(
             modifier = Modifier.padding(start = 8.dp),
-            number = coins,
-            image = fr.purpletear.sutoko.shop.presentation.R.drawable.sutoko_item_coin,
-            onTap = onClickCoins
+            amount = coins,
+            onClick = onClickCoins
         )
 
-        // User coins amount
-        AmountLabel(
+        // User diamonds amount
+        CoinsDisplay(
             modifier = Modifier.padding(start = 8.dp),
-            number = diamonds,
-            image = com.purpletear.smsgame.R.drawable.sutoko_ic_diamond,
-            onTap = onClickDiamonds
+            amount = diamonds,
+            onClick = onClickDiamonds,
+            iconResId = com.purpletear.smsgame.R.drawable.sutoko_ic_diamond,
+            borderColor = Color(0xFF4DB9EC),
+            backgroundColor = Color(0xFF2E3A4F)
         )
-
     }
 }
 

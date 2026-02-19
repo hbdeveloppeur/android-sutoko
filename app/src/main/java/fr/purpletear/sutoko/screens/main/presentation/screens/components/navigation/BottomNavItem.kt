@@ -10,7 +10,7 @@ import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import fr.purpletear.sutoko.screens.animatedComposable
+import fr.purpletear.sutoko.screens.fadeComposable
 import fr.purpletear.sutoko.R
 import fr.purpletear.sutoko.screens.main.presentation.HomeScreenViewModel
 import fr.purpletear.sutoko.screens.main.presentation.screens.home.HomeScreen
@@ -58,7 +58,7 @@ fun NavigationGraph(
             )
         }
 
-        animatedComposable(BottomNavItem.Create.route) {
+        fadeComposable(BottomNavItem.Create.route) {
             fr.purpletear.sutoko.screens.create.CreatePageComposable()
         }
     }
