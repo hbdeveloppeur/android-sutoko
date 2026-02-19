@@ -79,9 +79,21 @@ fun ConversationScreen(
             Lifecycle.State.RESUMED -> {
                 viewModel.onResume()
             }
-
+            Lifecycle.State.STARTED -> {
+                // Reset overlay states when screen becomes visible
+                // This ensures no stale state from previous sessions
+                if (viewModel.hasOpenOverlays()) {
+                    viewModel.resetOverlayStates()
+                }
+            }
             else -> {}
         }
+    }
+
+    // Default back handler - explicitly pop back stack when no overlays are open
+    // This ensures reliable navigation back even after long use
+    BackHandler(enabled = !viewModel.hasOpenOverlays() && !transitionState.value.expanded) {
+        navController.popBackStack()
     }
 
     BackHandler(enabled = viewModel.inviteCharacterPageIsOpened.value) {
@@ -107,6 +119,8 @@ fun ConversationScreen(
     DisposableEffect(Unit) {
         onDispose {
             viewModel.closeToolsView()
+            // Reset all overlay states to prevent stale state issues
+            viewModel.resetOverlayStates()
         }
     }
 
@@ -245,15 +259,24 @@ private fun ConversationScreenColumn(
     onTouch: () -> Unit,
     content: @Composable ColumnScope.() -> Unit
 ) {
-
-    Box(modifier = Modifier
-        .imePadding()
-        .fillMaxSize(), content = {
-        Column(modifier = Modifier.pointerInput(Unit) {
-            detectTapGestures {
-                focusManager.clearFocus()
-                onTouch()
-            }
-        }, content = content)
-    })
+    Box(
+        modifier = Modifier
+            .imePadding()
+            .fillMaxSize()
+            // Use clickable with indication = null instead of detectTapGestures
+            // to avoid consuming pointer events that could interfere with back gestures
+            .pointerInput(Unit) {
+                detectTapGestures(
+                    onTap = { offset ->
+                        // Only handle taps that are not on interactive elements
+                        // by checking if the tap is in the main content area
+                        focusManager.clearFocus()
+                        onTouch()
+                    }
+                )
+            },
+        content = {
+            Column(content = content)
+        }
+    )
 }

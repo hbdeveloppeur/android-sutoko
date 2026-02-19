@@ -255,6 +255,25 @@ class ConversationViewModel @Inject constructor(
         _settingsViewIsOpened.value = true
     }
 
+    /**
+     * Resets all overlay states to ensure clean navigation.
+     * Called when the screen is being disposed or when back navigation occurs.
+     */
+    internal fun resetOverlayStates() {
+        _inviteCharacterPageIsOpened.value = false
+        _settingsViewIsOpened.value = false
+        _toolsViewIsOpened.value = false
+    }
+
+    /**
+     * Checks if any overlay is currently open.
+     */
+    internal fun hasOpenOverlays(): Boolean {
+        return _inviteCharacterPageIsOpened.value || 
+               _settingsViewIsOpened.value || 
+               _toolsViewIsOpened.value
+    }
+
     private var _isLoadingSavingForFineTuning: MutableState<Boolean> = mutableStateOf(false)
     val isLoadingSavingForFineTuning: State<Boolean> get() = _isLoadingSavingForFineTuning
 
@@ -707,6 +726,8 @@ class ConversationViewModel @Inject constructor(
             })
         }
         messageQueue.cancelTimer()
+        // Reset overlay states to prevent stale state issues
+        resetOverlayStates()
         super.onCleared()
     }
 

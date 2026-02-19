@@ -50,6 +50,7 @@
             android:screenOrientation="portrait"
             android:theme="@style/Main"
             android:windowSoftInputMode="adjustResize"
+            android:enableOnBackInvokedCallback="true"
             tools:ignore="LockedOrientationActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
