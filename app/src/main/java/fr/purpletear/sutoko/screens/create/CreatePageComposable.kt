@@ -41,8 +41,11 @@ internal fun CreatePageComposable(modifier: Modifier = Modifier) {
                 .systemBarsPadding()
         ) {
             TopNavigation(
+                modifier = Modifier
+                    .padding(horizontal = 16.dp)
+                    .padding(top = 12.dp),
                 coins = 960,
-                diamonds = 0,
+                diamonds = 0, 
                 isLoading = false,
                 onAccountButtonPressed = { /* TODO */ },
                 onCoinsButtonPressed = { /* TODO: Navigate to shop */ },
@@ -52,7 +55,7 @@ internal fun CreatePageComposable(modifier: Modifier = Modifier) {
 
             SectionTitle(
                 text = "Histoires de la communauté",
-                modifier = Modifier.padding(top = 16.dp)
+                modifier = Modifier.padding(top = 8.dp)
             )
         }
     }

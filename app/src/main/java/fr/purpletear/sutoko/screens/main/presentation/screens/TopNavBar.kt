@@ -31,6 +31,7 @@ const val AccountTestTag = "AccountTestTag"
 
 @Composable
 fun TopNavigation(
+    modifier: Modifier,
     coins: Int,
     diamonds: Int,
     isLoading: Boolean,
@@ -42,10 +43,9 @@ fun TopNavigation(
 
 
     Row(
-        verticalAlignment = Alignment.CenterVertically, modifier = Modifier
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = modifier
             .fillMaxWidth()
-            .padding(16.dp)
-            .padding(top = 12.dp)
     ) {
 
         Column(
