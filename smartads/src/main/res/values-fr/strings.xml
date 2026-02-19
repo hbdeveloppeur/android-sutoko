@@ -1,9 +1,0 @@
-<?xml version='1.0' encoding='UTF-8'?>
-<resources>
-	<string name="app_name">Sutoko</string>
-	<string name="iap_service_unavailable">Network connection lost, purchase cancelled</string>
-	<string name="iap_unknown_error">An error has occurred, purchase cancelled</string>
-	<string name="check_google_play_connexion">Make sure you are connected to Google Play Store</string>
-	<string name="adactivity_gonna_start">%1$d</string>
-	<string name="adactivity_video_launching">Video loading.</string>
-</resources>
