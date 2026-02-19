@@ -64,7 +64,6 @@ dependencies {
     implementation "com.google.code.gson:gson:$gson_version"
     implementation "com.github.bumptech.glide:glide:$bumptech_glide_version"
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
-    implementation project(':smartads')
 }
 
 repositories {

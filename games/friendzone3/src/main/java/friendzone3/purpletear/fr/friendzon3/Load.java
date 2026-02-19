@@ -6,14 +6,11 @@ import android.os.Bundle;
 import android.os.Parcelable;
 import android.widget.ProgressBar;
 
-import androidx.activity.result.ActivityResultLauncher;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.sharedelements.SutokoSharedElementsData;
-import com.purpletear.smartads.SmartAdsInterface;
-import com.purpletear.smartads.adConsent.AdmobConsent;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,17 +19,14 @@ import friendzone3.purpletear.fr.friendzon3.handlers.NavigationHandler;
 import purpletear.fr.purpleteartools.Std;
 import purpletear.fr.purpleteartools.TableOfSymbols;
 
-public class Load extends AppCompatActivity implements SmartAdsInterface {
+public class Load extends AppCompatActivity {
     public NavigationHandler navigator;
     public boolean hasSeenCinematic;
     public boolean hasSeenPoetry;
     public TableOfSymbols symbols;
     private boolean stop = false;
-    private boolean isGranted = false;
 
     private boolean isPremiumGame = false;
-
-    private ActivityResultLauncher<Intent> adActivityResultLauncher = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,7 +34,6 @@ public class Load extends AppCompatActivity implements SmartAdsInterface {
         if (this.getIntent() != null) {
             isPremiumGame = this.getIntent().getBooleanExtra("isPremiumGame", false);
         }
-        adActivityResultLauncher = AdmobConsent.Companion.registerActivityResultLauncher(this, this);
         symbols = getIntent().getParcelableExtra("symbols");
 
         if (SutokoSharedElementsData.INSTANCE.getSHOULD_FORCE_CHAPTER()) {
@@ -48,7 +41,6 @@ public class Load extends AppCompatActivity implements SmartAdsInterface {
             symbols.save(this);
         }
 
-        isGranted = getIntent().getBooleanExtra("granted", false);
         hasSeenCinematic = false;
         hasSeenPoetry = false;
         setContentView(R.layout.fz3_activity_load);
@@ -85,7 +77,6 @@ public class Load extends AppCompatActivity implements SmartAdsInterface {
         outState.putParcelable("symbols", symbols);
         outState.putBoolean("hasSeenCinematic", hasSeenCinematic);
         outState.putBoolean("hasSeenPoetry", hasSeenPoetry);
-        outState.putBoolean("isGranted", isGranted);
         outState.putBoolean("stop", stop);
         outState.putBoolean("isPremiumGame", this.isPremiumGame);
     }
@@ -95,7 +86,6 @@ public class Load extends AppCompatActivity implements SmartAdsInterface {
         super.onRestoreInstanceState(savedInstanceState);
         hasSeenPoetry = savedInstanceState.getBoolean("hasSeenPoetry");
         hasSeenCinematic = savedInstanceState.getBoolean("hasSeenCinematic");
-        isGranted = savedInstanceState.getBoolean("isGranted");
         symbols = savedInstanceState.getParcelable("symbols");
         stop = savedInstanceState.getBoolean("stop");
         isPremiumGame = savedInstanceState.getBoolean("isPremium");
@@ -114,29 +104,7 @@ public class Load extends AppCompatActivity implements SmartAdsInterface {
             stop = false;
             return;
         }
-        load();
-    }
-
-    /**
-     * Loads and handles the navigation.
-     */
-    private void load() {
-        if (navigator.toMenu()) {
-            finish();
-            return;
-        }
-
-        ArrayList<Integer> ads = new ArrayList<>();
-        ads.add(2);
-        ads.add(4);
-        ads.add(6);
-        ads.add(9);
-
-        if (ads.contains(symbols.getChapterNumber()) && !isGranted && !isPremiumGame && AdmobConsent.Companion.canShowAd()) {
-            AdmobConsent.Companion.start(this, this.adActivityResultLauncher);
-        } else {
-            this.navigate();
-        }
+        navigate();
     }
 
     /**
@@ -184,22 +152,6 @@ public class Load extends AppCompatActivity implements SmartAdsInterface {
                 && poetries.contains(symbols.getChapterCode());
     }
 
-    @Override
-    public void onAdAborted() {
-        finish();
-    }
-
-    @Override
-    public void onAdSuccessfullyWatched() {
-        stop = true;
-        navigate();
-    }
-
-    @Override
-    public void onAdRemovedPaid() {
-        navigate();
-    }
-
     private void navigate() {
 
         if (needsToWatchCinematic()) {
@@ -220,11 +172,6 @@ public class Load extends AppCompatActivity implements SmartAdsInterface {
         i.putExtra("symbols", (Parcelable) symbols);
 
         startActivityForResult(i, navigator.getDestination().ordinal());
-    }
-
-    @Override
-    public void onErrorFound(@Nullable String code, @Nullable String message, @Nullable String adUnit) {
-
     }
 
 }
