@@ -66,7 +66,6 @@ dependencies {
     implementation project(path: ':shared-elements')
     implementation project(path: ':tools')
     implementation project(':smsgame')
-    implementation project(':smartads')
 
     // Required -- JUnit 4 framework
     testImplementation 'junit:junit:4.13.2'

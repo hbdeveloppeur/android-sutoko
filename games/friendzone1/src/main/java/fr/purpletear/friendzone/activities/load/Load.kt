@@ -11,25 +11,21 @@ package fr.purpletear.friendzone.activities.load
 import android.content.Intent
 import android.os.Bundle
 import android.os.Parcelable
-import androidx.activity.result.ActivityResultLauncher
 import androidx.appcompat.app.AppCompatActivity
 import com.example.sharedelements.SutokoSharedElementsData
-import com.purpletear.smartads.SmartAdsInterface
-import com.purpletear.smartads.adConsent.AdmobConsent
 import fr.purpletear.friendzone.R
 import fr.purpletear.friendzone.config.ChapterDetailsHandler
 import purpletear.fr.purpleteartools.GlobalData
 import purpletear.fr.purpleteartools.Std
 import purpletear.fr.purpleteartools.TableOfSymbols
 
-class Load : AppCompatActivity(), SmartAdsInterface {
+class Load : AppCompatActivity() {
     /**
      * Handles the model settings
      *
      * @see LoadModel
      */
     private lateinit var model: LoadModel
-    private lateinit var adActivityResultLauncher: ActivityResultLauncher<Intent>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         Std.debug("Load:onCreate")
@@ -54,7 +50,7 @@ class Load : AppCompatActivity(), SmartAdsInterface {
 
     override fun onResume() {
         super.onResume()
-        requestChapterParams()
+        navigate()
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -95,25 +91,7 @@ class Load : AppCompatActivity(), SmartAdsInterface {
             symbols,
             intent.getBooleanExtra("granted", false)
         )
-        this.adActivityResultLauncher = AdmobConsent.registerActivityResultLauncher(this, this)
     }
-
-    override fun onAdAborted() {
-        finish()
-    }
-
-    override fun onAdSuccessfullyWatched() {
-        navigate()
-    }
-
-    override fun onAdRemovedPaid() {
-        model.granted = true
-    }
-
-    override fun onErrorFound(code: String?, message: String?, adUnit: String?) {
-
-    }
-
 
     @Throws
     private fun navigate() {
@@ -132,22 +110,5 @@ class Load : AppCompatActivity(), SmartAdsInterface {
             model.navigationHandler.requestCode
         )
         overridePendingTransition(0, 0)
-    }
-
-    /**
-     * Request the chapter's param
-     */
-    private fun requestChapterParams() {
-        if (arrayOf(
-                5,
-                6,
-                8,
-                9
-            ).contains(model.symbols.chapterNumber) && !model.granted && AdmobConsent.canShowAd()
-        ) {
-            AdmobConsent.start(this, this.adActivityResultLauncher)
-        } else {
-            navigate()
-        }
     }
 }
