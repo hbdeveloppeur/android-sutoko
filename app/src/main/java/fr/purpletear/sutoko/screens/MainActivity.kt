@@ -243,8 +243,8 @@ class MainActivity @Inject constructor(
                 Box(Modifier.Companion.imePadding()) {
                     NavHost(
                         navController,
-                        startDestination = MainScreenPages.SplashScreen.route,
-                        // startDestination = MainScreenPages.Create.route,
+                        // startDestination = MainScreenPages.SplashScreen.route,
+                        startDestination = MainScreenPages.Create.route,
                     ) {
 
                         composable(MainScreenPages.SplashScreen.route) {
