@@ -11,17 +11,14 @@ package fr.purpletear.friendzone2.activities.load
 import android.content.Intent
 import android.os.Bundle
 import android.os.Parcelable
-import androidx.activity.result.ActivityResultLauncher
 import androidx.appcompat.app.AppCompatActivity
 import com.example.sharedelements.SutokoSharedElementsData
-import com.purpletear.smartads.SmartAdsInterface
-import com.purpletear.smartads.adConsent.AdmobConsent
 import fr.purpletear.friendzone2.R
 import fr.purpletear.friendzone2.configs.ChapterDetailsHandler
 import purpletear.fr.purpleteartools.GlobalData
 import purpletear.fr.purpleteartools.TableOfSymbols
 
-class Load : AppCompatActivity(), SmartAdsInterface {
+class Load : AppCompatActivity() {
 
     /**
      * Handles the model settings
@@ -29,12 +26,10 @@ class Load : AppCompatActivity(), SmartAdsInterface {
      * @see LoadModel
      */
     private lateinit var model: LoadModel
-    private lateinit var adActivityResultLauncher: ActivityResultLauncher<Intent>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_load)
-        this.adActivityResultLauncher = AdmobConsent.registerActivityResultLauncher(this, this)
         load()
     }
 
@@ -54,11 +49,7 @@ class Load : AppCompatActivity(), SmartAdsInterface {
 
     override fun onResume() {
         super.onResume()
-        if (model.requireVideoAd() && !model.isGranted && AdmobConsent.canShowAd()) {
-            AdmobConsent.start(this, this.adActivityResultLauncher)
-        } else {
-            navigate()
-        }
+        navigate()
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -100,10 +91,7 @@ class Load : AppCompatActivity(), SmartAdsInterface {
             symbols.save(this)
         }
 
-
-
         model = LoadModel(
-            this,
             symbols, intent.getBooleanExtra("granted", false)
         )
     }
@@ -130,21 +118,5 @@ class Load : AppCompatActivity(), SmartAdsInterface {
             model.navigationHandler.requestCode
         )
         overridePendingTransition(0, 0)
-    }
-
-    override fun onAdAborted() {
-        finish()
-    }
-
-    override fun onAdSuccessfullyWatched() {
-        navigate()
-    }
-
-    override fun onAdRemovedPaid() {
-        model.isGranted = true
-    }
-
-    override fun onErrorFound(code: String?, message: String?, adUnit: String?) {
-
     }
 }

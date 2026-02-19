@@ -9,12 +9,10 @@
 package fr.purpletear.friendzone2.activities.load
 
 import com.example.sharedelements.SutokoSharedElementsData
-import com.purpletear.smartads.SmartAdsInterface
 import purpletear.fr.purpleteartools.TableOfSymbols
 
 
 internal class LoadModel(
-    activity: SmartAdsInterface,
     var symbols: TableOfSymbols, var isGranted: Boolean
 ) {
 
@@ -64,10 +62,5 @@ internal class LoadModel(
     private fun requiresTextIntro(): Boolean {
         val array = arrayOf("1a", "5a", "5b", "9f", "10a", "10b", "10c")
         return SutokoSharedElementsData.IS_TEXTCINEMATIC_ENABLED && array.contains(symbols.chapterCode) && !hasSeenTextCinematic
-    }
-
-    fun requireVideoAd(): Boolean {
-        val array = arrayOf(2, 4, 6, 8, 9)
-        return array.contains(symbols.chapterNumber)
     }
 }
