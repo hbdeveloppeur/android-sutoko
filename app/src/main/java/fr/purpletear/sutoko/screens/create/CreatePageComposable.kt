@@ -2,6 +2,7 @@ package fr.purpletear.sutoko.screens.create
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -15,13 +16,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.layout.Spacer
 import fr.purpletear.sutoko.R
 import fr.purpletear.sutoko.screens.create.components.create_story_button.CreateStoryButton
 import fr.purpletear.sutoko.screens.create.components.create_story_button.CreateStoryButtonVariant
+import fr.purpletear.sutoko.screens.create.components.search_box.SearchBox
 import fr.purpletear.sutoko.screens.create.components.section_title.SectionTitle
 import fr.purpletear.sutoko.screens.create.components.story_card.StoryCard
 import fr.purpletear.sutoko.screens.main.presentation.screens.TopNavigation
@@ -32,10 +36,12 @@ private const val GRADIENT_BOTTOM_ALPHA = 0.00001f
 
 @Composable
 internal fun CreatePageComposable(modifier: Modifier = Modifier) {
+    val focusManager = LocalFocusManager.current
+
     Box(
         modifier = modifier
             .fillMaxSize()
-            .background(Color.Black)
+            .background(Color.Black.copy(.5f))
     ) {
         Background()
 
@@ -43,11 +49,14 @@ internal fun CreatePageComposable(modifier: Modifier = Modifier) {
             modifier = Modifier
                 .fillMaxSize()
                 .systemBarsPadding()
-                .padding(top = 12.dp),
+                .padding(top = 12.dp)
+                .pointerInput(Unit) {
+                    detectTapGestures(onTap = { focusManager.clearFocus() })
+                },
         ) { 
             item {
                 TopNavigation(
-                    modifier = Modifier
+                    modifier = Modifier 
                         .padding(horizontal = 16.dp)
                         .padding(start = 8.dp),
                     coins = 960,
@@ -57,6 +66,20 @@ internal fun CreatePageComposable(modifier: Modifier = Modifier) {
                     onCoinsButtonPressed = { /* TODO: Navigate to shop */ },
                     onDiamondsButtonPressed = { /* TODO */ },
                     onOptionsButtonPressed = { /* TODO: Show options menu */ }
+                )
+            }
+
+            item {
+                SearchBox(
+                    modifier = Modifier
+                        .padding(horizontal = 16.dp)
+                        .padding(top = 16.dp),
+                    onSearch = { query ->
+                        // TODO: Handle search
+                    },
+                    onValueChange = { query ->
+                        // TODO: Handle search query change
+                    }
                 )
             }
 
