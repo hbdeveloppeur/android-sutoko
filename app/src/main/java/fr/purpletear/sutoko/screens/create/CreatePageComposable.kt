@@ -1,5 +1,7 @@
 package fr.purpletear.sutoko.screens.create
 
+import androidx.compose.animation.core.animateIntAsState
+import androidx.compose.animation.core.spring
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
@@ -50,7 +52,7 @@ internal fun CreatePageComposable(
     val focusManager = LocalFocusManager.current
     val balance by viewModel.balance
 
-    val coins = when (balance) {
+    val targetCoins = when (balance) {
         is com.purpletear.core.presentation.extensions.Resource.Success -> {
             (balance as com.purpletear.core.presentation.extensions.Resource.Success).data?.coins
                 ?: viewModel.getCoins()
@@ -58,13 +60,31 @@ internal fun CreatePageComposable(
         else -> viewModel.getCoins()
     }
 
-    val diamonds = when (balance) {
+    val targetDiamonds = when (balance) {
         is com.purpletear.core.presentation.extensions.Resource.Success -> {
             (balance as com.purpletear.core.presentation.extensions.Resource.Success).data?.diamonds
                 ?: viewModel.getDiamonds()
         }
         else -> viewModel.getDiamonds()
     }
+
+    val coins by animateIntAsState(
+        targetValue = targetCoins,
+        animationSpec = spring(
+            dampingRatio = 0.8f,
+            stiffness = 200f
+        ),
+        label = "coins_animation"
+    )
+
+    val diamonds by animateIntAsState(
+        targetValue = targetDiamonds,
+        animationSpec = spring(
+            dampingRatio = 0.8f,
+            stiffness = 200f
+        ),
+        label = "diamonds_animation"
+    )
 
     val isLoading = balance is com.purpletear.core.presentation.extensions.Resource.Loading
 

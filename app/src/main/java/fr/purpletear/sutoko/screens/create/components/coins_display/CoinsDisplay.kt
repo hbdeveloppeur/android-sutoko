@@ -74,17 +74,7 @@ internal fun CoinsDisplay(
             contentDescription = null,
             modifier = Modifier.size(16.dp)
         )
-        if (animated) {
-            AnimatedCoinAmount(amount = amount)
-        } else {
-            Text(
-                text = amount.toString(),
-                color = Color.White,
-                fontFamily = Poppins,
-                fontWeight = FontWeight.SemiBold,
-                fontSize = 12.sp
-            )
-        }
+        AnimatedCoinAmount(amount = amount)
     }
 }
 
