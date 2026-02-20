@@ -27,14 +27,13 @@ class CreateViewModel @Inject constructor(
     }
 
     private fun observeBalance() {
-        _balance.value = Resource.Loading()
         viewModelScope.launch {
             executeFlowUseCase(
                 { observeShopBalanceUseCase() },
                 onStream = { balance ->
-                    balance?.let {
-                        _balance.value = Resource.Success(it)
-                    }
+                    _balance.value = Resource.Success(
+                        balance ?: Balance(coins = getCoins(), diamonds = getDiamonds())
+                    )
                 },
                 onFailure = { exception ->
                     _balance.value = Resource.Error(exception)
