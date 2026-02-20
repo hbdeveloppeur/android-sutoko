@@ -290,7 +290,20 @@ class MainActivity @Inject constructor(
                         }
 
                         animatedComposable(MainScreenPages.Create.route) { backStackEntry ->
-                            CreatePageComposable()
+                            CreatePageComposable(
+                                onAccountButtonPressed = {
+                                    onAccountPressed()
+                                },
+                                onCoinsButtonPressed = {
+                                    onCoinsPressed()
+                                },
+                                onDiamondsButtonPressed = {
+                                    onDiamondPressed()
+                                },
+                                onOptionsButtonPressed = {
+                                    onOptionsPressed()
+                                }
+                            )
                         }
 
                         composable(

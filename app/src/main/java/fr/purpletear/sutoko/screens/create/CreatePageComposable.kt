@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -21,7 +22,8 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import androidx.compose.foundation.layout.Spacer
+import androidx.hilt.navigation.compose.hiltViewModel
+
 import fr.purpletear.sutoko.R
 import fr.purpletear.sutoko.screens.create.components.create_story_button.CreateStoryButton
 import fr.purpletear.sutoko.screens.create.components.create_story_button.CreateStoryButtonVariant
@@ -37,8 +39,34 @@ private const val GRADIENT_TOP_ALPHA = 0.08f
 private const val GRADIENT_BOTTOM_ALPHA = 0.00001f
 
 @Composable
-internal fun CreatePageComposable(modifier: Modifier = Modifier) {
+internal fun CreatePageComposable(
+    modifier: Modifier = Modifier,
+    viewModel: CreateViewModel = hiltViewModel(),
+    onAccountButtonPressed: () -> Unit = {},
+    onCoinsButtonPressed: () -> Unit = {},
+    onDiamondsButtonPressed: () -> Unit = {},
+    onOptionsButtonPressed: () -> Unit = {},
+) {
     val focusManager = LocalFocusManager.current
+    val balance by viewModel.balance
+
+    val coins = when (balance) {
+        is com.purpletear.core.presentation.extensions.Resource.Success -> {
+            (balance as com.purpletear.core.presentation.extensions.Resource.Success).data?.coins
+                ?: viewModel.getCoins()
+        }
+        else -> viewModel.getCoins()
+    }
+
+    val diamonds = when (balance) {
+        is com.purpletear.core.presentation.extensions.Resource.Success -> {
+            (balance as com.purpletear.core.presentation.extensions.Resource.Success).data?.diamonds
+                ?: viewModel.getDiamonds()
+        }
+        else -> viewModel.getDiamonds()
+    }
+
+    val isLoading = balance is com.purpletear.core.presentation.extensions.Resource.Loading
 
     Box(
         modifier = modifier
@@ -61,13 +89,13 @@ internal fun CreatePageComposable(modifier: Modifier = Modifier) {
                     modifier = Modifier 
                         .padding(horizontal = 16.dp)
                         .padding(start = 8.dp),
-                    coins = 960,
-                    diamonds = 0,
-                    isLoading = false,
-                    onAccountButtonPressed = { /* TODO */ },
-                    onCoinsButtonPressed = { /* TODO: Navigate to shop */ },
-                    onDiamondsButtonPressed = { /* TODO */ },
-                    onOptionsButtonPressed = { /* TODO: Show options menu */ }
+                    coins = coins,
+                    diamonds = diamonds,
+                    isLoading = isLoading,
+                    onAccountButtonPressed = onAccountButtonPressed,
+                    onCoinsButtonPressed = onCoinsButtonPressed,
+                    onDiamondsButtonPressed = onDiamondsButtonPressed,
+                    onOptionsButtonPressed = onOptionsButtonPressed
                 )
             }
 
