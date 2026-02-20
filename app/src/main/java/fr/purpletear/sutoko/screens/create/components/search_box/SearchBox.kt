@@ -6,6 +6,8 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -76,6 +78,19 @@ internal fun SearchBox(
     val focusManager = LocalFocusManager.current
     val view = LocalView.current
 
+    val animationSpec = tween<Color>(durationMillis = 200)
+
+    val borderColor by animateColorAsState(
+        targetValue = if (isFocused) SearchBoxBorderFocused else SearchBoxBorderUnfocused,
+        animationSpec = animationSpec,
+        label = "border_color"
+    )
+    val iconColor by animateColorAsState(
+        targetValue = if (isFocused) IconColorFocused else IconColorUnfocused,
+        animationSpec = animationSpec,
+        label = "icon_color"
+    )
+
     var lastKeyboardHeight by remember { mutableStateOf(0) }
 
     DisposableEffect(view) {
@@ -101,7 +116,7 @@ internal fun SearchBox(
             .background(SearchBoxBackground)
             .border(
                 width = 1.dp,
-                color = if (isFocused) SearchBoxBorderFocused else SearchBoxBorderUnfocused,
+                color = borderColor,
                 shape = RoundedCornerShape(12.dp)
             ),
         contentAlignment = Alignment.CenterStart
@@ -141,6 +156,7 @@ internal fun SearchBox(
                     innerTextField = innerTextField,
                     placeholder = placeholder,
                     isFocused = isFocused,
+                    iconColor = iconColor,
                     isClearable = isClearable,
                     onClear = {
                         textState = TextFieldValue("")
@@ -158,6 +174,7 @@ private fun SearchBoxDecoration(
     innerTextField: @Composable () -> Unit,
     placeholder: String,
     isFocused: Boolean,
+    iconColor: Color,
     isClearable: Boolean,
     onClear: () -> Unit
 ) {
@@ -168,7 +185,7 @@ private fun SearchBoxDecoration(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(10.dp)
     ) {
-        SearchIcon(isFocused = isFocused)
+        SearchIcon(iconColor = iconColor)
 
         Box(
             modifier = Modifier.weight(1f),
@@ -194,9 +211,7 @@ private fun SearchBoxDecoration(
 }
 
 @Composable
-private fun SearchIcon(isFocused: Boolean) {
-    val iconColor = if (isFocused) IconColorFocused else IconColorUnfocused
-
+private fun SearchIcon(iconColor: Color) {
     Icon(
         imageVector = Icons.Default.Search,
         contentDescription = null,

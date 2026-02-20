@@ -1,5 +1,7 @@
 package fr.purpletear.sutoko.screens.main.presentation.screens.community.components
 
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -58,6 +60,13 @@ fun CommunitySearchBox(
     var textState by remember { mutableStateOf(TextFieldValue("")) }
     val focusManager = LocalFocusManager.current
 
+    val animationSpec = tween<Color>(durationMillis = 200)
+    val iconColor by animateColorAsState(
+        targetValue = if (textState.text.isNotEmpty()) Color.White else Color.White.copy(0.5f),
+        animationSpec = animationSpec,
+        label = "icon_color"
+    )
+
     Box(
         modifier = Modifier
             .then(modifier)
@@ -104,7 +113,7 @@ fun CommunitySearchBox(
                         modifier = Modifier.offset(y = 2.dp),
                         imageVector = Icons.Default.Search,
                         contentDescription = null,
-                        tint = Color.White.copy(0.5f)
+                        tint = iconColor
                     )
 
                     Box {
