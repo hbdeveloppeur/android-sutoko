@@ -122,71 +122,54 @@ internal fun CreateStoryButton(
 }
 
 @Composable
-private fun DecorativeShapes(shapeColor: Color) {
-    val infiniteTransition = rememberInfiniteTransition(label = "shapes")
+private fun BoxScope.DecorativeShapes(shapeColor: Color) {
+    val transition = rememberInfiniteTransition(label = "shapes")
 
-    Box {
-        shapeConfigs.forEach { (position, config) ->
-            AnimatedShape(
-                position = position,
-                config = config,
-                shapeColor = shapeColor,
-                transition = infiniteTransition
-            )
-        }
+    shapeConfigs.forEach { (position, config) ->
+        val (alignment, offsetX, offsetY) = position
+
+        val float by transition.animateFloat(
+            initialValue = config.floatRange.start,
+            targetValue = config.floatRange.endInclusive,
+            animationSpec = infiniteRepeatable(
+                animation = tween(config.floatDuration, easing = EaseInOutSine),
+                repeatMode = RepeatMode.Reverse
+            ),
+            label = "float"
+        )
+
+        val rotation by transition.animateFloat(
+            initialValue = config.rotationRange.start,
+            targetValue = config.rotationRange.endInclusive,
+            animationSpec = infiniteRepeatable(
+                animation = tween(config.rotationDuration, easing = EaseInOutSine),
+                repeatMode = RepeatMode.Reverse
+            ),
+            label = "rotation"
+        )
+
+        val scale by transition.animateFloat(
+            initialValue = config.scaleRange.start,
+            targetValue = config.scaleRange.endInclusive,
+            animationSpec = infiniteRepeatable(
+                animation = tween(config.scaleDuration, easing = EaseInOutSine),
+                repeatMode = RepeatMode.Reverse
+            ),
+            label = "scale"
+        )
+
+        Image(
+            painter = painterResource(R.drawable.rounded_square_outline_shape),
+            contentDescription = null,
+            colorFilter = ColorFilter.tint(shapeColor),
+            modifier = Modifier
+                .align(alignment)
+                .offset(x = offsetX, y = offsetY + float.dp)
+                .size(config.size * scale)
+                .rotate(rotation)
+                .alpha(0.6f)
+        )
     }
-}
-
-@Composable
-private fun BoxScope.AnimatedShape(
-    position: Triple<Alignment, Dp, Dp>,
-    config: ShapeConfig,
-    shapeColor: Color,
-    transition: InfiniteTransition
-) {
-    val (alignment, offsetX, offsetY) = position
-
-    val float by transition.animateFloat(
-        initialValue = config.floatRange.start,
-        targetValue = config.floatRange.endInclusive,
-        animationSpec = infiniteRepeatable(
-            animation = tween(config.floatDuration, easing = EaseInOutSine),
-            repeatMode = RepeatMode.Reverse
-        ),
-        label = "float"
-    )
-
-    val rotation by transition.animateFloat(
-        initialValue = config.rotationRange.start,
-        targetValue = config.rotationRange.endInclusive,
-        animationSpec = infiniteRepeatable(
-            animation = tween(config.rotationDuration, easing = EaseInOutSine),
-            repeatMode = RepeatMode.Reverse
-        ),
-        label = "rotation"
-    )
-
-    val scale by transition.animateFloat(
-        initialValue = config.scaleRange.start,
-        targetValue = config.scaleRange.endInclusive,
-        animationSpec = infiniteRepeatable(
-            animation = tween(config.scaleDuration, easing = EaseInOutSine),
-            repeatMode = RepeatMode.Reverse
-        ),
-        label = "scale"
-    )
-
-    Image(
-        painter = painterResource(R.drawable.rounded_square_outline_shape),
-        contentDescription = null,
-        colorFilter = ColorFilter.tint(shapeColor),
-        modifier = Modifier
-            .align(alignment)
-            .offset(x = offsetX, y = offsetY + float.dp)
-            .size(config.size * scale)
-            .rotate(rotation)
-            .alpha(0.6f)
-    )
 }
 
 @Composable
