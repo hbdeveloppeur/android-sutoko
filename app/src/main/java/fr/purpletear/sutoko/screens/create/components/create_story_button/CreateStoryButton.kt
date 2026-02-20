@@ -16,9 +16,11 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.animation.core.*
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
@@ -67,6 +69,88 @@ internal fun CreateStoryButton(
     onClick: () -> Unit
 ) {
     val gradient = variant.gradient
+    val infiniteTransition = rememberInfiniteTransition(label = "shapes")
+
+    // Shape 1: gentle float + slow rotation
+    val float1 by infiniteTransition.animateFloat(
+        initialValue = 0f,
+        targetValue = 6f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(3000, easing = EaseInOutSine),
+            repeatMode = RepeatMode.Reverse
+        ),
+        label = "float1"
+    )
+    val rotation1 by infiniteTransition.animateFloat(
+        initialValue = -15f,
+        targetValue = -5f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(4000, easing = EaseInOutSine),
+            repeatMode = RepeatMode.Reverse
+        ),
+        label = "rot1"
+    )
+
+    // Shape 2: different float + rotation
+    val float2 by infiniteTransition.animateFloat(
+        initialValue = 0f,
+        targetValue = -5f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(3500, easing = EaseInOutSine),
+            repeatMode = RepeatMode.Reverse
+        ),
+        label = "float2"
+    )
+    val rotation2 by infiniteTransition.animateFloat(
+        initialValue = -45f,
+        targetValue = -35f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(5000, easing = EaseInOutSine),
+            repeatMode = RepeatMode.Reverse
+        ),
+        label = "rot2"
+    )
+
+    // Shape 3: subtle scale + rotation
+    val scale3 by infiniteTransition.animateFloat(
+        initialValue = 1f,
+        targetValue = 1.08f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(2500, easing = EaseInOutSine),
+            repeatMode = RepeatMode.Reverse
+        ),
+        label = "scale3"
+    )
+    val rotation3 by infiniteTransition.animateFloat(
+        initialValue = -30f,
+        targetValue = -20f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(4500, easing = EaseInOutSine),
+            repeatMode = RepeatMode.Reverse
+        ),
+        label = "rot3"
+    )
+
+    // Shape 4: float + scale combo
+    val float4 by infiniteTransition.animateFloat(
+        initialValue = 0f,
+        targetValue = 4f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(2800, easing = EaseInOutSine),
+            repeatMode = RepeatMode.Reverse
+        ),
+        label = "float4"
+    )
+    val rotation4 by infiniteTransition.animateFloat(
+        initialValue = -30f,
+        targetValue = -40f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(4200, easing = EaseInOutSine),
+            repeatMode = RepeatMode.Reverse
+        ),
+        label = "rot4"
+    )
+
     Box(
         modifier = modifier
             .fillMaxWidth()
@@ -87,50 +171,51 @@ internal fun CreateStoryButton(
             ),
         contentAlignment = Alignment.Center
     ) {
-        // Rotated shape behind text, half out on bottom left
-
-        // Rotated shape behind text, half out on bottom left (outside clip)
+        // Shape 1: Bottom left - gentle float + rotation
         Image(
             painter = painterResource(id = R.drawable.rounded_square_outline_shape),
             contentDescription = null,
             modifier = Modifier
                 .align(Alignment.BottomStart)
-                .offset(x = 22.dp, y = 26.dp)
+                .offset(x = 22.dp, y = 26.dp + float1.dp)
                 .size(48.dp)
-                .rotate(-15f)
+                .rotate(rotation1)
                 .alpha(0.6f)
         )
 
+        // Shape 2: Bottom left upper - float + rotation
         Image(
             painter = painterResource(id = R.drawable.rounded_square_outline_shape),
             contentDescription = null,
             modifier = Modifier
                 .align(Alignment.BottomStart)
-                .offset(x = (-4).dp, y = (-40).dp)
+                .offset(x = (-4).dp, y = (-40).dp + float2.dp)
                 .size(48.dp)
-                .rotate(-45f)
+                .rotate(rotation2)
                 .alpha(0.6f)
         )
 
+        // Shape 3: Top right - scale + rotation
         Image(
             painter = painterResource(id = R.drawable.rounded_square_outline_shape),
             contentDescription = null,
             modifier = Modifier
                 .align(Alignment.TopEnd)
                 .offset(x = (-20).dp, y = (-24).dp)
-                .size(42.dp)
-                .rotate(-30f)
+                .size((42 * scale3).dp)
+                .rotate(rotation3)
                 .alpha(0.6f)
         )
 
+        // Shape 4: Bottom right - float + rotation
         Image(
             painter = painterResource(id = R.drawable.rounded_square_outline_shape),
             contentDescription = null,
             modifier = Modifier
                 .align(Alignment.BottomEnd)
-                .offset(x = (-20).dp, y = 30.dp)
+                .offset(x = (-20).dp, y = 30.dp + float4.dp)
                 .size(42.dp)
-                .rotate(-30f)
+                .rotate(rotation4)
                 .alpha(0.6f)
         )
 
