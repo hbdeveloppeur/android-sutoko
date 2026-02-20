@@ -1,5 +1,6 @@
 package fr.purpletear.sutoko.screens.create.components.create_story_button
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -9,10 +10,10 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Icon
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -83,24 +84,70 @@ internal fun CreateStoryButton(
                 interactionSource = remember { MutableInteractionSource() },
                 indication = null,
                 onClick = onClick
-            )
-            .padding(horizontal = 24.dp),
+            ),
         contentAlignment = Alignment.Center
     ) {
+        // Rotated shape behind text, half out on bottom left
 
-        if (hint != null) {
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(2.dp)
-            ) {
-                Text(
-                    text = text,
-                    fontFamily = Poppins,
-                    fontWeight = FontWeight.SemiBold,
-                    fontSize = 12.sp,
-                    color = variant.textColor,
-                    textAlign = TextAlign.Center
-                )
+        // Rotated shape behind text, half out on bottom left (outside clip)
+        Image(
+            painter = painterResource(id = R.drawable.rounded_square_outline_shape),
+            contentDescription = null,
+            modifier = Modifier
+                .align(Alignment.BottomStart)
+                .offset(x = 22.dp, y = 26.dp)
+                .size(48.dp)
+                .rotate(-15f)
+                .alpha(0.6f)
+        )
+
+        Image(
+            painter = painterResource(id = R.drawable.rounded_square_outline_shape),
+            contentDescription = null,
+            modifier = Modifier
+                .align(Alignment.BottomStart)
+                .offset(x = (-4).dp, y = (-40).dp)
+                .size(48.dp)
+                .rotate(-45f)
+                .alpha(0.6f)
+        )
+
+        Image(
+            painter = painterResource(id = R.drawable.rounded_square_outline_shape),
+            contentDescription = null,
+            modifier = Modifier
+                .align(Alignment.TopEnd)
+                .offset(x = (-20).dp, y = (-24).dp)
+                .size(42.dp)
+                .rotate(-30f)
+                .alpha(0.6f)
+        )
+
+        Image(
+            painter = painterResource(id = R.drawable.rounded_square_outline_shape),
+            contentDescription = null,
+            modifier = Modifier
+                .align(Alignment.BottomEnd)
+                .offset(x = (-20).dp, y = 30.dp)
+                .size(42.dp)
+                .rotate(-30f)
+                .alpha(0.6f)
+        )
+
+        Column(
+            modifier = Modifier.padding(horizontal = 24.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(2.dp)
+        ) {
+            Text(
+                text = text,
+                fontFamily = Poppins,
+                fontWeight = FontWeight.SemiBold,
+                fontSize = 12.sp,
+                color = variant.textColor,
+                textAlign = TextAlign.Center
+            )
+            if (hint != null) {
                 Text(
                     text = hint,
                     fontFamily = Poppins,
@@ -110,15 +157,6 @@ internal fun CreateStoryButton(
                     textAlign = TextAlign.Center
                 )
             }
-        } else {
-            Text(
-                text = text,
-                fontFamily = Poppins,
-                fontWeight = FontWeight.SemiBold,
-                fontSize = 12.sp,
-                color = variant.textColor,
-                textAlign = TextAlign.Center
-            )
         }
     }
 }
