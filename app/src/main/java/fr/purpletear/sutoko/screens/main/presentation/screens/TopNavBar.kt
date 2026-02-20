@@ -86,7 +86,9 @@ fun TopNavigation(
 
         // User coins amount
         CoinsDisplay(
-            modifier = Modifier.padding(start = 8.dp),
+            modifier = Modifier
+                .padding(start = 8.dp)
+                .alpha(if (isLoading) 0.3f else 1f),
             amount = coins,
             onClick = onCoinsButtonPressed
         )

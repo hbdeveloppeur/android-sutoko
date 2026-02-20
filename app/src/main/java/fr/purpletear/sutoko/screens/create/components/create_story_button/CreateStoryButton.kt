@@ -38,7 +38,7 @@ sealed class CreateStoryButtonVariant(
         backgroundColor = Color(0xFFDBDBDB),
         shapeColor = Color(0x44292929),
         textColor = Color(0xFF292929)
-    )
+    ) 
 
     data object Violet : CreateStoryButtonVariant(
         backgroundColor = Color(0xFF6827A4),
