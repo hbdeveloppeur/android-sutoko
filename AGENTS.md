@@ -1,5 +1,5 @@
 # AGENTS.md
-When doing an action, add a line of a very short explanation of the action you are doing in "actions.txt".
+When doing an action, add a line of a very short explanation of the action you are doing in file ./AGENTS_ACTIONS.txt.
 Always build debug no cache to test.
 Your first step of working is to find the best plan for the asked task.
 
