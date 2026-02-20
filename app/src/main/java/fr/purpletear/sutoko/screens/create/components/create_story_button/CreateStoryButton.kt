@@ -50,7 +50,8 @@ sealed class CreateStoryButtonVariant(
     )
 }
 
-private data class ShapeAnimationConfig(
+private data class ShapeConfig(
+    val size: Dp,
     val floatRange: ClosedFloatingPointRange<Float> = 0f..0f,
     val floatDuration: Int = 3000,
     val rotationRange: ClosedFloatingPointRange<Float> = 0f..0f,
@@ -59,38 +60,31 @@ private data class ShapeAnimationConfig(
     val scaleDuration: Int = 2500
 )
 
-private data class ShapeLayoutConfig(
-    val alignment: Alignment,
-    val offsetX: Dp,
-    val offsetY: Dp,
-    val baseSize: Dp
-)
-
 private val shapeConfigs = listOf(
     // Shape 1: Bottom left - gentle float + rotation
-    ShapeLayoutConfig(Alignment.BottomStart, 22.dp, 26.dp, 48.dp) to
-        ShapeAnimationConfig(
-            floatRange = 0f..6f,
-            rotationRange = -15f..-5f
-        ),
+    Triple(Alignment.BottomStart, 22.dp, 26.dp) to
+        ShapeConfig(size = 48.dp, floatRange = 0f..6f, rotationRange = -15f..-5f),
     // Shape 2: Bottom left upper - float + rotation
-    ShapeLayoutConfig(Alignment.BottomStart, (-4).dp, (-40).dp, 48.dp) to
-        ShapeAnimationConfig(
+    Triple(Alignment.BottomStart, (-4).dp, (-40).dp) to
+        ShapeConfig(
+            size = 48.dp,
             floatRange = 0f..-5f,
             floatDuration = 3500,
             rotationRange = -45f..-35f,
             rotationDuration = 5000
         ),
     // Shape 3: Top right - scale + rotation
-    ShapeLayoutConfig(Alignment.TopEnd, (-20).dp, (-24).dp, 42.dp) to
-        ShapeAnimationConfig(
+    Triple(Alignment.TopEnd, (-20).dp, (-24).dp) to
+        ShapeConfig(
+            size = 42.dp,
             scaleRange = 1f..1.08f,
             rotationRange = -30f..-20f,
             rotationDuration = 4500
         ),
     // Shape 4: Bottom right - float + rotation
-    ShapeLayoutConfig(Alignment.BottomEnd, (-20).dp, 30.dp, 42.dp) to
-        ShapeAnimationConfig(
+    Triple(Alignment.BottomEnd, (-20).dp, 30.dp) to
+        ShapeConfig(
+            size = 42.dp,
             floatRange = 0f..4f,
             floatDuration = 2800,
             rotationRange = -30f..-40f,
@@ -112,7 +106,9 @@ internal fun CreateStoryButton(
             .heightIn(max = 500.dp)
             .height(52.dp)
             .clip(RoundedCornerShape(12.dp))
-            .background(variant.gradient ?: variant.backgroundColor)
+            .let { mod ->
+                variant.gradient?.let { mod.background(it) } ?: mod.background(variant.backgroundColor)
+            }
             .clickable(
                 interactionSource = remember { MutableInteractionSource() },
                 indication = null,
@@ -129,48 +125,52 @@ internal fun CreateStoryButton(
 private fun DecorativeShapes(shapeColor: Color) {
     val infiniteTransition = rememberInfiniteTransition(label = "shapes")
 
-    shapeConfigs.forEach { (layout, animation) ->
-        AnimatedShape(
-            layout = layout,
-            animation = animation,
-            shapeColor = shapeColor,
-            transition = infiniteTransition
-        )
+    Box {
+        shapeConfigs.forEach { (position, config) ->
+            AnimatedShape(
+                position = position,
+                config = config,
+                shapeColor = shapeColor,
+                transition = infiniteTransition
+            )
+        }
     }
 }
 
 @Composable
-private fun AnimatedShape(
-    layout: ShapeLayoutConfig,
-    animation: ShapeAnimationConfig,
+private fun BoxScope.AnimatedShape(
+    position: Triple<Alignment, Dp, Dp>,
+    config: ShapeConfig,
     shapeColor: Color,
     transition: InfiniteTransition
 ) {
+    val (alignment, offsetX, offsetY) = position
+
     val float by transition.animateFloat(
-        initialValue = animation.floatRange.start,
-        targetValue = animation.floatRange.endInclusive,
+        initialValue = config.floatRange.start,
+        targetValue = config.floatRange.endInclusive,
         animationSpec = infiniteRepeatable(
-            animation = tween(animation.floatDuration, easing = EaseInOutSine),
+            animation = tween(config.floatDuration, easing = EaseInOutSine),
             repeatMode = RepeatMode.Reverse
         ),
         label = "float"
     )
 
     val rotation by transition.animateFloat(
-        initialValue = animation.rotationRange.start,
-        targetValue = animation.rotationRange.endInclusive,
+        initialValue = config.rotationRange.start,
+        targetValue = config.rotationRange.endInclusive,
         animationSpec = infiniteRepeatable(
-            animation = tween(animation.rotationDuration, easing = EaseInOutSine),
+            animation = tween(config.rotationDuration, easing = EaseInOutSine),
             repeatMode = RepeatMode.Reverse
         ),
         label = "rotation"
     )
 
     val scale by transition.animateFloat(
-        initialValue = animation.scaleRange.start,
-        targetValue = animation.scaleRange.endInclusive,
+        initialValue = config.scaleRange.start,
+        targetValue = config.scaleRange.endInclusive,
         animationSpec = infiniteRepeatable(
-            animation = tween(animation.scaleDuration, easing = EaseInOutSine),
+            animation = tween(config.scaleDuration, easing = EaseInOutSine),
             repeatMode = RepeatMode.Reverse
         ),
         label = "scale"
@@ -181,9 +181,9 @@ private fun AnimatedShape(
         contentDescription = null,
         colorFilter = ColorFilter.tint(shapeColor),
         modifier = Modifier
-            .align(layout.alignment)
-            .offset(x = layout.offsetX, y = layout.offsetY + float.dp)
-            .size(layout.baseSize * scale)
+            .align(alignment)
+            .offset(x = offsetX, y = offsetY + float.dp)
+            .size(config.size * scale)
             .rotate(rotation)
             .alpha(0.6f)
     )
