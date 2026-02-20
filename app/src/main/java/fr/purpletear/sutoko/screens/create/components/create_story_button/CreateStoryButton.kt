@@ -19,6 +19,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -86,7 +87,6 @@ internal fun CreateStoryButton(
             .padding(horizontal = 24.dp),
         contentAlignment = Alignment.Center
     ) {
-        DecorativeShapes(color = variant.shapeColor)
 
         if (hint != null) {
             Column(
@@ -120,54 +120,5 @@ internal fun CreateStoryButton(
                 textAlign = TextAlign.Center
             )
         }
-    }
-}
-
-@Composable
-private fun DecorativeShapes(color: Color) {
-    val shapeModifier = Modifier
-        .size(48.dp)
-        .alpha(0.15f)
-
-    Box(modifier = Modifier.fillMaxWidth()) {
-        // Top-left shape
-        Icon(
-            painter = painterResource(id = R.drawable.rounded_square_outline_shape),
-            contentDescription = null,
-            tint = color,
-            modifier = shapeModifier
-                .align(Alignment.TopStart)
-                .rotate(-15f)
-        )
-
-        // Top-right shape
-        Icon(
-            painter = painterResource(id = R.drawable.rounded_square_outline_shape),
-            contentDescription = null,
-            tint = color,
-            modifier = shapeModifier
-                .align(Alignment.TopEnd)
-                .rotate(15f)
-        )
-
-        // Bottom-left shape
-        Icon(
-            painter = painterResource(id = R.drawable.rounded_square_outline_shape),
-            contentDescription = null,
-            tint = color,
-            modifier = shapeModifier
-                .align(Alignment.BottomStart)
-                .rotate(15f)
-        )
-
-        // Bottom-right shape
-        Icon(
-            painter = painterResource(id = R.drawable.rounded_square_outline_shape),
-            contentDescription = null,
-            tint = color,
-            modifier = shapeModifier
-                .align(Alignment.BottomEnd)
-                .rotate(-15f)
-        )
     }
 }
