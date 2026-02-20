@@ -108,9 +108,14 @@ internal fun SearchBox(
     ) {
         BasicTextField(
             value = textState,
-            onValueChange = {
-                textState = it
-                onValueChange(it.text)
+            onValueChange = { newValue ->
+                val sanitized = sanitizeSearchInput(textState.text, newValue.text)
+                if (sanitized != newValue.text) {
+                    textState = newValue.copy(text = sanitized)
+                } else {
+                    textState = newValue
+                }
+                onValueChange(textState.text)
             },
             modifier = Modifier
                 .fillMaxWidth()
@@ -223,4 +228,18 @@ private fun ClearButton(
                 )
         )
     }
+}
+
+private fun sanitizeSearchInput(currentText: String, newText: String): String {
+    // Prevent leading space
+    if (newText.isNotEmpty() && newText.first() == ' ' && currentText.isEmpty()) {
+        return ""
+    }
+    
+    // Prevent double space
+    if (newText.length > currentText.length && newText.endsWith("  ")) {
+        return newText.trimEnd()
+    }
+    
+    return newText
 }
