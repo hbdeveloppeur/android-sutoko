@@ -59,6 +59,7 @@ internal fun CreateStoryButton(
     variant: CreateStoryButtonVariant = CreateStoryButtonVariant.Violet,
     onClick: () -> Unit
 ) {
+    val gradient = variant.gradient
     Box(
         modifier = modifier
             .fillMaxWidth()
@@ -66,8 +67,8 @@ internal fun CreateStoryButton(
             .height(60.dp)
             .clip(RoundedCornerShape(24.dp))
             .then(
-                if (variant.gradient != null) {
-                    Modifier.background(variant.gradient)
+                if (gradient != null) {
+                    Modifier.background(gradient)
                 } else {
                     Modifier.background(variant.backgroundColor)
                 }
