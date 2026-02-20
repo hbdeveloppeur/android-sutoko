@@ -43,10 +43,10 @@ sealed class CreateStoryButtonVariant {
         override val backgroundColor: Color = Color(0xFF6827A4)
         override val shapeColor: Color = Color.White
         override val textColor: Color = Color.White
-        override val gradient: Brush = Brush.linearGradient(
+        override val gradient: Brush = Brush.verticalGradient(
             colors = listOf(
-                Color(0xFF6827A4),
-                Color(0xFF8B4FC7)
+                Color(0xFFA41CFF),
+                Color(0xFFFF5AD3)
             )
         )
     }
@@ -64,8 +64,8 @@ internal fun CreateStoryButton(
         modifier = modifier
             .fillMaxWidth()
             .heightIn(max = 500.dp)
-            .height(60.dp)
-            .clip(RoundedCornerShape(24.dp))
+            .height(52.dp)
+            .clip(RoundedCornerShape(12.dp))
             .then(
                 if (gradient != null) {
                     Modifier.background(gradient)
@@ -81,13 +81,13 @@ internal fun CreateStoryButton(
             .padding(horizontal = 24.dp),
         contentAlignment = Alignment.Center
     ) {
-        DecorativeShapes(color = variant.shapeColor)
+        // DecorativeShapes(color = variant.shapeColor)
 
         Text(
             text = text,
             fontFamily = Poppins,
             fontWeight = FontWeight.SemiBold,
-            fontSize = 16.sp,
+            fontSize = 12.sp,
             color = variant.textColor,
             textAlign = TextAlign.Center
         )
