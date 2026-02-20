@@ -1,6 +1,17 @@
 package fr.purpletear.sutoko.screens.create.components.coins_display
 
 import androidx.annotation.DrawableRes
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.animateIntAsState
+import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -13,6 +24,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -37,7 +49,8 @@ internal fun CoinsDisplay(
     modifier: Modifier = Modifier,
     @DrawableRes iconResId: Int = ShopR.drawable.sutoko_item_coin,
     borderColor: Color = CoinGold,
-    backgroundColor: Color = BackgroundDark
+    backgroundColor: Color = BackgroundDark,
+    animated: Boolean = true
 ) {
     val shape = RoundedCornerShape(24.dp)
 
@@ -61,8 +74,49 @@ internal fun CoinsDisplay(
             contentDescription = null,
             modifier = Modifier.size(16.dp)
         )
+        if (animated) {
+            AnimatedCoinAmount(amount = amount)
+        } else {
+            Text(
+                text = amount.toString(),
+                color = Color.White,
+                fontFamily = Poppins,
+                fontWeight = FontWeight.SemiBold,
+                fontSize = 12.sp
+            )
+        }
+    }
+}
+
+@Composable
+private fun AnimatedCoinAmount(amount: Int) {
+    val animatedValue by animateIntAsState(
+        targetValue = amount,
+        animationSpec = spring(
+            dampingRatio = 0.8f,
+            stiffness = 300f
+        ),
+        label = "coin_amount"
+    )
+
+    AnimatedContent(
+        targetState = animatedValue,
+        transitionSpec = {
+            val isIncreasing = targetState > initialState
+            slideInVertically(
+                animationSpec = tween(200, easing = FastOutSlowInEasing)
+            ) { height -> if (isIncreasing) height else -height } + 
+            fadeIn(animationSpec = tween(150)) togetherWith
+            slideOutVertically(
+                animationSpec = tween(200, easing = FastOutSlowInEasing)
+            ) { height -> if (isIncreasing) -height else height } + 
+            fadeOut(animationSpec = tween(150))
+        },
+        modifier = Modifier.animateContentSize(),
+        label = "coin_content"
+    ) { value ->
         Text(
-            text = amount.toString(),
+            text = value.toString(),
             color = Color.White,
             fontFamily = Poppins,
             fontWeight = FontWeight.SemiBold,
