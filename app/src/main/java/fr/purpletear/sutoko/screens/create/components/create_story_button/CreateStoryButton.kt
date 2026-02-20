@@ -7,7 +7,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Text
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -36,7 +36,7 @@ sealed class CreateStoryButtonVariant(
 ) {
     data object White : CreateStoryButtonVariant(
         backgroundColor = Color(0xFFDBDBDB),
-        shapeColor = Color(0xFF292929),
+        shapeColor = Color(0x44292929),
         textColor = Color(0xFF292929)
     )
 
@@ -49,48 +49,6 @@ sealed class CreateStoryButtonVariant(
         )
     )
 }
-
-private data class ShapeConfig(
-    val size: Dp,
-    val floatRange: ClosedFloatingPointRange<Float> = 0f..0f,
-    val floatDuration: Int = 3000,
-    val rotationRange: ClosedFloatingPointRange<Float> = 0f..0f,
-    val rotationDuration: Int = 4000,
-    val scaleRange: ClosedFloatingPointRange<Float> = 1f..1f,
-    val scaleDuration: Int = 2500
-)
-
-private val shapeConfigs = listOf(
-    // Shape 1: Bottom left - gentle float + rotation
-    Triple(Alignment.BottomStart, 22.dp, 26.dp) to
-        ShapeConfig(size = 48.dp, floatRange = 0f..6f, rotationRange = -15f..-5f),
-    // Shape 2: Bottom left upper - float + rotation
-    Triple(Alignment.BottomStart, (-4).dp, (-40).dp) to
-        ShapeConfig(
-            size = 48.dp,
-            floatRange = 0f..-5f,
-            floatDuration = 3500,
-            rotationRange = -45f..-35f,
-            rotationDuration = 5000
-        ),
-    // Shape 3: Top right - scale + rotation
-    Triple(Alignment.TopEnd, (-20).dp, (-24).dp) to
-        ShapeConfig(
-            size = 42.dp,
-            scaleRange = 1f..1.08f,
-            rotationRange = -30f..-20f,
-            rotationDuration = 4500
-        ),
-    // Shape 4: Bottom right - float + rotation
-    Triple(Alignment.BottomEnd, (-20).dp, 30.dp) to
-        ShapeConfig(
-            size = 42.dp,
-            floatRange = 0f..4f,
-            floatDuration = 2800,
-            rotationRange = -30f..-40f,
-            rotationDuration = 4200
-        )
-)
 
 @Composable
 internal fun CreateStoryButton(
@@ -125,51 +83,116 @@ internal fun CreateStoryButton(
 private fun BoxScope.DecorativeShapes(shapeColor: Color) {
     val transition = rememberInfiniteTransition(label = "shapes")
 
-    shapeConfigs.forEach { (position, config) ->
-        val (alignment, offsetX, offsetY) = position
+    // Shape 1: Bottom left - gentle float + rotation
+    AnimatedShape(
+        transition = transition,
+        alignment = Alignment.BottomStart,
+        offsetX = 22.dp,
+        offsetY = 26.dp,
+        size = 48.dp,
+        floatRange = 0f..6f,
+        rotationRange = -15f..-5f,
+        shapeColor = shapeColor
+    )
 
-        val float by transition.animateFloat(
-            initialValue = config.floatRange.start,
-            targetValue = config.floatRange.endInclusive,
-            animationSpec = infiniteRepeatable(
-                animation = tween(config.floatDuration, easing = EaseInOutSine),
-                repeatMode = RepeatMode.Reverse
-            ),
-            label = "float"
-        )
+    // Shape 2: Bottom left upper - float + rotation
+    AnimatedShape(
+        transition = transition,
+        alignment = Alignment.BottomStart,
+        offsetX = (-4).dp,
+        offsetY = (-40).dp,
+        size = 38.dp,
+        floatRange = 0f..-5f,
+        floatDuration = 3500,
+        rotationRange = -45f..-35f,
+        rotationDuration = 5000,
+        shapeColor = shapeColor
+    )
 
-        val rotation by transition.animateFloat(
-            initialValue = config.rotationRange.start,
-            targetValue = config.rotationRange.endInclusive,
-            animationSpec = infiniteRepeatable(
-                animation = tween(config.rotationDuration, easing = EaseInOutSine),
-                repeatMode = RepeatMode.Reverse
-            ),
-            label = "rotation"
-        )
+    // Shape 3: Top right - scale + rotation
+    AnimatedShape(
+        transition = transition,
+        alignment = Alignment.TopEnd,
+        offsetX = (-20).dp,
+        offsetY = (-24).dp,
+        size = 42.dp,
+        scaleRange = 1f..1.08f,
+        rotationRange = -30f..-20f,
+        rotationDuration = 4500,
+        shapeColor = shapeColor
+    )
 
-        val scale by transition.animateFloat(
-            initialValue = config.scaleRange.start,
-            targetValue = config.scaleRange.endInclusive,
-            animationSpec = infiniteRepeatable(
-                animation = tween(config.scaleDuration, easing = EaseInOutSine),
-                repeatMode = RepeatMode.Reverse
-            ),
-            label = "scale"
-        )
+    // Shape 4: Bottom right - float + rotation
+    AnimatedShape(
+        transition = transition,
+        alignment = Alignment.BottomEnd,
+        offsetX = (-20).dp,
+        offsetY = 30.dp,
+        size = 42.dp,
+        floatRange = 0f..4f,
+        floatDuration = 2800,
+        rotationRange = -30f..-40f,
+        rotationDuration = 4200,
+        shapeColor = shapeColor
+    )
+}
 
-        Image(
-            painter = painterResource(R.drawable.rounded_square_outline_shape),
-            contentDescription = null,
-            colorFilter = ColorFilter.tint(shapeColor),
-            modifier = Modifier
-                .align(alignment)
-                .offset(x = offsetX, y = offsetY + float.dp)
-                .size(config.size * scale)
-                .rotate(rotation)
-                .alpha(0.6f)
-        )
-    }
+@Composable
+private fun BoxScope.AnimatedShape(
+    transition: InfiniteTransition,
+    alignment: Alignment,
+    offsetX: Dp,
+    offsetY: Dp,
+    size: Dp,
+    floatRange: ClosedFloatingPointRange<Float> = 0f..0f,
+    floatDuration: Int = 3000,
+    rotationRange: ClosedFloatingPointRange<Float> = 0f..0f,
+    rotationDuration: Int = 4000,
+    scaleRange: ClosedFloatingPointRange<Float> = 1f..1f,
+    scaleDuration: Int = 2500,
+    shapeColor: Color
+) {
+    val float by transition.animateFloat(
+        initialValue = floatRange.start,
+        targetValue = floatRange.endInclusive,
+        animationSpec = infiniteRepeatable(
+            animation = tween(floatDuration, easing = EaseInOutSine),
+            repeatMode = RepeatMode.Reverse
+        ),
+        label = "float"
+    )
+
+    val rotation by transition.animateFloat(
+        initialValue = rotationRange.start,
+        targetValue = rotationRange.endInclusive,
+        animationSpec = infiniteRepeatable(
+            animation = tween(rotationDuration, easing = EaseInOutSine),
+            repeatMode = RepeatMode.Reverse
+        ),
+        label = "rotation"
+    )
+
+    val scale by transition.animateFloat(
+        initialValue = scaleRange.start,
+        targetValue = scaleRange.endInclusive,
+        animationSpec = infiniteRepeatable(
+            animation = tween(scaleDuration, easing = EaseInOutSine),
+            repeatMode = RepeatMode.Reverse
+        ),
+        label = "scale"
+    )
+
+    Image(
+        painter = painterResource(R.drawable.rounded_square_outline_shape),
+        contentDescription = null,
+        colorFilter = ColorFilter.tint(shapeColor),
+        modifier = Modifier
+            .align(alignment)
+            .offset(x = offsetX, y = offsetY + float.dp)
+            .size(size * scale)
+            .rotate(rotation)
+            .alpha(0.6f)
+    )
 }
 
 @Composable

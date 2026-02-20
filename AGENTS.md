@@ -1,5 +1,6 @@
 # AGENTS.md
-
+When doing an action, add a line of a very short explanation of the action you are doing in "actions.txt".
+Always build debug no cache to test.
 Your first step of working is to find the best plan for the asked task.
 
 ## Instructions
@@ -12,6 +13,10 @@ Your first step of working is to find the best plan for the asked task.
 - Create and run temporary executable code to validate changes.
 - Reunite the linked files, analyse them, find the issue, fix it.
 
+
+## UI
+When refactoring, keep the same UI visual, previlegy code compatible with Live Edit. 
+
 ## Safe resource
 
 - If you init resources, do not forget to free it. For instance docker swarm service when testing
@@ -23,4 +28,6 @@ Your first step of working is to find the best plan for the asked task.
 
 ### At the end - suppress the temporary file you created for testing purpose.
 
-## Clean clode, clean structure, scream architecture, clean state management
+## Clean code, clean structure, scream architecture, clean state management
+
+## Docx Reports are generated in a directory /studies
