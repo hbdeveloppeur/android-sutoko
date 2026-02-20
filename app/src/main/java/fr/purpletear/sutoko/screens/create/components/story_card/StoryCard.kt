@@ -48,16 +48,16 @@ internal fun StoryCard(
     ) {
         Box(
             modifier = Modifier
-                .size(52.dp)
+                .size(50.dp)
                 .border(
                     width = 1.dp,
                     brush = Brush.linearGradient(
                         colors = listOf(
                             Color.White.copy(alpha = 0.4f),
-                            Color.White.copy(alpha = 0.1f)
+                            Color.White.copy(alpha = 0.1f),
                         )
                     ),
-                    shape = RoundedCornerShape(10.dp)
+                    shape = RoundedCornerShape(12.dp)
                 )
                 .padding(2.dp)
                 .clip(RoundedCornerShape(8.dp))

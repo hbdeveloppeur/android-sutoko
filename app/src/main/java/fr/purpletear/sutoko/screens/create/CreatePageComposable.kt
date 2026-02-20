@@ -20,6 +20,8 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.layout.Spacer
 import fr.purpletear.sutoko.R
+import fr.purpletear.sutoko.screens.create.components.create_story_button.CreateStoryButton
+import fr.purpletear.sutoko.screens.create.components.create_story_button.CreateStoryButtonVariant
 import fr.purpletear.sutoko.screens.create.components.section_title.SectionTitle
 import fr.purpletear.sutoko.screens.create.components.story_card.StoryCard
 import fr.purpletear.sutoko.screens.main.presentation.screens.TopNavigation
@@ -71,6 +73,32 @@ internal fun CreatePageComposable(modifier: Modifier = Modifier) {
                     author = "Eva Weeks",
                     imageUrl = "https://data.sutoko.app/resources/sutoko-ai/image/background_waiting_screen.jpg",
                     onGetClick = { /* TODO */ }
+                )
+            }
+
+            item {
+                Spacer(modifier = Modifier.padding(bottom = 24.dp))
+            }
+
+            item {
+                CreateStoryButton(
+                    text = "Créer mon histoire",
+                    variant = CreateStoryButtonVariant.Violet,
+                    onClick = { /* TODO */ },
+                    modifier = Modifier.padding(horizontal = 16.dp)
+                )
+            }
+
+            item {
+                Spacer(modifier = Modifier.padding(bottom = 12.dp))
+            }
+
+            item {
+                CreateStoryButton(
+                    text = "Voir mes histoires créées",
+                    variant = CreateStoryButtonVariant.White,
+                    onClick = { /* TODO */ },
+                    modifier = Modifier.padding(horizontal = 16.dp)
                 )
             }
 
