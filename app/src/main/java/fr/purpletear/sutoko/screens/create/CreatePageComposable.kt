@@ -105,6 +105,20 @@ internal fun CreatePageComposable(modifier: Modifier = Modifier) {
             item {
                 Spacer(modifier = Modifier.padding(bottom = 16.dp))
             }
+
+            item {
+                CreateStoryButton(
+                    text = "Créer mon histoire",
+                    hint = "Se connecter",
+                    variant = CreateStoryButtonVariant.Violet,
+                    onClick = { /* TODO */ },
+                    modifier = Modifier.padding(horizontal = 16.dp)
+                )
+            }
+
+            item {
+                Spacer(modifier = Modifier.padding(bottom = 16.dp))
+            }
         }
     }
 }

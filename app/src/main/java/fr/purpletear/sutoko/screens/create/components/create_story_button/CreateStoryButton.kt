@@ -12,21 +12,23 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.Icon
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.sharedelements.theme.Poppins
+import fr.purpletear.sutoko.R
 
 sealed class CreateStoryButtonVariant {
     abstract val backgroundColor: Color
@@ -84,7 +86,7 @@ internal fun CreateStoryButton(
             .padding(horizontal = 24.dp),
         contentAlignment = Alignment.Center
     ) {
-        // DecorativeShapes(color = variant.shapeColor)
+        DecorativeShapes(color = variant.shapeColor)
 
         if (hint != null) {
             Column(
@@ -125,34 +127,44 @@ internal fun CreateStoryButton(
 private fun DecorativeShapes(color: Color) {
     val shapeModifier = Modifier
         .size(48.dp)
-        .clip(RoundedCornerShape(16.dp))
         .alpha(0.15f)
-        .background(color)
 
     Box(modifier = Modifier.fillMaxWidth()) {
         // Top-left shape
-        Box(
+        Icon(
+            painter = painterResource(id = R.drawable.rounded_square_outline_shape),
+            contentDescription = null,
+            tint = color,
             modifier = shapeModifier
                 .align(Alignment.TopStart)
                 .rotate(-15f)
         )
 
         // Top-right shape
-        Box(
+        Icon(
+            painter = painterResource(id = R.drawable.rounded_square_outline_shape),
+            contentDescription = null,
+            tint = color,
             modifier = shapeModifier
                 .align(Alignment.TopEnd)
                 .rotate(15f)
         )
 
         // Bottom-left shape
-        Box(
+        Icon(
+            painter = painterResource(id = R.drawable.rounded_square_outline_shape),
+            contentDescription = null,
+            tint = color,
             modifier = shapeModifier
                 .align(Alignment.BottomStart)
                 .rotate(15f)
         )
 
         // Bottom-right shape
-        Box(
+        Icon(
+            painter = painterResource(id = R.drawable.rounded_square_outline_shape),
+            contentDescription = null,
+            tint = color,
             modifier = shapeModifier
                 .align(Alignment.BottomEnd)
                 .rotate(-15f)
