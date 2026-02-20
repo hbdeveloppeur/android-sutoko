@@ -47,7 +47,7 @@ internal fun LoadMoreButton(
             color = TextColor,
             fontFamily = Poppins,
             fontWeight = FontWeight.Medium,
-            fontSize = 14.sp
+            fontSize = 12.sp
         )
     }
 }

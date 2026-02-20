@@ -22,7 +22,7 @@ import fr.purpletear.sutoko.screens.create.components.story_card.StoryCard
 private const val GRADIENT_START_ALPHA = 0.9f
 private const val GRADIENT_END_ALPHA = 0.00001f
 private val CARD_CORNER_RADIUS = 16.dp
-private val COVER_HEIGHT = 180.dp
+private val COVER_HEIGHT = 146.dp
 private val GRADIENT_HEIGHT = 100.dp
 private val CARD_BOTTOM_PADDING = 16.dp
 private val BORDER_WIDTH = 1.dp

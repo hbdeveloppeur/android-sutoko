@@ -52,7 +52,7 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.example.sharedelements.theme.Poppins
 
-private val SearchBoxBackground = Color(0xFF2D2D2D)
+private val SearchBoxBackground = Color(0xFF181C22)
 private val SearchBoxBorderFocused = Color(0xFF4A4A4A)
 private val SearchBoxBorderUnfocused = Color(0xFF2D2D2D)
 private val IconColorFocused = Color.White
@@ -166,7 +166,7 @@ private fun SearchBoxDecoration(
             .fillMaxWidth()
             .padding(horizontal = 16.dp),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(12.dp)
+        horizontalArrangement = Arrangement.spacedBy(10.dp)
     ) {
         SearchIcon(isFocused = isFocused)
 
@@ -201,7 +201,7 @@ private fun SearchIcon(isFocused: Boolean) {
         imageVector = Icons.Default.Search,
         contentDescription = null,
         tint = iconColor,
-        modifier = Modifier.size(24.dp)
+        modifier = Modifier.size(20.dp)
     )
 }
 

@@ -72,20 +72,6 @@ internal fun CreatePageComposable(modifier: Modifier = Modifier) {
             }
 
             item {
-                SearchBox(
-                    modifier = Modifier
-                        .padding(horizontal = 16.dp)
-                        .padding(top = 16.dp),
-                    onSearch = { query ->
-                        // TODO: Handle search
-                    },
-                    onValueChange = { query ->
-                        // TODO: Handle search query change
-                    }
-                )
-            }
-
-            item {
                 SectionTitle(
                     text = "Histoires de la communauté",
                     modifier = Modifier.padding(top = 16.dp, bottom = 16.dp)
@@ -103,54 +89,72 @@ internal fun CreatePageComposable(modifier: Modifier = Modifier) {
             }
 
             item {
+                CreateStoryButton(
+                    text = "Créer mon histoire",
+                    variant = CreateStoryButtonVariant.Violet,
+                    onClick = { /* TODO */ },
+                    modifier = Modifier.padding(horizontal = 16.dp).padding(top = 16.dp)
+                )
+            }
+
+            item {
+                SearchBox(
+                    modifier = Modifier
+                        .padding(horizontal = 16.dp)
+                        .padding(top = 16.dp),
+                    onSearch = { query ->
+                        // TODO: Handle search
+                    },
+                    onValueChange = { query ->
+                        // TODO: Handle search query change
+                    }
+                )
+            }
+            /**
+             *
+             *
+             *             item {
+             *                 Spacer(modifier = Modifier.padding(bottom = 12.dp))
+             *             }
+             *
+             *             item {
+             *                 CreateStoryButton(
+             *                     text = "Voir mes histoires créées",
+             *                     variant = CreateStoryButtonVariant.White,
+             *                     onClick = { /* TODO */ },
+             *                     modifier = Modifier.padding(horizontal = 16.dp)
+             *                 )
+             *             }
+             *
+             *             item {
+             *                 Spacer(modifier = Modifier.padding(bottom = 16.dp))
+             *             }
+             *
+             *             item {
+             *                 CreateStoryButton(
+             *                     text = "Créer mon histoire",
+             *                     hint = "Se connecter",
+             *                     variant = CreateStoryButtonVariant.Violet,
+             *                     onClick = { /* TODO */ },
+             *                     modifier = Modifier.padding(horizontal = 16.dp)
+             *                 )
+             *             }
+             */
+
+            item {
+                StoryCard(
+                    modifier = Modifier.padding(top = 16.dp),
+                    title = "The day my life ended",
+                    author = "Eva Weeks",
+                    imageUrl = "https://media.discordapp.net/attachments/1450792285590786139/1474416156881191044/tmp_logo.png?ex=6999c48d&is=6998730d&hm=f013ec27a0d7f540a4ad6dcee2ee14962995a419199df41646fe5a7e147b4140&=&format=webp&quality=lossless&width=132&height=132",
+                    onGetClick = { /* TODO */ }
+                )
+            }
+            item {
                 LoadMoreButton(
                     onClick = { /* TODO: Load more stories */ },
                     modifier = Modifier.padding(horizontal = 16.dp, vertical = 16.dp)
                 )
-            }
-
-            item {
-                Spacer(modifier = Modifier.padding(bottom = 24.dp))
-            }
-
-            item {
-                CreateStoryButton(
-                    text = "Créer mon histoire",
-                    variant = CreateStoryButtonVariant.Violet,
-                    onClick = { /* TODO */ },
-                    modifier = Modifier.padding(horizontal = 16.dp)
-                )
-            }
-
-            item {
-                Spacer(modifier = Modifier.padding(bottom = 12.dp))
-            }
-
-            item {
-                CreateStoryButton(
-                    text = "Voir mes histoires créées",
-                    variant = CreateStoryButtonVariant.White,
-                    onClick = { /* TODO */ },
-                    modifier = Modifier.padding(horizontal = 16.dp)
-                )
-            }
-
-            item {
-                Spacer(modifier = Modifier.padding(bottom = 16.dp))
-            }
-
-            item {
-                CreateStoryButton(
-                    text = "Créer mon histoire",
-                    hint = "Se connecter",
-                    variant = CreateStoryButtonVariant.Violet,
-                    onClick = { /* TODO */ },
-                    modifier = Modifier.padding(horizontal = 16.dp)
-                )
-            }
-
-            item {
-                Spacer(modifier = Modifier.padding(bottom = 16.dp))
             }
         }
     }
