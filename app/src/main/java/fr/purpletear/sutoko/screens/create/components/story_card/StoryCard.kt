@@ -37,7 +37,8 @@ internal fun StoryCard(
     title: String,
     author: String,
     imageUrl: String,
-    onGetClick: () -> Unit
+    showGetButton: Boolean = true,
+    onGetClick: () -> Unit = {}
 ) {
     Row(
         modifier = modifier
@@ -67,7 +68,7 @@ internal fun StoryCard(
                     .data(imageUrl)
                     .crossfade(true)
                     .build(),
-                contentDescription = null,
+                contentDescription = null, 
                 contentScale = ContentScale.Crop,
                 modifier = Modifier.fillMaxSize()
             )
@@ -91,27 +92,29 @@ internal fun StoryCard(
                 fontFamily = Poppins,
                 fontWeight = FontWeight.Normal,
                 fontSize = 12.sp,
-                color = Color(0xFF9CA3AF),
+                color = Color(0xFFFFFFFF).copy(alpha = 0.9f),
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )
         }
 
-        Text(
-            text = "Get",
-            fontFamily = Poppins,
-            fontWeight = FontWeight.Medium,
-            fontSize = 12.sp,
-            color = Color.White,
-            modifier = Modifier
-                .clip(RoundedCornerShape(16.dp))
-                .background(Color(0xFF2A2A2A))
-                .clickable(
-                    interactionSource = remember { MutableInteractionSource() },
-                    indication = null,
-                    onClick = onGetClick
-                )
-                .padding(horizontal = 14.dp, vertical = 6.dp)
-        )
+        if (showGetButton) {
+            Text(
+                text = "Get",
+                fontFamily = Poppins,
+                fontWeight = FontWeight.Medium,
+                fontSize = 12.sp,
+                color = Color.White,
+                modifier = Modifier
+                    .clip(RoundedCornerShape(16.dp))
+                    .background(Color(0xFF2A2A2A))
+                    .clickable(
+                        interactionSource = remember { MutableInteractionSource() },
+                        indication = null,
+                        onClick = onGetClick
+                    )
+                    .padding(horizontal = 14.dp, vertical = 6.dp)
+            )
+        }
     }
 }

@@ -29,6 +29,7 @@ import fr.purpletear.sutoko.screens.create.components.load_more_button.LoadMoreB
 import fr.purpletear.sutoko.screens.create.components.search_box.SearchBox
 import fr.purpletear.sutoko.screens.create.components.section_title.SectionTitle
 import fr.purpletear.sutoko.screens.create.components.story_card.StoryCard
+import fr.purpletear.sutoko.screens.create.components.story_cover.StoryCover
 import fr.purpletear.sutoko.screens.main.presentation.screens.TopNavigation
 
 private const val BACKGROUND_ALPHA = 0.15f
@@ -92,11 +93,12 @@ internal fun CreatePageComposable(modifier: Modifier = Modifier) {
             }
 
             item {
-                StoryCard(
+                StoryCover(
+                    modifier = Modifier.padding(horizontal = 16.dp),
+                    coverUrl = "https://media.discordapp.net/attachments/1450792285590786139/1474433761499156638/image_1.png?ex=6999d4f2&is=69988372&hm=6f37cc265d99d5e4d96215e354293587b0f233d82fca1b8ac8910f63722206e3&=&format=webp&quality=lossless&width=1024&height=520",
                     title = "The day my life ended",
                     author = "Eva Weeks",
-                    imageUrl = "https://media.discordapp.net/attachments/1450792285590786139/1474416156881191044/tmp_logo.png?ex=6999c48d&is=6998730d&hm=f013ec27a0d7f540a4ad6dcee2ee14962995a419199df41646fe5a7e147b4140&=&format=webp&quality=lossless&width=132&height=132",
-                    onGetClick = { /* TODO */ }
+                    thumbnailUrl = "https://media.discordapp.net/attachments/1450792285590786139/1474416156881191044/tmp_logo.png?ex=6999c48d&is=6998730d&hm=f013ec27a0d7f540a4ad6dcee2ee14962995a419199df41646fe5a7e147b4140&=&format=webp&quality=lossless&width=132&height=132"
                 )
             }
 
