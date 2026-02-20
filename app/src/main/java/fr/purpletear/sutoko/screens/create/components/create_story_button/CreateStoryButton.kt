@@ -26,6 +26,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -175,6 +176,7 @@ internal fun CreateStoryButton(
         Image(
             painter = painterResource(id = R.drawable.rounded_square_outline_shape),
             contentDescription = null,
+            colorFilter = ColorFilter.tint(variant.shapeColor),
             modifier = Modifier
                 .align(Alignment.BottomStart)
                 .offset(x = 22.dp, y = 26.dp + float1.dp)
@@ -187,6 +189,7 @@ internal fun CreateStoryButton(
         Image(
             painter = painterResource(id = R.drawable.rounded_square_outline_shape),
             contentDescription = null,
+            colorFilter = ColorFilter.tint(variant.shapeColor),
             modifier = Modifier
                 .align(Alignment.BottomStart)
                 .offset(x = (-4).dp, y = (-40).dp + float2.dp)
@@ -199,6 +202,7 @@ internal fun CreateStoryButton(
         Image(
             painter = painterResource(id = R.drawable.rounded_square_outline_shape),
             contentDescription = null,
+            colorFilter = ColorFilter.tint(variant.shapeColor),
             modifier = Modifier
                 .align(Alignment.TopEnd)
                 .offset(x = (-20).dp, y = (-24).dp)
@@ -211,6 +215,7 @@ internal fun CreateStoryButton(
         Image(
             painter = painterResource(id = R.drawable.rounded_square_outline_shape),
             contentDescription = null,
+            colorFilter = ColorFilter.tint(variant.shapeColor),
             modifier = Modifier
                 .align(Alignment.BottomEnd)
                 .offset(x = (-20).dp, y = 30.dp + float4.dp)
