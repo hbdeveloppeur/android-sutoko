@@ -25,6 +25,7 @@ import androidx.compose.foundation.layout.Spacer
 import fr.purpletear.sutoko.R
 import fr.purpletear.sutoko.screens.create.components.create_story_button.CreateStoryButton
 import fr.purpletear.sutoko.screens.create.components.create_story_button.CreateStoryButtonVariant
+import fr.purpletear.sutoko.screens.create.components.load_more_button.LoadMoreButton
 import fr.purpletear.sutoko.screens.create.components.search_box.SearchBox
 import fr.purpletear.sutoko.screens.create.components.section_title.SectionTitle
 import fr.purpletear.sutoko.screens.create.components.story_card.StoryCard
@@ -94,8 +95,15 @@ internal fun CreatePageComposable(modifier: Modifier = Modifier) {
                 StoryCard(
                     title = "The day my life ended",
                     author = "Eva Weeks",
-                    imageUrl = "https://data.sutoko.app/resources/sutoko-ai/image/background_waiting_screen.jpg",
+                    imageUrl = "https://media.discordapp.net/attachments/1450792285590786139/1474416156881191044/tmp_logo.png?ex=6999c48d&is=6998730d&hm=f013ec27a0d7f540a4ad6dcee2ee14962995a419199df41646fe5a7e147b4140&=&format=webp&quality=lossless&width=132&height=132",
                     onGetClick = { /* TODO */ }
+                )
+            }
+
+            item {
+                LoadMoreButton(
+                    onClick = { /* TODO: Load more stories */ },
+                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 16.dp)
                 )
             }
 

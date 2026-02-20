@@ -59,8 +59,7 @@ internal fun StoryCard(
                     ),
                     shape = RoundedCornerShape(12.dp)
                 )
-                .padding(2.dp)
-                .clip(RoundedCornerShape(8.dp))
+                .clip(RoundedCornerShape(12.dp))
                 .background(Color(0xFF1A1A1A))
         ) {
             AsyncImage(
