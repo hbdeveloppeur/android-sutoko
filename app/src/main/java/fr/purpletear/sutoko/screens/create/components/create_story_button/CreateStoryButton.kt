@@ -3,7 +3,9 @@ package fr.purpletear.sutoko.screens.create.components.create_story_button
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
@@ -46,7 +48,7 @@ sealed class CreateStoryButtonVariant {
         override val gradient: Brush = Brush.verticalGradient(
             colors = listOf(
                 Color(0xFFA41CFF),
-                Color(0xFFFF5AD3)
+                Color(0xFFF01CFF)
             )
         )
     }
@@ -56,6 +58,7 @@ sealed class CreateStoryButtonVariant {
 internal fun CreateStoryButton(
     modifier: Modifier = Modifier,
     text: String,
+    hint: String? = null,
     variant: CreateStoryButtonVariant = CreateStoryButtonVariant.Violet,
     onClick: () -> Unit
 ) {
@@ -83,14 +86,38 @@ internal fun CreateStoryButton(
     ) {
         // DecorativeShapes(color = variant.shapeColor)
 
-        Text(
-            text = text,
-            fontFamily = Poppins,
-            fontWeight = FontWeight.SemiBold,
-            fontSize = 12.sp,
-            color = variant.textColor,
-            textAlign = TextAlign.Center
-        )
+        if (hint != null) {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(2.dp)
+            ) {
+                Text(
+                    text = text,
+                    fontFamily = Poppins,
+                    fontWeight = FontWeight.SemiBold,
+                    fontSize = 12.sp,
+                    color = variant.textColor,
+                    textAlign = TextAlign.Center
+                )
+                Text(
+                    text = hint,
+                    fontFamily = Poppins,
+                    fontWeight = FontWeight.Normal,
+                    fontSize = 10.sp,
+                    color = variant.textColor.copy(alpha = 0.8f),
+                    textAlign = TextAlign.Center
+                )
+            }
+        } else {
+            Text(
+                text = text,
+                fontFamily = Poppins,
+                fontWeight = FontWeight.SemiBold,
+                fontSize = 12.sp,
+                color = variant.textColor,
+                textAlign = TextAlign.Center
+            )
+        }
     }
 }
 
