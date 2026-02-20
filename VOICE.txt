@@ -1,0 +1,4 @@
+# Agent Voice Output
+# This file is read by an ElevenLabs listener for real-time TTS
+# Lines appended here will be spoken aloud
+
