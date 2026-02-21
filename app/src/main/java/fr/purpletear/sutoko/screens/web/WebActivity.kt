@@ -10,7 +10,7 @@ import android.widget.Toast
 import com.example.sharedelements.SutokoPlayerPointsManager
 import com.example.sharedelements.SutokoSharedElementsData
 import com.google.firebase.FirebaseException
-import com.example.sharedelements.Data
+import com.example.sutokosharedelements.Data
 import fr.purpletear.sutoko.R
 import com.example.sharedelements.SutokoAppParams
 import purpletear.fr.purpleteartools.Std

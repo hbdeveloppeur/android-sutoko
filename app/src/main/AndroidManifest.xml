@@ -60,11 +60,6 @@
             </intent-filter>
         </activity>
 
-        <activity
-            android:name=".screens.players_ranks.PlayersRankActivity"
-            android:exported="false" />
-
-
         <provider
             android:name="androidx.startup.InitializationProvider"
             android:authorities="${applicationId}.androidx-startup"
@@ -98,28 +93,6 @@
             android:screenOrientation="portrait"
             android:theme="@style/SmsGame"
             tools:ignore="LockedOrientationActivity" />
-        <activity
-            android:name="com.purpletear.smsgame.activities.userStoryLoader.UserStoryLoaderActivity"
-            android:exported="true"
-            android:noHistory="true"
-            android:screenOrientation="portrait"
-            android:theme="@style/Main"
-            tools:ignore="LockedOrientationActivity">
-            <intent-filter
-                android:autoVerify="true"
-                tools:ignore="UnusedAttribute">
-                <action android:name="android.intent.action.VIEW" />
-
-                <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.BROWSABLE" />
-
-                <data
-                    android:host="sutoko.app"
-                    android:pathPrefix="/share/sms-game"
-                    android:scheme="https" />
-            </intent-filter>
-        </activity>
-
 
         <activity
             android:name="fr.purpletear.sutoko.screens.web.WebActivity"

@@ -1,12 +1,11 @@
 package com.purpletear.smsgame.activities.smsgameloader
 
 import android.content.Intent
-import com.example.sharedelements.Data
+import com.example.sutokosharedelements.Data
 import com.example.sharedelements.SutokoSharedElementsData
 import com.purpletear.smsgame.activities.smsgame.SmsGameActivity
 import com.purpletear.smsgame.activities.smsgame.objects.StoryChapter
 import com.purpletear.smsgame.activities.smsgame.tables.StoryType
-import com.purpletear.smsgame.activities.smsgame.tables.TableOfCreatorResources
 import com.purpletear.sutoko.game.model.Game
 import fr.purpletear.sutoko.shop.premium.Premium
 import fr.purpletear.sutoko.shop.shop.SkuValidator
@@ -91,7 +90,6 @@ class SmsGameLoaderModel(activity: SmsGameLoaderActivity) {
         val intent = Intent(activity, SmsGameActivity::class.java)
         return SmsGameActivity.require(
             intent,
-            TableOfCreatorResources(),
             activity.intent.getParcelableExtra(Data.Companion.Extra.ITEM.id) ?: card,
             this.chapters,
             StoryType.OFFICIAL_STORY

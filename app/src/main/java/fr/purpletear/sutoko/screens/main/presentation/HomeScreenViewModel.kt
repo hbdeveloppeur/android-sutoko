@@ -12,7 +12,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.sharedelements.Data
+import com.example.sutokosharedelements.Data
 import com.example.sharedelements.SutokoAppParams
 import com.example.sharedelements.utils.UiText
 import com.google.firebase.analytics.FirebaseAnalytics
@@ -21,7 +21,6 @@ import com.purpletear.core.presentation.extensions.executeFlowUseCase
 import com.purpletear.framework.services.OpenDiscordOrBrowserService
 import com.purpletear.shop.domain.model.Balance
 import com.purpletear.shop.domain.usecase.ObserveShopBalanceUseCase
-import com.purpletear.smsgame.activities.smsgame.objects.Story
 import com.purpletear.sutoko.core.domain.appaction.ActionName
 import com.purpletear.sutoko.core.domain.appaction.AppAction
 import com.purpletear.sutoko.game.model.Game
@@ -32,9 +31,6 @@ import com.purpletear.sutoko.notification.sealed.Screen
 import com.purpletear.sutoko.notification.usecase.SetCurrentScreenUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import fr.purpletear.sutoko.R
-import fr.purpletear.sutoko.custom.PlayerRankInfo
-import fr.purpletear.sutoko.data.remote.user_stories.GetUserStoriesUseCase
-import fr.purpletear.sutoko.domain.repository.UserStoriesRepository
 import fr.purpletear.sutoko.objects.CalendarEvent
 import fr.purpletear.sutoko.popup.domain.PopUpIconDrawable
 import fr.purpletear.sutoko.popup.domain.SutokoPopUp
@@ -43,8 +39,6 @@ import fr.purpletear.sutoko.presentation.util.ImmutableMap
 import fr.purpletear.sutoko.screens.main.domain.popup.util.MainMenuCategory
 import fr.purpletear.sutoko.shop.coinsLogic.Customer
 import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import purpletear.fr.purpleteartools.TableOfSymbols
@@ -55,8 +49,6 @@ import javax.inject.Inject
 class HomeScreenViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private var firebaseAnalytics: FirebaseAnalytics,
-    private val userStoriesRepository: UserStoriesRepository,
-    private val getUserStoriesUseCase: GetUserStoriesUseCase,
     private val screenUseCase: SetCurrentScreenUseCase,
     private val symbols: TableOfSymbols,
     val customer: Customer,
@@ -70,10 +62,7 @@ class HomeScreenViewModel @Inject constructor(
     private val _state: MutableState<MainState> = mutableStateOf(
         MainState(
             initialStories = listOf(),
-            userStories = listOf(),
-            initialUserStories = listOf(),
             events = listOf(),
-            authorsRank = listOf(),
         )
     )
     val state: State<MainState>
@@ -140,14 +129,6 @@ class HomeScreenViewModel @Inject constructor(
         MutableLiveData<News>()
     }
 
-    val navigateToCreateStoryScreen: MutableLiveData<MainEvents.TapCreateStory> by lazy {
-        MutableLiveData()
-    }
-
-    val navigateToPlayerRanks: MutableLiveData<ArrayList<PlayerRankInfo>> by lazy {
-        MutableLiveData()
-    }
-
     val navigateToShop: MutableLiveData<Unit> by lazy {
         MutableLiveData()
     }
@@ -165,20 +146,10 @@ class HomeScreenViewModel @Inject constructor(
         val events =
             savedStateHandle.get<List<CalendarEvent>>(Data.Companion.Extra.CALENDAR_EVENTS.id)
                 ?.toList() ?: listOf()
-        val playersRank =
-            savedStateHandle.get<List<PlayerRankInfo>>(Data.Companion.Extra.PLAYER_RANK_LIST.id)
-                ?.toList() ?: listOf()
-        val userStories =
-            savedStateHandle.get<List<Story>>(Data.Companion.Extra.USERS_STORIES.id)?.toList()
-                ?: listOf()
-
 
         // Update initial state with saved state handle values
         _state.value = _state.value.copy(
             events = events,
-            authorsRank = playersRank,
-            userStories = userStories,
-            initialUserStories = userStories,
             notificationsOn = symbols.isFirebaseNotificationEnabled
         )
 
@@ -353,10 +324,6 @@ class HomeScreenViewModel @Inject constructor(
                 // this._displayUserFlavorsSettings.value = false
             }
 
-            is MainEvents.TapStory -> {
-                navigate.value = event
-            }
-
             is MainEvents.OnAppear -> {
 
             }
@@ -387,52 +354,6 @@ class HomeScreenViewModel @Inject constructor(
 
             is MainEvents.Open -> {
 
-            }
-
-            is MainEvents.TapCreateStory -> {
-                this.navigateToCreateStoryScreen.value = event
-            }
-
-            is MainEvents.TapSeeMoreAuthors -> {
-                this.navigateToPlayerRanks.value =
-                    this.state.value.authorsRank as ArrayList<PlayerRankInfo>
-            }
-
-            is MainEvents.SearchStories -> {
-                val text: String = event.text
-                getUserStoriesUseCase.getStories(text).onEach { result ->
-                    when (result) {
-                        is Resource.Success -> {
-                            result.data?.let { stories ->
-                                this._state.value = this._state.value.copy(
-                                    userStories = stories,
-                                    isLoading = false,
-                                    userStoriesSearchIsClearable = true
-                                )
-                            }
-                        }
-
-                        is Resource.Error -> {
-                            result.throwable?.printStackTrace()
-                            this._state.value = this._state.value.copy(
-                                isLoading = false
-                            )
-                        }
-
-                        is Resource.Loading -> {
-                            this._state.value = this._state.value.copy(
-                                isLoading = true
-                            )
-                        }
-                    }
-                }.launchIn(viewModelScope)
-            }
-
-            is MainEvents.TapClearUserStoriesSearch -> {
-                this._state.value = this._state.value.copy(
-                    userStories = this._state.value.initialUserStories,
-                    userStoriesSearchIsClearable = false
-                )
             }
 
             is MainEvents.TapDiamondsLabel -> {
@@ -479,40 +400,6 @@ class HomeScreenViewModel @Inject constructor(
 
             is MainEvents.TapShop -> {
                 this.navigateToShop.value = Unit
-            }
-
-            is MainEvents.TapLoadMoreStories -> {
-                val lastStory: Story? = this._state.value.userStories.lastOrNull()
-                lastStory?.let { story ->
-                    this.userStoriesRepository.getStories(
-                        startingStory = story
-                    ).onEach { result ->
-                        when (result) {
-                            is Resource.Error -> {
-                                this._state.value = this._state.value.copy(
-                                    isLoadingMoreStories = false
-                                )
-                            }
-
-                            is Resource.Loading -> {
-                                this._state.value = this._state.value.copy(
-                                    isLoadingMoreStories = true
-                                )
-                            }
-
-                            is Resource.Success -> {
-                                val stories: List<Story> = result.data ?: listOf()
-                                this._state.value = this._state.value.copy(
-                                    isLoadingMoreStories = false,
-                                    userStories = (this._state.value.userStories + stories).distinctBy {
-                                        it.id
-                                    },
-                                    userStoriesSearchIsClearable = false
-                                )
-                            }
-                        }
-                    }.launchIn(viewModelScope)
-                }
             }
         }
     }

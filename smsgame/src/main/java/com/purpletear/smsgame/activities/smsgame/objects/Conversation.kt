@@ -16,7 +16,6 @@ import com.purpletear.smsgame.activities.smsgame.ConversationInterface
 import com.purpletear.smsgame.activities.smsgame.adapter.GameConversationAdapter
 import com.purpletear.smsgame.activities.smsgame.tables.StoryType
 import com.purpletear.smsgame.activities.smsgame.tables.TableOfCharacters
-import com.purpletear.smsgame.activities.smsgame.tables.TableOfCreatorResources
 import com.purpletear.smsgame.activities.smsgame.tables.TableOfLinks
 import com.purpletear.smsgame.activities.smsgame.tables.TableOfPhrases
 import com.purpletear.sutoko.game.model.Game
@@ -62,17 +61,11 @@ class Conversation(
     )
     private val callback: ConversationInterface = activity as ConversationInterface
     var timeMode: Phrase.TimeUpdateMode = Phrase.TimeUpdateMode.MANUAL
-    var creatorResources: TableOfCreatorResources = TableOfCreatorResources()
     var isFinished: Boolean = false
     val lastIndex: Int
         get() {
             return adapter.getLastIndex()
         }
-
-    enum class GameMode {
-        NORMAL,
-        REAL_TIME
-    }
 
     init {
         try {
@@ -454,58 +447,6 @@ class Conversation(
                 currentPhrase!!.wait
             )
             controlUserChoice()
-            return
-        }
-
-        if (execute(
-                "Request for loading a CreatorResource as a Background video from url",
-                currentPhrase!!.isBackgroundVideoResource
-            )
-        ) {
-            val resource: CreatorResource? =
-                creatorResources.getResourceBy(currentPhrase!!.getCreatorResourceId)
-            if (resource != null) {
-                callback.onBackgroundVideoCreatorResourceFound(resource)
-                controlUserChoice()
-            } else {
-                if (!controlUserChoice()) {
-                    provokeNext(symbols)
-                }
-            }
-            return
-        }
-
-        if (execute(
-                "Request for loading a CreatorResource as a Background image from url",
-                currentPhrase!!.isBackgroundImageResource
-            )
-        ) {
-            val resource: CreatorResource? =
-                creatorResources.getResourceBy(currentPhrase!!.getCreatorResourceId)
-            if (resource != null) {
-                callback.onBackgroundImageCreatorResourceFound(resource)
-                controlUserChoice()
-            } else {
-                if (!controlUserChoice()) {
-                    provokeNext(symbols)
-                }
-            }
-            return
-        }
-
-        if (execute(
-                "Request for loading a CreatorResource as a sound from url",
-                currentPhrase!!.isSoundResource
-            )
-        ) {
-            val resource: CreatorResource? =
-                creatorResources.getResourceBy(currentPhrase!!.getCreatorResourceId)
-            if (resource != null) {
-                callback.onSoundCreatorResourceFound(resource)
-            }
-            if (!controlUserChoice()) {
-                provokeNext(symbols)
-            }
             return
         }
 

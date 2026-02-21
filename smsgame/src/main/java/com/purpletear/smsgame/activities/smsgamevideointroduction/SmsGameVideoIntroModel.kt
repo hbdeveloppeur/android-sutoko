@@ -4,7 +4,7 @@ import android.app.Activity
 import com.bumptech.glide.Glide
 import com.bumptech.glide.RequestManager
 import com.example.sharedelements.SmsGameTreeStructure
-import com.example.sharedelements.Data
+import com.example.sutokosharedelements.Data
 import com.purpletear.smsgame.activities.smsgamevideointroduction.helpers.SmsGameVideoIntroTimeline
 import purpletear.fr.purpleteartools.TableOfSoundsPlayer
 import purpletear.fr.purpleteartools.DelayHandler

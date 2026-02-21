@@ -12,7 +12,7 @@ import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import com.bumptech.glide.RequestManager
-import com.example.sharedelements.GraphicsPreference
+import com.example.sutokosharedelements.GraphicsPreference
 import com.example.sharedelements.SmsGameTreeStructure
 import com.purpletear.smsgame.R
 import com.purpletear.smsgame.activities.smsgame.objects.MessageColor

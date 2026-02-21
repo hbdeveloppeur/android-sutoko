@@ -7,7 +7,7 @@ import android.os.Parcelable
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
-import com.example.sharedelements.Data
+import com.example.sutokosharedelements.Data
 import com.example.sharedelements.SutokoAppParams
 import com.example.sharedelements.SutokoPlayerPointsManager
 import com.purpletear.sutoko.user.repository.UserRepository

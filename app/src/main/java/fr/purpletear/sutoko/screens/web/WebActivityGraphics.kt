@@ -3,7 +3,7 @@ package fr.purpletear.sutoko.screens.web
 import android.view.View
 import android.widget.TextView
 import com.bumptech.glide.RequestManager
-import com.example.sharedelements.GraphicsPreference
+import com.example.sutokosharedelements.GraphicsPreference
 import fr.purpletear.sutoko.R
 import fr.purpletear.sutoko.tools.Animation
 

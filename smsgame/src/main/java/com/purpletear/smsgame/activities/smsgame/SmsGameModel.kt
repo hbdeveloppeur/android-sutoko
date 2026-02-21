@@ -13,7 +13,7 @@ import android.widget.TextView
 import androidx.annotation.Keep
 import com.bumptech.glide.Glide
 import com.bumptech.glide.RequestManager
-import com.example.sharedelements.Data
+import com.example.sutokosharedelements.Data
 import com.example.sharedelements.SutokoParams
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.purpletear.smsgame.R
@@ -23,7 +23,6 @@ import com.purpletear.smsgame.activities.smsgame.objects.Story
 import com.purpletear.smsgame.activities.smsgame.objects.StoryCharacter
 import com.purpletear.smsgame.activities.smsgame.objects.StoryHelper
 import com.purpletear.smsgame.activities.smsgame.objects.StoryMetadata
-import com.purpletear.smsgame.activities.smsgame.objects.UserStoryHelper
 import com.purpletear.smsgame.activities.smsgame.tables.StoryType
 import com.purpletear.smsgame.activities.smsgame.tables.TableOfCharacters
 import com.purpletear.smsgame.activities.smsgame.tables.TableOfLinks
@@ -178,16 +177,6 @@ class SmsGameModel(activity: SmsGameActivity) {
             throw FileNotFoundException()
         }
 
-        when (storyType) {
-            StoryType.CURRENT_USER_STORY, StoryType.OTHER_USER_STORY -> {
-                conversation.creatorResources =
-                    activity.intent.getParcelableExtra(Data.Companion.Extra.TABLE_OF_CREATOR_RESOURCES.id)
-                        ?: throw IllegalStateException()
-            }
-
-            else -> {}
-        }
-
         tableOfPlayer = TableOfSoundsPlayer()
         conversation.start(storyType) onError@{
             if (!activity.isFinishing) {
@@ -238,48 +227,6 @@ class SmsGameModel(activity: SmsGameActivity) {
             }
             false
         })
-    }
-
-    fun insertGameInfoHeaderIfRequired(
-        activity: SmsGameActivity,
-        onLikePressed: () -> Unit,
-        onAuthorPressed: () -> Unit
-    ) {
-        if (storyType == StoryType.OTHER_USER_STORY) {
-            UserStoryInfoHeaderHelper.insert(
-                activity,
-                symbols,
-                activity.binding.root,
-                requestManager,
-                story ?: Story(), onLikePressed, onAuthorPressed
-            ) {
-                if (this.story != null && !activity.isFinishing) {
-                    UserStoryHelper.reportIfConfirm(activity, this.story!!, this.symbols) {
-                        UserStoryInfoHeaderHelper.setFlagButtonVisibility(
-                            activity as Activity,
-                            false
-                        )
-                    }
-                }
-            }
-        }
-    }
-
-
-    fun openAuthorProfile(activity: SmsGameActivity) {
-
-    }
-
-    fun unlike(activity: Activity) {
-        StoryHelper.removeLike(this.story ?: return) {
-            StoryHelper.save(activity)
-        }
-    }
-
-    fun like(activity: Activity) {
-        StoryHelper.addLike(this.story ?: return) {
-            StoryHelper.save(activity)
-        }
     }
 
     fun notifyRead(activity: SmsGameActivity) {

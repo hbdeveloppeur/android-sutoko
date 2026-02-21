@@ -8,12 +8,11 @@ import androidx.activity.result.ActivityResult
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
-import com.example.sharedelements.Data
+import com.example.sutokosharedelements.Data
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.purpletear.smsgame.activities.smsgame.SmsGameActivity
 import com.purpletear.smsgame.activities.smsgame.objects.StoryChapter
 import com.purpletear.smsgame.activities.smsgame.tables.StoryType
-import com.purpletear.smsgame.activities.smsgame.tables.TableOfCreatorResources
 import com.purpletear.sutoko.game.model.Game
 import fr.purpletear.sutoko.shop.coinsLogic.Customer
 import purpletear.fr.purpleteartools.Language
@@ -159,7 +158,6 @@ class SmsGameLoaderActivity : AppCompatActivity() {
             intent.putParcelableArrayListExtra(Data.Companion.Extra.CHAPTERS_ARRAY.id, chapters)
             return SmsGameActivity.require(
                 intent,
-                TableOfCreatorResources(),
                 card,
                 chapters,
                 StoryType.OFFICIAL_STORY

@@ -3,8 +3,9 @@ package com.example.sharedelements
 import android.os.Parcel
 import android.os.Parcelable
 import androidx.annotation.Keep
-import com.example.sharedelements.Data.Companion.INSTAGRAM_PROFIL_NAME
-import com.example.sharedelements.Data.Companion.PRIVACY_POLICY_URL
+import com.example.sutokosharedelements.Data
+import com.example.sutokosharedelements.Data.Companion.INSTAGRAM_PROFIL_NAME
+import com.example.sutokosharedelements.Data.Companion.PRIVACY_POLICY_URL
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.PropertyName
 import java.io.Serializable

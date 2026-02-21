@@ -26,13 +26,10 @@ sealed class MainEvents {
     @Keep
     data class TapMenu(val category: MainMenuCategory) : MainEvents()
     object TapDiamondsLabel : MainEvents()
-    object TapCreateStory : MainEvents()
     object TapCoinsLabel : MainEvents()
     object OnPopUpDismissed : MainEvents()
 
     object OnFlavorModalDismissed : MainEvents()
-    object TapLoadMoreStories : MainEvents()
-    object TapClearUserStoriesSearch : MainEvents()
     data object TapShop : MainEvents()
 
     @Keep
@@ -40,14 +37,4 @@ sealed class MainEvents {
 
     @Keep
     data class ToggleNotifications(val notificationsOn: Boolean) : MainEvents()
-
-    // TapSeeMoreAuthors
-    object TapSeeMoreAuthors : MainEvents()
-
-    // Search stories
-    @Keep
-    data class SearchStories(val text: String) : MainEvents()
-
-    @Keep
-    data class TapStory(val story: Story) : MainEvents()
 }

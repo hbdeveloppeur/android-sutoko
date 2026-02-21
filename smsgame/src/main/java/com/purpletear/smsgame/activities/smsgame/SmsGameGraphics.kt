@@ -12,13 +12,12 @@ import androidx.core.view.children
 import androidx.core.view.updateLayoutParams
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.airbnb.lottie.LottieAnimationView
 import com.bumptech.glide.RequestManager
 import com.bumptech.glide.load.DataSource
 import com.bumptech.glide.load.engine.GlideException
 import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.target.Target
-import com.example.sharedelements.GraphicsPreference
+import com.example.sutokosharedelements.GraphicsPreference
 import com.example.sharedelements.SutokoSharedElementsData
 import com.purpletear.smsgame.R
 import com.purpletear.smsgame.activities.smsgame.adapter.GameConversationAdapter
@@ -80,18 +79,6 @@ class SmsGameGraphics {
                         if (isDarkMode) R.color.smsGameChoiceBoxLineSeparatorDarkMode else R.color.smsGameChoiceBoxLineSeparator
                     )
                 )
-        }
-
-        fun like(activity: SmsGameActivity) {
-            val animation =
-                activity.findViewById<LottieAnimationView>(R.id.sutoko_inc_user_story_info_header_like_image)
-            UserStoryInfoHeaderHelper.animateLike(animation)
-        }
-
-        fun unlinke(activity: SmsGameActivity) {
-            val animation =
-                activity.findViewById<LottieAnimationView>(R.id.sutoko_inc_user_story_info_header_like_image)
-            UserStoryInfoHeaderHelper.setLiked(animation, false)
         }
 
         fun unlockItemIsVisible(activity: SmsGameActivity): Boolean {

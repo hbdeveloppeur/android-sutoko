@@ -12,7 +12,7 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import com.example.sharedelements.DarkModeHelper
-import com.example.sharedelements.Data
+import com.example.sutokosharedelements.Data
 import com.example.sharedelements.SmsGameTreeStructure
 import com.example.sharedelements.SutokoSharedElementsData
 import com.google.firebase.analytics.FirebaseAnalytics
@@ -30,9 +30,7 @@ import com.purpletear.smsgame.activities.smsgame.objects.SmsNotification
 import com.purpletear.smsgame.activities.smsgame.objects.Story
 import com.purpletear.smsgame.activities.smsgame.objects.StoryChapter
 import com.purpletear.smsgame.activities.smsgame.objects.StoryCharacter
-import com.purpletear.smsgame.activities.smsgame.objects.StoryHelper
 import com.purpletear.smsgame.activities.smsgame.tables.StoryType
-import com.purpletear.smsgame.activities.smsgame.tables.TableOfCreatorResources
 import com.purpletear.smsgame.activities.smsgame.tables.TableOfLinks
 import com.purpletear.smsgame.activities.smsgamevideointroduction.SmsGameVideoIntro
 import com.purpletear.smsgame.databinding.ActivitySmsGameBinding
@@ -40,7 +38,6 @@ import com.purpletear.sutoko.game.model.Game
 import fr.purpletear.sutoko.shop.coinsLogic.Customer
 import fr.purpletear.sutoko.shop.coinsLogic.CustomerCallbacks
 import purpletear.fr.purpleteartools.FingerV2
-import purpletear.fr.purpleteartools.Language
 import purpletear.fr.purpleteartools.SimpleVideo
 import purpletear.fr.purpleteartools.Std
 import purpletear.fr.purpleteartools.TableOfSymbols
@@ -76,11 +73,6 @@ class SmsGameActivity : AppCompatActivity(), ConversationInterface, ChoiceContro
 
             model = SmsGameModel(this)
         } catch (e: FileNotFoundException) {
-
-            val lang = Language.determineLangDirectory()
-            val code = SmsGameModel.chapterCode
-            val version = SmsGameModel.version
-            val storyId = SmsGameModel.storyId
             this.setResult(1003)
             this.finish()
             return
@@ -89,18 +81,6 @@ class SmsGameActivity : AppCompatActivity(), ConversationInterface, ChoiceContro
         SmsGameGraphics.setRecyclerView(this, model.conversation.adapter)
         setListeners()
         logEvent()
-        model.insertGameInfoHeaderIfRequired(this, {
-            // onLikeButtonPressed
-            if (StoryHelper.userLiked(this.model.story!!.id)) {
-                SmsGameGraphics.unlinke(this)
-                model.unlike(this)
-            } else {
-                SmsGameGraphics.like(this)
-                model.like(this)
-            }
-        }, {
-            model.openAuthorProfile(this)
-        })
         designDarkMode()
         SmsGameGraphics.setFakeStatusBarSize(this)
     }
@@ -1026,7 +1006,6 @@ class SmsGameActivity : AppCompatActivity(), ConversationInterface, ChoiceContro
             links: ArrayList<TableOfLinks.Link>,
             characters: ArrayList<StoryCharacter>,
             messagesSide: ArrayList<Int>,
-            tableOfCreatorResources: TableOfCreatorResources
         ): Intent {
             val intent = Intent(activity, SmsGameActivity::class.java)
             intent.putExtra(Data.Companion.Extra.STORY.id, story)
@@ -1035,25 +1014,16 @@ class SmsGameActivity : AppCompatActivity(), ConversationInterface, ChoiceContro
             intent.putParcelableArrayListExtra(Data.Companion.Extra.LINKS.id, links)
             intent.putParcelableArrayListExtra(Data.Companion.Extra.CHARACTERS.id, characters)
             intent.putIntegerArrayListExtra(Data.Companion.Extra.MESSAGES_SIDE.id, messagesSide)
-            intent.putExtra(
-                Data.Companion.Extra.TABLE_OF_CREATOR_RESOURCES.id,
-                tableOfCreatorResources
-            )
             return intent
         }
 
         fun require(
             intent: Intent,
-            resources: TableOfCreatorResources,
             storyAsCard: Game,
             chapters: ArrayList<StoryChapter>,
             storyType: StoryType
         ): Intent {
             intent.putExtra(Data.Companion.Extra.ITEM.id, storyAsCard as Parcelable)
-            intent.putExtra(
-                Data.Companion.Extra.TABLE_OF_CREATOR_RESOURCES.id,
-                resources as Parcelable
-            )
             intent.putExtra(Data.Companion.Extra.STORY_TYPE.id, storyType)
             intent.putParcelableArrayListExtra(Data.Companion.Extra.CHAPTERS_ARRAY.id, chapters)
             return intent

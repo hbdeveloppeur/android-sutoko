@@ -11,8 +11,6 @@ package com.purpletear.smsgame.activities.smsgame.objects
 import android.os.Parcel
 import android.os.Parcelable
 import androidx.annotation.Keep
-import com.purpletear.smsgame.activities.smsgame.tables.TableOfCreatorResources
-import java.util.*
 import java.util.regex.Pattern
 
 @Keep
@@ -112,18 +110,6 @@ class Phrase : Parcelable {
     val resourceId: Int
         get() = sentence.replace("[", "").replace("]", "").toInt()
 
-    val isBackgroundVideoResource: Boolean
-        get() = code != null && PhraseFromCreatorResource.getCode(TableOfCreatorResources.CreatorResourceType.VIDEOS.rname) == code!!.lowercase(
-            Locale.ENGLISH
-        )
-    val isBackgroundImageResource: Boolean
-        get() = code != null && PhraseFromCreatorResource.getCode(TableOfCreatorResources.CreatorResourceType.IMAGES.rname) == code!!.lowercase(
-            Locale.ENGLISH
-        )
-    val isSoundResource: Boolean
-        get() = code != null && PhraseFromCreatorResource.getCode(TableOfCreatorResources.CreatorResourceType.SOUNDS.rname) == code!!.lowercase(
-            Locale.ENGLISH
-        )
     val isMessageColorSwitch: Boolean
         get() = code != null && code == "message_background_update"
     val isMangaPage: Boolean

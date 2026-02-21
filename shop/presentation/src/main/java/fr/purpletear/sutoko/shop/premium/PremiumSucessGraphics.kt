@@ -8,7 +8,7 @@ import android.view.View
 import android.view.ViewGroup
 import com.bumptech.glide.RequestManager
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions.withCrossFade
-import com.example.sharedelements.GraphicsPreference
+import com.example.sutokosharedelements.GraphicsPreference
 import fr.purpletear.sutoko.shop.presentation.R
 import purpletear.fr.purpleteartools.Animation
 import purpletear.fr.purpleteartools.FingerV2

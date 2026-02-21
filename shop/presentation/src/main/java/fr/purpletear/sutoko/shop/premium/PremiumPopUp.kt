@@ -11,7 +11,7 @@ import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions.withC
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.remoteconfig.ktx.remoteConfig
 import com.google.firebase.remoteconfig.ktx.remoteConfigSettings
-import com.example.sharedelements.GraphicsPreference
+import com.example.sutokosharedelements.GraphicsPreference
 import fr.purpletear.sutoko.shop.presentation.R
 import purpletear.fr.purpleteartools.Animation
 import purpletear.fr.purpleteartools.FingerV2

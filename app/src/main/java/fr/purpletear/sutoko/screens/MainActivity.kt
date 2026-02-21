@@ -36,7 +36,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.android.billingclient.api.BillingClientStateListener
 import com.android.billingclient.api.BillingResult
-import com.example.sharedelements.Data
+import com.example.sutokosharedelements.Data
 import com.example.sharedelements.SutokoAppParams
 import com.example.sharedelements.theme.SutokoTheme
 import com.example.sharedelements.utils.UiText
@@ -58,7 +58,6 @@ import com.purpletear.game.presentation.screens.GamePreview
 import com.purpletear.smsgame.activities.smsgame.objects.Story
 import com.purpletear.smsgame.activities.smsgame.objects.StoryChapter
 import com.purpletear.smsgame.activities.smsgameloader.SmsGameLoaderActivity
-import com.purpletear.smsgame.activities.userStoryLoader.UserStoryLoaderActivity
 import com.purpletear.sutoko.game.model.Game
 import com.purpletear.sutoko.game.usecase.GetChaptersUseCase
 import com.purpletear.sutoko.game.usecase.GetGameUseCase
@@ -71,7 +70,6 @@ import com.purpletear.sutoko.permission.domain.sealed.Permission
 import com.purpletear.sutoko.popup.presentation.PopUpComposable
 import com.purpletear.sutoko.user.usecase.OpenSignInPageObservableUseCase
 import dagger.hilt.android.AndroidEntryPoint
-import fr.purpletear.sutoko.custom.PlayerRankInfo
 import fr.purpletear.sutoko.helpers.NotificationHelper
 import fr.purpletear.sutoko.popup.domain.PopUpIconUrl
 import fr.purpletear.sutoko.popup.domain.PopUpUserInteraction
@@ -82,13 +80,11 @@ import fr.purpletear.sutoko.screens.account.AccountActivity
 import fr.purpletear.sutoko.screens.accountConnection.AccountConnectionActivity
 import fr.purpletear.sutoko.screens.accountConnection.AccountConnectionActivityModel
 import fr.purpletear.sutoko.screens.create.CreatePageComposable
-import fr.purpletear.sutoko.screens.directive.DirectivesActivity
 import fr.purpletear.sutoko.screens.main.presentation.HomeScreenViewModel
 import fr.purpletear.sutoko.screens.main.presentation.MainEvents
 import fr.purpletear.sutoko.screens.main.presentation.MainScreenPages
 import fr.purpletear.sutoko.screens.main.presentation.screens.MainScreen
 import fr.purpletear.sutoko.screens.params.SutokoParamsActivity
-import fr.purpletear.sutoko.screens.players_ranks.PlayersRankActivity
 import fr.purpletear.sutoko.screens.splashscreen.SplashScreen
 import fr.purpletear.sutoko.screens.web.WebActivity
 import fr.purpletear.sutoko.shop.coinsLogic.Customer
@@ -167,8 +163,6 @@ class MainActivity @Inject constructor(
         viewModel.toast.removeObservers(this)
         viewModel.navigateToNews.removeObservers(this)
         viewModel.saveSymbols.removeObservers(this)
-        viewModel.navigateToCreateStoryScreen.removeObservers(this)
-        viewModel.navigateToPlayerRanks.removeObservers(this)
         viewModel.navigateToShop.removeObservers(this)
         viewModel.navigate.removeObservers(this)
 
@@ -524,21 +518,6 @@ class MainActivity @Inject constructor(
         }
         viewModel.saveSymbols.observe(this, saveSymbolsObserver)
 
-        val navigateToCreateStoryScreenObserver = Observer<MainEvents.TapCreateStory> {
-            val intent = Intent(this, DirectivesActivity::class.java)
-            this.startActivity(intent)
-        }
-        viewModel.navigateToCreateStoryScreen.observe(this, navigateToCreateStoryScreenObserver)
-
-        val navigateToPlayerRanksObserver = Observer<ArrayList<PlayerRankInfo>> {
-            val intent = PlayersRankActivity.Companion.require(
-                Intent(this, PlayersRankActivity::class.java),
-                it
-            )
-            this.startActivity(intent)
-        }
-        viewModel.navigateToPlayerRanks.observe(this, navigateToPlayerRanksObserver)
-
         val navigateToShopObserver = Observer<Unit> {
             this.startShop()
         }
@@ -547,9 +526,6 @@ class MainActivity @Inject constructor(
 
         val navigateObserver = Observer<MainEvents> { event ->
             when (event) {
-                is MainEvents.TapStory -> {
-                    this.onUserStoryPressed(event.story)
-                }
 
                 is MainEvents.AccountButtonPressed -> {
                     this.onAccountPressed()
@@ -675,20 +651,6 @@ class MainActivity @Inject constructor(
     private fun onOptionsPressed() {
         val intent = SutokoParamsActivity.Companion.require(this, SutokoAppParams())
         this.optionsLauncher.launch(intent)
-    }
-
-    private fun onUserStoryPressed(userStory: Story) {
-        val intent = UserStoryLoaderActivity.Companion.require(this, userStory)
-        this.userStoryLauncher.launch(intent)
-    }
-
-
-    private fun goToUrl(url: String?) {
-        if (url.isNullOrEmpty()) {
-            return
-        }
-        val intent = WebActivity.Companion.require(this, url, null, SutokoAppParams())
-        this.startActivity(intent)
     }
 
     private fun onDiamondPressed() {
