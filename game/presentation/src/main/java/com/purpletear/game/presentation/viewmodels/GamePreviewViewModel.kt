@@ -221,7 +221,7 @@ class GamePreviewViewModel @Inject constructor(
      */
     private fun loadGameLogoURL(game: Game) {
         game.logoAsset?.storagePath?.let { path ->
-            _gameSquareLogoURL.value = "https://sutoko.com/$path"
+            _gameSquareLogoURL.value = "https://sutoko.com/media/$path"
         }
     }
 

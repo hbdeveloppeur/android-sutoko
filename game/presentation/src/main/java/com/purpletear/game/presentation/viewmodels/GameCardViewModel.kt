@@ -20,7 +20,7 @@ class GameCardViewModel {
      */
     fun getBannerUrl(game: Game): String? {
         return game.bannerAsset?.storagePath?.let { path ->
-            "https://sutoko.com/$path"
+            "https://sutoko.com/media/$path"
         }
     }
 

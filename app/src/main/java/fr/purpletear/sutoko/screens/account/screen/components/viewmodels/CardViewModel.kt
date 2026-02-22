@@ -16,7 +16,7 @@ class CardViewModel @Inject constructor(
 
     fun getImageSquareLogo(game: Game): String {
         return game.logoAsset?.storagePath?.let { path ->
-            "https://sutoko.com/$path"
+            "https://sutoko.com/media/$path"
         } ?: ""
     }
 }

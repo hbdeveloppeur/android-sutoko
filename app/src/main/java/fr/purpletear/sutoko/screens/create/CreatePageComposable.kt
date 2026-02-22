@@ -141,11 +141,11 @@ internal fun CreatePageComposable(
                 val featuredGame = games.firstOrNull()
                 GameCover(
                     modifier = Modifier.padding(horizontal = 16.dp),
-                    coverUrl = featuredGame?.bannerAsset?.let { "https://sutoko.com/${it.storagePath}" }
+                    coverUrl = featuredGame?.bannerAsset?.let { "https://sutoko.com/media/${it.storagePath}" }
                         ?: "https://media.discordapp.net/attachments/1450792285590786139/1474433761499156638/image_1.png?ex=6999d4f2&is=69988372&hm=6f37cc265d99d5e4d96215e354293587b0f233d82fca1b8ac8910f63722206e3&=&format=webp&quality=lossless&width=1024&height=520",
                     title = featuredGame?.metadata?.title ?: "The day my life ended",
                     author = featuredGame?.author?.displayName ?: "Eva Weeks",
-                    thumbnailUrl = featuredGame?.logoAsset?.let { "https://sutoko.com/${it.thumbnailStoragePath}" }
+                    thumbnailUrl = featuredGame?.logoAsset?.let { "https://sutoko.com/media/${it.thumbnailStoragePath}" }
                         ?: "https://media.discordapp.net/attachments/1450792285590786139/1474416156881191044/tmp_logo.png?ex=6999c48d&is=6998730d&hm=f013ec27a0d7f540a4ad6dcee2ee14962995a419199df41646fe5a7e147b4140&=&format=webp&quality=lossless&width=132&height=132"
                 )
             }
@@ -200,7 +200,7 @@ internal fun CreatePageComposable(
                     modifier = Modifier.padding(top = 16.dp),
                     title = game.metadata.title,
                     author = game.author?.displayName ?: "",
-                    imageUrl = game.logoAsset?.let { "https://sutoko.com/${it.thumbnailStoragePath}" }
+                    imageUrl = game.logoAsset?.let { "https://sutoko.com/media/${it.thumbnailStoragePath}" }
                         ?: "",
                     onGetClick = { onGameClick(game) }
                 )
