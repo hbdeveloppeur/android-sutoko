@@ -9,6 +9,7 @@ import androidx.compose.animation.fadeOut
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
@@ -149,6 +150,11 @@ private fun ModalContent(
             .fillMaxWidth()
             .clip(RoundedCornerShape(16.dp))
             .background(Color.Black)
+            .border(
+                width = 1.dp,
+                color = Color.White.copy(alpha = 0.1f),
+                shape = RoundedCornerShape(16.dp)
+            )
     ) {
         // Banner Image
         BannerImage(
