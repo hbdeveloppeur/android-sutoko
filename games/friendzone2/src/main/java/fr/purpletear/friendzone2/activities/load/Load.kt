@@ -12,7 +12,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.os.Parcelable
 import androidx.appcompat.app.AppCompatActivity
-import com.example.sutokosharedelements.SutokoSharedElementsData
+import com.example.sharedelements.SutokoSharedElementsData
 import fr.purpletear.friendzone2.R
 import fr.purpletear.friendzone2.configs.ChapterDetailsHandler
 import purpletear.fr.purpleteartools.GlobalData

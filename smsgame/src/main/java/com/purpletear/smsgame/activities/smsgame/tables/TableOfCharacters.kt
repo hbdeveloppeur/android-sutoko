@@ -3,8 +3,6 @@
 package com.purpletear.smsgame.activities.smsgame.tables
 
 import android.app.Activity
-import android.os.Handler
-import android.os.Looper
 import com.google.gson.Gson
 import java.io.*
 import java.lang.IllegalStateException

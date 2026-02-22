@@ -16,7 +16,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import fr.purpletear.friendzone4.GameData;
 import fr.purpletear.friendzone4.game.activities.main.Phrase;
 import fr.purpletear.friendzone4.purpleTearTools.Std;
 import purpletear.fr.purpleteartools.GameLanguage;

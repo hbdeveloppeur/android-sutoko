@@ -42,4 +42,6 @@ dependencies {
     testImplementation libs.junit
     implementation libs.billing
     kapt libs.dagger.hilt.compiler
+    implementation 'androidx.annotation:annotation:1.7.1'
+    compileOnly 'javax.inject:javax.inject:1'
 }

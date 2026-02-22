@@ -13,7 +13,7 @@ import android.widget.TextView
 import androidx.annotation.Keep
 import com.bumptech.glide.Glide
 import com.bumptech.glide.RequestManager
-import com.example.sutokosharedelements.Data
+import com.example.sharedelements.Data
 import com.example.sharedelements.SutokoParams
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.purpletear.smsgame.R

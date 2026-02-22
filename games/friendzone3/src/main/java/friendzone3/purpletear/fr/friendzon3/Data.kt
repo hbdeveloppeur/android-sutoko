@@ -2,7 +2,7 @@ package friendzone3.purpletear.fr.friendzon3
 
 import android.content.Context
 import android.content.res.AssetManager
-import com.example.sutokosharedelements.OnlineAssetsManager
+import com.example.sharedelements.OnlineAssetsManager
 import purpletear.fr.purpleteartools.GlobalData
 import java.io.File
 import java.io.IOException

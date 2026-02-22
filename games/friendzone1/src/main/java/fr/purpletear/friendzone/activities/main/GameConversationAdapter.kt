@@ -13,7 +13,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.bumptech.glide.RequestManager
-import com.example.sharedelements.tables.trophies.TrophyItemDecoration
 import fr.purpletear.friendzone.config.Phrase
 import fr.purpletear.friendzone.phrases.*
 import fr.purpletear.friendzone.tables.TableOfCharacters
@@ -144,7 +143,7 @@ class GameConversationAdapter(private var context: Context, private var array: A
                 Phrase.Type.meImage -> PhraseMeImage.design()
                 Phrase.Type.info -> PhraseInfo.design(context, p, itemView, backgroundMediaId)
                 Phrase.Type.nextChapter -> PhraseNextChapter.design(context, itemView, backgroundMediaId)
-                Phrase.Type.trophy -> TrophyItemDecoration.design(itemView, glide)
+                Phrase.Type.trophy -> {}
                 else -> {
 
                 }

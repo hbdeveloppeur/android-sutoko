@@ -11,8 +11,8 @@ import android.widget.TextView
 import android.widget.VideoView
 import androidx.core.content.ContextCompat
 import com.bumptech.glide.RequestManager
-import com.example.sutokosharedelements.OnlineAssetsManager
-import com.example.sutokosharedelements.OnlineAssetsManager.getImageFilePath
+import com.example.sharedelements.OnlineAssetsManager
+import com.example.sharedelements.OnlineAssetsManager.getImageFilePath
 import friendzone3.purpletear.fr.friendzon3.MainActivity.Support
 import friendzone3.purpletear.fr.friendzon3.custom.Character.Companion.updateNames
 import friendzone3.purpletear.fr.friendzon3.custom.Video

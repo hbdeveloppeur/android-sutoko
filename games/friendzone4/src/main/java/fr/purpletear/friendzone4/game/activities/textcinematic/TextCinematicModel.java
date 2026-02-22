@@ -9,8 +9,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.example.sharedelements.tables.trophies.TableOfCollectedTrophies;
-
 import java.io.IOException;
 import java.util.ArrayList;
 
@@ -66,12 +64,9 @@ class TextCinematicModel {
 
     private int csa;
 
-    private TableOfCollectedTrophies collectedTrophies = new TableOfCollectedTrophies();
-
     MemoryHandler mh;
 
     TextCinematicModel(Activity c, String code, int choicesecondsaverage, TableOfSymbols tableOfSymbols, Params params) throws IOException {
-        collectedTrophies.read(c);
         isFirstStart = true;
         mh = new MemoryHandler();
         sh = new SoundHandler();
@@ -151,29 +146,6 @@ class TextCinematicModel {
             Runnable2 runnable = new Runnable2("Un personnage envoie une image", p.getSeen()) {
                 @Override
                 public void run() {
-                    if (!collectedTrophies.containsByTrophyId(p.getTrophyId())) {
-                        collectedTrophies.add(a, p.getTrophyId(), GlobalData.Game.FRIENDZONE4.getId(), BuildConfig.VERSION_CODE);
-                        collectedTrophies.save(a);
-                        SimpleSound sh = new SimpleSound();
-                        sh.prepareAndPlay(a, com.example.sharedelements.R.raw.deduction, false, 0);
-
-                        if (tableOfLinks.hasAnswer(currentPhrase.getId())) {
-                            discuss(a, currentPhrase = tableOfPhrases.getPhrase(tableOfLinks.getDest(p.getId()).get(0)));
-                        } else {
-                            final View v = a.findViewById(R.id.fz4_textcinematic_text);
-                            long duration = Animation.setAnimation(v, Animation.Animations.ANIMATION_FADEOUT, a);
-                            Runnable2 runnable = new Runnable2("C", duration) {
-                                @Override
-                                public void run() {
-                                    a.setResult(RESULT_OK);
-                                    a.finish();
-
-                                }
-                            };
-                            mh.push(runnable);
-                            mh.run(runnable);
-                        }
-                    }
                     discuss(a, p);
                 }
             };

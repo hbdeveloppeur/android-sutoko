@@ -11,7 +11,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.RequestManager;
-import com.example.sutokosharedelements.OnlineAssetsManager;
+import com.example.sharedelements.OnlineAssetsManager;
 
 import java.util.List;
 

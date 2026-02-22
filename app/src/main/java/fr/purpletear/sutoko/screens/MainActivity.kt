@@ -36,7 +36,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.android.billingclient.api.BillingClientStateListener
 import com.android.billingclient.api.BillingResult
-import com.example.sutokosharedelements.Data
+import com.example.sharedelements.Data
 import com.example.sharedelements.SutokoAppParams
 import com.example.sharedelements.theme.SutokoTheme
 import com.example.sharedelements.utils.UiText
@@ -55,7 +55,6 @@ import com.purpletear.aiconversation.presentation.screens.media.image_generator.
 import com.purpletear.aiconversation.presentation.screens.shopDialog.MessagesCoinsDialogComposable
 import com.purpletear.game.presentation.screens.ChaptersComposable
 import com.purpletear.game.presentation.screens.GamePreview
-import com.purpletear.smsgame.activities.smsgame.objects.Story
 import com.purpletear.smsgame.activities.smsgame.objects.StoryChapter
 import com.purpletear.smsgame.activities.smsgameloader.SmsGameLoaderActivity
 import com.purpletear.sutoko.game.model.Game

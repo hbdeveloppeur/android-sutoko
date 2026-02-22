@@ -485,23 +485,6 @@ class Main : AppCompatActivity(), MainInterface {
                     if (isFinishing) {
                         return
                     }
-                    if (!model.collectedTrophies.containsByTrophyId(p.trophyId)) {
-                        model.collectedTrophies.add(
-                            this@Main,
-                            p.trophyId,
-                            GlobalData.Game.FRIENDZONE.id,
-                            VERSION_CODE
-                        )
-                        model.collectedTrophies.save(this@Main)
-                        val sh = SimpleSound()
-                        sh.prepareAndPlay(
-                            this@Main,
-                            com.example.sharedelements.R.raw.deduction,
-                            false,
-                            0
-                        )
-                        //insert(p, Phrase.Type.trophy)
-                    }
                     discussForward(p, isTest)
                 }
             }

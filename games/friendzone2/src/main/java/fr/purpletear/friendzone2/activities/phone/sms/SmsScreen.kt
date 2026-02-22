@@ -4,7 +4,7 @@ import android.os.Bundle
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import com.bumptech.glide.Glide
-import com.example.sutokosharedelements.OnlineAssetsManager
+import com.example.sharedelements.OnlineAssetsManager
 import fr.purpletear.friendzone2.R
 import fr.purpletear.friendzone2.activities.main.GameConversationAdapter
 import fr.purpletear.friendzone2.activities.main.MainInterface

@@ -22,8 +22,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.RequestManager;
-import com.example.sutokosharedelements.OnlineAssetsManager;
-import com.example.sutokosharedelements.SutokoSharedElementsData;
+import com.example.sharedelements.OnlineAssetsManager;
+import com.example.sharedelements.SutokoSharedElementsData;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -49,7 +49,6 @@ import purpletear.fr.purpleteartools.Animation;
 import purpletear.fr.purpleteartools.Finger;
 import purpletear.fr.purpleteartools.GlobalData;
 import purpletear.fr.purpleteartools.Measure;
-import purpletear.fr.purpleteartools.SimpleSound;
 import purpletear.fr.purpleteartools.SinglePlayer;
 import purpletear.fr.purpleteartools.Std;
 

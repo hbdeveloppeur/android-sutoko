@@ -13,7 +13,6 @@ import android.content.Context
 import android.os.Bundle
 import com.bumptech.glide.RequestManager
 import com.example.sharedelements.SutokoSharedElementsData
-import com.example.sharedelements.tables.trophies.TableOfCollectedTrophies
 import fr.purpletear.friendzone.Data
 import fr.purpletear.friendzone.R
 import fr.purpletear.friendzone.config.*
@@ -38,7 +37,6 @@ class MainModel(activity: Activity, var symbols: TableOfSymbols, rm: RequestMana
     val isNoSeen: Boolean = !ChapterDetailsHandler.getChapter(activity, symbols.chapterCode).isConversation
     val sound : SimpleSound = SimpleSound("friendzone1_assets")
     val sound2 : SimpleSound = SimpleSound("friendzone1_assets")
-    val collectedTrophies : TableOfCollectedTrophies = TableOfCollectedTrophies()
 
     enum class GameType {
         NORMAL, SMS
@@ -61,8 +59,6 @@ class MainModel(activity: Activity, var symbols: TableOfSymbols, rm: RequestMana
         Std.debug("[INIT] MainModel")
         phrases.read(activity, symbols.chapterCode)
         links.read(activity, symbols.chapterCode)
-        collectedTrophies.read(activity)
-
         val id = links.getDest(SutokoSharedElementsData.STARTING_PHRASE_ID)[0]
         currentPhrase = phrases.getPhrase(id)
     }

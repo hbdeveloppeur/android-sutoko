@@ -4,7 +4,6 @@ import android.app.Activity
 import android.content.Context
 import com.bumptech.glide.Glide
 import com.bumptech.glide.RequestManager
-import com.example.sharedelements.tables.trophies.TableOfCollectedTrophies
 import fr.purpletear.friendzone.Data
 import fr.purpletear.friendzone.R
 import fr.purpletear.friendzone.config.Phrase
@@ -27,12 +26,9 @@ class TextCinematicModel(a : Activity) {
 
     var currentPhrase : Phrase
 
-    var collectedTrophies : TableOfCollectedTrophies = TableOfCollectedTrophies()
-
     val symbols = a.intent.getParcelableExtra<TableOfSymbols>("symbols") ?: throw IllegalStateException("Symbols not found")
 
     init {
-        collectedTrophies.read(a)
         phrases.read(a, symbols.chapterCode)
         links = TableOfLinks()
         links.read(a, symbols.chapterCode)

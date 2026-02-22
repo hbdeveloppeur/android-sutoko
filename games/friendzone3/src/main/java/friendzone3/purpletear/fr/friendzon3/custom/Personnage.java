@@ -3,7 +3,7 @@ package friendzone3.purpletear.fr.friendzon3.custom;
 
 import android.content.Context;
 
-import com.example.sutokosharedelements.OnlineAssetsManager;
+import com.example.sharedelements.OnlineAssetsManager;
 
 import purpletear.fr.purpleteartools.GlobalData;
 import purpletear.fr.purpleteartools.TableOfSymbols;

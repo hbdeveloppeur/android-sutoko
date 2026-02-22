@@ -2,7 +2,6 @@ package fr.purpletear.friendzone2.activities.phone.photos;
 
 import android.app.Activity;
 import android.content.Context;
-import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,12 +10,11 @@ import android.widget.ImageView;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.RequestManager;
-import com.example.sutokosharedelements.OnlineAssetsManager;
+import com.example.sharedelements.OnlineAssetsManager;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import fr.purpletear.friendzone2.Data;
 import fr.purpletear.friendzone2.R;
 import purpletear.fr.purpleteartools.GlobalData;
 

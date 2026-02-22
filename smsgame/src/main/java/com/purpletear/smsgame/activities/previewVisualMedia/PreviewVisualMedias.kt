@@ -14,7 +14,7 @@ import com.bumptech.glide.load.DataSource
 import com.bumptech.glide.load.engine.GlideException
 import com.bumptech.glide.request.RequestListener
 
-import com.example.sutokosharedelements.Data
+import com.example.sharedelements.Data
 import com.purpletear.smsgame.databinding.ActivityPreviewVisualMediasBinding
 
 class PreviewVisualMedias : AppCompatActivity() {

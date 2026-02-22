@@ -17,9 +17,8 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import com.bumptech.glide.Glide;
 import com.bumptech.glide.RequestManager;
-import com.example.sutokosharedelements.OnlineAssetsManager;
+import com.example.sharedelements.OnlineAssetsManager;
 import java.util.ArrayList;
 
 import friendzone3.purpletear.fr.friendzon3.Data;

@@ -8,12 +8,11 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.RequestManager;
-import com.example.sutokosharedelements.OnlineAssetsManager;
+import com.example.sharedelements.OnlineAssetsManager;
 
 import friendzone3.purpletear.fr.friendzon3.handlers.SoundHandler;
 import purpletear.fr.purpleteartools.Finger;
 import purpletear.fr.purpleteartools.GlobalData;
-import purpletear.fr.purpleteartools.Std;
 
 public class Phone extends AppCompatActivity {
     private SoundHandler sh = new SoundHandler();

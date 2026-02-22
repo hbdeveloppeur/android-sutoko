@@ -17,9 +17,8 @@ import android.view.View
 import android.widget.VideoView
 import androidx.appcompat.app.AppCompatActivity
 import com.bumptech.glide.Glide
-import com.example.sutokosharedelements.OnlineAssetsManager
-import com.example.sutokosharedelements.SutokoSharedElementsData
-import fr.purpletear.friendzone2.BuildConfig.VERSION_CODE
+import com.example.sharedelements.OnlineAssetsManager
+import com.example.sharedelements.SutokoSharedElementsData
 import fr.purpletear.friendzone2.Data
 import fr.purpletear.friendzone2.activities.choice.Choice
 import fr.purpletear.friendzone2.activities.phone.homescreen.HomeScreen
@@ -32,9 +31,7 @@ import fr.purpletear.friendzone2.configs.Var
 import fr.purpletear.friendzone2.tables.Language
 import purpletear.fr.purpleteartools.*
 import purpletear.fr.purpleteartools.TableOfSymbols
-import java.lang.IllegalStateException
 import fr.purpletear.friendzone2.R
-import purpletear.fr.purpleteartools.SimpleSound
 
 
 class Main : AppCompatActivity(), MainInterface {

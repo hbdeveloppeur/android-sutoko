@@ -9,7 +9,7 @@ import androidx.appcompat.app.AppCompatActivity
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.target.CustomTarget
 import com.bumptech.glide.request.transition.Transition
-import com.example.sutokosharedelements.Data
+import com.example.sharedelements.Data
 import com.example.sharedelements.SmsGameTreeStructure
 import com.purpletear.smsgame.BuildConfig
 import com.purpletear.smsgame.databinding.ActivityMangaPageBinding

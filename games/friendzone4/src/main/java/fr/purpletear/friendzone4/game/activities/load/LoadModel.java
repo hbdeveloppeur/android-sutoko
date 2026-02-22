@@ -5,7 +5,6 @@ import com.example.sharedelements.SutokoSharedElementsData;
 import java.util.ArrayList;
 import java.util.List;
 
-import fr.purpletear.friendzone4.game.config.Chapter;
 import fr.purpletear.friendzone4.game.config.Params;
 import purpletear.fr.purpleteartools.TableOfSymbols;
 

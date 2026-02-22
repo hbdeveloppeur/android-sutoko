@@ -12,7 +12,7 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import com.example.sharedelements.DarkModeHelper
-import com.example.sutokosharedelements.Data
+import com.example.sharedelements.Data
 import com.example.sharedelements.SmsGameTreeStructure
 import com.example.sharedelements.SutokoSharedElementsData
 import com.google.firebase.analytics.FirebaseAnalytics

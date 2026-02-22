@@ -12,7 +12,7 @@ import android.app.Activity
 import android.content.Context
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.RequestManager
-import com.example.sutokosharedelements.SutokoSharedElementsData
+import com.example.sharedelements.SutokoSharedElementsData
 import fr.purpletear.friendzone2.Data
 import fr.purpletear.friendzone2.R
 import fr.purpletear.friendzone2.tables.TableOfLinks

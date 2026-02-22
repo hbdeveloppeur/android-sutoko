@@ -7,10 +7,8 @@ import android.os.Bundle
 import android.os.Parcelable
 import android.webkit.WebViewClient
 import android.widget.Toast
-import com.example.sharedelements.SutokoPlayerPointsManager
 import com.example.sharedelements.SutokoSharedElementsData
-import com.google.firebase.FirebaseException
-import com.example.sutokosharedelements.Data
+import com.example.sharedelements.Data
 import fr.purpletear.sutoko.R
 import com.example.sharedelements.SutokoAppParams
 import purpletear.fr.purpleteartools.Std
@@ -104,54 +102,5 @@ class WebActivity : AppCompatActivity() {
             intent.putExtra(Data.Companion.Extra.APP_PARAMS.id, sutokoAppParams as Parcelable)
             return intent
         }
-
-        /**
-         * Method to call before coming to this activity
-         *
-         * @param activity
-         * @return
-         */
-        fun require(
-            activity: Activity,
-            url: String,
-            sutokoAppParams: SutokoAppParams
-        ): Intent {
-            val intent = Intent(activity, WebActivity::class.java)
-            intent.putExtra(Data.Companion.Extra.WEB_URL.id, url)
-            intent.putExtra(Data.Companion.Extra.APP_PARAMS.id, sutokoAppParams as Parcelable)
-            return intent
-        }
-    }
-
-
-    private fun onAborted(code: SutokoPlayerPointsManager.Companion.AbortedCodes) {
-        when (code) {
-            SutokoPlayerPointsManager.Companion.AbortedCodes.NOT_ENOUGH_POINT -> {
-                WebActivityGraphics.setBuyingViewLoaderVisibility(this, false)
-                WebActivityGraphics.setBuyingViewIconVisibility(this, false)
-                WebActivityGraphics.setBuyingText(
-                    this,
-                    getString(R.string.sutoko_cannot_unlock_this_item)
-                )
-                Toast.makeText(
-                    applicationContext, getString(
-                        R.string.sutoko_store_not_enough_points
-                    ), Toast.LENGTH_LONG
-                ).show()
-            }
-            else -> {}
-        }
-    }
-
-    private fun onFailureBuy(exception: FirebaseException?) {
-        WebActivityGraphics.setBuyingViewLoaderVisibility(this, false)
-        WebActivityGraphics.setBuyingViewIconVisibility(this, false)
-        WebActivityGraphics.setBuyingText(this, getString(R.string.sutoko_buy_an_error_has_occured))
-    }
-
-    private fun onSuccessBuy() {
-        WebActivityGraphics.setBuyingViewLoaderVisibility(this, false)
-        WebActivityGraphics.setBuyingViewIconVisibility(this, true)
-        WebActivityGraphics.setBuyingText(this, getString(R.string.sutoko_congrats_item_unlocked))
     }
 }

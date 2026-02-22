@@ -4,7 +4,7 @@ import android.app.Activity
 import android.content.Context
 import com.bumptech.glide.Glide
 import com.bumptech.glide.RequestManager
-import com.example.sutokosharedelements.OnlineAssetsManager
+import com.example.sharedelements.OnlineAssetsManager
 import friendzone3.purpletear.fr.friendzon3.custom.Phrase
 import friendzone3.purpletear.fr.friendzon3.custom.SimpleSound
 import friendzone3.purpletear.fr.friendzon3.tables.TableOfLinks

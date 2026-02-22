@@ -13,13 +13,11 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.RequestManager;
 import com.example.sharedelements.SutokoSharedElementsData;
-import com.example.sharedelements.tables.trophies.TableOfCollectedTrophies;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Random;
 
-import fr.purpletear.friendzone4.GameData;
 import fr.purpletear.friendzone4.R;
 import fr.purpletear.friendzone4.factories.Data;
 import fr.purpletear.friendzone4.factories.Std;
@@ -106,9 +104,6 @@ class MainModel {
      */
     private String videoToReload;
 
-    TableOfCollectedTrophies collectedTrophies = new TableOfCollectedTrophies();
-
-
     /**
      * Handles the delay Handlers
      *
@@ -165,7 +160,6 @@ class MainModel {
      * @param callbacks MainInterface
      */
     MainModel(Activity activity, AssetManager am, Parcelable parcelableParams, Parcelable parcelableSymbols, RequestManager glide, MainInterface callbacks) {
-        collectedTrophies.read(activity);
         timedChoice = 0;
         hasBackgroundMedia = false;
         params = (Params) parcelableParams;

@@ -1,11 +1,10 @@
 package friendzone3.purpletear.fr.friendzon3.custom;
 
-import com.example.sutokosharedelements.SutokoSharedElementsData;
+import com.example.sharedelements.SutokoSharedElementsData;
 
 import java.io.Serializable;
 import java.util.ArrayList;
 
-import friendzone3.purpletear.fr.friendzon3.Data;
 import friendzone3.purpletear.fr.friendzon3.tables.TableOfCharacters;
 import friendzone3.purpletear.fr.friendzon3.tables.TableOfLinks;
 import friendzone3.purpletear.fr.friendzon3.tables.TableOfPhrases;

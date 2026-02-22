@@ -596,17 +596,6 @@ public class Main extends AppCompatActivity implements MainInterface {
             Runnable2 runnable = new Runnable2("Un personnage envoie une image", p.getSeen()) {
                 @Override
                 public void run() {
-                    if (!model.collectedTrophies.containsByTrophyId(p.getTrophyId())) {
-                        model.collectedTrophies.add(Main.this, p.getTrophyId(), GlobalData.Game.FRIENDZONE4.getId(), BuildConfig.VERSION_CODE);
-                        model.collectedTrophies.save(Main.this);
-                        try {
-                            SimpleSound sh = new SimpleSound();
-                            sh.prepareAndPlay(Main.this, com.example.sharedelements.R.raw.deduction, false, 0);
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-                        model.getAdapter().insertPhrase(p, Phrase.Type.trophy, !isFast);
-                    }
                     discussForward(p);
                 }
             };

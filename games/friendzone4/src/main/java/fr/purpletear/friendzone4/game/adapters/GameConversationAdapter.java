@@ -5,7 +5,6 @@ import android.content.Context;
 import android.graphics.Color;
 import android.graphics.drawable.AnimationDrawable;
 import android.graphics.drawable.GradientDrawable;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -19,8 +18,6 @@ import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.RequestManager;
-import com.example.sharedelements.tables.trophies.TrophyItemDecoration;
-
 import java.util.ArrayList;
 
 import fr.purpletear.friendzone4.R;
@@ -490,7 +487,6 @@ public class GameConversationAdapter extends RecyclerView.Adapter<GameConversati
                 }
 
                 case trophy:
-                   TrophyItemDecoration.Companion.design(itemView, Glide);
                     return;
 
                 default:

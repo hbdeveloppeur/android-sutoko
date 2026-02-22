@@ -36,8 +36,8 @@ import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
-import com.example.sutokosharedelements.theme.Boldonse
-import com.example.sutokosharedelements.theme.Poppins
+import com.example.sharedelements.theme.Boldonse
+import com.example.sharedelements.theme.Poppins
 import com.purpletear.core.presentation.components.AnimatedNewsGradient
 import com.purpletear.news.presentation.R
 import com.purpletear.news.presentation.viewmodels.NewsCardViewModel

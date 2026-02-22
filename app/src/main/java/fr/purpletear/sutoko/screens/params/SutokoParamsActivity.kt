@@ -7,9 +7,8 @@ import android.os.Parcelable
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
-import com.example.sutokosharedelements.Data
+import com.example.sharedelements.Data
 import com.example.sharedelements.SutokoAppParams
-import com.example.sharedelements.SutokoPlayerPointsManager
 import com.purpletear.sutoko.user.repository.UserRepository
 import dagger.hilt.android.AndroidEntryPoint
 import fr.purpletear.sutoko.R
@@ -190,60 +189,6 @@ class SutokoParamsActivity : AppCompatActivity() {
             SutokoParamsActivityGraphics.SutokoParamsProgressBar.USER_RELOAD,
             true
         )
-        SutokoPlayerPointsManager.reloadData(
-            this,
-            model.user,
-            model.instance,
-            /* onSuccess */{
-                this.model.customer.load(this) {
-                    isReloadingAccountData = false
-                    Toast.makeText(
-                        applicationContext,
-                        getString(R.string.sutoko_params_account_data_reloaded_success),
-                        Toast.LENGTH_LONG
-                    ).show()
-
-                    SutokoParamsActivityGraphics.setProgressBarVisibility(
-                        this,
-                        SutokoParamsActivityGraphics.SutokoParamsProgressBar.USER_RELOAD,
-                        false
-                    )
-                }
-            },
-            /* onAbort */{
-                this.model.customer.load(this) {
-                    isReloadingAccountData = false
-                    Toast.makeText(
-                        applicationContext,
-                        getString(R.string.sutoko_params_account_data_reloaded_success),
-                        Toast.LENGTH_LONG
-                    ).show()
-
-                    SutokoParamsActivityGraphics.setProgressBarVisibility(
-                        this,
-                        SutokoParamsActivityGraphics.SutokoParamsProgressBar.USER_RELOAD,
-                        false
-                    )
-                }
-            },
-            /* onFailure */{
-                this.model.customer.load(this) {
-                    isReloadingAccountData = false
-                    Toast.makeText(
-                        applicationContext,
-                        getString(R.string.sutoko_params_account_data_reloaded_success),
-                        Toast.LENGTH_LONG
-                    ).show()
-
-                    SutokoParamsActivityGraphics.setProgressBarVisibility(
-                        this,
-                        SutokoParamsActivityGraphics.SutokoParamsProgressBar.USER_RELOAD,
-                        false
-                    )
-                }
-            }
-        )
-
     }
 
     private fun onShareButtonPressed() {

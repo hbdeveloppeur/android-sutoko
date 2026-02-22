@@ -12,7 +12,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.RequestManager;
-import com.example.sutokosharedelements.OnlineAssetsManager;
+import com.example.sharedelements.OnlineAssetsManager;
 
 import friendzone3.purpletear.fr.friendzon3.handlers.MemoryHandler;
 import purpletear.fr.purpleteartools.GlobalData;

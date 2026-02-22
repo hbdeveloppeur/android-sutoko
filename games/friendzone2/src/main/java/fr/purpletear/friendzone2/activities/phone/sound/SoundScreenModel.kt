@@ -2,7 +2,7 @@ package fr.purpletear.friendzone2.activities.phone.sound
 
 import android.app.Activity
 import com.bumptech.glide.RequestManager
-import com.example.sutokosharedelements.OnlineAssetsManager
+import com.example.sharedelements.OnlineAssetsManager
 import fr.purpletear.friendzone2.Data
 import purpletear.fr.purpleteartools.GlobalData
 import purpletear.fr.purpleteartools.SoundHandler
