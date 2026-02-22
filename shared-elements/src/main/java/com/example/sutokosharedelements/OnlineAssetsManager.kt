@@ -22,11 +22,6 @@ object OnlineAssetsManager {
         return symbols.getStoryVersion(storyId.hashCode()) == version
     }
 
-    fun hasUpdatableStoryFiles(storyId: String, version: String, symbols: TableOfSymbols): Boolean {
-        return symbols.getStoryVersion(storyId.hashCode()) != version && symbols.getStoryVersion(storyId.hashCode()) != "none"
-                && symbols.getStoryVersion(storyId.hashCode()).isNotBlank()
-    }
-
     fun compareVersion(v1: String, v2: String): VersionComparision {
         if (v1.isBlank() || v2.isBlank()) {
             throw IllegalStateException("v1 : $v1, v2 : $v2")
@@ -42,10 +37,6 @@ object OnlineAssetsManager {
             return VersionComparision.LESSER
         }
         return VersionComparision.GREATER
-    }
-
-    fun hasSomeStoryFiles(activity: Activity, storyId: String): Boolean {
-        return File(activity.getExternalFilesDir(null), "games/$storyId/").exists()
     }
 
     /**
@@ -88,8 +79,6 @@ object OnlineAssetsManager {
             }
         }.addOnFailureListener {
             // Handle any errors
-            Toast.makeText(activity.applicationContext, "CODE B - ${it.message}", Toast.LENGTH_LONG)
-                .show()
             onError(it.message ?: "")
         }
     }
@@ -130,7 +119,7 @@ object OnlineAssetsManager {
     private val IMAGE_EXTENSIONS = listOf("jpeg", "jpg", "png")
 
     fun getImageFilePath(context: Context, storyId: String, assetName: String): String {
-        val basePath = SmsGameTreeStructure.Companion.getMediaFilePath(context, storyId, assetName)
+        val basePath = SmsGameTreeStructure.getMediaFilePath(context, storyId, assetName)
         
         File(basePath).takeIf { it.exists() }?.let { return basePath }
         

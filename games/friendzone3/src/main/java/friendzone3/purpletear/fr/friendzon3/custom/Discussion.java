@@ -1,6 +1,6 @@
 package friendzone3.purpletear.fr.friendzon3.custom;
 
-import com.example.sharedelements.SutokoSharedElementsData;
+import com.example.sutokosharedelements.SutokoSharedElementsData;
 
 import java.io.Serializable;
 import java.util.ArrayList;

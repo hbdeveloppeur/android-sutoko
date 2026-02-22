@@ -9,11 +9,10 @@
 package fr.purpletear.friendzone2.tables
 
 import android.content.Context
-import com.example.sharedelements.SmsGameTreeStructure
+import com.example.sutokosharedelements.SmsGameTreeStructure
 import com.google.gson.Gson
 import fr.purpletear.friendzone2.configs.Phrase
 import com.google.gson.reflect.TypeToken
-import fr.purpletear.friendzone2.Data
 import purpletear.fr.purpleteartools.GlobalData
 import purpletear.fr.purpleteartools.Std
 import java.io.BufferedReader

@@ -111,12 +111,6 @@ class TextCinematic : AppCompatActivity() {
 
             val runnable = object : Runnable2("Le joueur débloque un trophée", 1280) {
                 override fun run() {
-                    if(!model.collectedTrophies.containsByTrophyId(phrase.trophyId)) {
-                        model.collectedTrophies.add(this@TextCinematic, phrase.trophyId, GlobalData.Game.FRIENDZONE2.id, VERSION_CODE)
-                        model.collectedTrophies.save(this@TextCinematic)
-                        val sh  = SimpleSound()
-                        sh.prepareAndPlay(this@TextCinematic, com.example.sharedelements.R.raw.deduction, false, 0)
-                    }
                     if(model.hasNextPhrase(phrase)) {
                         model.currentPhrase = model.getNextPhrase(phrase)
                         discuss(model.currentPhrase)

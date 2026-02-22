@@ -5,13 +5,11 @@ import android.os.Parcel
 import android.os.Parcelable
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.example.sharedelements.tables.trophies.TableOfCollectedTrophies
 import friendzone3.purpletear.fr.friendzon3.MainActivity.Support
 
 class MainActivityModel() : Parcelable {
     var isFirstStartValue = true
         private set
-    val collectedTrophies : TableOfCollectedTrophies = TableOfCollectedTrophies()
     /**
      * Determines if it is a first start
      * @return Boolean

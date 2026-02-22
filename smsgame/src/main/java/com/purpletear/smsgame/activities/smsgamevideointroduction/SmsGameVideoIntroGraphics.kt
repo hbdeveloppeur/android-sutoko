@@ -4,7 +4,6 @@ import android.view.View
 import com.bumptech.glide.RequestManager
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions.withCrossFade
 import com.bumptech.glide.request.RequestOptions
-import com.example.sharedelements.SutokoSharedElementsData
 import com.purpletear.smsgame.databinding.ActivitySmsGameVideoIntroBinding
 import purpletear.fr.purpleteartools.Animation
 

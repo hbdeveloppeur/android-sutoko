@@ -12,8 +12,8 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.sp
-import com.example.sharedelements.enums.DesignSystemTextSize
-import com.example.sharedelements.enums.FontEnum
+import com.example.sutokosharedelements.enums.DesignSystemTextSize
+import com.example.sutokosharedelements.enums.FontEnum
 
 @Composable
 fun SText(

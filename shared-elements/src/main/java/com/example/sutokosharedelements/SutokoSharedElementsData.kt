@@ -16,9 +16,9 @@ import android.view.WindowInsets
 import android.view.WindowManager
 import android.view.WindowMetrics
 import androidx.annotation.RequiresApi
+import com.example.sharedelements.BuildConfig
 import com.google.firebase.auth.FirebaseUser
 import java.io.File
-import java.util.*
 
 
 object SutokoSharedElementsData {

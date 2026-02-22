@@ -1,6 +1,6 @@
 package fr.purpletear.sutoko.shop.coinsLogic.helpers
 
-import com.example.sharedelements.User
+import com.example.sutokosharedelements.User
 import fr.purpletear.sutoko.shop.coinsLogic.objects.Operation
 import fr.purpletear.sutoko.shop.coinsLogic.objects.operations.Gain
 import fr.purpletear.sutoko.shop.coinsLogic.objects.orders.BookOrder

@@ -10,7 +10,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.example.sharedelements.SutokoSharedElementsData;
+import com.example.sutokosharedelements.SutokoSharedElementsData;
 
 import java.util.ArrayList;
 import java.util.List;

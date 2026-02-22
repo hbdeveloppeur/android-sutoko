@@ -20,10 +20,7 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.RequestManager;
 import com.example.sutokosharedelements.OnlineAssetsManager;
-import com.example.sharedelements.tables.trophies.TrophyItemDecoration;
-
 import java.util.ArrayList;
-import java.util.List;
 
 import friendzone3.purpletear.fr.friendzon3.Data;
 import friendzone3.purpletear.fr.friendzon3.MainActivity;
@@ -433,7 +430,6 @@ public class ConversationAdapter extends RecyclerView.Adapter<ConversationAdapte
                 }
 
                 case trophy: {
-                    TrophyItemDecoration.Companion.design(itemView, Glide.with(context));
                     break;
                 }
 

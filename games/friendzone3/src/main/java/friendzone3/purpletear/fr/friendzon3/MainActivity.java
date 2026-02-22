@@ -23,7 +23,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.RequestManager;
 import com.example.sutokosharedelements.OnlineAssetsManager;
-import com.example.sharedelements.SutokoSharedElementsData;
+import com.example.sutokosharedelements.SutokoSharedElementsData;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -213,7 +213,6 @@ public class MainActivity extends AppCompatActivity implements PhraseCallBack {
         }
 
         model = new MainActivityModel();
-        model.getCollectedTrophies().read(this);
 
         graphics = new MainActivityGraphics(
                 true,
@@ -609,13 +608,6 @@ public class MainActivity extends AppCompatActivity implements PhraseCallBack {
             handler.postDelayed(runnable = new Runnable() {
                 @Override
                 public void run() {
-                    if (!model.getCollectedTrophies().containsByTrophyId(p.getTrophyId())) {
-                        model.getCollectedTrophies().add(MainActivity.this, p.getTrophyId(), GlobalData.Game.FRIENDZONE3.getId(), BuildConfig.VERSION_CODE);
-                        model.getCollectedTrophies().save(MainActivity.this);
-                        SimpleSound sh = new SimpleSound();
-                        sh.prepareAndPlay(MainActivity.this, com.example.sharedelements.R.raw.deduction, false, 0);
-                        adapter.insertPhrase(p, Phrase.Type.trophy);
-                    }
                     nextOrChoice(p);
                 }
             }, 1280);

@@ -14,7 +14,6 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.RequestManager
-import com.example.sharedelements.tables.trophies.TrophyItemDecoration
 import fr.purpletear.friendzone2.configs.Phrase
 import fr.purpletear.friendzone2.phrases.*
 import fr.purpletear.friendzone2.tables.TableOfCharacters
@@ -178,7 +177,7 @@ class GameConversationAdapter(private var context: Context, private var array: A
 
                 }
                 Phrase.Type.trophy -> {
-                    TrophyItemDecoration.design(itemView, glide)
+
                 }
                 else -> {
 

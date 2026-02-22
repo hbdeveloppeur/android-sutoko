@@ -5,9 +5,6 @@ import android.content.Context
 import com.bumptech.glide.Glide
 import com.bumptech.glide.RequestManager
 import com.example.sutokosharedelements.OnlineAssetsManager
-import com.example.sharedelements.tables.trophies.TableOfCollectedTrophies
-import friendzone3.purpletear.fr.friendzon3.Load
-import friendzone3.purpletear.fr.friendzon3.R
 import friendzone3.purpletear.fr.friendzon3.custom.Phrase
 import friendzone3.purpletear.fr.friendzon3.custom.SimpleSound
 import friendzone3.purpletear.fr.friendzon3.tables.TableOfLinks
@@ -25,13 +22,9 @@ class TextCinematicModel(a : Activity) {
     private set
     var requestManager : RequestManager = Glide.with(a)
     private set
-
-    var collectedTrophies : TableOfCollectedTrophies = TableOfCollectedTrophies()
-
     var currentPhrase : Phrase
 
     init {
-        collectedTrophies.read(a)
         phrases.read(a, determineCinematicCode(symbols.chapterCode), symbols.getStoryVersion(GlobalData.Game.FRIENDZONE3.id) ?: "0.0.7")
         links = TableOfLinks()
         links.read(a, determineCinematicCode(symbols.chapterCode), symbols.getStoryVersion(GlobalData.Game.FRIENDZONE3.id) ?: "0.0.7")

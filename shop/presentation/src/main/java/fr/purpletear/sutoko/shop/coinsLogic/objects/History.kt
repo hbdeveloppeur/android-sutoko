@@ -2,7 +2,7 @@ package fr.purpletear.sutoko.shop.coinsLogic.objects
 
 import android.content.Context
 import android.content.SharedPreferences
-import com.example.sharedelements.User
+import com.example.sutokosharedelements.User
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.gson.GsonBuilder

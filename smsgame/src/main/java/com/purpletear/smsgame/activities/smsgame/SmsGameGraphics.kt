@@ -18,7 +18,7 @@ import com.bumptech.glide.load.engine.GlideException
 import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.target.Target
 import com.example.sutokosharedelements.GraphicsPreference
-import com.example.sharedelements.SutokoSharedElementsData
+import com.example.sutokosharedelements.SutokoSharedElementsData
 import com.purpletear.smsgame.R
 import com.purpletear.smsgame.activities.smsgame.adapter.GameConversationAdapter
 import com.purpletear.smsgame.activities.smsgame.objects.GameGridItemDecoration

@@ -12,8 +12,7 @@ import android.app.Activity
 import android.content.Context
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.RequestManager
-import com.example.sharedelements.SutokoSharedElementsData
-import com.example.sharedelements.tables.trophies.TableOfCollectedTrophies
+import com.example.sutokosharedelements.SutokoSharedElementsData
 import fr.purpletear.friendzone2.Data
 import fr.purpletear.friendzone2.R
 import fr.purpletear.friendzone2.tables.TableOfLinks
@@ -37,8 +36,6 @@ class MainModel(activity: Activity, var symbols: TableOfSymbols, rm: RequestMana
     val sh: SoundHandler = SoundHandler(Data.assetRootDir)
     val singlePlayer = SinglePlayer(Data.assetRootDir)
     val choiceRequestCode = 58756
-    val collectedTrophies : TableOfCollectedTrophies = TableOfCollectedTrophies()
-
     /**
      * Boolean determines if the Activity has a backgroundMedia
      */
@@ -72,7 +69,6 @@ class MainModel(activity: Activity, var symbols: TableOfSymbols, rm: RequestMana
         Std.debug("[INIT] MainModel")
         phrases.read(activity, symbols.chapterCode)
         links.read(activity, symbols.chapterCode)
-        collectedTrophies.read(activity)
 
         val id = links.getDest(SutokoSharedElementsData.STARTING_PHRASE_ID)[0]
         currentPhrase = phrases.getPhrase(id)

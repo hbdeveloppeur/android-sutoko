@@ -3,7 +3,7 @@ package fr.purpletear.sutoko.popup.domain
 import androidx.annotation.Keep
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.unit.Dp
-import com.example.sharedelements.utils.UiText
+import com.example.sutokosharedelements.utils.UiText
 
 @Stable
 @Keep

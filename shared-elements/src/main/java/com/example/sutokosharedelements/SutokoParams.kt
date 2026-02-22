@@ -6,6 +6,7 @@ import android.content.SharedPreferences
 import android.os.Parcel
 import android.os.Parcelable
 import androidx.annotation.Keep
+import com.example.sharedelements.R
 import com.google.gson.Gson
 import java.io.Serializable
 

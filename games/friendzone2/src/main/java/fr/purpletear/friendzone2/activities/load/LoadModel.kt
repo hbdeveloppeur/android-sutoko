@@ -8,7 +8,7 @@
 
 package fr.purpletear.friendzone2.activities.load
 
-import com.example.sharedelements.SutokoSharedElementsData
+import com.example.sutokosharedelements.SutokoSharedElementsData
 import purpletear.fr.purpleteartools.TableOfSymbols
 
 

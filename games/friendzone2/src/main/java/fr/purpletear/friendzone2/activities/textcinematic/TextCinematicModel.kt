@@ -5,16 +5,12 @@ import android.content.Context
 import com.bumptech.glide.Glide
 import com.bumptech.glide.RequestManager
 import com.example.sutokosharedelements.OnlineAssetsManager
-import com.example.sutokosharedelements.OnlineAssetsManager.getImageFilePath
-import com.example.sharedelements.tables.trophies.TableOfCollectedTrophies
 import fr.purpletear.friendzone2.Data
-import fr.purpletear.friendzone2.R
 import fr.purpletear.friendzone2.configs.Phrase
 import fr.purpletear.friendzone2.tables.TableOfLinks
 import fr.purpletear.friendzone2.tables.TableOfPhrases
 import purpletear.fr.purpleteartools.GlobalData
 import purpletear.fr.purpleteartools.SoundHandler
-import purpletear.fr.purpleteartools.Std
 import purpletear.fr.purpleteartools.TableOfSymbols
 
 class TextCinematicModel(a : Activity, var symbols: TableOfSymbols) {
@@ -29,10 +25,7 @@ class TextCinematicModel(a : Activity, var symbols: TableOfSymbols) {
     private set
 
     var currentPhrase : Phrase
-    var collectedTrophies : TableOfCollectedTrophies = TableOfCollectedTrophies()
-
     init {
-        collectedTrophies.read(a)
         sh.generateFromExternalStorage(OnlineAssetsManager.getSoundFilePath(a, GlobalData.Game.FRIENDZONE2.id.toString(), getSoundName()), a, false)
         phrases = TableOfPhrases()
         phrases.read(a, filename())
