@@ -6,7 +6,9 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -26,6 +28,7 @@ private val TextColor = Color.White
 internal fun LoadMoreButton(
     modifier: Modifier = Modifier,
     text: String = "Charger d'autres histoires",
+    isLoading: Boolean = false,
     onClick: () -> Unit
 ) {
     Box(
@@ -34,19 +37,33 @@ internal fun LoadMoreButton(
             .height(52.dp)
             .clip(RoundedCornerShape(12.dp))
             .background(ButtonBackground)
-            .clickable(
-                interactionSource = remember { MutableInteractionSource() },
-                indication = null,
-                onClick = onClick
+            .then(
+                if (!isLoading) {
+                    Modifier.clickable(
+                        interactionSource = remember { MutableInteractionSource() },
+                        indication = null,
+                        onClick = onClick
+                    )
+                } else {
+                    Modifier
+                }
             ),
         contentAlignment = Alignment.Center
     ) {
-        Text(
-            text = text,
-            color = TextColor,
-            fontFamily = Poppins,
-            fontWeight = FontWeight.Medium,
-            fontSize = 12.sp
-        )
+        if (isLoading) {
+            CircularProgressIndicator(
+                modifier = Modifier.size(24.dp),
+                color = TextColor.copy(alpha = 0.7f),
+                strokeWidth = 2.dp
+            )
+        } else {
+            Text(
+                text = text,
+                color = TextColor,
+                fontFamily = Poppins,
+                fontWeight = FontWeight.Medium,
+                fontSize = 12.sp
+            )
+        }
     }
 }

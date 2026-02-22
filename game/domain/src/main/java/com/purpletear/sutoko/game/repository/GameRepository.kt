@@ -9,17 +9,25 @@ import kotlinx.coroutines.flow.StateFlow
  */
 interface GameRepository {
     /**
-     * Get a list of all games.
+     * Get a list of official games.
      *
-     * @return A Flow emitting a list of Games.
+     * @return A Flow emitting a Result containing a list of Games.
      */
     fun getOfficialGames(): Flow<Result<List<Game>>>
+
     /**
-     * Get a list of all games.
+     * Get a paginated list of user-created games.
      *
-     * @return A Flow emitting a list of Games.
+     * @param languageCode The language code (e.g., "fr-FR")
+     * @param page The page number (starting from 1)
+     * @param limit The number of items per page
+     * @return A Flow emitting a Result containing a list of Games.
      */
-    fun getUsersGames(): Flow<Result<List<Game>>>
+    fun getUsersGames(
+        languageCode: String = "fr-FR",
+        page: Int = 1,
+        limit: Int = 20,
+    ): Flow<Result<List<Game>>>
 
     /**
      * Get a specific game by its ID.
@@ -30,11 +38,17 @@ interface GameRepository {
     fun getGame(id: String): Flow<Result<Game>>
 
     /**
-     * Observe the cached games data.
+     * Observe the cached official games data.
      *
      * @return A StateFlow emitting the cached list of Games.
      */
     fun observeCachedOfficialGames(): StateFlow<List<Game>?>
+
+    /**
+     * Observe the cached user games data.
+     *
+     * @return A StateFlow emitting the cached list of Games.
+     */
     fun observeCachedUsersGames(): StateFlow<List<Game>?>
 
     /**

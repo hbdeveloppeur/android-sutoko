@@ -3,13 +3,13 @@ package com.purpletear.game.data.repository
 import android.content.Context
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.purpletear.game.data.remote.GameApi
+import com.purpletear.game.data.remote.UserGameApi
 import com.purpletear.game.data.remote.dto.DownloadLinkRequestDto
 import com.purpletear.game.data.remote.dto.FreeDownloadLinkRequestDto
 import com.purpletear.game.data.remote.dto.toDomain
 import com.purpletear.sutoko.game.exception.GameDownloadForbiddenException
 import com.purpletear.sutoko.game.model.Game
 import com.purpletear.sutoko.game.repository.GameRepository
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -22,26 +22,57 @@ import javax.inject.Inject
  */
 class GameRepositoryImpl @Inject constructor(
     private val api: GameApi,
+    private val userGameApi: UserGameApi,
     private val tableOfSymbols: TableOfSymbols,
     private val context: Context,
 ) : GameRepository {
-
 
     // Thread-safe and observable cache
     private val officialGamesStateFlow = MutableStateFlow<List<Game>?>(null)
     private val usersGamesStateFlow = MutableStateFlow<List<Game>?>(null)
 
     /**
-     * Get a list of all games.
+     * Get a list of official games.
      *
      * @return A Flow emitting a Result containing a list of Games.
      */
     override fun getOfficialGames(): Flow<Result<List<Game>>> = flow {
-
+        // TODO: Implement when official games endpoint is ready
+        emit(Result.success(emptyList()))
     }
 
-    override fun getUsersGames(): Flow<Result<List<Game>>> = flow{
+    /**
+     * Get a paginated list of user-created games.
+     *
+     * @param languageCode The language code (e.g., "fr-FR")
+     * @param page The page number (starting from 1)
+     * @param limit The number of items per page
+     * @return A Flow emitting a Result containing a list of Games.
+     */
+    override fun getUsersGames(
+        languageCode: String,
+        page: Int,
+        limit: Int,
+    ): Flow<Result<List<Game>>> = flow {
+        try {
+            val response = userGameApi.getUsersGames(
+                languageCode = languageCode,
+                page = page,
+                limit = limit
+            )
 
+            if (response.isSuccessful) {
+                val games = response.body()?.toDomain() ?: emptyList()
+                usersGamesStateFlow.value = games
+                emit(Result.success(games))
+            } else {
+                val errorBody = response.errorBody()?.string() ?: "Unknown error"
+                emit(Result.failure(Exception("Failed to load user games: ${response.code()} - $errorBody")))
+            }
+        } catch (e: Exception) {
+            FirebaseCrashlytics.getInstance().recordException(e)
+            emit(Result.failure(e))
+        }
     }
 
     /**
@@ -59,7 +90,8 @@ class GameRepositoryImpl @Inject constructor(
      * @return A Flow emitting a Result containing the requested Game.
      */
     override fun getGame(id: String): Flow<Result<Game>> = flow {
-
+        // TODO: Implement when single game endpoint is ready
+        emit(Result.failure(NotImplementedError("getGame not yet implemented")))
     }
 
     /**

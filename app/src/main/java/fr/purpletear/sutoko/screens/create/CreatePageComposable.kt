@@ -6,12 +6,15 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -25,15 +28,16 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-
+import com.purpletear.core.presentation.extensions.Resource
+import com.purpletear.sutoko.game.model.Game
 import fr.purpletear.sutoko.R
 import fr.purpletear.sutoko.screens.create.components.create_story_button.CreateStoryButton
 import fr.purpletear.sutoko.screens.create.components.create_story_button.CreateStoryButtonVariant
+import fr.purpletear.sutoko.screens.create.components.game_card.GameCard
+import fr.purpletear.sutoko.screens.create.components.game_cover.GameCover
 import fr.purpletear.sutoko.screens.create.components.load_more_button.LoadMoreButton
 import fr.purpletear.sutoko.screens.create.components.search_box.SearchBox
 import fr.purpletear.sutoko.screens.create.components.section_title.SectionTitle
-import fr.purpletear.sutoko.screens.create.components.game_card.GameCard
-import fr.purpletear.sutoko.screens.create.components.game_cover.GameCover
 import fr.purpletear.sutoko.screens.main.presentation.screens.TopNavigation
 
 private const val BACKGROUND_ALPHA = 0.15f
@@ -48,21 +52,25 @@ internal fun CreatePageComposable(
     onCoinsButtonPressed: () -> Unit = {},
     onDiamondsButtonPressed: () -> Unit = {},
     onOptionsButtonPressed: () -> Unit = {},
+    onGameClick: (Game) -> Unit = {},
 ) {
     val focusManager = LocalFocusManager.current
     val balance by viewModel.balance
+    val userGames by viewModel.userGames
+    val isLoadingMore by viewModel.isLoadingMore
+    val hasMorePages by viewModel.hasMorePages
 
     val targetCoins = when (balance) {
-        is com.purpletear.core.presentation.extensions.Resource.Success -> {
-            (balance as com.purpletear.core.presentation.extensions.Resource.Success).data?.coins
+        is Resource.Success -> {
+            (balance as Resource.Success).data?.coins
                 ?: viewModel.getCoins()
         }
         else -> viewModel.getCoins()
     }
 
     val targetDiamonds = when (balance) {
-        is com.purpletear.core.presentation.extensions.Resource.Success -> {
-            (balance as com.purpletear.core.presentation.extensions.Resource.Success).data?.diamonds
+        is Resource.Success -> {
+            (balance as Resource.Success).data?.diamonds
                 ?: viewModel.getDiamonds()
         }
         else -> viewModel.getDiamonds()
@@ -86,7 +94,9 @@ internal fun CreatePageComposable(
         label = "diamonds_animation"
     )
 
-    val isLoading = balance is com.purpletear.core.presentation.extensions.Resource.Loading
+    val isBalanceLoading = balance is Resource.Loading
+    val games = (userGames as? Resource.Success)?.data.orEmpty()
+    val isGamesLoading = userGames is Resource.Loading
 
     Box(
         modifier = modifier
@@ -103,15 +113,15 @@ internal fun CreatePageComposable(
                 .pointerInput(Unit) {
                     detectTapGestures(onTap = { focusManager.clearFocus() })
                 },
-        ) { 
+        ) {
             item {
                 TopNavigation(
-                    modifier = Modifier 
+                    modifier = Modifier
                         .padding(horizontal = 16.dp)
                         .padding(start = 8.dp),
                     coins = coins,
                     diamonds = diamonds,
-                    isLoading = isLoading,
+                    isLoading = isBalanceLoading,
                     onAccountButtonPressed = onAccountButtonPressed,
                     onCoinsButtonPressed = onCoinsButtonPressed,
                     onDiamondsButtonPressed = onDiamondsButtonPressed,
@@ -126,13 +136,17 @@ internal fun CreatePageComposable(
                 )
             }
 
+            // Featured game cover (first game or placeholder)
             item {
+                val featuredGame = games.firstOrNull()
                 GameCover(
                     modifier = Modifier.padding(horizontal = 16.dp),
-                    coverUrl = "https://media.discordapp.net/attachments/1450792285590786139/1474433761499156638/image_1.png?ex=6999d4f2&is=69988372&hm=6f37cc265d99d5e4d96215e354293587b0f233d82fca1b8ac8910f63722206e3&=&format=webp&quality=lossless&width=1024&height=520",
-                    title = "The day my life ended",
-                    author = "Eva Weeks",
-                    thumbnailUrl = "https://media.discordapp.net/attachments/1450792285590786139/1474416156881191044/tmp_logo.png?ex=6999c48d&is=6998730d&hm=f013ec27a0d7f540a4ad6dcee2ee14962995a419199df41646fe5a7e147b4140&=&format=webp&quality=lossless&width=132&height=132"
+                    coverUrl = featuredGame?.bannerAsset?.let { "https://sutoko.com/${it.storagePath}" }
+                        ?: "https://media.discordapp.net/attachments/1450792285590786139/1474433761499156638/image_1.png?ex=6999d4f2&is=69988372&hm=6f37cc265d99d5e4d96215e354293587b0f233d82fca1b8ac8910f63722206e3&=&format=webp&quality=lossless&width=1024&height=520",
+                    title = featuredGame?.metadata?.title ?: "The day my life ended",
+                    author = featuredGame?.author?.displayName ?: "Eva Weeks",
+                    thumbnailUrl = featuredGame?.logoAsset?.let { "https://sutoko.com/${it.thumbnailStoragePath}" }
+                        ?: "https://media.discordapp.net/attachments/1450792285590786139/1474416156881191044/tmp_logo.png?ex=6999c48d&is=6998730d&hm=f013ec27a0d7f540a4ad6dcee2ee14962995a419199df41646fe5a7e147b4140&=&format=webp&quality=lossless&width=132&height=132"
                 )
             }
 
@@ -141,7 +155,9 @@ internal fun CreatePageComposable(
                     text = "Créer mon histoire",
                     variant = CreateStoryButtonVariant.Violet,
                     onClick = { /* TODO */ },
-                    modifier = Modifier.padding(horizontal = 16.dp).padding(top = 16.dp)
+                    modifier = Modifier
+                        .padding(horizontal = 16.dp)
+                        .padding(top = 16.dp)
                 )
             }
 
@@ -158,51 +174,52 @@ internal fun CreatePageComposable(
                     }
                 )
             }
-            /**
-             *
-             *
-             *             item {
-             *                 Spacer(modifier = Modifier.padding(bottom = 12.dp))
-             *             }
-             *
-             *             item {
-             *                 CreateStoryButton(
-             *                     text = "Voir mes histoires créées",
-             *                     variant = CreateStoryButtonVariant.White,
-             *                     onClick = { /* TODO */ },
-             *                     modifier = Modifier.padding(horizontal = 16.dp)
-             *                 )
-             *             }
-             *
-             *             item {
-             *                 Spacer(modifier = Modifier.padding(bottom = 16.dp))
-             *             }
-             *
-             *             item {
-             *                 CreateStoryButton(
-             *                     text = "Créer mon histoire",
-             *                     hint = "Se connecter",
-             *                     variant = CreateStoryButtonVariant.Violet,
-             *                     onClick = { /* TODO */ },
-             *                     modifier = Modifier.padding(horizontal = 16.dp)
-             *                 )
-             *             }
-             */
 
-            item {
+            // Loading state
+            if (isGamesLoading) {
+                item {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 32.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        CircularProgressIndicator(
+                            color = Color.White.copy(alpha = 0.7f)
+                        )
+                    }
+                }
+            }
+
+            // Games list
+            items(
+                items = games,
+                key = { it.id }
+            ) { game ->
                 GameCard(
                     modifier = Modifier.padding(top = 16.dp),
-                    title = "The day my life ended",
-                    author = "Eva Weeks",
-                    imageUrl = "https://media.discordapp.net/attachments/1450792285590786139/1474416156881191044/tmp_logo.png?ex=6999c48d&is=6998730d&hm=f013ec27a0d7f540a4ad6dcee2ee14962995a419199df41646fe5a7e147b4140&=&format=webp&quality=lossless&width=132&height=132",
-                    onGetClick = { /* TODO */ }
+                    title = game.metadata.title,
+                    author = game.author?.displayName ?: "",
+                    imageUrl = game.logoAsset?.let { "https://sutoko.com/${it.thumbnailStoragePath}" }
+                        ?: "",
+                    onGetClick = { onGameClick(game) }
                 )
             }
+
+            // Load more button
+            if (hasMorePages || isLoadingMore) {
+                item {
+                    LoadMoreButton(
+                        onClick = { viewModel.loadMoreUserGames() },
+                        isLoading = isLoadingMore,
+                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 16.dp)
+                    )
+                }
+            }
+
+            // Bottom spacer for better scrolling experience
             item {
-                LoadMoreButton(
-                    onClick = { /* TODO: Load more stories */ },
-                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 16.dp)
-                )
+                Spacer(modifier = Modifier.height(24.dp))
             }
         }
     }

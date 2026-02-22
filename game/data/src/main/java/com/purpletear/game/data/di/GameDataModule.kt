@@ -4,6 +4,7 @@ import android.content.Context
 import com.purpletear.game.data.provider.AndroidGamePathProviderImpl
 import com.purpletear.game.data.provider.GamePathProvider
 import com.purpletear.game.data.remote.GameApi
+import com.purpletear.game.data.remote.UserGameApi
 import com.purpletear.game.data.repository.GameRepositoryImpl
 import com.purpletear.sutoko.game.repository.GameRepository
 import dagger.Module
@@ -15,7 +16,16 @@ import okhttp3.OkHttpClient
 import purpletear.fr.purpleteartools.TableOfSymbols
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import javax.inject.Qualifier
 import javax.inject.Singleton
+
+@Qualifier
+@Retention(AnnotationRetention.BINARY)
+annotation class PortalRetrofit
+
+@Qualifier
+@Retention(AnnotationRetention.BINARY)
+annotation class SutokoRetrofit
 
 /**
  * Dagger Hilt module for providing Game data layer dependencies.
@@ -25,38 +35,83 @@ import javax.inject.Singleton
 object GameDataModule {
 
     /**
-     * Provides the GameApi implementation.
+     * Provides the Retrofit instance for portal.sutoko.app.
      *
-     * @return The GameApi implementation.
+     * @return The Portal Retrofit instance.
      */
     @Provides
     @Singleton
-    fun provideGameApi(): GameApi {
+    @PortalRetrofit
+    fun providePortalRetrofit(): Retrofit {
         val okHttpClient: OkHttpClient = OkHttpClient.Builder()
-            .cache(null) // Explicitly disable cache
+            .cache(null)
             .build()
         return Retrofit.Builder()
             .baseUrl("https://portal.sutoko.app/portal/")
             .addConverterFactory(GsonConverterFactory.create())
             .client(okHttpClient)
             .build()
-            .create(GameApi::class.java)
+    }
+
+    /**
+     * Provides the Retrofit instance for sutoko.com/api.
+     *
+     * @return The Sutoko Retrofit instance.
+     */
+    @Provides
+    @Singleton
+    @SutokoRetrofit
+    fun provideSutokoRetrofit(): Retrofit {
+        val okHttpClient: OkHttpClient = OkHttpClient.Builder()
+            .cache(null)
+            .build()
+        return Retrofit.Builder()
+            .baseUrl("https://sutoko.com/api/")
+            .addConverterFactory(GsonConverterFactory.create())
+            .client(okHttpClient)
+            .build()
+    }
+
+    /**
+     * Provides the GameApi implementation.
+     *
+     * @param retrofit The Portal Retrofit instance.
+     * @return The GameApi implementation.
+     */
+    @Provides
+    @Singleton
+    fun provideGameApi(@PortalRetrofit retrofit: Retrofit): GameApi {
+        return retrofit.create(GameApi::class.java)
+    }
+
+    /**
+     * Provides the UserGameApi implementation.
+     *
+     * @param retrofit The Sutoko Retrofit instance.
+     * @return The UserGameApi implementation.
+     */
+    @Provides
+    @Singleton
+    fun provideUserGameApi(@SutokoRetrofit retrofit: Retrofit): UserGameApi {
+        return retrofit.create(UserGameApi::class.java)
     }
 
     /**
      * Provides the GameRepository implementation.
      *
      * @param gameApi The GameApi instance.
+     * @param userGameApi The UserGameApi instance.
      * @return The GameRepository implementation.
      */
     @Provides
     @Singleton
     fun provideGameRepository(
         gameApi: GameApi,
+        userGameApi: UserGameApi,
         tableOfSymbols: TableOfSymbols,
         @ApplicationContext context: Context
     ): GameRepository {
-        return GameRepositoryImpl(gameApi, tableOfSymbols, context)
+        return GameRepositoryImpl(gameApi, userGameApi, tableOfSymbols, context)
     }
 
     /**
