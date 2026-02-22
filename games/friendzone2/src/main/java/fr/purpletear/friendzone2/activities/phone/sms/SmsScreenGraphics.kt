@@ -9,7 +9,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.RequestManager
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.request.RequestOptions
-import com.example.sharedelements.OnlineAssetsManager
+import com.example.sutokosharedelements.OnlineAssetsManager
 import fr.purpletear.friendzone2.R
 import fr.purpletear.friendzone2.activities.phone.photos.GridSpacingItemDecoration
 import fr.purpletear.friendzone2.activities.main.GameConversationAdapter
@@ -29,14 +29,14 @@ class SmsScreenGraphics {
                 .diskCacheStrategy(DiskCacheStrategy.NONE)
                 .skipMemoryCache(true)
 
-        rm.load(OnlineAssetsManager.getImageFilePath(a, GlobalData.Game.FRIENDZONE2.id, "ico_call_miss")).into(a.findViewById(R.id.phone_statusbar_icon_call))
-        rm.load(OnlineAssetsManager.getImageFilePath(a, GlobalData.Game.FRIENDZONE2.id, "ico_sms_miss")).into(a.findViewById(R.id.phone_statusbar_icon_sms))
-        rm.load(OnlineAssetsManager.getImageFilePath(a, GlobalData.Game.FRIENDZONE2.id, "ico_battery")).into(a.findViewById(R.id.phone_statusbar_icon_battery))
-        rm.load(OnlineAssetsManager.getImageFilePath(a, GlobalData.Game.FRIENDZONE2.id, "evaphone")).into(a.findViewById(R.id.phone_smsscreen_background))
-        rm.load(OnlineAssetsManager.getImageFilePath(a, GlobalData.Game.FRIENDZONE2.id, "ic_arrow_left_white")).into(a.findViewById(R.id.phone_smsscreen_button_back_image))
-        rm.load(OnlineAssetsManager.getImageFilePath(a, GlobalData.Game.FRIENDZONE2.id, "parents_profil")).into(a.findViewById(R.id.phone_smsscreen_currentconversation_image))
+        rm.load(OnlineAssetsManager.getImageFilePath(a, GlobalData.Game.FRIENDZONE2.id.toString(), "ico_call_miss")).into(a.findViewById(R.id.phone_statusbar_icon_call))
+        rm.load(OnlineAssetsManager.getImageFilePath(a, GlobalData.Game.FRIENDZONE2.id.toString(), "ico_sms_miss")).into(a.findViewById(R.id.phone_statusbar_icon_sms))
+        rm.load(OnlineAssetsManager.getImageFilePath(a, GlobalData.Game.FRIENDZONE2.id.toString(), "ico_battery")).into(a.findViewById(R.id.phone_statusbar_icon_battery))
+        rm.load(OnlineAssetsManager.getImageFilePath(a, GlobalData.Game.FRIENDZONE2.id.toString(), "evaphone")).into(a.findViewById(R.id.phone_smsscreen_background))
+        rm.load(OnlineAssetsManager.getImageFilePath(a, GlobalData.Game.FRIENDZONE2.id.toString(), "ic_arrow_left_white")).into(a.findViewById(R.id.phone_smsscreen_button_back_image))
+        rm.load(OnlineAssetsManager.getImageFilePath(a, GlobalData.Game.FRIENDZONE2.id.toString(), "parents_profil")).into(a.findViewById(R.id.phone_smsscreen_currentconversation_image))
         // rm.load(R.drawable.ico_info).into(a.findViewById(R.id.main_header_icons_info))
-        // rm.load(OnlineAssetsManager.getImageFilePath(a, GlobalData.Game.FRIENDZONE2.id, "friendzone).apply(requestOptions).into(a.findViewById(R.id.main_lost))
+        // rm.load(OnlineAssetsManager.getImageFilePath(a, GlobalData.Game.FRIENDZONE2.id.toString(), "friendzone).apply(requestOptions).into(a.findViewById(R.id.main_lost))
     }
 
     /**
@@ -70,7 +70,7 @@ class SmsScreenGraphics {
      */
     fun setConversationImage(activity: Activity, requestManager: RequestManager, contact: SmsScreenModel.Contact, pictureId: String) {
         val image = getViewFromContact(activity, contact).findViewById<ImageView>(R.id.preview_avatar)
-        requestManager.load(OnlineAssetsManager.getImageFilePath(activity, GlobalData.Game.FRIENDZONE2.id, pictureId)).into(image)
+        requestManager.load(OnlineAssetsManager.getImageFilePath(activity, GlobalData.Game.FRIENDZONE2.id.toString(), pictureId)).into(image)
     }
 
     /**

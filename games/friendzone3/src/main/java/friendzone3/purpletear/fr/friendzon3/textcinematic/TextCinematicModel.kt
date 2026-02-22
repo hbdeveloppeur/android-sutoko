@@ -4,7 +4,7 @@ import android.app.Activity
 import android.content.Context
 import com.bumptech.glide.Glide
 import com.bumptech.glide.RequestManager
-import com.example.sharedelements.OnlineAssetsManager
+import com.example.sutokosharedelements.OnlineAssetsManager
 import com.example.sharedelements.tables.trophies.TableOfCollectedTrophies
 import friendzone3.purpletear.fr.friendzon3.Load
 import friendzone3.purpletear.fr.friendzon3.R
@@ -80,7 +80,7 @@ class TextCinematicModel(a : Activity) {
      * @return Int - Image's id
      */
     fun getImageId(context : Context, name : String) : String {
-        return OnlineAssetsManager.getImageFilePath(context, GlobalData.Game.FRIENDZONE3.id, name)
+        return OnlineAssetsManager.getImageFilePath(context, GlobalData.Game.FRIENDZONE3.id.toString(), name)
     }
 
     /**

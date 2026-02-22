@@ -1,4 +1,4 @@
-package com.example.sharedelements
+package com.example.sutokosharedelements
 
 import android.os.Parcel
 import android.os.Parcelable

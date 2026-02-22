@@ -3,7 +3,7 @@ package fr.purpletear.friendzone4.factories;
 import android.content.Context;
 import android.content.res.AssetManager;
 
-import com.example.sharedelements.OnlineAssetsManager;
+import com.example.sutokosharedelements.OnlineAssetsManager;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -33,10 +33,10 @@ public class Data {
     }
 
     public static String getImage(Context context, String name) {
-        return OnlineAssetsManager.INSTANCE.getImageFilePath(context, GlobalData.Game.FRIENDZONE4.getId(), name);
+        return OnlineAssetsManager.INSTANCE.getImageFilePath(context, String.valueOf(GlobalData.Game.FRIENDZONE4.getId()), name);
     }
 
     public static String getSound(Context context, String name) {
-        return OnlineAssetsManager.INSTANCE.getSoundFilePath(context, GlobalData.Game.FRIENDZONE4.getId(), name);
+        return OnlineAssetsManager.INSTANCE.getSoundFilePath(context, String.valueOf(GlobalData.Game.FRIENDZONE4.getId()), name);
     }
 }

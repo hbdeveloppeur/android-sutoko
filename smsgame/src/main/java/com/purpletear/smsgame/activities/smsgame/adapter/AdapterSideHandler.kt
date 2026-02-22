@@ -7,7 +7,7 @@ import com.google.gson.reflect.TypeToken
 import purpletear.fr.purpleteartools.CFiles
 import java.io.BufferedReader
 
-class AdapterSideHandler(activity: Activity, storyId: Int, isUserStory: Boolean) {
+class AdapterSideHandler(activity: Activity, storyId: String, isUserStory: Boolean) {
     var left: ArrayList<Int> = ArrayList()
 
 
@@ -35,9 +35,9 @@ class AdapterSideHandler(activity: Activity, storyId: Int, isUserStory: Boolean)
     /**
      * Reads the Story's file that contains all Phrase
      * @param context : Context
-     * @param storyId : Int
+     * @param storyId : String
      */
-    private fun read(activity: Activity, storyId: Int) {
+    private fun read(activity: Activity, storyId: String) {
         val file = SmsGameTreeStructure.getUserStorySideHandlerFile(activity, storyId)
 
         val br: BufferedReader? = CFiles.read(activity, file.parent ?: "", file.name)
@@ -52,7 +52,7 @@ class AdapterSideHandler(activity: Activity, storyId: Int, isUserStory: Boolean)
         }
     }
 
-    fun save(activity: Activity, storyId: Int): Boolean {
+    fun save(activity: Activity, storyId: String): Boolean {
         return CFiles.save(
             activity, SmsGameTreeStructure.getUserStoryFile(activity, storyId).path,
             SmsGameTreeStructure.userStorySideHandlerFileName, left

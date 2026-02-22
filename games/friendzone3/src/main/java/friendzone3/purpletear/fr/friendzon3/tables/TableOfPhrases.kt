@@ -41,10 +41,10 @@ class TableOfPhrases {
      */
     @Throws(IOException::class)
     fun read(c: Context, chapterCode: String, storyVersion : String) {
-        val file = SmsGameTreeStructure.getStoryPhrasesFile(c, GlobalData.Game.FRIENDZONE3.id, chapterCode, Language.determineLangDirectory())
+        val file = SmsGameTreeStructure.getStoryPhrasesFile(c, GlobalData.Game.FRIENDZONE3.id.toString(), chapterCode, Language.determineLangDirectory())
 
         if (!file.exists()) {
-            throw IllegalStateException("Couldn't find file ${file.path} for story number ${GlobalData.Game.FRIENDZONE3.id}")
+            throw IllegalStateException("Couldn't find file ${file.path} for story number ${GlobalData.Game.FRIENDZONE3.id.toString()}")
         }
 
         var br: BufferedReader? = null

@@ -44,7 +44,7 @@ import com.example.sharedelements.R as SharedR
 fun GameSquares(
     modifier: Modifier = Modifier,
     stories: ImmutableList<Game>,
-    icons: ImmutableMap<Int, Int?>,
+    icons: ImmutableMap<String, Int?>,
     onTap: (Game) -> Unit
 ) {
     Box(
@@ -111,9 +111,7 @@ private fun GameSquare(
                     modifier = Modifier.matchParentSize(),
                     model = ImageRequest.Builder(LocalContext.current)
                         .data(
-                            viewModel.getImageSquareLink(
-                                game = card
-                            )
+                            viewModel.getLogoUrl(game = card)
                         )
                         .crossfade(true)
                         .build(),

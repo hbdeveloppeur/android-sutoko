@@ -2,7 +2,7 @@ package friendzone3.purpletear.fr.friendzon3
 
 import android.content.Context
 import android.content.res.AssetManager
-import com.example.sharedelements.OnlineAssetsManager
+import com.example.sutokosharedelements.OnlineAssetsManager
 import purpletear.fr.purpleteartools.GlobalData
 import java.io.File
 import java.io.IOException
@@ -17,7 +17,7 @@ object Data {
 
 
     fun selectSound(context: Context, name : String) : String {
-        return OnlineAssetsManager.getSoundFilePath(context, GlobalData.Game.FRIENDZONE3.id, name)
+        return OnlineAssetsManager.getSoundFilePath(context, GlobalData.Game.FRIENDZONE3.id.toString(), name)
     }
 
     /**

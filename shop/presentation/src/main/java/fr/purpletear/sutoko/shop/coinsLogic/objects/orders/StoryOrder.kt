@@ -7,7 +7,7 @@ import fr.purpletear.sutoko.shop.coinsLogic.objects.operations.Order
 
 @Keep
 class StoryOrder(
-    val storyId: Int,
+    val storyId: String,
     val price: Int,
     override val money: Order.Money
 ) : Order {
@@ -24,7 +24,7 @@ class StoryOrder(
         id = "story_order_$timestamp"
     }
 
-    constructor() : this(-1, 0, Order.Money.COINS)
+    constructor() : this("", 0, Order.Money.COINS)
 
     override fun equals(other: Any?): Boolean {
         return other is StoryOrder
@@ -32,7 +32,7 @@ class StoryOrder(
     }
 
     override fun hashCode(): Int {
-        var result = storyId
+        var result = storyId.hashCode()
         result = 31 * result + money.hashCode()
         result = 31 * result + price.hashCode()
         result = 31 * result + id.hashCode()

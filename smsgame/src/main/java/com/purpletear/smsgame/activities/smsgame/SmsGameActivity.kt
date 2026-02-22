@@ -149,7 +149,7 @@ class SmsGameActivity : AppCompatActivity(), ConversationInterface, ChoiceContro
         model.card = savedInstanceState.getParcelable("card")
             ?: throw RuntimeException("Card is null")
         model.symbols = savedInstanceState.getParcelable<TableOfSymbols>("symbols")
-            ?: TableOfSymbols(model.card.id)
+            ?: TableOfSymbols(model.card.id.hashCode())
         shouldProvokNextOnFirstStart = false
         model.waitForUserInput = savedInstanceState.getBoolean("waitForUserInput")
         model.waitingInputCode = savedInstanceState.getString("waitingInputCode")
@@ -350,7 +350,7 @@ class SmsGameActivity : AppCompatActivity(), ConversationInterface, ChoiceContro
     override fun onSimpleMessageFound(phrase: Phrase) {
 
         val shouldDisplayTypingAnimation: Boolean =
-            model.symbols.condition(model.card.id, "typingAnimation", "true")
+            model.symbols.condition(model.card.id.hashCode(), "typingAnimation", "true")
 
         if (shouldDisplayTypingAnimation && !model.isMainCharacter(phrase)) {
             this.model.playTypingSound(this)
@@ -593,7 +593,7 @@ class SmsGameActivity : AppCompatActivity(), ConversationInterface, ChoiceContro
             this.onCoinsDiscovered(phraseId, "${name}_$value", coins)
         }
 
-        model.symbols.addOrSet(model.card.id, name, value)
+        model.symbols.addOrSet(model.card.id.hashCode(), name, value)
     }
 
     override fun onIntroFound(id: Int) {
@@ -687,7 +687,7 @@ class SmsGameActivity : AppCompatActivity(), ConversationInterface, ChoiceContro
         model.symbols.setHasFinishedStoryOnce()
         model.conversation.isFinished = true
         val bundle = Bundle()
-        bundle.putInt(FirebaseAnalytics.Param.ITEM_ID, model.card.id)
+        bundle.putString(FirebaseAnalytics.Param.ITEM_ID, model.card.id)
         bundle.putString("state", "onFinished")
         firebaseAnalytics.logEvent("SHORT_SMSGAME_ON_GAME_STATE", bundle)
         model.symbols.save(this)
@@ -851,7 +851,7 @@ class SmsGameActivity : AppCompatActivity(), ConversationInterface, ChoiceContro
     ) {
         this.model.customer.onBuyChoice(
             this,
-            this.model.card.id,
+            this.model.card.id.hashCode(),
             "${this.model.card.id}s${phrase.id}",
             diamonds
         ) { isSuccessful, exception ->
@@ -881,7 +881,7 @@ class SmsGameActivity : AppCompatActivity(), ConversationInterface, ChoiceContro
 
         // if isMaincharacter && is typing.
         val shouldDisplayTypingAnimation: Boolean =
-            model.symbols.condition(model.card.id, "typingAnimation", "true")
+            model.symbols.condition(model.card.id.hashCode(), "typingAnimation", "true")
         val nextMessagesLinks = model.conversation.links.getDest(phrase.id)
         val hasNextMessageWithSameAuthor =
             nextMessagesLinks.size == 1 && model.conversation.phrases.getPhrases(nextMessagesLinks)[0].id_author == phrase.id_author
@@ -925,7 +925,7 @@ class SmsGameActivity : AppCompatActivity(), ConversationInterface, ChoiceContro
 
     private fun logEvent() {
         val bundle: Bundle = Bundle()
-        bundle.putInt(FirebaseAnalytics.Param.ITEM_ID, model.card.id)
+        bundle.putString(FirebaseAnalytics.Param.ITEM_ID, model.card.id)
         bundle.putString("state", "onStarted")
         firebaseAnalytics.logEvent("SHORT_SMSGAME_ON_GAME_STATE", bundle)
     }

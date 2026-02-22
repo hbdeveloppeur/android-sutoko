@@ -17,7 +17,7 @@ class GetCurrentChapterUseCase @Inject constructor(
      * @param gameId The ID of the game to retrieve the current chapter for.
      * @return A Flow emitting the current Chapter or null if no current chapter is set.
      */
-    operator fun invoke(gameId: Int, forceReload: Boolean): Flow<Result<Chapter?>> {
+    operator fun invoke(gameId: String, forceReload: Boolean): Flow<Result<Chapter?>> {
         return chapterRepository.getCurrentChapter(gameId, forceReload)
     }
 }

@@ -7,7 +7,7 @@ import android.view.View
 import com.bumptech.glide.RequestManager
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.request.RequestOptions
-import com.example.sharedelements.OnlineAssetsManager
+import com.example.sutokosharedelements.OnlineAssetsManager
 import fr.purpletear.friendzone2.R
 import fr.purpletear.friendzone2.activities.main.MainGraphics
 import purpletear.fr.purpleteartools.GlobalData
@@ -36,27 +36,27 @@ class HomeScreenGraphics : Parcelable {
                 .diskCacheStrategy(DiskCacheStrategy.NONE)
                 .skipMemoryCache(true)
 
-        rm.load(OnlineAssetsManager.getImageFilePath(a, GlobalData.Game.FRIENDZONE2.id, "evaphone")).into(a.findViewById(R.id.phone_homescreen_background))
+        rm.load(OnlineAssetsManager.getImageFilePath(a, GlobalData.Game.FRIENDZONE2.id.toString(), "evaphone")).into(a.findViewById(R.id.phone_homescreen_background))
 
-        rm.load(OnlineAssetsManager.getImageFilePath(a, GlobalData.Game.FRIENDZONE2.id, "ic_arrow_left_white")).into(a.findViewById(R.id.phone_homescreen_button_back))
+        rm.load(OnlineAssetsManager.getImageFilePath(a, GlobalData.Game.FRIENDZONE2.id.toString(), "ic_arrow_left_white")).into(a.findViewById(R.id.phone_homescreen_button_back))
 
-        rm.load(OnlineAssetsManager.getImageFilePath(a, GlobalData.Game.FRIENDZONE2.id, "btn_call")).into(a.findViewById(R.id.phone_homescreen_button_call))
+        rm.load(OnlineAssetsManager.getImageFilePath(a, GlobalData.Game.FRIENDZONE2.id.toString(), "btn_call")).into(a.findViewById(R.id.phone_homescreen_button_call))
 
-        rm.load(OnlineAssetsManager.getImageFilePath(a, GlobalData.Game.FRIENDZONE2.id, "btn_sms")).into(a.findViewById(R.id.phone_homescreen_button_sms))
+        rm.load(OnlineAssetsManager.getImageFilePath(a, GlobalData.Game.FRIENDZONE2.id.toString(), "btn_sms")).into(a.findViewById(R.id.phone_homescreen_button_sms))
 
-        rm.load(OnlineAssetsManager.getImageFilePath(a, GlobalData.Game.FRIENDZONE2.id, "btn_photos")).into(a.findViewById(R.id.phone_homescreen_button_pictures))
+        rm.load(OnlineAssetsManager.getImageFilePath(a, GlobalData.Game.FRIENDZONE2.id.toString(), "btn_photos")).into(a.findViewById(R.id.phone_homescreen_button_pictures))
 
-        rm.load(OnlineAssetsManager.getImageFilePath(a, GlobalData.Game.FRIENDZONE2.id, "btn_sound")).into(a.findViewById(R.id.phone_homescreen_button_music))
+        rm.load(OnlineAssetsManager.getImageFilePath(a, GlobalData.Game.FRIENDZONE2.id.toString(), "btn_sound")).into(a.findViewById(R.id.phone_homescreen_button_music))
 
-        rm.load(OnlineAssetsManager.getImageFilePath(a, GlobalData.Game.FRIENDZONE2.id, "ico_call_miss")).into(a.findViewById(R.id.phone_statusbar_icon_call))
+        rm.load(OnlineAssetsManager.getImageFilePath(a, GlobalData.Game.FRIENDZONE2.id.toString(), "ico_call_miss")).into(a.findViewById(R.id.phone_statusbar_icon_call))
 
-        rm.load(OnlineAssetsManager.getImageFilePath(a, GlobalData.Game.FRIENDZONE2.id, "ico_sms_miss")).into(a.findViewById(R.id.phone_statusbar_icon_sms))
+        rm.load(OnlineAssetsManager.getImageFilePath(a, GlobalData.Game.FRIENDZONE2.id.toString(), "ico_sms_miss")).into(a.findViewById(R.id.phone_statusbar_icon_sms))
 
-        rm.load(OnlineAssetsManager.getImageFilePath(a, GlobalData.Game.FRIENDZONE2.id, "ico_battery")).into(a.findViewById(R.id.phone_statusbar_icon_battery))
+        rm.load(OnlineAssetsManager.getImageFilePath(a, GlobalData.Game.FRIENDZONE2.id.toString(), "ico_battery")).into(a.findViewById(R.id.phone_statusbar_icon_battery))
 
-        rm.load(OnlineAssetsManager.getImageFilePath(a, GlobalData.Game.FRIENDZONE2.id, "ico_signal")).into(a.findViewById(R.id.phone_statusbar_icon_signal))
+        rm.load(OnlineAssetsManager.getImageFilePath(a, GlobalData.Game.FRIENDZONE2.id.toString(), "ico_signal")).into(a.findViewById(R.id.phone_statusbar_icon_signal))
 
-        rm.load(OnlineAssetsManager.getImageFilePath(a, GlobalData.Game.FRIENDZONE2.id, "hour")).into(a.findViewById(R.id.phone_homescreen_clock))
+        rm.load(OnlineAssetsManager.getImageFilePath(a, GlobalData.Game.FRIENDZONE2.id.toString(), "hour")).into(a.findViewById(R.id.phone_homescreen_clock))
 
         // rm.load(R.drawable.friendzone).apply(requestOptions).into(a.findViewById(R.id.main_lost))
     }

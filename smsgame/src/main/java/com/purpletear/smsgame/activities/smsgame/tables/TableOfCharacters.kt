@@ -23,7 +23,7 @@ import purpletear.fr.purpleteartools.CFiles
  */
 class TableOfCharacters(
     activity: Activity?,
-    val storyId: Int,
+    val storyId: String,
     chapterCode: String,
     langCode: String,
     storyType: StoryType = StoryType.OFFICIAL_STORY
@@ -47,7 +47,7 @@ class TableOfCharacters(
 
     constructor(chapterCode: String, langCode: String, storyType: StoryType) : this(
         null,
-        -1,
+        "-1",
         chapterCode,
         langCode,
         storyType
@@ -56,7 +56,7 @@ class TableOfCharacters(
     /**
      * Reads the Story's characters table
      * @param activity Activity
-     * @param storyId Int
+     * @param storyId String
      * @param chapterCode String
      * @param langCode String
      * @param storyType StoryType
@@ -64,7 +64,7 @@ class TableOfCharacters(
     @Throws(Exception::class)
     private fun read(
         activity: Activity,
-        storyId: Int,
+        storyId: String,
         chapterCode: String,
         langCode: String,
         storyType: StoryType

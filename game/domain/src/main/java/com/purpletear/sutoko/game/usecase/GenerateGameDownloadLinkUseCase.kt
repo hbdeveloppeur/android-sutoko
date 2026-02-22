@@ -23,7 +23,7 @@ class GenerateGameDownloadLinkUseCase @Inject constructor(
     suspend operator fun invoke(
         userId: String,
         userToken: String,
-        gameId: Int
+        gameId: String
     ): Flow<Result<String>> {
         return gameRepository.generateGameDownloadLink(
             userId = userId,

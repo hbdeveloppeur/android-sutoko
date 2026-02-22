@@ -1,4 +1,4 @@
-package com.example.sharedelements.theme
+package com.example.sutokosharedelements.theme
 
 import androidx.compose.ui.graphics.Color
 

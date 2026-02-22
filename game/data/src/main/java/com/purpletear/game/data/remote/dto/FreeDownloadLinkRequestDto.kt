@@ -9,5 +9,5 @@ import androidx.annotation.Keep
  */
 @Keep
 data class FreeDownloadLinkRequestDto(
-    val gameId: Int
+    val gameId: String
 )

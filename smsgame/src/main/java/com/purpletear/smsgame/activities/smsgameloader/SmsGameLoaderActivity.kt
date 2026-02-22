@@ -14,6 +14,7 @@ import com.purpletear.smsgame.activities.smsgame.SmsGameActivity
 import com.purpletear.smsgame.activities.smsgame.objects.StoryChapter
 import com.purpletear.smsgame.activities.smsgame.tables.StoryType
 import com.purpletear.sutoko.game.model.Game
+import com.purpletear.sutoko.game.model.isPremium
 import fr.purpletear.sutoko.shop.coinsLogic.Customer
 import purpletear.fr.purpleteartools.Language
 import purpletear.fr.purpleteartools.TableOfSymbols
@@ -154,7 +155,7 @@ class SmsGameLoaderActivity : AppCompatActivity() {
                 customer.history.hasBoughtAtLeastOneStory()
             )
             intent.putExtra(Data.Companion.Extra.TABLE_OF_SYMBOLS.id, symbols as Parcelable)
-            intent.putExtra("isPaid", card.isPremium)
+            intent.putExtra("isPaid", card.isPremium())
             intent.putParcelableArrayListExtra(Data.Companion.Extra.CHAPTERS_ARRAY.id, chapters)
             return SmsGameActivity.require(
                 intent,

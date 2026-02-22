@@ -31,7 +31,7 @@ interface GameApi {
      */
     @POST("games/{storyId}")
     suspend fun getGame(
-        @Path("storyId") storyId: Int,
+        @Path("storyId") storyId: String,
         @Query("langCode") langCode: String,
     ): Response<GameDto>
 

@@ -22,7 +22,7 @@ import java.io.FileNotFoundException
 @Keep
 class TableOfLinks(
     activity: Activity?,
-    storyId: Int?,
+    storyId: String?,
     chapterCode: String,
     langCode: String,
     storyType: StoryType = StoryType.OFFICIAL_STORY
@@ -42,7 +42,7 @@ class TableOfLinks(
 
     constructor(chapterCode: String, langCode: String, storyType: StoryType) : this(
         null,
-        -1,
+        "-1",
         chapterCode,
         langCode,
         storyType
@@ -67,7 +67,7 @@ class TableOfLinks(
     /**
      * Reads the chapter's param file
      * @param activity Activity
-     * @param storyId Int
+     * @param storyId String
      * @param chapterCode String
      * @param langCode String
      * @param storyType StoryType
@@ -75,7 +75,7 @@ class TableOfLinks(
     @Throws(Exception::class)
     private fun read(
         activity: Activity,
-        storyId: Int,
+        storyId: String,
         chapterCode: String,
         langCode: String,
         storyType: StoryType = StoryType.OFFICIAL_STORY
@@ -116,7 +116,7 @@ class TableOfLinks(
     }
 
 
-    fun save(activity: Activity, storyId: Int): Boolean {
+    fun save(activity: Activity, storyId: String): Boolean {
         return CFiles.save(
             activity, SmsGameTreeStructure.getUserStoryFile(activity, storyId).absolutePath,
             SmsGameTreeStructure.userStoryLinksFileName, links

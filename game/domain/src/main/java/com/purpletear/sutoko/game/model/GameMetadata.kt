@@ -8,21 +8,18 @@ import androidx.annotation.Keep
 data class GameMetadata(
     val title: String,
     val description: String? = null,
-    val catchingPhrase: String? = null,
-    val categories: List<String> = emptyList(),
+    val lang: String? = null,
 ) : Parcelable {
     constructor(parcel: Parcel) : this(
         title = parcel.readString() ?: "",
         description = parcel.readString(),
-        catchingPhrase = parcel.readString(),
-        categories = parcel.createStringArrayList() ?: emptyList()
+        lang = parcel.readString()
     )
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
         parcel.writeString(title)
         parcel.writeString(description)
-        parcel.writeString(catchingPhrase)
-        parcel.writeStringList(categories)
+        parcel.writeString(lang)
     }
 
     override fun describeContents(): Int {

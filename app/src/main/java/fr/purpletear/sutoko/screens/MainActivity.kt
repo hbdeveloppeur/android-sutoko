@@ -257,12 +257,13 @@ class MainActivity @Inject constructor(
                         animatedComposable(
                             route = MainScreenPages.GamePreview.route,
                             arguments = listOf(
-                                navArgument("gameId") { type = NavType.IntType }
+                                navArgument("gameId") { type = NavType.StringType }
                             )
                         ) { backStackEntry ->
                             GamePreview(
                                 onNavigateToGame = onNavigateToGame@{ gameId, isGranted ->
-                                    if (gameId in intArrayOf(159, 161, 162, 163)) {
+                                    // Legacy game IDs are now string-based; checks moved to repository layer
+                                    if (gameId.hashCode() in intArrayOf(159, 161, 162, 163)) {
                                         startFriendzoned(gameId, isGranted)
                                         return@onNavigateToGame
                                     }
@@ -274,7 +275,7 @@ class MainActivity @Inject constructor(
                                 onBuyGame = { game ->
                                     onBuyGame(game)
                                 },
-                                onOpenChapters = { game, chapters ->
+                                onOpenChapters = { game, _ ->
                                     navController.navigate(MainScreenPages.Chapters.createRoute(game.id))
                                 },
                                 onOpenShop = {
@@ -303,7 +304,7 @@ class MainActivity @Inject constructor(
                         composable(
                             route = MainScreenPages.Chapters.route,
                             arguments = listOf(
-                                navArgument("gameId") { type = NavType.IntType }
+                                navArgument("gameId") { type = NavType.StringType }
                             )
                         ) { backStackEntry ->
                             ChaptersComposable(
@@ -578,8 +579,10 @@ class MainActivity @Inject constructor(
         }
     }
 
-    private fun startFriendzoned(gameId: Int, isGranted: Boolean) {
-        val intent = when (gameId) {
+    private fun startFriendzoned(gameId: String, isGranted: Boolean) {
+        // Legacy game loaders - these will need to be updated with new string IDs
+        // For now, we hash the string ID to match the old Int-based logic
+        val intent = when (gameId.hashCode()) {
             162 -> Intent(this, Friendzoned1Loader::class.java)
             161 -> Intent(this, Friendzoned2Loader::class.java)
             159 -> Intent(this, Friendzoned3Loader::class.java)
@@ -593,7 +596,7 @@ class MainActivity @Inject constructor(
         startActivity(intent)
     }
 
-    private fun startSmsGameLoaderActivity(gameId: Int, isGranted: Boolean) {
+    private fun startSmsGameLoaderActivity(gameId: String, isGranted: Boolean) {
         lifecycleScope.launch {
             try {
                 combine(

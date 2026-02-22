@@ -1,4 +1,4 @@
-package com.example.sharedelements
+package com.example.sutokosharedelements
 
 import android.app.Activity
 import android.content.Context
@@ -9,7 +9,6 @@ import dalvik.system.ZipPathValidator
 import purpletear.fr.purpleteartools.TableOfSymbols
 import purpletear.fr.purpleteartools.Unzipper
 import java.io.File
-import java.util.Locale
 
 object OnlineAssetsManager {
 
@@ -19,13 +18,13 @@ object OnlineAssetsManager {
         GREATER
     }
 
-    fun hasStoryFiles(storyId: Int, version: String, symbols: TableOfSymbols): Boolean {
-        return symbols.getStoryVersion(storyId) == version
+    fun hasStoryFiles(storyId: String, version: String, symbols: TableOfSymbols): Boolean {
+        return symbols.getStoryVersion(storyId.hashCode()) == version
     }
 
-    fun hasUpdatableStoryFiles(storyId: Int, version: String, symbols: TableOfSymbols): Boolean {
-        return symbols.getStoryVersion(storyId) != version && symbols.getStoryVersion(storyId) != "none"
-                && symbols.getStoryVersion(storyId).isNotBlank()
+    fun hasUpdatableStoryFiles(storyId: String, version: String, symbols: TableOfSymbols): Boolean {
+        return symbols.getStoryVersion(storyId.hashCode()) != version && symbols.getStoryVersion(storyId.hashCode()) != "none"
+                && symbols.getStoryVersion(storyId.hashCode()).isNotBlank()
     }
 
     fun compareVersion(v1: String, v2: String): VersionComparision {
@@ -45,7 +44,7 @@ object OnlineAssetsManager {
         return VersionComparision.GREATER
     }
 
-    fun hasSomeStoryFiles(activity: Activity, storyId: Int): Boolean {
+    fun hasSomeStoryFiles(activity: Activity, storyId: String): Boolean {
         return File(activity.getExternalFilesDir(null), "games/$storyId/").exists()
     }
 
@@ -61,7 +60,7 @@ object OnlineAssetsManager {
      */
     fun download(
         activity: Activity,
-        storyId: Int,
+        storyId: String,
         storyVersion: String,
         onProgress: (p1: Long, p2: Long) -> Unit,
         onSuccessDownload: () -> Unit,
@@ -102,7 +101,7 @@ object OnlineAssetsManager {
      */
     private fun handleArchive(
         activity: Activity,
-        storyId: Int,
+        storyId: String,
         version: String,
         tmpFile: File
     ): String {
@@ -120,7 +119,7 @@ object OnlineAssetsManager {
         return df.unzip(activity as Context)
     }
 
-    fun removeDirectory(activity: Activity, storyId: Int) {
+    fun removeDirectory(activity: Activity, storyId: String) {
         val unzipLocation: String =
             File(activity.filesDir, "games/${storyId}").absolutePath
         if (File(unzipLocation).exists()) {
@@ -128,89 +127,32 @@ object OnlineAssetsManager {
         }
     }
 
-    fun hasRequiredPermission(activity: Activity): Boolean {
-        val f = activity.getExternalFilesDir(null)
+    private val IMAGE_EXTENSIONS = listOf("jpeg", "jpg", "png")
 
-        return f != null && f.canWrite()
+    fun getImageFilePath(context: Context, storyId: String, assetName: String): String {
+        val basePath = SmsGameTreeStructure.Companion.getMediaFilePath(context, storyId, assetName)
+        
+        File(basePath).takeIf { it.exists() }?.let { return basePath }
+        
+        return IMAGE_EXTENSIONS.firstNotNullOfOrNull { extension ->
+            "$basePath.$extension".takeIf { File(it).exists() }
+        } ?: ""
     }
 
-    fun requestRequiredPermission() {
+    private val SOUND_EXTENSIONS = listOf("mp3", "ogg", "wav")
+    private const val SOUNDS_SUBDIR = "sounds"
 
-    }
+    fun getSoundFilePath(context: Context, storyId: String, assetName: String): String {
+        val basePath = SmsGameTreeStructure.getMediaFilePath(
+            context,
+            storyId,
+            "$SOUNDS_SUBDIR/$assetName"
+        )
 
-    fun getImageFilePath(context: Context, storyId: Int, assetName: String): String {
-        val array = arrayOf("jpeg", "jpg", "png")
-        array.forEach { extension ->
-
-            if (File(
-                    "${
-                        SmsGameTreeStructure.getMediaFilePath(
-                            context,
-                            storyId,
-                            assetName
-                        )
-                    }.$extension"
-                ).exists()
-            ) {
-                return SmsGameTreeStructure.getMediaFilePath(
-                    context,
-                    storyId,
-                    assetName
-                ) + ".$extension"
-            }
-            if (File(
-                    "${SmsGameTreeStructure.getMediaFilePath(context, storyId, assetName)}.${
-                        extension.lowercase(
-                            Locale.getDefault()
-                        )
-                    }"
-                ).exists()
-            ) {
-                return SmsGameTreeStructure.getMediaFilePath(context, storyId, assetName) + ".${
-                    extension.lowercase(
-                        Locale.getDefault()
-                    )
-                }"
-            }
-        }
-
-        return ""
-    }
-
-    fun getSoundFilePath(context: Context, storyId: Int, assetName: String): String {
-        val array = arrayOf("mp3")
-        val a = "sounds/$assetName"
-        array.forEach { extension ->
-
-            if (File(
-                    "${
-                        SmsGameTreeStructure.getMediaFilePath(
-                            context,
-                            storyId,
-                            a
-                        )
-                    }.$extension"
-                ).exists()
-            ) {
-                return SmsGameTreeStructure.getMediaFilePath(context, storyId, a) + ".$extension"
-            }
-            if (File(
-                    "${SmsGameTreeStructure.getMediaFilePath(context, storyId, a)}.${
-                        extension.uppercase()
-                    }"
-                ).exists()
-            ) {
-                return SmsGameTreeStructure.getMediaFilePath(context, storyId, a) + ".${
-                    extension.lowercase(
-                        Locale.getDefault()
-                    )
-                }"
-            }
-        }
-        return ""
-    }
-
-    fun getJsonDirectory() {
-
+        return SOUND_EXTENSIONS.firstNotNullOfOrNull { extension ->
+            listOf(extension.lowercase(), extension.uppercase())
+                .firstOrNull { variant -> File("$basePath.$variant").exists() }
+                ?.let { "$basePath.$it" }
+        } ?: ""
     }
 }

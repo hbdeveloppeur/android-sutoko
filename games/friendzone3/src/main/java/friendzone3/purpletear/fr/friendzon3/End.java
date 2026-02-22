@@ -10,7 +10,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.RequestManager;
-import com.example.sharedelements.OnlineAssetsManager;
+import com.example.sutokosharedelements.OnlineAssetsManager;
 
 import friendzone3.purpletear.fr.friendzon3.handlers.SoundHandler;
 import purpletear.fr.purpleteartools.Finger;
@@ -37,7 +37,7 @@ public class End extends AppCompatActivity {
 
     void setImages(Activity activity, RequestManager requestManager) {
         requestManager.load(
-                OnlineAssetsManager.INSTANCE.getImageFilePath(activity, GlobalData.Game.FRIENDZONE3.getId(), "friendzone3_end")
+                OnlineAssetsManager.INSTANCE.getImageFilePath(activity, String.valueOf(GlobalData.Game.FRIENDZONE3.getId()), "friendzone3_end")
         ).into((ImageView) activity.findViewById(R.id.friendzone3_end_image_background));
     }
 

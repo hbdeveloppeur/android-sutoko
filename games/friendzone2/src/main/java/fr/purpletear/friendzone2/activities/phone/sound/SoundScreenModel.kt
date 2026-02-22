@@ -2,7 +2,7 @@ package fr.purpletear.friendzone2.activities.phone.sound
 
 import android.app.Activity
 import com.bumptech.glide.RequestManager
-import com.example.sharedelements.OnlineAssetsManager
+import com.example.sutokosharedelements.OnlineAssetsManager
 import fr.purpletear.friendzone2.Data
 import purpletear.fr.purpleteartools.GlobalData
 import purpletear.fr.purpleteartools.SoundHandler
@@ -18,7 +18,7 @@ class SoundScreenModel(activity : Activity, requestManager: RequestManager) {
         PLAYING
     }
 
-    private val soundName : String = OnlineAssetsManager.getSoundFilePath(activity, GlobalData.Game.FRIENDZONE2.id, "laze")
+    private val soundName : String = OnlineAssetsManager.getSoundFilePath(activity, GlobalData.Game.FRIENDZONE2.id.toString(), "laze")
 
     /**
      * Plays the sound

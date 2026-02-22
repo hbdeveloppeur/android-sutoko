@@ -44,7 +44,7 @@ class PhraseMe {
             itemView: View,
             context: Context,
             requestManager: RequestManager,
-            storyId: Int,
+            storyId: String,
             messageColor: MessageColor,
             phrase: Phrase,
             character: StoryCharacter,
@@ -113,7 +113,7 @@ class PhraseMe {
         private fun setSeenLinearViewVisibility(
             context: Context,
             requestManager: RequestManager,
-            storyId: Int,
+            storyId: String,
             itemView: View,
             seenState: PhraseDest.Companion.SeenState?,
             character: StoryCharacter?
@@ -177,7 +177,7 @@ class PhraseMe {
             context: Context,
             requestManager: RequestManager,
             phrase: Phrase,
-            storyId: Int,
+            storyId: String,
             storyType: StoryType
         ) {
 

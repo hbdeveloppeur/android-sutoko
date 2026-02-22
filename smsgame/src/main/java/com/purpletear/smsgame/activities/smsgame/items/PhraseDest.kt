@@ -50,7 +50,7 @@ class PhraseDest {
             itemView: View,
             context: Context,
             requestManager: RequestManager,
-            storyId: Int,
+            storyId: String,
             phrase: Phrase,
             character: StoryCharacter,
             previousItem: Phrase?,
@@ -116,7 +116,7 @@ class PhraseDest {
             context: Context,
             requestManager: RequestManager,
             phrase: Phrase,
-            storyId: Int,
+            storyId: String,
             storyType: StoryType
         ) {
 

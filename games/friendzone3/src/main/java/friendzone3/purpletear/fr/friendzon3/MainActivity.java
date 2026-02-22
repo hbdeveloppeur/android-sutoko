@@ -22,7 +22,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.RequestManager;
-import com.example.sharedelements.OnlineAssetsManager;
+import com.example.sutokosharedelements.OnlineAssetsManager;
 import com.example.sharedelements.SutokoSharedElementsData;
 
 import java.util.ArrayList;
@@ -1055,7 +1055,7 @@ public class MainActivity extends AppCompatActivity implements PhraseCallBack {
                             @Override
                             public void run() {
                                 requestManager.load(
-                                        OnlineAssetsManager.INSTANCE.getImageFilePath(MainActivity.this, GlobalData.Game.FRIENDZONE3.getId(), "friendzone3_no_avatar")
+                                        OnlineAssetsManager.INSTANCE.getImageFilePath(MainActivity.this, String.valueOf(GlobalData.Game.FRIENDZONE3.getId()), "friendzone3_no_avatar")
                                 ).into(i);
                                 i.setBackgroundResource(R.color.transparent);
                                 graphics.changeStatus(MainActivity.this, getString(R.string.online), R.color.white, true, support);
@@ -1254,7 +1254,7 @@ public class MainActivity extends AppCompatActivity implements PhraseCallBack {
                             @Override
                             public void run() {
                                 requestManager.load(
-                                        OnlineAssetsManager.INSTANCE.getImageFilePath(MainActivity.this, GlobalData.Game.FRIENDZONE3.getId(), "friendzone3_chloe")
+                                        OnlineAssetsManager.INSTANCE.getImageFilePath(MainActivity.this, String.valueOf(GlobalData.Game.FRIENDZONE3.getId()), "friendzone3_chloe")
                                 ).into(i);
                                 graphics.changeStatus(MainActivity.this, getString(R.string.online), R.color.white, true, support);
                                 Handler handler = new Handler(Looper.getMainLooper());

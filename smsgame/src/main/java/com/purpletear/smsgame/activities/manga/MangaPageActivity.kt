@@ -20,8 +20,8 @@ class MangaPageActivity : AppCompatActivity() {
 
     private val filename: String?
         get() = intent.getStringExtra(Data.Companion.Extra.MANGA_FILE_NAME.id)
-    private val storyId: Int
-        get() = intent.getIntExtra(Data.Companion.Extra.STORY_ID.id, -1)
+    private val storyId: String
+        get() = intent.getStringExtra(Data.Companion.Extra.STORY_ID.id) ?: ""
     private val mangaMessages: ArrayList<MangaMessage>
         get() = intent.getParcelableArrayListExtra(Data.Companion.Extra.MANGA_MESSAGES.id)
             ?: ArrayList()
@@ -37,7 +37,7 @@ class MangaPageActivity : AppCompatActivity() {
 
 
     private fun setImage() {
-        if (filename.isNullOrBlank() || storyId == -1) {
+        if (filename.isNullOrBlank() || storyId.isEmpty()) {
             if (BuildConfig.DEBUG) {
                 throw IllegalStateException("Invalid values")
             }
@@ -77,7 +77,7 @@ class MangaPageActivity : AppCompatActivity() {
         fun require(
             activity: Activity,
             filename: String,
-            storyId: Int,
+            storyId: String,
             mangaMessages: ArrayList<MangaMessage>
         ): Intent {
             val intent = Intent(activity, MangaPageActivity::class.java)

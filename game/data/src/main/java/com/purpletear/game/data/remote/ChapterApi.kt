@@ -19,7 +19,7 @@ interface ChapterApi {
      */
     @POST("games/{storyId}/chapters")
     suspend fun getChapters(
-        @Path("storyId") storyId: Int,
+        @Path("storyId") storyId: String,
         @Query("langCode") langCode: String,
     ): Response<List<ChapterDto>>
 

@@ -23,7 +23,7 @@ import android.os.Parcelable
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.request.RequestOptions
-import com.example.sharedelements.OnlineAssetsManager
+import com.example.sutokosharedelements.OnlineAssetsManager
 import purpletear.fr.purpleteartools.*
 
 class MainGraphics : Parcelable {
@@ -145,7 +145,7 @@ class MainGraphics : Parcelable {
 
         rm.load(R.drawable.ico_share).into(a.findViewById(R.id.main_header_icons_share))
         rm.load(R.drawable.ico_call).into(a.findViewById(R.id.main_header_icons_call))
-        rm.load(OnlineAssetsManager.getImageFilePath(a, GlobalData.Game.FRIENDZONE2.id, "ico_info")).into(a.findViewById(R.id.main_header_icons_info))
+        rm.load(OnlineAssetsManager.getImageFilePath(a, GlobalData.Game.FRIENDZONE2.id.toString(), "ico_info")).into(a.findViewById(R.id.main_header_icons_info))
         rm.load(R.drawable.friendzone).apply(requestOptions).into(a.findViewById(R.id.main_lost))
     }
 
@@ -314,8 +314,8 @@ class MainGraphics : Parcelable {
      */
     fun setPauseButtonImage(a: Activity, requestManager: RequestManager, state: MainModel.PauseButtonState) {
         val imageId = when (state) {
-            MainModel.PauseButtonState.PAUSED -> OnlineAssetsManager.getImageFilePath(a, GlobalData.Game.FRIENDZONE2.id, "btn_play")
-            MainModel.PauseButtonState.PLAYING -> OnlineAssetsManager.getImageFilePath(a, GlobalData.Game.FRIENDZONE2.id, "btn_pause")
+            MainModel.PauseButtonState.PAUSED -> OnlineAssetsManager.getImageFilePath(a, GlobalData.Game.FRIENDZONE2.id.toString(), "btn_play")
+            MainModel.PauseButtonState.PLAYING -> OnlineAssetsManager.getImageFilePath(a, GlobalData.Game.FRIENDZONE2.id.toString(), "btn_pause")
         }
         requestManager.load(imageId).into(a.findViewById(R.id.mainactivity_button_pause))
     }
@@ -417,8 +417,8 @@ class MainGraphics : Parcelable {
      */
     fun setGunImage(activity: Activity, state: MainModel.GunState, requrestManager: RequestManager) {
         val id = when (state) {
-            MainModel.GunState.DISABLED -> OnlineAssetsManager.getImageFilePath(activity, GlobalData.Game.FRIENDZONE2.id, "btn_gun_off")
-            MainModel.GunState.AVAILABLE -> OnlineAssetsManager.getImageFilePath(activity, GlobalData.Game.FRIENDZONE2.id, "btn_gun")
+            MainModel.GunState.DISABLED -> OnlineAssetsManager.getImageFilePath(activity, GlobalData.Game.FRIENDZONE2.id.toString(), "btn_gun_off")
+            MainModel.GunState.AVAILABLE -> OnlineAssetsManager.getImageFilePath(activity, GlobalData.Game.FRIENDZONE2.id.toString(), "btn_gun")
         }
         requrestManager.load(id).into(activity.findViewById<ImageView>(R.id.mainactivity_button_gun))
     }
@@ -434,9 +434,9 @@ class MainGraphics : Parcelable {
      */
     fun setTorchImage(activity: Activity, state: MainModel.TorchState, requestManager: RequestManager) {
         val id = when (state) {
-            MainModel.TorchState.DISABLED -> OnlineAssetsManager.getImageFilePath(activity, GlobalData.Game.FRIENDZONE2.id, "btn_torch_disabled")
-            MainModel.TorchState.ON -> OnlineAssetsManager.getImageFilePath(activity, GlobalData.Game.FRIENDZONE2.id, "btn_torch_on")
-            MainModel.TorchState.OFF -> OnlineAssetsManager.getImageFilePath(activity, GlobalData.Game.FRIENDZONE2.id, "btn_torch_off")
+            MainModel.TorchState.DISABLED -> OnlineAssetsManager.getImageFilePath(activity, GlobalData.Game.FRIENDZONE2.id.toString(), "btn_torch_disabled")
+            MainModel.TorchState.ON -> OnlineAssetsManager.getImageFilePath(activity, GlobalData.Game.FRIENDZONE2.id.toString(), "btn_torch_on")
+            MainModel.TorchState.OFF -> OnlineAssetsManager.getImageFilePath(activity, GlobalData.Game.FRIENDZONE2.id.toString(), "btn_torch_off")
         }
         setTorchImage(activity, requestManager, id)
     }

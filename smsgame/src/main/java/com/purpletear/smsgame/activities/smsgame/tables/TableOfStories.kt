@@ -35,7 +35,7 @@ class TableOfStories(activity: Activity) {
         array.remove(story)
         File(
             activity.filesDir,
-            SmsGameTreeStructure.getUserStoryFile(activity, story.id).path
+            SmsGameTreeStructure.getUserStoryFile(activity, story.id.toString()).path
         ).deleteDirectory()
     }
 
@@ -43,7 +43,7 @@ class TableOfStories(activity: Activity) {
         array.forEach { story ->
             File(
                 activity.filesDir,
-                SmsGameTreeStructure.getUserStoryFile(activity, story.id).path
+                SmsGameTreeStructure.getUserStoryFile(activity, story.id.toString()).path
             ).deleteDirectory()
         }
     }
@@ -65,15 +65,15 @@ class TableOfStories(activity: Activity) {
     /**
      * Generates an available id
      * @param id Int
-     * @return Int
+     * @return String
      */
-    fun generateStoryId(id: Int = 1): Int {
+    fun generateStoryId(id: Int = 1): String {
         array.forEach { story ->
-            if (id == story.id) {
+            if (id.toString() == story.id) {
                 return generateStoryId(id + 1)
             }
         }
-        return id
+        return id.toString()
     }
 
     /**

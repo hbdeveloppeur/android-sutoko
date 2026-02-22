@@ -1,7 +1,7 @@
 package friendzone3.purpletear.fr.friendzon3.tables
 
 import android.content.Context
-import com.example.sharedelements.OnlineAssetsManager
+import com.example.sutokosharedelements.OnlineAssetsManager
 import friendzone3.purpletear.fr.friendzon3.R
 import friendzone3.purpletear.fr.friendzon3.custom.Chapter
 import purpletear.fr.purpleteartools.GlobalData

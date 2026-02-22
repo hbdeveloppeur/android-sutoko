@@ -31,6 +31,7 @@ import coil.request.ImageRequest
 import com.example.sharedelements.theme.SutokoTypography
 import com.purpletear.game.presentation.viewmodels.GameCardViewModel
 import com.purpletear.sutoko.game.model.Game
+import com.purpletear.sutoko.game.model.isPremium
 
 /**
  * A card component that displays game information
@@ -58,7 +59,7 @@ fun GameCard(
             modifier = Modifier
                 .fillMaxSize(),
             model = ImageRequest.Builder(LocalContext.current)
-                .data(viewModel.getImageBannerLink(game = game))
+                .data(viewModel.getBannerUrl(game = game))
                 .crossfade(true)
                 .build(),
             contentDescription = null,
@@ -86,7 +87,7 @@ fun GameCard(
             }
             Text(
                 modifier = Modifier.fillMaxWidth(0.7f),
-                text = game.metadata.catchingPhrase ?: "",
+                text = game.metadata.description ?: "",
                 fontSize = 12.sp,
                 style = SutokoTypography.h3.copy(
                     letterSpacing = 0.5.sp,
@@ -101,7 +102,7 @@ fun GameCard(
             Row {
                 Text(
                     modifier = Modifier,
-                    text = game.metadata.categories.joinToString(" • "),
+                    text = "",
                     color = Color.White.copy(0.8f),
                     fontSize = 12.sp,
                     style = SutokoTypography.h3.copy(
@@ -112,7 +113,7 @@ fun GameCard(
                     )
                 )
 
-                if (game.isPremium && premiumIconPainter != null) {
+                if (game.isPremium() && premiumIconPainter != null) {
                     Image(
                         painter = premiumIconPainter,
                         contentDescription = null,

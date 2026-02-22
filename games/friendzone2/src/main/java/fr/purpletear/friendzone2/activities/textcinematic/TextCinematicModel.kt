@@ -4,8 +4,8 @@ import android.app.Activity
 import android.content.Context
 import com.bumptech.glide.Glide
 import com.bumptech.glide.RequestManager
-import com.example.sharedelements.OnlineAssetsManager
-import com.example.sharedelements.OnlineAssetsManager.getImageFilePath
+import com.example.sutokosharedelements.OnlineAssetsManager
+import com.example.sutokosharedelements.OnlineAssetsManager.getImageFilePath
 import com.example.sharedelements.tables.trophies.TableOfCollectedTrophies
 import fr.purpletear.friendzone2.Data
 import fr.purpletear.friendzone2.R
@@ -33,7 +33,7 @@ class TextCinematicModel(a : Activity, var symbols: TableOfSymbols) {
 
     init {
         collectedTrophies.read(a)
-        sh.generateFromExternalStorage(OnlineAssetsManager.getSoundFilePath(a, GlobalData.Game.FRIENDZONE2.id, getSoundName()), a, false)
+        sh.generateFromExternalStorage(OnlineAssetsManager.getSoundFilePath(a, GlobalData.Game.FRIENDZONE2.id.toString(), getSoundName()), a, false)
         phrases = TableOfPhrases()
         phrases.read(a, filename())
         links = TableOfLinks()
@@ -78,7 +78,7 @@ class TextCinematicModel(a : Activity, var symbols: TableOfSymbols) {
     fun getImageId(context : Context, name : String) : String {
         return OnlineAssetsManager.getImageFilePath(
             context,
-            GlobalData.Game.FRIENDZONE2.id,
+            GlobalData.Game.FRIENDZONE2.id.toString(),
             name
         )
     }
@@ -101,18 +101,18 @@ class TextCinematicModel(a : Activity, var symbols: TableOfSymbols) {
         if(isFirstTimeLaunchingSound) {
             isFirstTimeLaunchingSound = false
             sh.play(
-                OnlineAssetsManager.getSoundFilePath(activity, GlobalData.Game.FRIENDZONE2.id, getSoundName())
+                OnlineAssetsManager.getSoundFilePath(activity, GlobalData.Game.FRIENDZONE2.id.toString(), getSoundName())
                 , getSoundPosition())
             return
         }
-        sh.play(OnlineAssetsManager.getSoundFilePath(activity, GlobalData.Game.FRIENDZONE2.id, getSoundName()))
+        sh.play(OnlineAssetsManager.getSoundFilePath(activity, GlobalData.Game.FRIENDZONE2.id.toString(), getSoundName()))
     }
 
     /**
      * Pauses the sound
      */
     fun pauseSound(activity: Activity) {
-        sh.pause(OnlineAssetsManager.getSoundFilePath(activity, GlobalData.Game.FRIENDZONE2.id, getSoundName()))
+        sh.pause(OnlineAssetsManager.getSoundFilePath(activity, GlobalData.Game.FRIENDZONE2.id.toString(), getSoundName()))
     }
 
     /**

@@ -12,7 +12,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.RequestManager;
-import com.example.sharedelements.OnlineAssetsManager;
+import com.example.sutokosharedelements.OnlineAssetsManager;
 
 import friendzone3.purpletear.fr.friendzon3.handlers.MemoryHandler;
 import purpletear.fr.purpleteartools.GlobalData;
@@ -77,7 +77,7 @@ public class PhoneCall extends AppCompatActivity {
     }
 
     private String lazyDeveloper(String name) {
-        return OnlineAssetsManager.INSTANCE.getImageFilePath(this, GlobalData.Game.FRIENDZONE3.getId(), name);
+        return OnlineAssetsManager.INSTANCE.getImageFilePath(this, String.valueOf(GlobalData.Game.FRIENDZONE3.getId()), name);
     }
 }
 

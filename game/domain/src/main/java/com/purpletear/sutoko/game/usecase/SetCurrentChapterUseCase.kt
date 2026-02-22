@@ -16,7 +16,7 @@ class SetCurrentChapterUseCase @Inject constructor(
      * @param gameId The ID of the game to set the current chapter for.
      * @param chapter The chapter to set as current.
      */
-    suspend operator fun invoke(gameId: Int, chapter: Chapter) {
+    suspend operator fun invoke(gameId: String, chapter: Chapter) {
         chapterRepository.setCurrentChapter(gameId, chapter)
     }
 }

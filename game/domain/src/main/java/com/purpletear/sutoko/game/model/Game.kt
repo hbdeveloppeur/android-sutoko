@@ -3,60 +3,59 @@ package com.purpletear.sutoko.game.model
 import android.os.Parcel
 import android.os.Parcelable
 import androidx.annotation.Keep
-import com.purpletear.sutoko.core.domain.model.MediaImage
 
 @Keep
 data class Game(
-    val id: Int = 0,
-    val isPremium: Boolean = false,
-    val menuSoundUrl: String? = null,
-    val minAppCode: Int = 0,
-    val keywords: List<String> = emptyList(),
-    val releaseDate: Long = 0L,
-    val mediaLogoSquare: MediaImage? = null,
-    val mediaMainBanner: MediaImage? = null,
-    val mediaPreviewBackground: MediaImage? = null,
-    val versionCode: String = "",
-    val price: Int? = null,
-    val metadata: GameMetadata,
+    val id: String = "",
+    val version: Int = 0,
+    val interactionCount: Int = 0,
+    val downloadCount: Int = 0,
+    val isCertified: Boolean = false,
+    val status: String = "",
+    val createdAt: Long = 0L,
+    val price: Int = 0,
     val skuIdentifiers: List<String> = emptyList(),
     val videoUrl: String? = null,
     val cachedChaptersCount: Int = 0,
+    val bannerAsset: Asset? = null,
+    val logoAsset: Asset? = null,
+    val metadata: GameMetadata,
+    val author: Author? = null,
 ) : Parcelable {
     constructor(parcel: Parcel) : this(
-        id = parcel.readInt(),
-        isPremium = parcel.readByte() != 0.toByte(),
-        menuSoundUrl = parcel.readString(),
-        minAppCode = parcel.readInt(),
-        keywords = parcel.createStringArrayList() ?: emptyList(),
-        releaseDate = parcel.readLong(),
-        mediaLogoSquare = parcel.readParcelable(MediaImage::class.java.classLoader),
-        mediaMainBanner = parcel.readParcelable(MediaImage::class.java.classLoader),
-        mediaPreviewBackground = parcel.readParcelable(MediaImage::class.java.classLoader),
-        versionCode = parcel.readString() ?: "",
-        price = parcel.readValue(Int::class.java.classLoader) as? Int,
-        metadata = parcel.readParcelable(GameMetadata::class.java.classLoader) ?: GameMetadata(""),
+        id = parcel.readString() ?: "",
+        version = parcel.readInt(),
+        interactionCount = parcel.readInt(),
+        downloadCount = parcel.readInt(),
+        isCertified = parcel.readByte() != 0.toByte(),
+        status = parcel.readString() ?: "",
+        createdAt = parcel.readLong(),
+        price = parcel.readInt(),
         skuIdentifiers = parcel.createStringArrayList() ?: emptyList(),
         videoUrl = parcel.readString(),
-        cachedChaptersCount = parcel.readInt()
+        cachedChaptersCount = parcel.readInt(),
+        bannerAsset = parcel.readParcelable(Asset::class.java.classLoader),
+        logoAsset = parcel.readParcelable(Asset::class.java.classLoader),
+        metadata = parcel.readParcelable(GameMetadata::class.java.classLoader) ?: GameMetadata(""),
+        author = parcel.readParcelable(Author::class.java.classLoader)
     )
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
-        parcel.writeInt(id)
-        parcel.writeByte(if (isPremium) 1 else 0)
-        parcel.writeString(menuSoundUrl)
-        parcel.writeInt(minAppCode)
-        parcel.writeStringList(keywords)
-        parcel.writeLong(releaseDate)
-        parcel.writeParcelable(mediaLogoSquare, flags)
-        parcel.writeParcelable(mediaMainBanner, flags)
-        parcel.writeParcelable(mediaPreviewBackground, flags)
-        parcel.writeString(versionCode)
-        parcel.writeValue(price)
-        parcel.writeParcelable(metadata, flags)
+        parcel.writeString(id)
+        parcel.writeInt(version)
+        parcel.writeInt(interactionCount)
+        parcel.writeInt(downloadCount)
+        parcel.writeByte(if (isCertified) 1 else 0)
+        parcel.writeString(status)
+        parcel.writeLong(createdAt)
+        parcel.writeInt(price)
         parcel.writeStringList(skuIdentifiers)
         parcel.writeString(videoUrl)
         parcel.writeInt(cachedChaptersCount)
+        parcel.writeParcelable(bannerAsset, flags)
+        parcel.writeParcelable(logoAsset, flags)
+        parcel.writeParcelable(metadata, flags)
+        parcel.writeParcelable(author, flags)
     }
 
     override fun describeContents(): Int {
@@ -75,5 +74,9 @@ data class Game(
 }
 
 fun Game.isPaying(): Boolean {
-    return this.isPremium && this.skuIdentifiers.isNotEmpty()
+    return this.price > 0 && this.skuIdentifiers.isNotEmpty()
+}
+
+fun Game.isPremium(): Boolean {
+    return this.price > 0
 }

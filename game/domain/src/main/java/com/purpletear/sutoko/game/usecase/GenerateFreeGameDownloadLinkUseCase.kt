@@ -19,7 +19,7 @@ class GenerateFreeGameDownloadLinkUseCase @Inject constructor(
      * @return A Flow containing the Result of the operation with the download link as a String
      */
     suspend operator fun invoke(
-        gameId: Int
+        gameId: String
     ): Flow<Result<String>> {
         return gameRepository.generateFreeGameDownloadLink(
             gameId = gameId

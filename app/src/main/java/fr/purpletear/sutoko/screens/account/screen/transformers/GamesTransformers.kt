@@ -9,11 +9,11 @@ object PossessedGamesTransformer {
      * Transforms a list of [Game] objects and a set of possessed game IDs into a list of [GameWithOwnership] objects.
      * Sorted by possession status.
      * @param games A list of [Game] objects representing games.
-     * @param possessedGameIds A set of Integers representing the IDs of possessed games.
+     * @param possessedGameIds A set of Strings representing the IDs of possessed games.
      * @return A list of [GameWithOwnership] objects created by mapping each game in the `games` list to a new `GameWithOwnership` object,
      *         with the ownership status determined by the presence of the game's ID in the `possessedGameIds` set.
      */
-    fun transform(games: List<Game>, possessedGameIds: Set<Int>): List<GameWithOwnership> {
+    fun transform(games: List<Game>, possessedGameIds: Set<String>): List<GameWithOwnership> {
         return games.map { game ->
             GameWithOwnership(
                 game,

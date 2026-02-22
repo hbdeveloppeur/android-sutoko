@@ -11,7 +11,7 @@ import android.widget.ImageView;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.RequestManager;
-import com.example.sharedelements.OnlineAssetsManager;
+import com.example.sutokosharedelements.OnlineAssetsManager;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -38,7 +38,7 @@ public class Adapter extends RecyclerView.Adapter<Adapter.ViewHolder> {
 
     public void fill(){
         for (int i = 1;  i < 16;i++) {
-            paths.add(OnlineAssetsManager.INSTANCE.getImageFilePath(context, GlobalData.Game.FRIENDZONE2.getId(), "/eva_phone/images/"+i));
+            paths.add(OnlineAssetsManager.INSTANCE.getImageFilePath(context, String.valueOf(GlobalData.Game.FRIENDZONE2.getId()), "/eva_phone/images/"+i));
         }
     }
 

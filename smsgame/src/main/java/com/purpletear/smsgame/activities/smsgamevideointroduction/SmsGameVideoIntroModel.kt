@@ -31,7 +31,7 @@ class SmsGameVideoIntroModel(activity: Activity) {
 
     fun startSound(activity: Activity, soundName: String, delay: Int) {
         this.delayHandler.operation("onFoundSound : $soundName", delay) {
-            val path = SmsGameTreeStructure.getMediaFilePath(activity, this.storyId, soundName)
+            val path = SmsGameTreeStructure.getMediaFilePath(activity, this.storyId.toString(), soundName)
             soundPlayer.addToPreloadList(path)
             soundPlayer.preload(activity)
             soundPlayer.play(path, onStart@{

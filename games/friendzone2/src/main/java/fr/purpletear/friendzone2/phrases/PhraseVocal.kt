@@ -15,7 +15,7 @@ import android.widget.FrameLayout
 import android.widget.ImageView
 import androidx.core.content.ContextCompat
 import com.bumptech.glide.RequestManager
-import com.example.sharedelements.OnlineAssetsManager
+import com.example.sutokosharedelements.OnlineAssetsManager
 import fr.purpletear.friendzone2.R
 import fr.purpletear.friendzone2.activities.main.MainInterface
 import fr.purpletear.friendzone2.configs.Phrase
@@ -59,10 +59,10 @@ class PhraseVocal {
             val image = itemView.findViewById<ImageView>(profil)
             val icon = itemView.findViewById<ImageView>(button)
 
-            if(playingSound == OnlineAssetsManager.getSoundFilePath(context, GlobalData.Game.FRIENDZONE2.id,  "zv/${p.soundName}")) {
-                glide.load(OnlineAssetsManager.getImageFilePath(context, GlobalData.Game.FRIENDZONE2.id, "vocal_sound_pause")).into(icon)
+            if(playingSound == OnlineAssetsManager.getSoundFilePath(context, GlobalData.Game.FRIENDZONE2.id.toString(),  "zv/${p.soundName}")) {
+                glide.load(OnlineAssetsManager.getImageFilePath(context, GlobalData.Game.FRIENDZONE2.id.toString(), "vocal_sound_pause")).into(icon)
             } else {
-                glide.load(OnlineAssetsManager.getImageFilePath(context, GlobalData.Game.FRIENDZONE2.id, "vocal_sound_play")).into(icon)
+                glide.load(OnlineAssetsManager.getImageFilePath(context, GlobalData.Game.FRIENDZONE2.id.toString(), "vocal_sound_play")).into(icon)
             }
 
             gd.setColor(ContextCompat.getColor(context, character.colorId))

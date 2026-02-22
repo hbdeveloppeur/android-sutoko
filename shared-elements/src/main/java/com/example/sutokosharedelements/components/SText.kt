@@ -1,4 +1,4 @@
-package com.example.sharedelements.components
+package com.example.sutokosharedelements.components
 
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text

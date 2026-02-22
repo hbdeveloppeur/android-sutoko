@@ -130,10 +130,10 @@ class TableOfLinks {
      */
     @Throws(IOException::class)
     fun read(c: Context, chapterCode: String) {
-        val file = SmsGameTreeStructure.getStoryLinksFile(c, GlobalData.Game.FRIENDZONE2.id, chapterCode, Language.determineLangDirectory())
+        val file = SmsGameTreeStructure.getStoryLinksFile(c, GlobalData.Game.FRIENDZONE2.id.toString(), chapterCode, Language.determineLangDirectory())
 
         if (!file.exists()) {
-            throw IllegalStateException("Couldn't find file ${file.path} for story number ${GlobalData.Game.FRIENDZONE2.id}")
+            throw IllegalStateException("Couldn't find file ${file.path} for story number ${GlobalData.Game.FRIENDZONE2.id.toString()}")
         }
 
         var br: BufferedReader? = null

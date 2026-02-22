@@ -37,6 +37,7 @@ import com.purpletear.sutoko.game.model.Chapter
 import com.purpletear.sutoko.game.model.ExtractZipParams
 import com.purpletear.sutoko.game.model.Game
 import com.purpletear.sutoko.game.model.isPaying
+import com.purpletear.sutoko.game.model.isPremium
 import com.purpletear.sutoko.game.usecase.ExtractZipUseCase
 import com.purpletear.sutoko.game.usecase.GenerateFreeGameDownloadLinkUseCase
 import com.purpletear.sutoko.game.usecase.GenerateGameDownloadLinkUseCase
@@ -121,7 +122,7 @@ class GamePreviewViewModel @Inject constructor(
     @ApplicationContext private val appContext: Context,
 ) : ViewModel() {
 
-    private val gameId: Int = savedStateHandle.get<Int>("gameId")!!
+    private val gameId: String = savedStateHandle.get<String>("gameId")!!
 
     private var _game: MutableState<Game?> = mutableStateOf(null)
     internal val game: State<Game?> get() = _game
@@ -215,12 +216,12 @@ class GamePreviewViewModel @Inject constructor(
     /**
      * Loads and updates the logo URL for the specified game's square media logo.
      *
-     * @param game The game object containing the media logo information. If the 'mediaLogoSquare'
-     *             property is not null, its filename is used to generate the URL using the host provider.
+     * @param game The game object containing the media logo information. If the 'logoAsset'
+     *             property is not null, its storagePath is used to generate the URL.
      */
     private fun loadGameLogoURL(game: Game) {
-        game.mediaLogoSquare?.let {
-            _gameSquareLogoURL.value = hostProvider.getPublicMedia(it.filename)
+        game.logoAsset?.storagePath?.let { path ->
+            _gameSquareLogoURL.value = "https://sutoko.com/$path"
         }
     }
 
@@ -280,7 +281,7 @@ class GamePreviewViewModel @Inject constructor(
         val chapter = currentChapter.value ?: return false
         if (chapter.number != 1) return false
         val existing = try {
-            tableOfSymbols.get(gameId, "prenom")
+            tableOfSymbols.get(gameId.hashCode(), "prenom")
         } catch (_: Exception) {
             null
         }
@@ -303,7 +304,7 @@ class GamePreviewViewModel @Inject constructor(
                     if (sanitized.isNotEmpty()) {
                         viewModelScope.launch {
                             try {
-                                tableOfSymbols.addOrSet(gameId, "prenom", sanitized)
+                                tableOfSymbols.addOrSet(gameId.hashCode(), "prenom", sanitized)
                                 tableOfSymbols.save(appContext)
                             } catch (_: Exception) {
                             }
@@ -505,7 +506,7 @@ class GamePreviewViewModel @Inject constructor(
      * Called from the UI components.
      */
     private fun onClickDownloadGame() {
-        if (game.value?.isPremium == true && !customer.isUserConnected()) {
+        if (game.value?.isPremium() == true && !customer.isUserConnected()) {
             openSignInPageUseCase()
             return
         }
@@ -595,7 +596,7 @@ class GamePreviewViewModel @Inject constructor(
      * @return A string representing the generated download link for the requested game.
      */
     private suspend fun generateDownloadLink(): String {
-        val isPayingGame = (this.game.value?.isPremium == true)
+        val isPayingGame = (this.game.value?.isPremium() == true)
 
         if (isPayingGame) {
             return awaitFlowResult {
@@ -704,7 +705,7 @@ class GamePreviewViewModel @Inject constructor(
         if (!isCurrentChapterAvailable()) {
             _gameMenuState.value = GameMenuState.ChapterUnavailable(
                 number = currentChapter.value!!.number,
-                releaseDate = currentChapter.value!!.releaseDate
+                createdAt = currentChapter.value!!.createdAt
             )
             return
         }
@@ -739,7 +740,7 @@ class GamePreviewViewModel @Inject constructor(
     }
 
     private fun requirePayment(game: Game): Boolean {
-        return game.isPremium && !isGameBought.value && !isUserPremium.value
+        return game.isPremium() && !isGameBought.value && !isUserPremium.value
     }
 
     private suspend fun connectToGooglePlay() {
@@ -784,7 +785,7 @@ class GamePreviewViewModel @Inject constructor(
     }
 
     private suspend fun loadHasBoughtProduct(game: Game, userId: String, userToken: String) {
-        require(game.isPremium)
+        require(game.isPremium())
         require(game.skuIdentifiers.isNotEmpty())
         require(_isUserConnected.value)
 
@@ -850,7 +851,7 @@ class GamePreviewViewModel @Inject constructor(
      *
      * @param gameId The ID of the game to load.
      */
-    private suspend fun loadGame(gameId: Int): Boolean {
+    private suspend fun loadGame(gameId: String): Boolean {
         _gameMenuState.value = GameMenuState.Loading
         try {
             _game.value = awaitFlowResult {
@@ -869,7 +870,7 @@ class GamePreviewViewModel @Inject constructor(
      *
      * @param gameId The ID of the game to load chapters for.
      */
-    private suspend fun loadChapters(gameId: Int): Boolean {
+    private suspend fun loadChapters(gameId: String): Boolean {
         _gameMenuState.value = GameMenuState.Loading
 
         try {
@@ -887,7 +888,7 @@ class GamePreviewViewModel @Inject constructor(
      *
      * @param gameId The ID of the game to load chapters for.
      */
-    private suspend fun loadCurrentChapter(gameId: Int): Boolean {
+    private suspend fun loadCurrentChapter(gameId: String): Boolean {
         _gameMenuState.value = GameMenuState.Loading
 
         try {
@@ -900,7 +901,7 @@ class GamePreviewViewModel @Inject constructor(
         return false
     }
 
-    private fun observedCurrentChapter(gameId: Int) {
+    private fun observedCurrentChapter(gameId: String) {
         viewModelScope.launch {
             observeCurrentChapterUseCase(gameId).collect { chapter ->
                 _currentChapter.value = chapter
@@ -923,13 +924,14 @@ class GamePreviewViewModel @Inject constructor(
 
     /**
      * Plays the menu sound with fade in effect if the game has a menuSoundUrl.
+     * Note: menuSoundUrl field has been removed from Game model.
      */
     private fun playMenuSoundIfAvailable() {
-        game.value?.menuSoundUrl?.let { soundUrl ->
-            if (soundUrl.isNotEmpty()) {
-                menuSoundPlayer.playWithFadeIn(soundUrl, 2000)
-            }
-        }
+        // game.value?.menuSoundUrl?.let { soundUrl ->
+        //     if (soundUrl.isNotEmpty()) {
+        //         menuSoundPlayer.playWithFadeIn(soundUrl, 2000)
+        //     }
+        // }
     }
 
     private fun confirmAndRestartGame() {
@@ -954,7 +956,7 @@ class GamePreviewViewModel @Inject constructor(
                                 restartGameUseCase(game.id)
                                 // Remove per-game first name so it will be asked again on chapter 1
                                 try {
-                                    tableOfSymbols.removeVar(game.id, "prenom")
+                                    tableOfSymbols.removeVar(game.id.hashCode(), "prenom")
                                     tableOfSymbols.save(appContext)
                                 } catch (_: Exception) {
                                 }

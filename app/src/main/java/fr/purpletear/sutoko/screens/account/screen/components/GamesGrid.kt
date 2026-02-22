@@ -43,6 +43,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.purpletear.sutoko.game.model.Game
+import com.purpletear.sutoko.game.model.isPremium
 import fr.purpletear.sutoko.R
 import fr.purpletear.sutoko.screens.account.screen.components.viewmodels.CardViewModel
 import fr.purpletear.sutoko.screens.account.screen.model.GameWithOwnership
@@ -166,7 +167,7 @@ private fun CardView(
                     card.cachedChaptersCount
                 )
                 val text: String =
-                    if (card.isPremium) "${card.price}" else chaptersCount
+                    if (card.isPremium()) "${card.price}" else chaptersCount
                 Text(
                     text = text,
                     textAlign = TextAlign.Center,
@@ -174,7 +175,7 @@ private fun CardView(
                     color = Color.White,
                     fontFamily = FontFamily(Font(R.font.font_poppins_regular, FontWeight.Normal))
                 )
-                if (card.isPremium) {
+                if (card.isPremium()) {
                     Image(
                         modifier = Modifier
                             .size(14.dp)

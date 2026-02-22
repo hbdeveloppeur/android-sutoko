@@ -23,7 +23,7 @@ import java.io.FileNotFoundException
 @Keep
 class TableOfPhrases(
     activity: Activity?,
-    private var storyId: Int?,
+    private var storyId: String?,
     chapterCode: String,
     langCode: String,
     storyType: StoryType = StoryType.OFFICIAL_STORY
@@ -43,7 +43,7 @@ class TableOfPhrases(
 
     constructor(chapterCode: String, langCode: String, storyType: StoryType) : this(
         null,
-        -1,
+        "-1",
         chapterCode,
         langCode,
         storyType
@@ -52,11 +52,11 @@ class TableOfPhrases(
     /**
      * Reads the Story's file that contains all Phrase
      * @param context : Context
-     * @param storyId : Int
+     * @param storyId : String
      */
     private fun read(
         activity: Activity,
-        storyId: Int,
+        storyId: String,
         chapterCode: String,
         langCode: String,
         isUserStory: StoryType = StoryType.OFFICIAL_STORY

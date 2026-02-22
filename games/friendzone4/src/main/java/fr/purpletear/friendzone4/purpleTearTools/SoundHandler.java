@@ -7,7 +7,7 @@ import android.util.Log;
 
 import androidx.annotation.Nullable;
 
-import com.example.sharedelements.OnlineAssetsManager;
+import com.example.sutokosharedelements.OnlineAssetsManager;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -118,7 +118,7 @@ public class SoundHandler {
         try {
             MediaPlayer player = new MediaPlayer();
             player.setLooping(loop);
-            player.setDataSource(OnlineAssetsManager.INSTANCE.getSoundFilePath(activity, GlobalData.Game.FRIENDZONE4.getId(), "fz4_" + name));
+            player.setDataSource(OnlineAssetsManager.INSTANCE.getSoundFilePath(activity, String.valueOf(GlobalData.Game.FRIENDZONE4.getId()), "fz4_" + name));
             player.prepare();
             player.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
                 @Override

@@ -2,7 +2,7 @@ package fr.purpletear.friendzone2.activities.phone.homescreen
 
 import android.app.Activity
 import com.bumptech.glide.RequestManager
-import com.example.sharedelements.OnlineAssetsManager
+import com.example.sutokosharedelements.OnlineAssetsManager
 import fr.purpletear.friendzone2.Data
 import purpletear.fr.purpleteartools.GlobalData
 import purpletear.fr.purpleteartools.MemoryHandler
@@ -36,7 +36,7 @@ class HomeScreenModel(requestManager: RequestManager, var symbols: TableOfSymbol
      * @param sound : Sound
      */
     fun playSound(activity : Activity, sound : Sound) {
-        sh.generateFromExternalStorage(OnlineAssetsManager.getSoundFilePath(activity, GlobalData.Game.FRIENDZONE2.id, getSoundName(sound)), activity, false).play(getSoundName(sound))
+        sh.generateFromExternalStorage(OnlineAssetsManager.getSoundFilePath(activity, GlobalData.Game.FRIENDZONE2.id.toString(), getSoundName(sound)), activity, false).play(getSoundName(sound))
     }
 
     /**

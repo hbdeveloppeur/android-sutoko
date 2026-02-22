@@ -47,6 +47,7 @@ import com.purpletear.game.presentation.sealed.Background
 import com.purpletear.game.presentation.viewmodels.GamePreviewViewModel
 import com.purpletear.sutoko.game.model.Chapter
 import com.purpletear.sutoko.game.model.Game
+import com.purpletear.sutoko.game.model.isPremium
 import kotlinx.coroutines.delay
 
 /**
@@ -55,7 +56,7 @@ import kotlinx.coroutines.delay
 @Composable
 fun GamePreview(
     modifier: Modifier = Modifier,
-    onNavigateToGame: (Int, Boolean) -> Unit = { _, _ -> },
+    onNavigateToGame: (String, Boolean) -> Unit = { _, _ -> },
     onBuyGame: (Game) -> Unit = {},
     onOpenChapters: (Game, List<Chapter>) -> Unit,
     onOpenShop: () -> Unit = {},
@@ -248,7 +249,7 @@ fun GamePreview(
 
                     if (currentChapter.value != null && !currentChapter.value!!.isAvailable) {
                         GamePreviewUnavailable(chapter = currentChapter.value!!)
-                    } else if (game != null && game.metadata.categories.isNotEmpty()) {
+                    } else if (game != null) {
                         GamePreviewCategories(game = game)
                     }
                 }
@@ -257,7 +258,7 @@ fun GamePreview(
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
 
-                    if (null != game && game.isPremium) {
+                    if (null != game && game.isPremium()) {
                         GamePreviewLabel(
                             text = stringResource(R.string.game_preview_premium),
                             borderColor = Background.Gradient(

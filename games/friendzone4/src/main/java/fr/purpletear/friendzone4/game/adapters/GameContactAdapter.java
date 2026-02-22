@@ -11,7 +11,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.RequestManager;
-import com.example.sharedelements.OnlineAssetsManager;
+import com.example.sutokosharedelements.OnlineAssetsManager;
 
 import java.util.List;
 
@@ -97,7 +97,7 @@ public class GameContactAdapter extends RecyclerView.Adapter<GameContactAdapter.
         void display(final Contact c) {
             switch (Contact.Type.values()[getItemViewType()]) {
                 case ACTION: {
-                    Glide.load(OnlineAssetsManager.INSTANCE.getImageFilePath(context, GlobalData.Game.FRIENDZONE4.getId(), c.getDrawable()))
+                    Glide.load(OnlineAssetsManager.INSTANCE.getImageFilePath(context, String.valueOf(GlobalData.Game.FRIENDZONE4.getId()), c.getDrawable()))
                             .into(image = itemView.findViewById(R.id.fz4_action_contacts_row_image));
                     ((TextView) itemView.findViewById(R.id.fz4_action_contacts_row_name)).setText(c.getName());
                     ((TextView) itemView.findViewById(R.id.fz4_action_contacts_row_text)).setText(c.getText());
@@ -116,7 +116,7 @@ public class GameContactAdapter extends RecyclerView.Adapter<GameContactAdapter.
                     break;
                 }
                 case SIMPLE: {
-                    Glide.load(OnlineAssetsManager.INSTANCE.getImageFilePath(context, GlobalData.Game.FRIENDZONE4.getId(), c.getDrawable()))
+                    Glide.load(OnlineAssetsManager.INSTANCE.getImageFilePath(context, String.valueOf(GlobalData.Game.FRIENDZONE4.getId()), c.getDrawable()))
                             .into(image = itemView.findViewById(R.id.fz4_simple_contacts_row_image));
                     ((TextView) itemView.findViewById(R.id.fz4_simple_contacts_row_name)).setText(c.getName());
                     ((TextView) itemView.findViewById(R.id.fz4_simple_contacts_row_text)).setText(c.getText());

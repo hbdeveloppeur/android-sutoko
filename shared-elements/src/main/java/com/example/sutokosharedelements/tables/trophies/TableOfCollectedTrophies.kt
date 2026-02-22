@@ -1,4 +1,4 @@
-package com.example.sharedelements.tables.trophies
+package com.example.sutokosharedelements.tables.trophies
 
 import android.app.Activity
 import android.content.Context

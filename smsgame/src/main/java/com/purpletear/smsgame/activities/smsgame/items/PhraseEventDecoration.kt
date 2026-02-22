@@ -17,7 +17,7 @@ object PhraseEventDecoration {
 
     fun design(
         context: Context,
-        storyId: Int,
+        storyId: String,
         requestManager: RequestManager,
         itemView: View,
         phrase: Phrase

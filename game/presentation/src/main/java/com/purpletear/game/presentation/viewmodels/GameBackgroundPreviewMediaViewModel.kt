@@ -17,14 +17,14 @@ class GameBackgroundPreviewMediaViewModel @Inject constructor(
 
     /**
      * Gets the image URL for the game preview background.
-     * First tries to use mediaPreviewBackground, falls back to mediaMainBanner if not available.
+     * Uses bannerAsset's storagePath to generate the URL.
      *
      * @param game The game object containing media information
-     * @return The URL of the background image or empty string if no image is available
+     * @return The URL of the background image or null if no image is available
      */
     fun getImagePreviewBackgroundLink(game: Game): String? {
-        return game.mediaPreviewBackground?.filename?.let { filename ->
-            hostProvider.getPublicMedia(filename = filename)
+        return game.bannerAsset?.storagePath?.let { path ->
+            "https://sutoko.com/$path"
         }
     }
 }

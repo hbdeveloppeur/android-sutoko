@@ -549,7 +549,7 @@ class Conversation(
                 val character = characters.getCharacter(currentPhrase!!.id_author)
                 callback.onNotificationFound(
                     // Story id
-                    storyMetadata.storyId,
+                    storyMetadata.storyId.hashCode(),
                     character,
                     // Notification content
                     info[0],
@@ -684,7 +684,7 @@ class Conversation(
         val mThen = Integer.parseInt(values[1]!!)
         val mElse = Integer.parseInt(values[2]!!)
 
-        return if (symbols.condition(storyMetadata.storyId, condition[0], condition[1])) {
+        return if (symbols.condition(storyMetadata.storyId.hashCode(), condition[0], condition[1])) {
             phrases.getPhrase(mThen)
         } else {
             phrases.getPhrase(mElse)

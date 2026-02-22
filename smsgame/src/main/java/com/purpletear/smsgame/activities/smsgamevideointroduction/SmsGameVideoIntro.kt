@@ -53,7 +53,7 @@ class SmsGameVideoIntro : AppCompatActivity(), SmsGameVideoIntroCallbacks {
 
     override fun onImageFound(filename: String) {
         val duration = this.hideVisualsIfNecessary()
-        val path = SmsGameTreeStructure.getMediaFilePath(this, model?.storyId ?: return, filename)
+        val path = SmsGameTreeStructure.getMediaFilePath(this, model?.storyId?.toString() ?: return, filename)
 
         this.model?.delayHandler?.operation("onImageFound", duration) {
             SmsGameVideoIntroGraphics.setImage(
@@ -74,7 +74,7 @@ class SmsGameVideoIntro : AppCompatActivity(), SmsGameVideoIntroCallbacks {
                 this,
                 SmsGameTreeStructure.getMediaFilePath(
                     this,
-                    model?.storyId ?: return@operation,
+                    model?.storyId?.toString() ?: return@operation,
                     filename
                 ),
                 isLooping

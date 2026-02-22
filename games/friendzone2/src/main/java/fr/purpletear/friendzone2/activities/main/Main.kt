@@ -17,7 +17,7 @@ import android.view.View
 import android.widget.VideoView
 import androidx.appcompat.app.AppCompatActivity
 import com.bumptech.glide.Glide
-import com.example.sharedelements.OnlineAssetsManager
+import com.example.sutokosharedelements.OnlineAssetsManager
 import com.example.sharedelements.SutokoSharedElementsData
 import fr.purpletear.friendzone2.BuildConfig.VERSION_CODE
 import fr.purpletear.friendzone2.Data
@@ -206,7 +206,7 @@ class Main : AppCompatActivity(), MainInterface {
                 model.getChapterConversationStatus(this),
                 model.getChapterStartingProfilPicture(this),
                 "",
-                OnlineAssetsManager.getImageFilePath(this, GlobalData.Game.FRIENDZONE2.id, "btn_torch_disabled"),
+                OnlineAssetsManager.getImageFilePath(this, GlobalData.Game.FRIENDZONE2.id.toString(), "btn_torch_disabled"),
                 choiceBoxIsVisible = false,
                 mainButtonIsVisible = false,
                 lostImageIsVisible = false,
@@ -327,7 +327,7 @@ class Main : AppCompatActivity(), MainInterface {
     }
 
     override fun onClickSound(name: String) {
-        model.adapter.currentPlayingSound = model.singlePlayer.playWithNameFromFullPath(OnlineAssetsManager.getSoundFilePath(this, GlobalData.Game.FRIENDZONE2.id, name), this@Main) {
+        model.adapter.currentPlayingSound = model.singlePlayer.playWithNameFromFullPath(OnlineAssetsManager.getSoundFilePath(this, GlobalData.Game.FRIENDZONE2.id.toString(), name), this@Main) {
             pauseSinglePlayer()
         }
         model.adapter.notifyDataSetChanged()
@@ -552,7 +552,7 @@ class Main : AppCompatActivity(), MainInterface {
         if (DiscussionHandler.execute("Lancement d'un son", p.isSound)) {
             val runnable = object : Runnable2("Demande de notification overlay + ", p.seen) {
                 override fun run() {
-                    model.playSound(this@Main, OnlineAssetsManager.getSoundFilePath(this@Main, GlobalData.Game.FRIENDZONE2.id, p.soundName), false)
+                    model.playSound(this@Main, OnlineAssetsManager.getSoundFilePath(this@Main, GlobalData.Game.FRIENDZONE2.id.toString(), p.soundName), false)
                     discussForward(p, isTest)
                 }
             }
@@ -572,7 +572,7 @@ class Main : AppCompatActivity(), MainInterface {
         if (DiscussionHandler.execute("Affichage d'une image en fond", p.isBackgroundImage)) {
             val runnable = object : Runnable2("Demande de changement d'image de fond ", p.seen) {
                 override fun run() {
-                    val id = graphics.switchBackgroundImage(this@Main, model.requestManager, OnlineAssetsManager.getImageFilePath(this@Main, GlobalData.Game.FRIENDZONE2.id, p.backgroundImageName))
+                    val id = graphics.switchBackgroundImage(this@Main, model.requestManager, OnlineAssetsManager.getImageFilePath(this@Main, GlobalData.Game.FRIENDZONE2.id.toString(), p.backgroundImageName))
                     model.adapter.backgroundMediaId = id
                     discussForward(p, isTest)
                 }
@@ -585,8 +585,8 @@ class Main : AppCompatActivity(), MainInterface {
 
         if (DiscussionHandler.execute("Chloé vous a ajouté à sa liste d'amis", p.sentence == "[FRIEND/Chloé Winsplit/21:30]")) {
             graphics.fillNotification(this, model.requestManager, getString(R.string.alias_chloe_winsplit), getString(R.string.added_you_to_her_friendlist),
-                OnlineAssetsManager.getImageFilePath(this, GlobalData.Game.FRIENDZONE2.id, "chloe"),
-                OnlineAssetsManager.getImageFilePath(this, GlobalData.Game.FRIENDZONE2.id, "ico_add_friend"))
+                OnlineAssetsManager.getImageFilePath(this, GlobalData.Game.FRIENDZONE2.id.toString(), "chloe"),
+                OnlineAssetsManager.getImageFilePath(this, GlobalData.Game.FRIENDZONE2.id.toString(), "ico_add_friend"))
             val duration = graphics.notification(this, true)
             val runnable = object : Runnable2("Chloé a accepté votre demande en ami", duration + 2000) {
                 override fun run() {
@@ -651,10 +651,10 @@ class Main : AppCompatActivity(), MainInterface {
                 override fun run() {
                     if (p.wait > 0 && !model.isNoSeen) {
                         insert(p, if(model.isSpectatorMode(p)){Phrase.Type.meTyping} else {Phrase.Type.typing})
-                        model.playSound(this@Main, OnlineAssetsManager.getSoundFilePath(this@Main, GlobalData.Game.FRIENDZONE2.id, "typing"), false)
+                        model.playSound(this@Main, OnlineAssetsManager.getSoundFilePath(this@Main, GlobalData.Game.FRIENDZONE2.id.toString(), "typing"), false)
                     }
 
-                    val runnable = object : Runnable2(OnlineAssetsManager.getSoundFilePath(this@Main, GlobalData.Game.FRIENDZONE2.id, "typing"), p.wait) {
+                    val runnable = object : Runnable2(OnlineAssetsManager.getSoundFilePath(this@Main, GlobalData.Game.FRIENDZONE2.id.toString(), "typing"), p.wait) {
                         override fun run() {
                             if (p.wait > 0 && !model.isNoSeen) {
                                 model.adapter.editLast(p, if(model.isSpectatorMode(p)){Phrase.Type.me} else {Phrase.Type.dest})
@@ -662,7 +662,7 @@ class Main : AppCompatActivity(), MainInterface {
                                 insert(p, if(model.isSpectatorMode(p)){Phrase.Type.me} else {Phrase.Type.dest})
                             }
                             if (!model.isNoSeen) {
-                                model.playSound(this@Main, OnlineAssetsManager.getSoundFilePath(this@Main, GlobalData.Game.FRIENDZONE2.id, "message"), false)
+                                model.playSound(this@Main, OnlineAssetsManager.getSoundFilePath(this@Main, GlobalData.Game.FRIENDZONE2.id.toString(), "message"), false)
                             }
                             discussForward(p, isTest)
                         }
@@ -703,7 +703,7 @@ class Main : AppCompatActivity(), MainInterface {
             }
             5 -> {
                 graphics.fillNotification(this@Main, model.requestManager, getString(R.string.alias_chloe_winsplit), getString(R.string.chloe_notif_libelle_a),
-                    OnlineAssetsManager.getImageFilePath(this, GlobalData.Game.FRIENDZONE2.id, "chloe"), OnlineAssetsManager.getImageFilePath(this, GlobalData.Game.FRIENDZONE2.id, "ico_sms"))
+                    OnlineAssetsManager.getImageFilePath(this, GlobalData.Game.FRIENDZONE2.id.toString(), "chloe"), OnlineAssetsManager.getImageFilePath(this, GlobalData.Game.FRIENDZONE2.id.toString(), "ico_sms"))
                 val duration = graphics.notification(this, true)
                 val runnable = object : Runnable2("Chloé vous envoie un sms", duration + 4500) {
                     override fun run() {
@@ -736,13 +736,13 @@ class Main : AppCompatActivity(), MainInterface {
                             this, model.requestManager,
                             getString(R.string.alias_zoe_topaze),
                             getString(R.string.is_calling_you),
-                        OnlineAssetsManager.getImageFilePath(this, GlobalData.Game.FRIENDZONE2.id, "zoe1_profil"), OnlineAssetsManager.getImageFilePath(this, GlobalData.Game.FRIENDZONE2.id, "ico_vibrating"))
+                        OnlineAssetsManager.getImageFilePath(this, GlobalData.Game.FRIENDZONE2.id.toString(), "zoe1_profil"), OnlineAssetsManager.getImageFilePath(this, GlobalData.Game.FRIENDZONE2.id.toString(), "ico_vibrating"))
                 } else {
                     graphics.fillNotification(
                             this, model.requestManager,
                             getString(R.string.alias_lucie_belle),
                             getString(R.string.is_calling_you),
-                        OnlineAssetsManager.getImageFilePath(this, GlobalData.Game.FRIENDZONE2.id, "lucie_profil"), OnlineAssetsManager.getImageFilePath(this, GlobalData.Game.FRIENDZONE2.id, "ico_vibrating"))
+                        OnlineAssetsManager.getImageFilePath(this, GlobalData.Game.FRIENDZONE2.id.toString(), "lucie_profil"), OnlineAssetsManager.getImageFilePath(this, GlobalData.Game.FRIENDZONE2.id.toString(), "ico_vibrating"))
 
                 }
                 val duration = graphics.notification(this, true)
@@ -802,7 +802,7 @@ class Main : AppCompatActivity(), MainInterface {
             }
 
             15 -> {
-                graphics.fillNotification(this@Main, model.requestManager, getString(R.string.alias_chloe_winsplit), getString(R.string.chloe_notif_libelle_b), OnlineAssetsManager.getImageFilePath(this, GlobalData.Game.FRIENDZONE2.id, "chloe"), OnlineAssetsManager.getImageFilePath(this, GlobalData.Game.FRIENDZONE2.id, "ico_sms"))
+                graphics.fillNotification(this@Main, model.requestManager, getString(R.string.alias_chloe_winsplit), getString(R.string.chloe_notif_libelle_b), OnlineAssetsManager.getImageFilePath(this, GlobalData.Game.FRIENDZONE2.id.toString(), "chloe"), OnlineAssetsManager.getImageFilePath(this, GlobalData.Game.FRIENDZONE2.id.toString(), "ico_sms"))
                 val duration = graphics.notification(this, true)
                 val runnable = object : Runnable2("Chloé vous envoie un sms", duration + 4500) {
                     override fun run() {
@@ -904,7 +904,7 @@ class Main : AppCompatActivity(), MainInterface {
 
         if(model.symbols.chapterNumber == 1
                 || Data.fastButtonAlwaysDisplaying) {
-            graphics.setFasterImage(this, model.requestManager, OnlineAssetsManager.getImageFilePath(this, GlobalData.Game.FRIENDZONE2.id, "btn_faster"))
+            graphics.setFasterImage(this, model.requestManager, OnlineAssetsManager.getImageFilePath(this, GlobalData.Game.FRIENDZONE2.id.toString(), "btn_faster"))
             graphics.setFasterVisibility(this, true)
             Finger.registerListener(this, R.id.mainactivity_button_faster_build, ::onFasterPressed)
         }
@@ -952,7 +952,7 @@ class Main : AppCompatActivity(), MainInterface {
             Animation.setAnimation(findViewById(R.id.mainactivty_background_filter), Animation.Animations.ANIMATION_FADEIN, this@Main)
         }
         model.adapter.notifyDataSetChanged()
-        model.playSound(this, OnlineAssetsManager.getSoundFilePath(this@Main, GlobalData.Game.FRIENDZONE2.id, "torch"), false)
+        model.playSound(this, OnlineAssetsManager.getSoundFilePath(this@Main, GlobalData.Game.FRIENDZONE2.id.toString(), "torch"), false)
     }
 
     private fun onPausePressed() {

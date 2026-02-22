@@ -17,7 +17,7 @@ class GetGameUseCase @Inject constructor(
      * @param id The ID of the game to retrieve.
      * @return A Flow emitting a Result containing the requested Game.
      */
-    operator fun invoke(id: Int): Flow<Result<Game>> {
+    operator fun invoke(id: String): Flow<Result<Game>> {
         return gameRepository.getGame(id)
     }
 }

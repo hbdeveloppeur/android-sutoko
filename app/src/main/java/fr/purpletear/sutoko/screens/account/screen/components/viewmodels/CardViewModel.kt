@@ -15,8 +15,8 @@ class CardViewModel @Inject constructor(
 ) : ViewModel() {
 
     fun getImageSquareLogo(game: Game): String {
-        return game.mediaLogoSquare?.filename?.let { filename ->
-            hostProvider.getPublicMedia(filename = filename)
+        return game.logoAsset?.storagePath?.let { path ->
+            "https://sutoko.com/$path"
         } ?: ""
     }
 }

@@ -4,7 +4,7 @@ import android.os.Bundle
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import com.bumptech.glide.Glide
-import com.example.sharedelements.OnlineAssetsManager
+import com.example.sutokosharedelements.OnlineAssetsManager
 import fr.purpletear.friendzone2.R
 import fr.purpletear.friendzone2.activities.main.GameConversationAdapter
 import fr.purpletear.friendzone2.activities.main.MainInterface
@@ -97,7 +97,7 @@ class SmsScreen : AppCompatActivity(), MainInterface {
     private fun load() {
         model = SmsScreenModel(this, Glide.with(this), intent.getBooleanExtra("signalActivated", false))
         val adapter = GameConversationAdapter(this, ArrayList(), TableOfCharacters(this, SmsScreenModel.getChapterCodeFromContact(SmsScreenModel.Contact.ZOE)), model.requestManager, this)
-        adapter.backgroundMediaId = OnlineAssetsManager.getImageFilePath(this, GlobalData.Game.FRIENDZONE2.id, "evaphone")
+        adapter.backgroundMediaId = OnlineAssetsManager.getImageFilePath(this, GlobalData.Game.FRIENDZONE2.id.toString(), "evaphone")
         model.adapter = adapter
         model.adapter.isPhoneMode = true
         graphics = SmsScreenGraphics()

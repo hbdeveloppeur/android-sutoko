@@ -17,7 +17,7 @@ object PhraseChoiceAction {
 
     fun design(
         context: Context,
-        storyId: Int,
+        storyId: String,
         itemView: View,
         requestManager: RequestManager,
         actionChoices: ArrayList<ChoiceAction>,
@@ -40,7 +40,7 @@ object PhraseChoiceAction {
 
     private fun setIcon(
         context: Context,
-        storyId: Int,
+        storyId: String,
         rootView: View,
         filename: String,
         requestManager: RequestManager

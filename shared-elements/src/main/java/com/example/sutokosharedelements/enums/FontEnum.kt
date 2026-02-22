@@ -1,4 +1,4 @@
-package com.example.sharedelements.enums
+package com.example.sutokosharedelements.enums
 
 import androidx.annotation.Keep
 import com.example.sharedelements.R

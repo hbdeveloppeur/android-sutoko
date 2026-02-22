@@ -4,7 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 
 import com.bumptech.glide.RequestManager;
-import com.example.sharedelements.OnlineAssetsManager;
+import com.example.sutokosharedelements.OnlineAssetsManager;
 
 import fr.purpletear.friendzone2.R;
 import purpletear.fr.purpleteartools.GlobalData;
@@ -45,7 +45,7 @@ class PoetryModel {
      * @return String
      */
     String getBackgroundResourceId(Activity activity) {
-        return OnlineAssetsManager.INSTANCE.getImageFilePath(activity, GlobalData.Game.FRIENDZONE2.getId(), "background_telling");
+        return OnlineAssetsManager.INSTANCE.getImageFilePath(activity, String.valueOf(GlobalData.Game.FRIENDZONE2.getId()), "background_telling");
     }
 
     private String getResourceNameId() {

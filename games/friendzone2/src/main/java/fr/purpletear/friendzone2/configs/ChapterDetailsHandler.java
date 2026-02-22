@@ -10,7 +10,7 @@ package fr.purpletear.friendzone2.configs;
 
 import android.content.Context;
 
-import com.example.sharedelements.OnlineAssetsManager;
+import com.example.sutokosharedelements.OnlineAssetsManager;
 
 import fr.purpletear.friendzone2.R;
 import purpletear.fr.purpleteartools.GlobalData;
@@ -35,7 +35,7 @@ public class ChapterDetailsHandler {
                         c.getString(R.string.chapter_1a_scn),
                         c.getString(R.string.mainactivity_online),
                         true,
-                        OnlineAssetsManager.INSTANCE.getImageFilePath(c, GlobalData.Game.FRIENDZONE2.getId(), "chloe")
+                        OnlineAssetsManager.INSTANCE.getImageFilePath(c, String.valueOf(GlobalData.Game.FRIENDZONE2.getId()), "chloe")
                 );
             }
             case "2a": {
@@ -46,7 +46,7 @@ public class ChapterDetailsHandler {
                         c.getString(R.string.alias_sylvie_belle),
                         c.getString(R.string.mainactivity_online),
                         true,
-                        OnlineAssetsManager.INSTANCE.getImageFilePath(c, GlobalData.Game.FRIENDZONE2.getId(), "sylvie")
+                        OnlineAssetsManager.INSTANCE.getImageFilePath(c, String.valueOf(GlobalData.Game.FRIENDZONE2.getId()), "sylvie")
                 );
             }
             case "3a": {
@@ -57,7 +57,7 @@ public class ChapterDetailsHandler {
                         c.getString(R.string.alias_chloe_winsplit),
                         "",
                         true,
-                        OnlineAssetsManager.INSTANCE.getImageFilePath(c, GlobalData.Game.FRIENDZONE2.getId(), "chloe")
+                        OnlineAssetsManager.INSTANCE.getImageFilePath(c, String.valueOf(GlobalData.Game.FRIENDZONE2.getId()), "chloe")
                 );
             }
             case "4a": {
@@ -68,7 +68,7 @@ public class ChapterDetailsHandler {
                         c.getString(R.string.chapter_4a_scn),
                         c.getString(R.string.chapter_4a_ssn),
                         false,
-                        OnlineAssetsManager.INSTANCE.getImageFilePath(c, GlobalData.Game.FRIENDZONE2.getId(), "cave")
+                        OnlineAssetsManager.INSTANCE.getImageFilePath(c, String.valueOf(GlobalData.Game.FRIENDZONE2.getId()), "cave")
                 );
             }
 
@@ -80,7 +80,7 @@ public class ChapterDetailsHandler {
                         c.getString(R.string.alias_zoe_topaze),
                         c.getString(R.string.mainactivity_online),
                         true,
-                        OnlineAssetsManager.INSTANCE.getImageFilePath(c, GlobalData.Game.FRIENDZONE2.getId(), "zoe1_profil")
+                        OnlineAssetsManager.INSTANCE.getImageFilePath(c, String.valueOf(GlobalData.Game.FRIENDZONE2.getId()), "zoe1_profil")
                 );
             }
 
@@ -92,7 +92,7 @@ public class ChapterDetailsHandler {
                         c.getString(R.string.alias_zoe_topaze),
                         c.getString(R.string.mainactivity_online),
                         true,
-                        OnlineAssetsManager.INSTANCE.getImageFilePath(c, GlobalData.Game.FRIENDZONE2.getId(), "zoe1_profil")
+                        OnlineAssetsManager.INSTANCE.getImageFilePath(c, String.valueOf(GlobalData.Game.FRIENDZONE2.getId()), "zoe1_profil")
                 );
             }
 
@@ -104,7 +104,7 @@ public class ChapterDetailsHandler {
                         c.getString(R.string.chapter_6a_scn),
                         (symbols.condition(GlobalData.Game.FRIENDZONE2.getId(), "side", "plage")) ? c.getString(R.string.sea_status) : c.getString(R.string.parc_status),
                         false,
-                        (symbols.condition(GlobalData.Game.FRIENDZONE2.getId(), "side", "plage")) ? OnlineAssetsManager.INSTANCE.getImageFilePath(c, GlobalData.Game.FRIENDZONE2.getId(), "sea_profil") : OnlineAssetsManager.INSTANCE.getImageFilePath(c, GlobalData.Game.FRIENDZONE2.getId(), "forest")
+                        (symbols.condition(GlobalData.Game.FRIENDZONE2.getId(), "side", "plage")) ? OnlineAssetsManager.INSTANCE.getImageFilePath(c, String.valueOf(GlobalData.Game.FRIENDZONE2.getId()), "sea_profil") : OnlineAssetsManager.INSTANCE.getImageFilePath(c, String.valueOf(GlobalData.Game.FRIENDZONE2.getId()), "forest")
                 );
             }
 
@@ -116,7 +116,7 @@ public class ChapterDetailsHandler {
                         c.getString(R.string.chapter_6b_scn),
                         c.getString(R.string.chapter_6b_ssn),
                         false,
-                        OnlineAssetsManager.INSTANCE.getImageFilePath(c, GlobalData.Game.FRIENDZONE2.getId(), "night_profil")
+                        OnlineAssetsManager.INSTANCE.getImageFilePath(c, String.valueOf(GlobalData.Game.FRIENDZONE2.getId()), "night_profil")
                 );
             }
 
@@ -128,7 +128,7 @@ public class ChapterDetailsHandler {
                         c.getString(R.string.chapter_7a_scn),
                         "",
                         false,
-                        OnlineAssetsManager.INSTANCE.getImageFilePath(c, GlobalData.Game.FRIENDZONE2.getId(), "chloe_zoe")
+                        OnlineAssetsManager.INSTANCE.getImageFilePath(c, String.valueOf(GlobalData.Game.FRIENDZONE2.getId()), "chloe_zoe")
                 );
             }
 
@@ -140,7 +140,7 @@ public class ChapterDetailsHandler {
                         c.getString(R.string.chapter_7b_scn),
                         "",
                         false,
-                        OnlineAssetsManager.INSTANCE.getImageFilePath(c, GlobalData.Game.FRIENDZONE2.getId(), "chloe_lucie")
+                        OnlineAssetsManager.INSTANCE.getImageFilePath(c, String.valueOf(GlobalData.Game.FRIENDZONE2.getId()), "chloe_lucie")
                 );
             }
 
@@ -153,7 +153,7 @@ public class ChapterDetailsHandler {
                         c.getString(R.string.alias_zoe),
                         c.getString(R.string.forest_as_status),
                         false,
-                        OnlineAssetsManager.INSTANCE.getImageFilePath(c, GlobalData.Game.FRIENDZONE2.getId(), "zoe1_profil")
+                        OnlineAssetsManager.INSTANCE.getImageFilePath(c, String.valueOf(GlobalData.Game.FRIENDZONE2.getId()), "zoe1_profil")
                 );
             }
 
@@ -165,7 +165,7 @@ public class ChapterDetailsHandler {
                         c.getString(R.string.alias_zoe),
                         c.getString(R.string.forest_as_status),
                         false,
-                        OnlineAssetsManager.INSTANCE.getImageFilePath(c, GlobalData.Game.FRIENDZONE2.getId(), "zoe1_profil")
+                        OnlineAssetsManager.INSTANCE.getImageFilePath(c, String.valueOf(GlobalData.Game.FRIENDZONE2.getId()), "zoe1_profil")
                 );
             }
 
@@ -177,7 +177,7 @@ public class ChapterDetailsHandler {
                         c.getString(R.string.alias_lucie),
                         c.getString(R.string.main_path_as_status),
                         false,
-                        OnlineAssetsManager.INSTANCE.getImageFilePath(c, GlobalData.Game.FRIENDZONE2.getId(), "lucie_profil")
+                        OnlineAssetsManager.INSTANCE.getImageFilePath(c, String.valueOf(GlobalData.Game.FRIENDZONE2.getId()), "lucie_profil")
                 );
             }
 
@@ -189,7 +189,7 @@ public class ChapterDetailsHandler {
                         c.getString(R.string.alias_zoe),
                         c.getString(R.string.main_path_as_status),
                         false,
-                        OnlineAssetsManager.INSTANCE.getImageFilePath(c, GlobalData.Game.FRIENDZONE2.getId(), "zoe1_profil")
+                        OnlineAssetsManager.INSTANCE.getImageFilePath(c, String.valueOf(GlobalData.Game.FRIENDZONE2.getId()), "zoe1_profil")
                 );
             }
 
@@ -201,7 +201,7 @@ public class ChapterDetailsHandler {
                         c.getString(R.string.alias_lucie),
                         c.getString(R.string.forest_as_status),
                         false,
-                        OnlineAssetsManager.INSTANCE.getImageFilePath(c, GlobalData.Game.FRIENDZONE2.getId(), "lucie_profil")
+                        OnlineAssetsManager.INSTANCE.getImageFilePath(c, String.valueOf(GlobalData.Game.FRIENDZONE2.getId()), "lucie_profil")
                 );
             }
 
@@ -213,7 +213,7 @@ public class ChapterDetailsHandler {
                         c.getString(R.string.alias_lucie),
                         c.getString(R.string.forest_as_status),
                         false,
-                        OnlineAssetsManager.INSTANCE.getImageFilePath(c, GlobalData.Game.FRIENDZONE2.getId(), "lucie_profil")
+                        OnlineAssetsManager.INSTANCE.getImageFilePath(c, String.valueOf(GlobalData.Game.FRIENDZONE2.getId()), "lucie_profil")
                 );
             }
 
@@ -226,7 +226,7 @@ public class ChapterDetailsHandler {
                         c.getString(R.string.alias_lucie),
                         c.getString(R.string.main_path_as_status),
                         false,
-                        OnlineAssetsManager.INSTANCE.getImageFilePath(c, GlobalData.Game.FRIENDZONE2.getId(), "lucie_profil")
+                        OnlineAssetsManager.INSTANCE.getImageFilePath(c, String.valueOf(GlobalData.Game.FRIENDZONE2.getId()), "lucie_profil")
                 );
             }
 
@@ -239,7 +239,7 @@ public class ChapterDetailsHandler {
                         c.getString(R.string.alias_zoe),
                         c.getString(R.string.main_path_as_status),
                         false,
-                        OnlineAssetsManager.INSTANCE.getImageFilePath(c, GlobalData.Game.FRIENDZONE2.getId(), "zoe1_profil")
+                        OnlineAssetsManager.INSTANCE.getImageFilePath(c, String.valueOf(GlobalData.Game.FRIENDZONE2.getId()), "zoe1_profil")
                 );
             }
 
@@ -251,7 +251,7 @@ public class ChapterDetailsHandler {
                         c.getString(R.string.chapter_9a_scn),
                         c.getString(R.string.chapter_9a_scs),
                         false,
-                        OnlineAssetsManager.INSTANCE.getImageFilePath(c, GlobalData.Game.FRIENDZONE2.getId(), "cave")
+                        OnlineAssetsManager.INSTANCE.getImageFilePath(c, String.valueOf(GlobalData.Game.FRIENDZONE2.getId()), "cave")
                 );
             }
 
@@ -265,7 +265,7 @@ public class ChapterDetailsHandler {
                         c.getString(R.string.alias_eva_belle),
                         c.getString(R.string.mainactivity_offline),
                         true,
-                        OnlineAssetsManager.INSTANCE.getImageFilePath(c, GlobalData.Game.FRIENDZONE2.getId(), "zoe1_profil")
+                        OnlineAssetsManager.INSTANCE.getImageFilePath(c, String.valueOf(GlobalData.Game.FRIENDZONE2.getId()), "zoe1_profil")
                 );
             }
             default:

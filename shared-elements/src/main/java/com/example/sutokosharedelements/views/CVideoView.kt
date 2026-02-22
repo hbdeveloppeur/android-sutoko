@@ -1,4 +1,4 @@
-package com.example.sharedelements.views
+package com.example.sutokosharedelements.views
 
 import android.annotation.SuppressLint
 import android.app.Activity

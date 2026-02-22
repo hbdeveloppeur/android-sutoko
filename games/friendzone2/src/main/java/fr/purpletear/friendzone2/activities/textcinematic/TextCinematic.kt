@@ -5,7 +5,7 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
-import com.example.sharedelements.OnlineAssetsManager
+import com.example.sutokosharedelements.OnlineAssetsManager
 import fr.purpletear.friendzone2.BuildConfig.VERSION_CODE
 import fr.purpletear.friendzone2.R
 import fr.purpletear.friendzone2.configs.DiscussionHandler

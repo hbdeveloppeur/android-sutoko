@@ -8,7 +8,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.sutokosharedelements.Data
-import com.example.sharedelements.OnlineAssetsManager
+import com.example.sutokosharedelements.OnlineAssetsManager
 import com.example.sharedelements.SutokoAppParams
 import com.purpletear.core.presentation.extensions.Resource
 import com.purpletear.core.presentation.extensions.awaitFlowResult
@@ -148,7 +148,7 @@ class AccountViewModel @Inject constructor(
 
         val possessedGames = PossessedGamesTransformer.transform(
             games ?: emptyList(),
-            possessedGameIds?.toSet() ?: emptySet()
+            possessedGameIds.toSet()
         )
         _possessedGames = ImmutableList(possessedGames)
     }
@@ -165,9 +165,9 @@ class AccountViewModel @Inject constructor(
      * @return true if the game is available for the user
      */
     private fun hasGame(card: Game): Boolean {
-        return card.id == 162 || OnlineAssetsManager.hasStoryFiles(
+        return card.id.hashCode() == 162 || OnlineAssetsManager.hasStoryFiles(
             card.id,
-            card.versionCode,
+            card.version.toString(),
             symbols
         ) || customer.history.hasStory(card.id)
     }

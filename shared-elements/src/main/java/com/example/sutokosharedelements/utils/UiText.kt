@@ -1,4 +1,4 @@
-package com.example.sharedelements.utils
+package com.example.sutokosharedelements.utils
 
 import androidx.annotation.Keep
 import androidx.annotation.StringRes

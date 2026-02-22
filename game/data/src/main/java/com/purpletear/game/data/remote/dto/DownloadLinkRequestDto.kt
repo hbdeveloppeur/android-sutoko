@@ -13,5 +13,5 @@ import androidx.annotation.Keep
 data class DownloadLinkRequestDto(
     val userId: String,
     val userToken: String,
-    val gameId: Int
+    val gameId: String
 )

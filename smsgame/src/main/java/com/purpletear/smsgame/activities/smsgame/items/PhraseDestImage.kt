@@ -20,7 +20,7 @@ class PhraseDestImage {
         fun design(
             itemView: View,
             context: Context,
-            storyId: Int,
+            storyId: String,
             requestManager: RequestManager,
             phrase: Phrase
         ) {

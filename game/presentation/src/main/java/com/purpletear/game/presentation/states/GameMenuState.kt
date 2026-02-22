@@ -23,7 +23,7 @@ internal sealed class GameMenuState() {
     data object GameFinished : GameMenuState()
 
     @Keep
-    data class ChapterUnavailable(val number: Int, val releaseDate: Long) : GameMenuState()
+    data class ChapterUnavailable(val number: Int, val createdAt: Long) : GameMenuState()
 
     @Keep
     data class ConfirmBuy(val isLoading: Boolean = false) : GameMenuState()

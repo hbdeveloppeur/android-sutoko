@@ -102,7 +102,7 @@ class GameRepositoryImpl @Inject constructor(
      * @param id The ID of the game to retrieve.
      * @return A Flow emitting a Result containing the requested Game.
      */
-    override fun getGame(id: Int): Flow<Result<Game>> = flow {
+    override fun getGame(id: String): Flow<Result<Game>> = flow {
         FirebaseCrashlytics.getInstance().setCustomKey("game_id", id)
         try {
             // Check if the game is in the cache
@@ -161,8 +161,8 @@ class GameRepositoryImpl @Inject constructor(
      * @return True if the game is updatable, false otherwise.
      */
     override suspend fun isGameUpdatable(game: Game): Flow<Result<Boolean>> = flow {
-        val currentVersion = tableOfSymbols.getStoryVersion(game.id)
-        val result = currentVersion != game.versionCode && currentVersion != "none"
+        val currentVersion = tableOfSymbols.getStoryVersion(game.id.hashCode())
+        val result = currentVersion != game.version.toString() && currentVersion != "none"
                 && currentVersion.isNotBlank()
         emit(
             Result.success(result)
@@ -171,7 +171,7 @@ class GameRepositoryImpl @Inject constructor(
 
     override suspend fun hasGameLocalFiles(game: Game): Flow<Result<Boolean>> = flow {
         try {
-            val res = tableOfSymbols.getStoryVersion(game.id) == game.versionCode
+            val res = tableOfSymbols.getStoryVersion(game.id.hashCode()) == game.version.toString()
             emit(Result.success(res))
         } catch (e: Exception) {
             emit(
@@ -183,23 +183,25 @@ class GameRepositoryImpl @Inject constructor(
     }
 
     override suspend fun setGameVersion(game: Game): Flow<Result<Unit>> = flow {
-        tableOfSymbols.setStoryVersion(rowId = game.id, version = game.versionCode)
+        tableOfSymbols.setStoryVersion(rowId = game.id.hashCode(), version = game.version.toString())
         tableOfSymbols.save(context = context)
         emit(Result.success(Unit))
     }
 
     override suspend fun removeGame(game: Game): Flow<Result<Unit>> = flow {
-        tableOfSymbols.deleteRowData(rowId = game.id)
+        tableOfSymbols.deleteRowData(rowId = game.id.hashCode())
         tableOfSymbols.save(context = context)
         emit(Result.success(Unit))
     }
 
     override fun isFriendzonedGame(game: Game): Boolean {
-        return listOf(159, 161, 162, 163).contains(game.id)
+        // Legacy check based on old Int IDs - now using hashCode for compatibility
+        return listOf(159, 161, 162, 163).contains(game.id.hashCode())
     }
 
     override fun isFriendzoned1Game(game: Game): Boolean {
-        return 162 == game.id
+        // Legacy check based on old Int ID 162 - now using hashCode for compatibility  
+        return 162 == game.id.hashCode()
     }
 
     /**
@@ -214,7 +216,7 @@ class GameRepositoryImpl @Inject constructor(
     override suspend fun generateGameDownloadLink(
         userId: String,
         userToken: String,
-        gameId: Int
+        gameId: String
     ): Flow<Result<String>> = flow {
         FirebaseCrashlytics.getInstance().setCustomKey("user_id", userId)
         FirebaseCrashlytics.getInstance().setCustomKey("downloading_game", gameId)
@@ -240,7 +242,7 @@ class GameRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun generateFreeGameDownloadLink(gameId: Int): Flow<Result<String>> = flow {
+    override suspend fun generateFreeGameDownloadLink(gameId: String): Flow<Result<String>> = flow {
         FirebaseCrashlytics.getInstance().setCustomKey("generating_download_link_game_id", gameId)
         FirebaseCrashlytics.getInstance().setCustomKey("generating_download_link_game_type", "free")
         try {

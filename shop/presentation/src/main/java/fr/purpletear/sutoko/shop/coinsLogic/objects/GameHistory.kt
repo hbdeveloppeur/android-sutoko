@@ -43,7 +43,7 @@ class GameHistory {
         return false
     }
 
-    fun hasStory(id: Int): Boolean {
+    fun hasStory(id: String): Boolean {
         this.orders.operations.forEach {
             if (it is StoryOrder && it.storyId == id) {
                 return@hasStory true
@@ -52,7 +52,7 @@ class GameHistory {
         return false
     }
 
-    fun hasBook(id: Int): Boolean {
+    fun hasBook(id: String): Boolean {
         this.orders.operations.forEach {
             if (it is BookOrder && it.bookId == id) {
                 return@hasBook true

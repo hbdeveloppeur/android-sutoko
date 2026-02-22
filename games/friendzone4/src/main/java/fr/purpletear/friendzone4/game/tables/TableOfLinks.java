@@ -121,7 +121,7 @@ public class TableOfLinks {
      */
     public void read(Context c, String chapterCode, String storyVersion) {
         File file = SmsGameTreeStructure.Companion.getStoryLinksFile(
-                c, GlobalData.Game.FRIENDZONE4.getId(),
+                c, String.valueOf(GlobalData.Game.FRIENDZONE4.getId()),
                 chapterCode, GameLanguage.Companion.determineLangDirectory());
 
         if (!file.exists()) {

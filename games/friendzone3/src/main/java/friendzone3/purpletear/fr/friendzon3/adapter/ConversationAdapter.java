@@ -19,7 +19,7 @@ import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.RequestManager;
-import com.example.sharedelements.OnlineAssetsManager;
+import com.example.sutokosharedelements.OnlineAssetsManager;
 import com.example.sharedelements.tables.trophies.TrophyItemDecoration;
 
 import java.util.ArrayList;
@@ -358,31 +358,31 @@ public class ConversationAdapter extends RecyclerView.Adapter<ConversationAdapte
 
                     if(MainActivity.sp.getCurrentSoundName().equals(soundName)) {
                         requestManager.load(
-                                OnlineAssetsManager.INSTANCE.getImageFilePath(context, GlobalData.Game.FRIENDZONE3.getId(), "friendzone3_vocal_sound_pause")
+                                OnlineAssetsManager.INSTANCE.getImageFilePath(context, String.valueOf(GlobalData.Game.FRIENDZONE3.getId()), "friendzone3_vocal_sound_pause")
                         ).into((ImageView) itemView.findViewById(R.id.phrase_vocal_button));
                     } else {
                         requestManager.load(
-                                OnlineAssetsManager.INSTANCE.getImageFilePath(context, GlobalData.Game.FRIENDZONE3.getId(), "friendzone3_vocal_sound_play")
+                                OnlineAssetsManager.INSTANCE.getImageFilePath(context, String.valueOf(GlobalData.Game.FRIENDZONE3.getId()), "friendzone3_vocal_sound_play")
                         ).into((ImageView) itemView.findViewById(R.id.phrase_vocal_button));
                     }
 
 
                     if(MainActivity.sp.getCurrentSoundName().equals(soundName) && !MainActivity.sp.isPlaying()) {
                         requestManager.load(
-                                OnlineAssetsManager.INSTANCE.getImageFilePath(context, GlobalData.Game.FRIENDZONE3.getId(), "friendzone3_vocal_sound_play")
+                                OnlineAssetsManager.INSTANCE.getImageFilePath(context, String.valueOf(GlobalData.Game.FRIENDZONE3.getId()), "friendzone3_vocal_sound_play")
                         ).into((ImageView) itemView.findViewById(R.id.phrase_vocal_button));
                     } else if(MainActivity.sp.getCurrentSoundName().equals(soundName) && MainActivity.sp.isPlaying()) {
                         requestManager.load(
-                                OnlineAssetsManager.INSTANCE.getImageFilePath(context, GlobalData.Game.FRIENDZONE3.getId(), "friendzone3_vocal_sound_pause")
+                                OnlineAssetsManager.INSTANCE.getImageFilePath(context, String.valueOf(GlobalData.Game.FRIENDZONE3.getId()), "friendzone3_vocal_sound_pause")
                         ).into((ImageView) itemView.findViewById(R.id.phrase_vocal_button));
                     } else if(MainActivity.sp.isPlaying()) {
                         // pause
                         requestManager.load(
-                                OnlineAssetsManager.INSTANCE.getImageFilePath(context, GlobalData.Game.FRIENDZONE3.getId(), "friendzone3_vocal_sound_play")
+                                OnlineAssetsManager.INSTANCE.getImageFilePath(context, String.valueOf(GlobalData.Game.FRIENDZONE3.getId()), "friendzone3_vocal_sound_play")
                         ).into((ImageView) itemView.findViewById(R.id.phrase_vocal_button));
                     } else {
                         requestManager.load(
-                                OnlineAssetsManager.INSTANCE.getImageFilePath(context, GlobalData.Game.FRIENDZONE3.getId(), "friendzone3_vocal_sound_play")
+                                OnlineAssetsManager.INSTANCE.getImageFilePath(context, String.valueOf(GlobalData.Game.FRIENDZONE3.getId()), "friendzone3_vocal_sound_play")
                         ).into((ImageView) itemView.findViewById(R.id.phrase_vocal_button));
                     }
 
@@ -423,7 +423,7 @@ public class ConversationAdapter extends RecyclerView.Adapter<ConversationAdapte
                     requestManager.load(pers.getTickImage(context)).into(profil);
 
                     requestManager.load(
-                            OnlineAssetsManager.INSTANCE.getImageFilePath(context, GlobalData.Game.FRIENDZONE3.getId(),"friendzone3_" + p.getSentence())
+                            OnlineAssetsManager.INSTANCE.getImageFilePath(context, String.valueOf(GlobalData.Game.FRIENDZONE3.getId()),"friendzone3_" + p.getSentence())
                     ).into(image);
                     break;
                 }

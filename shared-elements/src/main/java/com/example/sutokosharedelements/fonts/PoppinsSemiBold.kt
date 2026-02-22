@@ -5,7 +5,7 @@
  * Written by Hocine Belbouab <hbdeveloppeur@gmail.com>, 1/10/19 11:38 AM
  *
  */
-package com.example.sharedelements.fonts
+package com.example.sutokosharedelements.fonts
 
 import android.content.Context
 import android.graphics.Typeface

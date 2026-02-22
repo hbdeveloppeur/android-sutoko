@@ -14,7 +14,7 @@ class RestartGameUseCase @Inject constructor(
      *
      * @param gameId The ID of the game to restart.
      */
-    suspend operator fun invoke(gameId: Int) {
+    suspend operator fun invoke(gameId: String) {
         chapterRepository.restart(gameId)
     }
 }

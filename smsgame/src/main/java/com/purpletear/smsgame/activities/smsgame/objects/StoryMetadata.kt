@@ -13,7 +13,7 @@ class StoryMetadata : Parcelable {
 
     // Story's name
     @SerializedName("story_id")
-    var storyId: Int = -1
+    var storyId: String = "-1"
         private set
 
     // Starting conversation's name
@@ -51,7 +51,7 @@ class StoryMetadata : Parcelable {
     // Parcelable methods
     @Suppress("ConvertSecondaryConstructorToPrimary")
     constructor(`in`: Parcel) {
-        this.storyId = `in`.readInt()
+        this.storyId = `in`.readString() ?: "-1"
         this.storyTitle = `in`.readString() ?: ""
         this.minAppVersionRequired = `in`.readString() ?: ""
         this.storyDescription = `in`.readString() ?: ""
@@ -61,7 +61,7 @@ class StoryMetadata : Parcelable {
     }
 
     constructor(
-        storyId: Int,
+        storyId: String,
         storyTitle: String,
         storyDescription: String,
         authorName: String,
@@ -82,7 +82,7 @@ class StoryMetadata : Parcelable {
     }
 
     override fun writeToParcel(dest: Parcel, flags: Int) {
-        dest.writeInt(this.storyId)
+        dest.writeString(this.storyId)
         dest.writeString(this.storyTitle)
         dest.writeString(this.minAppVersionRequired)
         dest.writeString(this.storyDescription)

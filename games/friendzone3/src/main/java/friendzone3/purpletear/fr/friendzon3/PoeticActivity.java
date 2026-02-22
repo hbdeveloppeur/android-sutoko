@@ -8,7 +8,7 @@ import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.bumptech.glide.Glide;
-import com.example.sharedelements.OnlineAssetsManager;
+import com.example.sutokosharedelements.OnlineAssetsManager;
 
 import friendzone3.purpletear.fr.friendzon3.custom.Character;
 import purpletear.fr.purpleteartools.Finger;
@@ -86,7 +86,7 @@ public class PoeticActivity extends AppCompatActivity {
         }
         ImageView i = findViewById(R.id.poetic_background_image);
         Glide.with(this).load(
-                OnlineAssetsManager.INSTANCE.getImageFilePath(this, GlobalData.Game.FRIENDZONE3.getId(), "friendzone3_lac_aube")
+                OnlineAssetsManager.INSTANCE.getImageFilePath(this, String.valueOf(GlobalData.Game.FRIENDZONE3.getId()), "friendzone3_lac_aube")
         ).into(i);
     }
 

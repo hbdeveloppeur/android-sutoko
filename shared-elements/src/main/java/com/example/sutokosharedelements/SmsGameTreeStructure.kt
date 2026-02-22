@@ -1,4 +1,4 @@
-package com.example.sharedelements
+package com.example.sutokosharedelements
 
 import android.content.Context
 import java.io.File
@@ -47,10 +47,10 @@ class SmsGameTreeStructure {
         /**
          * Returns the Story's directory path
          * @param context : Context
-         * @param storyId : Int
+         * @param storyId : String
          * @return String
          */
-        fun getStoryDirectoryPath(context: Context, storyId: Int): String {
+        fun getStoryDirectoryPath(context: Context, storyId: String): String {
             return getStoriesDirectoryPath(
                 context
             ) + storyId + File.separator
@@ -61,10 +61,10 @@ class SmsGameTreeStructure {
         /**
          * Returns the Story's assets directory
          * @param context : Context
-         * @param storyId : Int
+         * @param storyId : String
          * @return String
          */
-        private fun getStoryAssetsDirectoryPath(context: Context, storyId: Int): String {
+        private fun getStoryAssetsDirectoryPath(context: Context, storyId: String): String {
             return getStoryDirectoryPath(
                 context,
                 storyId
@@ -74,10 +74,10 @@ class SmsGameTreeStructure {
         /**
          * Returns the Story's characters table file path
          * @param context : Context
-         * @param storyId : Int
+         * @param storyId : String
          * @return String
          */
-        private fun getCharactersTableFilePath(context: Context, storyId: Int, chapterCode: String, langCode: String): String {
+        private fun getCharactersTableFilePath(context: Context, storyId: String, chapterCode: String, langCode: String): String {
             return getStoryChapterDirPath(
                 context,
                 storyId,
@@ -89,10 +89,10 @@ class SmsGameTreeStructure {
         /**
          * Returns the story's storyMetadata file path
          * @param context : Context
-         * @param storyId : Int
+         * @param storyId : String
          * @return String
          */
-        private fun getStoryMetadataFilePath(context: Context, storyId: Int): String {
+        private fun getStoryMetadataFilePath(context: Context, storyId: String): String {
             return getStoryDirectoryPath(
                 context,
                 storyId
@@ -102,11 +102,11 @@ class SmsGameTreeStructure {
         /**
          * Returns the Story's character profil picture file path
          * @param context : Context
-         * @param storyId : Int
+         * @param storyId : String
          * @param characterId : Int
          * @return String
          */
-        fun getCharactersPictureFilePath(context: Context, storyId: Int, characterId: Int): String {
+        fun getCharactersPictureFilePath(context: Context, storyId: String, characterId: Int): String {
             return getStoryAssetsDirectoryPath(
                 context,
                 storyId
@@ -116,11 +116,11 @@ class SmsGameTreeStructure {
         /**
          * Returns the Story's character profil picture file path
          * @param context : Context
-         * @param storyId : Int
+         * @param storyId : String
          * @param characterId : Int
          * @return String
          */
-        fun getCharactersPictureFilePathByName(context: Context, storyId: Int, filename: String): String {
+        fun getCharactersPictureFilePathByName(context: Context, storyId: String, filename: String): String {
             return getStoryAssetsDirectoryPath(
                 context,
                 storyId
@@ -131,11 +131,11 @@ class SmsGameTreeStructure {
         /**
          * Returns the Story's character profil picture file path
          * @param context : Context
-         * @param storyId : Int
+         * @param storyId : String
          * @param characterId : Int
          * @return String
          */
-        fun getCharactersMinPictureFilePath(context: Context, storyId: Int, characterId: Int): String {
+        fun getCharactersMinPictureFilePath(context: Context, storyId: String, characterId: Int): String {
             return getStoryAssetsDirectoryPath(
                 context,
                 storyId
@@ -145,11 +145,11 @@ class SmsGameTreeStructure {
         /**
          * Returns the requested image name File for the given Story's id
          * @param context : Context
-         * @param storyId : Int
+         * @param storyId : String
          * @param nameWithExtension : String
          * @return String
          */
-        private fun getStoryBackgroundImageFilePath(context: Context, storyId: Int, nameWithExtension: String): String {
+        private fun getStoryBackgroundImageFilePath(context: Context, storyId: String, nameWithExtension: String): String {
             return getMediaDirPath(
                 context,
                 storyId
@@ -160,10 +160,10 @@ class SmsGameTreeStructure {
         /**
          * Returns the requested Story background video's file path
          * @param context: Context
-         * @param storyId : Int
+         * @param storyId : String
          * @param videoNameWithExtension : String
          */
-        private fun getStoryBackgroundVideoFilePath(context: Context, storyId: Int, videoNameWithExtension: String): String {
+        private fun getStoryBackgroundVideoFilePath(context: Context, storyId: String, videoNameWithExtension: String): String {
             return getMediaFilePath(
                 context,
                 storyId ,
@@ -174,10 +174,10 @@ class SmsGameTreeStructure {
         /**
          * Returns the path to the file that contains every Phrase of a given id Story
          * @param context : Context
-         * @param storyId : Int
+         * @param storyId : String
          * @return String
          */
-        private fun getStoryPhrasesFilePath(context: Context, storyId: Int, chapterCode: String, langCode: String): String {
+        private fun getStoryPhrasesFilePath(context: Context, storyId: String, chapterCode: String, langCode: String): String {
             return getStoryChapterDirPath(
                 context,
                 storyId,
@@ -189,10 +189,10 @@ class SmsGameTreeStructure {
         /**
          * Returns the path to the file thats contains every Link of a given id Story
          * @param context : Context
-         * @param storyId : Int
+         * @param storyId : String
          * @return String
          */
-        private fun getStoryLinksFilePath(context: Context, storyId: Int, chapterCode: String, langCode: String): String {
+        private fun getStoryLinksFilePath(context: Context, storyId: String, chapterCode: String, langCode: String): String {
             return getStoryChapterDirPath(
                 context,
                 storyId,
@@ -219,10 +219,10 @@ class SmsGameTreeStructure {
         /**
          * Returns the stories' directory File
          * @param context : Context
-         * @param storyId : Int
+         * @param storyId : String
          * @see File
          */
-        fun getStoryDirectory(context: Context, storyId: Int): File {
+        fun getStoryDirectory(context: Context, storyId: String): File {
             return File(
                 getStoryDirectoryPath(
                     context,
@@ -234,10 +234,10 @@ class SmsGameTreeStructure {
         /**
          * Returns the File object to the Story's Characters list
          * @param context : Context
-         * @param storyId : Int
+         * @param storyId : String
          * @return File
          */
-        fun getStoryCharactersFile(context: Context, storyId: Int, chapterCode: String, langCode: String): File {
+        fun getStoryCharactersFile(context: Context, storyId: String, chapterCode: String, langCode: String): File {
             return File(
                 getCharactersTableFilePath(
                     context,
@@ -251,10 +251,10 @@ class SmsGameTreeStructure {
         /**
          * Returns the File object to the Story's Characters list
          * @param context : Context
-         * @param storyId : Int
+         * @param storyId : String
          * @return File
          */
-        fun getUserStoryFile(context: Context, storyId: Int): File {
+        fun getUserStoryFile(context: Context, storyId: String): File {
             return File(
                 getUserStoriesDirectoryPath(context) + File.separator + storyId
             )
@@ -264,10 +264,10 @@ class SmsGameTreeStructure {
         /**
          * Returns the File object to the Story's Characters list
          * @param context : Context
-         * @param storyId : Int
+         * @param storyId : String
          * @return File
          */
-        fun getUserStoryCharactersFile(context: Context, storyId: Int): File {
+        fun getUserStoryCharactersFile(context: Context, storyId: String): File {
             return File(
                 getUserStoriesDirectoryPath(context) + File.separator + storyId + File.separator + userStorCharactersFileName
             )
@@ -276,10 +276,10 @@ class SmsGameTreeStructure {
         /**
          * Returns the File object to the Story's Characters list
          * @param context : Context
-         * @param storyId : Int
+         * @param storyId : String
          * @return File
          */
-        fun getUserStoryPhrasesFile(context: Context, storyId: Int): File {
+        fun getUserStoryPhrasesFile(context: Context, storyId: String): File {
             return File(
                 getUserStoriesDirectoryPath(context) + File.separator + storyId + File.separator + userStoryPhrasesFileName
             )
@@ -288,10 +288,10 @@ class SmsGameTreeStructure {
         /**
          * Returns the File object to the Story's Characters list
          * @param context : Context
-         * @param storyId : Int
+         * @param storyId : String
          * @return File
          */
-        fun getUserStorySideHandlerFile(context: Context, storyId: Int): File {
+        fun getUserStorySideHandlerFile(context: Context, storyId: String): File {
             return File(
                 getUserStoriesDirectoryPath(context) + File.separator + storyId + File.separator + userStorySideHandlerFileName
             )
@@ -300,10 +300,10 @@ class SmsGameTreeStructure {
         /**
          * Returns the File object to the Story's Characters list
          * @param context : Context
-         * @param storyId : Int
+         * @param storyId : String
          * @return File
          */
-        fun getUserStoryLinksFile(context: Context, storyId: Int): File {
+        fun getUserStoryLinksFile(context: Context, storyId: String): File {
             return File(
                 getUserStoriesDirectoryPath(context) + File.separator + storyId + File.separator + userStoryLinksFileName
             )
@@ -312,12 +312,12 @@ class SmsGameTreeStructure {
         /**
          * Returns the story's chapter dir
          * @param context: Context
-         * @param storyId : Int
+         * @param storyId : String
          * @param chapterCode : String
          * @param langCode : String
          * @return String
          */
-        fun getStoryChapterDirPath(context: Context, storyId: Int, chapterCode: String, langCode: String): String {
+        fun getStoryChapterDirPath(context: Context, storyId: String, chapterCode: String, langCode: String): String {
             return getStoryDirectoryPath(
                 context,
                 storyId
@@ -328,10 +328,10 @@ class SmsGameTreeStructure {
         /**
          * Returns the story's storyMetadata File
          * @param context : Context
-         * @param storyId : Int
+         * @param storyId : String
          * @return File
          */
-        fun getStoryMetadataFile(context: Context, storyId: Int): File {
+        fun getStoryMetadataFile(context: Context, storyId: String): File {
             return File(
                 getStoryMetadataFilePath(
                     context,
@@ -343,11 +343,11 @@ class SmsGameTreeStructure {
         /**
          * Returns the requested Story's background video
          * @param context : Context
-         * @param storyId : Int
+         * @param storyId : String
          * @param videoNameWithExtension : String
          * @return File
          */
-        fun getStoryBackgroundVideoFile(context: Context, storyId: Int, videoNameWithExtension: String): File {
+        fun getStoryBackgroundVideoFile(context: Context, storyId: String, videoNameWithExtension: String): File {
             return File(
                 getStoryBackgroundVideoFilePath(
                     context,
@@ -360,10 +360,10 @@ class SmsGameTreeStructure {
         /**
          * Returns the file that contains every Phrase of a given Story id
          * @param context : Context
-         * @param storyId : Int
+         * @param storyId : String
          * @return File
          */
-        fun getStoryPhrasesFile(context: Context, storyId: Int, chapterCode: String, langCode: String): File {
+        fun getStoryPhrasesFile(context: Context, storyId: String, chapterCode: String, langCode: String): File {
             return File(
                 getStoryPhrasesFilePath(
                     context,
@@ -377,10 +377,10 @@ class SmsGameTreeStructure {
         /**
          * Returns the file that contains every Link of a given Story id
          * @param context : Context
-         * @param storyId : Int
+         * @param storyId : String
          * @return File
          */
-        fun getStoryLinksFile(context: Context, storyId: Int, chapterCode: String, langCode: String): File {
+        fun getStoryLinksFile(context: Context, storyId: String, chapterCode: String, langCode: String): File {
             return File(
                 getStoryLinksFilePath(
                     context,
@@ -394,11 +394,11 @@ class SmsGameTreeStructure {
         /**
          * Returns the File to the requested image for the given Story id
          * @param context : Context
-         * @param storyId : Int
+         * @param storyId : String
          * @param imageNameWithExtension : String
          * @return File
          */
-        fun getStoryBackgroundImageFile(context: Context, storyId: Int, imageNameWithExtension: String): File {
+        fun getStoryBackgroundImageFile(context: Context, storyId: String, imageNameWithExtension: String): File {
             return File(
                 getStoryBackgroundImageFilePath(
                     context,
@@ -411,9 +411,9 @@ class SmsGameTreeStructure {
         /**
          * Returns the Media dir path
          * @param context: Context
-         * @param storyId : Int
+         * @param storyId : String
          */
-        private fun getMediaDirPath(context: Context, storyId: Int): String {
+        private fun getMediaDirPath(context: Context, storyId: String): String {
             return getStoryDirectoryPath(
                 context,
                 storyId
@@ -423,10 +423,10 @@ class SmsGameTreeStructure {
         /**
          * Returns the Media file path
          * @param context: Context
-         * @param storyId : Int
+         * @param storyId : String
          * @param filename : String
          */
-        fun getMediaFilePath(context: Context, storyId: Int, filename: String): String {
+        fun getMediaFilePath(context: Context, storyId: String, filename: String): String {
             return getMediaDirPath(
                 context,
                 storyId

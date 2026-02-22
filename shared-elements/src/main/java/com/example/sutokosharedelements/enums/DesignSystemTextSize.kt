@@ -1,4 +1,4 @@
-package com.example.sharedelements.enums
+package com.example.sutokosharedelements.enums
 
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.sp

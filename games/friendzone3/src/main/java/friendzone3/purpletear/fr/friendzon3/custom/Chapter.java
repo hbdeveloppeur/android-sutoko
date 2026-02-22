@@ -5,7 +5,7 @@ import android.content.Context;
 
 import androidx.annotation.Nullable;
 
-import com.example.sharedelements.OnlineAssetsManager;
+import com.example.sutokosharedelements.OnlineAssetsManager;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -64,7 +64,7 @@ public class Chapter implements Serializable {
     }
 
     public boolean hasProfilPicture(Context context) {
-        return !profilPicture.equals(OnlineAssetsManager.INSTANCE.getImageFilePath(context, GlobalData.Game.FRIENDZONE3.getId(), ""))
+        return !profilPicture.equals(OnlineAssetsManager.INSTANCE.getImageFilePath(context, String.valueOf(GlobalData.Game.FRIENDZONE3.getId()), ""))
                 && !profilPicture.equals("");
     }
 

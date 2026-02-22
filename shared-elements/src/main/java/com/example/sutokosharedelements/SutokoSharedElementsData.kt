@@ -1,6 +1,6 @@
 @file:Suppress("SpellCheckingInspection")
 
-package com.example.sharedelements
+package com.example.sutokosharedelements
 
 import android.annotation.SuppressLint
 import android.app.Activity

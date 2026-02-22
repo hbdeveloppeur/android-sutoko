@@ -21,7 +21,7 @@ interface GameRepository {
      * @param id The ID of the game to retrieve.
      * @return A Flow emitting a Result containing the requested Game.
      */
-    fun getGame(id: Int): Flow<Result<Game>>
+    fun getGame(id: String): Flow<Result<Game>>
 
     /**
      * Refresh the games data from the remote source.
@@ -69,7 +69,7 @@ interface GameRepository {
     suspend fun generateGameDownloadLink(
         userId: String,
         userToken: String,
-        gameId: Int
+        gameId: String
     ): Flow<Result<String>>
 
     /**
@@ -79,6 +79,6 @@ interface GameRepository {
      * @return A Flow containing the Result of the operation with the download link as a String
      */
     suspend fun generateFreeGameDownloadLink(
-        gameId: Int
+        gameId: String
     ): Flow<Result<String>>
 }

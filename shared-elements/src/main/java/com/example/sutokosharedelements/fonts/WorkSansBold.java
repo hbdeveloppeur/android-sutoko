@@ -6,7 +6,7 @@
  *
  */
 
-package com.example.sharedelements.fonts;
+package com.example.sutokosharedelements.fonts;
 
 import android.content.Context;
 import android.graphics.Typeface;

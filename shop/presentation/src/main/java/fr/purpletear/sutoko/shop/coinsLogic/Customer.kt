@@ -341,13 +341,12 @@ class Customer(private val context: Context? = null, private val callbacks: Cust
         card: Game,
         money: Order.Money,
     ) {
-        assert(card.price != null)
-        assert(card.id > 0)
-        assert(card.price!! >= 0)
+        assert(card.id.isNotBlank())
+        assert(card.price >= 0)
         if (this.history.hasStory(card.id)) {
             return
         }
-        val operation = StoryOrder(card.id, card.price!!, money)
+        val operation = StoryOrder(card.id, card.price, money)
         this.history.orders.add(operation)
         this.history.orders.save(activity)
         try {

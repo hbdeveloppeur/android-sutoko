@@ -37,7 +37,7 @@ class GameConversationAdapter(
     var array: ArrayList<Phrase>,
     private val characters: TableOfCharacters,
     private var glide: RequestManager,
-    private var storyId: Int,
+    private var storyId: String,
     private var callback: ConversationInterface,
     var sutokoParams: SutokoParams,
     val storyType: StoryType = StoryType.OFFICIAL_STORY,

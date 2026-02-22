@@ -13,7 +13,7 @@ import android.view.View
 import android.widget.TextView
 import androidx.core.content.ContextCompat
 import com.bumptech.glide.RequestManager
-import com.example.sharedelements.OnlineAssetsManager
+import com.example.sutokosharedelements.OnlineAssetsManager
 import fr.purpletear.friendzone2.R
 import fr.purpletear.friendzone2.configs.Phrase
 import purpletear.fr.purpleteartools.GlobalData
@@ -42,7 +42,7 @@ class PhraseNoSignal {
             val text = itemView.findViewById<TextView>(textViewId)
             text.setTextColor(ContextCompat.getColor(context, R.color.white))
             requestManager.load(
-                OnlineAssetsManager.getImageFilePath(context, GlobalData.Game.FRIENDZONE2.id, "ico_no_signal")
+                OnlineAssetsManager.getImageFilePath(context, GlobalData.Game.FRIENDZONE2.id.toString(), "ico_no_signal")
             ).into(itemView.findViewById(R.id.phrase_nosignal_image))
         }
     }

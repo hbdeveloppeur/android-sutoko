@@ -11,7 +11,7 @@ import com.bumptech.glide.request.RequestOptions
 import com.bumptech.glide.request.target.Target.SIZE_ORIGINAL
 import fr.purpletear.friendzone2.R
 import android.animation.ValueAnimator
-import com.example.sharedelements.OnlineAssetsManager
+import com.example.sutokosharedelements.OnlineAssetsManager
 import fr.purpletear.friendzone2.tables.Character
 import purpletear.fr.purpleteartools.*
 
@@ -172,12 +172,12 @@ class TextCinematicGraphics {
                     .override(SIZE_ORIGINAL)
 
 
-            rm.load(OnlineAssetsManager.getImageFilePath(a, GlobalData.Game.FRIENDZONE2.id, "bg_stats_bar")).into(a.findViewById(R.id.inc_stats_background))
-            rm.load(OnlineAssetsManager.getImageFilePath(a, GlobalData.Game.FRIENDZONE2.id, "bg_stats")).into(a.findViewById(R.id.stats_background))
-            rm.load(OnlineAssetsManager.getImageFilePath(a, GlobalData.Game.FRIENDZONE2.id, "fz3")).into(a.findViewById(R.id.friendzone2_end_logo))
-            rm.load(OnlineAssetsManager.getImageFilePath(a, GlobalData.Game.FRIENDZONE2.id, "ico_instagram")).into(a.findViewById(R.id.end_icon_instagram))
-            rm.load(OnlineAssetsManager.getImageFilePath(a, GlobalData.Game.FRIENDZONE2.id, "rate")).into(a.findViewById(R.id.end_rate))
-            rm.load(OnlineAssetsManager.getImageFilePath(a, GlobalData.Game.FRIENDZONE2.id, "evasaved")).into(a.findViewById(R.id.end_background))
+            rm.load(OnlineAssetsManager.getImageFilePath(a, GlobalData.Game.FRIENDZONE2.id.toString(), "bg_stats_bar")).into(a.findViewById(R.id.inc_stats_background))
+            rm.load(OnlineAssetsManager.getImageFilePath(a, GlobalData.Game.FRIENDZONE2.id.toString(), "bg_stats")).into(a.findViewById(R.id.stats_background))
+            rm.load(OnlineAssetsManager.getImageFilePath(a, GlobalData.Game.FRIENDZONE2.id.toString(), "fz3")).into(a.findViewById(R.id.friendzone2_end_logo))
+            rm.load(OnlineAssetsManager.getImageFilePath(a, GlobalData.Game.FRIENDZONE2.id.toString(), "ico_instagram")).into(a.findViewById(R.id.end_icon_instagram))
+            rm.load(OnlineAssetsManager.getImageFilePath(a, GlobalData.Game.FRIENDZONE2.id.toString(), "rate")).into(a.findViewById(R.id.end_rate))
+            rm.load(OnlineAssetsManager.getImageFilePath(a, GlobalData.Game.FRIENDZONE2.id.toString(), "evasaved")).into(a.findViewById(R.id.end_background))
         }
 
         /**

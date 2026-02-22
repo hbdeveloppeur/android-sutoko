@@ -1,4 +1,4 @@
-package com.example.sharedelements.tables.points
+package com.example.sutokosharedelements.tables.points
 
 import android.os.Parcel
 import android.os.Parcelable

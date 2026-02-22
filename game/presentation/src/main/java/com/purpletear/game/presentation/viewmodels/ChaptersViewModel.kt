@@ -40,7 +40,7 @@ class ChaptersViewModel @Inject constructor(
     private val symbols: TableOfSymbols,
 ) : ViewModel() {
 
-    private val _gameId: Int = checkNotNull(savedStateHandle["gameId"])
+    private val _gameId: String = checkNotNull(savedStateHandle["gameId"])
 
     private val _game = MutableStateFlow<Game?>(null)
     val game: StateFlow<Game?> = _game.asStateFlow()
@@ -55,7 +55,7 @@ class ChaptersViewModel @Inject constructor(
     val currentChapter: StateFlow<Chapter?> = _currentChapter.asStateFlow()
 
     init {
-        symbols.gameId = _gameId
+        symbols.gameId = _gameId.hashCode()
         loadGame()
         loadChaptersAndCurrentChapter()
     }

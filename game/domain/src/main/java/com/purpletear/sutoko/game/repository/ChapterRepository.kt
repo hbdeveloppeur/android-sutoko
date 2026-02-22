@@ -14,7 +14,7 @@ interface ChapterRepository {
      * @param storyId The ID of the story (game) to retrieve chapters for.
      * @return A Flow emitting a Result containing the list of Chapters.
      */
-    fun getChapters(storyId: Int): Flow<Result<List<Chapter>>>
+    fun getChapters(storyId: String): Flow<Result<List<Chapter>>>
 
     /**
      * Get a specific chapter by its ID.
@@ -29,7 +29,7 @@ interface ChapterRepository {
      *
      * @param storyId The ID of the story to refresh chapters for.
      */
-    suspend fun refreshChapters(storyId: Int)
+    suspend fun refreshChapters(storyId: String)
 
     /**
      * Observe the cached chapters data for a specific story.
@@ -37,7 +37,7 @@ interface ChapterRepository {
      * @param storyId The ID of the story to observe chapters for.
      * @return A StateFlow emitting the cached list of Chapters.
      */
-    fun observeCachedChapters(storyId: Int): StateFlow<List<Chapter>?>
+    fun observeCachedChapters(storyId: String): StateFlow<List<Chapter>?>
 
     /**
      * Get the current chapter for a specific game.
@@ -45,7 +45,7 @@ interface ChapterRepository {
      * @param gameId The ID of the game to get the current chapter for.
      * @return A Flow emitting the current Chapter.
      */
-    fun getCurrentChapter(gameId: Int, forceReload: Boolean): Flow<Result<Chapter?>>
+    fun getCurrentChapter(gameId: String, forceReload: Boolean): Flow<Result<Chapter?>>
 
     /**
      * Observe the current chapter for a specific game.
@@ -53,7 +53,7 @@ interface ChapterRepository {
      * @param gameId The ID of the game to observe the current chapter for.
      * @return A StateFlow emitting the current Chapter.
      */
-    fun observeCurrentChapter(gameId: Int): StateFlow<Chapter?>
+    fun observeCurrentChapter(gameId: String): StateFlow<Chapter?>
 
     /**
      * Set the current chapter for a specific game.
@@ -61,6 +61,6 @@ interface ChapterRepository {
      * @param gameId The ID of the game to set the current chapter for.
      * @param chapter The chapter to set as current.
      */
-    suspend fun setCurrentChapter(gameId: Int, chapter: Chapter)
-    suspend fun restart(gameId: Int)
+    suspend fun setCurrentChapter(gameId: String, chapter: Chapter)
+    suspend fun restart(gameId: String)
 }

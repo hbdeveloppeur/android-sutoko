@@ -11,8 +11,8 @@ import android.widget.TextView
 import android.widget.VideoView
 import androidx.core.content.ContextCompat
 import com.bumptech.glide.RequestManager
-import com.example.sharedelements.OnlineAssetsManager
-import com.example.sharedelements.OnlineAssetsManager.getImageFilePath
+import com.example.sutokosharedelements.OnlineAssetsManager
+import com.example.sutokosharedelements.OnlineAssetsManager.getImageFilePath
 import friendzone3.purpletear.fr.friendzon3.MainActivity.Support
 import friendzone3.purpletear.fr.friendzon3.custom.Character.Companion.updateNames
 import friendzone3.purpletear.fr.friendzon3.custom.Video
@@ -103,7 +103,7 @@ class MainActivityGraphics : Parcelable {
         requestManager.load(
             getImageFilePath(
                 activity,
-                GlobalData.Game.FRIENDZONE3.id,
+                GlobalData.Game.FRIENDZONE3.id.toString(),
                 "friendzone3_online_point"
             )
         ).into((activity.findViewById<View>(R.id.mainactivity_online_point) as ImageView))
@@ -111,7 +111,7 @@ class MainActivityGraphics : Parcelable {
         requestManager.load(
             getImageFilePath(
                 activity,
-                GlobalData.Game.FRIENDZONE3.id,
+                GlobalData.Game.FRIENDZONE3.id.toString(),
                 "friendzone3_overlay"
             )
         ).into(
@@ -122,7 +122,7 @@ class MainActivityGraphics : Parcelable {
         requestManager.load(
             getImageFilePath(
                 activity,
-                GlobalData.Game.FRIENDZONE3.id,
+                GlobalData.Game.FRIENDZONE3.id.toString(),
                 "friendzone3_ico_call"
             )
         ).into((activity.findViewById<View>(R.id.mainactivity_header_icon_1) as ImageView))
@@ -130,7 +130,7 @@ class MainActivityGraphics : Parcelable {
         requestManager.load(
             getImageFilePath(
                 activity,
-                GlobalData.Game.FRIENDZONE3.id,
+                GlobalData.Game.FRIENDZONE3.id.toString(),
                 "friendzone3_ico_share"
             )
         ).into((activity.findViewById<View>(R.id.mainactivity_header_icon_2) as ImageView))
@@ -138,7 +138,7 @@ class MainActivityGraphics : Parcelable {
         requestManager.load(
             getImageFilePath(
                 activity,
-                GlobalData.Game.FRIENDZONE3.id,
+                GlobalData.Game.FRIENDZONE3.id.toString(),
                 "friendzone3_ico_info"
             )
         ).into((activity.findViewById<View>(R.id.mainactivity_header_icon_3) as ImageView))
@@ -181,7 +181,7 @@ class MainActivityGraphics : Parcelable {
             }
             profilPictureId = OnlineAssetsManager.getImageFilePath(
                 activity,
-                GlobalData.Game.FRIENDZONE3.id,
+                GlobalData.Game.FRIENDZONE3.id.toString(),
                 imageId
             )
             requestManager.load(profilPictureId)
@@ -329,7 +329,7 @@ class MainActivityGraphics : Parcelable {
         val i: ImageView =
             activity.findViewById(R.id.mainactivty_background_image)
         val id: String =
-            getImageFilePath(activity, GlobalData.Game.FRIENDZONE3.id, "friendzone3_$name")
+            getImageFilePath(activity, GlobalData.Game.FRIENDZONE3.id.toString(), "friendzone3_$name")
         //require(id != 0) { "Image $name not found" }
         backgroundImageId = id
         backgroundImageName = name

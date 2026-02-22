@@ -90,7 +90,7 @@ class SmsGameModel(activity: SmsGameActivity) {
             StoryType.OTHER_USER_STORY -> {
                 story = activity.intent.getParcelableExtra(Data.Companion.Extra.STORY.id)
                     ?: throw IllegalStateException()
-                FirebaseCrashlytics.getInstance().setCustomKey("story_id", story?.id ?: -1)
+                FirebaseCrashlytics.getInstance().setCustomKey("story_id", (story?.id ?: "-1") as String)
                 card = Game(metadata = GameMetadata(title = story!!.title))
                 storyMetadata = StoryMetadata(
                     card.id,
@@ -122,19 +122,19 @@ class SmsGameModel(activity: SmsGameActivity) {
         }
 
         // SmsGameNotificationHelper.cancelNotification(activity, card.id)
-        symbols = TableOfSymbols(card.id)
+        symbols = TableOfSymbols(card.id.hashCode())
         symbols.read(activity)
-        symbols.removeFromASpecificChapterNumber(card.id, symbols.chapterNumber)
-        symbols.addOrSet(card.id, "os", "android")
+        symbols.removeFromASpecificChapterNumber(card.id.hashCode(), symbols.chapterNumber)
+        symbols.addOrSet(card.id.hashCode(), "os", "android")
 
         FirebaseCrashlytics.getInstance()
             .setCustomKey("langCode", Language.determineLangDirectory())
         FirebaseCrashlytics.getInstance().setCustomKey("storyType", storyType.name)
         FirebaseCrashlytics.getInstance()
-            .setCustomKey("storyVersion", symbols.getStoryVersion(this.card.id))
+            .setCustomKey("storyVersion", symbols.getStoryVersion(this.card.id.hashCode()))
 
-        SmsGameModel.storyId = card.id
-        SmsGameModel.version = symbols.getStoryVersion(this.card.id)
+        SmsGameModel.storyId = card.id.hashCode()
+        SmsGameModel.version = symbols.getStoryVersion(this.card.id.hashCode())
         SmsGameModel.storyType = storyType.name
         SmsGameModel.chapterCode = symbols.chapterCode
 
@@ -186,7 +186,7 @@ class SmsGameModel(activity: SmsGameActivity) {
     }
 
     fun addSymbols(name: String, value: String) {
-        this.symbols.addOrSet(this.card.id, name, value)
+        this.symbols.addOrSet(this.card.id.hashCode(), name, value)
     }
 
 
@@ -241,7 +241,7 @@ class SmsGameModel(activity: SmsGameActivity) {
 
     fun getMyCurrentStoryMark(): Int {
         return try {
-            Integer.parseInt(this.symbols.get(this.card.id, "rate") ?: "0")
+            Integer.parseInt(this.symbols.get(this.card.id.hashCode(), "rate") ?: "0")
         } catch (e: Exception) {
             0
         }
@@ -275,7 +275,7 @@ class SmsGameModel(activity: SmsGameActivity) {
             return
         }
         this.conversation.adapter.setMark(mark)
-        this.symbols.addOrSet(card.id, "rate", mark.toString())
+        this.symbols.addOrSet(card.id.hashCode(), "rate", mark.toString())
         this.symbols.save(activity)
 
         if (this.ratingTimes > 3) {

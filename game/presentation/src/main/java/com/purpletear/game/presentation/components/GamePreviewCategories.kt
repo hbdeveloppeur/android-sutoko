@@ -21,7 +21,7 @@ internal fun GamePreviewCategories(modifier: Modifier = Modifier, game: Game) {
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(
-            text = game.metadata.categories.joinToString(" • ") { category -> category.replaceFirstChar { it.uppercase() } },
+            text = "",
             fontFamily = PlusJakartaSansFontFamily,
             color = Color.White,
             fontSize = 12.sp,

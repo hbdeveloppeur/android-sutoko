@@ -24,6 +24,7 @@ import com.purpletear.shop.domain.usecase.ObserveShopBalanceUseCase
 import com.purpletear.sutoko.core.domain.appaction.ActionName
 import com.purpletear.sutoko.core.domain.appaction.AppAction
 import com.purpletear.sutoko.game.model.Game
+import com.purpletear.sutoko.game.model.isPremium
 import com.purpletear.sutoko.game.usecase.GetGamesUseCase
 import com.purpletear.sutoko.news.model.News
 import com.purpletear.sutoko.news.usecase.GetNewsUseCase
@@ -84,9 +85,9 @@ class HomeScreenViewModel @Inject constructor(
     val squareStories: State<ImmutableList<Game>>
         get() = _squareStories
 
-    private var _squareIcons: MutableState<ImmutableMap<Int, Int?>> =
+    private var _squareIcons: MutableState<ImmutableMap<String, Int?>> =
         mutableStateOf(ImmutableMap(mapOf()))
-    val squareIcons: State<ImmutableMap<Int, Int?>>
+    val squareIcons: State<ImmutableMap<String, Int?>>
         get() = _squareIcons
 
     private var _newsIndex: MutableState<Int> = mutableIntStateOf(0)
@@ -191,10 +192,10 @@ class HomeScreenViewModel @Inject constructor(
         this._squareIcons = mutableStateOf(
             ImmutableMap(
                 mapOf(
-                    159 to com.example.sharedelements.R.drawable.logo_card_159,
-                    161 to com.example.sharedelements.R.drawable.logo_card_161,
-                    162 to com.example.sharedelements.R.drawable.logo_card_162,
-                    163 to com.example.sharedelements.R.drawable.logo_card_163,
+                    "159" to com.example.sharedelements.R.drawable.logo_card_159,
+                    "161" to com.example.sharedelements.R.drawable.logo_card_161,
+                    "162" to com.example.sharedelements.R.drawable.logo_card_162,
+                    "163" to com.example.sharedelements.R.drawable.logo_card_163,
                 )
             )
         )
@@ -235,7 +236,7 @@ class HomeScreenViewModel @Inject constructor(
     private fun getSortedCards(cards: Set<Game>): List<Game> {
         val cardsWithIndex = cards.mapIndexed { index, card -> Pair(index, card) }
 
-        return cardsWithIndex.sortedBy { it.second.isPremium }.map { it.second }
+        return cardsWithIndex.sortedBy { it.second.isPremium() }.map { it.second }
     }
 
 
@@ -249,11 +250,11 @@ class HomeScreenViewModel @Inject constructor(
             }
 
             MainMenuCategory.Free -> {
-                stories.filter { !it.isPremium }
+                stories.filter { !it.isPremium() }
             }
 
             MainMenuCategory.New -> {
-                stories.filter { it.isPremium }
+                stories.filter { it.isPremium() }
             }
 
         }
@@ -414,7 +415,7 @@ class HomeScreenViewModel @Inject constructor(
 
             ActionName.OpenGame -> {
                 action.value?.takeIf { s -> s.isDigitsOnly() }?.let {
-                    navigate(MainScreenPages.GamePreview.createRoute(it.toInt()))
+                    navigate(MainScreenPages.GamePreview.createRoute(it))
                 }
             }
 

@@ -126,7 +126,7 @@ private fun HomeContent(
     news: List<com.purpletear.sutoko.news.model.News>,
     squareStories: fr.purpletear.sutoko.presentation.util.ImmutableList<com.purpletear.sutoko.game.model.Game>,
     fullStories: fr.purpletear.sutoko.presentation.util.ImmutableList<com.purpletear.sutoko.game.model.Game>,
-    squareIcons: fr.purpletear.sutoko.presentation.util.ImmutableMap<Int, Int?>,
+    squareIcons: fr.purpletear.sutoko.presentation.util.ImmutableMap<String, Int?>,
     categoryState: MainMenuCategory,
     coinsBalance: Resource<com.purpletear.shop.domain.model.Balance>,
     aiConversationMessageCount: Int?,
@@ -254,7 +254,7 @@ private fun LazyListScope.categoryMenuSection(
 private fun LazyListScope.squareStoriesSection(
     squareStories: fr.purpletear.sutoko.presentation.util.ImmutableList<com.purpletear.sutoko.game.model.Game>,
     fullStories: fr.purpletear.sutoko.presentation.util.ImmutableList<com.purpletear.sutoko.game.model.Game>,
-    squareIcons: fr.purpletear.sutoko.presentation.util.ImmutableMap<Int, Int?>,
+    squareIcons: fr.purpletear.sutoko.presentation.util.ImmutableMap<String, Int?>,
     onStoryTap: (com.purpletear.sutoko.game.model.Game) -> Unit
 ) {
     if (squareStories.items.isEmpty() || fullStories.items.isEmpty()) return

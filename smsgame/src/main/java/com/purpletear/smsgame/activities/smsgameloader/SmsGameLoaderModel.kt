@@ -7,6 +7,7 @@ import com.purpletear.smsgame.activities.smsgame.SmsGameActivity
 import com.purpletear.smsgame.activities.smsgame.objects.StoryChapter
 import com.purpletear.smsgame.activities.smsgame.tables.StoryType
 import com.purpletear.sutoko.game.model.Game
+import com.purpletear.sutoko.game.model.isPremium
 import fr.purpletear.sutoko.shop.premium.Premium
 import fr.purpletear.sutoko.shop.shop.SkuValidator
 import purpletear.fr.purpleteartools.TableOfSymbols
@@ -30,7 +31,7 @@ class SmsGameLoaderModel(activity: SmsGameLoaderActivity) {
     }
 
     fun shouldWatchAd(activity: SmsGameLoaderActivity): Boolean {
-        if (card.isPremium) {
+        if (card.isPremium()) {
             return false
         }
         
@@ -58,7 +59,7 @@ class SmsGameLoaderModel(activity: SmsGameLoaderActivity) {
     }
 
     private fun gameIsPremium(): Boolean {
-        return card.isPremium
+        return card.isPremium()
     }
 
     fun nextChapterIsPlayable(): Boolean {

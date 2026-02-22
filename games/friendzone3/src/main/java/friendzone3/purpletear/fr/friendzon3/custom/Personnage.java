@@ -3,7 +3,7 @@ package friendzone3.purpletear.fr.friendzon3.custom;
 
 import android.content.Context;
 
-import com.example.sharedelements.OnlineAssetsManager;
+import com.example.sutokosharedelements.OnlineAssetsManager;
 
 import purpletear.fr.purpleteartools.GlobalData;
 import purpletear.fr.purpleteartools.TableOfSymbols;
@@ -169,12 +169,12 @@ public class Personnage {
     }
 
     public String getProfilPicture(Context context) {
-        return OnlineAssetsManager.INSTANCE.getImageFilePath(context, GlobalData.Game.FRIENDZONE3.getId(), profilPicture);
+        return OnlineAssetsManager.INSTANCE.getImageFilePath(context, String.valueOf(GlobalData.Game.FRIENDZONE3.getId()), profilPicture);
     }
 
 
     public String getTickImage(Context context) {
-        return OnlineAssetsManager.INSTANCE.getImageFilePath(context, GlobalData.Game.FRIENDZONE3.getId(), tickImage);
+        return OnlineAssetsManager.INSTANCE.getImageFilePath(context, String.valueOf(GlobalData.Game.FRIENDZONE3.getId()), tickImage);
     }
 
 

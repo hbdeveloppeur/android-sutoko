@@ -10,7 +10,7 @@ package fr.purpletear.friendzone2.tables
 
 import android.content.Context
 import android.content.res.Resources
-import com.example.sharedelements.OnlineAssetsManager
+import com.example.sutokosharedelements.OnlineAssetsManager
 import fr.purpletear.friendzone2.BuildConfig
 import fr.purpletear.friendzone2.R
 import purpletear.fr.purpleteartools.GlobalData
@@ -185,6 +185,6 @@ class TableOfCharacters(context: Context, private var code: String, symbols: Tab
     }
 
     private fun getFilePath(context: Context, name : String) : String {
-        return OnlineAssetsManager.getImageFilePath(context, GlobalData.Game.FRIENDZONE2.id, name)
+        return OnlineAssetsManager.getImageFilePath(context, GlobalData.Game.FRIENDZONE2.id.toString(), name)
     }
 }

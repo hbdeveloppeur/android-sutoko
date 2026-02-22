@@ -15,9 +15,9 @@ class ObserveCurrentChapterUseCase @Inject constructor(
      * Invoke the use case to observe the current chapter for a specific game.
      *
      * @param gameId The ID of the game to observe the current chapter for.
-     * @return A StateFlow emitting the current Chapter or null if no current chapter is set.
+     * @return A StateFlow emitting the current Chapter.
      */
-    operator fun invoke(gameId: Int): StateFlow<Chapter?> {
+    operator fun invoke(gameId: String): StateFlow<Chapter?> {
         return chapterRepository.observeCurrentChapter(gameId)
     }
 }

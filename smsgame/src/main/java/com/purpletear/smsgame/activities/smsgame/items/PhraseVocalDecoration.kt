@@ -25,7 +25,7 @@ object PhraseVocalDecoration {
         activity: Activity,
         itemView: View,
         requestManager: RequestManager,
-        storyId: Int,
+        storyId: String,
         phrase: Phrase,
         isPlaying: Boolean,
         previousItem: Phrase?,

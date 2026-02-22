@@ -13,7 +13,7 @@ import java.util.*
 class Story(
     @PropertyName("sid")
     @get:PropertyName("sid")
-    var id: Int = -1,
+    var id: String = "-1",
 
     @PropertyName("fsid")
     @get:PropertyName("fsid")
@@ -125,7 +125,7 @@ class Story(
     }
 
     override fun hashCode(): Int {
-        var result = id
+        var result = id.hashCode()
         result = 31 * result + title.hashCode()
         result = 31 * result + theme
         return result

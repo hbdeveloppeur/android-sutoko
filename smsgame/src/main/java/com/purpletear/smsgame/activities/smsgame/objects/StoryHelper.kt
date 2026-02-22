@@ -35,7 +35,7 @@ object StoryHelper {
         br.close()
     }
 
-    private fun canAddRead(storyId: Int): Boolean {
+    private fun canAddRead(storyId: String): Boolean {
         readStories.forEach {
             if (it.storyId == storyId) {
                 return it.timeStamp < (System.currentTimeMillis() - 60 * 1000)
@@ -51,7 +51,7 @@ object StoryHelper {
         }
     }
 
-    private fun canAddLike(storyId: Int): Boolean {
+    private fun canAddLike(storyId: String): Boolean {
         likedStories.forEach {
             if (it.storyId == storyId) {
                 return false
@@ -60,7 +60,7 @@ object StoryHelper {
         return true
     }
 
-    fun userLiked(storyId: Int): Boolean {
+    fun userLiked(storyId: String): Boolean {
         likedStories.forEach {
             if (it.storyId == storyId) {
                 return true
@@ -131,11 +131,11 @@ object StoryHelper {
 }
 
 class StatRecord(
-    var storyId: Int,
+    var storyId: String,
     var timeStamp: Long = System.currentTimeMillis()
 ) : Parcelable {
-    protected constructor(`in`: Parcel) : this(-1, -1) {
-        this.storyId = `in`.readInt()
+    protected constructor(`in`: Parcel) : this("-1", -1) {
+        this.storyId = `in`.readString() ?: "-1"
         this.timeStamp = `in`.readLong()
     }
 
@@ -157,7 +157,7 @@ class StatRecord(
     }
 
     override fun writeToParcel(dest: Parcel, flags: Int) {
-        dest.writeInt(storyId)
+        dest.writeString(storyId)
         dest.writeLong(timeStamp)
     }
 
@@ -166,7 +166,7 @@ class StatRecord(
     }
 
     override fun hashCode(): Int {
-        var result = storyId
+        var result = storyId.hashCode()
         result = 31 * result + timeStamp.hashCode()
         return result
     }
