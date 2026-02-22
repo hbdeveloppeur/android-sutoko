@@ -26,67 +26,22 @@ class GameRepositoryImpl @Inject constructor(
     private val context: Context,
 ) : GameRepository {
 
-    companion object {
-        // Minimum request duration in milliseconds
-        private const val MIN_REQUEST_DURATION = 1000L
-    }
 
     // Thread-safe and observable cache
-    private val gamesStateFlow = MutableStateFlow<List<Game>?>(null)
+    private val officialGamesStateFlow = MutableStateFlow<List<Game>?>(null)
+    private val usersGamesStateFlow = MutableStateFlow<List<Game>?>(null)
 
     /**
      * Get a list of all games.
      *
      * @return A Flow emitting a Result containing a list of Games.
      */
-    override fun getGames(): Flow<Result<List<Game>>> = flow {
-        try {
-            // Return cached value if available
-            gamesStateFlow.value?.let {
-                emit(Result.success(it))
-            } ?: run {
-                val startTime = System.currentTimeMillis()
-                val langCode = java.util.Locale.getDefault().language
-                val response = api.getGames(langCode)
+    override fun getOfficialGames(): Flow<Result<List<Game>>> = flow {
 
-                if (response.isSuccessful) {
-                    val apiGames = response.body()?.toDomain() ?: emptyList()
-                    gamesStateFlow.value = apiGames
-                    val result = Result.success(apiGames)
-
-                    // Calculate elapsed time and add delay if needed
-                    val elapsedTime = System.currentTimeMillis() - startTime
-                    if (elapsedTime < MIN_REQUEST_DURATION) {
-                        delay(MIN_REQUEST_DURATION - elapsedTime)
-                    }
-
-                    emit(result)
-                } else {
-                    val firebaseInstance = FirebaseCrashlytics.getInstance()
-                    firebaseInstance.setCustomKey("loaded_data", "games")
-                    firebaseInstance.setCustomKey("fun name", "getGames")
-                    firebaseInstance.setCustomKey("lang code", langCode)
-                    val errorBody = response.errorBody()?.string() ?: "Unknown error - getGames"
-                    val exception =
-                        Exception("API call failed with code ${response.code()}: $errorBody")
-                    emit(Result.failure(exception))
-                }
-            }
-        } catch (e: Exception) {
-            emit(Result.failure(e))
-        }
     }
 
-    /**
-     * Refresh the games data from the remote source.
-     */
-    override suspend fun refreshGames() {
-        val langCode = java.util.Locale.getDefault().language
-        val response = api.getGames(langCode)
-        if (response.isSuccessful) {
-            val apiGames = response.body()?.toDomain() ?: emptyList()
-            gamesStateFlow.value = apiGames
-        }
+    override fun getUsersGames(): Flow<Result<List<Game>>> = flow{
+
     }
 
     /**
@@ -94,7 +49,8 @@ class GameRepositoryImpl @Inject constructor(
      *
      * @return A StateFlow emitting the cached list of Games.
      */
-    override fun observeCachedGames(): StateFlow<List<Game>?> = gamesStateFlow
+    override fun observeCachedOfficialGames(): StateFlow<List<Game>?> = officialGamesStateFlow
+    override fun observeCachedUsersGames(): StateFlow<List<Game>?> = usersGamesStateFlow
 
     /**
      * Get a specific game by its ID.
@@ -103,55 +59,7 @@ class GameRepositoryImpl @Inject constructor(
      * @return A Flow emitting a Result containing the requested Game.
      */
     override fun getGame(id: String): Flow<Result<Game>> = flow {
-        FirebaseCrashlytics.getInstance().setCustomKey("game_id", id)
-        try {
-            // Check if the game is in the cache
-            gamesStateFlow.value?.find { it.id == id }?.let {
-                emit(Result.success(it))
-                return@flow
-            }
 
-            // If not in cache or we need to reload, fetch from API
-            val startTime = System.currentTimeMillis()
-            val langCode = java.util.Locale.getDefault().language
-            val response = api.getGame(storyId = id, langCode = langCode)
-
-            if (response.isSuccessful) {
-                val game = response.body()?.toDomain()
-                if (game != null) {
-                    // Update the cache with the new game
-                    gamesStateFlow.value?.let { currentGames ->
-                        val updatedGames = currentGames.toMutableList()
-                        val existingIndex = updatedGames.indexOfFirst { it.id == game.id }
-                        if (existingIndex >= 0) {
-                            updatedGames[existingIndex] = game
-                        } else {
-                            updatedGames.add(game)
-                        }
-                        gamesStateFlow.value = updatedGames
-                    }
-
-                    val result = Result.success(game)
-
-                    // Calculate elapsed time and add delay if needed
-                    val elapsedTime = System.currentTimeMillis() - startTime
-                    if (elapsedTime < MIN_REQUEST_DURATION) {
-                        delay(MIN_REQUEST_DURATION - elapsedTime)
-                    }
-
-                    emit(result)
-                } else {
-                    emit(Result.failure(Exception("Game not found")))
-                }
-            } else {
-                val errorBody = response.errorBody()?.string() ?: "Unknown error - getGame"
-                val exception =
-                    Exception("API call failed with code ${response.code()}: $errorBody")
-                emit(Result.failure(exception))
-            }
-        } catch (e: Exception) {
-            emit(Result.failure(e))
-        }
     }
 
     /**

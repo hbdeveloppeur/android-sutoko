@@ -17,6 +17,6 @@ class GetGamesUseCase @Inject constructor(
      * @return A Flow emitting a Result containing a list of Games.
      */
     operator fun invoke(): Flow<Result<List<Game>>> {
-        return gameRepository.getGames()
+        return gameRepository.getOfficialGames()
     }
 }

@@ -21,7 +21,7 @@ interface GameApi {
      * @return A Response containing a StoriesResponseDto with a list of GameDto objects in the "story" field.
      */
     @POST("games")
-    suspend fun getGames(@Query("langCode") langCode: String): Response<List<GameDto>>
+    suspend fun getOfficialGames(@Query("langCode") langCode: String): Response<List<GameDto>>
 
     /**
      * Get a specific game by its ID.

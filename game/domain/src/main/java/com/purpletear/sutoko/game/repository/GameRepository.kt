@@ -13,7 +13,13 @@ interface GameRepository {
      *
      * @return A Flow emitting a list of Games.
      */
-    fun getGames(): Flow<Result<List<Game>>>
+    fun getOfficialGames(): Flow<Result<List<Game>>>
+    /**
+     * Get a list of all games.
+     *
+     * @return A Flow emitting a list of Games.
+     */
+    fun getUsersGames(): Flow<Result<List<Game>>>
 
     /**
      * Get a specific game by its ID.
@@ -24,16 +30,12 @@ interface GameRepository {
     fun getGame(id: String): Flow<Result<Game>>
 
     /**
-     * Refresh the games data from the remote source.
-     */
-    suspend fun refreshGames()
-
-    /**
      * Observe the cached games data.
      *
      * @return A StateFlow emitting the cached list of Games.
      */
-    fun observeCachedGames(): StateFlow<List<Game>?>
+    fun observeCachedOfficialGames(): StateFlow<List<Game>?>
+    fun observeCachedUsersGames(): StateFlow<List<Game>?>
 
     /**
      * Determines whether the specified game is updatable.
