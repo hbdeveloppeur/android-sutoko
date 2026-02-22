@@ -16,13 +16,11 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -48,6 +46,7 @@ import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.purpletear.game.presentation.R
+import com.purpletear.game.presentation.components.compact.GameCardCompact
 import com.purpletear.sutoko.game.model.Game
 
 @Composable
@@ -247,64 +246,14 @@ private fun GameInfoSection(
     author: String,
     isAuthorCertified: Boolean
 ) {
-    val context = LocalContext.current
-
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp)
-            .padding(top = 12.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(12.dp)
-    ) {
-        // Thumbnail
-        AsyncImage(
-            model = ImageRequest.Builder(context)
-                .data(thumbnailUrl)
-                .crossfade(400)
-                .build(),
-            contentDescription = null,
-            contentScale = ContentScale.Crop,
-            modifier = Modifier
-                .size(48.dp)
-                .clip(RoundedCornerShape(8.dp))
-                .background(Color(0xFF2A2A2A))
-        )
-
-        // Title and Author
-        Column(
-            verticalArrangement = Arrangement.spacedBy(2.dp)
-        ) {
-            Text(
-                text = title,
-                fontFamily = FontFamily(Font(com.example.sharedelements.R.font.font_worksans_semibold, FontWeight.SemiBold)),
-                fontSize = 16.sp,
-                color = Color.White,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
-            )
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(4.dp)
-            ) {
-                Text(
-                    text = author,
-                    fontFamily = FontFamily(Font(com.example.sharedelements.R.font.font_worksans_regular, FontWeight.Normal)),
-                    fontSize = 13.sp,
-                    color = Color.White.copy(alpha = 0.8f),
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
-                if (isAuthorCertified) {
-                    Image(
-                        painter = painterResource(id = R.drawable.icon_certified_blue),
-                        contentDescription = null,
-                        modifier = Modifier.size(14.dp)
-                    )
-                }
-            }
-        }
-    }
+    GameCardCompact(
+        modifier = Modifier.padding(top = 12.dp),
+        title = title,
+        author = author,
+        imageUrl = thumbnailUrl,
+        isAuthorCertified = isAuthorCertified,
+        showGetButton = false
+    )
 }
 
 @Composable
