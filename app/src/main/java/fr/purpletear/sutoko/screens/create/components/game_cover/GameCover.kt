@@ -17,7 +17,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
+import coil.request.ImageRequest
+import androidx.compose.ui.platform.LocalContext
 import fr.purpletear.sutoko.screens.create.components.game_card.GameCard
+
+private const val CROSSFADE_DURATION_MS = 400
 
 private const val GRADIENT_START_ALPHA = 0.9f
 private const val GRADIENT_END_ALPHA = 0.00001f
@@ -66,7 +70,10 @@ internal fun GameCover(
 @Composable
 private fun CoverImage(coverUrl: String) {
     AsyncImage(
-        model = coverUrl,
+        model = ImageRequest.Builder(LocalContext.current)
+            .data(coverUrl)
+            .crossfade(CROSSFADE_DURATION_MS)
+            .build(),
         contentDescription = null,
         contentScale = ContentScale.Crop,
         modifier = Modifier.fillMaxSize()

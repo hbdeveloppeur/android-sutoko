@@ -31,6 +31,8 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.example.sharedelements.theme.Poppins
 
+private const val CROSSFADE_DURATION_MS = 400
+
 @Composable
 internal fun GameCard(
     modifier: Modifier = Modifier,
@@ -66,9 +68,9 @@ internal fun GameCard(
             AsyncImage(
                 model = ImageRequest.Builder(LocalContext.current)
                     .data(imageUrl)
-                    .crossfade(true)
+                    .crossfade(CROSSFADE_DURATION_MS)
                     .build(),
-                contentDescription = null, 
+                contentDescription = null,
                 contentScale = ContentScale.Crop,
                 modifier = Modifier.fillMaxSize()
             )
