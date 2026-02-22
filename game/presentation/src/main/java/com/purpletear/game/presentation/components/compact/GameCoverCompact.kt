@@ -1,4 +1,4 @@
-package fr.purpletear.sutoko.screens.create.components.game_cover
+package com.purpletear.game.presentation.components.compact
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -19,7 +19,6 @@ import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import androidx.compose.ui.platform.LocalContext
-import fr.purpletear.sutoko.screens.create.components.game_card.GameCard
 
 private const val CROSSFADE_DURATION_MS = 400
 
@@ -33,12 +32,13 @@ private val BORDER_WIDTH = 1.dp
 
 
 @Composable
-internal fun GameCover(
+fun GameCoverCompact(
     modifier: Modifier = Modifier,
     coverUrl: String,
     title: String,
     author: String,
-    thumbnailUrl: String
+    thumbnailUrl: String,
+    isAuthorCertified: Boolean = false
 ) {
     Box(
         modifier = modifier
@@ -62,7 +62,8 @@ internal fun GameCover(
         GameCardInfo(
             title = title,
             author = author,
-            thumbnailUrl = thumbnailUrl
+            thumbnailUrl = thumbnailUrl,
+            isAuthorCertified = isAuthorCertified
         )
     }
 }
@@ -112,7 +113,8 @@ private fun BottomGradient(modifier: Modifier = Modifier) {
 private fun GameCardInfo(
     title: String,
     author: String,
-    thumbnailUrl: String
+    thumbnailUrl: String,
+    isAuthorCertified: Boolean
 ) {
     Box(
         modifier = Modifier
@@ -120,10 +122,11 @@ private fun GameCardInfo(
             .padding(bottom = CARD_BOTTOM_PADDING),
         contentAlignment = Alignment.BottomStart
     ) {
-        GameCard(
+        GameCardCompact(
             title = title,
             author = author,
             imageUrl = thumbnailUrl,
+            isAuthorCertified = isAuthorCertified,
             showGetButton = false
         )
     }

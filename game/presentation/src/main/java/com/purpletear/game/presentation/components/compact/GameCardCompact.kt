@@ -1,5 +1,6 @@
-package fr.purpletear.sutoko.screens.create.components.game_card
+package com.purpletear.game.presentation.components.compact
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -23,6 +24,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -30,15 +32,17 @@ import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.example.sharedelements.theme.Poppins
+import com.purpletear.game.presentation.R
 
 private const val CROSSFADE_DURATION_MS = 400
 
 @Composable
-internal fun GameCard(
+fun GameCardCompact(
     modifier: Modifier = Modifier,
     title: String,
     author: String,
     imageUrl: String,
+    isAuthorCertified: Boolean = false,
     showGetButton: Boolean = true,
     onGetClick: () -> Unit = {}
 ) {
@@ -89,15 +93,27 @@ internal fun GameCard(
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )
-            Text(
-                text = author,
-                fontFamily = Poppins,
-                fontWeight = FontWeight.Normal,
-                fontSize = 12.sp,
-                color = Color(0xFFFFFFFF).copy(alpha = 0.9f),
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
-            )
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(4.dp)
+            ) {
+                Text(
+                    text = author,
+                    fontFamily = Poppins,
+                    fontWeight = FontWeight.Normal,
+                    fontSize = 12.sp,
+                    color = Color(0xFFFFFFFF).copy(alpha = 0.9f),
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+                if (isAuthorCertified) {
+                    Image(
+                        painter = painterResource(id = R.drawable.icon_certified_blue),
+                        contentDescription = null,
+                        modifier = Modifier.size(14.dp)
+                    )
+                }
+            }
         }
 
         if (showGetButton) {

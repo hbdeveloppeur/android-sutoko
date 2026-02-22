@@ -37,8 +37,8 @@ import com.purpletear.sutoko.game.model.Game
 import fr.purpletear.sutoko.R
 import fr.purpletear.sutoko.screens.create.components.create_story_button.CreateStoryButton
 import fr.purpletear.sutoko.screens.create.components.create_story_button.CreateStoryButtonVariant
-import fr.purpletear.sutoko.screens.create.components.game_card.GameCard
-import fr.purpletear.sutoko.screens.create.components.game_cover.GameCover
+import com.purpletear.game.presentation.components.compact.GameCardCompact
+import com.purpletear.game.presentation.components.compact.GameCoverCompact
 import fr.purpletear.sutoko.screens.create.components.load_more_button.LoadMoreButton
 import fr.purpletear.sutoko.screens.create.components.search_box.SearchBox
 import fr.purpletear.sutoko.screens.create.components.section_title.SectionTitle
@@ -155,7 +155,7 @@ internal fun CreatePageComposable(
                 // Featured game cover (first game or placeholder)
                 item {
                     val featuredGame = games.firstOrNull()
-                    GameCover(
+                    GameCoverCompact(
                         modifier = Modifier.padding(horizontal = 16.dp),
                         coverUrl = featuredGame?.bannerAsset?.let { "https://sutoko.com/media/${it.storagePath}" }
                             ?: "https://media.discordapp.net/attachments/1450792285590786139/1474433761499156638/image_1.png?ex=6999d4f2&is=69988372&hm=6f37cc265d99d5e4d96215e354293587b0f233d82fca1b8ac8910f63722206e3&=&format=webp&quality=lossless&width=1024&height=520",
@@ -212,12 +212,13 @@ internal fun CreatePageComposable(
                     items = games,
                     key = { it.id }
                 ) { game ->
-                    GameCard(
+                    GameCardCompact(
                         modifier = Modifier.padding(top = 16.dp),
                         title = game.metadata.title,
                         author = game.author?.displayName ?: "",
                         imageUrl = game.logoAsset?.let { "https://sutoko.com/media/${it.thumbnailStoragePath}" }
                             ?: "",
+                        isAuthorCertified = game.author?.isCertified ?: false,
                         onGetClick = { onGameClick(game) }
                     )
                 }

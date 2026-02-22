@@ -8,11 +8,13 @@ import com.purpletear.sutoko.game.model.Author
 data class AuthorDto(
     @SerializedName("displayName") val displayName: String,
     @SerializedName("avatarUrl") val avatarUrl: String?,
+    @SerializedName("isCertified") val isCertified: Boolean? = false,
 )
 
 fun AuthorDto.toDomain(): Author {
     return Author(
         displayName = displayName,
-        avatarUrl = avatarUrl
+        avatarUrl = avatarUrl,
+        isCertified = isCertified ?: false
     )
 }
