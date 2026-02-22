@@ -32,8 +32,8 @@ import fr.purpletear.sutoko.screens.create.components.create_story_button.Create
 import fr.purpletear.sutoko.screens.create.components.load_more_button.LoadMoreButton
 import fr.purpletear.sutoko.screens.create.components.search_box.SearchBox
 import fr.purpletear.sutoko.screens.create.components.section_title.SectionTitle
-import fr.purpletear.sutoko.screens.create.components.story_card.StoryCard
-import fr.purpletear.sutoko.screens.create.components.story_cover.StoryCover
+import fr.purpletear.sutoko.screens.create.components.game_card.GameCard
+import fr.purpletear.sutoko.screens.create.components.game_cover.GameCover
 import fr.purpletear.sutoko.screens.main.presentation.screens.TopNavigation
 
 private const val BACKGROUND_ALPHA = 0.15f
@@ -127,7 +127,7 @@ internal fun CreatePageComposable(
             }
 
             item {
-                StoryCover(
+                GameCover(
                     modifier = Modifier.padding(horizontal = 16.dp),
                     coverUrl = "https://media.discordapp.net/attachments/1450792285590786139/1474433761499156638/image_1.png?ex=6999d4f2&is=69988372&hm=6f37cc265d99d5e4d96215e354293587b0f233d82fca1b8ac8910f63722206e3&=&format=webp&quality=lossless&width=1024&height=520",
                     title = "The day my life ended",
@@ -190,7 +190,7 @@ internal fun CreatePageComposable(
              */
 
             item {
-                StoryCard(
+                GameCard(
                     modifier = Modifier.padding(top = 16.dp),
                     title = "The day my life ended",
                     author = "Eva Weeks",

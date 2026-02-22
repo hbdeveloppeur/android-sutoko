@@ -1,4 +1,4 @@
-package fr.purpletear.sutoko.screens.create.components.story_card
+package fr.purpletear.sutoko.screens.create.components.game_card
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -32,7 +32,7 @@ import coil.request.ImageRequest
 import com.example.sharedelements.theme.Poppins
 
 @Composable
-internal fun StoryCard(
+internal fun GameCard(
     modifier: Modifier = Modifier,
     title: String,
     author: String,

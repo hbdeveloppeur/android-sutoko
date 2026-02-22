@@ -1,4 +1,4 @@
-package fr.purpletear.sutoko.screens.create.components.story_cover
+package fr.purpletear.sutoko.screens.create.components.game_cover
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -17,7 +17,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
-import fr.purpletear.sutoko.screens.create.components.story_card.StoryCard
+import fr.purpletear.sutoko.screens.create.components.game_card.GameCard
 
 private const val GRADIENT_START_ALPHA = 0.9f
 private const val GRADIENT_END_ALPHA = 0.00001f
@@ -29,7 +29,7 @@ private val BORDER_WIDTH = 1.dp
 
 
 @Composable
-internal fun StoryCover(
+internal fun GameCover(
     modifier: Modifier = Modifier,
     coverUrl: String,
     title: String,
@@ -55,7 +55,7 @@ internal fun StoryCover(
         CoverImage(coverUrl = coverUrl)
         Filter()
         BottomGradient(modifier = Modifier.align(Alignment.BottomStart))
-        StoryCardInfo(
+        GameCardInfo(
             title = title,
             author = author,
             thumbnailUrl = thumbnailUrl
@@ -102,7 +102,7 @@ private fun BottomGradient(modifier: Modifier = Modifier) {
 }
 
 @Composable
-private fun StoryCardInfo(
+private fun GameCardInfo(
     title: String,
     author: String,
     thumbnailUrl: String
@@ -113,7 +113,7 @@ private fun StoryCardInfo(
             .padding(bottom = CARD_BOTTOM_PADDING),
         contentAlignment = Alignment.BottomStart
     ) {
-        StoryCard(
+        GameCard(
             title = title,
             author = author,
             imageUrl = thumbnailUrl,
