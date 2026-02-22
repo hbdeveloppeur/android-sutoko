@@ -14,7 +14,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material.CircularProgressIndicator
+import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.pullrefresh.PullRefreshIndicator
+import androidx.compose.material.pullrefresh.pullRefresh
+import androidx.compose.material.pullrefresh.rememberPullRefreshState
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -44,6 +48,7 @@ private const val BACKGROUND_ALPHA = 0.15f
 private const val GRADIENT_TOP_ALPHA = 0.08f
 private const val GRADIENT_BOTTOM_ALPHA = 0.00001f
 
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
 internal fun CreatePageComposable(
     modifier: Modifier = Modifier,
@@ -59,6 +64,7 @@ internal fun CreatePageComposable(
     val userGames by viewModel.userGames
     val isLoadingMore by viewModel.isLoadingMore
     val hasMorePages by viewModel.hasMorePages
+    val isRefreshing by viewModel.isRefreshing
 
     val targetCoins = when (balance) {
         is Resource.Success -> {
@@ -96,7 +102,12 @@ internal fun CreatePageComposable(
 
     val isBalanceLoading = balance is Resource.Loading
     val games = (userGames as? Resource.Success)?.data.orEmpty()
-    val isGamesLoading = userGames is Resource.Loading
+    val isGamesLoading = userGames is Resource.Loading && !isRefreshing
+
+    val pullRefreshState = rememberPullRefreshState(
+        refreshing = isRefreshing,
+        onRefresh = { viewModel.refreshUserGames() }
+    )
 
     Box(
         modifier = modifier
@@ -105,122 +116,136 @@ internal fun CreatePageComposable(
     ) {
         Background()
 
-        LazyColumn(
+        Box(
             modifier = Modifier
                 .fillMaxSize()
-                .systemBarsPadding()
-                .padding(top = 12.dp)
-                .pointerInput(Unit) {
-                    detectTapGestures(onTap = { focusManager.clearFocus() })
-                },
+                .pullRefresh(pullRefreshState)
         ) {
-            item {
-                TopNavigation(
-                    modifier = Modifier
-                        .padding(horizontal = 16.dp)
-                        .padding(start = 8.dp),
-                    coins = coins,
-                    diamonds = diamonds,
-                    isLoading = isBalanceLoading,
-                    onAccountButtonPressed = onAccountButtonPressed,
-                    onCoinsButtonPressed = onCoinsButtonPressed,
-                    onDiamondsButtonPressed = onDiamondsButtonPressed,
-                    onOptionsButtonPressed = onOptionsButtonPressed
-                )
-            }
-
-            item {
-                SectionTitle(
-                    text = "Histoires de la communauté",
-                    modifier = Modifier.padding(top = 16.dp, bottom = 16.dp)
-                )
-            }
-
-            // Featured game cover (first game or placeholder)
-            item {
-                val featuredGame = games.firstOrNull()
-                GameCover(
-                    modifier = Modifier.padding(horizontal = 16.dp),
-                    coverUrl = featuredGame?.bannerAsset?.let { "https://sutoko.com/media/${it.storagePath}" }
-                        ?: "https://media.discordapp.net/attachments/1450792285590786139/1474433761499156638/image_1.png?ex=6999d4f2&is=69988372&hm=6f37cc265d99d5e4d96215e354293587b0f233d82fca1b8ac8910f63722206e3&=&format=webp&quality=lossless&width=1024&height=520",
-                    title = featuredGame?.metadata?.title ?: "The day my life ended",
-                    author = featuredGame?.author?.displayName ?: "Eva Weeks",
-                    thumbnailUrl = featuredGame?.logoAsset?.let { "https://sutoko.com/media/${it.thumbnailStoragePath}" }
-                        ?: "https://media.discordapp.net/attachments/1450792285590786139/1474416156881191044/tmp_logo.png?ex=6999c48d&is=6998730d&hm=f013ec27a0d7f540a4ad6dcee2ee14962995a419199df41646fe5a7e147b4140&=&format=webp&quality=lossless&width=132&height=132"
-                )
-            }
-
-            item {
-                CreateStoryButton(
-                    text = "Créer mon histoire",
-                    variant = CreateStoryButtonVariant.Violet,
-                    onClick = { /* TODO */ },
-                    modifier = Modifier
-                        .padding(horizontal = 16.dp)
-                        .padding(top = 16.dp)
-                )
-            }
-
-            item {
-                SearchBox(
-                    modifier = Modifier
-                        .padding(horizontal = 16.dp)
-                        .padding(top = 16.dp),
-                    onSearch = { query ->
-                        // TODO: Handle search
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .systemBarsPadding()
+                    .padding(top = 12.dp)
+                    .pointerInput(Unit) {
+                        detectTapGestures(onTap = { focusManager.clearFocus() })
                     },
-                    onValueChange = { query ->
-                        // TODO: Handle search query change
-                    }
-                )
-            }
-
-            // Loading state
-            if (isGamesLoading) {
+            ) {
                 item {
-                    Box(
+                    TopNavigation(
                         modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 32.dp),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        CircularProgressIndicator(
-                            color = Color.White.copy(alpha = 0.7f)
+                            .padding(horizontal = 16.dp)
+                            .padding(start = 8.dp),
+                        coins = coins,
+                        diamonds = diamonds,
+                        isLoading = isBalanceLoading,
+                        onAccountButtonPressed = onAccountButtonPressed,
+                        onCoinsButtonPressed = onCoinsButtonPressed,
+                        onDiamondsButtonPressed = onDiamondsButtonPressed,
+                        onOptionsButtonPressed = onOptionsButtonPressed
+                    )
+                }
+
+                item {
+                    SectionTitle(
+                        text = "Histoires de la communauté",
+                        modifier = Modifier.padding(top = 16.dp, bottom = 16.dp)
+                    )
+                }
+
+                // Featured game cover (first game or placeholder)
+                item {
+                    val featuredGame = games.firstOrNull()
+                    GameCover(
+                        modifier = Modifier.padding(horizontal = 16.dp),
+                        coverUrl = featuredGame?.bannerAsset?.let { "https://sutoko.com/media/${it.storagePath}" }
+                            ?: "https://media.discordapp.net/attachments/1450792285590786139/1474433761499156638/image_1.png?ex=6999d4f2&is=69988372&hm=6f37cc265d99d5e4d96215e354293587b0f233d82fca1b8ac8910f63722206e3&=&format=webp&quality=lossless&width=1024&height=520",
+                        title = featuredGame?.metadata?.title ?: "The day my life ended",
+                        author = featuredGame?.author?.displayName ?: "Eva Weeks",
+                        thumbnailUrl = featuredGame?.logoAsset?.let { "https://sutoko.com/media/${it.thumbnailStoragePath}" }
+                            ?: "https://media.discordapp.net/attachments/1450792285590786139/1474416156881191044/tmp_logo.png?ex=6999c48d&is=6998730d&hm=f013ec27a0d7f540a4ad6dcee2ee14962995a419199df41646fe5a7e147b4140&=&format=webp&quality=lossless&width=132&height=132"
+                    )
+                }
+
+                item {
+                    CreateStoryButton(
+                        text = "Créer mon histoire",
+                        variant = CreateStoryButtonVariant.Violet,
+                        onClick = { /* TODO */ },
+                        modifier = Modifier
+                            .padding(horizontal = 16.dp)
+                            .padding(top = 16.dp)
+                    )
+                }
+
+                item {
+                    SearchBox(
+                        modifier = Modifier
+                            .padding(horizontal = 16.dp)
+                            .padding(top = 16.dp),
+                        onSearch = { query ->
+                            // TODO: Handle search
+                        },
+                        onValueChange = { query ->
+                            // TODO: Handle search query change
+                        }
+                    )
+                }
+
+                // Loading state (initial load only)
+                if (isGamesLoading) {
+                    item {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 32.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            CircularProgressIndicator(
+                                color = Color.White.copy(alpha = 0.7f)
+                            )
+                        }
+                    }
+                }
+
+                // Games list
+                items(
+                    items = games,
+                    key = { it.id }
+                ) { game ->
+                    GameCard(
+                        modifier = Modifier.padding(top = 16.dp),
+                        title = game.metadata.title,
+                        author = game.author?.displayName ?: "",
+                        imageUrl = game.logoAsset?.let { "https://sutoko.com/media/${it.thumbnailStoragePath}" }
+                            ?: "",
+                        onGetClick = { onGameClick(game) }
+                    )
+                }
+
+                // Load more button
+                if (hasMorePages || isLoadingMore) {
+                    item {
+                        LoadMoreButton(
+                            onClick = { viewModel.loadMoreUserGames() },
+                            isLoading = isLoadingMore,
+                            modifier = Modifier.padding(horizontal = 16.dp, vertical = 16.dp)
                         )
                     }
                 }
-            }
 
-            // Games list
-            items(
-                items = games,
-                key = { it.id }
-            ) { game ->
-                GameCard(
-                    modifier = Modifier.padding(top = 16.dp),
-                    title = game.metadata.title,
-                    author = game.author?.displayName ?: "",
-                    imageUrl = game.logoAsset?.let { "https://sutoko.com/media/${it.thumbnailStoragePath}" }
-                        ?: "",
-                    onGetClick = { onGameClick(game) }
-                )
-            }
-
-            // Load more button
-            if (hasMorePages || isLoadingMore) {
+                // Bottom spacer for better scrolling experience
                 item {
-                    LoadMoreButton(
-                        onClick = { viewModel.loadMoreUserGames() },
-                        isLoading = isLoadingMore,
-                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 16.dp)
-                    )
+                    Spacer(modifier = Modifier.height(24.dp))
                 }
             }
 
-            // Bottom spacer for better scrolling experience
-            item {
-                Spacer(modifier = Modifier.height(24.dp))
-            }
+            PullRefreshIndicator(
+                refreshing = isRefreshing,
+                state = pullRefreshState,
+                modifier = Modifier.align(Alignment.TopCenter),
+                backgroundColor = Color(0xFF2D2D2D),
+                contentColor = Color.White
+            )
         }
     }
 }

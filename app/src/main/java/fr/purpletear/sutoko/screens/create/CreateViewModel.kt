@@ -39,6 +39,9 @@ class CreateViewModel @Inject constructor(
     private val _isLoadingMore = mutableStateOf(false)
     val isLoadingMore: State<Boolean> = _isLoadingMore
 
+    private val _isRefreshing = mutableStateOf(false)
+    val isRefreshing: State<Boolean> = _isRefreshing
+
     companion object {
         private const val PAGE_LIMIT = 20
     }
@@ -99,6 +102,31 @@ class CreateViewModel @Inject constructor(
                 onFailure = { exception ->
                     _userGames.value = Resource.Error(exception)
                     _isLoadingMore.value = false
+                }
+            )
+        }
+    }
+
+    fun refreshUserGames(languageCode: String = "fr-FR") {
+        _isRefreshing.value = true
+        viewModelScope.launch {
+            executeFlowResultUseCase(
+                useCase = {
+                    getUserGamesUseCase(
+                        languageCode = languageCode,
+                        page = 1,
+                        limit = PAGE_LIMIT
+                    )
+                },
+                onSuccess = { games ->
+                    _userGames.value = Resource.Success(games)
+                    _currentPage.intValue = 1
+                    _hasMorePages.value = games.size >= PAGE_LIMIT
+                    _isRefreshing.value = false
+                },
+                onFailure = { exception ->
+                    _userGames.value = Resource.Error(exception)
+                    _isRefreshing.value = false
                 }
             )
         }
