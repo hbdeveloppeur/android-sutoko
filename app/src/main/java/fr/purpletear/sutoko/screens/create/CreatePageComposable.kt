@@ -21,6 +21,9 @@ import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -37,6 +40,7 @@ import com.purpletear.sutoko.game.model.Game
 import fr.purpletear.sutoko.R
 import fr.purpletear.sutoko.screens.create.components.create_story_button.CreateStoryButton
 import fr.purpletear.sutoko.screens.create.components.create_story_button.CreateStoryButtonVariant
+import com.purpletear.game.presentation.components.GamePreviewModal
 import com.purpletear.game.presentation.components.compact.GameCardCompact
 import com.purpletear.game.presentation.components.compact.GameCoverCompact
 import fr.purpletear.sutoko.screens.create.components.load_more_button.LoadMoreButton
@@ -59,6 +63,8 @@ internal fun CreatePageComposable(
     onOptionsButtonPressed: () -> Unit = {},
     onGameClick: (Game) -> Unit = {},
 ) {
+    var isPreviewModalVisible by remember { mutableStateOf(false) }
+    var selectedGameForPreview by remember { mutableStateOf<Game?>(null) }
     val focusManager = LocalFocusManager.current
     val balance by viewModel.balance
     val userGames by viewModel.userGames
@@ -162,7 +168,11 @@ internal fun CreatePageComposable(
                         title = featuredGame?.metadata?.title ?: "The day my life ended",
                         author = featuredGame?.author?.displayName ?: "Eva Weeks",
                         thumbnailUrl = featuredGame?.logoAsset?.let { "https://sutoko.com/media/${it.thumbnailStoragePath}" }
-                            ?: "https://media.discordapp.net/attachments/1450792285590786139/1474416156881191044/tmp_logo.png?ex=6999c48d&is=6998730d&hm=f013ec27a0d7f540a4ad6dcee2ee14962995a419199df41646fe5a7e147b4140&=&format=webp&quality=lossless&width=132&height=132"
+                            ?: "https://media.discordapp.net/attachments/1450792285590786139/1474416156881191044/tmp_logo.png?ex=6999c48d&is=6998730d&hm=f013ec27a0d7f540a4ad6dcee2ee14962995a419199df41646fe5a7e147b4140&=&format=webp&quality=lossless&width=132&height=132",
+                        onClick = {
+                            selectedGameForPreview = featuredGame
+                            isPreviewModalVisible = true
+                        }
                     )
                 }
 
@@ -246,6 +256,15 @@ internal fun CreatePageComposable(
                 modifier = Modifier.align(Alignment.TopCenter),
                 backgroundColor = Color(0xFF2D2D2D),
                 contentColor = Color.White
+            )
+
+            GamePreviewModal(
+                isVisible = isPreviewModalVisible,
+                onDismiss = {
+                    isPreviewModalVisible = false
+                    selectedGameForPreview = null
+                },
+                game = selectedGameForPreview
             )
         }
     }

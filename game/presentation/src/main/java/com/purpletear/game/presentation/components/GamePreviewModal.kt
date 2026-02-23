@@ -2,12 +2,9 @@ package com.purpletear.game.presentation.components
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.FastOutSlowInEasing
-import androidx.compose.animation.core.MutableTransitionState
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -20,7 +17,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -49,6 +45,19 @@ import com.purpletear.game.presentation.R
 import com.purpletear.game.presentation.components.compact.GameCardCompact
 import com.purpletear.sutoko.game.model.Game
 
+private val PoppinsMedium = FontFamily(
+    Font(com.example.sharedelements.R.font.font_poppins_medium, FontWeight.Medium)
+)
+
+/**
+ * Game preview modal with built-in visibility animation.
+ *
+ * @param isVisible Whether the modal should be displayed
+ * @param onDismiss Called when user taps outside the modal or back is pressed
+ * @param game The game to display. Can be null when hidden (preserved for exit animation)
+ * @param onRestartClick Called when restart button is clicked
+ * @param onDownloadClick Called when download button is clicked
+ */
 @Composable
 fun GamePreviewModal(
     isVisible: Boolean,
@@ -58,81 +67,41 @@ fun GamePreviewModal(
     onRestartClick: () -> Unit = {},
     onDownloadClick: () -> Unit = {},
 ) {
-    val animationDuration = 450
-
-    // Remember the displayed game to allow exit animation even when game becomes null
     var displayedGame by remember { mutableStateOf<Game?>(null) }
-
-    // Track if we're in the process of dismissing to handle animation properly
-    val visibleState = remember { MutableTransitionState(false) }
-    visibleState.targetState = isVisible
-
-    // Update displayedGame when modal becomes visible with a valid game
+    
+    // Update displayed game when becoming visible
     LaunchedEffect(isVisible, game) {
-        if (isVisible && game != null) {
-            displayedGame = game
-        }
+        if (isVisible && game != null) displayedGame = game
     }
 
-    // Only show the modal if it's visible or in the process of exiting (to allow animation)
-    if (visibleState.currentState || visibleState.targetState) {
-        AnimatedVisibility(
-            visibleState = visibleState,
-            enter = fadeIn(
-                animationSpec = tween(
-                    durationMillis = animationDuration,
-                    easing = FastOutSlowInEasing
-                )
-            ),
-            exit = fadeOut(
-                animationSpec = tween(
-                    durationMillis = animationDuration,
-                    easing = FastOutSlowInEasing
-                )
-            ),
+    AnimatedVisibility(
+        visible = isVisible,
+        enter = fadeIn(tween(250, easing = FastOutSlowInEasing)),
+        exit = fadeOut(tween(200, easing = FastOutSlowInEasing))
+    ) {
+        val currentGame = displayedGame ?: return@AnimatedVisibility
+        
+        Box(
+            modifier = modifier
+                .fillMaxSize()
+                .background(Color(0xCB151313))
+                .clickable(
+                    indication = null,
+                    interactionSource = remember { MutableInteractionSource() }
+                ) { onDismiss() },
+            contentAlignment = Alignment.Center
         ) {
-            Box(
-                modifier = modifier
-                    .fillMaxSize()
-                    .background(Color.Black.copy(alpha = 0.55f))
+            ModalContent(
+                game = currentGame,
+                onRestartClick = onRestartClick,
+                onDownloadClick = onDownloadClick,
+                modifier = Modifier
+                    .padding(horizontal = 16.dp)
                     .clickable(
                         indication = null,
                         interactionSource = remember { MutableInteractionSource() }
-                    ) {
-                        onDismiss()
-                    },
-                contentAlignment = Alignment.Center
-            ) {
-                AnimatedVisibility(
-                    visibleState = visibleState,
-                    enter = fadeIn(
-                        animationSpec = tween(
-                            durationMillis = animationDuration,
-                            easing = FastOutSlowInEasing
-                        )
-                    ),
-                    exit = fadeOut(
-                        animationSpec = tween(
-                            durationMillis = animationDuration,
-                            easing = FastOutSlowInEasing
-                        )
-                    ),
-                ) {
-                    displayedGame?.let {
-                        ModalContent(
-                            game = it,
-                            onRestartClick = onRestartClick,
-                            onDownloadClick = onDownloadClick,
-                            modifier = Modifier
-                                .padding(horizontal = 16.dp)
-                                .clickable(
-                                    indication = null,
-                                    interactionSource = remember { MutableInteractionSource() }
-                                ) { /* Prevent dismiss when clicking content */ }
-                        )
-                    }
-                }
-            }
+                    ) { /* Prevent dismiss when clicking content */ }
+            )
         }
     }
 }
@@ -155,13 +124,9 @@ private fun ModalContent(
                 shape = RoundedCornerShape(16.dp)
             )
     ) {
-        // Banner Image
-        BannerImage(
-            bannerUrl = game.bannerAsset?.let { "https://sutoko.com/media/${it.storagePath}" } ?: ""
-        )
-
-        // Game Info Section
-        GameInfoSection(
+        // Banner with overlapping Game Info
+        BannerWithGameInfo(
+            bannerUrl = game.bannerAsset?.let { "https://sutoko.com/media/${it.storagePath}" } ?: "",
             thumbnailUrl = game.logoAsset?.let { "https://sutoko.com/media/${it.thumbnailStoragePath}" } ?: "",
             title = game.metadata.title,
             author = game.author?.displayName ?: "",
@@ -171,11 +136,11 @@ private fun ModalContent(
         // Description
         Text(
             text = game.metadata.description ?: "",
-            fontFamily = FontFamily(Font(com.example.sharedelements.R.font.font_worksans_regular, FontWeight.Normal)),
-            fontSize = 14.sp,
-            lineHeight = 22.sp,
-            color = Color.White.copy(alpha = 0.9f),
-            modifier = Modifier.padding(horizontal = 20.dp, vertical = 16.dp),
+            fontFamily = PoppinsMedium,
+            fontSize = 12.sp,
+            lineHeight = 18.sp,
+            color = Color.White,
+            modifier = Modifier.padding(horizontal = 20.dp, vertical = 2.dp).padding(bottom = 16.dp),
             maxLines = 4,
             overflow = TextOverflow.Ellipsis
         )
@@ -186,7 +151,7 @@ private fun ModalContent(
                 .fillMaxWidth()
                 .padding(horizontal = 16.dp)
                 .padding(bottom = 16.dp),
-            horizontalArrangement = Arrangement.spacedBy(12.dp)
+            horizontalArrangement = Arrangement.spacedBy(10.dp)
         ) {
             ActionButton(
                 text = "Recommencer",
@@ -203,14 +168,21 @@ private fun ModalContent(
 }
 
 @Composable
-private fun BannerImage(bannerUrl: String) {
+private fun BannerWithGameInfo(
+    bannerUrl: String,
+    thumbnailUrl: String,
+    title: String,
+    author: String,
+    isAuthorCertified: Boolean
+) {
     val context = LocalContext.current
 
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .height(180.dp)
+            .height(160.dp)
     ) {
+        // Banner Image
         AsyncImage(
             model = ImageRequest.Builder(context)
                 .data(bannerUrl)
@@ -221,39 +193,36 @@ private fun BannerImage(bannerUrl: String) {
             modifier = Modifier.fillMaxSize()
         )
 
+        Box(Modifier.fillMaxSize().background(Color(0x60AD8772)))
+
         // Bottom gradient for better text visibility
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(60.dp)
+                .height(200.dp)
                 .align(Alignment.BottomStart)
                 .background(
                     brush = Brush.verticalGradient(
                         colors = listOf(
                             Color.Transparent,
-                            Color.Black.copy(alpha = 0.8f)
+                            Color.Black.copy(alpha = 1f)
                         )
                     )
                 )
         )
-    }
-}
 
-@Composable
-private fun GameInfoSection(
-    thumbnailUrl: String,
-    title: String,
-    author: String,
-    isAuthorCertified: Boolean
-) {
-    GameCardCompact(
-        modifier = Modifier.padding(top = 12.dp),
-        title = title,
-        author = author,
-        imageUrl = thumbnailUrl,
-        isAuthorCertified = isAuthorCertified,
-        showGetButton = false
-    )
+        // Game Info overlaid at bottom
+        GameCardCompact(
+            modifier = Modifier
+                .align(Alignment.BottomStart)
+                .padding(bottom = 12.dp),
+            title = title,
+            author = author,
+            imageUrl = thumbnailUrl,
+            isAuthorCertified = isAuthorCertified,
+            showGetButton = false
+        )
+    }
 }
 
 @Composable
@@ -265,15 +234,15 @@ private fun ActionButton(
     Box(
         modifier = modifier
             .height(48.dp)
-            .clip(RoundedCornerShape(12.dp))
+            .clip(RoundedCornerShape(8.dp))
             .background(Color(0xFF333333))
             .clickable(onClick = onClick),
         contentAlignment = Alignment.Center
     ) {
         Text(
             text = text,
-            fontFamily = FontFamily(Font(com.example.sharedelements.R.font.font_worksans_semibold, FontWeight.SemiBold)),
-            fontSize = 14.sp,
+            fontFamily = PoppinsMedium,
+            fontSize = 12.sp,
             color = Color.White
         )
     }
