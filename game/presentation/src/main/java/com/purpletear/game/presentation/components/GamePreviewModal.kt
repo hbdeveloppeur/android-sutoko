@@ -9,10 +9,8 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -32,7 +30,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
+
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
@@ -43,7 +41,9 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.purpletear.game.presentation.R
 import com.purpletear.game.presentation.components.compact.GameCardCompact
-import com.purpletear.game.presentation.sealed.Background
+import com.purpletear.game.presentation.states.ButtonUiState
+import com.purpletear.game.presentation.states.GameButtonsState
+import com.example.sharedelements.utils.UiText
 import com.purpletear.sutoko.game.model.Game
 
 private val PoppinsMedium = FontFamily(
@@ -161,24 +161,24 @@ private fun ModalActionButtons(
     onDownloadClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Row(
-        modifier = modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(10.dp)
-    ) {
-        GamePreviewButton(
-            modifier = Modifier.weight(1f),
+    val buttonsState = GameButtonsState(
+        left = ButtonUiState(
+            title = UiText.DynamicText("Recommencer"),
+            weight = 1f,
             onClick = onRestartClick,
-            title = "Recommencer",
-            background = Background.Solid(Color(0xFF191919))
-        )
-
-        GamePreviewButton(
-            modifier = Modifier.weight(1f),
+        ),
+        right = ButtonUiState(
+            title = UiText.DynamicText("Télécharger"),
+            weight = 1f,
+            backgroundColor = Color(0xFF171717),
             onClick = onDownloadClick,
-            title = "Télécharger",
-            background = Background.Solid(Color(0xFF171717))
         )
-    }
+    )
+
+    GameActionButtons(
+        state = buttonsState,
+        modifier = modifier,
+    )
 }
 
 @Composable
