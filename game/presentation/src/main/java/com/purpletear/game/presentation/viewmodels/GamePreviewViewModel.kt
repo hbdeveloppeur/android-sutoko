@@ -20,7 +20,9 @@ import com.purpletear.core.presentation.services.MakeToastService
 import com.purpletear.game.data.provider.GamePathProvider
 import com.purpletear.game.presentation.R
 import com.purpletear.game.presentation.audio.GameMenuSoundPlayer
-import com.purpletear.game.presentation.states.GameMenuState
+import com.purpletear.game.presentation.states.GameButtonsState
+import com.purpletear.game.presentation.states.GameState
+import com.purpletear.game.presentation.states.toButtonsState
 import com.purpletear.game.presentation.states.StoryPreviewAction
 import com.purpletear.shop.data.exception.InsufficientFundsException
 import com.purpletear.shop.data.exception.InternetConnectivityException
@@ -127,9 +129,17 @@ class GamePreviewViewModel @Inject constructor(
     private var _game: MutableState<Game?> = mutableStateOf(null)
     internal val game: State<Game?> get() = _game
 
-    // State to hold the current game menu state
-    private val _gameMenuState: MutableState<GameMenuState> = mutableStateOf(GameMenuState.Loading)
-    internal val gameMenuState: GameMenuState get() = _gameMenuState.value
+    // State to hold the current game state
+    private val _gameState: MutableState<GameState> = mutableStateOf(GameState.Loading)
+    internal val gameState: GameState get() = _gameState.value
+
+    // UI-specific state for buttons
+    internal val gameButtonsState: GameButtonsState
+        get() = _gameState.value.toButtonsState(
+            currentChapterNumber = currentChapter.value?.number ?: 1,
+            gamePrice = game.value?.price,
+            onAction = ::onAction
+        )
 
     // StateFlow for chapters to be used with collectAsState
     private val _chaptersFlow = MutableStateFlow<List<Chapter>>(emptyList())
@@ -203,7 +213,7 @@ class GamePreviewViewModel @Inject constructor(
             snapshotFlow { _gameBought.value }
                 .distinctUntilChanged()
                 .collect { isGameBought ->
-                    refreshGameMenuState()
+                    refreshGameState()
                     if (isGameBought) {
 
                         _gameBoughtEvents.emit(Unit)
@@ -238,11 +248,11 @@ class GamePreviewViewModel @Inject constructor(
             }
 
             StoryPreviewAction.OnAbortBuy -> {
-                viewModelScope.launch { refreshGameMenuState() }
+                viewModelScope.launch { refreshGameState() }
             }
 
             StoryPreviewAction.OnBuy -> {
-                _gameMenuState.value = GameMenuState.ConfirmBuy()
+                _gameState.value = GameState.ConfirmBuy()
             }
 
             StoryPreviewAction.OnBuyConfirm -> {
@@ -375,7 +385,7 @@ class GamePreviewViewModel @Inject constructor(
             observedCurrentChapter(gameId)
             _isFriendzonedGame.value = isFriendZonedGameUseCase(gameId = gameId)
 
-            _gameMenuState.value = GameMenuState.Idle
+            _gameState.value = GameState.Idle
 
             if (gameResult) {
                 viewModelScope.launch {
@@ -395,7 +405,7 @@ class GamePreviewViewModel @Inject constructor(
                 )
             }
 
-            refreshGameMenuState()
+            refreshGameState()
         }
     }
 
@@ -405,7 +415,7 @@ class GamePreviewViewModel @Inject constructor(
         require(game.value != null)
         require(game.value!!.skuIdentifiers.isNotEmpty())
 
-        _gameMenuState.value = GameMenuState.ConfirmBuy(isLoading = true)
+        _gameState.value = GameState.ConfirmBuy(isLoading = true)
         val skuIdentifier = game.value!!.skuIdentifiers.first()
 
         try {
@@ -418,12 +428,12 @@ class GamePreviewViewModel @Inject constructor(
                 )
             }
 
-            _gameMenuState.value = GameMenuState.ConfirmedBuy
+            _gameState.value = GameState.ConfirmedBuy
             delay(3200)
             _gameBought.value = true
             vibrate()
             game.value?.let { _buyGameEvents.emit(it) } // Emit event to MainActivity's onBuyGame function
-            refreshGameMenuState()
+            refreshGameState()
         } catch (e: InsufficientFundsException) {
             showInsufficientFundsAlert()
             e.printStackTrace()
@@ -445,7 +455,7 @@ class GamePreviewViewModel @Inject constructor(
         } catch (e: Exception) {
             e.printStackTrace()
             makeToastService(R.string.game_story_preview_buy_story_unknown_error_occured_you_have_been_refunded)
-            _gameMenuState.value = GameMenuState.ConfirmBuy(isLoading = false)
+            _gameState.value = GameState.ConfirmBuy(isLoading = false)
         }
     }
 
@@ -464,7 +474,7 @@ class GamePreviewViewModel @Inject constructor(
             when (interaction.event) {
                 PopUpUserInteraction.Dismiss, PopUpUserInteraction.Confirm -> {
                     viewModelScope.launch {
-                        refreshGameMenuState()
+                        refreshGameState()
                     }
                 }
 
@@ -519,20 +529,20 @@ class GamePreviewViewModel @Inject constructor(
             } catch (e: GameDownloadForbiddenException) {
                 e.printStackTrace()
                 // Handle forbidden access specifically
-                _gameMenuState.value = GameMenuState.LoadingError
+                _gameState.value = GameState.LoadingError
                 // Log the specific error for debugging
                 android.util.Log.e("GamePreviewViewModel", "Forbidden access: ${e.message}")
             } catch (e: Exception) {
                 e.printStackTrace()
                 // Handle other errors
-                _gameMenuState.value = GameMenuState.LoadingError
+                _gameState.value = GameState.LoadingError
             }
         }
     }
 
 
     private fun downloadGameArchive(link: String, atPath: String) {
-        _gameMenuState.value = GameMenuState.DownloadingGame(progress = 0)
+        _gameState.value = GameState.DownloadingGame(progress = 0)
 
         try {
 
@@ -549,8 +559,8 @@ class GamePreviewViewModel @Inject constructor(
                     progress?.let {
                         val downloadProgress =
                             it.currentBytes.toFloat() * 100 / it.totalBytes.toFloat()
-                        _gameMenuState.value =
-                            GameMenuState.DownloadingGame(progress = downloadProgress.toInt())
+                        _gameState.value =
+                            GameState.DownloadingGame(progress = downloadProgress.toInt())
                     }
                 }
                 .start(object : OnDownloadListener {
@@ -567,7 +577,7 @@ class GamePreviewViewModel @Inject constructor(
                             } catch (e: Exception) {
                                 e.printStackTrace()
                             }
-                            _gameMenuState.value = GameMenuState.ReadyToPlay
+                            _gameState.value = GameState.ReadyToPlay
                         }
                     }
 
@@ -580,13 +590,13 @@ class GamePreviewViewModel @Inject constructor(
                                     "Download error: ${it.connectionException?.message ?: it.serverErrorMessage ?: "Unknown error"}"
                                 )
                             }
-                            _gameMenuState.value = GameMenuState.LoadingError
+            _gameState.value = GameState.LoadingError
                         }
                     }
                 })
         } catch (e: Exception) {
             e.printStackTrace()
-            _gameMenuState.value = GameMenuState.LoadingError
+            _gameState.value = GameState.LoadingError
         }
     }
 
@@ -639,7 +649,7 @@ class GamePreviewViewModel @Inject constructor(
                     "GamePreviewViewModel",
                     "Error extracting zip file: ${e.message}"
                 )
-                _gameMenuState.value = GameMenuState.LoadingError
+                _gameState.value = GameState.LoadingError
             }
         }
     }
@@ -667,50 +677,50 @@ class GamePreviewViewModel @Inject constructor(
      * Determines the game menu state based on various conditions.
      * This function should be called when the screen is resumed or when chapter loading state changes.
      */
-    private suspend fun refreshGameMenuState() {
-        val state = _gameMenuState.value
+    private suspend fun refreshGameState() {
+        val state = _gameState.value
 
         if (game.value == null || arrayOf(
-                GameMenuState.Loading,
-                GameMenuState.LoadingError
+                GameState.Loading,
+                GameState.LoadingError
             ).contains(state)
         )
             return
 
         if (isFriendZoned1GameUseCase(game.value!!)) {
-            _gameMenuState.value = GameMenuState.ReadyToPlay
+            _gameState.value = GameState.ReadyToPlay
             return
         }
 
         if (requirePayment(game.value!!) && isFriendZonedGameUseCase(gameId = gameId)) {
-            _gameMenuState.value = GameMenuState.PaymentRequired
+            _gameState.value = GameState.PaymentRequired
             return
         }
 
         if (requirePayment(game.value!!)) {
-            _gameMenuState.value = GameMenuState.PaymentRequired
+            _gameState.value = GameState.PaymentRequired
             return
         }
 
         if (!deviceHasGameFiles(game.value!!)) {
-            _gameMenuState.value = GameMenuState.DownloadRequired
+            _gameState.value = GameState.DownloadRequired
             return
         }
 
         if (isGameUpdatable(game.value!!)) {
-            _gameMenuState.value = GameMenuState.UpdateGameRequired
+            _gameState.value = GameState.UpdateGameRequired
             return
         }
 
         if (!isCurrentChapterAvailable()) {
-            _gameMenuState.value = GameMenuState.ChapterUnavailable(
+            _gameState.value = GameState.ChapterUnavailable(
                 number = currentChapter.value!!.number,
                 createdAt = currentChapter.value!!.createdAt
             )
             return
         }
 
-        _gameMenuState.value = GameMenuState.ReadyToPlay
+        _gameState.value = GameState.ReadyToPlay
     }
 
     private fun isCurrentChapterAvailable(): Boolean {
@@ -763,7 +773,7 @@ class GamePreviewViewModel @Inject constructor(
     }
 
     private fun onBuyStoryPressed() {
-        _gameMenuState.value = GameMenuState.ConfirmBuy(isLoading = true)
+        _gameState.value = GameState.ConfirmBuy(isLoading = true)
         require(game.value != null)
         require(game.value!!.price != null)
 
@@ -773,12 +783,12 @@ class GamePreviewViewModel @Inject constructor(
                     onConfirmBuyStoryPressed()
                 } catch (e: Exception) {
                     e.printStackTrace()
-                    _gameMenuState.value = GameMenuState.LoadingError
+                    _gameState.value = GameState.LoadingError
                     return@launch
                 }
             }
         } else {
-            _gameMenuState.value = GameMenuState.ConfirmBuy(isLoading = false)
+            _gameState.value = GameState.ConfirmBuy(isLoading = false)
             // Fire event to MainActivity to open sign-in page
             openSignInPageUseCase()
         }
@@ -852,7 +862,7 @@ class GamePreviewViewModel @Inject constructor(
      * @param gameId The ID of the game to load.
      */
     private suspend fun loadGame(gameId: String): Boolean {
-        _gameMenuState.value = GameMenuState.Loading
+        _gameState.value = GameState.Loading
         try {
             _game.value = awaitFlowResult {
                 getGameUseCase(gameId)
@@ -860,7 +870,7 @@ class GamePreviewViewModel @Inject constructor(
             return true
         } catch (e: Exception) {
             e.printStackTrace()
-            _gameMenuState.value = GameMenuState.LoadingError
+            _gameState.value = GameState.LoadingError
         }
         return false
     }
@@ -871,14 +881,14 @@ class GamePreviewViewModel @Inject constructor(
      * @param gameId The ID of the game to load chapters for.
      */
     private suspend fun loadChapters(gameId: String): Boolean {
-        _gameMenuState.value = GameMenuState.Loading
+        _gameState.value = GameState.Loading
 
         try {
             _chaptersFlow.value = awaitFlowResult { getChaptersUseCase(gameId) }
             return true
         } catch (e: Exception) {
             e.printStackTrace()
-            _gameMenuState.value = GameMenuState.LoadingError
+            _gameState.value = GameState.LoadingError
         }
         return false
     }
@@ -889,14 +899,14 @@ class GamePreviewViewModel @Inject constructor(
      * @param gameId The ID of the game to load chapters for.
      */
     private suspend fun loadCurrentChapter(gameId: String): Boolean {
-        _gameMenuState.value = GameMenuState.Loading
+        _gameState.value = GameState.Loading
 
         try {
             _currentChapter.value = awaitFlowResult { getCurrentChapterUseCase(gameId, true) }
             return true
         } catch (e: Exception) {
             e.printStackTrace()
-            _gameMenuState.value = GameMenuState.LoadingError
+            _gameState.value = GameState.LoadingError
         }
         return false
     }
@@ -951,7 +961,7 @@ class GamePreviewViewModel @Inject constructor(
                     viewModelScope.launch {
                         game.value?.let { game ->
                             try {
-                                _gameMenuState.value = GameMenuState.Loading
+                                _gameState.value = GameState.Loading
                                 delay(1200)
                                 restartGameUseCase(game.id)
                                 // Remove per-game first name so it will be asked again on chapter 1
@@ -961,11 +971,11 @@ class GamePreviewViewModel @Inject constructor(
                                 } catch (_: Exception) {
                                 }
                                 loadCurrentChapter(game.id)
-                                _gameMenuState.value = GameMenuState.Idle
-                                refreshGameMenuState()
+                                _gameState.value = GameState.Idle
+                                refreshGameState()
                             } catch (e: Exception) {
                                 e.printStackTrace()
-                                _gameMenuState.value = GameMenuState.Idle
+                                _gameState.value = GameState.Idle
                             }
                         }
                     }
@@ -1004,11 +1014,6 @@ class GamePreviewViewModel @Inject constructor(
      *
      * @param n The number of times to vibrate
      */
-    // What?
-    // Why?
-    // Who use it?
-    // Is it mispositioned
-    // Do we keep it?
     private fun vibrate(n: Int = 3) {
         viewModelScope.launch {
             repeat(n) {

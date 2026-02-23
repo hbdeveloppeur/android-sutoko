@@ -43,6 +43,7 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.purpletear.game.presentation.R
 import com.purpletear.game.presentation.components.compact.GameCardCompact
+import com.purpletear.game.presentation.sealed.Background
 import com.purpletear.sutoko.game.model.Game
 
 private val PoppinsMedium = FontFamily(
@@ -146,24 +147,37 @@ private fun ModalContent(
         )
 
         // Action Buttons
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp)
-                .padding(bottom = 16.dp),
-            horizontalArrangement = Arrangement.spacedBy(10.dp)
-        ) {
-            ActionButton(
-                text = "Recommencer",
-                onClick = onRestartClick,
-                modifier = Modifier.weight(1f)
-            )
-            ActionButton(
-                text = "Télécharger",
-                onClick = onDownloadClick,
-                modifier = Modifier.weight(1f)
-            )
-        }
+        ModalActionButtons(
+            onRestartClick = onRestartClick,
+            onDownloadClick = onDownloadClick,
+            modifier = Modifier.padding(horizontal = 16.dp, vertical = 16.dp)
+        )
+    }
+}
+
+@Composable
+private fun ModalActionButtons(
+    onRestartClick: () -> Unit,
+    onDownloadClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Row(
+        modifier = modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(10.dp)
+    ) {
+        GamePreviewButton(
+            modifier = Modifier.weight(1f),
+            onClick = onRestartClick,
+            title = "Recommencer",
+            background = Background.Solid(Color(0xFF191919))
+        )
+
+        GamePreviewButton(
+            modifier = Modifier.weight(1f),
+            onClick = onDownloadClick,
+            title = "Télécharger",
+            background = Background.Solid(Color(0xFF171717))
+        )
     }
 }
 
@@ -225,25 +239,4 @@ private fun BannerWithGameInfo(
     }
 }
 
-@Composable
-private fun ActionButton(
-    text: String,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    Box(
-        modifier = modifier
-            .height(48.dp)
-            .clip(RoundedCornerShape(8.dp))
-            .background(Color(0xFF333333))
-            .clickable(onClick = onClick),
-        contentAlignment = Alignment.Center
-    ) {
-        Text(
-            text = text,
-            fontFamily = PoppinsMedium,
-            fontSize = 12.sp,
-            color = Color.White
-        )
-    }
-}
+

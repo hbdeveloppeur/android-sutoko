@@ -24,7 +24,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import com.purpletear.core.presentation.services.performVibration
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
@@ -34,7 +36,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import com.purpletear.game.presentation.R
 import com.purpletear.game.presentation.components.AnimatedGameTitle
 import com.purpletear.game.presentation.components.GameBackgroundPreviewMedia
-import com.purpletear.game.presentation.components.GamePreviewButtonsWrapper
+import com.purpletear.game.presentation.components.GameActionButtons
 import com.purpletear.game.presentation.components.GamePreviewCategories
 import com.purpletear.game.presentation.components.GamePreviewChapterTitle
 import com.purpletear.game.presentation.components.GamePreviewDescription
@@ -316,9 +318,11 @@ fun GamePreview(
                     description = game?.metadata?.description ?: "",
                 )
 
-                GamePreviewButtonsWrapper(
-                    Modifier.padding(bottom = 12.dp),
-                    viewModel = viewModel,
+                val buttonsState = viewModel.gameButtonsState
+                
+                GameActionButtons(
+                    state = buttonsState,
+                    modifier = Modifier.padding(bottom = 12.dp),
                 )
             }
         }
