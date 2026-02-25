@@ -1,6 +1,6 @@
 package com.purpletear.game.presentation.states
 
-internal sealed class StoryPreviewAction {
+sealed class StoryPreviewAction {
     data object OnBuy : StoryPreviewAction()
     data object OnBuyConfirm : StoryPreviewAction()
     data object OnDownload : StoryPreviewAction()

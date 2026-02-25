@@ -44,6 +44,9 @@ import com.purpletear.game.presentation.components.compact.GameCardCompact
 import com.purpletear.game.presentation.states.ButtonUiState
 import com.purpletear.game.presentation.states.GameButtonsState
 import com.example.sharedelements.utils.UiText
+import com.purpletear.game.presentation.states.GameState
+import com.purpletear.game.presentation.states.StoryPreviewAction
+import com.purpletear.game.presentation.states.toButtonsState
 import com.purpletear.sutoko.game.model.Game
 
 private val PoppinsMedium = FontFamily(
@@ -56,17 +59,15 @@ private val PoppinsMedium = FontFamily(
  * @param isVisible Whether the modal should be displayed
  * @param onDismiss Called when user taps outside the modal or back is pressed
  * @param game The game to display. Can be null when hidden (preserved for exit animation)
- * @param onRestartClick Called when restart button is clicked
- * @param onDownloadClick Called when download button is clicked
  */
 @Composable
 fun GamePreviewModal(
     isVisible: Boolean,
     onDismiss: () -> Unit,
     game: Game?,
+    gameState: GameState,
     modifier: Modifier = Modifier,
-    onRestartClick: () -> Unit = {},
-    onDownloadClick: () -> Unit = {},
+    onAction: (StoryPreviewAction) -> Unit,
 ) {
     var displayedGame by remember { mutableStateOf<Game?>(null) }
     
@@ -94,8 +95,8 @@ fun GamePreviewModal(
         ) {
             ModalContent(
                 game = currentGame,
-                onRestartClick = onRestartClick,
-                onDownloadClick = onDownloadClick,
+                gameState = gameState,
+                onAction = onAction,
                 modifier = Modifier
                     .padding(horizontal = 16.dp)
                     .clickable(
@@ -110,8 +111,8 @@ fun GamePreviewModal(
 @Composable
 private fun ModalContent(
     game: Game,
-    onRestartClick: () -> Unit,
-    onDownloadClick: () -> Unit,
+    gameState: GameState,
+    onAction: (StoryPreviewAction) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -148,8 +149,8 @@ private fun ModalContent(
 
         // Action Buttons
         ModalActionButtons(
-            onRestartClick = onRestartClick,
-            onDownloadClick = onDownloadClick,
+            gameState = gameState,
+            onAction = onAction,
             modifier = Modifier.padding(horizontal = 16.dp, vertical = 16.dp)
         )
     }
@@ -157,22 +158,14 @@ private fun ModalContent(
 
 @Composable
 private fun ModalActionButtons(
-    onRestartClick: () -> Unit,
-    onDownloadClick: () -> Unit,
+    gameState: GameState,
+    onAction: (StoryPreviewAction) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val buttonsState = GameButtonsState(
-        left = ButtonUiState(
-            title = UiText.DynamicText("Recommencer"),
-            weight = 1f,
-            onClick = onRestartClick,
-        ),
-        right = ButtonUiState(
-            title = UiText.DynamicText("Télécharger"),
-            weight = 1f,
-            backgroundColor = Color(0xFF171717),
-            onClick = onDownloadClick,
-        )
+    val buttonsState = gameState.toButtonsState(
+        currentChapterNumber = 1,
+        gamePrice = null,
+        onAction = onAction,
     )
 
     GameActionButtons(

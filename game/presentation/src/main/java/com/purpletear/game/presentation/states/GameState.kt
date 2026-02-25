@@ -5,7 +5,7 @@ import androidx.annotation.Keep
 /**
  * Sealed class representing the different states of a game.
  */
-internal sealed class GameState {
+sealed class GameState {
     data object ReadyToPlay : GameState()
     data object Idle : GameState()
     data object DownloadRequired : GameState()

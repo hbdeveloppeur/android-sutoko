@@ -264,7 +264,9 @@ internal fun CreatePageComposable(
                     isPreviewModalVisible = false
                     selectedGameForPreview = null
                 },
-                game = selectedGameForPreview
+                game = selectedGameForPreview,
+                gameState = viewModel.selectedGameState.value,
+                onAction = viewModel::handleGameAction
             )
         }
     }

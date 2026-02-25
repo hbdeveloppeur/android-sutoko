@@ -8,10 +8,11 @@ import androidx.lifecycle.viewModelScope
 import com.purpletear.core.presentation.extensions.Resource
 import com.purpletear.core.presentation.extensions.executeFlowResultUseCase
 import com.purpletear.core.presentation.extensions.executeFlowUseCase
+import com.purpletear.game.presentation.states.GameState
+import com.purpletear.game.presentation.states.StoryPreviewAction
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.flowOn
-import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.Dispatchers
 import com.purpletear.shop.domain.model.Balance
 import com.purpletear.shop.domain.usecase.ObserveShopBalanceUseCase
@@ -48,6 +49,9 @@ class CreateViewModel @Inject constructor(
     private val _isRefreshing = mutableStateOf(false)
     val isRefreshing: State<Boolean> = _isRefreshing
 
+    private val _selectedGameState = mutableStateOf<GameState>(GameState.DownloadRequired)
+    val selectedGameState: State<GameState> = _selectedGameState
+
     companion object {
         private const val PAGE_LIMIT = 20
         private const val MIN_REFRESH_DURATION_MS = 1000L
@@ -71,6 +75,19 @@ class CreateViewModel @Inject constructor(
                     _balance.value = Resource.Error(exception)
                 }
             )
+        }
+    }
+
+    fun handleGameAction(action: StoryPreviewAction) {
+        when(action) {
+            is StoryPreviewAction.OnBuy -> {
+
+            }
+
+            is GameState.DownloadRequired -> {
+                _selectedGameState.value = GameState.DownloadingGame(1)
+            }
+            else -> {}
         }
     }
 
