@@ -65,7 +65,6 @@ class CreateViewModel @Inject constructor(
     }
 
     private fun observeBalance() {
-        ntfy.send(message = "test")
         viewModelScope.launch {
             executeFlowUseCase(
                 { observeShopBalanceUseCase() },
@@ -75,6 +74,7 @@ class CreateViewModel @Inject constructor(
                     )
                 },
                 onFailure = { exception ->
+                    ntfy.exception(exception)
                     _balance.value = Resource.Error(exception)
                 }
             )

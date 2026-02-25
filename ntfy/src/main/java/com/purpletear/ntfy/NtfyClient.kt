@@ -1,5 +1,6 @@
 package com.purpletear.ntfy
 
+import android.util.Log
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -49,12 +50,14 @@ class NtfyClient(
     }
 
     override fun send(message: String, data: Map<String, Any?>?) {
+        Log.d("Ntfy", "send() called, channel='${config.logChannelId}'")
         if (config.logChannelId.isBlank()) {
+            Log.w("Ntfy", "Log channel ID not configured")
             handleError("Log channel ID not configured")
             return
         }
         val formatted = formatLogMessage(message, data)
-        sendInternal(formatted, config.logChannelId, PRIORITY_DEFAULT, emoji = "📝")
+        sendInternal(formatted, config.logChannelId, PRIORITY_DEFAULT)
     }
 
     override fun send(message: String, channelId: String, data: Map<String, Any?>?) {
@@ -63,7 +66,7 @@ class NtfyClient(
             return
         }
         val formatted = formatLogMessage(message, data)
-        sendInternal(formatted, channelId, PRIORITY_DEFAULT, emoji = "📝")
+        sendInternal(formatted, channelId, PRIORITY_DEFAULT)
     }
 
     override fun exception(throwable: Throwable, data: Map<String, Any?>?) {
@@ -72,7 +75,7 @@ class NtfyClient(
             return
         }
         val formatted = formatExceptionMessage(throwable, data)
-        sendInternal(formatted, config.errorChannelId, PRIORITY_HIGH, emoji = "⚠️")
+        sendInternal(formatted, config.errorChannelId, PRIORITY_HIGH)
     }
 
     override fun urgent(throwable: Throwable, data: Map<String, Any?>?) {
@@ -81,7 +84,7 @@ class NtfyClient(
             return
         }
         val formatted = formatUrgentExceptionMessage(throwable, data)
-        sendInternal(formatted, config.urgentChannelId, PRIORITY_URGENT, emoji = "🔥")
+        sendInternal(formatted, config.urgentChannelId, PRIORITY_URGENT)
     }
 
     override fun urgent(message: String, data: Map<String, Any?>?) {
@@ -90,7 +93,7 @@ class NtfyClient(
             return
         }
         val formatted = formatUrgentMessage(message, data)
-        sendInternal(formatted, config.urgentChannelId, PRIORITY_URGENT, emoji = "🔥")
+        sendInternal(formatted, config.urgentChannelId, PRIORITY_URGENT)
     }
 
     private fun formatLogMessage(message: String, data: Map<String, Any?>?): String {
@@ -174,23 +177,23 @@ class NtfyClient(
     private fun sendInternal(
         message: String,
         channelId: String,
-        priority: String,
-        emoji: String? = null
+        priority: String
     ) {
         externalScope.launch {
             try {
                 val timestamp = timeFormatter.format(Instant.now())
-                val title = buildString {
-                    append("$timestamp ")
-                    emoji?.let { append("$it ") }
-                    append("${config.appName ?: "App"}")
-                }
+                val title = "${timestamp} ${config.appName ?: "App"}"
+
+                val url = "${config.baseUrl}/$channelId"
+                val body = message.toRequestBody(TEXT_MEDIA_TYPE.toMediaType())
+                
+                Log.d("Ntfy", "Sending to $url")
+                Log.d("Ntfy", "Title: $title")
+                Log.d("Ntfy", "Message: $message")
 
                 val request = Request.Builder()
-                    .url("${config.baseUrl}/$channelId")
-                    .post(message.toRequestBody(TEXT_MEDIA_TYPE.toMediaType()))
-                    .header("Content-Type", TEXT_MEDIA_TYPE)
-                    .header("Title", title)
+                    .url(url)
+                    .post(body)
                     .header("Priority", priority)
                     .apply {
                         if (priority == PRIORITY_URGENT) {
@@ -201,10 +204,13 @@ class NtfyClient(
 
                 client.newCall(request).enqueue(object : Callback {
                     override fun onFailure(call: Call, e: IOException) {
+                        Log.e("Ntfy", "Failed to send: ${e.message}", e)
                         handleError("Failed to send notification: ${e.message}", e)
                     }
 
                     override fun onResponse(call: Call, response: Response) {
+                        val body = response.body?.string() ?: "empty"
+                        Log.d("Ntfy", "Response: ${response.code} - $body")
                         response.close()
                         if (!response.isSuccessful) {
                             handleError("Notification failed with status: ${response.code}")
@@ -212,6 +218,7 @@ class NtfyClient(
                     }
                 })
             } catch (e: Exception) {
+                Log.e("Ntfy", "Error: ${e.message}", e)
                 handleError("Error sending notification: ${e.message}", e)
             }
         }

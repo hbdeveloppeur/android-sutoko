@@ -15,10 +15,10 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles("consumer-rules.pro")
 
-        // BuildConfig fields for channel IDs (to be set by the consuming app)
-        val errorChannel = project.findProperty("NTFY_ERROR_CHANNEL") ?: ""
-        val logChannel = project.findProperty("NTFY_LOG_CHANNEL") ?: ""
-        val urgentChannel = project.findProperty("NTFY_URGENT_CHANNEL") ?: ""
+        // BuildConfig fields for channel IDs - read from root project properties
+        val errorChannel = rootProject.findProperty("NTFY_ERROR_CHANNEL") as String? ?: ""
+        val logChannel = rootProject.findProperty("NTFY_LOG_CHANNEL") as String? ?: ""
+        val urgentChannel = rootProject.findProperty("NTFY_URGENT_CHANNEL") as String? ?: ""
         
         buildConfigField("String", "NTFY_ERROR_CHANNEL", "\"$errorChannel\"")
         buildConfigField("String", "NTFY_LOG_CHANNEL", "\"$logChannel\"")
