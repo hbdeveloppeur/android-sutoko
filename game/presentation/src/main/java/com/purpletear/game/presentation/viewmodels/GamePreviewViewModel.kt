@@ -9,15 +9,11 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.downloader.Error
-import com.downloader.OnDownloadListener
-import com.downloader.PRDownloader
 import com.example.sharedelements.utils.UiText
 import com.purpletear.core.presentation.extensions.awaitFlowResult
 import com.purpletear.core.presentation.extensions.executeFlowResultUseCase
 import com.purpletear.core.presentation.extensions.executeFlowUseCase
 import com.purpletear.core.presentation.services.MakeToastService
-import com.purpletear.game.data.provider.GamePathProvider
 import com.purpletear.game.presentation.R
 import com.purpletear.game.presentation.audio.GameMenuSoundPlayer
 import com.purpletear.game.presentation.states.GameButtonsState
@@ -36,13 +32,11 @@ import com.purpletear.shop.domain.usecase.UserHasProductUseCase
 import com.purpletear.sutoko.core.domain.helper.provider.HostProvider
 import com.purpletear.sutoko.game.exception.GameDownloadForbiddenException
 import com.purpletear.sutoko.game.model.Chapter
-import com.purpletear.sutoko.game.model.ExtractZipParams
 import com.purpletear.sutoko.game.model.Game
 import com.purpletear.sutoko.game.model.isPaying
 import com.purpletear.sutoko.game.model.isPremium
-import com.purpletear.sutoko.game.usecase.ExtractZipUseCase
-import com.purpletear.sutoko.game.usecase.GenerateFreeGameDownloadLinkUseCase
-import com.purpletear.sutoko.game.usecase.GenerateGameDownloadLinkUseCase
+import com.purpletear.sutoko.game.download.GameDownloadManager
+import com.purpletear.sutoko.game.download.GameDownloadState
 import com.purpletear.sutoko.game.usecase.GetChaptersUseCase
 import com.purpletear.sutoko.game.usecase.GetCurrentChapterUseCase
 import com.purpletear.sutoko.game.usecase.GetGameUseCase
@@ -81,7 +75,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.last
 import kotlinx.coroutines.launch
-import java.io.File
 import javax.inject.Inject
 
 /**
@@ -90,6 +83,7 @@ import javax.inject.Inject
  */
 @HiltViewModel
 class GamePreviewViewModel @Inject constructor(
+    private val gameDownloadManager: GameDownloadManager,
     private val customer: Customer,
     private val getGameUseCase: GetGameUseCase,
     private val getChaptersUseCase: GetChaptersUseCase,
@@ -104,19 +98,15 @@ class GamePreviewViewModel @Inject constructor(
     private val isFriendZoned1GameUseCase: IsFriendZoned1GameUseCase,
     private val hasGameLocalFilesUseCase: HasGameLocalFilesUseCase,
     private val isUserConnectedUseCase: IsUserConnectedUseCase,
-    private val generateGameDownloadLinkUseCase: GenerateGameDownloadLinkUseCase,
-    private val generateFreeGameDownloadLinkUseCase: GenerateFreeGameDownloadLinkUseCase,
     private val registerOrderUseCaseIfNecessary: RegisterOrderUseCaseIfNecessary,
     private val buyCatalogProductUseCase: BuyCatalogProductUseCase,
     private val observeInteractionUseCase: GetPopUpInteractionUseCase,
     private val showPopUpUseCase: ShowPopUpUseCase,
     private val setGameVersionUseCase: SetGameVersionUseCase,
-    private val extractZipUseCase: ExtractZipUseCase,
     private val openSignInPageUseCase: OpenSignInPageUseCase,
     billingDataService: BillingDataService,
     private val savedStateHandle: SavedStateHandle,
     private val makeToastService: MakeToastService,
-    private val gamePathProvider: GamePathProvider,
     private val hostProvider: HostProvider,
     private val getShopBalanceUseCase: GetShopBalanceUseCase,
     private val restartGameUseCase: RestartGameUseCase,
@@ -216,6 +206,43 @@ class GamePreviewViewModel @Inject constructor(
                 }
         }
 
+        observeDownloadState()
+    }
+
+    /**
+     * Observes the download state from GameDownloadManager and maps it to GameState.
+     */
+    private fun observeDownloadState() {
+        viewModelScope.launch {
+            gameDownloadManager.getDownloadState(gameId).collect { downloadState ->
+                when (downloadState) {
+                    is GameDownloadState.Downloading -> {
+                        _gameState.value = GameState.DownloadingGame(progress = downloadState.progress)
+                    }
+                    GameDownloadState.Extracting -> {
+                        _gameState.value = GameState.DownloadingGame(progress = 100)
+                    }
+                    GameDownloadState.Completed -> {
+                        // Set game version after successful download
+                        game.value?.let { game ->
+                            executeFlowResultUseCase({ setGameVersionUseCase(game) })
+                        }
+                        _gameState.value = GameState.ReadyToPlay
+                        refreshGameState()
+                    }
+                    is GameDownloadState.Error -> {
+                        _gameState.value = GameState.LoadingError
+                    }
+                    GameDownloadState.Idle,
+                    GameDownloadState.Cancelled -> {
+                        // Don't change state on idle/cancelled, let refreshGameState handle it
+                        if (_gameState.value is GameState.DownloadingGame) {
+                            refreshGameState()
+                        }
+                    }
+                }
+            }
+        }
     }
 
     /**
@@ -509,6 +536,7 @@ class GamePreviewViewModel @Inject constructor(
     /**
      * Public function to download the game.
      * Called from the UI components.
+     * Delegates to GameDownloadManager for the actual download process.
      */
     private fun onClickDownloadGame() {
         if (game.value?.isPremium() == true && !customer.isUserConnected()) {
@@ -518,132 +546,19 @@ class GamePreviewViewModel @Inject constructor(
 
         viewModelScope.launch {
             try {
-                val downloadLink = generateDownloadLink()
-                val path = gamePathProvider.getStoryDirectoryPath(gameId)
-                downloadGameArchive(link = downloadLink, atPath = path)
+                val isPremium = game.value?.isPremium() == true
+                gameDownloadManager.downloadGame(
+                    gameId = gameId,
+                    isPremium = isPremium,
+                    userId = if (isPremium) customer.getUserId() else null,
+                    userToken = if (isPremium) customer.getUserToken() else null
+                )
             } catch (e: GameDownloadForbiddenException) {
                 e.printStackTrace()
-                // Handle forbidden access specifically
                 _gameState.value = GameState.LoadingError
-                // Log the specific error for debugging
                 android.util.Log.e("GamePreviewViewModel", "Forbidden access: ${e.message}")
             } catch (e: Exception) {
                 e.printStackTrace()
-                // Handle other errors
-                _gameState.value = GameState.LoadingError
-            }
-        }
-    }
-
-
-    private fun downloadGameArchive(link: String, atPath: String) {
-        _gameState.value = GameState.DownloadingGame(progress = 0)
-
-        try {
-
-            val fileName = "game_${gameId}.zip"
-
-            // Cancel any ongoing downloads with the same tag
-            PRDownloader.cancel(gameId)
-
-            // Start the download
-            PRDownloader.download(link, atPath, fileName)
-                .setTag(gameId)
-                .build()
-                .setOnProgressListener { progress ->
-                    progress?.let {
-                        val downloadProgress =
-                            it.currentBytes.toFloat() * 100 / it.totalBytes.toFloat()
-                        _gameState.value =
-                            GameState.DownloadingGame(progress = downloadProgress.toInt())
-                    }
-                }
-                .start(object : OnDownloadListener {
-                    override fun onDownloadComplete() {
-                        viewModelScope.launch {
-                            // Handle successful download
-                            delay(280)
-                            try {
-                                // Extract the zip file
-                                val zipFile = File(atPath, fileName)
-                                extractZipFile(zipFile, atPath)
-
-                                executeFlowResultUseCase({ setGameVersionUseCase(game.value!!) })
-                            } catch (e: Exception) {
-                                e.printStackTrace()
-                            }
-                            _gameState.value = GameState.ReadyToPlay
-                        }
-                    }
-
-                    override fun onError(error: Error?) {
-                        viewModelScope.launch {
-                            // Handle download error
-                            error?.let {
-                                android.util.Log.e(
-                                    "GamePreviewViewModel",
-                                    "Download error: ${it.connectionException?.message ?: it.serverErrorMessage ?: "Unknown error"}"
-                                )
-                            }
-            _gameState.value = GameState.LoadingError
-                        }
-                    }
-                })
-        } catch (e: Exception) {
-            e.printStackTrace()
-            _gameState.value = GameState.LoadingError
-        }
-    }
-
-    /**
-     * Generates a secure download link for a game using the user's credentials and game ID.
-     *
-     * @return A string representing the generated download link for the requested game.
-     */
-    private suspend fun generateDownloadLink(): String {
-        val isPayingGame = (this.game.value?.isPremium() == true)
-
-        if (isPayingGame) {
-            return awaitFlowResult {
-                generateGameDownloadLinkUseCase(
-                    userId = customer.getUserId(),
-                    userToken = customer.getUserToken(),
-                    gameId = gameId
-                )
-            }
-        }
-
-        return awaitFlowResult {
-            generateFreeGameDownloadLinkUseCase(
-                gameId = gameId
-            )
-        }
-    }
-
-    /**
-     * Extracts a zip file to the specified directory.
-     *
-     * @param zipFile The zip file to extract.
-     * @param destinationPath The directory to extract the zip file to.
-     */
-    private fun extractZipFile(zipFile: File, destinationPath: String) {
-        viewModelScope.launch {
-            try {
-                val params = ExtractZipParams(
-                    zipFile = zipFile,
-                    destinationPath = destinationPath,
-                    deleteArchiveAfterExtraction = true,
-                )
-
-                val result = awaitFlowResult {
-                    extractZipUseCase(params)
-                }
-            } catch (e: Exception) {
-                e.printStackTrace()
-                android.util.Log.e(
-                    "GamePreviewViewModel",
-                    "Error extracting zip file: ${e.message}"
-                )
                 _gameState.value = GameState.LoadingError
             }
         }
@@ -1000,6 +915,7 @@ class GamePreviewViewModel @Inject constructor(
     override fun onCleared() {
         super.onCleared()
         menuSoundPlayer.release()
+        gameDownloadManager.cleanup(gameId)
     }
 
     /**

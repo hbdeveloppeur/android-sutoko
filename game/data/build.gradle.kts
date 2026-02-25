@@ -73,6 +73,9 @@ dependencies {
     ksp(libs.androidx.hilt.compiler)
     implementation(libs.androidx.hilt.work)
 
+    // PRDownloader for file downloads
+    implementation(libs.prdownloader)
+
     // DataStore
     implementation("androidx.datastore:datastore-preferences:1.0.0")
     implementation("androidx.datastore:datastore-preferences-core:1.0.0")

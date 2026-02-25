@@ -1,11 +1,13 @@
 package com.purpletear.game.data.di
 
 import android.content.Context
+import com.purpletear.game.data.download.GameDownloadManagerImpl
 import com.purpletear.game.data.provider.AndroidGamePathProviderImpl
 import com.purpletear.game.data.provider.GamePathProvider
 import com.purpletear.game.data.remote.GameApi
 import com.purpletear.game.data.remote.UserGameApi
 import com.purpletear.game.data.repository.GameRepositoryImpl
+import com.purpletear.sutoko.game.download.GameDownloadManager
 import com.purpletear.sutoko.game.repository.GameRepository
 import dagger.Module
 import dagger.Provides
@@ -126,6 +128,20 @@ object GameDataModule {
         @ApplicationContext context: Context
     ): GamePathProvider {
         return AndroidGamePathProviderImpl(context)
+    }
+
+    /**
+     * Provides the GameDownloadManager implementation.
+     *
+     * @param impl The implementation instance.
+     * @return The GameDownloadManager interface.
+     */
+    @Provides
+    @Singleton
+    fun provideGameDownloadManager(
+        impl: GameDownloadManagerImpl
+    ): GameDownloadManager {
+        return impl
     }
 
 }
