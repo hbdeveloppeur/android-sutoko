@@ -54,7 +54,7 @@ include ':news:presentation'
 include ':version:domain'
 include ':version:infrastructure'
 include ':version:presentation'
-
+include ':ntfy'
 
 project(":version:presentation").projectDir = new File(rootDir, "version/presentation")
 project(":in-app-purchase:domain").projectDir = new File(rootDir, "in-app-purchase/domain")

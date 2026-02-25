@@ -10,6 +10,7 @@ import com.purpletear.core.presentation.extensions.executeFlowResultUseCase
 import com.purpletear.core.presentation.extensions.executeFlowUseCase
 import com.purpletear.game.presentation.states.GameState
 import com.purpletear.game.presentation.states.StoryPreviewAction
+import com.purpletear.ntfy.Ntfy
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.flowOn
@@ -29,6 +30,7 @@ class CreateViewModel @Inject constructor(
     private val observeShopBalanceUseCase: ObserveShopBalanceUseCase,
     private val getUserGamesUseCase: GetUserGamesUseCase,
     private val customer: Customer,
+    private val ntfy: Ntfy,
 ) : ViewModel() {
 
     private val _balance = mutableStateOf<Resource<Balance>>(Resource.Loading())
@@ -63,6 +65,7 @@ class CreateViewModel @Inject constructor(
     }
 
     private fun observeBalance() {
+        ntfy.send(message = "test")
         viewModelScope.launch {
             executeFlowUseCase(
                 { observeShopBalanceUseCase() },

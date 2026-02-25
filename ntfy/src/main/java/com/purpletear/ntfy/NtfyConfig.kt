@@ -8,13 +8,15 @@ package com.purpletear.ntfy
  * @property urgentChannelId The channel ID for urgent notifications
  * @property baseUrl The base URL for ntfy.sh server (default: https://ntfy.sh)
  * @property silent If true, exceptions during notification will be swallowed (default: false)
+ * @property appName Optional app name to display in notification titles
  */
 data class NtfyConfig(
     val errorChannelId: String = "",
     val logChannelId: String = "",
     val urgentChannelId: String = "",
     val baseUrl: String = "https://ntfy.sh",
-    val silent: Boolean = false
+    val silent: Boolean = false,
+    val appName: String? = null
 ) {
     companion object {
         /**

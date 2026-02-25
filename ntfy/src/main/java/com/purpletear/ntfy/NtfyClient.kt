@@ -11,8 +11,10 @@ import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.Response
-import org.json.JSONObject
 import java.io.IOException
+import java.time.Instant
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
 import java.util.concurrent.TimeUnit
 
 /**
@@ -29,10 +31,13 @@ class NtfyClient(
 ) : Ntfy {
 
     companion object {
-        private const val JSON_MEDIA_TYPE = "application/json"
+        private const val TEXT_MEDIA_TYPE = "text/plain; charset=utf-8"
         private const val PRIORITY_DEFAULT = "default"
         private const val PRIORITY_HIGH = "high"
         private const val PRIORITY_URGENT = "urgent"
+        
+        private val timeFormatter = DateTimeFormatter.ofPattern("HH:mm:ss")
+            .withZone(ZoneId.systemDefault())
 
         private fun defaultOkHttpClient(): OkHttpClient {
             return OkHttpClient.Builder()
@@ -48,7 +53,8 @@ class NtfyClient(
             handleError("Log channel ID not configured")
             return
         }
-        sendInternal(message, config.logChannelId, PRIORITY_DEFAULT, data)
+        val formatted = formatLogMessage(message, data)
+        sendInternal(formatted, config.logChannelId, PRIORITY_DEFAULT, emoji = "📝")
     }
 
     override fun send(message: String, channelId: String, data: Map<String, Any?>?) {
@@ -56,7 +62,8 @@ class NtfyClient(
             handleError("Channel ID cannot be blank")
             return
         }
-        sendInternal(message, channelId, PRIORITY_DEFAULT, data)
+        val formatted = formatLogMessage(message, data)
+        sendInternal(formatted, channelId, PRIORITY_DEFAULT, emoji = "📝")
     }
 
     override fun exception(throwable: Throwable, data: Map<String, Any?>?) {
@@ -64,19 +71,8 @@ class NtfyClient(
             handleError("Error channel ID not configured")
             return
         }
-        val message = buildString {
-            appendLine("Exception: ${throwable.javaClass.simpleName}")
-            appendLine("Message: ${throwable.message}")
-            appendLine("Stacktrace:")
-            append(throwable.stackTraceToString().take(2000))
-        }
-        val mergedData = mutableMapOf<String, Any?>()
-        mergedData["exception_class"] = throwable.javaClass.name
-        mergedData["exception_message"] = throwable.message
-        if (data != null) {
-            mergedData.putAll(data)
-        }
-        sendInternal(message, config.errorChannelId, PRIORITY_HIGH, mergedData)
+        val formatted = formatExceptionMessage(throwable, data)
+        sendInternal(formatted, config.errorChannelId, PRIORITY_HIGH, emoji = "⚠️")
     }
 
     override fun urgent(throwable: Throwable, data: Map<String, Any?>?) {
@@ -84,19 +80,8 @@ class NtfyClient(
             handleError("Urgent channel ID not configured")
             return
         }
-        val message = buildString {
-            appendLine("URGENT: ${throwable.javaClass.simpleName}")
-            appendLine("Message: ${throwable.message}")
-            appendLine("Stacktrace:")
-            append(throwable.stackTraceToString().take(1500))
-        }
-        val mergedData = mutableMapOf<String, Any?>()
-        mergedData["exception_class"] = throwable.javaClass.name
-        mergedData["exception_message"] = throwable.message
-        if (data != null) {
-            mergedData.putAll(data)
-        }
-        sendInternal(message, config.urgentChannelId, PRIORITY_URGENT, mergedData)
+        val formatted = formatUrgentExceptionMessage(throwable, data)
+        sendInternal(formatted, config.urgentChannelId, PRIORITY_URGENT, emoji = "🔥")
     }
 
     override fun urgent(message: String, data: Map<String, Any?>?) {
@@ -104,29 +89,114 @@ class NtfyClient(
             handleError("Urgent channel ID not configured")
             return
         }
-        sendInternal(message, config.urgentChannelId, PRIORITY_URGENT, data)
+        val formatted = formatUrgentMessage(message, data)
+        sendInternal(formatted, config.urgentChannelId, PRIORITY_URGENT, emoji = "🔥")
+    }
+
+    private fun formatLogMessage(message: String, data: Map<String, Any?>?): String {
+        return buildString {
+            appendLine(message)
+            if (data != null && data.isNotEmpty()) {
+                appendLine()
+                data.entries.joinToString(" | ") { "${it.key}=${it.value}" }.let {
+                    append("• $it")
+                }
+            }
+        }
+    }
+
+    private fun formatExceptionMessage(throwable: Throwable, data: Map<String, Any?>?): String {
+        return buildString {
+            appendLine("${throwable.javaClass.simpleName}: ${throwable.message}")
+            appendLine()
+            appendLine(getRootCause(throwable))
+            append("—".repeat(20))
+            appendLine()
+            append(throwable.stackTrace.firstOrNull()?.let { 
+                "at ${it.className}.${it.methodName} (${it.fileName}:${it.lineNumber})"
+            } ?: "No stack trace")
+            
+            if (data != null && data.isNotEmpty()) {
+                appendLine()
+                appendLine("—".repeat(20))
+                data.entries.joinToString(" | ") { "${it.key}=${it.value}" }.let {
+                    append("• $it")
+                }
+            }
+        }
+    }
+
+    private fun formatUrgentExceptionMessage(throwable: Throwable, data: Map<String, Any?>?): String {
+        return buildString {
+            appendLine("URGENT: ${throwable.javaClass.simpleName}")
+            appendLine("${throwable.message}")
+            appendLine()
+            appendLine(getRootCause(throwable))
+            append("—".repeat(20))
+            appendLine()
+            appendLine(throwable.stackTrace.take(3).joinToString("\n") { 
+                "• ${it.className}.${it.methodName}"
+            })
+            
+            if (data != null && data.isNotEmpty()) {
+                appendLine()
+                append("—".repeat(20))
+                appendLine()
+                data.entries.joinToString("\n") { "• ${it.key}: ${it.value}" }.let {
+                    append(it)
+                }
+            }
+        }
+    }
+
+    private fun formatUrgentMessage(message: String, data: Map<String, Any?>?): String {
+        return buildString {
+            appendLine(message)
+            if (data != null && data.isNotEmpty()) {
+                appendLine()
+                append("—".repeat(20))
+                appendLine()
+                data.entries.joinToString("\n") { "• ${it.key}: ${it.value}" }.let {
+                    append(it)
+                }
+            }
+        }
+    }
+
+    private fun getRootCause(throwable: Throwable): String {
+        var cause = throwable
+        while (cause.cause != null && cause.cause !== cause) {
+            cause = cause.cause!!
+        }
+        return if (cause !== throwable) "Caused by: ${cause.javaClass.simpleName}: ${cause.message}" else ""
     }
 
     private fun sendInternal(
         message: String,
         channelId: String,
         priority: String,
-        data: Map<String, Any?>?
+        emoji: String? = null
     ) {
         externalScope.launch {
             try {
-                val payload = JSONObject().apply {
-                    put("message", message)
-                    put("priority", priority)
-                    if (data != null) {
-                        put("data", JSONObject(data))
-                    }
+                val timestamp = timeFormatter.format(Instant.now())
+                val title = buildString {
+                    append("$timestamp ")
+                    emoji?.let { append("$it ") }
+                    append("${config.appName ?: "App"}")
                 }
 
                 val request = Request.Builder()
                     .url("${config.baseUrl}/$channelId")
-                    .post(payload.toString().toRequestBody(JSON_MEDIA_TYPE.toMediaType()))
-                    .header("Content-Type", JSON_MEDIA_TYPE)
+                    .post(message.toRequestBody(TEXT_MEDIA_TYPE.toMediaType()))
+                    .header("Content-Type", TEXT_MEDIA_TYPE)
+                    .header("Title", title)
+                    .header("Priority", priority)
+                    .apply {
+                        if (priority == PRIORITY_URGENT) {
+                            header("Tags", "warning")
+                        }
+                    }
                     .build()
 
                 client.newCall(request).enqueue(object : Callback {
@@ -149,7 +219,6 @@ class NtfyClient(
 
     private fun handleError(message: String, cause: Throwable? = null) {
         if (config.silent) {
-            // Silently log the error (in production you might want to use a logger)
             cause?.printStackTrace()
         } else {
             throw NtfyException(message, cause ?: Exception(message))

@@ -1,5 +1,7 @@
 plugins {
     alias(libs.plugins.android.library)
+    alias(libs.plugins.jetbrains.kotlin.android)
+    kotlin("kapt")
     `maven-publish`
 }
 
@@ -37,8 +39,12 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
+    }
+    
+    kotlin {
+        jvmToolchain(17)
     }
     
     publishing {
@@ -51,6 +57,8 @@ android {
 dependencies {
     implementation(libs.androidx.ktx)
     implementation(libs.okhttp3)
+    implementation(libs.dagger.hilt)
+    kapt(libs.dagger.hilt.compiler)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

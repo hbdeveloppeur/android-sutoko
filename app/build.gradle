@@ -153,6 +153,7 @@ dependencies {
     implementation project(':game:presentation')
     implementation project(':version:presentation')
     implementation project(':core:presentation')
+    implementation project(':ntfy')
 
     // DESUGARING
     coreLibraryDesugaring "com.android.tools:desugar_jdk_libs:$desugar_jdk_libs_version"

@@ -155,11 +155,6 @@ class GamePreviewViewModel @Inject constructor(
     private var _isUserPremium: MutableState<Boolean> = mutableStateOf(false)
     val isUserPremium: State<Boolean> get() = _isUserPremium
 
-    // What : StateFlow for Google Play purchases
-    // Why : For no apparent reason
-    // Who use it : this
-    // Is it mispositioned : Yes
-    // Do we keep it : No
     private val purchases: StateFlow<List<AppPurchaseDetails>> = billingDataService.getPurchases()
 
     private val _gameBoughtEvents = MutableSharedFlow<Unit>()
