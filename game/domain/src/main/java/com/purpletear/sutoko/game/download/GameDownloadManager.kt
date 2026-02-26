@@ -22,7 +22,7 @@ interface GameDownloadManager {
      * Initiates a download for the specified game.
      * If a download is already in progress for this game, this method does nothing.
      * The download includes: generating download link → downloading → extracting → setting game version.
-     *
+     * TODO: UPDATE
      * @param gameId The unique identifier of the game to download
      * @param isPremium Whether the game requires premium authentication
      * @param userId The user ID for authenticated downloads (required for premium games)
@@ -30,8 +30,7 @@ interface GameDownloadManager {
      * @throws GameDownloadForbiddenException if the user doesn't have permission to download
      */
     suspend fun downloadGame(
-        gameId: String,
-        isPremium: Boolean,
+        game: Game,
         userId: String? = null,
         userToken: String? = null
     )

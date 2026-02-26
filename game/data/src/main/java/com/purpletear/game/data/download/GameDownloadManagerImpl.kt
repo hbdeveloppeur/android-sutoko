@@ -5,11 +5,13 @@ import com.downloader.Error
 import com.downloader.OnDownloadListener
 import com.downloader.PRDownloader
 import com.purpletear.game.data.provider.GamePathProvider
+import com.purpletear.ntfy.Ntfy
 import com.purpletear.sutoko.game.download.GameDownloadManager
 import com.purpletear.sutoko.game.download.GameDownloadState
 import com.purpletear.sutoko.game.exception.GameDownloadForbiddenException
 import com.purpletear.sutoko.game.model.ExtractZipParams
 import com.purpletear.sutoko.game.model.Game
+import com.purpletear.sutoko.game.model.isPremium
 import com.purpletear.sutoko.game.repository.GameRepository
 import com.purpletear.sutoko.game.repository.ZipRepository
 import kotlinx.coroutines.CancellationException
@@ -46,6 +48,7 @@ class GameDownloadManagerImpl @Inject constructor(
     private val gameRepository: GameRepository,
     private val zipRepository: ZipRepository,
     private val gamePathProvider: GamePathProvider,
+    private val ntfy: Ntfy,
 ) : GameDownloadManager {
 
     private val tag = "GameDownloadManager"
@@ -68,60 +71,62 @@ class GameDownloadManagerImpl @Inject constructor(
     }
 
     override suspend fun downloadGame(
-        gameId: String,
-        isPremium: Boolean,
+        game: Game,
         userId: String?,
         userToken: String?
     ) {
         // Check if already downloading
-        val currentState = getDownloadState(gameId).value
+        val currentState = getDownloadState(game.id).value
         if (currentState is GameDownloadState.Downloading ||
             currentState is GameDownloadState.Extracting
         ) {
-            Log.d(tag, "Download already in progress for game $gameId")
+            Log.d(tag, "Download already in progress for game ${game.id}")
             return
         }
 
         // Validate credentials for premium games
-        if (isPremium && (userId.isNullOrBlank() || userToken.isNullOrBlank())) {
+        if (game.isPremium() && (userId.isNullOrBlank() || userToken.isNullOrBlank())) {
             throw GameDownloadForbiddenException("User authentication required for premium game download")
         }
 
         // Create a new scope for this download
         val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
-        downloadScopes[gameId] = scope
+        downloadScopes[game.id] = scope
 
-        val stateFlow = downloadStates.getOrPut(gameId) {
+        val stateFlow = downloadStates.getOrPut(game.id) {
             MutableStateFlow(GameDownloadState.Idle)
         }
 
         scope.launch {
             try {
+                // Check if already cancelled before starting
+                if (!isActive) return@launch
+                
                 // Reset state to Downloading at the start
                 stateFlow.value = GameDownloadState.Downloading(0)
 
                 // Step 1: Generate download link
-                val downloadLink = generateDownloadLink(gameId, isPremium, userId, userToken)
+                val downloadLink = generateDownloadLink(game.id, game.isPremium(), userId, userToken)
 
                 // Step 2: Download the archive
-                val destinationPath = gamePathProvider.getStoryDirectoryPath(gameId)
-                val fileName = "game_${gameId}.zip"
+                val destinationPath = gamePathProvider.getStoryDirectoryPath(game.id)
+                val fileName = "game_${game.id}.zip"
 
-                downloadArchive(gameId, downloadLink, destinationPath, fileName, stateFlow)
+                downloadArchive(game.id, downloadLink, destinationPath, fileName, stateFlow)
 
             } catch (e: CancellationException) {
                 // Normal cancellation - don't change state (cancelDownload already set it)
-                Log.d(tag, "Download cancelled for game $gameId")
+                Log.d(tag, "Download cancelled for game ${game.id}")
                 throw e
             } catch (e: Exception) {
-                Log.e(tag, "Download failed for game $gameId", e)
+                Log.e(tag, "Download failed for game ${game.id}", e)
                 // Only set error if not already cancelled
                 if (stateFlow.value !is GameDownloadState.Cancelled) {
                     stateFlow.value = GameDownloadState.Error(e)
                 }
             } finally {
                 // Clean up scope after download completes (success, error, or cancellation)
-                downloadScopes.remove(gameId)
+                downloadScopes.remove(game.id)
             }
         }
     }
@@ -162,7 +167,6 @@ class GameDownloadManagerImpl @Inject constructor(
         userToken: String?
     ): String {
         return if (isPremium) {
-            // Validation already done in downloadGame(), but defensive check here
             val uid = userId ?: throw GameDownloadForbiddenException("userId is required for premium game downloads")
             val token = userToken ?: throw GameDownloadForbiddenException("userToken is required for premium game downloads")
             gameRepository.generateGameDownloadLink(
@@ -193,6 +197,7 @@ class GameDownloadManagerImpl @Inject constructor(
         fileName: String,
         stateFlow: MutableStateFlow<GameDownloadState>,
     ) = withContext(Dispatchers.IO) {
+        ntfy.startAction("Downloading archive for game $gameId")
         // Cancel any existing download with same tag
         PRDownloader.cancel(gameId)
 
@@ -238,13 +243,20 @@ class GameDownloadManagerImpl @Inject constructor(
         if (stateFlow.value is GameDownloadState.Downloading ||
             (stateFlow.value as? GameDownloadState.Downloading)?.progress == 100) {
             try {
+                ntfy.startAction("Extracting archive for game $gameId to destination: $destinationPath")
                 stateFlow.value = GameDownloadState.Extracting
                 val zipFile = File(destinationPath, fileName)
                 extractZipFile(zipFile, destinationPath, gameId)
                 stateFlow.value = GameDownloadState.Completed
+            } catch (e: CancellationException) {
+                Log.d(tag, "Extraction cancelled for game $gameId")
+                throw e
             } catch (e: Exception) {
                 Log.e(tag, "Extraction failed for game $gameId", e)
-                stateFlow.value = GameDownloadState.Error(e)
+                ntfy.urgent(e)
+                if (stateFlow.value !is GameDownloadState.Cancelled) {
+                    stateFlow.value = GameDownloadState.Error(e)
+                }
             }
         }
     }

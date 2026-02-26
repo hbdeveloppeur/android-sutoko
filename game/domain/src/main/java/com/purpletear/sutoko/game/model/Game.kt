@@ -73,10 +73,6 @@ data class Game(
     }
 }
 
-fun Game.isPaying(): Boolean {
-    return this.price > 0 && this.skuIdentifiers.isNotEmpty()
-}
-
 fun Game.isPremium(): Boolean {
     return this.price > 0
 }

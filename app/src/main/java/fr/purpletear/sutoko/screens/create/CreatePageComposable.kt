@@ -64,7 +64,7 @@ internal fun CreatePageComposable(
     onGameClick: (Game) -> Unit = {},
 ) {
     var isPreviewModalVisible by remember { mutableStateOf(false) }
-    var selectedGameForPreview by remember { mutableStateOf<Game?>(null) }
+    var selectedGameId by remember { mutableStateOf<String?>(null) }
     val focusManager = LocalFocusManager.current
     val balance by viewModel.balance
     val userGames by viewModel.userGames
@@ -161,6 +161,7 @@ internal fun CreatePageComposable(
                 // Featured game cover (first game or placeholder)
                 item {
                     val featuredGame = games.firstOrNull()
+                    // TODO : We don't want fallback values
                     GameCoverCompact(
                         modifier = Modifier.padding(horizontal = 16.dp),
                         coverUrl = featuredGame?.bannerAsset?.let { "https://sutoko.com/media/${it.storagePath}" }
@@ -170,8 +171,10 @@ internal fun CreatePageComposable(
                         thumbnailUrl = featuredGame?.logoAsset?.let { "https://sutoko.com/media/${it.thumbnailStoragePath}" }
                             ?: "https://media.discordapp.net/attachments/1450792285590786139/1474416156881191044/tmp_logo.png?ex=6999c48d&is=6998730d&hm=f013ec27a0d7f540a4ad6dcee2ee14962995a419199df41646fe5a7e147b4140&=&format=webp&quality=lossless&width=132&height=132",
                         onClick = {
-                            selectedGameForPreview = featuredGame
-                            isPreviewModalVisible = true
+                            featuredGame?.let {
+                                selectedGameId = it.id
+                                isPreviewModalVisible = true
+                            }
                         }
                     )
                 }
@@ -229,7 +232,11 @@ internal fun CreatePageComposable(
                         imageUrl = game.logoAsset?.let { "https://sutoko.com/media/${it.thumbnailStoragePath}" }
                             ?: "",
                         isAuthorCertified = game.author?.isCertified ?: false,
-                        onGetClick = { onGameClick(game) }
+                        onGetClick = { onGameClick(game) },
+                        onClick = {
+                            selectedGameId = game.id
+                            isPreviewModalVisible = true
+                        }
                     )
                 }
 
@@ -262,11 +269,15 @@ internal fun CreatePageComposable(
                 isVisible = isPreviewModalVisible,
                 onDismiss = {
                     isPreviewModalVisible = false
-                    selectedGameForPreview = null
+                    selectedGameId = null
                 },
-                game = selectedGameForPreview,
-                gameState = viewModel.selectedGameState.value,
-                onAction = viewModel::handleGameAction
+                gameId = selectedGameId,
+                onPlayGame = { gameId ->
+                    // Find the game in the list to pass to the callback
+                    val game = games.find { it.id == gameId }
+                    game?.let { onGameClick(it) }
+                    isPreviewModalVisible = false
+                }
             )
         }
     }

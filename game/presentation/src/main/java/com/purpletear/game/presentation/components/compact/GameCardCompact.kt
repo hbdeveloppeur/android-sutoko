@@ -44,12 +44,18 @@ fun GameCardCompact(
     imageUrl: String,
     isAuthorCertified: Boolean = false,
     showGetButton: Boolean = true,
-    onGetClick: () -> Unit = {}
+    onGetClick: () -> Unit = {},
+    onClick: () -> Unit = {}
 ) {
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp),
+            .padding(horizontal = 16.dp)
+            .clickable(
+                interactionSource = remember { MutableInteractionSource() },
+                indication = null,
+                onClick = onClick
+            ),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(12.dp)
     ) {

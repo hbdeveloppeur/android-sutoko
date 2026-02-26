@@ -62,6 +62,7 @@ fun GamePreview(
     onBuyGame: (Game) -> Unit = {},
     onOpenChapters: (Game, List<Chapter>) -> Unit,
     onOpenShop: () -> Unit = {},
+    onGameDeleted: () -> Unit = {},
     viewModel: GamePreviewViewModel = hiltViewModel()
 ) {
     // Get the game from the ViewModel
@@ -210,6 +211,14 @@ fun GamePreview(
             LaunchedEffect(openShopEventFlow) {
                 openShopEventFlow.collect {
                     onOpenShop()
+                }
+            }
+
+            // Collect game deleted events
+            val gameDeletedEventFlow = viewModel.gameDeletedEvents
+            LaunchedEffect(gameDeletedEventFlow) {
+                gameDeletedEventFlow.collect {
+                    onGameDeleted()
                 }
             }
 

@@ -8,6 +8,11 @@ package com.purpletear.ntfy
 interface Ntfy {
 
     /**
+     * Starts an action
+     */
+    fun startAction(description: String)
+
+    /**
      * Send a message to the default log channel
      *
      * @param message The notification message

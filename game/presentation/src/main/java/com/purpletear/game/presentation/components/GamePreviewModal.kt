@@ -1,5 +1,6 @@
 package com.purpletear.game.presentation.components
 
+import android.annotation.SuppressLint
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.tween
@@ -16,8 +17,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -30,27 +33,24 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
+import com.example.sharedelements.R as SharedElementsR
 import com.purpletear.game.presentation.R
 import com.purpletear.game.presentation.components.compact.GameCardCompact
-import com.purpletear.game.presentation.states.ButtonUiState
 import com.purpletear.game.presentation.states.GameButtonsState
-import com.example.sharedelements.utils.UiText
 import com.purpletear.game.presentation.states.GameState
-import com.purpletear.game.presentation.states.StoryPreviewAction
-import com.purpletear.game.presentation.states.toButtonsState
-import com.purpletear.sutoko.game.model.Game
+import com.purpletear.game.presentation.viewmodels.GamePreviewModalViewModel
 
 private val PoppinsMedium = FontFamily(
-    Font(com.example.sharedelements.R.font.font_poppins_medium, FontWeight.Medium)
+    Font(SharedElementsR.font.font_poppins_medium, FontWeight.Medium)
 )
 
 /**
@@ -58,22 +58,49 @@ private val PoppinsMedium = FontFamily(
  *
  * @param isVisible Whether the modal should be displayed
  * @param onDismiss Called when user taps outside the modal or back is pressed
- * @param game The game to display. Can be null when hidden (preserved for exit animation)
+ * @param gameId The ID of the game to display. Can be null when hidden
+ * @param onPlayGame Called when user clicks play - provides the game ID
+ * @param modifier Optional modifier for the modal
  */
 @Composable
 fun GamePreviewModal(
     isVisible: Boolean,
     onDismiss: () -> Unit,
-    game: Game?,
-    gameState: GameState,
-    modifier: Modifier = Modifier,
-    onAction: (StoryPreviewAction) -> Unit,
+    gameId: String?,
+    onPlayGame: (String) -> Unit = {},
+    @SuppressLint("ModifierParameter") modifier: Modifier = Modifier,
+    viewModel: GamePreviewModalViewModel = hiltViewModel()
 ) {
-    var displayedGame by remember { mutableStateOf<Game?>(null) }
-    
-    // Update displayed game when becoming visible
-    LaunchedEffect(isVisible, game) {
-        if (isVisible && game != null) displayedGame = game
+    var displayedGameId by remember { mutableStateOf<String?>(null) }
+
+    // Initialize ViewModel when becoming visible with a gameId
+    LaunchedEffect(isVisible, gameId) {
+        if (isVisible && gameId != null) {
+            displayedGameId = gameId
+            viewModel.init(gameId)
+        }
+    }
+
+    // Collect events from ViewModel
+    LaunchedEffect(viewModel) {
+        viewModel.playGameEvents.collect { id ->
+            onPlayGame(id)
+        }
+    }
+
+    LaunchedEffect(viewModel) {
+        viewModel.dismissEvents.collect {
+            onDismiss()
+        }
+    }
+
+    // Cleanup when modal is hidden
+    DisposableEffect(isVisible) {
+        onDispose {
+            if (!isVisible) {
+                displayedGameId = null
+            }
+        }
     }
 
     AnimatedVisibility(
@@ -81,8 +108,10 @@ fun GamePreviewModal(
         enter = fadeIn(tween(250, easing = FastOutSlowInEasing)),
         exit = fadeOut(tween(200, easing = FastOutSlowInEasing))
     ) {
-        val currentGame = displayedGame ?: return@AnimatedVisibility
-        
+        val currentGameId = displayedGameId ?: return@AnimatedVisibility
+        val game = viewModel.game.value
+        val gameState = viewModel.gameState.value
+
         Box(
             modifier = modifier
                 .fillMaxSize()
@@ -93,26 +122,74 @@ fun GamePreviewModal(
                 ) { onDismiss() },
             contentAlignment = Alignment.Center
         ) {
-            ModalContent(
-                game = currentGame,
-                gameState = gameState,
-                onAction = onAction,
-                modifier = Modifier
-                    .padding(horizontal = 16.dp)
-                    .clickable(
-                        indication = null,
-                        interactionSource = remember { MutableInteractionSource() }
-                    ) { /* Prevent dismiss when clicking content */ }
-            )
+            when {
+                gameState == GameState.Loading || game == null -> {
+                    LoadingContent()
+                }
+
+                gameState == GameState.LoadingError -> {
+                    ErrorContent(
+                        onRetry = { viewModel.init(currentGameId) }
+                    )
+                }
+
+                else -> {
+                    ModalContent(
+                        game = game,
+                        gameState = gameState,
+                        gameButtonsState = viewModel.gameButtonsState,
+                        modifier = Modifier
+                            .padding(horizontal = 16.dp)
+                            .clickable(
+                                indication = null,
+                                interactionSource = remember { MutableInteractionSource() }
+                            ) { /* Prevent dismiss when clicking content */ }
+                    )
+                }
+            }
         }
     }
 }
 
 @Composable
+private fun LoadingContent() {
+    Box(
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center
+    ) {
+        CircularProgressIndicator(
+            color = Color.White.copy(alpha = 0.7f)
+        )
+    }
+}
+
+@Composable
+private fun ErrorContent(
+    onRetry: () -> Unit
+) {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .clickable(
+                indication = null,
+                interactionSource = remember { MutableInteractionSource() }
+            ) { onRetry() },
+        contentAlignment = Alignment.Center
+    ) {
+        Text(
+            text = "Tap to retry",
+            fontFamily = PoppinsMedium,
+            fontSize = 16.sp,
+            color = Color.White.copy(alpha = 0.7f)
+        )
+    }
+}
+
+@Composable
 private fun ModalContent(
-    game: Game,
+    game: com.purpletear.sutoko.game.model.Game,
     gameState: GameState,
-    onAction: (StoryPreviewAction) -> Unit,
+    gameButtonsState: GameButtonsState,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -142,36 +219,19 @@ private fun ModalContent(
             fontSize = 12.sp,
             lineHeight = 18.sp,
             color = Color.White,
-            modifier = Modifier.padding(horizontal = 20.dp, vertical = 2.dp).padding(bottom = 16.dp),
+            modifier = Modifier
+                .padding(horizontal = 20.dp, vertical = 2.dp)
+                .padding(bottom = 16.dp),
             maxLines = 4,
             overflow = TextOverflow.Ellipsis
         )
 
         // Action Buttons
-        ModalActionButtons(
-            gameState = gameState,
-            onAction = onAction,
+        GameActionButtons(
+            state = gameButtonsState,
             modifier = Modifier.padding(horizontal = 16.dp, vertical = 16.dp)
         )
     }
-}
-
-@Composable
-private fun ModalActionButtons(
-    gameState: GameState,
-    onAction: (StoryPreviewAction) -> Unit,
-    modifier: Modifier = Modifier
-) {
-    val buttonsState = gameState.toButtonsState(
-        currentChapterNumber = 1,
-        gamePrice = null,
-        onAction = onAction,
-    )
-
-    GameActionButtons(
-        state = buttonsState,
-        modifier = modifier,
-    )
 }
 
 @Composable
@@ -231,5 +291,3 @@ private fun BannerWithGameInfo(
         )
     }
 }
-
-

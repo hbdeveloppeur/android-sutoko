@@ -3,6 +3,7 @@ package com.purpletear.game.data.repository
 import com.purpletear.sutoko.game.exception.ZipException
 import com.purpletear.sutoko.game.model.ExtractZipParams
 import com.purpletear.sutoko.game.repository.ZipRepository
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
@@ -71,8 +72,11 @@ class Zip4jRepositoryImpl @Inject constructor() : ZipRepository {
                     else -> 
                         ZipException.ExtractionFailedException("Failed to extract zip file: ${e.message}", e)
                 }
-                throw exception
+                emit(Result.failure(exception))
             }
+        } catch (e: CancellationException) {
+            // Re-throw cancellation exceptions to maintain flow exception transparency
+            throw e
         } catch (e: FileNotFoundException) {
             emit(Result.failure(ZipException.FileNotFoundException("Zip file not found: ${params.zipFile.absolutePath}", e)))
         } catch (e: IOException) {

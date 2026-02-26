@@ -33,7 +33,6 @@ import com.purpletear.sutoko.core.domain.helper.provider.HostProvider
 import com.purpletear.sutoko.game.exception.GameDownloadForbiddenException
 import com.purpletear.sutoko.game.model.Chapter
 import com.purpletear.sutoko.game.model.Game
-import com.purpletear.sutoko.game.model.isPaying
 import com.purpletear.sutoko.game.model.isPremium
 import com.purpletear.sutoko.game.download.GameDownloadManager
 import com.purpletear.sutoko.game.download.GameDownloadState
@@ -45,6 +44,7 @@ import com.purpletear.sutoko.game.usecase.IsFriendZoned1GameUseCase
 import com.purpletear.sutoko.game.usecase.IsFriendZonedGameUseCase
 import com.purpletear.sutoko.game.usecase.IsGameUpdatableUseCase
 import com.purpletear.sutoko.game.usecase.ObserveCurrentChapterUseCase
+import com.purpletear.sutoko.game.usecase.RemoveGameUseCase
 import com.purpletear.sutoko.game.usecase.RestartGameUseCase
 import com.purpletear.sutoko.game.usecase.SetGameVersionUseCase
 import com.purpletear.sutoko.user.usecase.IsUserConnectedUseCase
@@ -110,6 +110,7 @@ class GamePreviewViewModel @Inject constructor(
     private val hostProvider: HostProvider,
     private val getShopBalanceUseCase: GetShopBalanceUseCase,
     private val restartGameUseCase: RestartGameUseCase,
+    private val removeGameUseCase: RemoveGameUseCase,
     private val tableOfSymbols: purpletear.fr.purpleteartools.TableOfSymbols,
     @ApplicationContext private val appContext: Context,
 ) : ViewModel() {
@@ -167,6 +168,9 @@ class GamePreviewViewModel @Inject constructor(
 
     private val _openShopEvents = MutableSharedFlow<Unit>()
     val openShopEvents: SharedFlow<Unit> = _openShopEvents
+
+    private val _gameDeletedEvents = MutableSharedFlow<Unit>()
+    val gameDeletedEvents: SharedFlow<Unit> = _gameDeletedEvents
 
     // Timestamp of the last loadGameData call to prevent spamming
     private var lastLoadGameDataTimestamp = 0L
@@ -301,6 +305,10 @@ class GamePreviewViewModel @Inject constructor(
                 updateGame()
             }
 
+            StoryPreviewAction.OnDelete -> {
+                confirmAndDeleteGame()
+            }
+
             null -> {}
         }
     }
@@ -415,7 +423,7 @@ class GamePreviewViewModel @Inject constructor(
                 }
             }
 
-            if (gameResult && _isUserConnected.value && _game.value!!.isPaying()) {
+            if (gameResult && _isUserConnected.value && _game.value!!.isPremium()) {
                 awaitAll(
                     async {
                         loadHasBoughtProduct(
@@ -548,8 +556,7 @@ class GamePreviewViewModel @Inject constructor(
             try {
                 val isPremium = game.value?.isPremium() == true
                 gameDownloadManager.downloadGame(
-                    gameId = gameId,
-                    isPremium = isPremium,
+                    game = game.value!!,
                     userId = if (isPremium) customer.getUserId() else null,
                     userToken = if (isPremium) customer.getUserToken() else null
                 )
@@ -852,6 +859,47 @@ class GamePreviewViewModel @Inject constructor(
         //         menuSoundPlayer.playWithFadeIn(soundUrl, 2000)
         //     }
         // }
+    }
+
+    private fun confirmAndDeleteGame() {
+        val popUp = SutokoPopUp(
+            title = UiText.StringResource(R.string.game_delete_confirm_title),
+            description = UiText.StringResource(R.string.game_delete_confirm_description),
+            icon = PopUpIconAnimation(id = R.raw.lottie_animation_validation_green),
+            buttonText = UiText.StringResource(R.string.game_delete_confirm_button)
+        )
+        val tag = showPopUpUseCase(popUp)
+
+        executeFlowUseCase({
+            observeInteractionUseCase(tag)
+        }, onStream = { interaction ->
+            when (interaction.event) {
+                PopUpUserInteraction.Confirm -> {
+                    viewModelScope.launch {
+                        game.value?.let { game ->
+                            try {
+                                _gameState.value = GameState.Loading
+                                delay(800)
+                                awaitFlowResult { removeGameUseCase(game) }
+                                makeToastService(R.string.game_delete_success)
+                                _gameDeletedEvents.emit(Unit)
+                            } catch (e: Exception) {
+                                e.printStackTrace()
+                                makeToastService(R.string.game_delete_error)
+                                _gameState.value = GameState.Idle
+                                refreshGameState()
+                            }
+                        }
+                    }
+                }
+
+                PopUpUserInteraction.Dismiss -> {
+                    // Do nothing on cancel
+                }
+
+                else -> {}
+            }
+        })
     }
 
     private fun confirmAndRestartGame() {

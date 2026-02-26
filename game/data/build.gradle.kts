@@ -47,6 +47,7 @@ dependencies {
     implementation(project(":game:domain"))
     implementation(project(":core:domain"))
     implementation(project(":core:data"))
+    implementation(project(":ntfy"))
 
     // Zip4j for zip file extraction
     implementation("net.lingala.zip4j:zip4j:2.11.5")

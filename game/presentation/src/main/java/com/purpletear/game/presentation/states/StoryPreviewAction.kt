@@ -10,4 +10,5 @@ sealed class StoryPreviewAction {
     data object OnAbortBuy : StoryPreviewAction()
     data object OnRestart : StoryPreviewAction()
     data object OnPlay : StoryPreviewAction()
+    data object OnDelete : StoryPreviewAction()
 }

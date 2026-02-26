@@ -31,6 +31,8 @@ class NtfyClient(
     private val externalScope: CoroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 ) : Ntfy {
 
+    private var currentAction: String? = null
+
     companion object {
         private const val TEXT_MEDIA_TYPE = "text/plain; charset=utf-8"
         private const val PRIORITY_DEFAULT = "default"
@@ -47,6 +49,10 @@ class NtfyClient(
                 .writeTimeout(30, TimeUnit.SECONDS)
                 .build()
         }
+    }
+
+    override fun startAction(description: String) {
+        currentAction = description
     }
 
     override fun send(message: String, data: Map<String, Any?>?) {
@@ -98,6 +104,10 @@ class NtfyClient(
 
     private fun formatLogMessage(message: String, data: Map<String, Any?>?): String {
         return buildString {
+            this@NtfyClient.currentAction?.let {
+                action ->
+                appendLine("Action: $action")
+            }
             appendLine(message)
             if (data != null && data.isNotEmpty()) {
                 appendLine()
@@ -110,6 +120,10 @@ class NtfyClient(
 
     private fun formatExceptionMessage(throwable: Throwable, data: Map<String, Any?>?): String {
         return buildString {
+            this@NtfyClient.currentAction?.let {
+                    action ->
+                appendLine("Action: $action")
+            }
             appendLine("${throwable.javaClass.simpleName}: ${throwable.message}")
             appendLine()
             appendLine(getRootCause(throwable))
@@ -131,6 +145,10 @@ class NtfyClient(
 
     private fun formatUrgentExceptionMessage(throwable: Throwable, data: Map<String, Any?>?): String {
         return buildString {
+            this@NtfyClient.currentAction?.let {
+                    action ->
+                appendLine("Action: $action")
+            }
             appendLine("URGENT: ${throwable.javaClass.simpleName}")
             appendLine("${throwable.message}")
             appendLine()
@@ -154,6 +172,10 @@ class NtfyClient(
 
     private fun formatUrgentMessage(message: String, data: Map<String, Any?>?): String {
         return buildString {
+            this@NtfyClient.currentAction?.let {
+                    action ->
+                appendLine("Action: $action")
+            }
             appendLine(message)
             if (data != null && data.isNotEmpty()) {
                 appendLine()

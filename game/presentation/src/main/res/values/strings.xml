@@ -71,4 +71,12 @@
     <!-- First name prompt -->
     <string name="first_name_prompt_title">Enter your character\'s first name</string>
     <string name="first_name_prompt_placeholder">Nick</string>
+
+    <!-- Delete game -->
+    <string name="game_menu_delete">Delete</string>
+    <string name="game_delete_confirm_title">Delete the game?</string>
+    <string name="game_delete_confirm_description">This will delete the game files from your device. You won\'t lose your progress or purchased content. You can download the game again anytime.</string>
+    <string name="game_delete_confirm_button">Delete</string>
+    <string name="game_delete_success">Game deleted successfully</string>
+    <string name="game_delete_error">Failed to delete the game</string>
 </resources>

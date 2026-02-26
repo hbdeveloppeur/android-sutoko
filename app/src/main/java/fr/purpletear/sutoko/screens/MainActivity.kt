@@ -279,6 +279,9 @@ class MainActivity @Inject constructor(
                                 },
                                 onOpenShop = {
                                     startShop()
+                                },
+                                onGameDeleted = {
+                                    navController.navigateUp()
                                 }
                             )
                         }

@@ -65,7 +65,7 @@ internal fun GameState.toButtonsState(
     )
 
     GameState.ReadyToPlay -> GameButtonsState(
-        left = restartLeftButton(currentChapterNumber, onAction),
+        left = deleteLeftButton(onAction),
         right = ButtonUiState(
             title = UiText.StringResource(R.string.game_menu_play),
             subtitle = UiText.StringResource(
@@ -78,16 +78,17 @@ internal fun GameState.toButtonsState(
     )
 
     GameState.GameFinished -> GameButtonsState(
+        left = deleteLeftButton(onAction),
         right = ButtonUiState(
             title = UiText.StringResource(R.string.game_menu_restart),
             subtitle = UiText.StringResource(R.string.game_menu_game_finished),
-            weight = 1f,
+            weight = 3f,
             onClick = { onAction(StoryPreviewAction.OnRestart) },
         )
     )
 
     GameState.UpdateAppRequired -> GameButtonsState(
-        left = restartLeftButton(currentChapterNumber, onAction),
+        left = deleteLeftButton(onAction),
         right = ButtonUiState(
             title = UiText.StringResource(R.string.game_menu_play),
             subtitle = UiText.StringResource(R.string.game_menu_app_update_required),
@@ -98,7 +99,7 @@ internal fun GameState.toButtonsState(
     )
 
     GameState.UpdateGameRequired -> GameButtonsState(
-        left = restartLeftButton(currentChapterNumber, onAction),
+        left = deleteLeftButton(onAction),
         right = ButtonUiState(
             title = UiText.StringResource(R.string.game_menu_update_game),
             subtitle = UiText.StringResource(R.string.game_menu_game_update_required),
@@ -175,6 +176,14 @@ internal fun GameState.toButtonsState(
         )
     )
 }
+
+private fun deleteLeftButton(
+    onAction: (StoryPreviewAction) -> Unit,
+): ButtonUiState = ButtonUiState(
+    title = UiText.StringResource(R.string.game_menu_delete),
+    weight = 2f,
+    onClick = { onAction(StoryPreviewAction.OnDelete) },
+)
 
 private fun restartLeftButton(
     currentChapterNumber: Int,

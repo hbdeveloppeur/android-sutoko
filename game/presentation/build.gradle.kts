@@ -57,6 +57,7 @@ dependencies {
     implementation(project(":shop:data"))
     implementation(project(":shop:presentation"))
     implementation(project(":shared-elements"))
+    implementation(project(":ntfy"))
 
     implementation(libs.androidx.ktx)
     implementation(libs.androidx.appcompat)

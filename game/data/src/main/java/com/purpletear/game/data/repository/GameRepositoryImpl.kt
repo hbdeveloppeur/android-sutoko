@@ -3,13 +3,13 @@ package com.purpletear.game.data.repository
 import android.content.Context
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.purpletear.game.data.remote.GameApi
-import com.purpletear.game.data.remote.UserGameApi
-import com.purpletear.game.data.remote.dto.DownloadLinkRequestDto
-import com.purpletear.game.data.remote.dto.FreeDownloadLinkRequestDto
 import com.purpletear.game.data.remote.dto.toDomain
+import com.purpletear.game.data.utils.ifNotCancellation
+import com.purpletear.ntfy.Ntfy
 import com.purpletear.sutoko.game.exception.GameDownloadForbiddenException
 import com.purpletear.sutoko.game.model.Game
 import com.purpletear.sutoko.game.repository.GameRepository
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -22,9 +22,9 @@ import javax.inject.Inject
  */
 class GameRepositoryImpl @Inject constructor(
     private val api: GameApi,
-    private val userGameApi: UserGameApi,
     private val tableOfSymbols: TableOfSymbols,
     private val context: Context,
+    private val ntfy: Ntfy,
 ) : GameRepository {
 
     // Thread-safe and observable cache
@@ -55,7 +55,7 @@ class GameRepositoryImpl @Inject constructor(
         limit: Int,
     ): Flow<Result<List<Game>>> = flow {
         try {
-            val response = userGameApi.getUsersGames(
+            val response = api.getUserGames(
                 languageCode = languageCode,
                 page = page,
                 limit = limit
@@ -70,7 +70,7 @@ class GameRepositoryImpl @Inject constructor(
                 emit(Result.failure(Exception("Failed to load user games: ${response.code()} - $errorBody")))
             }
         } catch (e: Exception) {
-            FirebaseCrashlytics.getInstance().recordException(e)
+            e.ifNotCancellation { FirebaseCrashlytics.getInstance().recordException(it) }
             emit(Result.failure(e))
         }
     }
@@ -85,13 +85,45 @@ class GameRepositoryImpl @Inject constructor(
 
     /**
      * Get a specific game by its ID.
+     * First checks cache, then fetches from API.
      *
      * @param id The ID of the game to retrieve.
      * @return A Flow emitting a Result containing the requested Game.
      */
     override fun getGame(id: String): Flow<Result<Game>> = flow {
-        // TODO: Implement when single game endpoint is ready
-        emit(Result.failure(NotImplementedError("getGame not yet implemented")))
+        // Check cache first (from both official and user games)
+        val cachedGame = officialGamesStateFlow.value?.find { it.id == id }
+            ?: usersGamesStateFlow.value?.find { it.id == id }
+
+        cachedGame?.let {
+            emit(Result.success(it))
+        }
+
+        // Fetch from API
+        try {
+            val response = api.getGame(storyId = id)
+
+            if (response.isSuccessful) {
+                val game = response.body()?.toDomain()
+                if (game != null) {
+                    emit(Result.success(game))
+                } else {
+                    if (cachedGame == null) {
+                        emit(Result.failure(Exception("Game not found")))
+                    }
+                }
+            } else {
+                val errorBody = response.errorBody()?.string() ?: "Unknown error"
+                if (cachedGame == null) {
+                    emit(Result.failure(Exception("Failed to load game: ${response.code()} - $errorBody")))
+                }
+            }
+        } catch (e: Exception) {
+            e.ifNotCancellation { FirebaseCrashlytics.getInstance().recordException(it) }
+            if (cachedGame == null) {
+                emit(Result.failure(e))
+            }
+        }
     }
 
     /**
@@ -157,52 +189,68 @@ class GameRepositoryImpl @Inject constructor(
         userId: String,
         userToken: String,
         gameId: String
-    ): Flow<Result<String>> = flow {
+    ): Flow<Result<String>> {
         FirebaseCrashlytics.getInstance().setCustomKey("user_id", userId)
         FirebaseCrashlytics.getInstance().setCustomKey("downloading_game", gameId)
-        try {
-            val body = DownloadLinkRequestDto(userId, userToken, gameId)
-            val response = api.generateGameDownloadLink(body = body)
-            if (response.isSuccessful) {
-                val downloadLinkResponse = response.body()
-                val downloadLink = downloadLinkResponse?.link ?: ""
-                emit(Result.success(downloadLink))
-            } else {
-                val errorBody =
-                    response.errorBody()?.string() ?: "Unknown error - generateGameDownloadLink"
-                val exception = if (response.code() == 403) {
-                    GameDownloadForbiddenException("Game download forbidden (403): $errorBody")
-                } else {
-                    Exception("API call failed with code ${response.code()}: $errorBody")
-                }
-                emit(Result.failure(exception))
-            }
-        } catch (e: Exception) {
-            emit(Result.failure(e))
-        }
+        return generateDownloadLinkInternal(
+            gameId = gameId,
+            userId = userId,
+            userToken = userToken,
+            errorContext = "generateGameDownloadLink",
+        )
     }
 
-    override suspend fun generateFreeGameDownloadLink(gameId: String): Flow<Result<String>> = flow {
+    override suspend fun generateFreeGameDownloadLink(gameId: String): Flow<Result<String>> {
         FirebaseCrashlytics.getInstance().setCustomKey("generating_download_link_game_id", gameId)
         FirebaseCrashlytics.getInstance().setCustomKey("generating_download_link_game_type", "free")
+        return generateDownloadLinkInternal(
+            gameId = gameId,
+            userId = null,
+            userToken = null,
+            errorContext = "generateFreeGameDownloadLink",
+        )
+    }
+
+    private fun generateDownloadLinkInternal(
+        gameId: String,
+        userId: String?,
+        userToken: String?,
+        errorContext: String,
+    ): Flow<Result<String>> = flow {
+        ntfy.startAction("Generating download link for game $gameId")
         try {
-            val body = FreeDownloadLinkRequestDto(gameId)
-            val response = api.generateFreeGameDownloadLink(body = body)
+            val response = api.generateGameDownloadLink(
+                gameId = gameId,
+                userId = userId,
+                userToken = userToken,
+            )
             if (response.isSuccessful) {
-                val downloadLinkResponse = response.body()
-                val downloadLink = downloadLinkResponse?.link ?: ""
+                val downloadLink = response.body()?.link
+                if (downloadLink.isNullOrBlank()) {
+                    val exception = IllegalStateException("Empty download link for gameId: $gameId, userId: $userId")
+                    ntfy.urgent(exception)
+                    emit(Result.failure(exception))
+                    return@flow
+                }
                 emit(Result.success(downloadLink))
             } else {
-                val errorBody =
-                    response.errorBody()?.string() ?: "Unknown error - generateFreeGameDownloadLink"
+                val url = response.raw().request.url.toString()
+                ntfy.startAction("Generating download link for game $gameId, at url : $url")
+
+                val errorBody = response.errorBody()?.string() 
+                    ?: "Unknown error - $errorContext"
                 val exception = if (response.code() == 403) {
                     GameDownloadForbiddenException("Game download forbidden (403): $errorBody")
                 } else {
                     Exception("API call failed with code ${response.code()}: $errorBody")
                 }
+                ntfy.exception(exception)
                 emit(Result.failure(exception))
             }
+        } catch (_: CancellationException) {
+            // Silent. Excepted.
         } catch (e: Exception) {
+            ntfy.exception(e)
             emit(Result.failure(e))
         }
     }
