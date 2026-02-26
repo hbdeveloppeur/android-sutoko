@@ -61,7 +61,7 @@ class ChaptersViewModel @Inject constructor(
     }
 
     private fun getChapterState(chapter: Chapter): ChapterState {
-        val isPlayed = symbols.userPlayedChapter(chapter.getCode())
+        val isPlayed = symbols.userPlayedChapter(chapter.code)
         val isCurrent = currentChapter.value?.id == chapter.id
 
         return when {

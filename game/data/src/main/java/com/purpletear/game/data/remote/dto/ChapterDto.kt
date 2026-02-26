@@ -9,18 +9,27 @@ import com.purpletear.sutoko.game.model.Chapter
  */
 @Keep
 data class ChapterDto(
-    @SerializedName("id") val id: Int,
+    @SerializedName("id") val id: String,
     @SerializedName("number") val number: Int,
     @SerializedName("alternative") val alternative: String,
-    @SerializedName("releaseDateAndroid") val releaseDate: Long,
+    @SerializedName("releaseDate") val releaseDate: Long,
     @SerializedName("createdAt") val createdAt: Long,
-    @SerializedName("minAppCodeAndroid") val minAppCode: Int,
-    @SerializedName("switchable") val switchable: Boolean,
-    @SerializedName("minStoryVersion") val minStoryVersion: String,
-    @SerializedName("metadata") val metadata: ChapterMetadataDto,
-    @SerializedName("isAvailableAndroid") val isAvailable: Boolean = false,
+    @SerializedName("story") val story: String,
+    @SerializedName("metas") val metas: ChapterMetasDto,
+    @SerializedName("publishedVersion") val publishedVersion: Int,
+    @SerializedName("code") val code: String
+)
 
-    )
+/**
+ * Data Transfer Object for Chapter Metas.
+ */
+@Keep
+data class ChapterMetasDto(
+    @SerializedName("id") val id: Int,
+    @SerializedName("lang") val lang: String,
+    @SerializedName("title") val title: String,
+    @SerializedName("description") val description: String
+)
 
 /**
  * Extension function to convert ChapterDto to Chapter domain model.
@@ -31,15 +40,13 @@ fun ChapterDto.toDomain(): Chapter {
         number = number,
         alternative = alternative,
         createdAt = createdAt,
-        minAppCode = minAppCode,
-        switchable = switchable,
-        minStoryVersion = minStoryVersion,
-        title = metadata.title,
-        description = metadata.description,
-        isAvailable = isAvailable,
         releaseDate = releaseDate,
-
-        )
+        story = story,
+        title = metas.title,
+        description = metas.description,
+        publishedVersion = publishedVersion,
+        code = code
+    )
 }
 
 /**

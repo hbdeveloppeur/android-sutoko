@@ -167,7 +167,7 @@ class ChapterRepositoryImpl @Inject constructor(
 
                     // First try to find the chapter in the cache for this specific game
                     chaptersCache[gameId]?.value?.forEach { chapter ->
-                        if (chapter.getCode() == chapterCode) {
+                        if (chapter.code == chapterCode) {
                             // Update the current chapter cache
                             updateCurrentChapterCache(gameId, chapter)
                             return@map chapter
@@ -184,7 +184,8 @@ class ChapterRepositoryImpl @Inject constructor(
                         val placeholderChapter = Chapter(
                             number = number,
                             alternative = alternative,
-                            title = "Chapter $number$alternative"
+                            title = "Chapter $number$alternative",
+                            code = chapterCode
                         )
 
                         // Update the current chapter cache
@@ -239,7 +240,7 @@ class ChapterRepositoryImpl @Inject constructor(
     override suspend fun setCurrentChapter(gameId: String, chapter: Chapter) {
         val gameIdHash = gameId.hashCode()
         symbols.removeFromASpecificChapterNumber(gameIdHash, chapter.number)
-        symbols.addOrSet(gameIdHash, "chapterCode", chapter.getCode())
+        symbols.addOrSet(gameIdHash, "chapterCode", chapter.code)
         symbols.save(context = context)
 
         // Update the current chapter cache
