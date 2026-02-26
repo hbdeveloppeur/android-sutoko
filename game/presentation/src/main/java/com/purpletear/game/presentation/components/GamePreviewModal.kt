@@ -36,6 +36,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -124,7 +125,7 @@ fun GamePreviewModal(
         Box(
             modifier = modifier
                 .fillMaxSize()
-                .background(Color(0xCB151313))
+                .background(Color(0x81000000))
                 .clickable(
                     indication = null,
                     interactionSource = remember { MutableInteractionSource() }
@@ -240,6 +241,16 @@ private fun ModalContent(
             state = gameButtonsState,
             modifier = Modifier.padding(horizontal = 16.dp, vertical = 16.dp)
         )
+
+        Text(
+            text= "State: $gameState",
+            color = Color.LightGray,
+            fontSize = 11.sp,
+            modifier = Modifier
+                .padding(horizontal = 20.dp, vertical = 2.dp)
+                .padding(bottom = 16.dp),
+            textAlign = TextAlign.Center
+        )
     }
 }
 
@@ -269,7 +280,7 @@ private fun BannerWithGameInfo(
             modifier = Modifier.fillMaxSize()
         )
 
-        Box(Modifier.fillMaxSize().background(Color(0x60AD8772)))
+        Box(Modifier.fillMaxSize().background(Color(0x40AD8772)))
 
         // Bottom gradient for better text visibility
         Box(

@@ -26,6 +26,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 import java.io.File
 import java.util.concurrent.ConcurrentHashMap
@@ -197,6 +198,9 @@ class GameDownloadManagerImpl @Inject constructor(
         fileName: String,
         stateFlow: MutableStateFlow<GameDownloadState>,
     ) = withContext(Dispatchers.IO) {
+        val startTime = System.currentTimeMillis()
+        val minDurationMs = 4000L // 4 seconds minimum
+        
         ntfy.startAction("Downloading archive for game $gameId")
         // Cancel any existing download with same tag
         PRDownloader.cancel(gameId)
@@ -247,6 +251,14 @@ class GameDownloadManagerImpl @Inject constructor(
                 stateFlow.value = GameDownloadState.Extracting
                 val zipFile = File(destinationPath, fileName)
                 extractZipFile(zipFile, destinationPath, gameId)
+                
+                // Ensure minimum duration of 4 seconds for better UX
+                val elapsedTime = System.currentTimeMillis() - startTime
+                val remainingTime = minDurationMs - elapsedTime
+                if (remainingTime > 0) {
+                    delay(remainingTime)
+                }
+                
                 stateFlow.value = GameDownloadState.Completed
             } catch (e: CancellationException) {
                 Log.d(tag, "Extraction cancelled for game $gameId")

@@ -175,6 +175,7 @@ class GamePreviewModalViewModel @Inject constructor(
                 PopUpUserInteraction.Confirm -> {
                     viewModelScope.launch {
                         _game.value?.let { game ->
+                            ntfy.startAction("Deleting game ${game.id}")
                             try {
                                 _gameState.value = GameState.Loading
                                 delay(800)
@@ -183,6 +184,7 @@ class GamePreviewModalViewModel @Inject constructor(
                                 _gameDeletedEvents.emit(Unit)
                             } catch (e: Exception) {
                                 Log.e(TAG, "Failed to delete game", e)
+                                ntfy.exception(e)
                                 makeToastService(R.string.game_delete_error)
                                 _gameState.value = GameState.Idle
                                 _game.value?.let { determineGameState(it) }

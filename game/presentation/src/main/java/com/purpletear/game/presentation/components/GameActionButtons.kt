@@ -59,16 +59,18 @@ internal fun GameActionButtons(
             .then(modifier),
         horizontalArrangement = spacedBy(10.dp),
     ) {
-        GamePreviewButton(
-            modifier = Modifier.weight(firstButtonWeight),
-            title = state.left.title?.asString(),
-            subtitle = state.left.subtitle?.asString(),
-            onClick = { state.left.onClick?.invoke() ?: onLeftClick?.invoke() },
-            background = Background.Solid(Color(0xFF191919)),
-            icon = state.left.icon,
-            isEnabled = state.left.isEnabled,
-            isLoading = state.left.isLoading,
-        )
+        if (firstButtonWeight > 0.1f) {
+            GamePreviewButton(
+                modifier = Modifier.weight(firstButtonWeight),
+                title = state.left.title?.asString(),
+                subtitle = state.left.subtitle?.asString(),
+                onClick = { state.left.onClick?.invoke() ?: onLeftClick?.invoke() },
+                background = Background.Solid(Color(0xFF191919)),
+                icon = state.left.icon,
+                isEnabled = state.left.isEnabled,
+                isLoading = state.left.isLoading,
+            )
+        }
 
         GamePreviewButton(
             modifier = Modifier.weight(secondButtonWeight),
