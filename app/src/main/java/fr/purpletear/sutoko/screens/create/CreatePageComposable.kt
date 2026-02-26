@@ -277,6 +277,9 @@ internal fun CreatePageComposable(
                     val game = games.find { it.id == gameId }
                     game?.let { onGameClick(it) }
                     isPreviewModalVisible = false
+                },
+                onGameDeleted = {
+                    viewModel.refreshUserGames()
                 }
             )
         }

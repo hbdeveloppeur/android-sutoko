@@ -60,6 +60,7 @@ private val PoppinsMedium = FontFamily(
  * @param onDismiss Called when user taps outside the modal or back is pressed
  * @param gameId The ID of the game to display. Can be null when hidden
  * @param onPlayGame Called when user clicks play - provides the game ID
+ * @param onGameDeleted Called when the game is deleted
  * @param modifier Optional modifier for the modal
  */
 @Composable
@@ -68,6 +69,7 @@ fun GamePreviewModal(
     onDismiss: () -> Unit,
     gameId: String?,
     onPlayGame: (String) -> Unit = {},
+    onGameDeleted: () -> Unit = {},
     @SuppressLint("ModifierParameter") modifier: Modifier = Modifier,
     viewModel: GamePreviewModalViewModel = hiltViewModel()
 ) {
@@ -90,6 +92,13 @@ fun GamePreviewModal(
 
     LaunchedEffect(viewModel) {
         viewModel.dismissEvents.collect {
+            onDismiss()
+        }
+    }
+
+    LaunchedEffect(viewModel) {
+        viewModel.gameDeletedEvents.collect {
+            onGameDeleted()
             onDismiss()
         }
     }

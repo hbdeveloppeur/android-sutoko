@@ -6,7 +6,11 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.sharedelements.utils.UiText
 import com.purpletear.core.presentation.extensions.awaitFlowResult
+import com.purpletear.core.presentation.extensions.executeFlowUseCase
+import com.purpletear.core.presentation.services.MakeToastService
+import com.purpletear.game.presentation.R
 import com.purpletear.game.presentation.states.GameButtonsState
 import com.purpletear.game.presentation.states.GameState
 import com.purpletear.game.presentation.states.StoryPreviewAction
@@ -23,9 +27,16 @@ import com.purpletear.sutoko.game.usecase.GetCurrentChapterUseCase
 import com.purpletear.sutoko.game.usecase.GetGameUseCase
 import com.purpletear.sutoko.game.usecase.HasGameLocalFilesUseCase
 import com.purpletear.sutoko.game.usecase.IsGameUpdatableUseCase
+import com.purpletear.sutoko.game.usecase.RemoveGameUseCase
 import com.purpletear.sutoko.game.usecase.SetGameVersionUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import fr.purpletear.sutoko.popup.domain.PopUpIconAnimation
+import fr.purpletear.sutoko.popup.domain.PopUpUserInteraction
+import fr.purpletear.sutoko.popup.domain.SutokoPopUp
+import fr.purpletear.sutoko.popup.domain.usecase.GetPopUpInteractionUseCase
+import fr.purpletear.sutoko.popup.domain.usecase.ShowPopUpUseCase
 import fr.purpletear.sutoko.shop.coinsLogic.Customer
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -47,6 +58,10 @@ class GamePreviewModalViewModel @Inject constructor(
     private val isGameUpdatableUseCase: IsGameUpdatableUseCase,
     private val getCurrentChapterUseCase: GetCurrentChapterUseCase,
     private val setGameVersionUseCase: SetGameVersionUseCase,
+    private val removeGameUseCase: RemoveGameUseCase,
+    private val showPopUpUseCase: ShowPopUpUseCase,
+    private val observeInteractionUseCase: GetPopUpInteractionUseCase,
+    private val makeToastService: MakeToastService,
     private val customer: Customer,
     private val ntfy: Ntfy,
 ) : ViewModel() {
@@ -71,6 +86,9 @@ class GamePreviewModalViewModel @Inject constructor(
 
     private val _dismissEvents = MutableSharedFlow<Unit>()
     val dismissEvents: SharedFlow<Unit> = _dismissEvents
+
+    private val _gameDeletedEvents = MutableSharedFlow<Unit>()
+    val gameDeletedEvents: SharedFlow<Unit> = _gameDeletedEvents
 
     // UI-specific state for buttons
     internal val gameButtonsState: GameButtonsState
@@ -129,13 +147,57 @@ class GamePreviewModalViewModel @Inject constructor(
                 viewModelScope.launch { _dismissEvents.emit(Unit) }
             }
 
-            StoryPreviewAction.OnRestart,
-            StoryPreviewAction.OnUpdateApp,
+            StoryPreviewAction.OnRestart -> {}
+            StoryPreviewAction.OnUpdateApp -> {}
+
             StoryPreviewAction.OnDelete -> {
-                // Not supported in modal context
-                Log.d(TAG, "Action $action not supported in modal")
+                confirmAndDeleteGame()
             }
         }
+    }
+
+    /**
+     * Shows a confirmation popup and deletes the game if confirmed.
+     */
+    private fun confirmAndDeleteGame() {
+        val popUp = SutokoPopUp(
+            title = UiText.StringResource(R.string.game_delete_confirm_title),
+            description = UiText.StringResource(R.string.game_delete_confirm_description),
+            icon = PopUpIconAnimation(id = R.raw.lottie_animation_validation_green),
+            buttonText = UiText.StringResource(R.string.game_delete_confirm_button)
+        )
+        val tag = showPopUpUseCase(popUp)
+
+        executeFlowUseCase({
+            observeInteractionUseCase(tag)
+        }, onStream = { interaction ->
+            when (interaction.event) {
+                PopUpUserInteraction.Confirm -> {
+                    viewModelScope.launch {
+                        _game.value?.let { game ->
+                            try {
+                                _gameState.value = GameState.Loading
+                                delay(800)
+                                awaitFlowResult { removeGameUseCase(game) }
+                                makeToastService(R.string.game_delete_success)
+                                _gameDeletedEvents.emit(Unit)
+                            } catch (e: Exception) {
+                                Log.e(TAG, "Failed to delete game", e)
+                                makeToastService(R.string.game_delete_error)
+                                _gameState.value = GameState.Idle
+                                _game.value?.let { determineGameState(it) }
+                            }
+                        }
+                    }
+                }
+
+                PopUpUserInteraction.Dismiss -> {
+                    // Do nothing on cancel
+                }
+
+                else -> {}
+            }
+        })
     }
 
     /**
