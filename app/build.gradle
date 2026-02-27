@@ -175,7 +175,6 @@ dependencies {
     implementation libs.android.material
 
     implementation libs.androidx.constraintlayout.compose
-    implementation project(path: ':smsgame')
     implementation libs.lazyColumnScrollbar
 
 

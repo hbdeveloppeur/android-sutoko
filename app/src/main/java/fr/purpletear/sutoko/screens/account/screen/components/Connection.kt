@@ -25,6 +25,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import fr.purpletear.sutoko.R
 import fr.purpletear.sutoko.screens.create.components.coins_display.CoinsDisplay
+import com.example.sharedelements.R as SharedElementsR
 
 
 @Composable
@@ -117,7 +118,7 @@ private fun ConnectedView(
             modifier = Modifier.padding(start = 8.dp),
             amount = diamonds,
             onClick = onClickDiamonds,
-            iconResId = com.purpletear.smsgame.R.drawable.sutoko_ic_diamond,
+            iconResId = SharedElementsR.drawable.sutoko_ic_diamond,
             borderColor = Color(0xFF4DB9EC),
             backgroundColor = Color(0xFF2E3A4F)
         )

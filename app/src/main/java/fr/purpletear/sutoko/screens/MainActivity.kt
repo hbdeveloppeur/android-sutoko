@@ -55,8 +55,6 @@ import com.purpletear.aiconversation.presentation.screens.media.image_generator.
 import com.purpletear.aiconversation.presentation.screens.shopDialog.MessagesCoinsDialogComposable
 import com.purpletear.game.presentation.screens.ChaptersComposable
 import com.purpletear.game.presentation.screens.GamePreview
-import com.purpletear.smsgame.activities.smsgame.objects.StoryChapter
-import com.purpletear.smsgame.activities.smsgameloader.SmsGameLoaderActivity
 import com.purpletear.sutoko.game.model.Game
 import com.purpletear.sutoko.game.usecase.GetChaptersUseCase
 import com.purpletear.sutoko.game.usecase.GetGameUseCase
@@ -94,8 +92,6 @@ import fr.sutoko.inapppurchase.data.datasource.BillingDataSource
 import fr.sutoko.inapppurchase.data.repository.BillingRepositoryImpl
 import fr.sutoko.inapppurchase.domain.repository.BillingRepository
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import purpletear.fr.purpleteartools.TableOfSymbols
@@ -599,31 +595,7 @@ class MainActivity @Inject constructor(
     }
 
     private fun startSmsGameLoaderActivity(gameId: String, isGranted: Boolean) {
-        lifecycleScope.launch {
-            try {
-                combine(
-                    getGameUseCase(gameId).take(1),
-                    getChaptersUseCase(gameId).take(1),
-                ) { gameResult, chaptersResult ->
-                    val game: Game = gameResult.getOrNull() ?: return@combine
-                    val chapters = chaptersResult.getOrNull() ?: return@combine
-                    val storyChapters: List<StoryChapter> =
-                        chapters.map { c -> StoryChapter.fromChapter(c) }
-                    val intent = SmsGameLoaderActivity.require(
-                        activity = this@MainActivity,
-                        symbols = symbols,
-                        card = game,
-                        chapters = ArrayList(storyChapters),
-                        customer = customer
-                    )
-                    startActivity(intent)
-                }.collect {
 
-                }
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }
-        }
     }
 
     private fun registerLoginLauncher() {

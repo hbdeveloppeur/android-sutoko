@@ -65,7 +65,6 @@ dependencies {
     implementation "androidx.constraintlayout:constraintlayout:$constraintlayout_version"
     implementation project(path: ':shared-elements')
     implementation project(path: ':tools')
-    implementation project(':smsgame')
 
     // Required -- JUnit 4 framework
     testImplementation 'junit:junit:4.13.2'

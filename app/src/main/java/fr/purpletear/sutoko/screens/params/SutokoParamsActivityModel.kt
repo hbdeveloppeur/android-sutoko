@@ -9,7 +9,6 @@ import com.example.sharedelements.SutokoAppParams
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.firestore.FirebaseFirestore
-import com.purpletear.smsgame.activities.smsgame.tables.TableOfStories
 import fr.purpletear.sutoko.R
 import fr.purpletear.sutoko.helpers.UserHelper
 import fr.purpletear.sutoko.screens.web.WebActivity
@@ -63,34 +62,7 @@ class SutokoParamsActivityModel(activity: Activity) {
     }
 
     fun deleteAccount(activity: Activity, onComplete: () -> Unit) {
-        if (preventTest) {
-            return
-        }
-        preventTest = true
-        this.delayHandler.operation("deleteAccount", 3000) {
-            UserHelper.deleteCurrentUser(activity, user) { isSuccessful, error ->
-
-                if (isSuccessful) {
-                    val stories: TableOfStories = TableOfStories(activity)
-                    stories.removeAll(activity)
-                    disconnectUser()
-                    onComplete()
-                } else {
-                    val str: Int? = when (error) {
-                        "WRONG_CREDENTIALS" -> R.string.sutoko_story_delete_account_wrong_credentials
-                        "ERROR_EMAIL_FORMAT" -> R.string.sutoko_account_error_invalid_mail_address
-                        null -> null
-                        else -> R.string.sutoko_buy_an_error_has_occured
-                    }
-                    if (str != null) {
-                        Toast.makeText(activity.applicationContext, str, Toast.LENGTH_LONG).show()
-                    }
-                    this.customer.user.disconnect(activity)
-                    onComplete()
-                }
-                preventTest = false
-            }
-        }
+        // TODO: delete account
     }
 
     private fun disconnectUser() {

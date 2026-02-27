@@ -1,7 +1,6 @@
 package fr.purpletear.sutoko.screens.main.presentation
 
 import androidx.annotation.Keep
-import com.purpletear.smsgame.activities.smsgame.objects.Story
 import com.purpletear.sutoko.game.model.Game
 import fr.purpletear.sutoko.screens.main.domain.popup.util.MainMenuCategory
 

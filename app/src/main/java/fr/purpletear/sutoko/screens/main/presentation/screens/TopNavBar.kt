@@ -24,6 +24,7 @@ import com.example.sharedelements.theme.Pink
 import com.example.sharedelements.theme.SutokoTypography
 import fr.purpletear.sutoko.R
 import fr.purpletear.sutoko.screens.create.components.coins_display.CoinsDisplay
+import com.example.sharedelements.R as SharedElementsR
 
 
 const val ParamsTestTag = "ParamsTestTag"
@@ -100,7 +101,7 @@ fun TopNavigation(
                 .alpha(if (isLoading) 0.3f else 1f),
             amount = diamonds,
             onClick = onDiamondsButtonPressed,
-            iconResId = com.purpletear.smsgame.R.drawable.sutoko_ic_diamond,
+            iconResId = SharedElementsR.drawable.sutoko_ic_diamond,
             borderColor = Color(0xFF4DB9EC),
             backgroundColor = Color(0xFF2E3A4F)
         )
