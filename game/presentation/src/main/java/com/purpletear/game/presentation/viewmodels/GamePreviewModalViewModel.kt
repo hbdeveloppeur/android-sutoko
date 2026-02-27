@@ -23,6 +23,7 @@ import com.purpletear.sutoko.game.exception.UserNotConnectedException
 import com.purpletear.sutoko.game.model.Chapter
 import com.purpletear.sutoko.game.model.Game
 import com.purpletear.sutoko.game.model.isPremium
+import com.purpletear.sutoko.game.usecase.GetChaptersUseCase
 import com.purpletear.sutoko.game.usecase.GetCurrentChapterUseCase
 import com.purpletear.sutoko.game.usecase.GetGameUseCase
 import com.purpletear.sutoko.game.usecase.HasGameLocalFilesUseCase
@@ -43,6 +44,7 @@ import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
 import javax.inject.Inject
 
 /**
@@ -53,6 +55,7 @@ import javax.inject.Inject
 @HiltViewModel
 class GamePreviewModalViewModel @Inject constructor(
     private val getGameUseCase: GetGameUseCase,
+    private val getChaptersUseCase: GetChaptersUseCase,
     private val gameDownloadManager: GameDownloadManager,
     private val hasGameLocalFilesUseCase: HasGameLocalFilesUseCase,
     private val isGameUpdatableUseCase: IsGameUpdatableUseCase,
@@ -67,6 +70,9 @@ class GamePreviewModalViewModel @Inject constructor(
 ) : ViewModel() {
 
     private var gameId: String? = null
+
+    // Mutex to prevent concurrent chapter fetching during download (race condition protection)
+    private val chaptersDownloadMutex = Mutex()
 
     private val _game = mutableStateOf<Game?>(null)
     val game: State<Game?> = _game
@@ -243,11 +249,16 @@ class GamePreviewModalViewModel @Inject constructor(
 
                     GameDownloadState.Completed -> {
                         // Set game version after successful download
-                        _game.value?.let { g ->
+                        _game.value?.let { game ->
                             try {
-                                awaitFlowResult { setGameVersionUseCase(g) }
+                                awaitFlowResult { setGameVersionUseCase(game) }
+                                
+                                // Fire-and-forget: Fetch and cache chapters in background
+                                // This ensures chapters are available offline after download
+                                fetchAndCacheChapters(game.id)
                             } catch (e: Exception) {
                                 Log.e(TAG, "Failed to set game version", e)
+                                ntfy.exception(e)
                             }
                         }
                         _gameState.value = GameState.ReadyToPlay
@@ -344,6 +355,38 @@ class GamePreviewModalViewModel @Inject constructor(
             }
         } catch (e: Exception) {
             Log.e(TAG, "Failed to load current chapter", e)
+        }
+    }
+
+    /**
+     * Fetches chapters from API and caches them in the local database.
+     * This is a fire-and-forget background operation that runs during/after download.
+     * Uses Mutex to prevent concurrent fetching (race condition protection).
+     *
+     * @param storyId The ID of the story to fetch chapters for.
+     */
+    private fun fetchAndCacheChapters(storyId: String) {
+        viewModelScope.launch {
+            // Try to acquire mutex without blocking - if another fetch is in progress, skip
+            if (!chaptersDownloadMutex.tryLock()) {
+                Log.d(TAG, "Chapters fetch already in progress for $storyId, skipping")
+                return@launch
+            }
+
+            try {
+                ntfy.startAction("Fetching chapters for $storyId")
+                getChaptersUseCase(storyId).collect { result ->
+                    result.onSuccess { chapters ->
+                        Log.d(TAG, "Successfully cached ${chapters.size} chapters for $storyId")
+                    }.onFailure { error ->
+                        ntfy.exception(error)
+                    }
+                }
+            } catch (e: Exception) {
+                ntfy.exception(e)
+            } finally {
+                chaptersDownloadMutex.unlock()
+            }
         }
     }
 

@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.preferencesDataStore
+import com.purpletear.game.data.local.dao.ChapterDao
 import com.purpletear.game.data.remote.ChapterApi
 import com.purpletear.game.data.remote.dto.toDomain
 import com.purpletear.sutoko.game.model.Chapter
@@ -19,10 +20,11 @@ import purpletear.fr.purpleteartools.TableOfSymbols
 import javax.inject.Inject
 
 /**
- * Implementation of the ChapterRepository interface.
+ * Implementation of the ChapterRepository interface with offline-first strategy.
  */
 class ChapterRepositoryImpl @Inject constructor(
     private val api: ChapterApi,
+    private val chapterDao: ChapterDao,
     private val symbols: TableOfSymbols,
     @field:ApplicationContext private val context: Context
 ) : ChapterRepository {
@@ -33,7 +35,6 @@ class ChapterRepositoryImpl @Inject constructor(
 
         // DataStore name
         private const val DATASTORE_NAME = "chapter_preferences"
-
     }
 
     // Create DataStore instance
@@ -47,69 +48,97 @@ class ChapterRepositoryImpl @Inject constructor(
 
     /**
      * Get a list of chapters for a specific story (game) ID.
+     * Offline-first: emits from DB first, then fetches from API and updates DB.
      *
      * @param storyId The ID of the story (game) to retrieve chapters for.
      * @return A Flow emitting a Result containing the list of Chapters.
      */
     override fun getChapters(storyId: String): Flow<Result<List<Chapter>>> = flow {
         try {
-            // Return cached value if available
-            val cachedChapters = chaptersCache[storyId]?.value
-            if (cachedChapters != null) {
-                emit(Result.success(cachedChapters))
+            // Step 1: Emit from database first (offline-first)
+            val dbChapters = chapterDao.getAllForStory(storyId)
+            if (dbChapters.isNotEmpty()) {
+                emit(Result.success(dbChapters))
+                // Update in-memory cache
+                updateChaptersCache(storyId, dbChapters)
+            }
+
+            // Step 2: Fetch from API
+            val startTime = System.currentTimeMillis()
+            val langCode = java.util.Locale.getDefault().language
+            val response = api.getChapters(storyId = storyId, langCode = langCode)
+
+            if (response.isSuccessful) {
+                val chapters = response.body()?.toDomain() ?: emptyList()
+
+                // Step 3: Save to database
+                chapterDao.insertAll(chapters)
+
+                // Step 4: Update in-memory cache
+                updateChaptersCache(storyId, chapters)
+
+                // Step 5: Calculate elapsed time and add delay if needed
+                val elapsedTime = System.currentTimeMillis() - startTime
+                if (elapsedTime < MIN_REQUEST_DURATION) {
+                    delay(MIN_REQUEST_DURATION - elapsedTime)
+                }
+
+                // Step 6: Emit fresh data from database
+                val freshDbChapters = chapterDao.getAllForStory(storyId)
+                emit(Result.success(freshDbChapters))
             } else {
-                // Fetch from API (first load)
-                val startTime = System.currentTimeMillis()
-                val langCode = java.util.Locale.getDefault().language
-                val response = api.getChapters(storyId = storyId, langCode = langCode)
-                if (response.isSuccessful) {
-                    val chapters = response.body()?.toDomain() ?: emptyList()
-                    // Initialize the StateFlow if it doesn't exist
-                    if (!chaptersCache.containsKey(storyId)) {
-                        chaptersCache[storyId] = MutableStateFlow(null)
-                    }
-                    chaptersCache[storyId]?.value = chapters
-
-                    // Calculate elapsed time and add delay if needed
-                    val elapsedTime = System.currentTimeMillis() - startTime
-                    if (elapsedTime < MIN_REQUEST_DURATION) {
-                        delay(MIN_REQUEST_DURATION - elapsedTime)
-                    }
-
-                    emit(Result.success(chapters))
-                } else {
+                // If API fails but we have DB data, don't emit error (offline support)
+                if (dbChapters.isEmpty()) {
                     val errorBody = response.errorBody()?.string() ?: "Unknown error - getChapters"
-                    val exception =
-                        Exception("API call failed with code ${response.code()}: $errorBody")
+                    val exception = Exception("API call failed with code ${response.code()}: $errorBody")
                     emit(Result.failure(exception))
                 }
             }
         } catch (e: Exception) {
-            emit(Result.failure(e))
+            // If exception occurs, check if we have cached data
+            val cachedChapters = chaptersCache[storyId]?.value
+            val dbChapters = chapterDao.getAllForStory(storyId)
+            
+            if (cachedChapters != null) {
+                emit(Result.success(cachedChapters))
+            } else if (dbChapters.isNotEmpty()) {
+                emit(Result.success(dbChapters))
+            } else {
+                emit(Result.failure(e))
+            }
         }
     }
 
     /**
      * Get a specific chapter by its ID.
+     * Checks database first, falls back to API.
      *
      * @param id The ID of the chapter to retrieve.
      * @return A Flow emitting a Result containing the requested Chapter.
      */
     override fun getChapter(id: Int): Flow<Result<Chapter>> = flow {
         try {
+            // First try to get from database
+            val dbChapter = chapterDao.getById(id.toString())
+            if (dbChapter != null) {
+                emit(Result.success(dbChapter))
+            }
+
+            // Fetch from API for fresh data
             val langCode = java.util.Locale.getDefault().language
             val response = api.getChapter(id = id, langCode = langCode)
             if (response.isSuccessful) {
                 val chapter = response.body()?.toDomain()
                 if (chapter != null) {
+                    // Save to database
+                    chapterDao.insert(chapter)
                     emit(Result.success(chapter))
-                } else {
+                } else if (dbChapter == null) {
                     emit(Result.failure(Exception("Chapter not found")))
                 }
-            } else {
+            } else if (dbChapter == null) {
                 val errorBody = response.errorBody()?.string() ?: "Unknown error - getChapter"
-                val exception =
-                    Exception("API call failed with code ${response.code()}: $errorBody")
+                val exception = Exception("API call failed with code ${response.code()}: $errorBody")
                 emit(Result.failure(exception))
             }
         } catch (e: Exception) {
@@ -119,6 +148,7 @@ class ChapterRepositoryImpl @Inject constructor(
 
     /**
      * Refresh the chapters data for a specific story from the remote source.
+     * Forces API fetch and updates database.
      *
      * @param storyId The ID of the story to refresh chapters for.
      */
@@ -127,11 +157,12 @@ class ChapterRepositoryImpl @Inject constructor(
         val response = api.getChapters(storyId = storyId, langCode = langCode)
         if (response.isSuccessful) {
             val chapters = response.body()?.toDomain() ?: emptyList()
-            // Initialize the StateFlow if it doesn't exist
-            if (!chaptersCache.containsKey(storyId)) {
-                chaptersCache[storyId] = MutableStateFlow(null)
-            }
-            chaptersCache[storyId]?.value = chapters
+            
+            // Save to database
+            chapterDao.insertAll(chapters)
+            
+            // Update in-memory cache
+            updateChaptersCache(storyId, chapters)
         }
     }
 
@@ -150,6 +181,7 @@ class ChapterRepositoryImpl @Inject constructor(
 
     /**
      * Get the current chapter for a specific game.
+     * Checks database first, then in-memory cache.
      *
      * @param gameId The ID of the game to get the current chapter for.
      * @return A Flow emitting a Result containing the current Chapter.
@@ -165,17 +197,22 @@ class ChapterRepositoryImpl @Inject constructor(
                     val gameIdHash = gameId.hashCode()
                     val chapterCode = symbols.get(gameIdHash, "chapterCode") ?: "1a"
 
-                    // First try to find the chapter in the cache for this specific game
+                    // First try to find the chapter in the database
+                    val dbChapter = chapterDao.getByStoryAndCode(gameId, chapterCode)
+                    if (dbChapter != null) {
+                        updateCurrentChapterCache(gameId, dbChapter)
+                        return@map dbChapter
+                    }
+
+                    // Then try in-memory cache
                     chaptersCache[gameId]?.value?.forEach { chapter ->
                         if (chapter.code == chapterCode) {
-                            // Update the current chapter cache
                             updateCurrentChapterCache(gameId, chapter)
                             return@map chapter
                         }
                     }
 
-                    // If we couldn't find the chapter in the cache, try to parse the code
-                    // to extract number and alternative
+                    // If we couldn't find the chapter, try to parse the code
                     try {
                         val number = chapterCode.filter { it.isDigit() }.toIntOrNull() ?: 1
                         val alternative = chapterCode.filter { !it.isDigit() }.lowercase()
@@ -188,12 +225,9 @@ class ChapterRepositoryImpl @Inject constructor(
                             code = chapterCode
                         )
 
-                        // Update the current chapter cache
                         updateCurrentChapterCache(gameId, placeholderChapter)
-
                         return@map placeholderChapter
                     } catch (e: Exception) {
-                        // If parsing fails, return null and update cache with null
                         updateCurrentChapterCache(gameId, null)
                         null
                     }
@@ -216,6 +250,19 @@ class ChapterRepositoryImpl @Inject constructor(
             currentChapterCache[gameId] = MutableStateFlow(null)
         }
         return currentChapterCache[gameId]!!
+    }
+
+    /**
+     * Helper method to update the chapters cache.
+     *
+     * @param storyId The ID of the story to update the cache for.
+     * @param chapters The chapters to set in the cache.
+     */
+    private fun updateChaptersCache(storyId: String, chapters: List<Chapter>) {
+        if (!chaptersCache.containsKey(storyId)) {
+            chaptersCache[storyId] = MutableStateFlow(null)
+        }
+        chaptersCache[storyId]?.value = chapters
     }
 
     /**
@@ -243,6 +290,12 @@ class ChapterRepositoryImpl @Inject constructor(
         symbols.addOrSet(gameIdHash, "chapterCode", chapter.code)
         symbols.save(context = context)
 
+        // Save chapter to database if not exists
+        val existingChapter = chapterDao.getById(chapter.id)
+        if (existingChapter == null) {
+            chapterDao.insert(chapter)
+        }
+
         // Update the current chapter cache
         updateCurrentChapterCache(gameId, chapter)
     }
@@ -253,7 +306,9 @@ class ChapterRepositoryImpl @Inject constructor(
         symbols.addOrSet(gameIdHash, "chapterCode", "1a")
         symbols.save(context = context)
 
-        val firstChapter = chaptersCache[gameId]?.value?.firstOrNull()
+        // Try to get first chapter from database, then from cache
+        val firstChapter = chapterDao.getAllForStory(gameId).firstOrNull()
+            ?: chaptersCache[gameId]?.value?.firstOrNull()
         updateCurrentChapterCache(gameId, firstChapter)
     }
 }

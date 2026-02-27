@@ -1,6 +1,9 @@
 package com.purpletear.game.data.di
 
 import android.content.Context
+import androidx.room.Room
+import com.purpletear.game.data.database.GameDatabase
+import com.purpletear.game.data.local.dao.ChapterDao
 import com.purpletear.game.data.remote.ChapterApi
 import com.purpletear.game.data.repository.ChapterRepositoryImpl
 import com.purpletear.sutoko.game.repository.ChapterRepository
@@ -21,6 +24,34 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 object ChapterDataModule {
+
+    /**
+     * Provides the GameDatabase instance.
+     *
+     * @param context The application context.
+     * @return The GameDatabase instance.
+     */
+    @Provides
+    @Singleton
+    fun provideGameDatabase(@ApplicationContext context: Context): GameDatabase {
+        return Room.databaseBuilder(
+            context,
+            GameDatabase::class.java,
+            "game_database"
+        ).build()
+    }
+
+    /**
+     * Provides the ChapterDao instance.
+     *
+     * @param database The GameDatabase instance.
+     * @return The ChapterDao instance.
+     */
+    @Provides
+    @Singleton
+    fun provideChapterDao(database: GameDatabase): ChapterDao {
+        return database.chapterDao()
+    }
 
     /**
      * Provides the ChapterApi implementation.
@@ -44,6 +75,8 @@ object ChapterDataModule {
      * Provides the ChapterRepository implementation.
      *
      * @param chapterApi The ChapterApi instance.
+     * @param chapterDao The ChapterDao instance.
+     * @param symbols The TableOfSymbols instance.
      * @param context The application context.
      * @return The ChapterRepository implementation.
      */
@@ -51,9 +84,10 @@ object ChapterDataModule {
     @Singleton
     fun provideChapterRepository(
         chapterApi: ChapterApi,
+        chapterDao: ChapterDao,
         symbols: TableOfSymbols,
         @ApplicationContext context: Context
     ): ChapterRepository {
-        return ChapterRepositoryImpl(chapterApi, symbols, context)
+        return ChapterRepositoryImpl(chapterApi, chapterDao, symbols, context)
     }
 }

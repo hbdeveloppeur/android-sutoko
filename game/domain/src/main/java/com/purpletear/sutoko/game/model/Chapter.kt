@@ -1,9 +1,13 @@
 package com.purpletear.sutoko.game.model
 
 import androidx.annotation.Keep
+import androidx.room.Entity
+import androidx.room.PrimaryKey
 
 @Keep
+@Entity(tableName = "chapters")
 data class Chapter(
+    @PrimaryKey
     val id: String = "",
     val number: Int = 1,
     val alternative: String = "",
@@ -14,4 +18,11 @@ data class Chapter(
     val description: String = "",
     val publishedVersion: Int = 0,
     val code: String = ""
-)
+) {
+    /**
+     * Checks if the chapter is available based on its release date.
+     * A chapter is available if its release date has passed (releaseDate <= current time).
+     */
+    val isAvailable: Boolean
+        get() = releaseDate <= System.currentTimeMillis()
+}
