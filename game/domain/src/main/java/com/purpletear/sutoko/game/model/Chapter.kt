@@ -16,7 +16,7 @@ data class Chapter(
     val story: String = "",
     val title: String = "",
     val description: String = "",
-    val publishedVersion: Int = 0,
+    val canvasAppVersion: Int = 0,
     val code: String = ""
 ) {
     /**
