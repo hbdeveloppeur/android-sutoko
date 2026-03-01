@@ -15,6 +15,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.flow
 import purpletear.fr.purpleteartools.TableOfSymbols
+import java.io.File
 import javax.inject.Inject
 
 /**
@@ -161,8 +162,24 @@ class GameRepositoryImpl @Inject constructor(
     }
 
     override suspend fun removeGame(game: Game): Flow<Result<Unit>> = flow {
-        tableOfSymbols.deleteRowData(rowId = game.id.hashCode())
+        val rowId = game.id.hashCode()
+        
+        // 1. Supprimer les métadonnées
+        tableOfSymbols.deleteRowData(rowId = rowId)
         tableOfSymbols.save(context = context)
+        
+        // 2. Supprimer les fichiers physiques du jeu
+        val gamesDir = File(context.filesDir, "games")
+        val gameDir = File(gamesDir, game.id)
+        if (gameDir.exists()) {
+            gameDir.deleteRecursively()
+        }
+        
+        // 3. Nettoyer le dossier parent s'il est vide
+        if (gamesDir.exists() && gamesDir.listFiles()?.isEmpty() == true) {
+            gamesDir.delete()
+        }
+        
         emit(Result.success(Unit))
     }
 
