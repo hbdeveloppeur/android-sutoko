@@ -27,6 +27,7 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import com.purpletear.core.presentation.services.performVibration
+import com.purpletear.core.presentation.util.openAppInStore
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
@@ -219,6 +220,14 @@ fun GamePreview(
             LaunchedEffect(gameDeletedEventFlow) {
                 gameDeletedEventFlow.collect {
                     onGameDeleted()
+                }
+            }
+
+            // Collect open store events
+            val context = LocalContext.current
+            LaunchedEffect(viewModel.openStoreEvents) {
+                viewModel.openStoreEvents.collect {
+                    context.openAppInStore()
                 }
             }
 

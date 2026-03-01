@@ -47,6 +47,7 @@ import com.example.sharedelements.R as SharedElementsR
 import com.purpletear.game.presentation.R
 import com.purpletear.game.presentation.components.compact.GameCardCompact
 import com.purpletear.game.presentation.states.GameButtonsState
+import com.purpletear.core.presentation.util.openAppInStore
 import com.purpletear.game.presentation.states.GameState
 import com.purpletear.game.presentation.viewmodels.GamePreviewModalViewModel
 
@@ -67,7 +68,7 @@ private val PoppinsMedium = FontFamily(
 @Composable
 fun GamePreviewModal(
     isVisible: Boolean,
-    onDismiss: () -> Unit,
+    onDismiss: () -> Unit = {},
     gameId: String?,
     onPlayGame: (String) -> Unit = {},
     onGameDeleted: () -> Unit = {},
@@ -93,14 +94,28 @@ fun GamePreviewModal(
 
     LaunchedEffect(viewModel) {
         viewModel.dismissEvents.collect {
+            android.util.Log.d("GamePreviewModal", "dismissEvents collected - calling onDismiss")
             onDismiss()
         }
     }
 
     LaunchedEffect(viewModel) {
         viewModel.gameDeletedEvents.collect {
-            onGameDeleted()
-            onDismiss()
+            android.util.Log.d("GamePreviewModal", "gameDeletedEvents collected - about to call onGameDeleted")
+            try {
+                onGameDeleted()
+                android.util.Log.d("GamePreviewModal", "onGameDeleted() completed successfully")
+            } catch (e: Exception) {
+                android.util.Log.e("GamePreviewModal", "Error in onGameDeleted", e)
+            }
+        }
+    }
+
+    // Collect open store events
+    val context = LocalContext.current
+    LaunchedEffect(viewModel) {
+        viewModel.openStoreEvents.collect {
+            context.openAppInStore()
         }
     }
 
@@ -133,7 +148,7 @@ fun GamePreviewModal(
             contentAlignment = Alignment.Center
         ) {
             when {
-                gameState == GameState.Loading || game == null -> {
+                game == null -> {
                     LoadingContent()
                 }
 
@@ -164,7 +179,12 @@ fun GamePreviewModal(
 @Composable
 private fun LoadingContent() {
     Box(
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier
+            .fillMaxSize()
+            .clickable(
+                indication = null,
+                interactionSource = remember { MutableInteractionSource() }
+            ) { /* Consume clicks to prevent dismiss */ },
         contentAlignment = Alignment.Center
     ) {
         CircularProgressIndicator(

@@ -20,6 +20,7 @@ import com.purpletear.game.presentation.states.GameButtonsState
 import com.purpletear.game.presentation.states.GameState
 import com.purpletear.game.presentation.states.toButtonsState
 import com.purpletear.game.presentation.states.StoryPreviewAction
+import com.purpletear.ntfy.Ntfy
 import com.purpletear.shop.data.exception.InsufficientFundsException
 import com.purpletear.shop.data.exception.InternetConnectivityException
 import com.purpletear.shop.data.exception.ItemAlreadyOwnedErrorException
@@ -112,6 +113,7 @@ class GamePreviewViewModel @Inject constructor(
     private val restartGameUseCase: RestartGameUseCase,
     private val removeGameUseCase: RemoveGameUseCase,
     private val tableOfSymbols: purpletear.fr.purpleteartools.TableOfSymbols,
+    private val ntfy: Ntfy,
     @ApplicationContext private val appContext: Context,
 ) : ViewModel() {
 
@@ -171,6 +173,9 @@ class GamePreviewViewModel @Inject constructor(
 
     private val _gameDeletedEvents = MutableSharedFlow<Unit>()
     val gameDeletedEvents: SharedFlow<Unit> = _gameDeletedEvents
+
+    private val _openStoreEvents = MutableSharedFlow<Unit>()
+    val openStoreEvents: SharedFlow<Unit> = _openStoreEvents
 
     // Timestamp of the last loadGameData call to prevent spamming
     private var lastLoadGameDataTimestamp = 0L
@@ -298,7 +303,7 @@ class GamePreviewViewModel @Inject constructor(
             }
 
             StoryPreviewAction.OnUpdateApp -> {
-                callToActionUpdateApp()
+                viewModelScope.launch { _openStoreEvents.emit(Unit) }
             }
 
             StoryPreviewAction.OnUpdateGame -> {
@@ -311,10 +316,6 @@ class GamePreviewViewModel @Inject constructor(
 
             null -> {}
         }
-    }
-
-    private fun callToActionUpdateApp() {
-        // Shows a popUp to encourages the user to update the app
     }
 
     private fun shouldAskFirstName(): Boolean {
@@ -884,6 +885,7 @@ class GamePreviewViewModel @Inject constructor(
                                 makeToastService(R.string.game_delete_success)
                                 _gameDeletedEvents.emit(Unit)
                             } catch (e: Exception) {
+                                ntfy.exception(e)
                                 e.printStackTrace()
                                 makeToastService(R.string.game_delete_error)
                                 _gameState.value = GameState.Idle

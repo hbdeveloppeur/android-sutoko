@@ -96,6 +96,9 @@ class GamePreviewModalViewModel @Inject constructor(
     private val _gameDeletedEvents = MutableSharedFlow<Unit>()
     val gameDeletedEvents: SharedFlow<Unit> = _gameDeletedEvents
 
+    private val _openStoreEvents = MutableSharedFlow<Unit>()
+    val openStoreEvents: SharedFlow<Unit> = _openStoreEvents
+
     // UI-specific state for buttons
     internal val gameButtonsState: GameButtonsState
         get() = _gameState.value.toButtonsState(
@@ -149,12 +152,17 @@ class GamePreviewModalViewModel @Inject constructor(
             StoryPreviewAction.OnAbortBuy,
             StoryPreviewAction.OnBuy,
             StoryPreviewAction.OnBuyConfirm -> {
-                // Buy actions not supported in modal - dismiss to full preview
+                Log.d(TAG, "Buy action triggered - emitting dismissEvents")
                 viewModelScope.launch { _dismissEvents.emit(Unit) }
             }
 
-            StoryPreviewAction.OnRestart -> {}
-            StoryPreviewAction.OnUpdateApp -> {}
+            StoryPreviewAction.OnRestart -> {
+                // TODO:
+            }
+            
+            StoryPreviewAction.OnUpdateApp -> {
+                viewModelScope.launch { _openStoreEvents.emit(Unit) }
+            }
 
             StoryPreviewAction.OnDelete -> {
                 confirmAndDeleteGame()
@@ -166,9 +174,10 @@ class GamePreviewModalViewModel @Inject constructor(
      * Shows a confirmation popup and deletes the game if confirmed.
      */
     private fun confirmAndDeleteGame() {
+        Log.d(TAG, "confirmAndDeleteGame() called")
         val popUp = SutokoPopUp(
             title = UiText.StringResource(R.string.game_delete_confirm_title),
-            description = UiText.StringResource(R.string.game_delete_confirm_description),
+            description = UiText.StringResource(R.string.game_delete_confirm_description_short),
             icon = PopUpIconAnimation(id = R.raw.lottie_animation_validation_green),
             buttonText = UiText.StringResource(R.string.game_delete_confirm_button)
         )
@@ -183,11 +192,12 @@ class GamePreviewModalViewModel @Inject constructor(
                         _game.value?.let { game ->
                             ntfy.startAction("Deleting game ${game.id}")
                             try {
-                                _gameState.value = GameState.Loading
-                                delay(800)
                                 awaitFlowResult { removeGameUseCase(game) }
                                 makeToastService(R.string.game_delete_success)
+                                Log.d(TAG, "Emitting gameDeletedEvents")
                                 _gameDeletedEvents.emit(Unit)
+                                Log.d(TAG, "Setting gameState to Idle after delete")
+                                _gameState.value = GameState.DownloadRequired
                             } catch (e: Exception) {
                                 Log.e(TAG, "Failed to delete game", e)
                                 ntfy.exception(e)
@@ -200,7 +210,7 @@ class GamePreviewModalViewModel @Inject constructor(
                 }
 
                 PopUpUserInteraction.Dismiss -> {
-                    // Do nothing on cancel
+                    Log.d(TAG, "Popup dismissed - doing nothing")
                 }
 
                 else -> {}
@@ -212,6 +222,7 @@ class GamePreviewModalViewModel @Inject constructor(
      * Loads the game data from repository.
      */
     private fun loadGame(gameId: String) {
+        Log.d(TAG, "loadGame called with gameId=$gameId, current gameId=${this.gameId}")
         _gameState.value = GameState.Loading
 
         viewModelScope.launch {
