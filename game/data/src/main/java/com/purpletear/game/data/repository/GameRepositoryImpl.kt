@@ -3,6 +3,7 @@ package com.purpletear.game.data.repository
 import android.content.Context
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.purpletear.game.data.remote.GameApi
+import com.purpletear.game.data.remote.GamePortalApi
 import com.purpletear.game.data.remote.dto.toDomain
 import com.purpletear.game.data.utils.ifNotCancellation
 import com.purpletear.ntfy.Ntfy
@@ -23,6 +24,7 @@ import javax.inject.Inject
  */
 class GameRepositoryImpl @Inject constructor(
     private val api: GameApi,
+    private val portalApi: GamePortalApi,
     private val tableOfSymbols: TableOfSymbols,
     private val context: Context,
     private val ntfy: Ntfy,
@@ -268,6 +270,45 @@ class GameRepositoryImpl @Inject constructor(
             // Silent. Excepted.
         } catch (e: Exception) {
             ntfy.exception(e)
+            emit(Result.failure(e))
+        }
+    }
+
+    /**
+     * Search for stories by query string.
+     * Searches story titles, author names, and categories.
+     *
+     * @param query The search query (2-100 characters)
+     * @param languageCode The language code (e.g., "fr-FR", "en-US")
+     * @param page The page number (starting from 1, default: 1)
+     * @param limit The number of items per page (1-20, default: 20)
+     * @return A Flow emitting a Result containing a list of Games matching the search criteria
+     */
+    override fun searchStories(
+        query: String,
+        languageCode: String,
+        page: Int,
+        limit: Int,
+    ): Flow<Result<List<Game>>> = flow {
+        try {
+            val response = portalApi.searchStories(
+                query = query,
+                languageCode = languageCode,
+                page = page,
+                limit = limit
+            )
+
+            if (response.isSuccessful) {
+                val games = response.body()?.toDomain() ?: emptyList()
+                emit(Result.success(games))
+            } else {
+                val errorBody = response.errorBody()?.string() ?: "Unknown error"
+                emit(Result.failure(Exception("Search failed: ${response.code()} - $errorBody")))
+            }
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            e.ifNotCancellation { FirebaseCrashlytics.getInstance().recordException(it) }
             emit(Result.failure(e))
         }
     }

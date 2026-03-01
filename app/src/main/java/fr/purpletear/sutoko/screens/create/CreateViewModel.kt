@@ -17,6 +17,7 @@ import com.purpletear.shop.domain.model.Balance
 import com.purpletear.shop.domain.usecase.ObserveShopBalanceUseCase
 import com.purpletear.sutoko.game.model.Game
 import com.purpletear.sutoko.game.usecase.GetUserGamesUseCase
+import com.purpletear.sutoko.game.usecase.SearchStoriesUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import fr.purpletear.sutoko.shop.coinsLogic.Customer
 import kotlinx.coroutines.delay
@@ -27,6 +28,7 @@ import javax.inject.Inject
 class CreateViewModel @Inject constructor(
     private val observeShopBalanceUseCase: ObserveShopBalanceUseCase,
     private val getUserGamesUseCase: GetUserGamesUseCase,
+    private val searchStoriesUseCase: SearchStoriesUseCase,
     private val customer: Customer,
     private val ntfy: Ntfy,
 ) : ViewModel() {
@@ -48,6 +50,12 @@ class CreateViewModel @Inject constructor(
 
     private val _isRefreshing = mutableStateOf(false)
     val isRefreshing: State<Boolean> = _isRefreshing
+
+    private val _searchQuery = mutableStateOf("")
+    val searchQuery: State<String> = _searchQuery
+
+    private val _isSearching = mutableStateOf(false)
+    val isSearching: State<Boolean> = _isSearching
 
     companion object {
         private const val PAGE_LIMIT = 20
@@ -172,4 +180,64 @@ class CreateViewModel @Inject constructor(
     fun getDiamonds(): Int = customer.getDiamonds()
 
     fun isUserConnected(): Boolean = customer.isUserConnected()
+
+    /**
+     * Update search query. Search is only performed when user submits via keyboard.
+     * When query is empty, reset to show all games.
+     *
+     * @param query The search query string
+     */
+    fun onSearchQueryChange(query: String) {
+        _searchQuery.value = query
+        
+        // Reset to normal list when search is cleared
+        if (query.isBlank() && _isSearching.value) {
+            _isSearching.value = false
+            refreshUserGames()
+        }
+    }
+
+    /**
+     * Perform search when user presses search button on keyboard.
+     *
+     * @param query The search query string
+     */
+    fun onSearchSubmit(query: String) {
+        _searchQuery.value = query
+        
+        if (query.isBlank()) {
+            _isSearching.value = false
+            refreshUserGames()
+            return
+        }
+        
+        performSearch(query)
+    }
+
+    private fun performSearch(query: String) {
+        _isSearching.value = true
+        _userGames.value = Resource.Loading()
+        
+        viewModelScope.launch {
+            executeFlowResultUseCase(
+                useCase = {
+                    searchStoriesUseCase(
+                        query = query,
+                        languageCode = "fr-FR",
+                        page = 1,
+                        limit = PAGE_LIMIT
+                    )
+                },
+                onSuccess = { games ->
+                    _userGames.value = Resource.Success(games)
+                    _currentPage.intValue = 1
+                    _hasMorePages.value = false // Search doesn't support pagination yet
+                },
+                onFailure = { exception ->
+                    ntfy.exception(exception)
+                    _userGames.value = Resource.Error(exception)
+                }
+            )
+        }
+    }
 }

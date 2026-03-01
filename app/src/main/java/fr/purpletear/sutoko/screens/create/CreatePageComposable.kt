@@ -114,6 +114,7 @@ internal fun CreatePageComposable(
     val isBalanceLoading = balance is Resource.Loading
     val games = (userGames as? Resource.Success)?.data.orEmpty()
     val isGamesLoading = userGames is Resource.Loading && !isRefreshing
+    val isSearching by viewModel.isSearching
 
     val pullRefreshState = rememberPullRefreshState(
         refreshing = isRefreshing,
@@ -201,10 +202,10 @@ internal fun CreatePageComposable(
                             .padding(horizontal = 16.dp)
                             .padding(top = 16.dp),
                         onSearch = { query ->
-                            // TODO: Handle search
+                            viewModel.onSearchSubmit(query)
                         },
                         onValueChange = { query ->
-                            // TODO: Handle search query change
+                            viewModel.onSearchQueryChange(query)
                         }
                     )
                 }
@@ -245,8 +246,8 @@ internal fun CreatePageComposable(
                     )
                 }
 
-                // Load more button
-                if (hasMorePages || isLoadingMore) {
+                // Load more button (hidden when searching)
+                if ((hasMorePages || isLoadingMore) && !isSearching) {
                     item {
                         LoadMoreButton(
                             onClick = { viewModel.loadMoreUserGames() },

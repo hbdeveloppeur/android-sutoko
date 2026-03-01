@@ -5,6 +5,7 @@ import com.purpletear.game.data.download.GameDownloadManagerImpl
 import com.purpletear.game.data.provider.AndroidGamePathProviderImpl
 import com.purpletear.game.data.provider.GamePathProvider
 import com.purpletear.game.data.remote.GameApi
+import com.purpletear.game.data.remote.GamePortalApi
 import com.purpletear.game.data.repository.GameRepositoryImpl
 import com.purpletear.ntfy.Ntfy
 import com.purpletear.sutoko.game.download.GameDownloadManager
@@ -34,6 +35,7 @@ object GameDataModule {
      */
     @Provides
     @Singleton
+    @SutokoRetrofit
     fun provideSutokoRetrofit(): Retrofit {
         val okHttpClient: OkHttpClient = OkHttpClient.Builder()
             .cache(null)
@@ -46,33 +48,68 @@ object GameDataModule {
     }
 
     /**
+     * Provides the Retrofit instance for sutoko.com/portal.
+     *
+     * @return The Portal Retrofit instance.
+     */
+    @Provides
+    @Singleton
+    @PortalRetrofit
+    fun providePortalRetrofit(): Retrofit {
+        val okHttpClient: OkHttpClient = OkHttpClient.Builder()
+            .cache(null)
+            .build()
+        return Retrofit.Builder()
+            .baseUrl("https://sutoko.com/portal/")
+            .addConverterFactory(GsonConverterFactory.create())
+            .client(okHttpClient)
+            .build()
+    }
+
+    /**
      * Provides the GameApi implementation.
      *
-     * @param retrofit The Portal Retrofit instance.
+     * @param retrofit The Sutoko Retrofit instance.
      * @return The GameApi implementation.
      */
     @Provides
     @Singleton
-    fun provideGameApi(retrofit: Retrofit): GameApi {
+    fun provideGameApi(@SutokoRetrofit retrofit: Retrofit): GameApi {
         return retrofit.create(GameApi::class.java)
     }
+
+    /**
+     * Provides the GamePortalApi implementation.
+     *
+     * @param retrofit The Portal Retrofit instance.
+     * @return The GamePortalApi implementation.
+     */
+    @Provides
+    @Singleton
+    fun provideGamePortalApi(@PortalRetrofit retrofit: Retrofit): GamePortalApi {
+        return retrofit.create(GamePortalApi::class.java)
+    } 
 
     /**
      * Provides the GameRepository implementation.
      *
      * @param gameApi The GameApi instance.
-     * @param userGameApi The UserGameApi instance.
+     * @param gamePortalApi The GamePortalApi instance.
+     * @param tableOfSymbols The TableOfSymbols instance.
+     * @param ntfy The Ntfy instance.
+     * @param context The application context.
      * @return The GameRepository implementation.
      */
     @Provides
     @Singleton
     fun provideGameRepository(
         gameApi: GameApi,
+        gamePortalApi: GamePortalApi,
         tableOfSymbols: TableOfSymbols,
         ntfy: Ntfy,
         @ApplicationContext context: Context
     ): GameRepository {
-        return GameRepositoryImpl(gameApi, tableOfSymbols, context, ntfy)
+        return GameRepositoryImpl(gameApi, gamePortalApi, tableOfSymbols, context, ntfy)
     }
 
     /**
