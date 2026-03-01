@@ -19,10 +19,6 @@ data class Chapter(
     val canvasAppVersion: Int = 0,
     val code: String = ""
 ) {
-    /**
-     * Checks if the chapter is available based on its release date.
-     * A chapter is available if its release date has passed (releaseDate <= current time).
-     */
     val isAvailable: Boolean
         get() = releaseDate <= System.currentTimeMillis()
 }

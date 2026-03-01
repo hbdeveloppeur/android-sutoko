@@ -84,23 +84,3 @@ internal fun GameActionButtons(
         )
     }
 }
-
-/**
- * Convenience overload that accepts individual ButtonUiState parameters.
- * Useful for previews or simple cases.
- */
-@Composable
-internal fun GameActionButtons(
-    leftButton: ButtonUiState,
-    rightButton: ButtonUiState,
-    modifier: Modifier = Modifier,
-    onLeftClick: (() -> Unit)? = null,
-    onRightClick: (() -> Unit)? = null,
-) {
-    GameActionButtons(
-        state = GameButtonsState(left = leftButton, right = rightButton),
-        modifier = modifier,
-        onLeftClick = onLeftClick,
-        onRightClick = onRightClick,
-    )
-}

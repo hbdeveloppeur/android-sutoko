@@ -72,7 +72,8 @@ fun GameCoverCompact(
             title = title,
             author = author,
             thumbnailUrl = thumbnailUrl,
-            isAuthorCertified = isAuthorCertified
+            isAuthorCertified = isAuthorCertified,
+            onClick = onClick
         )
     }
 }
@@ -123,7 +124,8 @@ private fun GameCardInfo(
     title: String,
     author: String,
     thumbnailUrl: String,
-    isAuthorCertified: Boolean
+    isAuthorCertified: Boolean,
+    onClick: () -> Unit
 ) {
     Box(
         modifier = Modifier
@@ -136,7 +138,8 @@ private fun GameCardInfo(
             author = author,
             imageUrl = thumbnailUrl,
             isAuthorCertified = isAuthorCertified,
-            showGetButton = false
+            showGetButton = false,
+            onClick = onClick
         )
     }
 }

@@ -9,7 +9,6 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface ChapterDao {
-
     @Query("SELECT * FROM chapters WHERE story = :storyId ORDER BY number ASC, alternative ASC")
     suspend fun getAllForStory(storyId: String): List<Chapter>
 

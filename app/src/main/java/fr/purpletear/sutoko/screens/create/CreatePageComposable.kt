@@ -65,6 +65,11 @@ internal fun CreatePageComposable(
 ) {
     var isPreviewModalVisible by remember { mutableStateOf(false) }
     var selectedGameId by remember { mutableStateOf<String?>(null) }
+    
+    androidx.compose.runtime.SideEffect {
+        android.util.Log.d("CreatePageComposable", "isPreviewModalVisible=$isPreviewModalVisible, selectedGameId=$selectedGameId")
+    }
+    
     val focusManager = LocalFocusManager.current
     val balance by viewModel.balance
     val userGames by viewModel.userGames
@@ -268,17 +273,20 @@ internal fun CreatePageComposable(
             GamePreviewModal(
                 isVisible = isPreviewModalVisible,
                 onDismiss = {
+                    android.util.Log.d("CreatePageComposable", "onDismiss called - hiding modal")
                     isPreviewModalVisible = false
                     selectedGameId = null
                 },
                 gameId = selectedGameId,
                 onPlayGame = { gameId ->
-                    // Find the game in the list to pass to the callback
+                    android.util.Log.d("CreatePageComposable", "onPlayGame called with gameId=$gameId")
                     val game = games.find { it.id == gameId }
                     game?.let { onGameClick(it) }
                     isPreviewModalVisible = false
+                    android.util.Log.d("CreatePageComposable", "onPlayGame set isPreviewModalVisible=false")
                 },
                 onGameDeleted = {
+                    android.util.Log.d("CreatePageComposable", "onGameDeleted called - refreshing games")
                     viewModel.refreshUserGames()
                 }
             )

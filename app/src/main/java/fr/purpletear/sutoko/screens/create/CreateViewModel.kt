@@ -117,6 +117,7 @@ class CreateViewModel @Inject constructor(
     }
 
     fun refreshUserGames(languageCode: String = "fr-FR") {
+        android.util.Log.d("CreateViewModel", "refreshUserGames called")
         _isRefreshing.value = true
         viewModelScope.launch {
             val startTime = System.currentTimeMillis()
@@ -143,6 +144,7 @@ class CreateViewModel @Inject constructor(
                     }
                     result.fold(
                         onSuccess = { games ->
+                            android.util.Log.d("CreateViewModel", "refreshUserGames success, games count=${games.size}")
                             _userGames.value = Resource.Success(games)
                             _currentPage.intValue = 1
                             _hasMorePages.value = games.size >= PAGE_LIMIT

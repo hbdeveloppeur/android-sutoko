@@ -144,7 +144,10 @@ internal fun SearchBox(
             cursorBrush = SolidColor(TextColor),
             singleLine = true,
             interactionSource = interactionSource,
-            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
+            keyboardOptions = KeyboardOptions(
+                    imeAction = ImeAction.Search,
+                    autoCorrect = false
+                ),
             keyboardActions = KeyboardActions(
                 onSearch = {
                     focusManager.clearFocus()

@@ -18,7 +18,6 @@ import okhttp3.OkHttpClient
 import purpletear.fr.purpleteartools.TableOfSymbols
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
-import javax.inject.Qualifier
 import javax.inject.Singleton
 
 /**

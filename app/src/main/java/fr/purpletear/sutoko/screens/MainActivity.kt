@@ -56,7 +56,6 @@ import com.purpletear.aiconversation.presentation.screens.shopDialog.MessagesCoi
 import com.purpletear.game.presentation.screens.ChaptersComposable
 import com.purpletear.game.presentation.screens.GamePreview
 import com.purpletear.sutoko.game.model.Game
-import com.purpletear.sutoko.game.usecase.GetChaptersUseCase
 import com.purpletear.sutoko.game.usecase.GetGameUseCase
 import com.purpletear.sutoko.news.model.News
 import com.purpletear.sutoko.notification.sealed.Screen
@@ -145,9 +144,6 @@ class MainActivity @Inject constructor(
 
     @Inject
     lateinit var getGameUseCase: GetGameUseCase
-
-    @Inject
-    lateinit var getChaptersUseCase: GetChaptersUseCase
 
     @Inject
     lateinit var customer: Customer
