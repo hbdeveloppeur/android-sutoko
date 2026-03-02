@@ -39,6 +39,10 @@ class CreateViewModel @Inject constructor(
     private val _userGames = mutableStateOf<Resource<List<Game>>>(Resource.Loading())
     val userGames: State<Resource<List<Game>>> = _userGames
 
+    // Featured cover games - always from the original list, never from search
+    private val _featuredGames = mutableStateOf<List<Game>>(emptyList())
+    val featuredGames: State<List<Game>> = _featuredGames
+
     private val _currentPage = mutableIntStateOf(1)
     val currentPage: State<Int> = _currentPage
 
@@ -112,11 +116,18 @@ class CreateViewModel @Inject constructor(
                     }
                     val updatedList = currentList + games
                     _userGames.value = Resource.Success(updatedList)
+                    
+                    // Update featured games only on initial load (not pagination, not search)
+                    if (!isLoadMore && !_isSearching.value) {
+                        _featuredGames.value = updatedList
+                    }
+                    
                     _currentPage.intValue = page
                     _hasMorePages.value = games.size >= PAGE_LIMIT
                     _isLoadingMore.value = false
                 },
                 onFailure = { exception ->
+                    ntfy.urgent(exception)
                     _userGames.value = Resource.Error(exception)
                     _isLoadingMore.value = false
                 }
@@ -154,6 +165,12 @@ class CreateViewModel @Inject constructor(
                         onSuccess = { games ->
                             android.util.Log.d("CreateViewModel", "refreshUserGames success, games count=${games.size}")
                             _userGames.value = Resource.Success(games)
+                            
+                            // Update featured games only when not searching
+                            if (!_isSearching.value) {
+                                _featuredGames.value = games
+                            }
+                            
                             _currentPage.intValue = 1
                             _hasMorePages.value = games.size >= PAGE_LIMIT
                         },
