@@ -24,7 +24,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -227,26 +226,16 @@ internal fun CreatePageComposable(
                     }
                 }
 
-                // Games list with reactive download states
+                // Games list with reactive download and installation states
                 items(
                     items = games,
                     key = { it.id }
                 ) { game ->
-                    // Observe download state reactively for this game
+                    // Observe download state reactively (from GameDownloadManager singleton)
                     val downloadState by viewModel.getDownloadState(game.id).collectAsState()
                     
-                    // Check if game is installed (reactive)
-                    val isInstalled by produceState<Boolean?>(
-                        initialValue = viewModel.getCachedInstalledStatus(game.id),
-                        key1 = game.id,
-                        key2 = downloadState
-                    ) {
-                        // Refresh installation status when download completes
-                        if (downloadState is com.purpletear.sutoko.game.download.GameDownloadState.Completed) {
-                            viewModel.refreshGameInstalledStatus(game)
-                        }
-                        value = viewModel.isGameInstalled(game)
-                    }
+                    // Observe installation status reactively (from GameRepository - single source of truth)
+                    val isInstalled by viewModel.getGameInstallationStatus(game.id).collectAsState()
 
                     GameCardCompact(
                         modifier = Modifier
@@ -258,7 +247,7 @@ internal fun CreatePageComposable(
                             ?: "",
                         isAuthorCertified = game.author?.isCertified ?: false,
                         downloadState = downloadState,
-                        isInstalled = isInstalled ?: false,
+                        isInstalled = isInstalled,
                         onGetClick = { viewModel.downloadGame(game) },
                         onOpenClick = { onGameClick(game) },
                         onCancelClick = { viewModel.cancelDownload(game.id) },
@@ -310,11 +299,8 @@ internal fun CreatePageComposable(
                     android.util.Log.d("CreatePageComposable", "onPlayGame set isPreviewModalVisible=false")
                 },
                 onGameDeleted = {
-                    android.util.Log.d("CreatePageComposable", "onGameDeleted called - updating local state and refreshing")
-                    // Mark game as deleted locally for immediate UI update
-                    selectedGameId?.let { gameId ->
-                        viewModel.markGameAsDeleted(gameId)
-                    }
+                    android.util.Log.d("CreatePageComposable", "onGameDeleted called - refreshing games list")
+                    // Repository emits installation status change automatically (single source of truth)
                     viewModel.refreshUserGames()
                 }
             )

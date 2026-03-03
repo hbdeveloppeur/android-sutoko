@@ -17,6 +17,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.flow
 import purpletear.fr.purpleteartools.TableOfSymbols
 import java.io.File
+import java.util.concurrent.ConcurrentHashMap
 import javax.inject.Inject
 
 /**
@@ -33,6 +34,32 @@ class GameRepositoryImpl @Inject constructor(
     // Thread-safe and observable cache
     private val officialGamesStateFlow = MutableStateFlow<List<Game>?>(null)
     private val usersGamesStateFlow = MutableStateFlow<List<Game>?>(null)
+
+    // Installation status cache - single source of truth for game installation state
+    private val installationStatusFlows = ConcurrentHashMap<String, MutableStateFlow<Boolean>>()
+
+    /**
+     * Get or create a StateFlow for a game's installation status.
+     * Initial value is determined by checking local files.
+     */
+    private fun getOrCreateInstallationStatusFlow(gameId: String): MutableStateFlow<Boolean> {
+        return installationStatusFlows.getOrPut(gameId) {
+            val initialValue = checkGameInstalled(gameId)
+            MutableStateFlow(initialValue)
+        }
+    }
+
+    /**
+     * Check if a game is installed by reading from TableOfSymbols.
+     */
+    private fun checkGameInstalled(gameId: String): Boolean {
+        return try {
+            val version = tableOfSymbols.getStoryVersion(gameId.hashCode())
+            version != "none" && version.isNotBlank()
+        } catch (e: Exception) {
+            false
+        }
+    }
 
     /**
      * Get a list of official games.
@@ -157,9 +184,17 @@ class GameRepositoryImpl @Inject constructor(
         }
     }
 
+    override fun observeGameInstallationStatus(gameId: String): StateFlow<Boolean> {
+        return getOrCreateInstallationStatusFlow(gameId)
+    }
+
     override suspend fun setGameVersion(game: Game): Flow<Result<Unit>> = flow {
         tableOfSymbols.setStoryVersion(rowId = game.id.hashCode(), version = game.version.toString())
         tableOfSymbols.save(context = context)
+        
+        // Emit installation status update
+        getOrCreateInstallationStatusFlow(game.id).value = true
+        
         emit(Result.success(Unit))
     }
 
@@ -181,6 +216,9 @@ class GameRepositoryImpl @Inject constructor(
         if (gamesDir.exists() && gamesDir.listFiles()?.isEmpty() == true) {
             gamesDir.delete()
         }
+        
+        // 4. Emit installation status update (single source of truth)
+        installationStatusFlows[game.id]?.value = false
         
         emit(Result.success(Unit))
     }

@@ -67,6 +67,16 @@ interface GameRepository {
      */
     suspend fun hasGameLocalFiles(game: Game): Flow<Result<Boolean>>
 
+    /**
+     * Observe the installation status of a specific game.
+     * Returns a StateFlow that emits updates whenever the game's installation status changes.
+     * This is the single source of truth for game installation status.
+     *
+     * @param gameId The ID of the game to observe.
+     * @return A StateFlow emitting true if the game is installed, false otherwise.
+     */
+    fun observeGameInstallationStatus(gameId: String): StateFlow<Boolean>
+
     suspend fun setGameVersion(game: Game): Flow<Result<Unit>>
 
     suspend fun removeGame(game: Game): Flow<Result<Unit>>
