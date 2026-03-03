@@ -81,6 +81,7 @@ import fr.purpletear.sutoko.screens.main.presentation.MainEvents
 import fr.purpletear.sutoko.screens.main.presentation.MainScreenPages
 import fr.purpletear.sutoko.screens.main.presentation.screens.MainScreen
 import fr.purpletear.sutoko.screens.params.SutokoParamsActivity
+import fr.purpletear.sutoko.screens.smsgame.LoadSmsGameScreen
 import fr.purpletear.sutoko.screens.splashscreen.SplashScreen
 import fr.purpletear.sutoko.screens.web.WebActivity
 import fr.purpletear.sutoko.shop.coinsLogic.Customer
@@ -291,6 +292,24 @@ class MainActivity @Inject constructor(
                                 },
                                 onOptionsButtonPressed = {
                                     onOptionsPressed()
+                                },
+                                onGameClick = { game ->
+                                    navController.navigate(MainScreenPages.LoadSmsGame.createRoute(game.id))
+                                }
+                            )
+                        }
+                        
+                        animatedComposable(
+                            route = MainScreenPages.LoadSmsGame.route,
+                            arguments = listOf(
+                                navArgument("gameId") { type = NavType.StringType }
+                            )
+                        ) { backStackEntry ->
+                            val gameId = backStackEntry.arguments?.getString("gameId") ?: ""
+                            LoadSmsGameScreen(
+                                gameId = gameId,
+                                onNavigateBack = {
+                                    navController.popBackStack()
                                 }
                             )
                         }

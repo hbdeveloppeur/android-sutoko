@@ -17,5 +17,11 @@ sealed class MainScreenPages(val route: String) {
     object Home : MainScreenPages("home")
     object Create : MainScreenPages("create")
     object AiConversationPreview : MainScreenPages("ai_conversation_preview")
+    
+    object LoadSmsGame : MainScreenPages("load_sms_game/{gameId}") {
+        fun createRoute(gameId: String): String {
+            return "load_sms_game/$gameId"
+        }
+    }
 
 }
