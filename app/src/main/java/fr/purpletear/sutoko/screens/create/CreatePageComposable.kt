@@ -20,8 +20,11 @@ import androidx.compose.material.pullrefresh.pullRefresh
 import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -224,11 +227,27 @@ internal fun CreatePageComposable(
                     }
                 }
 
-                // Games list
+                // Games list with reactive download states
                 items(
                     items = games,
                     key = { it.id }
                 ) { game ->
+                    // Observe download state reactively for this game
+                    val downloadState by viewModel.getDownloadState(game.id).collectAsState()
+                    
+                    // Check if game is installed (reactive)
+                    val isInstalled by produceState<Boolean?>(
+                        initialValue = viewModel.getCachedInstalledStatus(game.id),
+                        key1 = game.id,
+                        key2 = downloadState
+                    ) {
+                        // Refresh installation status when download completes
+                        if (downloadState is com.purpletear.sutoko.game.download.GameDownloadState.Completed) {
+                            viewModel.refreshGameInstalledStatus(game)
+                        }
+                        value = viewModel.isGameInstalled(game)
+                    }
+
                     GameCardCompact(
                         modifier = Modifier
                             .padding(top = 16.dp)
@@ -238,7 +257,11 @@ internal fun CreatePageComposable(
                         imageUrl = game.logoAsset?.let { "https://sutoko.com/media/${it.thumbnailStoragePath}" }
                             ?: "",
                         isAuthorCertified = game.author?.isCertified ?: false,
-                        onGetClick = { onGameClick(game) },
+                        downloadState = downloadState,
+                        isInstalled = isInstalled ?: false,
+                        onGetClick = { viewModel.downloadGame(game) },
+                        onOpenClick = { onGameClick(game) },
+                        onCancelClick = { viewModel.cancelDownload(game.id) },
                         onClick = {
                             selectedGameId = game.id
                             isPreviewModalVisible = true

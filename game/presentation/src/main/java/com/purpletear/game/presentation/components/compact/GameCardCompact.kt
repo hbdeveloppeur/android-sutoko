@@ -33,9 +33,32 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.example.sharedelements.theme.Poppins
 import com.purpletear.game.presentation.R
+import com.purpletear.sutoko.game.download.GameDownloadState
 
 private const val CROSSFADE_DURATION_MS = 400
 
+/**
+ * A compact game card component that displays game information with a Get/Open button.
+ * The button behaves like the Apple App Store "Get" button with states:
+ * - Get: Game not installed, click to download
+ * - Circular Progress: Downloading with progress (0-100%)
+ * - Indeterminate Progress: Extracting files
+ * - Open: Game installed and ready to play
+ * - Retry: Error occurred during download
+ *
+ * @param modifier Modifier for the card
+ * @param title Game title
+ * @param author Author name
+ * @param imageUrl URL for the game icon/image
+ * @param isAuthorCertified Whether to show the certified badge
+ * @param showGetButton Whether to show the Get/Open button
+ * @param downloadState Current download state (Idle, Downloading, Extracting, Completed, Error, Cancelled)
+ * @param isInstalled Whether the game is already installed locally
+ * @param onGetClick Called when user clicks Get/Retry to start download
+ * @param onOpenClick Called when user clicks Open to launch the game
+ * @param onCancelClick Called when user clicks to cancel ongoing download (optional)
+ * @param onClick Called when the card itself is clicked (for preview modal)
+ */
 @Composable
 fun GameCardCompact(
     modifier: Modifier = Modifier,
@@ -44,7 +67,11 @@ fun GameCardCompact(
     imageUrl: String,
     isAuthorCertified: Boolean = false,
     showGetButton: Boolean = true,
+    downloadState: GameDownloadState = GameDownloadState.Idle,
+    isInstalled: Boolean = false,
     onGetClick: () -> Unit = {},
+    onOpenClick: () -> Unit = {},
+    onCancelClick: (() -> Unit)? = null,
     onClick: () -> Unit = {}
 ) {
     Row(
@@ -82,7 +109,7 @@ fun GameCardCompact(
                     .build(),
                 contentDescription = null,
                 contentScale = ContentScale.Crop,
-                modifier = Modifier.fillMaxSize()
+                modifier = Modifier.fillMaxSize(),
             )
         }
 
@@ -123,7 +150,13 @@ fun GameCardCompact(
         }
 
         if (showGetButton) {
-            GetButton(onClick = onGetClick)
+            GetButton(
+                state = downloadState,
+                isInstalled = isInstalled,
+                onGetClick = onGetClick,
+                onOpenClick = onOpenClick,
+                onCancelClick = onCancelClick
+            )
         }
     }
 }

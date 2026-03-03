@@ -2,10 +2,12 @@ package fr.purpletear.sutoko.screens.create
 
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.purpletear.core.presentation.extensions.Resource
+import com.purpletear.core.presentation.extensions.awaitFlowResult
 import com.purpletear.core.presentation.extensions.executeFlowResultUseCase
 import com.purpletear.core.presentation.extensions.executeFlowUseCase
 import com.purpletear.ntfy.Ntfy
@@ -16,8 +18,12 @@ import kotlinx.coroutines.Dispatchers
 import com.purpletear.shop.domain.model.Balance
 import com.purpletear.shop.domain.usecase.ObserveShopBalanceUseCase
 import com.purpletear.sutoko.game.model.Game
+import com.purpletear.sutoko.game.model.isPremium
 import com.purpletear.sutoko.game.usecase.GetUserGamesUseCase
+import com.purpletear.sutoko.game.usecase.HasGameLocalFilesUseCase
 import com.purpletear.sutoko.game.usecase.SearchStoriesUseCase
+import com.purpletear.sutoko.game.download.GameDownloadManager
+import com.purpletear.sutoko.game.download.GameDownloadState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import fr.purpletear.sutoko.shop.coinsLogic.Customer
 import kotlinx.coroutines.delay
@@ -29,6 +35,8 @@ class CreateViewModel @Inject constructor(
     private val observeShopBalanceUseCase: ObserveShopBalanceUseCase,
     private val getUserGamesUseCase: GetUserGamesUseCase,
     private val searchStoriesUseCase: SearchStoriesUseCase,
+    private val hasGameLocalFilesUseCase: HasGameLocalFilesUseCase,
+    private val gameDownloadManager: GameDownloadManager,
     private val customer: Customer,
     private val ntfy: Ntfy,
 ) : ViewModel() {
@@ -61,6 +69,9 @@ class CreateViewModel @Inject constructor(
     private val _isSearching = mutableStateOf(false)
     val isSearching: State<Boolean> = _isSearching
 
+    // Track installed status for each game - provides reactive updates
+    private val _gameInstalledStatus = mutableStateMapOf<String, Boolean>()
+
     companion object {
         private const val PAGE_LIMIT = 20
         private const val MIN_REFRESH_DURATION_MS = 1000L
@@ -85,6 +96,89 @@ class CreateViewModel @Inject constructor(
                     _balance.value = Resource.Error(exception)
                 }
             )
+        }
+    }
+
+    /**
+     * Get the download state for a specific game.
+     * Returns a StateFlow that emits updates whenever the download state changes.
+     */
+    fun getDownloadState(gameId: String) = gameDownloadManager.getDownloadState(gameId)
+
+    /**
+     * Check if a game is installed locally.
+     * Uses cached value if available, otherwise fetches and caches.
+     */
+    suspend fun isGameInstalled(game: Game): Boolean {
+        val cached = _gameInstalledStatus[game.id]
+        if (cached != null) return cached
+
+        return try {
+            val installed = awaitFlowResult { hasGameLocalFilesUseCase(game) }
+            _gameInstalledStatus[game.id] = installed
+            installed
+        } catch (e: Exception) {
+            false
+        }
+    }
+
+    /**
+     * Pre-check installation status for a list of games.
+     * Call this after loading games to populate the cache.
+     */
+    private fun checkInstalledStatus(games: List<Game>) {
+        viewModelScope.launch {
+            games.forEach { game ->
+                if (_gameInstalledStatus[game.id] == null) {
+                    isGameInstalled(game)
+                }
+            }
+        }
+    }
+
+    /**
+     * Get cached installation status for a game.
+     * Returns null if not yet checked.
+     */
+    fun getCachedInstalledStatus(gameId: String): Boolean? = _gameInstalledStatus[gameId]
+
+    /**
+     * Start downloading a game.
+     * The download state will be emitted via getDownloadState(gameId).
+     */
+    fun downloadGame(game: Game) {
+        viewModelScope.launch {
+            try {
+                gameDownloadManager.downloadGame(
+                    game = game,
+                    userId = if (game.isPremium()) customer.getUserId() else null,
+                    userToken = if (game.isPremium()) customer.getUserToken() else null
+                )
+            } catch (e: Exception) {
+                ntfy.exception(e)
+            }
+        }
+    }
+
+    /**
+     * Cancel an ongoing download.
+     */
+    fun cancelDownload(gameId: String) {
+        gameDownloadManager.cancelDownload(gameId)
+    }
+
+    /**
+     * Refresh the installation status for a game.
+     * Call this after a download completes.
+     */
+    fun refreshGameInstalledStatus(game: Game) {
+        viewModelScope.launch {
+            try {
+                val installed = awaitFlowResult { hasGameLocalFilesUseCase(game) }
+                _gameInstalledStatus[game.id] = installed
+            } catch (e: Exception) {
+                ntfy.exception(e)
+            }
         }
     }
 
@@ -116,6 +210,9 @@ class CreateViewModel @Inject constructor(
                     }
                     val updatedList = currentList + games
                     _userGames.value = Resource.Success(updatedList)
+                    
+                    // Check installation status for new games
+                    checkInstalledStatus(games)
                     
                     // Update featured games only on initial load (not pagination, not search)
                     if (!isLoadMore && !_isSearching.value) {
@@ -165,6 +262,9 @@ class CreateViewModel @Inject constructor(
                         onSuccess = { games ->
                             android.util.Log.d("CreateViewModel", "refreshUserGames success, games count=${games.size}")
                             _userGames.value = Resource.Success(games)
+                            
+                            // Check installation status for all games
+                            checkInstalledStatus(games)
                             
                             // Update featured games only when not searching
                             if (!_isSearching.value) {
@@ -247,6 +347,10 @@ class CreateViewModel @Inject constructor(
                 },
                 onSuccess = { games ->
                     _userGames.value = Resource.Success(games)
+                    
+                    // Check installation status for search results
+                    checkInstalledStatus(games)
+                    
                     _currentPage.intValue = 1
                     _hasMorePages.value = false // Search doesn't support pagination yet
                 },
