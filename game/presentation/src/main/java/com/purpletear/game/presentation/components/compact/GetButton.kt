@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -21,6 +22,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.sharedelements.theme.Poppins
+import com.purpletear.game.presentation.components.CircularProgress
 import com.purpletear.sutoko.game.download.GameDownloadState
 
 private const val BUTTON_WIDTH_DP = 56
@@ -44,22 +46,10 @@ fun GetButton(
             // Downloading with progress
             state is GameDownloadState.Downloading -> {
                 val progress = state.progress
-                Box(
-                    modifier = Modifier
-                        .size(28.dp)
-                        .clip(CircleShape)
-                        .background(Color(0xFF2A2A2A))
-                        .clickable(
-                            interactionSource = remember { MutableInteractionSource() },
-                            indication = null,
-                            onClick = { onCancelClick?.invoke() }
-                        ),
-                    contentAlignment = Alignment.Center
-                ) {
-                    CircularProgressIndicator(
+                ButtonBox(onClick = { onCancelClick?.invoke() }) {
+                    CircularProgress(
                         progress = progress / 100f,
-                        modifier = Modifier.size(20.dp),
-                        color = Color(0xFF4DB9EC),
+                        size= 18.dp,
                         strokeWidth = 2.dp,
                         backgroundColor = Color(0xFF3A3A3A)
                     )
@@ -68,18 +58,7 @@ fun GetButton(
 
             // Extracting (indeterminate progress)
             state == GameDownloadState.Extracting -> {
-                Box(
-                    modifier = Modifier
-                        .size(28.dp)
-                        .clip(CircleShape)
-                        .background(Color(0xFF2A2A2A))
-                        .clickable(
-                            interactionSource = remember { MutableInteractionSource() },
-                            indication = null,
-                            onClick = { onCancelClick?.invoke() }
-                        ),
-                    contentAlignment = Alignment.Center
-                ) {
+                ButtonBox(onClick = { onCancelClick?.invoke() }) {
                     CircularProgressIndicator(
                         modifier = Modifier.size(20.dp),
                         color = Color(0xFF4DB9EC),
@@ -116,6 +95,23 @@ fun GetButton(
             }
         }
     }
+}
+
+@Composable
+private fun ButtonBox(onClick: () -> Unit, content: @Composable (BoxScope.() -> Unit)) {
+    Box(
+        modifier = Modifier
+            .clip(CircleShape)
+            .size(width= 50.dp, height=28.dp)
+            .background(Color(0xFF2A2A2A))
+            .clickable(
+                interactionSource = remember { MutableInteractionSource() },
+                indication = null,
+                onClick = onClick
+            ),
+        contentAlignment = Alignment.Center,
+        content = content,
+    )
 }
 
 @Composable
