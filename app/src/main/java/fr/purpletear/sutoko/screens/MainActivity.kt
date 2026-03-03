@@ -81,8 +81,9 @@ import fr.purpletear.sutoko.screens.main.presentation.MainEvents
 import fr.purpletear.sutoko.screens.main.presentation.MainScreenPages
 import fr.purpletear.sutoko.screens.main.presentation.screens.MainScreen
 import fr.purpletear.sutoko.screens.params.SutokoParamsActivity
-import fr.purpletear.sutoko.screens.smsGame.SmsGameActivity
-import fr.purpletear.sutoko.screens.smsGame.SmsGameActivityModel
+import fr.purpletear.sutoko.screens.smsgame.LoadSmsGameScreen
+import fr.purpletear.sutoko.screens.smsgame.SmsGameActivity
+import fr.purpletear.sutoko.screens.smsgame.SmsGameActivityModel
 import fr.purpletear.sutoko.screens.splashscreen.SplashScreen
 import fr.purpletear.sutoko.screens.web.WebActivity
 import fr.purpletear.sutoko.shop.coinsLogic.Customer
