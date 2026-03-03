@@ -237,7 +237,7 @@ private fun ClearButton(
     ) {
         Icon(
             imageVector = Icons.Default.Close,
-            contentDescription = "Clear search",
+            contentDescription = stringResource(R.string.create_page_search_clear),
             tint = ClearButtonColor,
             modifier = Modifier
                 .size(20.dp)

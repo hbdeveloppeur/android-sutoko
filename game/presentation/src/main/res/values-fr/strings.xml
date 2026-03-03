@@ -71,4 +71,9 @@
     <!-- Saisie du prénom -->
     <string name="first_name_prompt_title">Entrez le prénom de votre personnage</string>
     <string name="first_name_prompt_placeholder">Nick</string>
+
+    <!-- Game Card Buttons -->
+    <string name="game_button_get">Obtenir</string>
+    <string name="game_button_open">Ouvrir</string>
+    <string name="game_button_retry">Réessayer</string>
 </resources>

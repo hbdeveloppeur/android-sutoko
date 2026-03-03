@@ -7,4 +7,5 @@
     <string name="game_announce_subtitle_features">Avec des chapitres, des personnages, des vidéos, des sons, des images et des fins différentes.</string>
     <string name="game_announce_button_remind_me">Me rappeler</string>
     <string name="game_announce_button_update">Mettre à jour</string>
+    <string name="game_announce_reminder_enabled">Rappel activé</string>
 </resources>

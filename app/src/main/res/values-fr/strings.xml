@@ -425,5 +425,6 @@ Entrez votre pseudo pour le classement!</string>
     <string name="create_page_button_create_story">Créer mon histoire</string>
     <string name="create_page_search_hint">Un auteur, une titre, un thème</string>
     <string name="create_page_button_load_more">Charger d\'autres histoires</string>
+    <string name="create_page_search_clear">Effacer la recherche</string>
 
 </resources>

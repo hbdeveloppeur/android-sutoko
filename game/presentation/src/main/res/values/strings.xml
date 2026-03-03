@@ -80,4 +80,9 @@
     <string name="game_delete_confirm_button">Delete</string>
     <string name="game_delete_success">Game deleted successfully</string>
     <string name="game_delete_error">Failed to delete the game</string>
+
+    <!-- Game Card Buttons -->
+    <string name="game_button_get">Get</string>
+    <string name="game_button_open">Open</string>
+    <string name="game_button_retry">Retry</string>
 </resources>

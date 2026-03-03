@@ -430,6 +430,7 @@ Enter your nickname for the leaderboard!</string>
     <string name="create_page_button_create_story">Create my story</string>
     <string name="create_page_search_hint">An author, a title, a theme</string>
     <string name="create_page_button_load_more">Load more stories</string>
+    <string name="create_page_search_clear">Clear search</string>
 
     
 </resources>

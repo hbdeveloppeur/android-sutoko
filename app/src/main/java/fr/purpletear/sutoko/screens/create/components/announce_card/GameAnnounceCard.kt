@@ -159,7 +159,7 @@ internal fun GameAnnounceCard(
             val buttonText = if (isTodayOrEarlier) {
                 stringResource(id = R.string.game_announce_button_update)
             } else {
-                if (reminderEnabled) "Rappel activé" else stringResource(id = R.string.game_announce_button_remind_me)
+                if (reminderEnabled) stringResource(id = R.string.game_announce_reminder_enabled) else stringResource(id = R.string.game_announce_button_remind_me)
             }
             val buttonAlphaTarget = if (!isTodayOrEarlier && reminderEnabled) 0.5f else 1f
             val buttonAlpha by animateFloatAsState(
