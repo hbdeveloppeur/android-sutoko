@@ -12,4 +12,15 @@ class HostProviderImpl @Inject constructor(override val hostName: String) : Host
     override fun getPublicMedia(media: String): String {
         return "$hostName/public/media/$media".replace("//", "/")
     }
+
+    override fun getSutokoMediaUrl(storagePath: String): String {
+        return "${SUTOKO_MEDIA_BASE_URL}$storagePath"
+    }
+
+    companion object {
+        /**
+         * Base URL for Sutoko media files (images, videos, etc.)
+         */
+        const val SUTOKO_MEDIA_BASE_URL = "https://sutoko.com/media/"
+    }
 }

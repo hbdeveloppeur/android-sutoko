@@ -10,6 +10,7 @@ import com.purpletear.core.presentation.extensions.executeFlowResultUseCase
 import com.purpletear.core.presentation.extensions.executeFlowUseCase
 import com.purpletear.ntfy.Ntfy
 import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.Dispatchers
@@ -21,6 +22,7 @@ import com.purpletear.sutoko.game.repository.GameRepository
 import com.purpletear.sutoko.game.usecase.GetUserGamesUseCase
 import com.purpletear.sutoko.game.usecase.SearchStoriesUseCase
 import com.purpletear.sutoko.game.download.GameDownloadManager
+import com.purpletear.game.presentation.states.GameState
 import com.purpletear.sutoko.game.download.GameDownloadState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import fr.purpletear.sutoko.shop.coinsLogic.Customer
@@ -106,6 +108,27 @@ class CreateViewModel @Inject constructor(
      * This is the single source of truth from GameRepository.
      */
     fun getGameInstallationStatus(gameId: String) = gameRepository.observeGameInstallationStatus(gameId)
+
+    /**
+     * Get the combined game state for a specific game.
+     * Returns a StateFlow that combines download state and installation status into a single GameState.
+     */
+    fun getGameState(gameId: String) = gameDownloadManager.getDownloadState(gameId)
+        .combine(gameRepository.observeGameInstallationStatus(gameId)) { downloadState, isInstalled ->
+            downloadState.toGameState(isInstalled)
+        }
+
+    /**
+     * Convert GameDownloadState to GameState based on installation status.
+     */
+    private fun GameDownloadState.toGameState(isInstalled: Boolean): GameState = when (this) {
+        is GameDownloadState.Downloading -> GameState.DownloadingGame(progress)
+        GameDownloadState.Extracting -> GameState.DownloadingGame(100)
+        GameDownloadState.Completed -> GameState.ReadyToPlay
+        is GameDownloadState.Error -> GameState.LoadingError
+        GameDownloadState.Idle -> if (isInstalled) GameState.ReadyToPlay else GameState.DownloadRequired
+        GameDownloadState.Cancelled -> if (isInstalled) GameState.ReadyToPlay else GameState.DownloadRequired
+    }
 
     /**
      * Start downloading a game.

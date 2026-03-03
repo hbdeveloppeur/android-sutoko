@@ -11,4 +11,11 @@ interface HostProvider {
     val hostName: String
 
     fun getPublicMedia(filename: String): String
+
+    /**
+     * Returns the full URL for a Sutoko media file.
+     * @param storagePath The storage path of the media file
+     * @return The full URL to access the media file
+     */
+    fun getSutokoMediaUrl(storagePath: String): String
 }

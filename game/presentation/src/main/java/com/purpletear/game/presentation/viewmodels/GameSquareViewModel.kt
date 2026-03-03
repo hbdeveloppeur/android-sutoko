@@ -5,6 +5,7 @@ import androidx.compose.ui.platform.LocalContext
 import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
 import com.purpletear.sutoko.game.model.Game
+import com.purpletear.sutoko.game.model.getThumbnailUrl
 
 /**
  * ViewModel for GameSquare component.
@@ -19,9 +20,7 @@ class GameSquareViewModel {
      * @return The URL string for the logo image, or null if not available.
      */
     fun getLogoUrl(game: Game): String? {
-        return game.logoAsset?.storagePath?.let { path ->
-            "https://sutoko.com/media/$path"
-        }
+        return game.logoAsset.getThumbnailUrl()
     }
 
     /**

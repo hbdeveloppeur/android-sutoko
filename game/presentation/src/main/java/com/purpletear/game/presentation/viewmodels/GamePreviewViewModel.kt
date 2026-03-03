@@ -20,6 +20,7 @@ import com.purpletear.game.presentation.states.GameButtonsState
 import com.purpletear.game.presentation.states.GameState
 import com.purpletear.game.presentation.states.toButtonsState
 import com.purpletear.game.presentation.states.StoryPreviewAction
+import com.purpletear.sutoko.game.model.getThumbnailUrl
 import com.purpletear.ntfy.Ntfy
 import com.purpletear.shop.data.exception.InsufficientFundsException
 import com.purpletear.shop.data.exception.InternetConnectivityException
@@ -261,9 +262,7 @@ class GamePreviewViewModel @Inject constructor(
      *             property is not null, its storagePath is used to generate the URL.
      */
     private fun loadGameLogoURL(game: Game) {
-        game.logoAsset?.storagePath?.let { path ->
-            _gameSquareLogoURL.value = "https://sutoko.com/media/$path"
-        }
+        _gameSquareLogoURL.value = game.logoAsset.getThumbnailUrl() ?: ""
     }
 
     internal fun onAction(action: StoryPreviewAction?) {

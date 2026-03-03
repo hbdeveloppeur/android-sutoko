@@ -19,7 +19,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.res.stringResource
 import com.example.sharedelements.theme.Poppins
+import fr.purpletear.sutoko.R
 
 private val ButtonBackground = Color(0xFF2D2D2D)
 private val TextColor = Color.White
@@ -27,7 +29,7 @@ private val TextColor = Color.White
 @Composable
 internal fun LoadMoreButton(
     modifier: Modifier = Modifier,
-    text: String = "Charger d'autres histoires",
+    text: String = stringResource(R.string.create_page_button_load_more),
     isLoading: Boolean = false,
     onClick: () -> Unit
 ) {

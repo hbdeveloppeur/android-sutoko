@@ -46,10 +46,13 @@ import coil.request.ImageRequest
 import com.example.sharedelements.R as SharedElementsR
 import com.purpletear.game.presentation.R
 import com.purpletear.game.presentation.components.compact.GameCardCompact
+import com.purpletear.game.presentation.BuildConfig
 import com.purpletear.game.presentation.states.GameButtonsState
 import com.purpletear.core.presentation.util.openAppInStore
 import com.purpletear.game.presentation.states.GameState
 import com.purpletear.game.presentation.viewmodels.GamePreviewModalViewModel
+import com.purpletear.sutoko.game.model.getFullUrl
+import com.purpletear.sutoko.game.model.getThumbnailUrl
 
 private val PoppinsMedium = FontFamily(
     Font(SharedElementsR.font.font_poppins_medium, FontWeight.Medium)
@@ -235,8 +238,8 @@ private fun ModalContent(
     ) {
         // Banner with overlapping Game Info
         BannerWithGameInfo(
-            bannerUrl = game.bannerAsset?.let { "https://sutoko.com/media/${it.storagePath}" } ?: "",
-            thumbnailUrl = game.logoAsset?.let { "https://sutoko.com/media/${it.thumbnailStoragePath}" } ?: "",
+            bannerUrl = game.bannerAsset.getFullUrl() ?: "",
+            thumbnailUrl = game.logoAsset.getThumbnailUrl() ?: "",
             title = game.metadata.title,
             author = game.author?.displayName ?: "",
             isAuthorCertified = game.author?.isCertified ?: false
@@ -262,15 +265,18 @@ private fun ModalContent(
             modifier = Modifier.padding(horizontal = 16.dp, vertical = 16.dp)
         )
 
-        Text(
-            text= "State: $gameState",
-            color = Color.LightGray,
-            fontSize = 11.sp,
-            modifier = Modifier
-                .padding(horizontal = 20.dp, vertical = 2.dp)
-                .padding(bottom = 16.dp),
-            textAlign = TextAlign.Center
-        )
+        // DEBUG: Show game state (only in debug builds)
+        if (BuildConfig.DEBUG) {
+            Text(
+                text = "State: $gameState",
+                color = Color.LightGray,
+                fontSize = 11.sp,
+                modifier = Modifier
+                    .padding(horizontal = 20.dp, vertical = 2.dp)
+                    .padding(bottom = 16.dp),
+                textAlign = TextAlign.Center
+            )
+        }
     }
 }
 

@@ -1,4 +1,4 @@
-package fr.purpletear.sutoko.screens.create.component.announce_card
+package fr.purpletear.sutoko.screens.create.components.announce_card
 
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.core.Spring

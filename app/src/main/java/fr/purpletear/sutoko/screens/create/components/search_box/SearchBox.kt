@@ -36,6 +36,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
@@ -53,6 +54,7 @@ import androidx.compose.ui.unit.sp
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.example.sharedelements.theme.Poppins
+import fr.purpletear.sutoko.R
 
 private val SearchBoxBackground = Color(0xFF181C22)
 private val SearchBoxBorderFocused = Color(0xFF4A4A4A)
@@ -66,7 +68,7 @@ private val ClearButtonColor = Color.White.copy(alpha = 0.5f)
 @Composable
 internal fun SearchBox(
     modifier: Modifier = Modifier,
-    placeholder: String = "Un auteur, une titre, un thème",
+    placeholder: String = stringResource(R.string.create_page_search_hint),
     onSearch: (String) -> Unit = {},
     onValueChange: (String) -> Unit = {}
 ) {

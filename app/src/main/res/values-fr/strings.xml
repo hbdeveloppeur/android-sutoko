@@ -420,4 +420,10 @@ Entrez votre pseudo pour le classement!</string>
     <string name="app_ai_conversation_card_tag">Jouez avec des jetons Messages</string>
     <string name="app_game_access_denied">Vous ne possédez pas %1$s.</string>
     
+    <!-- Create Page -->
+    <string name="create_page_section_title_community">Histoires de la communauté</string>
+    <string name="create_page_button_create_story">Créer mon histoire</string>
+    <string name="create_page_search_hint">Un auteur, une titre, un thème</string>
+    <string name="create_page_button_load_more">Charger d\'autres histoires</string>
+
 </resources>

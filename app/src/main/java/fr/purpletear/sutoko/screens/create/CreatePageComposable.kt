@@ -39,6 +39,9 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.purpletear.core.presentation.extensions.Resource
 import com.purpletear.sutoko.game.model.Game
+import androidx.compose.ui.res.stringResource
+import com.purpletear.sutoko.game.model.getFullUrl
+import com.purpletear.sutoko.game.model.getThumbnailUrl
 import fr.purpletear.sutoko.R
 import fr.purpletear.sutoko.screens.create.components.create_story_button.CreateStoryButton
 import fr.purpletear.sutoko.screens.create.components.create_story_button.CreateStoryButtonVariant
@@ -67,10 +70,6 @@ internal fun CreatePageComposable(
 ) {
     var isPreviewModalVisible by remember { mutableStateOf(false) }
     var selectedGameId by remember { mutableStateOf<String?>(null) }
-    
-    androidx.compose.runtime.SideEffect {
-        android.util.Log.d("CreatePageComposable", "isPreviewModalVisible=$isPreviewModalVisible, selectedGameId=$selectedGameId")
-    }
     
     val focusManager = LocalFocusManager.current
     val balance by viewModel.balance
@@ -162,7 +161,7 @@ internal fun CreatePageComposable(
 
                 item {
                     SectionTitle(
-                        text = "Histoires de la communauté",
+                        text = stringResource(R.string.create_page_section_title_community),
                         modifier = Modifier.padding(top = 16.dp, bottom = 16.dp)
                     )
                 }
@@ -173,10 +172,10 @@ internal fun CreatePageComposable(
                     featuredGame?.let { game ->
                         GameCoverCompact(
                             modifier = Modifier.padding(horizontal = 16.dp),
-                            coverUrl = game.bannerAsset?.let { "https://sutoko.com/media/${it.storagePath}" } ?: "",
+                            coverUrl = game.bannerAsset.getFullUrl() ?: "",
                             title = game.metadata.title,
                             author = game.author?.displayName ?: "",
-                            thumbnailUrl = game.logoAsset?.let { "https://sutoko.com/media/${it.thumbnailStoragePath}" } ?: "",
+                            thumbnailUrl = game.logoAsset.getThumbnailUrl() ?: "",
                             onClick = {
                                 selectedGameId = game.id
                                 isPreviewModalVisible = true
@@ -187,7 +186,7 @@ internal fun CreatePageComposable(
 
                 item {
                     CreateStoryButton(
-                        text = "Créer mon histoire",
+                        text = stringResource(R.string.create_page_button_create_story),
                         variant = CreateStoryButtonVariant.Violet,
                         onClick = { /* TODO */ },
                         modifier = Modifier
@@ -231,11 +230,8 @@ internal fun CreatePageComposable(
                     items = games,
                     key = { it.id }
                 ) { game ->
-                    // Observe download state reactively (from GameDownloadManager singleton)
-                    val downloadState by viewModel.getDownloadState(game.id).collectAsState()
-                    
-                    // Observe installation status reactively (from GameRepository - single source of truth)
-                    val isInstalled by viewModel.getGameInstallationStatus(game.id).collectAsState()
+                    // Observe combined game state (download + installation)
+                    val gameState by viewModel.getGameState(game.id).collectAsState(initial = com.purpletear.game.presentation.states.GameState.Idle)
 
                     GameCardCompact(
                         modifier = Modifier
@@ -243,11 +239,10 @@ internal fun CreatePageComposable(
                             .animateItem(),
                         title = game.metadata.title,
                         author = game.author?.displayName ?: "",
-                        imageUrl = game.logoAsset?.let { "https://sutoko.com/media/${it.thumbnailStoragePath}" }
-                            ?: "",
+                        imageUrl = game.logoAsset.getThumbnailUrl() ?:
+                            "",
                         isAuthorCertified = game.author?.isCertified ?: false,
-                        downloadState = downloadState,
-                        isInstalled = isInstalled,
+                        gameState = gameState,
                         onGetClick = { viewModel.downloadGame(game) },
                         onOpenClick = { onGameClick(game) },
                         onCancelClick = { viewModel.cancelDownload(game.id) },
