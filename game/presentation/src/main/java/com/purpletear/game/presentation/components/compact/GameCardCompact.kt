@@ -123,22 +123,7 @@ fun GameCardCompact(
         }
 
         if (showGetButton) {
-            Text(
-                text = "Get",
-                fontFamily = Poppins,
-                fontWeight = FontWeight.Medium,
-                fontSize = 12.sp,
-                color = Color.White,
-                modifier = Modifier
-                    .clip(RoundedCornerShape(16.dp))
-                    .background(Color(0xFF2A2A2A))
-                    .clickable(
-                        interactionSource = remember { MutableInteractionSource() },
-                        indication = null,
-                        onClick = onGetClick
-                    )
-                    .padding(horizontal = 14.dp, vertical = 6.dp)
-            )
+            GetButton(onClick = onGetClick)
         }
     }
 }
