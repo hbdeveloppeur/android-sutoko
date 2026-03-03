@@ -182,6 +182,16 @@ class CreateViewModel @Inject constructor(
         }
     }
 
+    /**
+     * Mark a game as not installed (after deletion).
+     * Call this when a game is deleted from GamePreviewModal.
+     */
+    fun markGameAsDeleted(gameId: String) {
+        _gameInstalledStatus[gameId] = false
+        // Also reset download state to Idle
+        gameDownloadManager.resetState(gameId)
+    }
+
     fun loadUserGames(
         languageCode: String = "fr-FR",
         page: Int = 1,

@@ -310,7 +310,11 @@ internal fun CreatePageComposable(
                     android.util.Log.d("CreatePageComposable", "onPlayGame set isPreviewModalVisible=false")
                 },
                 onGameDeleted = {
-                    android.util.Log.d("CreatePageComposable", "onGameDeleted called - refreshing games")
+                    android.util.Log.d("CreatePageComposable", "onGameDeleted called - updating local state and refreshing")
+                    // Mark game as deleted locally for immediate UI update
+                    selectedGameId?.let { gameId ->
+                        viewModel.markGameAsDeleted(gameId)
+                    }
                     viewModel.refreshUserGames()
                 }
             )

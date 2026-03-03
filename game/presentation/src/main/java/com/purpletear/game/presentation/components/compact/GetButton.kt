@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
@@ -36,7 +37,7 @@ fun GetButton(
 ) {
     Box(
         modifier = modifier
-            .size(width = BUTTON_WIDTH_DP.dp, height = BUTTON_HEIGHT_DP.dp),
+            .height(BUTTON_HEIGHT_DP.dp),
         contentAlignment = Alignment.Center
     ) {
         when {
@@ -101,7 +102,7 @@ fun GetButton(
                 ButtonText(
                     text = "Open",
                     onClick = onOpenClick,
-                    backgroundColor = Color(0xFF27AE60)
+                    backgroundColor = Color(0xFF2A2A2A)
                 )
             }
 
