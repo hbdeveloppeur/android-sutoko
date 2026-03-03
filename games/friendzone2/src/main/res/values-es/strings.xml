@@ -49,10 +49,6 @@
     <string name="alias_chloe">Chloé</string>
     <string name="alias_chloe_winsplit">Chloé Winsplit</string>
 
-    <!-- ADS -->
-    <string name="adactivity_gonna_start">No se pudo lanzar el anuncio, tienes que esperar %1$d segundos para seguir jugando.</string>
-    <string name="adactivity_video_launching">Cargando video para desbloquear el próximo capítulo</string>
-
     <string name="chloe_notif_libelle_a">SMS: Los veo en 1 hr frente a casa de Zoé.</string>
     <string name="chloe_notif_libelle_b">Salimos esta noche a las 8:45, nos…</string>
 

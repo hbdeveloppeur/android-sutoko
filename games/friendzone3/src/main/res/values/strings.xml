@@ -44,9 +44,6 @@
     <string name="the_lake">At the lake</string>
     <string name="in_forest">The foot of the mountain.</string>
     <string name="eva_zoe">Amy &amp; Zoe</string>
-    <string name="adactivity_video_launching">Video loading to unlock the next chapter</string>
-    <string name="must_watch_ad">The ad allows you to unlock a chapter</string>
-    <string name="adactivity_gonna_start">The game will start in a moment</string>
     <string name="mainactivity_confirm_quit">Are you sure you want to leave?</string>
 
     <!-- CHAPTERS DESCRIPTION : FORMAT chapter_desc_<code> -->

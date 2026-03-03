@@ -44,9 +44,6 @@
     <string name="the_lake">Am See</string>
     <string name="in_forest">Fuß der Berge</string>
     <string name="eva_zoe">Eva &amp; Zoe</string>
-    <string name="adactivity_video_launching">Das Video wird geladen, um das nächste Kapitel freizuschaltene</string>
-    <string name="must_watch_ad">Das Video ermöglicht es Ihnen, ein Kapitel freizuschalten.</string>
-    <string name="adactivity_gonna_start">Die Anzeige konnte nicht gestartet werden, Sie müssen %1$d Sekunden warten, um die Wiedergabe fortzusetzen.</string>
     <string name="mainactivity_confirm_quit">Bist du sicher, dass du gehen willst?</string>
 
     <!-- CHAPTERS DESCRIPTION : FORMAT chapter_desc_<code> -->

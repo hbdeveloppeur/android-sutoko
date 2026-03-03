@@ -49,10 +49,6 @@
     <string name="alias_chloe">Chloe</string>
     <string name="alias_chloe_winsplit">Chloe Winsplit</string>
 
-    <!-- ADS -->
-    <string name="adactivity_gonna_start">Das Spiel beginnt gleich</string>
-    <string name="adactivity_video_launching">Laden des Videos zum Entsperren des nächsten Kapitels</string>
-
     <string name="chloe_notif_libelle_a">SMS: Bin in einer Stunde…</string>
     <string name="chloe_notif_libelle_b">SMS: Sei um 20:45 Uhr fertig…</string>
     <string name="face_light">Den erleuchteten Weg wählen</string>

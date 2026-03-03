@@ -28,7 +28,6 @@
 -keep class friendzone3.purpletear.fr.friendzon3.** { *; }
 -keep class fr.purpletear.friendzone4.** { *; }
 -keep class com.purpletear.smsgame.** { *; }
--keep class com.purpletear.smartads.** { *; }
 -keep class fr.purpletear.sutoko.shop.** { *; }
 -keep class purpletear.fr.purpleteartools.** { *; }
 -keep class com.universalvideoview.** { *; }

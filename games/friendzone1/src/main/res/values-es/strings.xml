@@ -28,8 +28,6 @@
     <string name="game_your_choice">Tu elección…</string>
 
     <!-- ADS -->
-    <string name="adactivity_gonna_start">No se pudo lanzar el anuncio, tienes que esperar %1$d segundos para seguir jugando.</string>
-    <string name="adactivity_video_launching">Cargando video para desbloquear el próximo capítulo</string>
     <string name="accepted_chat_request">Eva Belle ha aceptado tu solicitud</string>
 
     <!-- CHAPTER DETAILS -->

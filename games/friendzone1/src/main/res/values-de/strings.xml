@@ -39,8 +39,6 @@
     <string name="added_you_to_her_friendlist">Hat dich auf die Liste ihrer Freunde gesetzt.</string>
 
     <!-- ADS -->
-    <string name="adactivity_gonna_start">Die Anzeige konnte nicht gestartet werden, Sie müssen %1$d Sekunden warten, um die Wiedergabe fortzusetzen.</string>
-    <string name="adactivity_video_launching">Das Video wird geladen, um das nächste Kapitel freizuschalten</string>
     <string name="accepted_chat_request">Deine Anfrage wurde bestätigt</string>
 
     <!-- END -->

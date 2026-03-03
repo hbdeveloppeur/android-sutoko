@@ -45,9 +45,6 @@
     <string name="the_lake">Au lac</string>
     <string name="in_forest">Pied des montagnes</string>
     <string name="eva_zoe">Eva &amp; Zoé</string>
-    <string name="adactivity_video_launching">Chargement de la vidéo pour débloquer le prochain chapitre</string>
-    <string name="must_watch_ad">La vidéo permet de débloquer un chapitre</string>
-    <string name="adactivity_gonna_start">Le jeu va se lancer dans un instant</string>
     <string name="mainactivity_confirm_quit">Êtes-vous sûr(e) de vouloir quitter ?</string>
 
     <!-- CHAPTERS DESCRIPTION : FORMAT chapter_desc_<code> -->

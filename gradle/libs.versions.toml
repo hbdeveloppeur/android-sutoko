@@ -26,7 +26,6 @@ material_compose = "1.7.6"
 gson = "2.10.1"
 chrisbanes-photoView = "2.0.0"
 multidex = "2.0.1"
-playServicesAds = "23.6.0"
 prdownloader = "1.0.2"
 retrofit = "2.9.0"
 activity_compose = "1.10.0"
@@ -137,7 +136,6 @@ chrisbanes-photoView = { module = "com.github.chrisbanes:PhotoView", version.ref
 kotlinx-coroutines-android = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version.ref = "kotlinxCoroutinesAndroid" }
 logging-interceptor = { module = "com.squareup.okhttp3:logging-interceptor", version.ref = "loggingInterceptor" }
 lottie = { module = "com.airbnb.android:lottie", version.ref = "airbnb-lottie" }
-play-services-ads = { module = "com.google.android.gms:play-services-ads", version.ref = "playServicesAds" }
 prdownloader = { module = "com.github.amitshekhariitbhu:PRDownloader", version.ref = "prdownloader" }
 retrofit = { group = "com.squareup.retrofit2", name = "retrofit", version.ref = "retrofit" }
 retrofit-gson = { group = "com.squareup.retrofit2", name = "converter-gson", version.ref = "retrofit" }
