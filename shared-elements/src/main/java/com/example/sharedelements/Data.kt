@@ -95,6 +95,7 @@ class Data {
             TABLE_OF_SYMBOLS("TABLE_OF_SYMBOLS"),
             USER_HISTORY_HAS_AT_LEAST_ONE_ORDER("USER_HISTORY_HAS_AT_LEAST_ONE_ORDER"),
             CHAPTERS_ARRAY("CHAPTERS_ARRAY"),
+            SMS_GAME_MODEL("SMS_GAME_MODEL"),
         }
 
         enum class Activity(name: String) {

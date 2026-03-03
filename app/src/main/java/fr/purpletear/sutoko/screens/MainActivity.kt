@@ -81,7 +81,8 @@ import fr.purpletear.sutoko.screens.main.presentation.MainEvents
 import fr.purpletear.sutoko.screens.main.presentation.MainScreenPages
 import fr.purpletear.sutoko.screens.main.presentation.screens.MainScreen
 import fr.purpletear.sutoko.screens.params.SutokoParamsActivity
-import fr.purpletear.sutoko.screens.smsgame.LoadSmsGameScreen
+import fr.purpletear.sutoko.screens.smsGame.SmsGameActivity
+import fr.purpletear.sutoko.screens.smsGame.SmsGameActivityModel
 import fr.purpletear.sutoko.screens.splashscreen.SplashScreen
 import fr.purpletear.sutoko.screens.web.WebActivity
 import fr.purpletear.sutoko.shop.coinsLogic.Customer
@@ -610,7 +611,12 @@ class MainActivity @Inject constructor(
     }
 
     private fun startSmsGameLoaderActivity(gameId: String, isGranted: Boolean) {
-
+        val model = SmsGameActivityModel(
+            gameId = gameId,
+            isGranted = isGranted
+        )
+        val intent = SmsGameActivity.require(this, model)
+        startActivity(intent)
     }
 
     private fun registerLoginLauncher() {
