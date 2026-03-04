@@ -103,14 +103,7 @@
             tools:ignore="LockedOrientationActivity" />
 
         <activity
-            android:name="com.purpletear.smsgame.activities.previewVisualMedia.PreviewVisualMedias"
-            android:exported="false"
-            android:screenOrientation="portrait"
-            android:theme="@style/Main"
-            tools:ignore="LockedOrientationActivity" />
-
-        <activity
-            android:name=".screens.smsGame.SmsGameActivity"
+            android:name=".screens.smsgame.SmsGameActivity"
             android:exported="false"
             android:screenOrientation="portrait"
             android:theme="@style/SmsGame"

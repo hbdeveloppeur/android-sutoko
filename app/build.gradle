@@ -241,6 +241,9 @@ dependencies {
     implementation libs.androidx.media3.ui
     implementation libs.androidx.media3.exoplayer
 
+    // WorkManager - Required for Android S+ (API 31+) PendingIntent FLAG_IMMUTABLE fix
+    implementation libs.androidx.work.runtime
+
     implementation libs.conscrypt.android
 
     implementation libs.grpc.okhttp

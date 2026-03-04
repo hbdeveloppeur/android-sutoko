@@ -51,6 +51,24 @@ allprojects {
 }
 
 
+// Task to fix corrupted Gradle cache
+tasks.register('cleanCache', Exec) {
+    group = 'maintenance'
+    description = 'Clean corrupted Gradle caches and rebuild'
+    commandLine 'bash', '-c', '''
+        echo "Stopping Gradle daemon..."
+        ./gradlew --stop 2>/dev/null || true
+        echo "Cleaning all potentially corrupted caches..."
+        rm -rf ~/.gradle/caches/transforms/
+        rm -rf ~/.gradle/caches/build-cache-1/
+        rm -rf ~/.gradle/caches/jars-9/
+        rm -rf ~/.gradle/caches/groovy-dsl/
+        rm -rf ~/.gradle/caches/8.*/
+        rm -rf .gradle/
+        echo "Done! Run your build normally now."
+    '''
+}
+
 ext {
     versionCode = 131
     desugar_jdk_libs_version = "2.1.4"

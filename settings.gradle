@@ -6,8 +6,17 @@ pluginManagement {
         maven { url 'https://jitpack.io' }
     }
 }
+
 plugins {
     id 'org.gradle.toolchains.foojay-resolver-convention' version '1.0.0'
+}
+
+// Build cache configuration for resilience
+// Note: Gradle auto-cleans cache. If corruption occurs, use: ./gradlew cleanCache
+buildCache {
+    local {
+        enabled = true
+    }
 }
 
 
