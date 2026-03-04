@@ -4,9 +4,12 @@ import android.content.Context
 import androidx.room.Room
 import com.purpletear.game.data.database.GameDatabase
 import com.purpletear.game.data.local.dao.ChapterDao
+import com.purpletear.game.data.local.dao.UserGameProgressDao
 import com.purpletear.game.data.remote.ChapterApi
 import com.purpletear.game.data.repository.ChapterRepositoryImpl
+import com.purpletear.game.data.repository.UserGameProgressRepositoryImpl
 import com.purpletear.sutoko.game.repository.ChapterRepository
+import com.purpletear.sutoko.game.repository.UserGameProgressRepository
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -54,6 +57,18 @@ object ChapterDataModule {
     }
 
     /**
+     * Provides the UserGameProgressDao instance.
+     *
+     * @param database The GameDatabase instance.
+     * @return The UserGameProgressDao instance.
+     */
+    @Provides
+    @Singleton
+    fun provideUserGameProgressDao(database: GameDatabase): UserGameProgressDao {
+        return database.userGameProgressDao()
+    }
+
+    /**
      * Provides the ChapterApi implementation.
      *
      * @return The ChapterApi implementation.
@@ -89,5 +104,19 @@ object ChapterDataModule {
         @ApplicationContext context: Context
     ): ChapterRepository {
         return ChapterRepositoryImpl(chapterApi, chapterDao, symbols, context)
+    }
+
+    /**
+     * Provides the UserGameProgressRepository implementation.
+     *
+     * @param userGameProgressDao The UserGameProgressDao instance.
+     * @return The UserGameProgressRepository implementation.
+     */
+    @Provides
+    @Singleton
+    fun provideUserGameProgressRepository(
+        userGameProgressDao: UserGameProgressDao
+    ): UserGameProgressRepository {
+        return UserGameProgressRepositoryImpl(userGameProgressDao)
     }
 }
