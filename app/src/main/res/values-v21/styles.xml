@@ -91,15 +91,13 @@
 
 
     <style name="SmsGame" parent="Theme.MaterialComponents.NoActionBar">
-
-        <!-- SplashScreen activity theme -->
         <item name="colorPrimaryDark">@color/black</item>
         <item name="android:windowBackground">#141414</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
         <item name="android:windowTranslucentStatus">false</item>
-        <item name="android:windowTranslucentNavigation">true</item>
-        <item name="android:fitsSystemWindows">true</item>
+        <item name="android:windowTranslucentNavigation">false</item>
+        <item name="android:fitsSystemWindows">false</item>
         <item name="android:windowActivityTransitions">true</item>
-        <item name="android:statusBarColor">@color/mainActivityBackgroundColor</item>
     </style>
 
     <style name="AccountCreation" parent="Theme.MaterialComponents.NoActionBar">

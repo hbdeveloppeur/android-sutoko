@@ -81,7 +81,7 @@ import fr.purpletear.sutoko.screens.main.presentation.MainEvents
 import fr.purpletear.sutoko.screens.main.presentation.MainScreenPages
 import fr.purpletear.sutoko.screens.main.presentation.screens.MainScreen
 import fr.purpletear.sutoko.screens.params.SutokoParamsActivity
-import fr.purpletear.sutoko.screens.smsgame.LoadSmsGameScreen
+
 import fr.purpletear.sutoko.screens.smsgame.SmsGameActivity
 import fr.purpletear.sutoko.screens.smsgame.SmsGameActivityModel
 import fr.purpletear.sutoko.screens.splashscreen.SplashScreen
@@ -296,26 +296,17 @@ class MainActivity @Inject constructor(
                                     onOptionsPressed()
                                 },
                                 onGameClick = { game ->
-                                    navController.navigate(MainScreenPages.LoadSmsGame.createRoute(game.id))
+                                    // Launch SmsGameActivity directly
+                                    // Free games are granted, paid games require purchase
+                                    val isGranted = game.price == 0
+                                    startSmsGameLoaderActivity(
+                                        gameId = game.id,
+                                        isGranted = isGranted
+                                    )
                                 }
                             )
                         }
                         
-                        animatedComposable(
-                            route = MainScreenPages.LoadSmsGame.route,
-                            arguments = listOf(
-                                navArgument("gameId") { type = NavType.StringType }
-                            )
-                        ) { backStackEntry ->
-                            val gameId = backStackEntry.arguments?.getString("gameId") ?: ""
-                            LoadSmsGameScreen(
-                                gameId = gameId,
-                                onNavigateBack = {
-                                    navController.popBackStack()
-                                }
-                            )
-                        }
-
                         composable(
                             route = MainScreenPages.Chapters.route,
                             arguments = listOf(
