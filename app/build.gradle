@@ -235,7 +235,7 @@ dependencies {
 
 
     implementation libs.prdownloader
-    implementation 'com.android.billingclient:billing:6.0.1'
+    implementation libs.billing
     implementation libs.androidx.ktx
 
     implementation libs.androidx.media3.ui

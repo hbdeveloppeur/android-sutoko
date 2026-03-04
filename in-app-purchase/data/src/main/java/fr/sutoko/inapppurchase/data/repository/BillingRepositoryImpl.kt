@@ -24,6 +24,7 @@ import fr.sutoko.inapppurchase.domain.model.BillingConnectionError
 import fr.sutoko.inapppurchase.domain.repository.BillingRepository
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import java.lang.ref.WeakReference
@@ -53,7 +54,7 @@ class BillingRepositoryImpl(private val billingClient: BillingClient) : BillingR
         // Helper function to emit result and close flow
         fun emitResult(result: Result<Unit>) {
             trySend(result)
-            close() // Close the flow after sending result
+            close()
         }
 
         val billingClientListener = object : BillingClientStateListener {
@@ -78,26 +79,46 @@ class BillingRepositoryImpl(private val billingClient: BillingClient) : BillingR
                     BillingClient.BillingResponseCode.BILLING_UNAVAILABLE ->
                         emitResult(Result.failure(BillingConnectionError.BillingUnavailable))
 
-                    else ->
-                        emitResult(Result.failure(BillingConnectionError.GenericError(billingResult.debugMessage)))
+                    else -> {
+                        // Check for security-related errors in the debug message
+                        val message = billingResult.debugMessage
+                        val error = if (message.contains("SecurityException", ignoreCase = true) ||
+                                       message.contains("Unknown calling package", ignoreCase = true)) {
+                            BillingConnectionError.SecurityError(message)
+                        } else {
+                            BillingConnectionError.GenericError(message)
+                        }
+                        emitResult(Result.failure(error))
+                    }
                 }
             }
 
             override fun onBillingServiceDisconnected() {
                 if (retry < maxRetries) {
                     retry++
-                    billingClient.startConnection(this) // Retry
+                    // Add exponential backoff delay before retry
+                    Handler(Looper.getMainLooper()).postDelayed({
+                        if (!isClosedForSend) {
+                            billingClient.startConnection(this)
+                        }
+                    }, (retry * 1000).toLong())
                 } else {
                     emitResult(Result.failure(BillingConnectionError.ServiceDisconnected))
                 }
             }
         }
 
-        billingClient.startConnection(billingClientListener)
+        try {
+            billingClient.startConnection(billingClientListener)
+        } catch (e: SecurityException) {
+            emitResult(Result.failure(BillingConnectionError.SecurityError(e.message ?: "Security exception")))
+        }
 
         // Ensure we close connection when flow is cancelled
         awaitClose {
-            
+            if (billingClient.isReady) {
+                billingClient.endConnection()
+            }
         }
     }
 

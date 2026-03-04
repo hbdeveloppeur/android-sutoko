@@ -38,4 +38,9 @@ sealed class BillingConnectionError : Exception() {
      * Generic error with a message.
      */
     data class GenericError(override val message: String) : BillingConnectionError()
+
+    /**
+     * Error when there's a security issue (e.g., Play Store signature mismatch).
+     */
+    data class SecurityError(override val message: String) : BillingConnectionError()
 }
