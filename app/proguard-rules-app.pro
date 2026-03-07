@@ -21,7 +21,6 @@
 #-renamesourcefileattribute SourceFile
 
 
--assumenosideeffects class fr.purpletear.sutoko.presentation.util.LogCompositionsKt
 
 -keep class fr.purpletear.friendzone.** { *; }
 -keep class fr.purpletear.friendzone2.** { *; }

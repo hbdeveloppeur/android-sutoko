@@ -16,7 +16,7 @@ sealed class GameSessionState {
     ) : GameSessionState()
 
     data class Ready(
-        val game: Game,
+        val gameId: String,
         val chapter: Chapter,
         val heroName: String
     ) : GameSessionState()
@@ -28,5 +28,7 @@ enum class ErrorType {
     GAME_NOT_INSTALLED,
     GAME_UPDATE_REQUIRED,
     CHAPTER_UNAVAILABLE,
+    CHAPTER_NOT_FOUND,
+    NO_CHAPTERS_FOUND,
     UNKNOWN
 }

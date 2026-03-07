@@ -47,7 +47,6 @@ import com.example.sharedelements.theme.SutokoTypography
 import com.purpletear.game.presentation.components.AnimatedGradientBorderBox
 import com.purpletear.game.presentation.components.GradientThemes
 import fr.purpletear.sutoko.R
-import fr.purpletear.sutoko.presentation.util.LogCompositions
 
 
 @Composable
@@ -57,7 +56,6 @@ fun AiConversationCard(
     onTap: () -> Unit,
     isAvailable: Boolean
 ) {
-    LogCompositions(name = "AiConversationCard", level = 3)
 
     Box(
         modifier = Modifier

@@ -6,12 +6,14 @@ import android.text.Editable
 import android.text.InputFilter
 import android.text.TextUtils
 import android.text.TextWatcher
+import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.widget.Toast
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.children
 import com.google.android.material.textfield.TextInputLayout
 import fr.purpletear.sutoko.R
-import fr.purpletear.sutoko.tools.Std.Companion.hideKeyboard
 
 object AccountFormHelper {
     private fun String.isEmail(): Boolean {
@@ -142,6 +144,9 @@ object AccountFormHelper {
             }
         }
     }
+
+    fun View.hideKeyboard() = ViewCompat.getWindowInsetsController(this)
+        ?.hide(WindowInsetsCompat.Type.ime())
 
     fun clearErrors(activity: AccountConnectionActivity) {
         val text = null

@@ -1,22 +1,30 @@
 package com.purpletear.game.data.di
 
 import android.content.Context
+import androidx.room.Room
+import com.purpletear.game.data.database.GameDatabase
+import com.purpletear.game.data.database.migrations.GameDatabaseMigrations
 import com.purpletear.game.data.download.GameDownloadManagerImpl
+import com.purpletear.game.data.local.dao.GameInstallationDao
+import com.purpletear.game.data.local.dao.UserGameProgressDao
 import com.purpletear.game.data.provider.AndroidGamePathProviderImpl
 import com.purpletear.game.data.provider.GamePathProvider
 import com.purpletear.game.data.remote.GameApi
 import com.purpletear.game.data.remote.GamePortalApi
+import com.purpletear.game.data.repository.GameInstallationRepositoryImpl
 import com.purpletear.game.data.repository.GameRepositoryImpl
+import com.purpletear.game.data.repository.UserGameProgressRepositoryImpl
 import com.purpletear.ntfy.Ntfy
 import com.purpletear.sutoko.game.download.GameDownloadManager
+import com.purpletear.sutoko.game.repository.GameInstallationRepository
 import com.purpletear.sutoko.game.repository.GameRepository
+import com.purpletear.sutoko.game.repository.UserGameProgressRepository
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import okhttp3.OkHttpClient
-import purpletear.fr.purpleteartools.TableOfSymbols
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import javax.inject.Singleton
@@ -27,6 +35,76 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 object GameDataModule {
+
+    /**
+     * Provides the GameDatabase instance.
+     *
+     * @param context The application context.
+     * @return The GameDatabase instance.
+     */
+    @Provides
+    @Singleton
+    fun provideGameDatabase(@ApplicationContext context: Context): GameDatabase {
+        return Room.databaseBuilder(
+            context,
+            GameDatabase::class.java,
+            "game_database"
+        )
+            .addMigrations(*GameDatabaseMigrations.ALL)
+            .build()
+    }
+
+    /**
+     * Provides the GameInstallationDao instance.
+     *
+     * @param database The GameDatabase instance.
+     * @return The GameInstallationDao instance.
+     */
+    @Provides
+    @Singleton
+    fun provideGameInstallationDao(database: GameDatabase): GameInstallationDao {
+        return database.gameInstallationDao()
+    }
+
+    /**
+     * Provides the GameInstallationRepository implementation.
+     *
+     * @param gameInstallationDao The GameInstallationDao instance.
+     * @return The GameInstallationRepository implementation.
+     */
+    @Provides
+    @Singleton
+    fun provideGameInstallationRepository(
+        gameInstallationDao: GameInstallationDao
+    ): GameInstallationRepository {
+        return GameInstallationRepositoryImpl(gameInstallationDao)
+    }
+
+    /**
+     * Provides the UserGameProgressDao instance.
+     *
+     * @param database The GameDatabase instance.
+     * @return The UserGameProgressDao instance.
+     */
+    @Provides
+    @Singleton
+    fun provideUserGameProgressDao(database: GameDatabase): UserGameProgressDao {
+        return database.userGameProgressDao()
+    }
+
+    /**
+     * Provides the UserGameProgressRepository implementation.
+     *
+     * @param userGameProgressDao The UserGameProgressDao instance.
+     * @return The UserGameProgressRepository implementation.
+     */
+    @Provides
+    @Singleton
+    fun provideUserGameProgressRepository(
+        userGameProgressDao: UserGameProgressDao
+    ): UserGameProgressRepository {
+        return UserGameProgressRepositoryImpl(userGameProgressDao)
+    }
 
     /**
      * Provides the Retrofit instance for sutoko.com/api.
@@ -95,9 +173,9 @@ object GameDataModule {
      *
      * @param gameApi The GameApi instance.
      * @param gamePortalApi The GamePortalApi instance.
-     * @param tableOfSymbols The TableOfSymbols instance.
-     * @param ntfy The Ntfy instance.
+     * @param gameInstallationRepository The GameInstallationRepository instance.
      * @param context The application context.
+     * @param ntfy The Ntfy instance.
      * @return The GameRepository implementation.
      */
     @Provides
@@ -105,11 +183,11 @@ object GameDataModule {
     fun provideGameRepository(
         gameApi: GameApi,
         gamePortalApi: GamePortalApi,
-        tableOfSymbols: TableOfSymbols,
-        ntfy: Ntfy,
-        @ApplicationContext context: Context
+        gameInstallationRepository: GameInstallationRepository,
+        @ApplicationContext context: Context,
+        ntfy: Ntfy
     ): GameRepository {
-        return GameRepositoryImpl(gameApi, gamePortalApi, tableOfSymbols, context, ntfy)
+        return GameRepositoryImpl(gameApi, gamePortalApi, gameInstallationRepository, context, ntfy)
     }
 
     /**

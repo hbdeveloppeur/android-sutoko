@@ -53,7 +53,6 @@ import com.purpletear.aiconversation.presentation.screens.home.viewModels.AiConv
 import com.purpletear.aiconversation.presentation.screens.image_viewer.ImageViewerScreen
 import com.purpletear.aiconversation.presentation.screens.media.image_generator.ImageGeneratorScreen
 import com.purpletear.aiconversation.presentation.screens.shopDialog.MessagesCoinsDialogComposable
-import com.purpletear.game.presentation.screens.ChaptersComposable
 import com.purpletear.game.presentation.screens.GamePreview
 import com.purpletear.sutoko.game.model.Game
 import com.purpletear.sutoko.game.usecase.GetGameUseCase
@@ -307,19 +306,6 @@ class MainActivity @Inject constructor(
                             )
                         }
                         
-                        composable(
-                            route = MainScreenPages.Chapters.route,
-                            arguments = listOf(
-                                navArgument("gameId") { type = NavType.StringType }
-                            )
-                        ) { backStackEntry ->
-                            ChaptersComposable(
-                                onNavigateBack = {
-                                    navController.popBackStack()
-                                },
-                            )
-                        }
-
                         // Sutoko - Home screen.
                         composable(MainScreenPages.Home.route) {
                             viewModel.displayAiConversationCard(

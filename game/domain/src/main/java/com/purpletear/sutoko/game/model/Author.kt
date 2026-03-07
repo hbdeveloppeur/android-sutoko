@@ -6,8 +6,8 @@ import androidx.annotation.Keep
 
 @Keep
 data class Author(
-    val displayName: String,
-    val avatarUrl: String?,
+    val displayName: String = "",
+    val avatarUrl: String? = null,
     val isCertified: Boolean = false,
 ) : Parcelable {
     constructor(parcel: Parcel) : this(

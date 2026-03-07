@@ -8,7 +8,7 @@ import retrofit2.http.Path
 import retrofit2.http.Query
 
 interface ChapterApi {
-    @POST("games/{storyId}/chapters")
+    @GET("story/{storyId}/chapters")
     suspend fun getChapters(
         @Path("storyId") storyId: String,
         @Query("langCode") langCode: String,

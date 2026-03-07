@@ -15,7 +15,6 @@ import com.purpletear.core.presentation.extensions.executeFlowResultUseCase
 import com.purpletear.core.presentation.extensions.executeFlowUseCase
 import com.purpletear.core.presentation.services.MakeToastService
 import com.purpletear.game.presentation.R
-import com.purpletear.game.presentation.audio.GameMenuSoundPlayer
 import com.purpletear.game.presentation.states.GameButtonsState
 import com.purpletear.game.presentation.states.GameState
 import com.purpletear.game.presentation.states.toButtonsState
@@ -48,7 +47,6 @@ import com.purpletear.sutoko.game.usecase.IsGameUpdatableUseCase
 import com.purpletear.sutoko.game.usecase.ObserveCurrentChapterUseCase
 import com.purpletear.sutoko.game.usecase.RemoveGameUseCase
 import com.purpletear.sutoko.game.usecase.RestartGameUseCase
-import com.purpletear.sutoko.game.usecase.SetGameVersionUseCase
 import com.purpletear.sutoko.user.usecase.IsUserConnectedUseCase
 import com.purpletear.sutoko.user.usecase.OpenSignInPageUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -104,7 +102,6 @@ class GamePreviewViewModel @Inject constructor(
     private val buyCatalogProductUseCase: BuyCatalogProductUseCase,
     private val observeInteractionUseCase: GetPopUpInteractionUseCase,
     private val showPopUpUseCase: ShowPopUpUseCase,
-    private val setGameVersionUseCase: SetGameVersionUseCase,
     private val openSignInPageUseCase: OpenSignInPageUseCase,
     billingDataService: BillingDataService,
     private val savedStateHandle: SavedStateHandle,
@@ -159,9 +156,6 @@ class GamePreviewViewModel @Inject constructor(
 
     private val _playGameEvents = MutableSharedFlow<Unit>()
     val playGameEvents: SharedFlow<Unit> = _playGameEvents
-
-    // Sound player for menu background music
-    private val menuSoundPlayer = GameMenuSoundPlayer()
 
     private val _buyGameEvents = MutableSharedFlow<Game>()
     val buyGameEvents: SharedFlow<Game> = _buyGameEvents
@@ -233,10 +227,6 @@ class GamePreviewViewModel @Inject constructor(
                         _gameState.value = GameState.DownloadingGame(progress = 100)
                     }
                     GameDownloadState.Completed -> {
-                        // Set game version after successful download
-                        game.value?.let { game ->
-                            executeFlowResultUseCase({ setGameVersionUseCase(game) })
-                        }
                         _gameState.value = GameState.ReadyToPlay
                         refreshGameState()
                     }
@@ -404,9 +394,6 @@ class GamePreviewViewModel @Inject constructor(
                 async { loadGame(gameId) },
                 async { loadChapters(gameId) },
             )
-
-            // Play menu sound if available
-            playMenuSoundIfAvailable()
 
             awaitAll(
                 async { loadCurrentChapter(gameId) }
@@ -840,25 +827,9 @@ class GamePreviewViewModel @Inject constructor(
     /**
      * Updates the game menu state when the screen is resumed.
      * This function should be called from the UI when the lifecycle state changes to RESUMED.
-     * Also plays the menu sound if available.
      */
     fun onResume() {
-        // Play menu sound if available
-        playMenuSoundIfAvailable()
-
         loadGameData()
-    }
-
-    /**
-     * Plays the menu sound with fade in effect if the game has a menuSoundUrl.
-     * Note: menuSoundUrl field has been removed from Game model.
-     */
-    private fun playMenuSoundIfAvailable() {
-        // game.value?.menuSoundUrl?.let { soundUrl ->
-        //     if (soundUrl.isNotEmpty()) {
-        //         menuSoundPlayer.playWithFadeIn(soundUrl, 2000)
-        //     }
-        // }
     }
 
     private fun confirmAndDeleteGame() {
@@ -949,21 +920,8 @@ class GamePreviewViewModel @Inject constructor(
         })
     }
 
-    /**
-     * Stops the menu sound with fade out effect.
-     * This should be called when the view disappears.
-     */
-    fun stopMenuSound() {
-        menuSoundPlayer.stopWithFadeOut(560)
-    }
-
-    /**
-     * Called when the ViewModel is cleared.
-     * Releases resources used by the menu sound player.
-     */
     override fun onCleared() {
         super.onCleared()
-        menuSoundPlayer.release()
         gameDownloadManager.cleanup(gameId)
     }
 

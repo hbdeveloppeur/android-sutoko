@@ -9,13 +9,14 @@ import com.purpletear.game.data.utils.ifNotCancellation
 import com.purpletear.ntfy.Ntfy
 import com.purpletear.sutoko.game.exception.GameDownloadForbiddenException
 import com.purpletear.sutoko.game.model.Game
+import com.purpletear.sutoko.game.repository.GameInstallationRepository
 import com.purpletear.sutoko.game.repository.GameRepository
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.flow
-import purpletear.fr.purpleteartools.TableOfSymbols
+import kotlinx.coroutines.runBlocking
 import java.io.File
 import java.util.concurrent.ConcurrentHashMap
 import javax.inject.Inject
@@ -26,7 +27,7 @@ import javax.inject.Inject
 class GameRepositoryImpl @Inject constructor(
     private val api: GameApi,
     private val portalApi: GamePortalApi,
-    private val tableOfSymbols: TableOfSymbols,
+    private val gameInstallationRepository: GameInstallationRepository,
     private val context: Context,
     private val ntfy: Ntfy,
 ) : GameRepository {
@@ -50,15 +51,11 @@ class GameRepositoryImpl @Inject constructor(
     }
 
     /**
-     * Check if a game is installed by reading from TableOfSymbols.
+     * Check if a game is installed by reading from GameInstallationRepository.
+     * Uses runBlocking for initial synchronous check in getOrCreateInstallationStatusFlow.
      */
-    private fun checkGameInstalled(gameId: String): Boolean {
-        return try {
-            val version = tableOfSymbols.getStoryVersion(gameId.hashCode())
-            version != "none" && version.isNotBlank()
-        } catch (e: Exception) {
-            false
-        }
+    private fun checkGameInstalled(gameId: String): Boolean = runBlocking {
+        gameInstallationRepository.isInstalled(gameId)
     }
 
     /**
@@ -163,17 +160,18 @@ class GameRepositoryImpl @Inject constructor(
      * @return True if the game is updatable, false otherwise.
      */
     override suspend fun isGameUpdatable(game: Game): Flow<Result<Boolean>> = flow {
-        val currentVersion = tableOfSymbols.getStoryVersion(game.id.hashCode())
-        val result = currentVersion != game.version.toString() && currentVersion != "none"
+        val currentVersion = gameInstallationRepository.getInstalledVersion(game.id)
+        val result = currentVersion != null 
+                && currentVersion != game.version.toString() 
+                && currentVersion != "none"
                 && currentVersion.isNotBlank()
-        emit(
-            Result.success(result)
-        )
+        emit(Result.success(result))
     }
 
     override suspend fun hasGameLocalFiles(game: Game): Flow<Result<Boolean>> = flow {
         try {
-            val res = tableOfSymbols.getStoryVersion(game.id.hashCode()) == game.version.toString()
+            val currentVersion = gameInstallationRepository.getInstalledVersion(game.id)
+            val res = currentVersion == game.version.toString()
             emit(Result.success(res))
         } catch (e: Exception) {
             emit(
@@ -188,36 +186,19 @@ class GameRepositoryImpl @Inject constructor(
         return getOrCreateInstallationStatusFlow(gameId)
     }
 
-    override suspend fun setGameVersion(game: Game): Flow<Result<Unit>> = flow {
-        tableOfSymbols.setStoryVersion(rowId = game.id.hashCode(), version = game.version.toString())
-        tableOfSymbols.save(context = context)
-        
-        // Emit installation status update
-        getOrCreateInstallationStatusFlow(game.id).value = true
-        
-        emit(Result.success(Unit))
-    }
-
     override suspend fun removeGame(game: Game): Flow<Result<Unit>> = flow {
-        val rowId = game.id.hashCode()
-        
-        // 1. Supprimer les métadonnées
-        tableOfSymbols.deleteRowData(rowId = rowId)
-        tableOfSymbols.save(context = context)
-        
-        // 2. Supprimer les fichiers physiques du jeu
+        gameInstallationRepository.removeInstallation(game.id)
+
         val gamesDir = File(context.filesDir, "games")
         val gameDir = File(gamesDir, game.id)
         if (gameDir.exists()) {
             gameDir.deleteRecursively()
         }
-        
-        // 3. Nettoyer le dossier parent s'il est vide
+
         if (gamesDir.exists() && gamesDir.listFiles()?.isEmpty() == true) {
             gamesDir.delete()
         }
-        
-        // 4. Emit installation status update (single source of truth)
+
         installationStatusFlows[game.id]?.value = false
         
         emit(Result.success(Unit))

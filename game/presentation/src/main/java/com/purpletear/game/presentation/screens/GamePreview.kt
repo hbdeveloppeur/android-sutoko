@@ -101,37 +101,13 @@ fun GamePreview(
             showVideo = true
         }
     }
-
-
-
-    DisposableEffect(lifecycleOwner) {
-        val observer = LifecycleEventObserver { _, event ->
-            when (event) {
-                Lifecycle.Event.ON_STOP -> {
-                    viewModel.stopMenuSound()
-                }
-
-                Lifecycle.Event.ON_START -> {
-                    // App coming back to foreground
-                }
-
-                else -> Unit
-            }
-        }
-
-        lifecycleOwner.lifecycle.addObserver(observer)
-        onDispose {
-            lifecycleOwner.lifecycle.removeObserver(observer)
-        }
-    }
-
+    
 
     // Call stopMenuSound when the composable is disposed (navigation changes or composable is closed)
     DisposableEffect(Unit) {
         onDispose {
             // Ensure background video stops immediately before leaving the page
             showVideo = false
-            viewModel.stopMenuSound()
         }
     }
 

@@ -26,8 +26,8 @@ class StartGameSession @Inject constructor(
         if (chapters.isNullOrEmpty()) {
             emit(
                 GameSessionState.Error(
-                    type = ErrorType.GAME_NOT_INSTALLED,
-                    message = "Game not installed or no chapters available"
+                    type = ErrorType.NO_CHAPTERS_FOUND,
+                    message = "No chapters available"
                 )
             )
             return@flow
@@ -41,7 +41,7 @@ class StartGameSession @Inject constructor(
         if (targetChapter == null) {
             emit(
                 GameSessionState.Error(
-                    type = ErrorType.CHAPTER_UNAVAILABLE,
+                    type = ErrorType.CHAPTER_NOT_FOUND,
                     message = "No available chapter found"
                 )
             )
@@ -60,15 +60,10 @@ class StartGameSession @Inject constructor(
 
         emit(
             GameSessionState.Ready(
-                game = createGameStub(gameId),
+                gameId = gameId,
                 chapter = targetChapter,
                 heroName = progress?.heroName ?: ""
             )
         )
     }
-
-    private fun createGameStub(gameId: String) = com.purpletear.sutoko.game.model.Game(
-        id = gameId,
-        metadata = com.purpletear.sutoko.game.model.GameMetadata(title = "")
-    )
 }

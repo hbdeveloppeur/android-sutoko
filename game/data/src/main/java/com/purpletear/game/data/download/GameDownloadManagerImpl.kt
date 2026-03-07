@@ -12,6 +12,7 @@ import com.purpletear.sutoko.game.exception.GameDownloadForbiddenException
 import com.purpletear.sutoko.game.model.ExtractZipParams
 import com.purpletear.sutoko.game.model.Game
 import com.purpletear.sutoko.game.model.isPremium
+import com.purpletear.sutoko.game.repository.GameInstallationRepository
 import com.purpletear.sutoko.game.repository.GameRepository
 import com.purpletear.sutoko.game.repository.ZipRepository
 import kotlinx.coroutines.CancellationException
@@ -47,6 +48,7 @@ import kotlin.coroutines.resumeWithException
 @Singleton
 class GameDownloadManagerImpl @Inject constructor(
     private val gameRepository: GameRepository,
+    private val gameInstallationRepository: GameInstallationRepository,
     private val zipRepository: ZipRepository,
     private val gamePathProvider: GamePathProvider,
     private val ntfy: Ntfy,
@@ -87,6 +89,7 @@ class GameDownloadManagerImpl @Inject constructor(
 
         // Validate credentials for premium games
         if (game.isPremium() && (userId.isNullOrBlank() || userToken.isNullOrBlank())) {
+            // TODO: check
             throw GameDownloadForbiddenException("User authentication required for premium game download")
         }
 
@@ -113,7 +116,7 @@ class GameDownloadManagerImpl @Inject constructor(
                 val destinationPath = gamePathProvider.getStoryDirectoryPath(game.id)
                 val fileName = "game_${game.id}.zip"
 
-                downloadArchive(game.id, downloadLink, destinationPath, fileName, stateFlow)
+                downloadArchive(game, downloadLink, destinationPath, fileName, stateFlow)
 
             } catch (e: CancellationException) {
                 // Normal cancellation - don't change state (cancelDownload already set it)
@@ -185,19 +188,20 @@ class GameDownloadManagerImpl @Inject constructor(
      * Downloads the game archive using PRDownloader.
      * This is a suspending function that completes when download finishes or fails.
      *
-     * @param gameId The game identifier (used as PRDownloader tag)
+     * @param game The game to download
      * @param link The download URL
      * @param destinationPath Where to save the file
      * @param fileName The name of the zip file
      * @param stateFlow The state flow to emit progress updates
      */
     private suspend fun downloadArchive(
-        gameId: String,
+        game: Game,
         link: String,
         destinationPath: String,
         fileName: String,
         stateFlow: MutableStateFlow<GameDownloadState>,
     ) = withContext(Dispatchers.IO) {
+        val gameId = game.id
         val startTime = System.currentTimeMillis()
         val minDurationMs = 4000L // 4 seconds minimum
         
@@ -252,6 +256,9 @@ class GameDownloadManagerImpl @Inject constructor(
                 val zipFile = File(destinationPath, fileName)
                 extractZipFile(zipFile, destinationPath, gameId)
                 
+                // Mark game as installed after successful extraction
+                gameInstallationRepository.saveInstallation(game.id, game.version.toString())
+                
                 // Ensure minimum duration of 4 seconds for better UX
                 val elapsedTime = System.currentTimeMillis() - startTime
                 val remainingTime = minDurationMs - elapsedTime
@@ -297,10 +304,6 @@ class GameDownloadManagerImpl @Inject constructor(
         // Set game version after successful extraction
         // Note: We need the Game object for this. Since we don't have it here,
         // the ViewModel will handle this step after receiving Completed state.
-    }
-
-    override suspend fun setGameVersion(game: Game) {
-        gameRepository.setGameVersion(game).first().getOrThrow()
     }
 
     override fun resetState(gameId: String) {

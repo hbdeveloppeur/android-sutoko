@@ -51,13 +51,6 @@ interface GameDownloadManager {
      */
     fun cleanup(gameId: String)
 
-    /**
-     * Sets the game version after successful download and extraction.
-     * This should be called by the ViewModel after receiving [GameDownloadState.Completed].
-     *
-     * @param game The game to set version for
-     */
-    suspend fun setGameVersion(game: Game)
 
     /**
      * Resets the download state to [GameDownloadState.Idle] for the specified game.

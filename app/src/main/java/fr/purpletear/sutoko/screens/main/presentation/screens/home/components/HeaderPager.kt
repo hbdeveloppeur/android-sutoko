@@ -13,7 +13,6 @@ import com.google.accompanist.pager.rememberPagerState
 import com.purpletear.news.presentation.components.NewsCard
 import com.purpletear.sutoko.core.domain.appaction.AppAction
 import com.purpletear.sutoko.news.model.News
-import fr.purpletear.sutoko.presentation.util.LogCompositions
 
 @OptIn(ExperimentalPagerApi::class)
 @Composable
@@ -23,7 +22,6 @@ fun HeaderPager(
     onNewsPressed: (AppAction) -> Unit,
     onPageChanged: (Int) -> Unit
 ) {
-    LogCompositions(name = "News", level = 3)
     val pagerState = rememberPagerState(initialPage = initialPage)
 
     LaunchedEffect(pagerState) {

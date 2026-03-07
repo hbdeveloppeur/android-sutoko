@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
@@ -55,37 +56,12 @@ class SmsGameActivity : AppCompatActivity() {
 
         setContent {
             SutokoTheme {
-                HideStatusBarEffect()
-
                 val sessionState by viewModel.sessionState.collectAsStateWithLifecycle()
 
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .background(Color.Black),
-                    contentAlignment = Alignment.Center
-                ) {
-                    when (val state = sessionState) {
-                        is GameSessionState.Loading -> {
-                            CircularProgressIndicator(color = Color.White)
-                        }
-
-                        is GameSessionState.Error -> {
-                            ErrorScreen(
-                                message = state.message,
-                                onRetry = { viewModel.initialize(model.gameId, model.isGranted) }
-                            )
-                        }
-
-                        is GameSessionState.Ready -> {
-                            GameScreen(
-                                gameTitle = state.game.metadata.title,
-                                chapterNumber = state.chapter.number,
-                                heroName = state.heroName
-                            )
-                        }
-                    }
-                }
+                SmsGameScreen(
+                    sessionState = sessionState,
+                    onRetry = { viewModel.initialize(model.gameId, model.isGranted) }
+                )
             }
         }
 
@@ -110,69 +86,3 @@ class SmsGameActivity : AppCompatActivity() {
     }
 }
 
-@Composable
-private fun HideStatusBarEffect() {
-    val systemUiController = rememberSystemUiController()
-
-    DisposableEffect(systemUiController) {
-        systemUiController.isStatusBarVisible = false
-        systemUiController.isNavigationBarVisible = true
-        onDispose {
-            systemUiController.isStatusBarVisible = true
-        }
-    }
-}
-
-@Composable
-private fun ErrorScreen(
-    message: String,
-    onRetry: () -> Unit
-) {
-    Column(
-        modifier = Modifier.padding(32.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Text(
-            text = "Error",
-            color = Color.White
-        )
-        Spacer(modifier = Modifier.height(8.dp))
-        Text(
-            text = message,
-            color = Color.Gray
-        )
-        Spacer(modifier = Modifier.height(16.dp))
-        Button(onClick = onRetry) {
-            Text("Retry")
-        }
-    }
-}
-
-@Composable
-private fun GameScreen(
-    gameTitle: String,
-    chapterNumber: Int,
-    heroName: String
-) {
-    Column(
-        modifier = Modifier.padding(32.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Text(
-            text = gameTitle.ifEmpty { "Game" },
-            color = Color.White
-        )
-        Spacer(modifier = Modifier.height(8.dp))
-        Text(
-            text = "Chapter $chapterNumber",
-            color = Color.Gray
-        )
-        if (heroName.isNotEmpty()) {
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(
-                text = "Hero: $heroName",
-                color = Color.Gray
-            )
-        }
-    }
-}

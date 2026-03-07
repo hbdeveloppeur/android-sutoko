@@ -37,7 +37,6 @@ class Video {
             }
             v.setOnErrorListener(object : MediaPlayer.OnErrorListener {
                 override fun onError(mp: MediaPlayer?, what: Int, extra: Int): Boolean {
-                    Std.debug(">", what)
                     return false
                 }
             })

@@ -29,7 +29,6 @@ import com.purpletear.sutoko.game.usecase.GetGameUseCase
 import com.purpletear.sutoko.game.usecase.HasGameLocalFilesUseCase
 import com.purpletear.sutoko.game.usecase.IsGameUpdatableUseCase
 import com.purpletear.sutoko.game.usecase.RemoveGameUseCase
-import com.purpletear.sutoko.game.usecase.SetGameVersionUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import fr.purpletear.sutoko.popup.domain.PopUpIconAnimation
 import fr.purpletear.sutoko.popup.domain.PopUpUserInteraction
@@ -60,7 +59,6 @@ class GamePreviewModalViewModel @Inject constructor(
     private val hasGameLocalFilesUseCase: HasGameLocalFilesUseCase,
     private val isGameUpdatableUseCase: IsGameUpdatableUseCase,
     private val getCurrentChapterUseCase: GetCurrentChapterUseCase,
-    private val setGameVersionUseCase: SetGameVersionUseCase,
     private val removeGameUseCase: RemoveGameUseCase,
     private val showPopUpUseCase: ShowPopUpUseCase,
     private val observeInteractionUseCase: GetPopUpInteractionUseCase,
@@ -261,16 +259,7 @@ class GamePreviewModalViewModel @Inject constructor(
                     GameDownloadState.Completed -> {
                         // Set game version after successful download
                         _game.value?.let { game ->
-                            try {
-                                awaitFlowResult { setGameVersionUseCase(game) }
-                                
-                                // Fire-and-forget: Fetch and cache chapters in background
-                                // This ensures chapters are available offline after download
-                                fetchAndCacheChapters(game.id)
-                            } catch (e: Exception) {
-                                Log.e(TAG, "Failed to set game version", e)
-                                ntfy.exception(e)
-                            }
+                            fetchAndCacheChapters(game.id)
                         }
                         _gameState.value = GameState.ReadyToPlay
                     }
@@ -378,7 +367,6 @@ class GamePreviewModalViewModel @Inject constructor(
      */
     private fun fetchAndCacheChapters(storyId: String) {
         viewModelScope.launch {
-            // Try to acquire mutex without blocking - if another fetch is in progress, skip
             if (!chaptersDownloadMutex.tryLock()) {
                 Log.d(TAG, "Chapters fetch already in progress for $storyId, skipping")
                 return@launch

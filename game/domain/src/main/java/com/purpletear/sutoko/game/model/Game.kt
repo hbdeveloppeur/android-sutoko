@@ -3,9 +3,13 @@ package com.purpletear.sutoko.game.model
 import android.os.Parcel
 import android.os.Parcelable
 import androidx.annotation.Keep
+import androidx.room.Entity
+import androidx.room.PrimaryKey
 
 @Keep
+@Entity(tableName = "games")
 data class Game(
+    @PrimaryKey
     val id: String = "",
     val version: Int = 0,
     val interactionCount: Int = 0,
@@ -21,6 +25,7 @@ data class Game(
     val logoAsset: Asset? = null,
     val metadata: GameMetadata,
     val author: Author? = null,
+    val isFeatured: Boolean = false,
 ) : Parcelable {
     constructor(parcel: Parcel) : this(
         id = parcel.readString() ?: "",
@@ -37,7 +42,8 @@ data class Game(
         bannerAsset = parcel.readParcelable(Asset::class.java.classLoader),
         logoAsset = parcel.readParcelable(Asset::class.java.classLoader),
         metadata = parcel.readParcelable(GameMetadata::class.java.classLoader) ?: GameMetadata(""),
-        author = parcel.readParcelable(Author::class.java.classLoader)
+        author = parcel.readParcelable(Author::class.java.classLoader),
+        isFeatured = parcel.readByte() != 0.toByte()
     )
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
@@ -56,6 +62,7 @@ data class Game(
         parcel.writeParcelable(logoAsset, flags)
         parcel.writeParcelable(metadata, flags)
         parcel.writeParcelable(author, flags)
+        parcel.writeByte(if (isFeatured) 1 else 0)
     }
 
     override fun describeContents(): Int {

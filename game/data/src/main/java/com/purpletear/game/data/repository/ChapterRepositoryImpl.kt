@@ -66,6 +66,7 @@ class ChapterRepositoryImpl @Inject constructor(
                 }
             }
         } catch (e: Exception) {
+            if (e is kotlinx.coroutines.CancellationException) throw e
             val cachedChapters = chaptersCache[storyId]?.value
             val dbChapters = chapterDao.getAllForStory(storyId)
             
@@ -99,6 +100,7 @@ class ChapterRepositoryImpl @Inject constructor(
                 emit(Result.failure(Exception("API call failed with code ${response.code()}: $errorBody")))
             }
         } catch (e: Exception) {
+            if (e is kotlinx.coroutines.CancellationException) throw e
             emit(Result.failure(e))
         }
     }
@@ -164,6 +166,7 @@ class ChapterRepositoryImpl @Inject constructor(
                     emit(Result.success(chapter))
                 }
             } catch (e: Exception) {
+                if (e is kotlinx.coroutines.CancellationException) throw e
                 emit(Result.failure(e))
             }
         }
