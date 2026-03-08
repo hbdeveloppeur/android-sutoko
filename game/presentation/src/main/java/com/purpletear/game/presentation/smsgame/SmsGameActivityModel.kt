@@ -1,4 +1,4 @@
-package fr.purpletear.sutoko.screens.smsgame
+package com.purpletear.game.presentation.smsgame
 
 import android.app.Activity
 import android.os.Parcel

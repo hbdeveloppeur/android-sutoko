@@ -40,6 +40,9 @@ android {
     buildTypes.getByName("debug") {
         isDebuggable = true
     }
+    buildFeatures {
+        buildConfig = true
+    }
 }
 
 dependencies {

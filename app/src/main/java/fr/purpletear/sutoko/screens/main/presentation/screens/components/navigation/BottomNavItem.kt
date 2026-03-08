@@ -12,6 +12,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import fr.purpletear.sutoko.screens.fadeComposable
 import fr.purpletear.sutoko.R
+import fr.purpletear.sutoko.screens.create.CreatePageComposable
 import fr.purpletear.sutoko.screens.main.presentation.HomeScreenViewModel
 import fr.purpletear.sutoko.screens.main.presentation.screens.home.HomeScreen
 
@@ -59,7 +60,7 @@ fun NavigationGraph(
         }
 
         fadeComposable(BottomNavItem.Create.route) {
-            fr.purpletear.sutoko.screens.create.CreatePageComposable()
+            CreatePageComposable()
         }
     }
 }

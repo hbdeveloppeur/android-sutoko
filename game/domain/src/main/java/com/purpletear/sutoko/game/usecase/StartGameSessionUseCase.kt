@@ -2,7 +2,6 @@ package com.purpletear.sutoko.game.usecase
 
 import com.purpletear.sutoko.game.model.ErrorType
 import com.purpletear.sutoko.game.model.GameSessionState
-import com.purpletear.sutoko.game.model.UserGameProgressEntity
 import com.purpletear.sutoko.game.repository.ChapterRepository
 import com.purpletear.sutoko.game.repository.UserGameProgressRepository
 import kotlinx.coroutines.flow.Flow
@@ -14,7 +13,7 @@ import javax.inject.Inject
  * Starts a game session by validating game availability and loading the current chapter.
  * Emits states: Loading → Ready | Error
  */
-class StartGameSession @Inject constructor(
+class StartGameSessionUseCase @Inject constructor(
     private val chapterRepository: ChapterRepository,
     private val userGameProgressRepository: UserGameProgressRepository
 ) {

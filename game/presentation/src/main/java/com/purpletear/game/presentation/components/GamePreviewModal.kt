@@ -51,6 +51,7 @@ import com.purpletear.game.presentation.states.GameButtonsState
 import com.purpletear.core.presentation.util.openAppInStore
 import com.purpletear.game.presentation.states.GameState
 import com.purpletear.game.presentation.viewmodels.GamePreviewModalViewModel
+import com.purpletear.sutoko.game.model.Game
 import com.purpletear.sutoko.game.model.getFullUrl
 import com.purpletear.sutoko.game.model.getThumbnailUrl
 
@@ -64,7 +65,7 @@ private val PoppinsMedium = FontFamily(
  * @param isVisible Whether the modal should be displayed
  * @param onDismiss Called when user taps outside the modal or back is pressed
  * @param gameId The ID of the game to display. Can be null when hidden
- * @param onPlayGame Called when user clicks play - provides the game ID
+ * @param onPlayGame Called when user clicks play - provides the Game object
  * @param onGameDeleted Called when the game is deleted
  * @param modifier Optional modifier for the modal
  */
@@ -73,7 +74,7 @@ fun GamePreviewModal(
     isVisible: Boolean,
     onDismiss: () -> Unit = {},
     gameId: String?,
-    onPlayGame: (String) -> Unit = {},
+    onPlayGame: (Game) -> Unit = {},
     onGameDeleted: () -> Unit = {},
     @SuppressLint("ModifierParameter") modifier: Modifier = Modifier,
     viewModel: GamePreviewModalViewModel = hiltViewModel()
@@ -90,8 +91,8 @@ fun GamePreviewModal(
 
     // Collect events from ViewModel
     LaunchedEffect(viewModel) {
-        viewModel.playGameEvents.collect { id ->
-            onPlayGame(id)
+        viewModel.playGameEvents.collect { game ->
+            game?.let { onPlayGame(it) }
         }
     }
 

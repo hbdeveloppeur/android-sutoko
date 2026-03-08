@@ -85,8 +85,8 @@ class GamePreviewModalViewModel @Inject constructor(
     val currentChapterNumber: State<Int> = _currentChapterNumber
 
     // Events for navigation/actions
-    private val _playGameEvents = MutableSharedFlow<String>() // emits gameId
-    val playGameEvents: SharedFlow<String> = _playGameEvents
+    private val _playGameEvents = MutableSharedFlow<Game?>() // emits Game object
+    val playGameEvents: SharedFlow<Game?> = _playGameEvents
 
     private val _dismissEvents = MutableSharedFlow<Unit>()
     val dismissEvents: SharedFlow<Unit> = _dismissEvents
@@ -130,9 +130,7 @@ class GamePreviewModalViewModel @Inject constructor(
     fun onAction(action: StoryPreviewAction) {
         when (action) {
             StoryPreviewAction.OnPlay -> {
-                gameId?.let { id ->
-                    viewModelScope.launch { _playGameEvents.emit(id) }
-                }
+                viewModelScope.launch { _playGameEvents.emit(_game.value) }
             }
 
             StoryPreviewAction.OnDownload -> {

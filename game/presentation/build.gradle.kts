@@ -106,6 +106,7 @@ dependencies {
     implementation(libs.coil.compose)
 
     implementation(libs.lottie.compose)
+    implementation(libs.accompanist.systemuicontroller)
 
     // PRDownloader for file downloads
     implementation(libs.prdownloader)

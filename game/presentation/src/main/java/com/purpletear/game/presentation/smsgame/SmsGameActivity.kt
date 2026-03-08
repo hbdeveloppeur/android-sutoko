@@ -1,4 +1,4 @@
-package fr.purpletear.sutoko.screens.smsgame
+package com.purpletear.game.presentation.smsgame
 
 import android.app.Activity
 import android.content.Intent
@@ -8,28 +8,10 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.material3.Button
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.sharedelements.theme.SutokoTheme
-import com.google.accompanist.systemuicontroller.rememberSystemUiController
-import com.purpletear.sutoko.game.model.ErrorType
+import com.purpletear.game.presentation.components.HideStatusBarEffect
 import com.purpletear.sutoko.game.model.GameSessionState
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -56,11 +38,11 @@ class SmsGameActivity : AppCompatActivity() {
 
         setContent {
             SutokoTheme {
+                HideStatusBarEffect()
                 val sessionState by viewModel.sessionState.collectAsStateWithLifecycle()
 
                 SmsGameScreen(
                     sessionState = sessionState,
-                    onRetry = { viewModel.initialize(model.gameId, model.isGranted) }
                 )
             }
         }
@@ -85,4 +67,3 @@ class SmsGameActivity : AppCompatActivity() {
         }
     }
 }
-

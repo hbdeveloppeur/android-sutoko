@@ -286,16 +286,12 @@ internal fun CreatePageComposable(
                     selectedGameId = null
                 },
                 gameId = selectedGameId,
-                onPlayGame = { gameId ->
-                    android.util.Log.d("CreatePageComposable", "onPlayGame called with gameId=$gameId")
-                    val game = games.find { it.id == gameId }
-                    game?.let { onGameClick(it) }
-                    isPreviewModalVisible = false
-                    android.util.Log.d("CreatePageComposable", "onPlayGame set isPreviewModalVisible=false")
+                onPlayGame = { game ->
+                    android.util.Log.d("CreatePageComposable", "onPlayGame called with game=${game.id}")
+                    onGameClick(game)
                 },
                 onGameDeleted = {
                     android.util.Log.d("CreatePageComposable", "onGameDeleted called - refreshing games list")
-                    // Repository emits installation status change automatically (single source of truth)
                     viewModel.refreshUserGames()
                 }
             )

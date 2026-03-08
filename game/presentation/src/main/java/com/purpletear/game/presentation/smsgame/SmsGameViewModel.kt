@@ -1,10 +1,10 @@
-package fr.purpletear.sutoko.screens.smsgame
+package com.purpletear.game.presentation.smsgame
 
 import androidx.lifecycle.ViewModel
 import com.purpletear.core.presentation.extensions.executeFlowUseCase
 import com.purpletear.sutoko.game.model.ErrorType
 import com.purpletear.sutoko.game.model.GameSessionState
-import com.purpletear.sutoko.game.usecase.StartGameSession
+import com.purpletear.sutoko.game.usecase.StartGameSessionUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -17,7 +17,7 @@ import javax.inject.Inject
  */
 @HiltViewModel
 class SmsGameViewModel @Inject constructor(
-    private val startGameSession: StartGameSession
+    private val startGameSession: StartGameSessionUseCase
 ) : ViewModel() {
 
     private val _sessionState = MutableStateFlow<GameSessionState>(GameSessionState.Loading)
