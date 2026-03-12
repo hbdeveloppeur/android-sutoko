@@ -17,7 +17,7 @@ import javax.inject.Inject
  * State survives process death via SavedStateHandle.
  */
 class GameEngine @Inject constructor(
-    private val handlers: Map<NodeType, @JvmSuppressWildcards NodeHandler>,
+    private val handlerFactory: NodeHandlerFactory,
     private val navigator: NodeNavigator,
     private val savedStateHandle: SavedStateHandle
 ) {
@@ -40,6 +40,14 @@ class GameEngine @Inject constructor(
     init {
         // Restore memory from SavedStateHandle
         restoreMemory()
+    }
+    
+    /**
+     * Validates choice index before processing to prevent race conditions.
+     * @return true if valid, false otherwise
+     */
+    private fun validateChoiceIndex(node: Node.Choice, choiceIndex: Int): Boolean {
+        return choiceIndex in 0 until node.options.size
     }
 
     fun initialize(graph: ChapterGraph) {
@@ -85,7 +93,13 @@ class GameEngine @Inject constructor(
         val currentId = savedStateHandle.get<String>(KEY_CURRENT_NODE_ID) ?: return
 
         val node = graph.getNode(currentId) as? Node.Choice ?: return
-        val selectedOption = node.options.getOrNull(choiceIndex) ?: return
+        
+        // Validate index before processing - prevents race conditions
+        if (!validateChoiceIndex(node, choiceIndex)) {
+            return
+        }
+        
+        val selectedOption = node.options[choiceIndex]
 
         savedStateHandle[KEY_CURRENT_NODE_ID] = selectedOption.targetNodeId
         executeNode(selectedOption.targetNodeId)
@@ -106,17 +120,19 @@ class GameEngine @Inject constructor(
         updateState(nodeId)
 
         val handler = getHandler(node)
-        if (handler == null) {
-            _state.value = GameEngineState.Error("No handler for: ${node.javaClass.simpleName}")
-            return
-        }
 
         val handlerResult = try {
             handler.handle(node, memory) { event ->
                 _events.trySend(event)
             }
-        } catch (e: Exception) {
-            _state.value = GameEngineState.Error(e.message ?: "Unknown error")
+        } catch (e: IllegalStateException) {
+            _state.value = GameEngineState.Error("State error: ${e.message}")
+            return
+        } catch (e: IllegalArgumentException) {
+            _state.value = GameEngineState.Error("Invalid argument: ${e.message}")
+            return
+        } catch (e: IndexOutOfBoundsException) {
+            _state.value = GameEngineState.Error("Index out of bounds: ${e.message}")
             return
         }
 
@@ -161,7 +177,7 @@ class GameEngine @Inject constructor(
         }
     }
 
-    private fun getHandler(node: Node): NodeHandler? {
+    private fun getHandler(node: Node): NodeHandler {
         val type = when (node) {
             is Node.Start -> NodeType.START
             is Node.Message -> NodeType.MESSAGE
@@ -174,7 +190,7 @@ class GameEngine @Inject constructor(
             is Node.Signal -> NodeType.SIGNAL
             is Node.Background -> NodeType.BACKGROUND
         }
-        return handlers[type]
+        return handlerFactory.getHandler(type)
     }
 
     private fun saveMemory() {
@@ -184,11 +200,14 @@ class GameEngine @Inject constructor(
     }
 
     private fun restoreMemory() {
-        savedStateHandle.keys().forEach { key ->
-            if (key.startsWith(KEY_MEMORY_PREFIX)) {
-                val memoryKey = key.removePrefix(KEY_MEMORY_PREFIX)
-                val value = savedStateHandle.get<String>(key)
-                value?.let { memory.set(memoryKey, it) }
+        // Only iterate keys that start with our prefix - bounded complexity
+        val memoryKeys = savedStateHandle.keys().filter { it.startsWith(KEY_MEMORY_PREFIX) }
+        memoryKeys.forEach { key ->
+            val memoryKey = key.removePrefix(KEY_MEMORY_PREFIX)
+            val value = savedStateHandle.get<String>(key)
+            // Defensive: validate key isn't empty after prefix removal
+            if (memoryKey.isNotEmpty() && value != null) {
+                memory.set(memoryKey, value)
             }
         }
     }

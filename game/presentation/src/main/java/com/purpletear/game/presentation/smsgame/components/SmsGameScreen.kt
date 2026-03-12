@@ -68,11 +68,22 @@ internal fun SmsGameScreen(
 
 @Composable
 private fun BackgroundMedia(imageUrl: String?) {
+    // TODO: Implement actual background image loading with Coil
+    // For now: solid background with slight transparency overlay
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFF0F0920).copy(alpha = 0.3f))
-    )
+            .background(Color(0xFF0F0920))
+    ) {
+        // Placeholder for background image - remove transparency overlay when implemented
+        if (imageUrl != null) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color.Black.copy(alpha = 0.3f))
+            )
+        }
+    }
 }
 
 @Composable

@@ -14,6 +14,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import java.util.UUID
 import javax.inject.Inject
 
 @HiltViewModel
@@ -26,6 +27,10 @@ class SmsGamePlayViewModel @Inject constructor(
     val uiState: StateFlow<GameUiState> = _uiState.asStateFlow()
 
     init {
+        // State and events are collected separately.
+        // Events cause UI updates (messages, choices); State reflects engine mode.
+        // Ordering: Events are emitted during node execution, state updates after.
+        // Both flows are independent - UI must handle events arriving before/after state changes.
         viewModelScope.launch {
             gameEngine.state.collectLatest { engineState ->
                 updateUiStateFromEngine(engineState)
@@ -141,7 +146,7 @@ class SmsGamePlayViewModel @Inject constructor(
         when (event) {
             is GameEvent.ShowMessage -> {
                 val newMessage = MessageItem(
-                    id = System.currentTimeMillis().toString(),
+                    id = UUID.randomUUID().toString(),
                     text = event.text,
                     characterId = event.characterId,
                     isMainCharacter = event.isMainCharacter
@@ -153,7 +158,7 @@ class SmsGamePlayViewModel @Inject constructor(
             }
             is GameEvent.ShowInfo -> {
                 val newMessage = MessageItem(
-                    id = System.currentTimeMillis().toString(),
+                    id = UUID.randomUUID().toString(),
                     text = event.text,
                     characterId = -1,
                     isMainCharacter = false
@@ -164,16 +169,16 @@ class SmsGamePlayViewModel @Inject constructor(
                 updateState { it.copy(backgroundImage = event.imageUrl) }
             }
             is GameEvent.UnlockTrophy -> {
-                // Handle trophy unlock
+                // TODO: Implement trophy unlock - persist to repository, show notification
             }
             is GameEvent.SendSignal -> {
-                // Handle signal
+                // TODO: Implement signal handling - analytics, side effects, etc.
             }
             is GameEvent.ChangeChapter -> {
-                // Handle chapter change
+                // TODO: Implement chapter change - trigger navigation to next chapter
             }
             is GameEvent.WaitingForInput -> {
-                // Input is now waiting
+                // Event received - UI updates via state change, no action needed here
             }
         }
     }
@@ -183,9 +188,24 @@ class SmsGamePlayViewModel @Inject constructor(
     }
 
     private fun calculateNextChapterCode(currentCode: String): String {
-        val number = currentCode.filter { it.isDigit() }.toIntOrNull() ?: 1
-        val alternative = currentCode.filter { it.isLetter() }.ifEmpty { "a" }
-        return "${number + 1}${alternative}"
+        require(currentCode.isNotEmpty()) { "Chapter code cannot be empty" }
+        
+        val digits = currentCode.takeWhile { it.isDigit() }
+        val letters = currentCode.drop(digits.length).takeWhile { it.isLetter() }
+        
+        // Validate format: must start with digits, letters are optional suffix
+        require(digits.isNotEmpty()) { "Chapter code must start with digits: $currentCode" }
+        require(digits.length <= 3) { "Chapter number too large: $digits" }
+        require(letters.length <= 2) { "Alternative suffix too long: $letters" }
+        require(digits.length + letters.length == currentCode.length) { 
+            "Invalid chapter code format: $currentCode" 
+        }
+        
+        val number = digits.toInt()
+        require(number in 1..999) { "Chapter number out of bounds: $number" }
+        
+        val alternative = letters.ifEmpty { "a" }
+        return "${number + 1}$alternative"
     }
 }
 
