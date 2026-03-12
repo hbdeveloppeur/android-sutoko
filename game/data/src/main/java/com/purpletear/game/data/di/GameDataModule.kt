@@ -12,9 +12,11 @@ import com.purpletear.game.data.provider.AndroidGamePathProviderImpl
 import com.purpletear.game.data.provider.GamePathProvider
 import com.purpletear.game.data.remote.GameApi
 import com.purpletear.game.data.remote.GamePortalApi
+import com.purpletear.game.data.repository.ChapterGraphRepositoryImpl
 import com.purpletear.game.data.repository.GameInstallationRepositoryImpl
 import com.purpletear.game.data.repository.GameRepositoryImpl
 import com.purpletear.game.data.repository.UserGameProgressRepositoryImpl
+import com.purpletear.sutoko.game.repository.ChapterGraphRepository
 import com.purpletear.ntfy.Ntfy
 import com.purpletear.sutoko.game.download.GameDownloadManager
 import com.purpletear.sutoko.game.repository.GameInstallationRepository
@@ -221,6 +223,20 @@ object GameDataModule {
     fun provideGameDownloadManager(
         impl: GameDownloadManagerImpl
     ): GameDownloadManager {
+        return impl
+    }
+
+    /**
+     * Provides the ChapterGraphRepository implementation.
+     *
+     * @param impl The implementation instance.
+     * @return The ChapterGraphRepository interface.
+     */
+    @Provides
+    @Singleton
+    fun provideChapterGraphRepository(
+        impl: ChapterGraphRepositoryImpl
+    ): ChapterGraphRepository {
         return impl
     }
 

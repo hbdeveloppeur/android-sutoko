@@ -18,4 +18,8 @@ class AndroidGamePathProviderImpl(private val context: Context) : GamePathProvid
     override fun getStoryDirectoryPath(storyId: String): String {
         return getStoriesDirectoryPath() + File.separator + storyId
     }
+
+    override fun getGamesDirectory(): File {
+        return File(context.filesDir, STORIES_DIRECTORY_NAME)
+    }
 }
