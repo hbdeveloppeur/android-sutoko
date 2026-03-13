@@ -59,18 +59,8 @@ class SmsGamePlayViewModel @Inject constructor(
         }
     }
 
-    fun onNextChapter() {
-        val currentState = _uiState.value
-        val currentCode = currentState.chapterCode ?: return
-        
-        val nextCode = calculateNextChapterCode(currentCode)
-        
-        viewModelScope.launch {
-            loadChapterGraph(currentState.gameId ?: return@launch, nextCode)
-        }
-    }
-
     private suspend fun loadChapterGraph(gameId: String, chapterCode: String) {
+        // TODO : change language
         loadChapterGraph(gameId, chapterCode, "fr-FR")
             .collectLatest { result ->
                 result.fold(
@@ -188,24 +178,7 @@ class SmsGamePlayViewModel @Inject constructor(
     }
 
     private fun calculateNextChapterCode(currentCode: String): String {
-        require(currentCode.isNotEmpty()) { "Chapter code cannot be empty" }
-        
-        val digits = currentCode.takeWhile { it.isDigit() }
-        val letters = currentCode.drop(digits.length).takeWhile { it.isLetter() }
-        
-        // Validate format: must start with digits, letters are optional suffix
-        require(digits.isNotEmpty()) { "Chapter code must start with digits: $currentCode" }
-        require(digits.length <= 3) { "Chapter number too large: $digits" }
-        require(letters.length <= 2) { "Alternative suffix too long: $letters" }
-        require(digits.length + letters.length == currentCode.length) { 
-            "Invalid chapter code format: $currentCode" 
-        }
-        
-        val number = digits.toInt()
-        require(number in 1..999) { "Chapter number out of bounds: $number" }
-        
-        val alternative = letters.ifEmpty { "a" }
-        return "${number + 1}$alternative"
+        return "2b"
     }
 }
 

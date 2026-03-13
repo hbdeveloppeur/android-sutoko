@@ -71,4 +71,18 @@
     <!-- Vornamen Eingabe -->
     <string name="first_name_prompt_title">Gib den Vornamen deines Charakters ein</string>
     <string name="first_name_prompt_placeholder">Nick</string>
+
+    <!-- Delete game -->
+    <string name="game_menu_delete">Löschen</string>
+    <string name="game_delete_confirm_title">Spiel löschen?</string>
+    <string name="game_delete_confirm_description">Dies löscht die Spieldateien von deinem Gerät. Du verlierst deinen Fortschritt und gekaufte Inhalte nicht.</string>
+    <string name="game_delete_confirm_description_short">Dies löscht die Spieldateien von deinem Gerät.</string>
+    <string name="game_delete_confirm_button">Löschen</string>
+    <string name="game_delete_success">Spiel erfolgreich gelöscht</string>
+    <string name="game_delete_error">Fehler beim Löschen des Spiels</string>
+
+    <!-- Game Card Buttons -->
+    <string name="game_button_get">Holen</string>
+    <string name="game_button_open">Öffnen</string>
+    <string name="game_button_retry">Wiederholen</string>
 </resources>

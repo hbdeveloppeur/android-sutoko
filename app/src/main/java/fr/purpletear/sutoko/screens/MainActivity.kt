@@ -82,7 +82,7 @@ import fr.purpletear.sutoko.screens.main.presentation.screens.MainScreen
 import fr.purpletear.sutoko.screens.params.SutokoParamsActivity
 
 import com.purpletear.game.presentation.smsgame.SmsGameActivity
-import com.purpletear.game.presentation.smsgame.SmsGameActivityModel
+import com.purpletear.game.presentation.smsgame.SmsGameActivityArgs
 import fr.purpletear.sutoko.screens.splashscreen.SplashScreen
 import fr.purpletear.sutoko.screens.web.WebActivity
 import fr.purpletear.sutoko.shop.coinsLogic.Customer
@@ -260,10 +260,7 @@ class MainActivity @Inject constructor(
                                         startFriendzoned(gameId, isGranted)
                                         return@onNavigateToGame
                                     }
-                                    startSmsGameLoaderActivity(
-                                        gameId = gameId,
-                                        isGranted = isGranted
-                                    )
+                                    startSmsGameLoaderActivity(gameId)
                                 },
                                 onBuyGame = { game ->
                                     onBuyGame(game)
@@ -297,11 +294,7 @@ class MainActivity @Inject constructor(
                                 onGameClick = { game ->
                                     // Launch SmsGameActivity directly
                                     // Free games are granted, paid games require purchase
-                                    val isGranted = game.price == 0
-                                    startSmsGameLoaderActivity(
-                                        gameId = game.id,
-                                        isGranted = isGranted
-                                    )
+                                    startSmsGameLoaderActivity(game.id)
                                 }
                             )
                         }
@@ -588,12 +581,9 @@ class MainActivity @Inject constructor(
         startActivity(intent)
     }
 
-    private fun startSmsGameLoaderActivity(gameId: String, isGranted: Boolean) {
-        val model = SmsGameActivityModel(
-            gameId = gameId,
-            isGranted = isGranted
-        )
-        val intent = SmsGameActivity.require(this, model)
+    private fun startSmsGameLoaderActivity(gameId: String) {
+        val args = SmsGameActivityArgs(gameId = gameId)
+        val intent = SmsGameActivity.intent(this, args)
         startActivity(intent)
     }
 

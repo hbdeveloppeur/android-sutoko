@@ -25,18 +25,36 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavGraphBuilder
+import androidx.navigation.compose.composable
 import coil.compose.AsyncImage
 import com.example.sharedelements.theme.Poppins
 import com.purpletear.game.presentation.R
+import com.purpletear.game.presentation.smsgame.SmsGameRoutes
+import com.purpletear.sutoko.game.model.Chapter
 
 @Preview
 @Composable
 private fun Preview() {
-    SmsGameDescription(number = 1, title = "Title", description = "Description", onContinueButtonClicked = {})
+    SmsGameDescription(number = 1, totalChapters = 5, title = "Title", description = "Description", onContinueButtonClicked = {})
+}
+
+internal fun NavGraphBuilder.descriptionScreen(
+    chapter: Chapter,
+    totalChapters: Int,
+    onContinue: () -> Unit
+) = composable(SmsGameRoutes.DESCRIPTION) {
+    SmsGameDescription(
+        number = chapter.number,
+        totalChapters = totalChapters,
+        title = chapter.title,
+        description = chapter.description,
+        onContinueButtonClicked = onContinue,
+    )
 }
 
 @Composable
-internal fun SmsGameDescription(number: Int, title: String, description: String, onContinueButtonClicked: () -> Unit) {
+internal fun SmsGameDescription(number: Int, totalChapters: Int, title: String, description: String, onContinueButtonClicked: () -> Unit) {
     Box(
         Modifier
             .fillMaxSize()
@@ -49,7 +67,7 @@ internal fun SmsGameDescription(number: Int, title: String, description: String,
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            Title(text = "Chapter $number")
+            Title(text = "Chapter $number/$totalChapters")
             Subtitle(text = title)
             Description(text = description)
             Spacer(modifier = Modifier.size(4.dp))

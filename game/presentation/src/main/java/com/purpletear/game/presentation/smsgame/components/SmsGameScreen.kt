@@ -31,10 +31,15 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.NavGraphBuilder
+import androidx.navigation.compose.composable
 import com.purpletear.game.presentation.smsgame.GameUiState
 import com.purpletear.game.presentation.smsgame.SmsGamePlayViewModel
+import com.purpletear.game.presentation.smsgame.SmsGameRoutes
 import com.purpletear.game.presentation.smsgame.engine.MessageItem
+import com.purpletear.sutoko.game.model.Chapter
 import kotlinx.coroutines.launch
 
 @Composable
@@ -240,5 +245,24 @@ private fun ChoiceButton(
     SimpleButton(
         text = text,
         onClick = onClick
+    )
+}
+
+internal fun NavGraphBuilder.gameScreen(
+    gameId: String,
+    chapter: Chapter,
+    onNextChapter: (chapterCode: String) -> Unit,
+) = composable(SmsGameRoutes.GAME) {
+    val playViewModel: SmsGamePlayViewModel = hiltViewModel()
+
+    LaunchedEffect(Unit) {
+        playViewModel.initialize(gameId, chapter.code)
+    }
+
+    SmsGameScreen(
+        viewModel = playViewModel,
+        onLoadNextChapter = {
+            onNextChapter("2b")
+        }
     )
 }

@@ -23,9 +23,9 @@ class SmsGameViewModel @Inject constructor(
     private val _sessionState = MutableStateFlow<GameSessionState>(GameSessionState.Loading)
     val sessionState: StateFlow<GameSessionState> = _sessionState.asStateFlow()
 
-    fun initialize(gameId: String, isGranted: Boolean) {
+    fun initialize(gameId: String) {
         executeFlowUseCase(
-            useCase = { startGameSession(gameId, isGranted) },
+            useCase = { startGameSession(gameId) },
             onStream = { state ->
                 _sessionState.value = state
             },

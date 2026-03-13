@@ -13,9 +13,9 @@ import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.Response
 import java.io.IOException
-import java.time.Instant
-import java.time.ZoneId
-import java.time.format.DateTimeFormatter
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 import java.util.concurrent.TimeUnit
 
 /**
@@ -39,8 +39,7 @@ class NtfyClient(
         private const val PRIORITY_HIGH = "high"
         private const val PRIORITY_URGENT = "urgent"
         
-        private val timeFormatter = DateTimeFormatter.ofPattern("HH:mm:ss")
-            .withZone(ZoneId.systemDefault())
+        private val timeFormatter = SimpleDateFormat("HH:mm:ss", Locale.getDefault())
 
         private fun defaultOkHttpClient(): OkHttpClient {
             return OkHttpClient.Builder()
@@ -203,7 +202,7 @@ class NtfyClient(
     ) {
         externalScope.launch {
             try {
-                val timestamp = timeFormatter.format(Instant.now())
+                val timestamp = timeFormatter.format(Date())
                 val title = "${timestamp} ${config.appName ?: "App"}"
 
                 val url = "${config.baseUrl}/$channelId"

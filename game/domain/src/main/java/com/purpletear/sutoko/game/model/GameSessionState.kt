@@ -18,7 +18,8 @@ sealed class GameSessionState {
     data class Ready(
         val gameId: String,
         val chapter: Chapter,
-        val heroName: String
+        val heroName: String,
+        val totalChapters: Int
     ) : GameSessionState()
 }
 

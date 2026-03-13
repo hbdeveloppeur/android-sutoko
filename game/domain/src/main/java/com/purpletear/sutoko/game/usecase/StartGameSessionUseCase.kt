@@ -6,6 +6,7 @@ import com.purpletear.sutoko.game.repository.ChapterRepository
 import com.purpletear.sutoko.game.repository.UserGameProgressRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.lastOrNull
 import kotlinx.coroutines.flow.flow
 import javax.inject.Inject
 
@@ -17,10 +18,10 @@ class StartGameSessionUseCase @Inject constructor(
     private val chapterRepository: ChapterRepository,
     private val userGameProgressRepository: UserGameProgressRepository
 ) {
-    operator fun invoke(gameId: String, isGranted: Boolean): Flow<GameSessionState> = flow {
+    operator fun invoke(gameId: String): Flow<GameSessionState> = flow {
         emit(GameSessionState.Loading)
 
-        val chapters = chapterRepository.getChapters(gameId).firstOrNull()?.getOrNull()
+        val chapters = chapterRepository.getChapters(gameId).lastOrNull()?.getOrNull()
 
         if (chapters.isNullOrEmpty()) {
             emit(
@@ -61,7 +62,8 @@ class StartGameSessionUseCase @Inject constructor(
             GameSessionState.Ready(
                 gameId = gameId,
                 chapter = targetChapter,
-                heroName = progress?.heroName ?: ""
+                heroName = progress?.heroName ?: "",
+                totalChapters = chapters.size
             )
         )
     }

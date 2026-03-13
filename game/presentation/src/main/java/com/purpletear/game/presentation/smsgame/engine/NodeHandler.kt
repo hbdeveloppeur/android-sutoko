@@ -2,11 +2,10 @@ package com.purpletear.game.presentation.smsgame.engine
 
 import com.purpletear.sutoko.game.model.chapter.GameMemory
 import com.purpletear.sutoko.game.model.chapter.Node
-import dagger.MapKey
 
 /**
  * Handler for executing a specific node type.
- * Implementations are auto-registered via Hilt multibindings.
+ * Implementations are wired via NodeHandlerFactory.
  */
 interface NodeHandler {
     /**
@@ -23,11 +22,3 @@ interface NodeHandler {
         emit: (GameEvent) -> Unit
     ): String?
 }
-
-/**
- * Key for mapping node types to handlers in Hilt multibindings.
- */
-@MapKey
-@Target(AnnotationTarget.FUNCTION)
-@Retention(AnnotationRetention.RUNTIME)
-annotation class NodeTypeKey(val type: NodeType)

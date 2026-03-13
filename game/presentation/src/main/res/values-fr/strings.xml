@@ -72,6 +72,15 @@
     <string name="first_name_prompt_title">Entrez le prénom de votre personnage</string>
     <string name="first_name_prompt_placeholder">Nick</string>
 
+    <!-- Delete game -->
+    <string name="game_menu_delete">Supprimer</string>
+    <string name="game_delete_confirm_title">Supprimer le jeu ?</string>
+    <string name="game_delete_confirm_description">Cela supprimera les fichiers du jeu de votre appareil. Vous ne perdrez pas votre progression ni vos achats.</string>
+    <string name="game_delete_confirm_description_short">Cela supprimera les fichiers du jeu de votre appareil.</string>
+    <string name="game_delete_confirm_button">Supprimer</string>
+    <string name="game_delete_success">Jeu supprimé avec succès</string>
+    <string name="game_delete_error">Échec de la suppression du jeu</string>
+
     <!-- Game Card Buttons -->
     <string name="game_button_get">Obtenir</string>
     <string name="game_button_open">Ouvrir</string>
