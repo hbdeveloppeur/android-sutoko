@@ -41,14 +41,27 @@ class SmsGameActivity : ComponentActivity() {
                     val readyState = sessionState as GameSessionState.Ready
                     val chapter = readyState.chapter
                     val totalChapters = readyState.totalChapters
-                    SmsGameNavHost(navController) {
-                        descriptionScreen(chapter = chapter, totalChapters = totalChapters, onContinue = {
-                            navController.navigate(SmsGameRoutes.GAME)
-                        })
-                        gameScreen(gameId = gameId, chapter = chapter, onNextChapter = {
-                            chapterCode ->
-                            // TODO : on next chapter, switch to descriptionScreen. And Description screen must load the new chapter.
-                        })
+                    
+                    SmsGameNavHost(
+                        navController = navController,
+                        startDestination = SmsGameRoutes.description(chapter.code)
+                    ) {
+                        descriptionScreen(
+                            gameId = gameId,
+                            totalChapters = totalChapters,
+                            onContinue = {
+                                navController.navigate(SmsGameRoutes.GAME)
+                            }
+                        )
+                        gameScreen(
+                            gameId = gameId,
+                            chapter = chapter,
+                            onNextChapter = { chapterCode ->
+                                navController.navigate(SmsGameRoutes.description(chapterCode)) {
+                                    popUpTo(SmsGameRoutes.description(chapterCode)) { inclusive = true }
+                                }
+                            }
+                        )
                     }
                 }
             }

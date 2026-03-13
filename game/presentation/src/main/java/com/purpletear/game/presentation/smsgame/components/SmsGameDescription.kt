@@ -11,8 +11,10 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -25,12 +27,17 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavGraphBuilder
+import androidx.navigation.NavType
 import androidx.navigation.compose.composable
+import androidx.navigation.navArgument
 import coil.compose.AsyncImage
 import com.example.sharedelements.theme.Poppins
 import com.purpletear.game.presentation.R
 import com.purpletear.game.presentation.smsgame.SmsGameRoutes
+import com.purpletear.game.presentation.smsgame.SmsGameViewModel
 import com.purpletear.sutoko.game.model.Chapter
 
 @Preview
@@ -40,17 +47,33 @@ private fun Preview() {
 }
 
 internal fun NavGraphBuilder.descriptionScreen(
-    chapter: Chapter,
+    gameId: String,
     totalChapters: Int,
     onContinue: () -> Unit
-) = composable(SmsGameRoutes.DESCRIPTION) {
-    SmsGameDescription(
-        number = chapter.number,
-        totalChapters = totalChapters,
-        title = chapter.title,
-        description = chapter.description,
-        onContinueButtonClicked = onContinue,
-    )
+) = composable(
+    route = SmsGameRoutes.DESCRIPTION,
+    arguments = listOf(navArgument("chapterCode") { type = NavType.StringType })
+) { backStackEntry ->
+    val chapterCode = backStackEntry.arguments?.getString("chapterCode") ?: ""
+    val viewModel: SmsGameViewModel = hiltViewModel()
+    val chapter by viewModel.getChapter(gameId, chapterCode).collectAsStateWithLifecycle(initialValue = null)
+    
+    if (chapter != null) {
+        SmsGameDescription(
+            number = chapter!!.number,
+            totalChapters = totalChapters,
+            title = chapter!!.title,
+            description = chapter!!.description,
+            onContinueButtonClicked = onContinue,
+        )
+    } else {
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ) {
+            CircularProgressIndicator(color = Color.White)
+        }
+    }
 }
 
 @Composable

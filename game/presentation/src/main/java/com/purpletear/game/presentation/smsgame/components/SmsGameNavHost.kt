@@ -8,15 +8,15 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
-import com.purpletear.game.presentation.smsgame.SmsGameRoutes
 
 @Composable
 internal fun SmsGameNavHost(
     navController: NavHostController,
+    startDestination: String,
     builder: NavGraphBuilder.() -> Unit
 ) = NavHost(
     navController = navController,
-    startDestination = SmsGameRoutes.DESCRIPTION,
+    startDestination = startDestination,
     enterTransition = { fadeIn(tween(220, easing = FastOutSlowInEasing)) },
     exitTransition = { fadeOut(tween(180, easing = FastOutSlowInEasing)) },
     builder = builder,

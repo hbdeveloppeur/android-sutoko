@@ -255,14 +255,18 @@ internal fun NavGraphBuilder.gameScreen(
 ) = composable(SmsGameRoutes.GAME) {
     val playViewModel: SmsGamePlayViewModel = hiltViewModel()
 
-    LaunchedEffect(Unit) {
+    LaunchedEffect(gameId, chapter.code) {
         playViewModel.initialize(gameId, chapter.code)
     }
 
     SmsGameScreen(
         viewModel = playViewModel,
         onLoadNextChapter = {
-            onNextChapter("2b")
+            // Get the next chapter code from ViewModel state
+            val nextChapterCode = playViewModel.uiState.value.nextChapterCode
+            if (nextChapterCode != null) {
+                onNextChapter(nextChapterCode)
+            }
         }
     )
 }

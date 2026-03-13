@@ -165,7 +165,7 @@ class SmsGamePlayViewModel @Inject constructor(
                 // TODO: Implement signal handling - analytics, side effects, etc.
             }
             is GameEvent.ChangeChapter -> {
-                // TODO: Implement chapter change - trigger navigation to next chapter
+                updateState { it.copy(nextChapterCode = event.chapterCode) }
             }
             is GameEvent.WaitingForInput -> {
                 // Event received - UI updates via state change, no action needed here
@@ -185,6 +185,7 @@ class SmsGamePlayViewModel @Inject constructor(
 data class GameUiState(
     val gameId: String? = null,
     val chapterCode: String? = null,
+    val nextChapterCode: String? = null,
     val messages: List<MessageItem> = emptyList(),
     val choices: List<String>? = null,
     val backgroundImage: String? = null,
