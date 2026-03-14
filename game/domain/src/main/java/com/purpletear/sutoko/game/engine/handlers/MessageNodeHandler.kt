@@ -1,16 +1,24 @@
-package com.purpletear.game.presentation.smsgame.engine.handlers
+package com.purpletear.sutoko.game.engine.handlers
 
-import com.purpletear.game.presentation.smsgame.engine.GameEvent
-import com.purpletear.game.presentation.smsgame.engine.NodeHandler
+import com.purpletear.sutoko.game.engine.GameEvent
+import com.purpletear.sutoko.game.engine.NodeHandler
 import com.purpletear.sutoko.game.model.chapter.GameMemory
 import com.purpletear.sutoko.game.model.chapter.Node
 import javax.inject.Inject
 
+/**
+ * Handler for message nodes.
+ * 
+ * NOTE: Message node timing is now orchestrated directly by GameEngine.
+ * This handler is kept for backward compatibility but is not used for
+ * standard message execution. It may still be used for special message
+ * handling scenarios.
+ */
 class MessageNodeHandler @Inject constructor() : NodeHandler {
     override suspend fun handle(
         node: Node,
         memory: GameMemory,
-        emit: (GameEvent) -> Unit
+        emit: (GameEvent) -> Unit,
     ): String? {
         val messageNode = node as? Node.Message ?: return null
 
@@ -22,18 +30,14 @@ class MessageNodeHandler @Inject constructor() : NodeHandler {
                 emit(GameEvent.ChangeBackground(command.imageUrl))
                 null
             }
-            is Command.UnlockTrophy -> {
-                emit(GameEvent.UnlockTrophy(command.trophyId))
-                null
-            }
+
             is Command.Skip -> null
             is Command.Message -> {
                 emit(
                     GameEvent.ShowMessage(
                         text = processedText,
                         characterId = messageNode.characterId,
-                        isMainCharacter = messageNode.characterId == 0,
-                        delayMs = messageNode.waitMs
+                        isMainCharacter = messageNode.characterId == 0
                     )
                 )
                 null
@@ -54,11 +58,6 @@ class MessageNodeHandler @Inject constructor() : NodeHandler {
                     text.removePrefix("[BACKGROUND_").removeSuffix("]")
                 )
             }
-            text.startsWith("[TROPHY$$$") && text.endsWith("]") -> {
-                Command.UnlockTrophy(
-                    text.removePrefix("[TROPHY$$$").removeSuffix("]")
-                )
-            }
             text.startsWith("[") && text.endsWith("]") -> Command.Skip
             else -> Command.Message
         }
@@ -66,7 +65,6 @@ class MessageNodeHandler @Inject constructor() : NodeHandler {
 
     private sealed class Command {
         data class ChangeBackground(val imageUrl: String) : Command()
-        data class UnlockTrophy(val trophyId: String) : Command()
         data object Skip : Command()
         data object Message : Command()
     }

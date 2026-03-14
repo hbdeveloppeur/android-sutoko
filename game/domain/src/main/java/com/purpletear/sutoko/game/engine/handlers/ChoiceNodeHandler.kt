@@ -1,7 +1,7 @@
-package com.purpletear.game.presentation.smsgame.engine.handlers
+package com.purpletear.sutoko.game.engine.handlers
 
-import com.purpletear.game.presentation.smsgame.engine.GameEvent
-import com.purpletear.game.presentation.smsgame.engine.NodeHandler
+import com.purpletear.sutoko.game.engine.GameEvent
+import com.purpletear.sutoko.game.engine.NodeHandler
 import com.purpletear.sutoko.game.model.chapter.GameMemory
 import com.purpletear.sutoko.game.model.chapter.Node
 import javax.inject.Inject
@@ -16,6 +16,7 @@ class ChoiceNodeHandler @Inject constructor() : NodeHandler {
 
         val options = choiceNode.options.map { it.text }
         
+        emit(GameEvent.ShowChoices(options))
         emit(GameEvent.WaitingForInput)
         
         // Return a sentinel value to indicate waiting for user input

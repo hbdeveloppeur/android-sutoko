@@ -1,5 +1,6 @@
 package com.purpletear.game.presentation.smsgame
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import com.purpletear.core.presentation.extensions.executeFlowUseCase
 import com.purpletear.sutoko.game.model.Chapter
@@ -47,6 +48,7 @@ class SmsGameViewModel @Inject constructor(
      * Gets a specific chapter by its code for the given game.
      */
     fun getChapter(gameId: String, chapterCode: String): Flow<Chapter?> {
+        Log.d("TEST", "Loading chapter $chapterCode")
         return getChapters(gameId).map { result ->
             result.getOrNull()?.find { it.code == chapterCode }
         }

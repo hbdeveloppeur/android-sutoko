@@ -1,11 +1,12 @@
 package com.purpletear.game.presentation.smsgame
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.purpletear.game.presentation.smsgame.engine.GameEngine
-import com.purpletear.game.presentation.smsgame.engine.GameEngineState
-import com.purpletear.game.presentation.smsgame.engine.GameEvent
-import com.purpletear.game.presentation.smsgame.engine.MessageItem
+import com.purpletear.sutoko.game.engine.GameEngine
+import com.purpletear.sutoko.game.engine.GameEngineState
+import com.purpletear.sutoko.game.engine.GameEvent
+import com.purpletear.sutoko.game.engine.MessageItem
 import com.purpletear.sutoko.game.model.chapter.ChapterGraph
 import com.purpletear.sutoko.game.usecase.LoadChapterGraphUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -27,10 +28,6 @@ class SmsGamePlayViewModel @Inject constructor(
     val uiState: StateFlow<GameUiState> = _uiState.asStateFlow()
 
     init {
-        // State and events are collected separately.
-        // Events cause UI updates (messages, choices); State reflects engine mode.
-        // Ordering: Events are emitted during node execution, state updates after.
-        // Both flows are independent - UI must handle events arriving before/after state changes.
         viewModelScope.launch {
             gameEngine.state.collectLatest { engineState ->
                 updateUiStateFromEngine(engineState)
@@ -45,6 +42,7 @@ class SmsGamePlayViewModel @Inject constructor(
     }
 
     fun initialize(gameId: String, chapterCode: String) {
+        Log.d("TEST", "Calling initialisation")
         viewModelScope.launch {
             updateState { it.copy(isLoading = true, error = null) }
 
@@ -60,14 +58,17 @@ class SmsGamePlayViewModel @Inject constructor(
     }
 
     private suspend fun loadChapterGraph(gameId: String, chapterCode: String) {
+        Log.d("TEST", "Loading the chapter graph")
         // TODO : change language
         loadChapterGraph(gameId, chapterCode, "fr-FR")
             .collectLatest { result ->
                 result.fold(
                     onSuccess = { graph ->
+                        Log.d("TEST", "Starting game")
                         startGame(gameId, graph)
                     },
                     onFailure = { error ->
+                        Log.e("TEST", "Failed to load chapter graph : ${error.message}")
                         updateState { 
                             it.copy(
                                 isLoading = false, 
@@ -79,8 +80,8 @@ class SmsGamePlayViewModel @Inject constructor(
             }
     }
 
-    private fun startGame(gameId: String, graph: ChapterGraph) {
-        gameEngine.initialize(graph)
+    private fun startGame(gameId: String, graph: ChapterGraph, isFastMode: Boolean = false) {
+        gameEngine.initialize(graph, isFastMode)
         
         updateState { 
             it.copy(
@@ -91,7 +92,8 @@ class SmsGamePlayViewModel @Inject constructor(
                 backgroundImage = null,
                 isLoading = false,
                 error = null,
-                isCompleted = false
+                isCompleted = false,
+                isTyping = false
             )
         }
 
@@ -132,7 +134,7 @@ class SmsGamePlayViewModel @Inject constructor(
         }
     }
 
-    private suspend fun handleGameEvent(event: GameEvent) {
+    private fun handleGameEvent(event: GameEvent) {
         when (event) {
             is GameEvent.ShowMessage -> {
                 val newMessage = MessageItem(
@@ -141,7 +143,7 @@ class SmsGamePlayViewModel @Inject constructor(
                     characterId = event.characterId,
                     isMainCharacter = event.isMainCharacter
                 )
-                updateState { it.copy(messages = it.messages + newMessage) }
+                updateState { it.copy(messages = it.messages + newMessage, isTyping = false) }
             }
             is GameEvent.ShowChoices -> {
                 updateState { it.copy(choices = event.options) }
@@ -158,11 +160,9 @@ class SmsGamePlayViewModel @Inject constructor(
             is GameEvent.ChangeBackground -> {
                 updateState { it.copy(backgroundImage = event.imageUrl) }
             }
-            is GameEvent.UnlockTrophy -> {
-                // TODO: Implement trophy unlock - persist to repository, show notification
-            }
+
             is GameEvent.SendSignal -> {
-                // TODO: Implement signal handling - analytics, side effects, etc.
+
             }
             is GameEvent.ChangeChapter -> {
                 updateState { it.copy(nextChapterCode = event.chapterCode) }
@@ -170,15 +170,14 @@ class SmsGamePlayViewModel @Inject constructor(
             is GameEvent.WaitingForInput -> {
                 // Event received - UI updates via state change, no action needed here
             }
+            is GameEvent.ShowTypingIndicator -> {
+                updateState { it.copy(isTyping = true, typingCharacterId = event.characterId) }
+            }
         }
     }
 
     private fun updateState(transform: (GameUiState) -> GameUiState) {
         _uiState.value = transform(_uiState.value)
-    }
-
-    private fun calculateNextChapterCode(currentCode: String): String {
-        return "2b"
     }
 }
 
@@ -192,5 +191,7 @@ data class GameUiState(
     val isLoading: Boolean = true,
     val isWaitingForInput: Boolean = false,
     val isCompleted: Boolean = false,
-    val error: String? = null
+    val error: String? = null,
+    val isTyping: Boolean = false,
+    val typingCharacterId: Int? = null
 )

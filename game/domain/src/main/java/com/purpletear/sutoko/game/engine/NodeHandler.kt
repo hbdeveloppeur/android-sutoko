@@ -1,4 +1,4 @@
-package com.purpletear.game.presentation.smsgame.engine
+package com.purpletear.sutoko.game.engine
 
 import com.purpletear.sutoko.game.model.chapter.GameMemory
 import com.purpletear.sutoko.game.model.chapter.Node

@@ -6,6 +6,7 @@ import com.purpletear.game.data.BuildConfig
 import com.purpletear.game.data.database.GameDatabase
 import com.purpletear.game.data.database.migrations.GameDatabaseMigrations
 import com.purpletear.game.data.download.GameDownloadManagerImpl
+import com.purpletear.game.data.infrastructure.SystemTimingScheduler
 import com.purpletear.game.data.local.dao.GameInstallationDao
 import com.purpletear.game.data.local.dao.UserGameProgressDao
 import com.purpletear.game.data.provider.AndroidGamePathProviderImpl
@@ -16,6 +17,7 @@ import com.purpletear.game.data.repository.ChapterGraphRepositoryImpl
 import com.purpletear.game.data.repository.GameInstallationRepositoryImpl
 import com.purpletear.game.data.repository.GameRepositoryImpl
 import com.purpletear.game.data.repository.UserGameProgressRepositoryImpl
+import com.purpletear.sutoko.game.engine.timing.TimingScheduler
 import com.purpletear.sutoko.game.repository.ChapterGraphRepository
 import com.purpletear.ntfy.Ntfy
 import com.purpletear.sutoko.game.download.GameDownloadManager

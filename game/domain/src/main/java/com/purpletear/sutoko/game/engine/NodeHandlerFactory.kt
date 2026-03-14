@@ -1,15 +1,15 @@
-package com.purpletear.game.presentation.smsgame.engine
+package com.purpletear.sutoko.game.engine
 
-import com.purpletear.game.presentation.smsgame.engine.handlers.BackgroundNodeHandler
-import com.purpletear.game.presentation.smsgame.engine.handlers.ChapterChangeNodeHandler
-import com.purpletear.game.presentation.smsgame.engine.handlers.ChoiceNodeHandler
-import com.purpletear.game.presentation.smsgame.engine.handlers.ConditionNodeHandler
-import com.purpletear.game.presentation.smsgame.engine.handlers.InfoNodeHandler
-import com.purpletear.game.presentation.smsgame.engine.handlers.MemoryNodeHandler
-import com.purpletear.game.presentation.smsgame.engine.handlers.MessageNodeHandler
-import com.purpletear.game.presentation.smsgame.engine.handlers.SignalNodeHandler
-import com.purpletear.game.presentation.smsgame.engine.handlers.StartNodeHandler
-import com.purpletear.game.presentation.smsgame.engine.handlers.TrophyNodeHandler
+import com.purpletear.sutoko.game.engine.handlers.BackgroundNodeHandler
+import com.purpletear.sutoko.game.engine.handlers.ChapterChangeNodeHandler
+import com.purpletear.sutoko.game.engine.handlers.ChoiceNodeHandler
+import com.purpletear.sutoko.game.engine.handlers.ConditionNodeHandler
+import com.purpletear.sutoko.game.engine.handlers.InfoNodeHandler
+import com.purpletear.sutoko.game.engine.handlers.MemoryNodeHandler
+import com.purpletear.sutoko.game.engine.handlers.MessageNodeHandler
+import com.purpletear.sutoko.game.engine.handlers.SignalNodeHandler
+import com.purpletear.sutoko.game.engine.handlers.StartNodeHandler
+import com.purpletear.sutoko.game.engine.handlers.TrophyNodeHandler
 import javax.inject.Inject
 import javax.inject.Singleton
 

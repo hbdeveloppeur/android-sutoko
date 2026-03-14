@@ -1,6 +1,6 @@
-package com.purpletear.game.presentation.smsgame.engine
+package com.purpletear.sutoko.game.engine
 
-import androidx.lifecycle.SavedStateHandle
+import com.purpletear.sutoko.game.engine.timing.TimingScheduler
 import com.purpletear.sutoko.game.model.chapter.ChapterGraph
 import com.purpletear.sutoko.game.model.chapter.GameMemory
 import com.purpletear.sutoko.game.model.chapter.Node
@@ -14,17 +14,24 @@ import javax.inject.Inject
 
 /**
  * Core game engine that manages node execution and state.
- * State survives process death via SavedStateHandle.
+ * State survives process death via StatePersistence (provided by presentation layer).
+ * 
+ * Timing orchestration:
+ * - Message nodes: seenMs delay -> typing -> waitMs delay -> message -> next
+ * - Choice nodes: wait for user input
+ * - Other nodes: immediate execution
  */
 class GameEngine @Inject constructor(
     private val handlerFactory: NodeHandlerFactory,
     private val navigator: NodeNavigator,
-    private val savedStateHandle: SavedStateHandle
+    private val statePersistence: StatePersistence,
+    private val timingScheduler: TimingScheduler
 ) {
     companion object {
         private const val KEY_CURRENT_NODE_ID = "current_node_id"
         private const val KEY_CHAPTER_CODE = "chapter_code"
         private const val KEY_MEMORY_PREFIX = "memory_"
+        private const val KEY_FAST_MODE = "fast_mode"
     }
 
     private val _state = MutableStateFlow<GameEngineState>(GameEngineState.Idle)
@@ -36,10 +43,11 @@ class GameEngine @Inject constructor(
     val memory = GameMemory()
     private var currentGraph: ChapterGraph? = null
     private var isPaused = false
+    private var isFastMode: Boolean = false
 
     init {
-        // Restore memory from SavedStateHandle
         restoreMemory()
+        isFastMode = statePersistence.getString(KEY_FAST_MODE)?.toBoolean() ?: false
     }
     
     /**
@@ -50,15 +58,16 @@ class GameEngine @Inject constructor(
         return choiceIndex in 0 until node.options.size
     }
 
-    fun initialize(graph: ChapterGraph) {
+    fun initialize(graph: ChapterGraph, fastMode: Boolean = false) {
         currentGraph = graph
+        isFastMode = fastMode
+        statePersistence.setString(KEY_FAST_MODE, fastMode.toString())
         
-        // Restore or set current node
-        val savedNodeId = savedStateHandle.get<String>(KEY_CURRENT_NODE_ID)
+        val savedNodeId = statePersistence.getString(KEY_CURRENT_NODE_ID)
         val currentNodeId = savedNodeId ?: graph.startNodeId
         
-        savedStateHandle[KEY_CURRENT_NODE_ID] = currentNodeId
-        savedStateHandle[KEY_CHAPTER_CODE] = graph.chapterCode
+        statePersistence.setString(KEY_CURRENT_NODE_ID, currentNodeId)
+        statePersistence.setString(KEY_CHAPTER_CODE, graph.chapterCode)
         
         _state.value = GameEngineState.Ready(
             chapterCode = graph.chapterCode,
@@ -68,7 +77,7 @@ class GameEngine @Inject constructor(
 
     suspend fun start() {
         val graph = currentGraph ?: return
-        val currentNodeId = savedStateHandle.get<String>(KEY_CURRENT_NODE_ID) ?: graph.startNodeId
+        val currentNodeId = statePersistence.getString(KEY_CURRENT_NODE_ID) ?: graph.startNodeId
         
         _state.value = GameEngineState.Playing(
             chapterCode = graph.chapterCode,
@@ -81,7 +90,7 @@ class GameEngine @Inject constructor(
 
     suspend fun resume() {
         isPaused = false
-        savedStateHandle.get<String>(KEY_CURRENT_NODE_ID)?.let { executeNode(it) }
+        statePersistence.getString(KEY_CURRENT_NODE_ID)?.let { executeNode(it) }
     }
 
     fun pause() {
@@ -90,26 +99,29 @@ class GameEngine @Inject constructor(
 
     suspend fun selectChoice(choiceIndex: Int) {
         val graph = currentGraph ?: return
-        val currentId = savedStateHandle.get<String>(KEY_CURRENT_NODE_ID) ?: return
+        val currentId = statePersistence.getString(KEY_CURRENT_NODE_ID) ?: return
 
         val node = graph.getNode(currentId) as? Node.Choice ?: return
         
-        // Validate index before processing - prevents race conditions
         if (!validateChoiceIndex(node, choiceIndex)) {
             return
         }
         
         val selectedOption = node.options[choiceIndex]
 
-        savedStateHandle[KEY_CURRENT_NODE_ID] = selectedOption.targetNodeId
+        statePersistence.setString(KEY_CURRENT_NODE_ID, selectedOption.targetNodeId)
         executeNode(selectedOption.targetNodeId)
     }
 
+    /**
+     * Main entry point for executing a node.
+     * Dispatches to specific handlers based on node type.
+     */
     private suspend fun executeNode(nodeId: String) {
         if (isPaused) return
 
         val graph = currentGraph ?: return
-        savedStateHandle[KEY_CURRENT_NODE_ID] = nodeId
+        statePersistence.setString(KEY_CURRENT_NODE_ID, nodeId)
 
         val node = graph.getNode(nodeId)
         if (node == null) {
@@ -119,6 +131,72 @@ class GameEngine @Inject constructor(
 
         updateState(nodeId)
 
+        when (node) {
+            is Node.Message -> executeMessageNode(graph, node)
+            is Node.Choice -> executeChoiceNode(node)
+            else -> executeImmediateNode(graph, node)
+        }
+    }
+
+    /**
+     * Executes a message node with timing orchestration:
+     * 1. seenMs delay (optional) - wait before showing typing
+     * 2. Show typing indicator
+     * 3. waitMs delay (optional) - typing duration
+     * 4. Show message
+     * 5. Navigate to next node
+     */
+    private suspend fun executeMessageNode(graph: ChapterGraph, node: Node.Message) {
+        // 1. SEEN DELAY: Wait before showing typing (simulates "reading" previous message)
+        if (node.seenMs > 0 && !isFastMode) {
+            timingScheduler.delay(node.seenMs)
+        }
+
+        if (isPaused) return
+
+        // 2. TYPING DELAY: Show typing indicator
+        if (node.waitMs > 0 && !isFastMode) {
+            emit(GameEvent.ShowTypingIndicator(node.characterId))
+            timingScheduler.delay(node.waitMs)
+        }
+
+        if (isPaused) return
+
+        // 3. SHOW MESSAGE
+        val processedText = processMessageText(node.text)
+        emit(
+            GameEvent.ShowMessage(
+                text = processedText,
+                characterId = node.characterId,
+                isMainCharacter = node.characterId == 0
+            )
+        )
+
+        // 4. SAVE MEMORY AND NAVIGATE
+        saveMemory()
+        navigateToNext(graph, node, null)
+    }
+
+    /**
+     * Executes a choice node - waits for user input.
+     */
+    private suspend fun executeChoiceNode(node: Node.Choice) {
+        val options = node.options.map { it.text }
+        emit(GameEvent.ShowChoices(options))
+        emit(GameEvent.WaitingForInput)
+        
+        _state.value = GameEngineState.WaitingInput(
+            chapterCode = currentGraph?.chapterCode ?: "",
+            currentNodeId = node.id,
+            messages = (_state.value as? GameEngineState.Playing)?.messages ?: emptyList()
+        )
+    }
+
+    /**
+     * Executes nodes that have no timing requirements.
+     * Uses handlers for logic, then immediately navigates.
+     */
+    private suspend fun executeImmediateNode(graph: ChapterGraph, node: Node) {
         val handler = getHandler(node)
 
         val handlerResult = try {
@@ -136,10 +214,17 @@ class GameEngine @Inject constructor(
             return
         }
 
-        // Save memory after each node execution
         saveMemory()
-
         navigateToNext(graph, node, handlerResult)
+    }
+
+    /**
+     * Processes message text for variable substitution.
+     */
+    private fun processMessageText(text: String): String {
+        return text.replace(Regex("\\[prenom\\]")) {
+            memory.get("heroName") ?: "Hero"
+        }
     }
 
     private suspend fun navigateToNext(
@@ -147,18 +232,18 @@ class GameEngine @Inject constructor(
         currentNode: Node,
         handlerResult: String?
     ) {
-        val currentId = savedStateHandle.get<String>(KEY_CURRENT_NODE_ID) ?: return
+        val currentId = statePersistence.getString(KEY_CURRENT_NODE_ID) ?: return
 
         when (val result = navigator.resolveNextNode(graph, currentId, currentNode, handlerResult)) {
             is NodeNavigator.NavigationResult.NextNode -> {
-                savedStateHandle[KEY_CURRENT_NODE_ID] = result.nodeId
+                statePersistence.setString(KEY_CURRENT_NODE_ID, result.nodeId)
                 executeNode(result.nodeId)
             }
             is NodeNavigator.NavigationResult.WaitingForInput -> {
                 _state.value = GameEngineState.WaitingInput(
                     chapterCode = graph.chapterCode,
                     currentNodeId = currentId,
-                    messages = (state.value as? GameEngineState.Playing)?.messages ?: emptyList()
+                    messages = (_state.value as? GameEngineState.Playing)?.messages ?: emptyList()
                 )
             }
             is NodeNavigator.NavigationResult.ChapterComplete -> {
@@ -195,20 +280,22 @@ class GameEngine @Inject constructor(
 
     private fun saveMemory() {
         memory.state.value.forEach { (key, value) ->
-            savedStateHandle["$KEY_MEMORY_PREFIX$key"] = value
+            statePersistence.setString("$KEY_MEMORY_PREFIX$key", value)
         }
     }
 
     private fun restoreMemory() {
-        // Only iterate keys that start with our prefix - bounded complexity
-        val memoryKeys = savedStateHandle.keys().filter { it.startsWith(KEY_MEMORY_PREFIX) }
+        val memoryKeys = statePersistence.getKeys().filter { it.startsWith(KEY_MEMORY_PREFIX) }
         memoryKeys.forEach { key ->
             val memoryKey = key.removePrefix(KEY_MEMORY_PREFIX)
-            val value = savedStateHandle.get<String>(key)
-            // Defensive: validate key isn't empty after prefix removal
+            val value = statePersistence.getString(key)
             if (memoryKey.isNotEmpty() && value != null) {
                 memory.set(memoryKey, value)
             }
         }
+    }
+
+    private fun emit(event: GameEvent) {
+        _events.trySend(event)
     }
 }

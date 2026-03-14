@@ -1,5 +1,6 @@
 package com.purpletear.game.presentation.smsgame.components
 
+import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -13,6 +14,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -38,9 +40,35 @@ import androidx.navigation.compose.composable
 import com.purpletear.game.presentation.smsgame.GameUiState
 import com.purpletear.game.presentation.smsgame.SmsGamePlayViewModel
 import com.purpletear.game.presentation.smsgame.SmsGameRoutes
-import com.purpletear.game.presentation.smsgame.engine.MessageItem
+import com.purpletear.sutoko.game.engine.MessageItem
 import com.purpletear.sutoko.game.model.Chapter
 import kotlinx.coroutines.launch
+
+
+internal fun NavGraphBuilder.gameScreen(
+    gameId: String,
+    chapter: Chapter,
+    onNextChapter: (chapterCode: String) -> Unit,
+) = composable(SmsGameRoutes.GAME) {
+    val playViewModel: SmsGamePlayViewModel = hiltViewModel()
+
+    LaunchedEffect(gameId, chapter.code) {
+        playViewModel.initialize(gameId, chapter.code)
+    }
+
+    SmsGameScreen(
+        viewModel = playViewModel,
+        onLoadNextChapter = {
+            // Get the next chapter code from ViewModel state
+            val nextChapterCode = playViewModel.uiState.value.nextChapterCode
+            if (nextChapterCode != null) {
+                Log.d("TEST", "Next chapter code: $nextChapterCode")
+                onNextChapter(nextChapterCode)
+            }
+        }
+    )
+}
+
 
 @Composable
 internal fun SmsGameScreen(
@@ -97,7 +125,7 @@ private fun LoadingState() {
         modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.Center
     ) {
-        CircularProgressIndicator(color = Color.White)
+        CircularProgressIndicator(modifier = Modifier.size(24.dp), color = Color.White, strokeWidth = 2.dp)
     }
 }
 
@@ -245,28 +273,5 @@ private fun ChoiceButton(
     SimpleButton(
         text = text,
         onClick = onClick
-    )
-}
-
-internal fun NavGraphBuilder.gameScreen(
-    gameId: String,
-    chapter: Chapter,
-    onNextChapter: (chapterCode: String) -> Unit,
-) = composable(SmsGameRoutes.GAME) {
-    val playViewModel: SmsGamePlayViewModel = hiltViewModel()
-
-    LaunchedEffect(gameId, chapter.code) {
-        playViewModel.initialize(gameId, chapter.code)
-    }
-
-    SmsGameScreen(
-        viewModel = playViewModel,
-        onLoadNextChapter = {
-            // Get the next chapter code from ViewModel state
-            val nextChapterCode = playViewModel.uiState.value.nextChapterCode
-            if (nextChapterCode != null) {
-                onNextChapter(nextChapterCode)
-            }
-        }
     )
 }

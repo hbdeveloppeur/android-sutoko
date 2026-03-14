@@ -1,13 +1,10 @@
-package com.purpletear.game.presentation.smsgame.engine
-
-import androidx.annotation.Keep
+package com.purpletear.sutoko.game.engine
 
 /**
- * Sealed class representing the state of the game engine.
+ * States of the game engine state machine.
  */
-@Keep
 sealed class GameEngineState {
-    object Idle : GameEngineState()
+    data object Idle : GameEngineState()
 
     data class Ready(
         val chapterCode: String,

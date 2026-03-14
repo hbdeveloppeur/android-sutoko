@@ -1,5 +1,6 @@
 package com.purpletear.game.presentation.smsgame.components
 
+import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeOut
@@ -57,6 +58,7 @@ internal fun NavGraphBuilder.descriptionScreen(
     val chapterCode = backStackEntry.arguments?.getString("chapterCode") ?: ""
     val viewModel: SmsGameViewModel = hiltViewModel()
     val chapter by viewModel.getChapter(gameId, chapterCode).collectAsStateWithLifecycle(initialValue = null)
+    Log.d("TEST", "Current chapter ${chapter?.code}")
     
     if (chapter != null) {
         SmsGameDescription(

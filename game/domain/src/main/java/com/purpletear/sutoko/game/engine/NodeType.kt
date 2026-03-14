@@ -1,11 +1,8 @@
-package com.purpletear.game.presentation.smsgame.engine
-
-import androidx.annotation.Keep
+package com.purpletear.sutoko.game.engine
 
 /**
- * Enum representing all node types in the game.
+ * Enumeration of all node types in the game engine.
  */
-@Keep
 enum class NodeType {
     START,
     MESSAGE,
