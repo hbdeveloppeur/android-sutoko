@@ -57,17 +57,6 @@ object ChapterGraphParser {
                 chapterCode = dto.data.chapterCode ?: ""
             )
 
-            "choice" -> Node.Choice(
-                id = dto.id,
-                position = position,
-                options = dto.data.options?.map { 
-                    Node.ChoiceOption(
-                        text = it.text,
-                        targetNodeId = it.targetNodeId
-                    )
-                } ?: emptyList()
-            )
-
             "condition" -> Node.Condition(
                 id = dto.id,
                 position = position,

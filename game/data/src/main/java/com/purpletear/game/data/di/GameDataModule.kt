@@ -8,6 +8,7 @@ import com.purpletear.game.data.database.migrations.GameDatabaseMigrations
 import com.purpletear.game.data.download.GameDownloadManagerImpl
 import com.purpletear.game.data.infrastructure.SystemTimingScheduler
 import com.purpletear.game.data.local.dao.GameInstallationDao
+import com.purpletear.game.data.local.dao.MemoryDao
 import com.purpletear.game.data.local.dao.UserGameProgressDao
 import com.purpletear.game.data.provider.AndroidGamePathProviderImpl
 import com.purpletear.game.data.provider.GamePathProvider
@@ -16,13 +17,17 @@ import com.purpletear.game.data.remote.GamePortalApi
 import com.purpletear.game.data.repository.ChapterGraphRepositoryImpl
 import com.purpletear.game.data.repository.GameInstallationRepositoryImpl
 import com.purpletear.game.data.repository.GameRepositoryImpl
+import com.purpletear.game.data.repository.MemoryRepositoryImpl
 import com.purpletear.game.data.repository.UserGameProgressRepositoryImpl
+import com.purpletear.sutoko.game.engine.processing.TextProcessor
+import com.purpletear.sutoko.game.engine.processing.TextProcessorImpl
 import com.purpletear.sutoko.game.engine.timing.TimingScheduler
 import com.purpletear.sutoko.game.repository.ChapterGraphRepository
 import com.purpletear.ntfy.Ntfy
 import com.purpletear.sutoko.game.download.GameDownloadManager
 import com.purpletear.sutoko.game.repository.GameInstallationRepository
 import com.purpletear.sutoko.game.repository.GameRepository
+import com.purpletear.sutoko.game.repository.MemoryRepository
 import com.purpletear.sutoko.game.repository.UserGameProgressRepository
 import dagger.Module
 import dagger.Provides
@@ -241,5 +246,45 @@ object GameDataModule {
     ): ChapterGraphRepository {
         return impl
     }
+
+    /**
+     * Provides the MemoryDao instance.
+     *
+     * @param database The GameDatabase instance.
+     * @return The MemoryDao instance.
+     */
+    @Provides
+    @Singleton
+    fun provideMemoryDao(database: GameDatabase): MemoryDao {
+        return database.memoryDao()
+    }
+
+    /**
+     * Provides the MemoryRepository implementation.
+     *
+     * @param memoryDao The MemoryDao instance.
+     * @return The MemoryRepository implementation.
+     */
+    @Provides
+    @Singleton
+    fun provideMemoryRepository(
+        memoryDao: MemoryDao
+    ): MemoryRepository {
+        return MemoryRepositoryImpl(memoryDao)
+    }
+
+    /**
+     * Provides the TimingScheduler implementation.
+     */
+    @Provides
+    @Singleton
+    fun provideTimingScheduler(): TimingScheduler = SystemTimingScheduler()
+
+    /**
+     * Provides the TextProcessor implementation.
+     */
+    @Provides
+    @Singleton
+    fun provideTextProcessor(): TextProcessor = TextProcessorImpl()
 
 }

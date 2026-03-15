@@ -10,10 +10,4 @@ interface TimingScheduler {
      * @param millis Duration in milliseconds
      */
     suspend fun delay(millis: Long)
-
-    /**
-     * Returns the current time in milliseconds.
-     * Useful for calculating elapsed time.
-     */
-    fun now(): Long
 }

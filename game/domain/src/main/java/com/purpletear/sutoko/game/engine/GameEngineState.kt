@@ -17,12 +17,6 @@ sealed class GameEngineState {
         val messages: List<MessageItem>
     ) : GameEngineState()
 
-    data class WaitingInput(
-        val chapterCode: String,
-        val currentNodeId: String,
-        val messages: List<MessageItem>
-    ) : GameEngineState()
-
     data class Completed(
         val chapterCode: String
     ) : GameEngineState()

@@ -1,5 +1,6 @@
 package com.purpletear.sutoko.game.engine
 
+import com.purpletear.sutoko.game.engine.processing.TextProcessor
 import com.purpletear.sutoko.game.engine.timing.TimingScheduler
 import com.purpletear.sutoko.game.model.chapter.ChapterGraph
 import com.purpletear.sutoko.game.model.chapter.GameMemory
@@ -11,28 +12,28 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import javax.inject.Inject
+import javax.inject.Singleton
 
 /**
  * Core game engine that manages node execution and state.
- * State survives process death via StatePersistence (provided by presentation layer).
+ * State survives process death via GameSessionStorage (provided by presentation layer).
+ * Game memory is persisted to database at explicit save points.
  * 
  * Timing orchestration:
  * - Message nodes: seenMs delay -> typing -> waitMs delay -> message -> next
- * - Choice nodes: wait for user input
- * - Other nodes: immediate execution
+ * - Other nodes: immediate execution via handlers
+ * 
+ * NOTE: This class focuses on ORCHESTRATION only. All node-specific processing
+ * is delegated to handlers or the TextProcessor.
  */
+@Singleton
 class GameEngine @Inject constructor(
     private val handlerFactory: NodeHandlerFactory,
-    private val navigator: NodeNavigator,
-    private val statePersistence: StatePersistence,
-    private val timingScheduler: TimingScheduler
+    private val nodeResolver: NodeResolver,
+    private val timingScheduler: TimingScheduler,
+    private val textProcessor: TextProcessor,
+    private val memory: GameMemory
 ) {
-    companion object {
-        private const val KEY_CURRENT_NODE_ID = "current_node_id"
-        private const val KEY_CHAPTER_CODE = "chapter_code"
-        private const val KEY_MEMORY_PREFIX = "memory_"
-        private const val KEY_FAST_MODE = "fast_mode"
-    }
 
     private val _state = MutableStateFlow<GameEngineState>(GameEngineState.Idle)
     val state: StateFlow<GameEngineState> = _state.asStateFlow()
@@ -40,44 +41,36 @@ class GameEngine @Inject constructor(
     private val _events = Channel<GameEvent>(Channel.BUFFERED)
     val events: Flow<GameEvent> = _events.receiveAsFlow()
 
-    val memory = GameMemory()
     private var currentGraph: ChapterGraph? = null
+    private var currentGameId: String? = null
     private var isPaused = false
     private var isFastMode: Boolean = false
 
-    init {
-        restoreMemory()
-        isFastMode = statePersistence.getString(KEY_FAST_MODE)?.toBoolean() ?: false
-    }
-    
     /**
-     * Validates choice index before processing to prevent race conditions.
-     * @return true if valid, false otherwise
+     * Initializes the engine for a game session.
+     * Loads persisted memory from database.
+     * 
+     * @param gameId Unique identifier for the game
+     * @param graph The chapter graph to execute
+     * @param fastMode Skip timing delays (for testing/debug)
      */
-    private fun validateChoiceIndex(node: Node.Choice, choiceIndex: Int): Boolean {
-        return choiceIndex in 0 until node.options.size
-    }
-
-    fun initialize(graph: ChapterGraph, fastMode: Boolean = false) {
+    suspend fun initialize(gameId: String, graph: ChapterGraph, fastMode: Boolean = false) {
+        currentGameId = gameId
         currentGraph = graph
         isFastMode = fastMode
-        statePersistence.setString(KEY_FAST_MODE, fastMode.toString())
         
-        val savedNodeId = statePersistence.getString(KEY_CURRENT_NODE_ID)
-        val currentNodeId = savedNodeId ?: graph.startNodeId
-        
-        statePersistence.setString(KEY_CURRENT_NODE_ID, currentNodeId)
-        statePersistence.setString(KEY_CHAPTER_CODE, graph.chapterCode)
+        // Load persisted memory from database
+        memory.load(gameId)
         
         _state.value = GameEngineState.Ready(
             chapterCode = graph.chapterCode,
-            currentNodeId = currentNodeId
+            currentNodeId = graph.startNodeId
         )
     }
 
     suspend fun start() {
         val graph = currentGraph ?: return
-        val currentNodeId = statePersistence.getString(KEY_CURRENT_NODE_ID) ?: graph.startNodeId
+        val currentNodeId = graph.startNodeId
         
         _state.value = GameEngineState.Playing(
             chapterCode = graph.chapterCode,
@@ -90,27 +83,15 @@ class GameEngine @Inject constructor(
 
     suspend fun resume() {
         isPaused = false
-        statePersistence.getString(KEY_CURRENT_NODE_ID)?.let { executeNode(it) }
     }
 
-    fun pause() {
+    /**
+     * Pauses the engine and persists memory to database.
+     * Should be called when app goes to background.
+     */
+    suspend fun pause() {
         isPaused = true
-    }
-
-    suspend fun selectChoice(choiceIndex: Int) {
-        val graph = currentGraph ?: return
-        val currentId = statePersistence.getString(KEY_CURRENT_NODE_ID) ?: return
-
-        val node = graph.getNode(currentId) as? Node.Choice ?: return
-        
-        if (!validateChoiceIndex(node, choiceIndex)) {
-            return
-        }
-        
-        val selectedOption = node.options[choiceIndex]
-
-        statePersistence.setString(KEY_CURRENT_NODE_ID, selectedOption.targetNodeId)
-        executeNode(selectedOption.targetNodeId)
+        saveMemory()
     }
 
     /**
@@ -119,21 +100,21 @@ class GameEngine @Inject constructor(
      */
     private suspend fun executeNode(nodeId: String) {
         if (isPaused) return
+        assert(currentGraph != null)
 
         val graph = currentGraph ?: return
-        statePersistence.setString(KEY_CURRENT_NODE_ID, nodeId)
 
         val node = graph.getNode(nodeId)
+
         if (node == null) {
             _state.value = GameEngineState.Error("Node not found: $nodeId")
             return
         }
 
-        updateState(nodeId)
+        updateCurrentNodeId(nodeId)
 
         when (node) {
             is Node.Message -> executeMessageNode(graph, node)
-            is Node.Choice -> executeChoiceNode(node)
             else -> executeImmediateNode(graph, node)
         }
     }
@@ -162,8 +143,10 @@ class GameEngine @Inject constructor(
 
         if (isPaused) return
 
-        // 3. SHOW MESSAGE
-        val processedText = processMessageText(node.text)
+        // 3. PROCESS TEXT and SHOW MESSAGE
+        val variables = memory.state.value
+        val processedText = textProcessor.process(node.text, variables)
+        
         emit(
             GameEvent.ShowMessage(
                 text = processedText,
@@ -172,24 +155,8 @@ class GameEngine @Inject constructor(
             )
         )
 
-        // 4. SAVE MEMORY AND NAVIGATE
-        saveMemory()
+        // 4. NAVIGATE (memory auto-saved at chapter end/pause, not here)
         navigateToNext(graph, node, null)
-    }
-
-    /**
-     * Executes a choice node - waits for user input.
-     */
-    private suspend fun executeChoiceNode(node: Node.Choice) {
-        val options = node.options.map { it.text }
-        emit(GameEvent.ShowChoices(options))
-        emit(GameEvent.WaitingForInput)
-        
-        _state.value = GameEngineState.WaitingInput(
-            chapterCode = currentGraph?.chapterCode ?: "",
-            currentNodeId = node.id,
-            messages = (_state.value as? GameEngineState.Playing)?.messages ?: emptyList()
-        )
     }
 
     /**
@@ -214,17 +181,7 @@ class GameEngine @Inject constructor(
             return
         }
 
-        saveMemory()
         navigateToNext(graph, node, handlerResult)
-    }
-
-    /**
-     * Processes message text for variable substitution.
-     */
-    private fun processMessageText(text: String): String {
-        return text.replace(Regex("\\[prenom\\]")) {
-            memory.get("heroName") ?: "Hero"
-        }
     }
 
     private suspend fun navigateToNext(
@@ -232,30 +189,25 @@ class GameEngine @Inject constructor(
         currentNode: Node,
         handlerResult: String?
     ) {
-        val currentId = statePersistence.getString(KEY_CURRENT_NODE_ID) ?: return
-
-        when (val result = navigator.resolveNextNode(graph, currentId, currentNode, handlerResult)) {
-            is NodeNavigator.NavigationResult.NextNode -> {
-                statePersistence.setString(KEY_CURRENT_NODE_ID, result.nodeId)
+        when (val result = nodeResolver.resolveNextNode(graph, currentNode, handlerResult)) {
+            is NodeResolver.ResolutionResult.NextNode -> {
                 executeNode(result.nodeId)
             }
-            is NodeNavigator.NavigationResult.WaitingForInput -> {
-                _state.value = GameEngineState.WaitingInput(
-                    chapterCode = graph.chapterCode,
-                    currentNodeId = currentId,
-                    messages = (_state.value as? GameEngineState.Playing)?.messages ?: emptyList()
-                )
-            }
-            is NodeNavigator.NavigationResult.ChapterComplete -> {
+            is NodeResolver.ResolutionResult.ChapterComplete -> {
+                saveMemory()  // Persist at chapter end
                 _state.value = GameEngineState.Completed(graph.chapterCode)
             }
-            is NodeNavigator.NavigationResult.Error -> {
+            is NodeResolver.ResolutionResult.Error -> {
                 _state.value = GameEngineState.Error(result.message)
+            }
+
+            else -> {
+
             }
         }
     }
 
-    private fun updateState(nodeId: String) {
+    private fun updateCurrentNodeId(nodeId: String) {
         val currentState = state.value
         if (currentState is GameEngineState.Playing) {
             _state.value = currentState.copy(currentNodeId = nodeId)
@@ -267,7 +219,6 @@ class GameEngine @Inject constructor(
             is Node.Start -> NodeType.START
             is Node.Message -> NodeType.MESSAGE
             is Node.ChapterChange -> NodeType.CHAPTER_CHANGE
-            is Node.Choice -> NodeType.CHOICE
             is Node.Condition -> NodeType.CONDITION
             is Node.Memory -> NodeType.MEMORY
             is Node.Info -> NodeType.INFO
@@ -278,21 +229,12 @@ class GameEngine @Inject constructor(
         return handlerFactory.getHandler(type)
     }
 
-    private fun saveMemory() {
-        memory.state.value.forEach { (key, value) ->
-            statePersistence.setString("$KEY_MEMORY_PREFIX$key", value)
-        }
-    }
-
-    private fun restoreMemory() {
-        val memoryKeys = statePersistence.getKeys().filter { it.startsWith(KEY_MEMORY_PREFIX) }
-        memoryKeys.forEach { key ->
-            val memoryKey = key.removePrefix(KEY_MEMORY_PREFIX)
-            val value = statePersistence.getString(key)
-            if (memoryKey.isNotEmpty() && value != null) {
-                memory.set(memoryKey, value)
-            }
-        }
+    /**
+     * Persists current memory state to database.
+     * Called at explicit save points: pause and chapter complete.
+     */
+    private suspend fun saveMemory() {
+        memory.save()
     }
 
     private fun emit(event: GameEvent) {

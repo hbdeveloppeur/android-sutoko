@@ -2,7 +2,6 @@ package com.purpletear.sutoko.game.engine
 
 import com.purpletear.sutoko.game.engine.handlers.BackgroundNodeHandler
 import com.purpletear.sutoko.game.engine.handlers.ChapterChangeNodeHandler
-import com.purpletear.sutoko.game.engine.handlers.ChoiceNodeHandler
 import com.purpletear.sutoko.game.engine.handlers.ConditionNodeHandler
 import com.purpletear.sutoko.game.engine.handlers.InfoNodeHandler
 import com.purpletear.sutoko.game.engine.handlers.MemoryNodeHandler
@@ -26,7 +25,6 @@ class NodeHandlerFactory @Inject constructor(
     private val startHandler: StartNodeHandler,
     private val messageHandler: MessageNodeHandler,
     private val chapterChangeHandler: ChapterChangeNodeHandler,
-    private val choiceHandler: ChoiceNodeHandler,
     private val conditionHandler: ConditionNodeHandler,
     private val memoryHandler: MemoryNodeHandler,
     private val infoHandler: InfoNodeHandler,
@@ -42,7 +40,6 @@ class NodeHandlerFactory @Inject constructor(
         NodeType.START -> startHandler
         NodeType.MESSAGE -> messageHandler
         NodeType.CHAPTER_CHANGE -> chapterChangeHandler
-        NodeType.CHOICE -> choiceHandler
         NodeType.CONDITION -> conditionHandler
         NodeType.MEMORY -> memoryHandler
         NodeType.INFO -> infoHandler

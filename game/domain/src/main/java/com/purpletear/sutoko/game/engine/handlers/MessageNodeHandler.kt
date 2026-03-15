@@ -2,6 +2,7 @@ package com.purpletear.sutoko.game.engine.handlers
 
 import com.purpletear.sutoko.game.engine.GameEvent
 import com.purpletear.sutoko.game.engine.NodeHandler
+import com.purpletear.sutoko.game.engine.processing.TextProcessor
 import com.purpletear.sutoko.game.model.chapter.GameMemory
 import com.purpletear.sutoko.game.model.chapter.Node
 import javax.inject.Inject
@@ -9,12 +10,14 @@ import javax.inject.Inject
 /**
  * Handler for message nodes.
  * 
- * NOTE: Message node timing is now orchestrated directly by GameEngine.
- * This handler is kept for backward compatibility but is not used for
- * standard message execution. It may still be used for special message
- * handling scenarios.
+ * NOTE: For standard message execution, timing is orchestrated by GameEngine.
+ * This handler is used for:
+ * 1. Special message handling scenarios (commands, background changes)
+ * 2. Text processing via TextProcessor
  */
-class MessageNodeHandler @Inject constructor() : NodeHandler {
+class MessageNodeHandler @Inject constructor(
+    private val textProcessor: TextProcessor
+) : NodeHandler {
     override suspend fun handle(
         node: Node,
         memory: GameMemory,
@@ -22,7 +25,8 @@ class MessageNodeHandler @Inject constructor() : NodeHandler {
     ): String? {
         val messageNode = node as? Node.Message ?: return null
 
-        val processedText = processText(messageNode.text, memory)
+        val variables = memory.state.value
+        val processedText = textProcessor.process(messageNode.text, variables)
         val command = parseCommand(processedText)
 
         return when (command) {
@@ -42,12 +46,6 @@ class MessageNodeHandler @Inject constructor() : NodeHandler {
                 )
                 null
             }
-        }
-    }
-
-    private fun processText(text: String, memory: GameMemory): String {
-        return text.replace(Regex("\\[prenom\\]")) {
-            memory.get("heroName") ?: "Hero"
         }
     }
 

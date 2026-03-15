@@ -312,4 +312,26 @@ class GameDownloadManagerImpl @Inject constructor(
         // Remove the state flow from memory
         downloadStates.remove(gameId)
     }
+
+    override suspend fun clearGameData(gameId: String) {
+        withContext(Dispatchers.IO) {
+            // Cancel any ongoing download
+            cancelDownload(gameId)
+            
+            // Delete game directory
+            val gameDir = File(gamePathProvider.getStoryDirectoryPath(gameId))
+            if (gameDir.exists()) {
+                gameDir.deleteRecursively()
+                Log.d(tag, "Deleted game directory: ${gameDir.absolutePath}")
+            }
+            
+            // Remove installation record
+            gameInstallationRepository.removeInstallation(gameId)
+            
+            // Reset download state
+            resetState(gameId)
+            
+            Log.d(tag, "Cleared all game data for: $gameId")
+        }
+    }
 }

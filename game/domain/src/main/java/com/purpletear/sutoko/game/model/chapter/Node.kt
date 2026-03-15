@@ -35,19 +35,6 @@ sealed class Node {
     ) : Node()
 
     @Keep
-    data class Choice(
-        override val id: String,
-        override val position: Position,
-        val options: List<ChoiceOption>
-    ) : Node()
-
-    @Keep
-    data class ChoiceOption(
-        val text: String,
-        val targetNodeId: String
-    )
-
-    @Keep
     data class Condition(
         override val id: String,
         override val position: Position,

@@ -14,10 +14,6 @@ sealed class GameEvent {
         val isMainCharacter: Boolean
     ) : GameEvent()
 
-    data class ShowChoices(
-        val options: List<String>
-    ) : GameEvent()
-
     data class ShowInfo(
         val text: String
     ) : GameEvent()
@@ -34,6 +30,4 @@ sealed class GameEvent {
     data class ChangeChapter(
         val chapterCode: String
     ) : GameEvent()
-
-    data object WaitingForInput : GameEvent()
 }

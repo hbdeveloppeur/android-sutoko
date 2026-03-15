@@ -3,17 +3,22 @@ package com.purpletear.game.presentation.smsgame
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.purpletear.sutoko.game.download.GameDownloadManager
+import com.purpletear.sutoko.game.download.GameDownloadState
 import com.purpletear.sutoko.game.engine.GameEngine
 import com.purpletear.sutoko.game.engine.GameEngineState
 import com.purpletear.sutoko.game.engine.GameEvent
 import com.purpletear.sutoko.game.engine.MessageItem
 import com.purpletear.sutoko.game.model.chapter.ChapterGraph
+import com.purpletear.core.presentation.extensions.awaitFlowResult
+import com.purpletear.sutoko.game.usecase.GetGameUseCase
 import com.purpletear.sutoko.game.usecase.LoadChapterGraphUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import java.util.UUID
 import javax.inject.Inject
@@ -21,10 +26,12 @@ import javax.inject.Inject
 @HiltViewModel
 class SmsGamePlayViewModel @Inject constructor(
     private val loadChapterGraph: LoadChapterGraphUseCase,
-    private val gameEngine: GameEngine
+    private val getGame: GetGameUseCase,
+    private val gameEngine: GameEngine,
+    private val downloadManager: GameDownloadManager
 ) : ViewModel() {
 
-    private val _uiState = MutableStateFlow<GameUiState>(GameUiState())
+    private val _uiState = MutableStateFlow(GameUiState())
     val uiState: StateFlow<GameUiState> = _uiState.asStateFlow()
 
     init {
@@ -47,13 +54,6 @@ class SmsGamePlayViewModel @Inject constructor(
             updateState { it.copy(isLoading = true, error = null) }
 
             loadChapterGraph(gameId, chapterCode)
-        }
-    }
-
-    fun onChoiceSelected(choiceIndex: Int) {
-        viewModelScope.launch {
-            updateState { it.copy(choices = null) }
-            gameEngine.selectChoice(choiceIndex)
         }
     }
 
@@ -81,14 +81,11 @@ class SmsGamePlayViewModel @Inject constructor(
     }
 
     private fun startGame(gameId: String, graph: ChapterGraph, isFastMode: Boolean = false) {
-        gameEngine.initialize(graph, isFastMode)
-        
         updateState { 
             it.copy(
                 gameId = gameId,
                 chapterCode = graph.chapterCode,
                 messages = emptyList(),
-                choices = null,
                 backgroundImage = null,
                 isLoading = false,
                 error = null,
@@ -98,6 +95,7 @@ class SmsGamePlayViewModel @Inject constructor(
         }
 
         viewModelScope.launch {
+            gameEngine.initialize(gameId, graph, isFastMode)
             gameEngine.start()
         }
     }
@@ -109,13 +107,6 @@ class SmsGamePlayViewModel @Inject constructor(
             is GameEngineState.Playing -> updateState { 
                 it.copy(
                     isLoading = false,
-                    chapterCode = engineState.chapterCode,
-                    isWaitingForInput = false
-                )
-            }
-            is GameEngineState.WaitingInput -> updateState { 
-                it.copy(
-                    isWaitingForInput = true,
                     chapterCode = engineState.chapterCode
                 )
             }
@@ -145,9 +136,6 @@ class SmsGamePlayViewModel @Inject constructor(
                 )
                 updateState { it.copy(messages = it.messages + newMessage, isTyping = false) }
             }
-            is GameEvent.ShowChoices -> {
-                updateState { it.copy(choices = event.options) }
-            }
             is GameEvent.ShowInfo -> {
                 val newMessage = MessageItem(
                     id = UUID.randomUUID().toString(),
@@ -160,15 +148,11 @@ class SmsGamePlayViewModel @Inject constructor(
             is GameEvent.ChangeBackground -> {
                 updateState { it.copy(backgroundImage = event.imageUrl) }
             }
-
             is GameEvent.SendSignal -> {
-
+                // TODO: Implement signal handling
             }
             is GameEvent.ChangeChapter -> {
                 updateState { it.copy(nextChapterCode = event.chapterCode) }
-            }
-            is GameEvent.WaitingForInput -> {
-                // Event received - UI updates via state change, no action needed here
             }
             is GameEvent.ShowTypingIndicator -> {
                 updateState { it.copy(isTyping = true, typingCharacterId = event.characterId) }
@@ -179,6 +163,59 @@ class SmsGamePlayViewModel @Inject constructor(
     private fun updateState(transform: (GameUiState) -> GameUiState) {
         _uiState.value = transform(_uiState.value)
     }
+
+    /**
+     * Clears all downloaded game data, re-downloads from server, and reinitializes.
+     * Use this for dev/testing to force a fresh download.
+     */
+    fun clearGameDataAndReinitialize(gameId: String, chapterCode: String) {
+        viewModelScope.launch {
+            Log.d("TEST", "Clearing game data for: $gameId")
+            
+            // Step 1: Clear local data
+            downloadManager.clearGameData(gameId)
+            
+            // Step 2: Reset UI state to loading
+            _uiState.value = GameUiState(isLoading = true)
+            
+            // Step 3: Get game metadata from server
+            Log.d("TEST", "Fetching game metadata for: $gameId")
+            val game = try {
+                awaitFlowResult { getGame(gameId) }
+            } catch (e: Exception) {
+                Log.e("TEST", "Failed to get game metadata", e)
+                _uiState.value = GameUiState(error = "Failed to get game: ${e.message}")
+                return@launch
+            }
+            
+            // Step 4: Download the game
+            Log.d("TEST", "Starting download for game: ${game.id}")
+            downloadManager.downloadGame(game)
+            
+            // Step 5: Wait for terminal state (Completed, Error, or Cancelled)
+            val finalState = downloadManager.getDownloadState(gameId).first { state ->
+                state is GameDownloadState.Completed || 
+                state is GameDownloadState.Error || 
+                state is GameDownloadState.Cancelled
+            }
+            
+            when (finalState) {
+                GameDownloadState.Completed -> {
+                    Log.d("TEST", "Download completed, reinitializing...")
+                    initialize(gameId, chapterCode)
+                }
+                is GameDownloadState.Error -> {
+                    Log.e("TEST", "Download failed: ${finalState.cause.message}")
+                    _uiState.value = GameUiState(error = "Download failed: ${finalState.cause.message}")
+                }
+                GameDownloadState.Cancelled -> {
+                    Log.d("TEST", "Download cancelled")
+                    _uiState.value = GameUiState(error = "Download cancelled")
+                }
+                else -> { /* unreachable */ }
+            }
+        }
+    }
 }
 
 data class GameUiState(
@@ -186,10 +223,8 @@ data class GameUiState(
     val chapterCode: String? = null,
     val nextChapterCode: String? = null,
     val messages: List<MessageItem> = emptyList(),
-    val choices: List<String>? = null,
     val backgroundImage: String? = null,
     val isLoading: Boolean = true,
-    val isWaitingForInput: Boolean = false,
     val isCompleted: Boolean = false,
     val error: String? = null,
     val isTyping: Boolean = false,

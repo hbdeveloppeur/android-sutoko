@@ -9,42 +9,35 @@ import javax.inject.Inject
  * Handles all node navigation logic.
  * Separated from GameEngine for testability.
  */
-class NodeNavigator @Inject constructor() {
+class NodeResolver @Inject constructor() {
 
-    sealed class NavigationResult {
-        data class NextNode(val nodeId: String) : NavigationResult()
-        data object WaitingForInput : NavigationResult()
-        data object ChapterComplete : NavigationResult()
-        data class Error(val message: String) : NavigationResult()
+    sealed class ResolutionResult {
+        data class NextNode(val nodeId: String) : ResolutionResult()
+        data object ChapterComplete : ResolutionResult()
+        data class Error(val message: String) : ResolutionResult()
     }
 
     fun resolveNextNode(
         graph: ChapterGraph,
-        currentNodeId: String,
         currentNode: Node,
         handlerResult: String?
-    ): NavigationResult {
+    ): ResolutionResult {
         // Handler explicitly returned next node
         if (handlerResult != null) {
-            return NavigationResult.NextNode(handlerResult)
-        }
-
-        // Choice nodes always wait for user input
-        if (currentNode is Node.Choice) {
-            return NavigationResult.WaitingForInput
+            return ResolutionResult.NextNode(handlerResult)
         }
 
         // Chapter change node = end of current chapter
         if (currentNode is Node.ChapterChange) {
-            return NavigationResult.ChapterComplete
+            return ResolutionResult.ChapterComplete
         }
 
         // Resolve via edges
-        val nextEdges = getNextEdges(graph, currentNodeId)
+        val nextEdges = getNextEdges(graph, currentNode.id)
         
         return when {
-            nextEdges.isEmpty() -> NavigationResult.ChapterComplete
-            else -> NavigationResult.NextNode(nextEdges.first().target)
+            nextEdges.isEmpty() -> ResolutionResult.ChapterComplete
+            else -> ResolutionResult.NextNode(nextEdges.first().target)
         }
     }
 

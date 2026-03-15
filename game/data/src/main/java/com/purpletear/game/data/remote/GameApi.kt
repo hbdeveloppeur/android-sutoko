@@ -41,11 +41,13 @@ interface GameApi {
      * Get a specific game by its ID.
      *
      * @param storyId The ID of the game to retrieve.
+     * @param langCode The language code (e.g., "fr-FR").
      * @return A Response containing the requested GameDto.
      */
     @GET("story/{storyId}")
     suspend fun getGame(
         @Path("storyId") storyId: String,
+        @Query("langCode") langCode: String = "fr-FR",
     ): Response<GameDto>
 
     /**

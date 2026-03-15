@@ -22,7 +22,6 @@ data class NodeDataDto(
     val characterId: Int? = null,
     @SerializedName("chapterCode")
     val chapterCode: String? = null,
-    val options: List<ChoiceOptionDto>? = null,
     val expression: String? = null,
     @SerializedName("trueTargetId")
     val trueTargetId: String? = null,
@@ -37,10 +36,4 @@ data class NodeDataDto(
     val imageUrl: String? = null,
     val wait: Long? = null,
     val seen: Long? = null
-)
-
-data class ChoiceOptionDto(
-    val text: String,
-    @SerializedName("targetNodeId")
-    val targetNodeId: String
 )

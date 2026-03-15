@@ -22,8 +22,4 @@ class SystemTimingScheduler @Inject constructor() : TimingScheduler {
             delay(millis)
         }
     }
-    
-    override fun now(): Long {
-        return System.currentTimeMillis()
-    }
 }

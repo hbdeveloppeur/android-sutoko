@@ -8,48 +8,25 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
-class NodeNavigatorTest {
+class NodeResolverTest {
 
-    private val navigator = NodeNavigator()
+    private val resolver = NodeResolver()
 
     @Test
     fun `handler returns explicit next node - should use it`() {
         val graph = createGraph()
         val currentNode = createMessageNode("msg1")
 
-        val result = navigator.resolveNextNode(
+        val result = resolver.resolveNextNode(
             graph = graph,
-            currentNodeId = "msg1",
             currentNode = currentNode,
             handlerResult = "explicit_next"
         )
 
         assertEquals(
-            NodeNavigator.NavigationResult.NextNode("explicit_next"),
+            NodeResolver.ResolutionResult.NextNode("explicit_next"),
             result
         )
-    }
-
-    @Test
-    fun `choice node - should wait for input`() {
-        val graph = createGraph()
-        val choiceNode = Node.Choice(
-            id = "choice1",
-            position = Node.Position(0f, 0f),
-            options = listOf(
-                Node.ChoiceOption("Option 1", "opt1"),
-                Node.ChoiceOption("Option 2", "opt2")
-            )
-        )
-
-        val result = navigator.resolveNextNode(
-            graph = graph,
-            currentNodeId = "choice1",
-            currentNode = choiceNode,
-            handlerResult = null
-        )
-
-        assertTrue(result is NodeNavigator.NavigationResult.WaitingForInput)
     }
 
     @Test
@@ -61,14 +38,13 @@ class NodeNavigatorTest {
             chapterCode = "2A"
         )
 
-        val result = navigator.resolveNextNode(
+        val result = resolver.resolveNextNode(
             graph = graph,
-            currentNodeId = "end",
             currentNode = chapterChangeNode,
             handlerResult = null
         )
 
-        assertTrue(result is NodeNavigator.NavigationResult.ChapterComplete)
+        assertTrue(result is NodeResolver.ResolutionResult.ChapterComplete)
     }
 
     @Test
@@ -76,14 +52,13 @@ class NodeNavigatorTest {
         val graph = createGraph(emptyList()) // No edges
         val currentNode = createMessageNode("msg1")
 
-        val result = navigator.resolveNextNode(
+        val result = resolver.resolveNextNode(
             graph = graph,
-            currentNodeId = "msg1",
             currentNode = currentNode,
             handlerResult = null
         )
 
-        assertTrue(result is NodeNavigator.NavigationResult.ChapterComplete)
+        assertTrue(result is NodeResolver.ResolutionResult.ChapterComplete)
     }
 
     @Test
@@ -94,15 +69,14 @@ class NodeNavigatorTest {
         val graph = createGraph(edges)
         val currentNode = createMessageNode("msg1")
 
-        val result = navigator.resolveNextNode(
+        val result = resolver.resolveNextNode(
             graph = graph,
-            currentNodeId = "msg1",
             currentNode = currentNode,
             handlerResult = null
         )
 
         assertEquals(
-            NodeNavigator.NavigationResult.NextNode("msg2"),
+            NodeResolver.ResolutionResult.NextNode("msg2"),
             result
         )
     }

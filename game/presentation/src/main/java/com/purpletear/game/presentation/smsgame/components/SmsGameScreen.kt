@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -20,6 +21,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -42,6 +45,7 @@ import com.purpletear.game.presentation.smsgame.SmsGamePlayViewModel
 import com.purpletear.game.presentation.smsgame.SmsGameRoutes
 import com.purpletear.sutoko.game.engine.MessageItem
 import com.purpletear.sutoko.game.model.Chapter
+import com.purpletear.game.presentation.BuildConfig
 import kotlinx.coroutines.launch
 
 
@@ -58,6 +62,8 @@ internal fun NavGraphBuilder.gameScreen(
 
     SmsGameScreen(
         viewModel = playViewModel,
+        gameId = gameId,
+        chapterCode = chapter.code,
         onLoadNextChapter = {
             // Get the next chapter code from ViewModel state
             val nextChapterCode = playViewModel.uiState.value.nextChapterCode
@@ -73,6 +79,8 @@ internal fun NavGraphBuilder.gameScreen(
 @Composable
 internal fun SmsGameScreen(
     viewModel: SmsGamePlayViewModel,
+    gameId: String,
+    chapterCode: String,
     onLoadNextChapter: () -> Unit,
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
@@ -88,12 +96,22 @@ internal fun SmsGameScreen(
             state.isLoading -> LoadingState()
             state.error != null -> ErrorState(message = state.error!!)
             state.isCompleted -> CompletedState(
-                chapterCode = state.chapterCode ?: "",
+                chapterCode = state.chapterCode ?: chapterCode,
                 onNextChapter = onLoadNextChapter
             )
             else -> GameContent(
                 state = state,
-                onChoiceSelected = viewModel::onChoiceSelected
+            )
+        }
+
+        // Dev-only: Redownload button at the top (always visible even in error state)
+        if (BuildConfig.DEBUG) {
+            DevRedownloadButton(
+                gameId = gameId,
+                chapterCode = chapterCode,
+                onRedownload = { gid, cc ->
+                    viewModel.clearGameDataAndReinitialize(gid, cc)
+                }
             )
         }
     }
@@ -173,7 +191,6 @@ private fun CompletedState(
 @Composable
 private fun GameContent(
     state: GameUiState,
-    onChoiceSelected: (Int) -> Unit
 ) {
     val listState = rememberLazyListState()
     val scope = rememberCoroutineScope()
@@ -201,17 +218,6 @@ private fun GameContent(
             items(state.messages, key = { it.id }) { message ->
                 MessageBubble(message = message)
             }
-        }
-
-        AnimatedVisibility(
-            visible = state.choices != null,
-            enter = fadeIn(),
-            exit = fadeOut()
-        ) {
-            ChoicesPanel(
-                choices = state.choices ?: emptyList(),
-                onChoiceSelected = onChoiceSelected
-            )
         }
     }
 }
@@ -274,4 +280,32 @@ private fun ChoiceButton(
         text = text,
         onClick = onClick
     )
+}
+
+@Composable
+private fun DevRedownloadButton(
+    gameId: String,
+    chapterCode: String,
+    onRedownload: (String, String) -> Unit
+) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(top = 48.dp, start = 16.dp, end = 16.dp),
+        contentAlignment = Alignment.TopCenter
+    ) {
+        Button(
+            onClick = { onRedownload(gameId, chapterCode) },
+            colors = ButtonDefaults.buttonColors(
+                containerColor = Color.Red.copy(alpha = 0.8f),
+                contentColor = Color.White
+            ),
+            shape = RoundedCornerShape(8.dp)
+        ) {
+            Text(
+                text = "[DEV] Redownload Game",
+                fontSize = 12.sp
+            )
+        }
+    }
 }

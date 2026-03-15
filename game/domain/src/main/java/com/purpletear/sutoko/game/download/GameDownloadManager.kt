@@ -60,4 +60,12 @@ interface GameDownloadManager {
      * @param gameId The unique identifier of the game
      */
     fun resetState(gameId: String)
+
+    /**
+     * Clears all downloaded game data including files and installation record.
+     * This is useful for forcing a fresh download of the game.
+     *
+     * @param gameId The unique identifier of the game
+     */
+    suspend fun clearGameData(gameId: String)
 }

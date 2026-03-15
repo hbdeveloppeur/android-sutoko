@@ -128,7 +128,7 @@ class GameRepositoryImpl @Inject constructor(
 
         // Fetch from API
         try {
-            val response = api.getGame(storyId = id)
+            val response = api.getGame(storyId = id, langCode = "fr-FR")
 
             if (response.isSuccessful) {
                 val game = response.body()?.toDomain()

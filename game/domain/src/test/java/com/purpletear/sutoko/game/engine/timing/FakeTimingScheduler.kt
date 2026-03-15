@@ -6,18 +6,12 @@ package com.purpletear.sutoko.game.engine.timing
  */
 class FakeTimingScheduler : TimingScheduler {
     
-    private var currentTime: Long = 0
     private val delayCalls = mutableListOf<Long>()
     
     override suspend fun delay(millis: Long) {
         if (millis > 0) {
             delayCalls.add(millis)
-            currentTime += millis
         }
-    }
-    
-    override fun now(): Long {
-        return currentTime
     }
     
     /**
@@ -31,17 +25,9 @@ class FakeTimingScheduler : TimingScheduler {
     fun getTotalDelayedTime(): Long = delayCalls.sum()
     
     /**
-     * Advances time by the specified amount without suspending.
-     */
-    fun advanceTimeBy(millis: Long) {
-        currentTime += millis
-    }
-    
-    /**
      * Resets the scheduler state.
      */
     fun reset() {
-        currentTime = 0
         delayCalls.clear()
     }
 }

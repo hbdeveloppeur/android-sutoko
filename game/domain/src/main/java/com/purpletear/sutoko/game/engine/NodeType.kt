@@ -7,7 +7,6 @@ enum class NodeType {
     START,
     MESSAGE,
     CHAPTER_CHANGE,
-    CHOICE,
     CONDITION,
     MEMORY,
     INFO,

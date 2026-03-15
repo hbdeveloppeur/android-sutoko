@@ -10,14 +10,12 @@ import com.purpletear.game.data.local.parser.ChapterGraphParser
 import com.purpletear.game.data.provider.GamePathProvider
 import com.purpletear.sutoko.game.model.chapter.ChapterGraph
 import com.purpletear.sutoko.game.repository.ChapterGraphRepository
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import java.io.File
 import javax.inject.Inject
 
 class ChapterGraphRepositoryImpl @Inject constructor(
-    @ApplicationContext private val context: Context,
     private val pathProvider: GamePathProvider
 ) : ChapterGraphRepository {
 
