@@ -13,7 +13,7 @@ import androidx.room.PrimaryKey
 data class UserGameProgressEntity(
     @PrimaryKey
     val gameId: String = "",
-    val currentChapterNumber: Int = 1,
-    val currentAlternative: String = "",
+    val currentChapterCode: String = "1a",
+    val normalizedChapterCode: String = "1a",
     val heroName: String = ""
 )

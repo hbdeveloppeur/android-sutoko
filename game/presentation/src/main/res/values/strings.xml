@@ -80,6 +80,11 @@
     <string name="game_delete_confirm_button">Delete</string>
     <string name="game_delete_success">Game deleted successfully</string>
     <string name="game_delete_error">Failed to delete the game</string>
+    <string name="game_restart_success">Game restarted successfully</string>
+    <string name="game_restart_error">Failed to restart the game</string>
+    <string name="game_redownload_started">Game redownload started</string>
+    <string name="game_redownload_completed">Game redownload completed</string>
+    <string name="game_redownload_error">Failed to redownload the game</string>
 
     <!-- Game Card Buttons -->
     <string name="game_button_get">Get</string>

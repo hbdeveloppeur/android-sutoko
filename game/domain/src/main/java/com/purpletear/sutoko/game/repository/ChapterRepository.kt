@@ -11,6 +11,4 @@ interface ChapterRepository {
     fun observeCachedChapters(storyId: String): StateFlow<List<Chapter>?>
     fun getCurrentChapter(gameId: String, forceReload: Boolean): Flow<Result<Chapter?>>
     fun observeCurrentChapter(gameId: String): StateFlow<Chapter?>
-    suspend fun setCurrentChapter(gameId: String, chapter: Chapter)
-    suspend fun restart(gameId: String)
 }

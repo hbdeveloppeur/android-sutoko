@@ -1,6 +1,5 @@
 package com.purpletear.game.data.repository
 
-import android.content.Context
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.purpletear.game.data.remote.GameApi
 import com.purpletear.game.data.remote.GamePortalApi
@@ -17,7 +16,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.runBlocking
-import java.io.File
 import java.util.concurrent.ConcurrentHashMap
 import javax.inject.Inject
 
@@ -28,7 +26,6 @@ class GameRepositoryImpl @Inject constructor(
     private val api: GameApi,
     private val portalApi: GamePortalApi,
     private val gameInstallationRepository: GameInstallationRepository,
-    private val context: Context,
     private val ntfy: Ntfy,
 ) : GameRepository {
 
@@ -128,6 +125,7 @@ class GameRepositoryImpl @Inject constructor(
 
         // Fetch from API
         try {
+            // TODO
             val response = api.getGame(storyId = id, langCode = "fr-FR")
 
             if (response.isSuccessful) {
@@ -161,8 +159,8 @@ class GameRepositoryImpl @Inject constructor(
      */
     override suspend fun isGameUpdatable(game: Game): Flow<Result<Boolean>> = flow {
         val currentVersion = gameInstallationRepository.getInstalledVersion(game.id)
-        val result = currentVersion != null 
-                && currentVersion != game.version.toString() 
+        val result = currentVersion != null
+                && currentVersion != game.version.toString()
                 && currentVersion != "none"
                 && currentVersion.isNotBlank()
         emit(Result.success(result))
@@ -186,21 +184,11 @@ class GameRepositoryImpl @Inject constructor(
         return getOrCreateInstallationStatusFlow(gameId)
     }
 
-    override suspend fun removeGame(game: Game): Flow<Result<Unit>> = flow {
-        gameInstallationRepository.removeInstallation(game.id)
+    override suspend fun removeGame(gameId: String): Flow<Result<Unit>> = flow {
+        gameInstallationRepository.removeInstallation(gameId)
 
-        val gamesDir = File(context.filesDir, "games")
-        val gameDir = File(gamesDir, game.id)
-        if (gameDir.exists()) {
-            gameDir.deleteRecursively()
-        }
+        installationStatusFlows[gameId]?.value = false
 
-        if (gamesDir.exists() && gamesDir.listFiles()?.isEmpty() == true) {
-            gamesDir.delete()
-        }
-
-        installationStatusFlows[game.id]?.value = false
-        
         emit(Result.success(Unit))
     }
 
@@ -265,7 +253,8 @@ class GameRepositoryImpl @Inject constructor(
             if (response.isSuccessful) {
                 val downloadLink = response.body()?.link
                 if (downloadLink.isNullOrBlank()) {
-                    val exception = IllegalStateException("Empty download link for gameId: $gameId, userId: $userId")
+                    val exception =
+                        IllegalStateException("Empty download link for gameId: $gameId, userId: $userId")
                     ntfy.urgent(exception)
                     emit(Result.failure(exception))
                     return@flow
@@ -275,7 +264,7 @@ class GameRepositoryImpl @Inject constructor(
                 val url = response.raw().request.url.toString()
                 ntfy.startAction("Generating download link for game $gameId, at url : $url")
 
-                val errorBody = response.errorBody()?.string() 
+                val errorBody = response.errorBody()?.string()
                     ?: "Unknown error - $errorContext"
                 val exception = if (response.code() == 403) {
                     GameDownloadForbiddenException("Game download forbidden (403): $errorBody")

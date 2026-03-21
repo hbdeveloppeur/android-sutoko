@@ -13,7 +13,7 @@ class NodeResolver @Inject constructor() {
 
     sealed class ResolutionResult {
         data class NextNode(val nodeId: String) : ResolutionResult()
-        data object ChapterComplete : ResolutionResult()
+        data object NodeNextChapter : ResolutionResult()
         data class Error(val message: String) : ResolutionResult()
     }
 
@@ -29,14 +29,14 @@ class NodeResolver @Inject constructor() {
 
         // Chapter change node = end of current chapter
         if (currentNode is Node.ChapterChange) {
-            return ResolutionResult.ChapterComplete
+            return ResolutionResult.NodeNextChapter
         }
 
         // Resolve via edges
         val nextEdges = getNextEdges(graph, currentNode.id)
-        
+
         return when {
-            nextEdges.isEmpty() -> ResolutionResult.ChapterComplete
+            nextEdges.isEmpty() -> ResolutionResult.NodeNextChapter
             else -> ResolutionResult.NextNode(nextEdges.first().target)
         }
     }

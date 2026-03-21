@@ -37,6 +37,7 @@ import com.purpletear.sutoko.game.model.Game
 import com.purpletear.sutoko.game.model.isPremium
 import com.purpletear.sutoko.game.download.GameDownloadManager
 import com.purpletear.sutoko.game.download.GameDownloadState
+import com.purpletear.sutoko.game.usecase.DownloadGameUseCase
 import com.purpletear.sutoko.game.usecase.GetChaptersUseCase
 import com.purpletear.sutoko.game.usecase.GetCurrentChapterUseCase
 import com.purpletear.sutoko.game.usecase.GetGameUseCase
@@ -45,6 +46,7 @@ import com.purpletear.sutoko.game.usecase.IsFriendZoned1GameUseCase
 import com.purpletear.sutoko.game.usecase.IsFriendZonedGameUseCase
 import com.purpletear.sutoko.game.usecase.IsGameUpdatableUseCase
 import com.purpletear.sutoko.game.usecase.ObserveCurrentChapterUseCase
+import com.purpletear.sutoko.game.usecase.ObserveDownloadStateUseCase
 import com.purpletear.sutoko.game.usecase.RemoveGameUseCase
 import com.purpletear.sutoko.game.usecase.RestartGameUseCase
 import com.purpletear.sutoko.user.usecase.IsUserConnectedUseCase
@@ -83,6 +85,8 @@ import javax.inject.Inject
  */
 @HiltViewModel
 class GamePreviewViewModel @Inject constructor(
+    private val downloadGameUseCase: DownloadGameUseCase,
+    private val observeDownloadStateUseCase: ObserveDownloadStateUseCase,
     private val gameDownloadManager: GameDownloadManager,
     private val customer: Customer,
     private val getGameUseCase: GetGameUseCase,
@@ -218,7 +222,7 @@ class GamePreviewViewModel @Inject constructor(
      */
     private fun observeDownloadState() {
         viewModelScope.launch {
-            gameDownloadManager.getDownloadState(gameId).collect { downloadState ->
+            observeDownloadStateUseCase(gameId).collect { downloadState ->
                 when (downloadState) {
                     is GameDownloadState.Downloading -> {
                         _gameState.value = GameState.DownloadingGame(progress = downloadState.progress)
@@ -540,19 +544,23 @@ class GamePreviewViewModel @Inject constructor(
         }
 
         viewModelScope.launch {
-            try {
-                val isPremium = game.value?.isPremium() == true
-                gameDownloadManager.downloadGame(
-                    game = game.value!!,
-                    userId = if (isPremium) customer.getUserId() else null,
-                    userToken = if (isPremium) customer.getUserToken() else null
-                )
-            } catch (e: GameDownloadForbiddenException) {
-                e.printStackTrace()
-                _gameState.value = GameState.LoadingError
-                android.util.Log.e("GamePreviewViewModel", "Forbidden access: ${e.message}")
-            } catch (e: Exception) {
-                e.printStackTrace()
+            val isPremium = game.value?.isPremium() == true
+            downloadGameUseCase(
+                game = game.value!!,
+                userId = if (isPremium) customer.getUserId() else null,
+                userToken = if (isPremium) customer.getUserToken() else null,
+                isUserConnected = customer.isUserConnected()
+            ).onSuccess {
+                android.util.Log.d("GamePreviewViewModel", "Download initiated successfully")
+            }.onFailure { error ->
+                when (error) {
+                    is GameDownloadForbiddenException -> {
+                        android.util.Log.e("GamePreviewViewModel", "Forbidden access: ${error.message}")
+                    }
+                    else -> {
+                        android.util.Log.e("GamePreviewViewModel", "Download failed: ${error.message}")
+                    }
+                }
                 _gameState.value = GameState.LoadingError
             }
         }
@@ -890,10 +898,10 @@ class GamePreviewViewModel @Inject constructor(
                 PopUpUserInteraction.Confirm -> {
                     viewModelScope.launch {
                         game.value?.let { game ->
-                            try {
-                                _gameState.value = GameState.Loading
-                                delay(1200)
-                                restartGameUseCase(game.id)
+                            _gameState.value = GameState.Loading
+                            delay(1200)
+                            val result = restartGameUseCase(game.id)
+                            if (result.isSuccess) {
                                 // Remove per-game first name so it will be asked again on chapter 1
                                 try {
                                     tableOfSymbols.removeVar(game.id.hashCode(), "prenom")
@@ -903,8 +911,8 @@ class GamePreviewViewModel @Inject constructor(
                                 loadCurrentChapter(game.id)
                                 _gameState.value = GameState.Idle
                                 refreshGameState()
-                            } catch (e: Exception) {
-                                e.printStackTrace()
+                            } else {
+                                result.exceptionOrNull()?.printStackTrace()
                                 _gameState.value = GameState.Idle
                             }
                         }

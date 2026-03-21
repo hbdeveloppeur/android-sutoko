@@ -22,7 +22,7 @@ import com.purpletear.sutoko.game.model.UserGameProgressEntity
         GameInstallationEntity::class,
         MemoryEntity::class
     ],
-    version = 6,
+    version = 7,
     exportSchema = false
 )
 @TypeConverters(GameTypeConverters::class)

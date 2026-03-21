@@ -1,5 +1,6 @@
 package com.purpletear.game.data.repository
 
+import android.content.Context
 import com.purpletear.game.data.local.dao.GameInstallationDao
 import com.purpletear.game.data.local.entity.GameInstallationEntity
 import com.purpletear.game.data.local.entity.toDomain
@@ -7,6 +8,7 @@ import com.purpletear.sutoko.game.model.GameInstallation
 import com.purpletear.sutoko.game.repository.GameInstallationRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import java.io.File
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -15,7 +17,8 @@ import javax.inject.Singleton
  */
 @Singleton
 class GameInstallationRepositoryImpl @Inject constructor(
-    private val dao: GameInstallationDao
+    private val dao: GameInstallationDao,
+    private val context: Context,
 ) : GameInstallationRepository {
 
     override suspend fun saveInstallation(gameId: String, version: String) {
@@ -49,5 +52,15 @@ class GameInstallationRepositoryImpl @Inject constructor(
 
     override suspend fun removeInstallation(gameId: String) {
         dao.delete(gameId)
+
+        val gamesDir = File(context.filesDir, "games")
+        val gameDir = File(gamesDir, gameId)
+        if (gameDir.exists()) {
+            gameDir.deleteRecursively()
+        }
+
+        if (gamesDir.exists() && gamesDir.listFiles()?.isEmpty() == true) {
+            gamesDir.delete()
+        }
     }
 }

@@ -17,4 +17,7 @@ interface UserGameProgressDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun save(progress: UserGameProgressEntity)
+
+    @Query("DELETE FROM user_game_progress WHERE gameId = :gameId")
+    suspend fun delete(gameId: String)
 }

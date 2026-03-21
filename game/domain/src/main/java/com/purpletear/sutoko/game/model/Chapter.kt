@@ -22,4 +22,7 @@ data class Chapter(
     // TODO: to prevent user changing the date of the phone, the isAvailable data must be fetched from server
     val isAvailable: Boolean
         get() = releaseDate <= System.currentTimeMillis()
+
+    val normalizedCode: String
+        get() = code.lowercase()
 }

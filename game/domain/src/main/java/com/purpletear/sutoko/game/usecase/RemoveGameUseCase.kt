@@ -18,6 +18,6 @@ class RemoveGameUseCase @Inject constructor(
      * @return A Flow containing the Result of the operation.
      */
     suspend operator fun invoke(game: Game): Flow<Result<Unit>> {
-        return gameRepository.removeGame(game)
+        return gameRepository.removeGame(game.id)
     }
 }

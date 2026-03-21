@@ -85,14 +85,16 @@ object GameDataModule {
      * Provides the GameInstallationRepository implementation.
      *
      * @param gameInstallationDao The GameInstallationDao instance.
+     * @param context The application context.
      * @return The GameInstallationRepository implementation.
      */
     @Provides
     @Singleton
     fun provideGameInstallationRepository(
-        gameInstallationDao: GameInstallationDao
+        gameInstallationDao: GameInstallationDao,
+        @ApplicationContext context: Context
     ): GameInstallationRepository {
-        return GameInstallationRepositoryImpl(gameInstallationDao)
+        return GameInstallationRepositoryImpl(gameInstallationDao, context)
     }
 
     /**
@@ -189,7 +191,6 @@ object GameDataModule {
      * @param gameApi The GameApi instance.
      * @param gamePortalApi The GamePortalApi instance.
      * @param gameInstallationRepository The GameInstallationRepository instance.
-     * @param context The application context.
      * @param ntfy The Ntfy instance.
      * @return The GameRepository implementation.
      */
@@ -199,10 +200,9 @@ object GameDataModule {
         gameApi: GameApi,
         gamePortalApi: GamePortalApi,
         gameInstallationRepository: GameInstallationRepository,
-        @ApplicationContext context: Context,
         ntfy: Ntfy
     ): GameRepository {
-        return GameRepositoryImpl(gameApi, gamePortalApi, gameInstallationRepository, context, ntfy)
+        return GameRepositoryImpl(gameApi, gamePortalApi, gameInstallationRepository, ntfy)
     }
 
     /**

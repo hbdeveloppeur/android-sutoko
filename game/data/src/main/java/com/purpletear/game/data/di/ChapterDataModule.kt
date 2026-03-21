@@ -12,7 +12,6 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import okhttp3.OkHttpClient
-import purpletear.fr.purpleteartools.TableOfSymbols
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import javax.inject.Singleton
@@ -59,7 +58,6 @@ object ChapterDataModule {
      *
      * @param chapterApi The ChapterApi instance.
      * @param chapterDao The ChapterDao instance.
-     * @param symbols The TableOfSymbols instance.
      * @param context The application context.
      * @return The ChapterRepository implementation.
      */
@@ -68,9 +66,8 @@ object ChapterDataModule {
     fun provideChapterRepository(
         chapterApi: ChapterApi,
         chapterDao: ChapterDao,
-        symbols: TableOfSymbols,
         @ApplicationContext context: Context
     ): ChapterRepository {
-        return ChapterRepositoryImpl(chapterApi, chapterDao, symbols, context)
+        return ChapterRepositoryImpl(chapterApi, chapterDao, context)
     }
 }

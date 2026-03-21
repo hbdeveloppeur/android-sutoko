@@ -8,14 +8,18 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.compose.rememberNavController
 import com.example.sharedelements.theme.SutokoTheme
 import com.purpletear.game.presentation.BuildConfig
 import com.purpletear.game.presentation.components.HideStatusBarEffect
-import com.purpletear.game.presentation.smsgame.components.descriptionScreen
-import com.purpletear.game.presentation.smsgame.components.gameScreen
 import com.purpletear.game.presentation.smsgame.components.SmsGameNavHost
+import com.purpletear.game.presentation.smsgame.components.descriptionScreen
+import com.purpletear.game.presentation.smsgame.components.dev.SmsGameDevAction
+import com.purpletear.game.presentation.smsgame.components.dev.SmsGameDevViewModel
+import com.purpletear.game.presentation.smsgame.components.dev.debugPage
+import com.purpletear.game.presentation.smsgame.components.navigation.gameScreen
 import com.purpletear.sutoko.game.model.GameSessionState
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -23,6 +27,7 @@ import dagger.hilt.android.AndroidEntryPoint
 class SmsGameActivity : ComponentActivity() {
 
     private val viewModel: SmsGameViewModel by viewModels()
+    private val devViewModel: SmsGameDevViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -35,17 +40,45 @@ class SmsGameActivity : ComponentActivity() {
                 HideStatusBarEffect()
 
                 val sessionState by viewModel.sessionState.collectAsStateWithLifecycle()
+                val memories by remember { viewModel.getMemories() }.collectAsStateWithLifecycle()
                 val navController = rememberNavController()
 
                 if (sessionState is GameSessionState.Ready) {
                     val readyState = sessionState as GameSessionState.Ready
                     val chapter = readyState.chapter
                     val totalChapters = readyState.totalChapters
-                    
+
                     SmsGameNavHost(
                         navController = navController,
-                        startDestination = SmsGameRoutes.description(chapter.code)
+                        startDestination = SmsGameRoutes.description(chapter.normalizedCode),
+                        onDebugAction = { action ->
+                            when (action) {
+                                SmsGameDevAction.Back -> {
+                                    if (!navController.popBackStack()) finish()
+                                }
+
+                                SmsGameDevAction.OpenDebugView -> {
+                                    if (navController.currentDestination?.route != SmsGameRoutes.DEBUG) {
+                                        navController.navigate(SmsGameRoutes.debug(gameId))
+                                    }
+                                }
+
+                                SmsGameDevAction.Restart -> {
+                                    devViewModel.restart(gameId)
+                                }
+
+                                SmsGameDevAction.Update -> {
+                                    devViewModel.redownload(gameId)
+                                }
+                            }
+                        }
                     ) {
+                        debugPage(
+                            gameId = gameId,
+                            gameSessionState = sessionState,
+                            memories = memories
+                        )
+
                         descriptionScreen(
                             gameId = gameId,
                             totalChapters = totalChapters,
@@ -53,14 +86,10 @@ class SmsGameActivity : ComponentActivity() {
                                 navController.navigate(SmsGameRoutes.GAME)
                             }
                         )
+
                         gameScreen(
                             gameId = gameId,
-                            chapter = chapter,
-                            onNextChapter = { chapterCode ->
-                                navController.navigate(SmsGameRoutes.description(chapterCode)) {
-                                    popUpTo(SmsGameRoutes.description(chapterCode)) { inclusive = true }
-                                }
-                            }
+                            chapterCode = chapter.normalizedCode
                         )
                     }
                 }

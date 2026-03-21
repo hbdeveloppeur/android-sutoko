@@ -14,10 +14,18 @@ sealed class GameEngineState {
     data class Playing(
         val chapterCode: String,
         val currentNodeId: String,
-        val messages: List<MessageItem>
     ) : GameEngineState()
 
-    data class Completed(
+    /**
+     * Engine is paused waiting for player input.
+     * Used for choice nodes and interactive minigames.
+     */
+    data class AwaitingInput(
+        val chapterCode: String,
+        val currentNodeId: String
+    ) : GameEngineState()
+
+    data class ChapterFinished(
         val chapterCode: String
     ) : GameEngineState()
 

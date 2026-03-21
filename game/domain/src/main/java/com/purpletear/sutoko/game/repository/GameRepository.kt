@@ -77,7 +77,7 @@ interface GameRepository {
      */
     fun observeGameInstallationStatus(gameId: String): StateFlow<Boolean>
 
-    suspend fun removeGame(game: Game): Flow<Result<Unit>>
+    suspend fun removeGame(gameId: String): Flow<Result<Unit>>
 
     fun isFriendzonedGame(game: Game): Boolean
     fun isFriendzoned1Game(game: Game): Boolean

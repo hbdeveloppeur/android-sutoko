@@ -5,6 +5,7 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import com.purpletear.game.data.local.entity.MemoryEntity
+import kotlinx.coroutines.flow.Flow
 
 /**
  * Room DAO for game memory operations.
@@ -17,6 +18,12 @@ interface MemoryDao {
      */
     @Query("SELECT * FROM game_memories WHERE gameId = :gameId")
     suspend fun getAllForGame(gameId: String): List<MemoryEntity>
+
+    /**
+     * Observes all memories for a specific game.
+     */
+    @Query("SELECT * FROM game_memories WHERE gameId = :gameId")
+    fun observeAllForGame(gameId: String): Flow<List<MemoryEntity>>
     
     /**
      * Inserts or replaces a memory entry.

@@ -15,14 +15,11 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.map
-import purpletear.fr.purpleteartools.TableOfSymbols
 import javax.inject.Inject
 
 class ChapterRepositoryImpl @Inject constructor(
     private val api: ChapterApi,
     private val chapterDao: ChapterDao,
-    private val symbols: TableOfSymbols,
     @field:ApplicationContext private val context: Context
 ) : ChapterRepository {
 
@@ -69,7 +66,7 @@ class ChapterRepositoryImpl @Inject constructor(
             if (e is kotlinx.coroutines.CancellationException) throw e
             val cachedChapters = chaptersCache[storyId]?.value
             val dbChapters = chapterDao.getAllForStory(storyId)
-            
+
             when {
                 cachedChapters != null -> emit(Result.success(cachedChapters))
                 dbChapters.isNotEmpty() -> emit(Result.success(dbChapters))
@@ -122,49 +119,11 @@ class ChapterRepositoryImpl @Inject constructor(
         return chaptersCache[storyId]!!
     }
 
+    // TODO : What force reload is used for??
     override fun getCurrentChapter(gameId: String, forceReload: Boolean): Flow<Result<Chapter?>> =
         flow {
             try {
-                context.dataStore.data.map { preferences ->
-                    if (forceReload) {
-                        symbols.read(context)
-                    }
-                    val gameIdHash = gameId.hashCode()
-                    val chapterCode = symbols.get(gameIdHash, "chapterCode") ?: "1a"
-
-                    val dbChapter = chapterDao.getByStoryAndCode(gameId, chapterCode)
-                    if (dbChapter != null) {
-                        updateCurrentChapterCache(gameId, dbChapter)
-                        return@map dbChapter
-                    }
-
-                    chaptersCache[gameId]?.value?.forEach { chapter ->
-                        if (chapter.code == chapterCode) {
-                            updateCurrentChapterCache(gameId, chapter)
-                            return@map chapter
-                        }
-                    }
-
-                    try {
-                        val number = chapterCode.filter { it.isDigit() }.toIntOrNull() ?: 1
-                        val alternative = chapterCode.filter { !it.isDigit() }.lowercase()
-
-                        val placeholderChapter = Chapter(
-                            number = number,
-                            alternative = alternative,
-                            title = "Chapter $number$alternative",
-                            code = chapterCode
-                        )
-
-                        updateCurrentChapterCache(gameId, placeholderChapter)
-                        placeholderChapter
-                    } catch (e: Exception) {
-                        updateCurrentChapterCache(gameId, null)
-                        null
-                    }
-                }.collect { chapter ->
-                    emit(Result.success(chapter))
-                }
+                // TODO
             } catch (e: Exception) {
                 if (e is kotlinx.coroutines.CancellationException) throw e
                 emit(Result.failure(e))
@@ -176,31 +135,6 @@ class ChapterRepositoryImpl @Inject constructor(
             currentChapterCache[gameId] = MutableStateFlow(null)
         }
         return currentChapterCache[gameId]!!
-    }
-
-    override suspend fun setCurrentChapter(gameId: String, chapter: Chapter) {
-        val gameIdHash = gameId.hashCode()
-        symbols.removeFromASpecificChapterNumber(gameIdHash, chapter.number)
-        symbols.addOrSet(gameIdHash, "chapterCode", chapter.code)
-        symbols.save(context = context)
-
-        val existingChapter = chapterDao.getById(chapter.id)
-        if (existingChapter == null) {
-            chapterDao.insert(chapter)
-        }
-
-        updateCurrentChapterCache(gameId, chapter)
-    }
-
-    override suspend fun restart(gameId: String) {
-        val gameIdHash = gameId.hashCode()
-        symbols.removeFromASpecificChapterNumber(gameIdHash, 1)
-        symbols.addOrSet(gameIdHash, "chapterCode", "1a")
-        symbols.save(context = context)
-
-        val firstChapter = chapterDao.getAllForStory(gameId).firstOrNull()
-            ?: chaptersCache[gameId]?.value?.firstOrNull()
-        updateCurrentChapterCache(gameId, firstChapter)
     }
 
     private fun updateChaptersCache(storyId: String, chapters: List<Chapter>) {

@@ -44,7 +44,7 @@ class NodeResolverTest {
             handlerResult = null
         )
 
-        assertTrue(result is NodeResolver.ResolutionResult.ChapterComplete)
+        assertTrue(result is NodeResolver.ResolutionResult.NodeNextChapter)
     }
 
     @Test
@@ -58,7 +58,7 @@ class NodeResolverTest {
             handlerResult = null
         )
 
-        assertTrue(result is NodeResolver.ResolutionResult.ChapterComplete)
+        assertTrue(result is NodeResolver.ResolutionResult.NodeNextChapter)
     }
 
     @Test

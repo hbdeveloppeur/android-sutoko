@@ -23,7 +23,9 @@ import com.purpletear.sutoko.game.exception.UserNotConnectedException
 import com.purpletear.sutoko.game.model.Chapter
 import com.purpletear.sutoko.game.model.Game
 import com.purpletear.sutoko.game.model.isPremium
+import com.purpletear.sutoko.game.usecase.DownloadGameUseCase
 import com.purpletear.sutoko.game.usecase.GetChaptersUseCase
+import com.purpletear.sutoko.game.usecase.ObserveDownloadStateUseCase
 import com.purpletear.sutoko.game.usecase.GetCurrentChapterUseCase
 import com.purpletear.sutoko.game.usecase.GetGameUseCase
 import com.purpletear.sutoko.game.usecase.HasGameLocalFilesUseCase
@@ -55,6 +57,8 @@ import javax.inject.Inject
 class GamePreviewModalViewModel @Inject constructor(
     private val getGameUseCase: GetGameUseCase,
     private val getChaptersUseCase: GetChaptersUseCase,
+    private val downloadGameUseCase: DownloadGameUseCase,
+    private val observeDownloadStateUseCase: ObserveDownloadStateUseCase,
     private val gameDownloadManager: GameDownloadManager,
     private val hasGameLocalFilesUseCase: HasGameLocalFilesUseCase,
     private val isGameUpdatableUseCase: IsGameUpdatableUseCase,
@@ -244,7 +248,7 @@ class GamePreviewModalViewModel @Inject constructor(
      */
     private fun observeDownloadState(gameId: String) {
         viewModelScope.launch {
-            gameDownloadManager.getDownloadState(gameId).collect { downloadState ->
+            observeDownloadStateUseCase(gameId).collect { downloadState ->
                 when (downloadState) {
                     is GameDownloadState.Downloading -> {
                         _gameState.value = GameState.DownloadingGame(progress = downloadState.progress)
@@ -318,26 +322,41 @@ class GamePreviewModalViewModel @Inject constructor(
         ntfy.startAction("Start downloading game")
         val game = _game.value ?: return
 
-        if (!customer.isUserConnected() && game.isPremium()) {
-            val exception = UserNotConnectedException()
-            ntfy.urgent(exception)
-            throw exception
-        }
-
         viewModelScope.launch {
-            try {
-                gameDownloadManager.downloadGame(
-                    game = game,
-                    userId = if (game.isPremium()) customer.getUserId() else null,
-                    userToken = if (game.isPremium()) customer.getUserToken() else null
-                )
-            } catch (e: GameDownloadForbiddenException) {
-                Log.e(TAG, "Forbidden access to download", e)
-                ntfy.urgent(e)
+            val userId = if (game.isPremium()) customer.getUserId() else null
+            val userToken = if (game.isPremium()) customer.getUserToken() else null
+
+            downloadGameUseCase(
+                game = game,
+                userId = userId,
+                userToken = userToken,
+                isUserConnected = customer.isUserConnected()
+            ).onSuccess {
+                Log.d(TAG, "Download initiated successfully for game ${game.id}")
+            }.onFailure { error ->
+                handleDownloadError(error)
+            }
+        }
+    }
+
+    /**
+     * Handles download errors and updates UI state accordingly.
+     */
+    private fun handleDownloadError(error: Throwable) {
+        when (error) {
+            is UserNotConnectedException -> {
+                Log.e(TAG, "User not authenticated for premium download", error)
+                ntfy.urgent(error)
                 _gameState.value = GameState.LoadingError
-            } catch (e: Exception) {
-                Log.e(TAG, "Download failed", e)
-                ntfy.exception(e)
+            }
+            is GameDownloadForbiddenException -> {
+                Log.e(TAG, "Forbidden access to download", error)
+                ntfy.urgent(error)
+                _gameState.value = GameState.LoadingError
+            }
+            else -> {
+                Log.e(TAG, "Download failed", error)
+                ntfy.exception(error)
                 _gameState.value = GameState.LoadingError
             }
         }
@@ -407,7 +426,7 @@ class GamePreviewModalViewModel @Inject constructor(
         super.onCleared()
         gameId?.let { id ->
             // Only cleanup if not downloading (preserve download in background)
-            val downloadState = gameDownloadManager.getDownloadState(id).value
+            val downloadState = observeDownloadStateUseCase(id).value
             if (downloadState !is GameDownloadState.Downloading &&
                 downloadState !is GameDownloadState.Extracting
             ) {

@@ -1,24 +1,23 @@
 package com.purpletear.sutoko.game.engine.handlers
 
-import com.purpletear.sutoko.game.engine.GameEvent
+import com.purpletear.sutoko.game.engine.HandlerScript
 import com.purpletear.sutoko.game.engine.NodeHandler
 import com.purpletear.sutoko.game.model.chapter.GameMemory
 import com.purpletear.sutoko.game.model.chapter.Node
 import javax.inject.Inject
 
+/**
+ * Handler for start nodes.
+ *
+ * Start nodes are entry points that simply pass through to the next node
+ * via graph edges. No commands are produced.
+ */
 class StartNodeHandler @Inject constructor() : NodeHandler {
-    override suspend fun handle(
+    override fun prepare(
         node: Node,
-        memory: GameMemory,
-        emit: (GameEvent) -> Unit
-    ): String? {
-        val startNode = node as? Node.Start ?: return null
-        return getNextNodeId(node.id, memory)
-    }
-
-    private fun getNextNodeId(currentId: String, memory: GameMemory): String? {
-        // This will be resolved by the GameEngine based on edges
-        // For now, return null to let the engine handle it
-        return null
+        memory: GameMemory
+    ): HandlerScript {
+        // Start node is just an entry point - follow edges to next node
+        return HandlerScript()
     }
 }
