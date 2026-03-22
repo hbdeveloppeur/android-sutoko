@@ -1,0 +1,170 @@
+package com.purpletear.game.presentation.play
+
+import android.util.Log
+import androidx.lifecycle.SavedStateHandle
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.purpletear.sutoko.game.engine.GameEngine
+import com.purpletear.sutoko.game.engine.GameEngineState
+import com.purpletear.sutoko.game.engine.GameMessage
+import com.purpletear.sutoko.game.engine.HandlerEffect
+import com.purpletear.sutoko.game.engine.MessageItem
+import com.purpletear.sutoko.game.model.chapter.ChapterGraph
+import com.purpletear.sutoko.game.usecase.LoadChapterGraphUseCase
+import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
+import javax.inject.Inject
+
+/**
+ * ViewModel for game engine interaction.
+ * Manages the game engine state, messages, and effects during gameplay.
+ */
+@HiltViewModel
+class GameEngineViewModel @Inject constructor(
+    private val loadChapterGraphUseCase: LoadChapterGraphUseCase,
+    private val gameEngine: GameEngine,
+    savedStateHandle: SavedStateHandle,
+) : ViewModel() {
+
+    private val gameId: String = checkNotNull(savedStateHandle["gameId"]) {
+        "gameId is required"
+    }
+    private val chapterCode: String = checkNotNull(savedStateHandle["chapterCode"]) {
+        "chapterCode is required"
+    }
+
+    private val _uiState = MutableStateFlow(GameUiState())
+    val uiState: StateFlow<GameUiState> = _uiState.asStateFlow()
+
+    init {
+        viewModelScope.launch {
+            gameEngine.reset()
+
+            launch {
+                gameEngine.state.collect { updateUiStateFromEngine(it) }
+            }
+            launch {
+                gameEngine.messages.collect { updateMessages(it) }
+            }
+            launch {
+                gameEngine.effects.collect { handleEffect(it) }
+            }
+            loadChapterGraph(gameId, chapterCode)
+        }
+    }
+
+    private suspend fun loadChapterGraph(gameId: String, chapterCode: String) {
+        Log.d("TEST", "Loading the chapter graph")
+        loadChapterGraphUseCase(gameId, chapterCode, "fr-FR")
+            .collectLatest { result ->
+                result.fold(
+                    onSuccess = { graph ->
+                        Log.d("TEST", "Starting game")
+                        startGame(gameId, graph)
+                    },
+                    onFailure = { error ->
+                        Log.e("TEST", "Failed to load chapter graph : ${error.message}")
+                    }
+                )
+            }
+    }
+
+    private fun startGame(gameId: String, graph: ChapterGraph) {
+        updateState {
+            it.copy(
+                gameId = gameId,
+                chapterCode = graph.chapterCode,
+                messages = emptyList(),
+                isAwaitingInput = false
+            )
+        }
+
+        viewModelScope.launch {
+            gameEngine.initialize(gameId, graph)
+            gameEngine.start()
+        }
+    }
+
+    private fun updateUiStateFromEngine(engineState: GameEngineState) {
+        when (engineState) {
+            is GameEngineState.Idle,
+            is GameEngineState.Ready,
+            is GameEngineState.Playing,
+            is GameEngineState.AwaitingInput,
+            is GameEngineState.ChapterFinished,
+            is GameEngineState.Error -> {
+                // TODO: Handle specific engine states when needed
+            }
+        }
+    }
+
+    private fun updateMessages(messages: List<GameMessage>) {
+        updateState {
+            it.copy(
+                messages = messages.map { msg ->
+                    MessageItem(
+                        id = msg.id,
+                        text = msg.text,
+                        characterId = msg.characterId,
+                        isMainCharacter = msg.isMainCharacter
+                    )
+                },
+            )
+        }
+    }
+
+    /**
+     * Handles one-shot effects emitted by the game engine.
+     */
+    private fun handleEffect(effect: HandlerEffect) {
+        when (effect) {
+            is HandlerEffect.ShowChoices -> {
+                updateState { it.copy(choices = effect.choices) }
+            }
+
+            is HandlerEffect.PlaySound,
+            is HandlerEffect.StopSound,
+            is HandlerEffect.ShowGlitch,
+            is HandlerEffect.SendSignal,
+            is HandlerEffect.ScheduleNotification,
+            is HandlerEffect.LoadImage,
+            is HandlerEffect.SaveScore,
+            is HandlerEffect.UnlockTrophy,
+            is HandlerEffect.PlayVocal,
+            is HandlerEffect.ChangeChapter,
+            is HandlerEffect.ChangeBackground,
+            is HandlerEffect.AddMessage,
+            is HandlerEffect.UpdateLastMessageStatus,
+            is HandlerEffect.UpdateMemory -> {
+                // TODO: Implement effect handling when needed
+                Log.d("GameEngine", "Received effect: ${effect::class.simpleName}")
+            }
+        }
+    }
+
+    /**
+     * Called when player selects a choice.
+     */
+    fun onChoiceSelected(choiceId: String) {
+        updateState { it.copy(choices = emptyList()) }
+        viewModelScope.launch {
+            gameEngine.onPlayerChoice(choiceId)
+        }
+    }
+
+    private fun updateState(transform: (GameUiState) -> GameUiState) {
+        _uiState.value = transform(_uiState.value)
+    }
+}
+
+data class GameUiState(
+    val gameId: String? = null,
+    val chapterCode: String? = null,
+    val messages: List<MessageItem> = emptyList(),
+    val choices: List<HandlerEffect.ShowChoices.Choice> = emptyList(),
+    val isAwaitingInput: Boolean = false
+)
