@@ -15,25 +15,6 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import javax.inject.Inject
 
-/**
- * Core game engine that manages node execution and state.
- * State survives process death via GameSessionStorage (provided by presentation layer).
- * Game memory is persisted to database at explicit save points.
- *
- * All node-specific processing is delegated to handlers via NodeHandlerFactory.
- * The engine focuses purely on orchestration: node resolution, navigation, and state management.
- *
- * Architecture:
- * - GameEngine: Orchestrates node execution, owns state
- * - NodeHandler: Decides what happens for a node type (pure logic)
- * - NodeResolver: Determines next node based on graph edges
- * - GameMemory: Holds game variables, persisted at save points
- *
- * Lifecycle:
- * - One engine instance per game session (ViewModel-scoped)
- * - Properly isolated between sessions to prevent state corruption
- * - Not a singleton to avoid memory leaks and state pollution
- */
 class GameEngine @Inject constructor(
     private val handlerFactory: NodeHandlerFactory,
     private val nodeResolver: NodeResolver,
@@ -47,13 +28,6 @@ class GameEngine @Inject constructor(
     private val _messages = MutableStateFlow<List<GameMessage>>(emptyList())
     val messages: StateFlow<List<GameMessage>> = _messages.asStateFlow()
 
-    /**
-     * One-shot effects emitted by the engine for the presentation layer.
-     * For stateful data (messages), subscribe to GameEngine.messages instead.
-     *
-     * Uses BUFFERED to prevent effect loss under load. SharedFlow with replay
-     * ensures effects survive ViewModel recreation during config changes.
-     */
     private val _effects = MutableSharedFlow<HandlerEffect>(
         replay = 10,
         onBufferOverflow = kotlinx.coroutines.channels.BufferOverflow.DROP_OLDEST
@@ -90,7 +64,9 @@ class GameEngine @Inject constructor(
      * @throws IllegalStateException if already initialized with a different game
      */
     suspend fun initialize(gameId: String, graph: ChapterGraph) {
+
         // Defensive: ensure clean state even if reset() was forgotten
+        // TODO : weirdo
         if (currentGameId != null && currentGameId != gameId) {
             reset()
         }
@@ -281,13 +257,6 @@ class GameEngine @Inject constructor(
                 _messages.value += effect.message
             }
 
-            is HandlerEffect.UpdateLastMessageStatus -> {
-                val current = _messages.value
-                if (current.isNotEmpty()) {
-                    _messages.value =
-                        current.dropLast(1) + current.last().copy(status = effect.status)
-                }
-            }
 
             is HandlerEffect.UpdateMemory -> {
                 memory.set(effect.key, effect.value)

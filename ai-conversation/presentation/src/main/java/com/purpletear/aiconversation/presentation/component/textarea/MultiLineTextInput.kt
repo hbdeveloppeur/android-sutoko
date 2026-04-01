@@ -55,20 +55,6 @@ private fun Preview() {
     }
 }
 
-private fun findWordBoundaries(text: String, charIndex: Int): Pair<Int, Int> {
-    var start = charIndex
-    while (start > 0 && !text[start - 1].isWhitespace()) {
-        start--
-    }
-
-    var end = charIndex
-    while (end < text.length && !text[end].isWhitespace()) {
-        end++
-    }
-
-    return start to end
-}
-
 @Composable
 fun MultiLineTextInput(
     text: String,

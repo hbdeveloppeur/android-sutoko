@@ -22,7 +22,7 @@ import com.purpletear.sutoko.game.repository.GameRepository
 import com.purpletear.sutoko.game.usecase.GetUserGamesUseCase
 import com.purpletear.sutoko.game.usecase.SearchStoriesUseCase
 import com.purpletear.sutoko.game.download.GameDownloadManager
-import com.purpletear.game.presentation.states.GameState
+import com.purpletear.game.presentation.common.states.GameState
 import com.purpletear.sutoko.game.download.GameDownloadState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import fr.purpletear.sutoko.shop.coinsLogic.Customer
@@ -107,7 +107,8 @@ class CreateViewModel @Inject constructor(
      * Returns a StateFlow that emits updates whenever the installation status changes.
      * This is the single source of truth from GameRepository.
      */
-    fun getGameInstallationStatus(gameId: String) = gameRepository.observeGameInstallationStatus(gameId)
+    fun getGameInstallationStatus(gameId: String) =
+        gameRepository.observeGameInstallationStatus(gameId)
 
     /**
      * Get the combined game state for a specific game.
@@ -183,12 +184,12 @@ class CreateViewModel @Inject constructor(
                     }
                     val updatedList = currentList + games
                     _userGames.value = Resource.Success(updatedList)
-                    
+
                     // Update featured games only on initial load (not pagination, not search)
                     if (!isLoadMore && !_isSearching.value) {
                         _featuredGames.value = updatedList
                     }
-                    
+
                     _currentPage.intValue = page
                     _hasMorePages.value = games.size >= PAGE_LIMIT
                     _isLoadingMore.value = false
@@ -230,14 +231,17 @@ class CreateViewModel @Inject constructor(
                     }
                     result.fold(
                         onSuccess = { games ->
-                            android.util.Log.d("CreateViewModel", "refreshUserGames success, games count=${games.size}")
+                            android.util.Log.d(
+                                "CreateViewModel",
+                                "refreshUserGames success, games count=${games.size}"
+                            )
                             _userGames.value = Resource.Success(games)
-                            
+
                             // Update featured games only when not searching
                             if (!_isSearching.value) {
                                 _featuredGames.value = games
                             }
-                            
+
                             _currentPage.intValue = 1
                             _hasMorePages.value = games.size >= PAGE_LIMIT
                         },
@@ -273,7 +277,7 @@ class CreateViewModel @Inject constructor(
      */
     fun onSearchQueryChange(query: String) {
         _searchQuery.value = query
-        
+
         // Reset to normal list when search is cleared
         if (query.isBlank() && _isSearching.value) {
             _isSearching.value = false
@@ -288,20 +292,20 @@ class CreateViewModel @Inject constructor(
      */
     fun onSearchSubmit(query: String) {
         _searchQuery.value = query
-        
+
         if (query.isBlank()) {
             _isSearching.value = false
             refreshUserGames()
             return
         }
-        
+
         performSearch(query)
     }
 
     private fun performSearch(query: String) {
         _isSearching.value = true
         _userGames.value = Resource.Loading()
-        
+
         viewModelScope.launch {
             executeFlowResultUseCase(
                 useCase = {
@@ -314,7 +318,7 @@ class CreateViewModel @Inject constructor(
                 },
                 onSuccess = { games ->
                     _userGames.value = Resource.Success(games)
-                    
+
                     _currentPage.intValue = 1
                     _hasMorePages.value = false // Search doesn't support pagination yet
                 },

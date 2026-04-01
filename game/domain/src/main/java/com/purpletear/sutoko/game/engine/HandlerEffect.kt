@@ -19,12 +19,6 @@ sealed class HandlerEffect {
     data class AddMessage(val message: GameMessage) : HandlerEffect()
 
     /**
-     * Update the last message's status.
-     * Used for transitioning from TYPING to SENT.
-     */
-    data class UpdateLastMessageStatus(val status: GameMessage.Status) : HandlerEffect()
-
-    /**
      * Change the background image.
      */
     data class ChangeBackground(val imageUrl: String) : HandlerEffect()

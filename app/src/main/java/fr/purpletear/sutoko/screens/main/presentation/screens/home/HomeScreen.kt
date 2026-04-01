@@ -24,8 +24,8 @@ import coil.request.ImageRequest
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.purpletear.aiconversation.presentation.navigation.AiConversationRouteDestination
 import com.purpletear.core.presentation.extensions.Resource
-import com.purpletear.game.presentation.components.GameCard
-import com.purpletear.game.presentation.components.GameSquares
+import com.purpletear.game.presentation.game_catalog.GameCard
+import com.purpletear.game.presentation.game_catalog.GameSquares
 import fr.purpletear.sutoko.BuildConfig
 import fr.purpletear.sutoko.screens.main.domain.popup.util.MainMenuCategory
 import fr.purpletear.sutoko.screens.main.presentation.HomeScreenViewModel
@@ -35,8 +35,8 @@ import fr.purpletear.sutoko.screens.main.presentation.screens.TopNavigation
 import fr.purpletear.sutoko.screens.main.presentation.screens.home.components.AiConversationCard
 import fr.purpletear.sutoko.screens.main.presentation.screens.home.components.HeaderPager
 import fr.purpletear.sutoko.screens.main.presentation.screens.home.components.Menu
-import com.purpletear.game.presentation.util.ImmutableList as GameImmutableList
-import com.purpletear.game.presentation.util.ImmutableMap as GameImmutableMap
+import fr.purpletear.sutoko.presentation.util.ImmutableList as GameImmutableList
+import fr.purpletear.sutoko.presentation.util.ImmutableMap as GameImmutableMap
 
 /**
  * Home screen composable that displays the main content of the application.
@@ -261,8 +261,8 @@ private fun LazyListScope.squareStoriesSection(
 
     item(key = "square_stories") {
         GameSquares(
-            stories = GameImmutableList(squareStories.items),
-            icons = GameImmutableMap(squareIcons.map),
+            stories = squareStories.items,
+            icons = squareIcons.map,
             onTap = onStoryTap
         )
     }

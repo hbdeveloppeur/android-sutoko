@@ -13,6 +13,22 @@ val PlayfairDisplayFontFamily = FontFamily(
     Font(R.font.playfair_display, FontWeight.Normal)
 )
 
+// Define Montserrat font family
+val MontserratFontFamily = FontFamily(
+    Font(R.font.font_montserrat_regular, FontWeight.Normal),
+    Font(R.font.font_montserrat_medium, FontWeight.Medium),
+    Font(R.font.font_montserrat_semibold, FontWeight.SemiBold),
+    Font(R.font.font_montserrat_bold, FontWeight.Bold)
+)
+
+// Define Crimson Text font family
+val CrimsonTextFontFamily = FontFamily(
+    Font(R.font.font_crimson_text_regular, FontWeight.Normal),
+    Font(R.font.font_crimson_text_semibold, FontWeight.SemiBold),
+    Font(R.font.font_crimson_text_bold, FontWeight.Bold),
+    Font(R.font.font_crimson_text_italic, FontWeight.Normal)
+)
+
 // Define PlusJakartaSans font family
 val PlusJakartaSansFontFamily = FontFamily(
     Font(R.font.plus_jakarta_sans, FontWeight.Normal)

@@ -56,6 +56,7 @@ include ':notification:data'
 include ':game:domain'
 include ':game:data'
 include ':game:presentation'
+include ':game:debug'
 include ':news:domain'
 include ':news:data'
 include ':news:presentation'
@@ -81,3 +82,4 @@ project(":core:data").projectDir = new File(rootDir, "core/data")
 project(":game:domain").projectDir = new File(rootDir, "game/domain")
 project(":game:data").projectDir = new File(rootDir, "game/data")
 project(":game:presentation").projectDir = new File(rootDir, "game/presentation")
+project(":game:debug").projectDir = new File(rootDir, "game/debug")

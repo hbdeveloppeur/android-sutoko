@@ -1,0 +1,75 @@
+package com.purpletear.game.presentation.game_play.components.message
+
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import coil.compose.AsyncImage
+import com.purpletear.game.debug.PreviewOverlayWrapper
+import com.purpletear.game.presentation.R
+import com.purpletear.game.presentation.game_play.components.Avatar
+
+@Preview(name = "MessageImage")
+@Composable
+private fun Preview() {
+    PreviewOverlayWrapper(
+        imageModifier = Modifier
+            .height(200.dp)
+            .aspectRatio(198f / 264f),
+        drawable = R.drawable.preview_messageimagedest,
+    ) {
+        Column {
+            Box(
+                Modifier
+                    .padding(4.dp)
+            ) {
+                MessageImage()
+            }
+        }
+    }
+}
+
+@Composable
+internal fun MessageImage() {
+    val shape = RoundedCornerShape(16.dp)
+    Box {
+        Box(
+            modifier = Modifier
+                .height(196.dp)
+                .width(146.dp)
+                .padding(start = 4.dp, bottom = 8.dp)
+                .border(width = 1.dp, color = Color.White.copy(0.15f), shape = shape)
+                .clip(shape)
+        ) {
+            AsyncImage(
+                modifier = Modifier
+                    .matchParentSize(),
+                model = "https://data.sutoko.app/resources/sutoko-ai/image/AiChatHomePageHeader.jpg",
+                contentDescription = null,
+                contentScale = ContentScale.Crop,
+            )
+        }
+        Avatar(
+            modifier = Modifier
+                .background(Color.Blue)
+                .align(Alignment.BottomStart),
+            size = 26.dp,
+            borderWidth = 1.4.dp,
+            drawable = R.drawable.tmp_avatar
+        )
+    }
+}
+

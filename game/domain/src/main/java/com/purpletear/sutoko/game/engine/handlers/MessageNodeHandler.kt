@@ -1,11 +1,10 @@
 package com.purpletear.sutoko.game.engine.handlers
 
-import com.purpletear.sutoko.game.engine.GameMessage
 import com.purpletear.sutoko.game.engine.HandlerCommand
 import com.purpletear.sutoko.game.engine.HandlerEffect
 import com.purpletear.sutoko.game.engine.HandlerScript
 import com.purpletear.sutoko.game.engine.NodeHandler
-
+import com.purpletear.sutoko.game.engine.message.GameMessageText
 import com.purpletear.sutoko.game.engine.processing.TextProcessor
 import com.purpletear.sutoko.game.model.chapter.GameMemory
 import com.purpletear.sutoko.game.model.chapter.Node
@@ -84,11 +83,10 @@ class MessageNodeHandler @Inject constructor(
         commands.add(
             HandlerCommand.Emit(
                 HandlerEffect.AddMessage(
-                    GameMessage(
+                    GameMessageText(
                         id = messageId,
                         text = processedText,
                         characterId = node.characterId,
-                        status = GameMessage.Status.TYPING
                     )
                 )
             )
@@ -100,11 +98,11 @@ class MessageNodeHandler @Inject constructor(
         }
 
         // 4. REVEAL: Update to SENT status (reveals the message, hides typing indicator)
-        commands.add(
+        /*commands.add(
             HandlerCommand.Emit(
                 HandlerEffect.UpdateLastMessageStatus(GameMessage.Status.SENT)
             )
-        )
+        )*/
 
         return commands
     }

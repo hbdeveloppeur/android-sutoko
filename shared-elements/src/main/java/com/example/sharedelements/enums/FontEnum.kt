@@ -27,4 +27,20 @@ sealed class FontEnum {
         override val font: Int = R.font.font_garamond
     }
 
+    object MontserratRegular : FontEnum() {
+        override val font: Int = R.font.font_montserrat_regular
+    }
+
+    object MontserratMedium : FontEnum() {
+        override val font: Int = R.font.font_montserrat_medium
+    }
+
+    object MontserratSemiBold : FontEnum() {
+        override val font: Int = R.font.font_montserrat_semibold
+    }
+
+    object MontserratBold : FontEnum() {
+        override val font: Int = R.font.font_montserrat_bold
+    }
+
 }

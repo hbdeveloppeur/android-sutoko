@@ -44,8 +44,7 @@ import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.animateLottieCompositionAsState
 import com.airbnb.lottie.compose.rememberLottieComposition
 import com.example.sharedelements.theme.SutokoTypography
-import com.purpletear.game.presentation.components.AnimatedGradientBorderBox
-import com.purpletear.game.presentation.components.GradientThemes
+import com.purpletear.game.presentation.common.components.GradientThemes
 import fr.purpletear.sutoko.R
 
 

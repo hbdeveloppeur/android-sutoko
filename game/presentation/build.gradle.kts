@@ -51,6 +51,7 @@ android {
 dependencies {
     implementation(project(":game:domain"))
     implementation(project(":game:data"))
+    implementation(project(":game:debug"))
     implementation(project(":version:domain"))
     implementation(project(":version:infrastructure"))
     implementation(project(":core:domain"))

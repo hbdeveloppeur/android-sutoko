@@ -53,7 +53,9 @@ import com.purpletear.aiconversation.presentation.screens.home.viewModels.AiConv
 import com.purpletear.aiconversation.presentation.screens.image_viewer.ImageViewerScreen
 import com.purpletear.aiconversation.presentation.screens.media.image_generator.ImageGeneratorScreen
 import com.purpletear.aiconversation.presentation.screens.shopDialog.MessagesCoinsDialogComposable
-import com.purpletear.game.presentation.screens.GamePreview
+import com.purpletear.game.presentation.game_play.SmsGameActivity
+import com.purpletear.game.presentation.game_play.SmsGameActivityArgs
+import com.purpletear.game.presentation.game_preview.GamePreview
 import com.purpletear.sutoko.game.model.Game
 import com.purpletear.sutoko.game.usecase.GetGameUseCase
 import com.purpletear.sutoko.news.model.News
@@ -80,9 +82,6 @@ import fr.purpletear.sutoko.screens.main.presentation.MainEvents
 import fr.purpletear.sutoko.screens.main.presentation.MainScreenPages
 import fr.purpletear.sutoko.screens.main.presentation.screens.MainScreen
 import fr.purpletear.sutoko.screens.params.SutokoParamsActivity
-
-import com.purpletear.game.presentation.smsgame.SmsGameActivity
-import com.purpletear.game.presentation.smsgame.SmsGameActivityArgs
 import fr.purpletear.sutoko.screens.splashscreen.SplashScreen
 import fr.purpletear.sutoko.screens.web.WebActivity
 import fr.purpletear.sutoko.shop.coinsLogic.Customer
@@ -298,7 +297,7 @@ class MainActivity @Inject constructor(
                                 }
                             )
                         }
-                        
+
                         // Sutoko - Home screen.
                         composable(MainScreenPages.Home.route) {
                             viewModel.displayAiConversationCard(

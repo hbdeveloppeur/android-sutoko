@@ -90,4 +90,14 @@
     <string name="game_button_get">Get</string>
     <string name="game_button_open">Open</string>
     <string name="game_button_retry">Retry</string>
+
+    <!-- Game Announce Card -->
+    <string name="game_announce_update_today">Update your app today</string>
+    <string name="game_announce_soon_available">Soon available</string>
+    <string name="game_announce_title_create_stories">Create your own stories</string>
+    <string name="game_announce_subtitle_features">New features coming soon</string>
+    <string name="game_announce_button_update">Update</string>
+    <string name="game_announce_reminder_enabled">Reminder set</string>
+    <string name="game_announce_button_remind_me">Remind me</string>
+    <string name="game_announce_available">Available</string>
 </resources>

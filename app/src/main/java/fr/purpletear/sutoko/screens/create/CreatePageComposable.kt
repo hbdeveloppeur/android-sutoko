@@ -1,5 +1,6 @@
 package fr.purpletear.sutoko.screens.create
 
+import android.util.Log
 import androidx.compose.animation.core.animateIntAsState
 import androidx.compose.animation.core.spring
 import androidx.compose.foundation.Image
@@ -20,7 +21,6 @@ import androidx.compose.material.pullrefresh.pullRefresh
 import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -35,19 +35,20 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.purpletear.core.presentation.extensions.Resource
+import com.purpletear.game.presentation.common.states.GameState
+import com.purpletear.game.presentation.game_preview.components.GamePreviewModal
+import com.purpletear.game.presentation.game_catalog.GameCardCompact
+import com.purpletear.game.presentation.game_catalog.GameCoverCompact
 import com.purpletear.sutoko.game.model.Game
-import androidx.compose.ui.res.stringResource
 import com.purpletear.sutoko.game.model.getFullUrl
 import com.purpletear.sutoko.game.model.getThumbnailUrl
 import fr.purpletear.sutoko.R
 import fr.purpletear.sutoko.screens.create.components.create_story_button.CreateStoryButton
 import fr.purpletear.sutoko.screens.create.components.create_story_button.CreateStoryButtonVariant
-import com.purpletear.game.presentation.components.GamePreviewModal
-import com.purpletear.game.presentation.components.compact.GameCardCompact
-import com.purpletear.game.presentation.components.compact.GameCoverCompact
 import fr.purpletear.sutoko.screens.create.components.load_more_button.LoadMoreButton
 import fr.purpletear.sutoko.screens.create.components.search_box.SearchBox
 import fr.purpletear.sutoko.screens.create.components.section_title.SectionTitle
@@ -70,7 +71,7 @@ internal fun CreatePageComposable(
 ) {
     var isPreviewModalVisible by remember { mutableStateOf(false) }
     var selectedGameId by remember { mutableStateOf<String?>(null) }
-    
+
     val focusManager = LocalFocusManager.current
     val balance by viewModel.balance
     val userGames by viewModel.userGames
@@ -83,6 +84,7 @@ internal fun CreatePageComposable(
             (balance as Resource.Success).data?.coins
                 ?: viewModel.getCoins()
         }
+
         else -> viewModel.getCoins()
     }
 
@@ -91,6 +93,7 @@ internal fun CreatePageComposable(
             (balance as Resource.Success).data?.diamonds
                 ?: viewModel.getDiamonds()
         }
+
         else -> viewModel.getDiamonds()
     }
 
@@ -231,7 +234,8 @@ internal fun CreatePageComposable(
                     key = { it.id }
                 ) { game ->
                     // Observe combined game state (download + installation)
-                    val gameState by viewModel.getGameState(game.id).collectAsState(initial = com.purpletear.game.presentation.states.GameState.Idle)
+                    val gameState by viewModel.getGameState(game.id)
+                        .collectAsState(initial = GameState.Idle)
 
                     GameCardCompact(
                         modifier = Modifier
@@ -239,8 +243,7 @@ internal fun CreatePageComposable(
                             .animateItem(),
                         title = game.metadata.title,
                         author = game.author?.displayName ?: "",
-                        imageUrl = game.logoAsset.getThumbnailUrl() ?:
-                            "",
+                        imageUrl = game.logoAsset.getThumbnailUrl() ?: "",
                         isAuthorCertified = game.author?.isCertified ?: false,
                         gameState = gameState,
                         onGetClick = { viewModel.downloadGame(game) },
@@ -281,17 +284,23 @@ internal fun CreatePageComposable(
             GamePreviewModal(
                 isVisible = isPreviewModalVisible,
                 onDismiss = {
-                    android.util.Log.d("CreatePageComposable", "onDismiss called - hiding modal")
+                    Log.d("CreatePageComposable", "onDismiss called - hiding modal")
                     isPreviewModalVisible = false
                     selectedGameId = null
                 },
                 gameId = selectedGameId,
                 onPlayGame = { game ->
-                    android.util.Log.d("CreatePageComposable", "onPlayGame called with game=${game.id}")
+                    Log.d(
+                        "CreatePageComposable",
+                        "onPlayGame called with game=${game.id}"
+                    )
                     onGameClick(game)
                 },
                 onGameDeleted = {
-                    android.util.Log.d("CreatePageComposable", "onGameDeleted called - refreshing games list")
+                    Log.d(
+                        "CreatePageComposable",
+                        "onGameDeleted called - refreshing games list"
+                    )
                     viewModel.refreshUserGames()
                 }
             )

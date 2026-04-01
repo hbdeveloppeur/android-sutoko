@@ -14,7 +14,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.sharedelements.theme.Poppins
@@ -24,27 +27,35 @@ import com.example.sharedelements.theme.Poppins
  * Used for primary actions in game screens.
  */
 @Composable
-fun SimpleButton(text: String, onClick: () -> Unit) {
+fun SimpleButton(
+    text: String,
+    fontSize: TextUnit = 12.sp,
+    horizontalPadding: Dp = 16.dp,
+    verticalPadding: Dp = 8.dp,
+    imageVector: ImageVector? = Icons.AutoMirrored.Filled.KeyboardArrowRight,
+    onClick: () -> Unit
+) {
     Row(
         modifier = Modifier
             .clip(CircleShape)
             .background(Color(0xFFF8F8F8))
             .clickable(onClick = onClick)
-            .padding(horizontal = 16.dp, vertical = 8.dp)
-            .padding(start = 8.dp),
+            .padding(horizontal = horizontalPadding, vertical = verticalPadding),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Text(
             text = text,
             color = Color.Black,
-            fontSize = 12.sp,
+            fontSize = fontSize,
             fontWeight = FontWeight.SemiBold,
             fontFamily = Poppins
         )
-        Icon(
-            imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
-            contentDescription = null,
-            tint = Color.Black,
-        )
+        imageVector?.let {
+            Icon(
+                imageVector = imageVector,
+                contentDescription = null,
+                tint = Color.Black,
+            )
+        }
     }
 }
