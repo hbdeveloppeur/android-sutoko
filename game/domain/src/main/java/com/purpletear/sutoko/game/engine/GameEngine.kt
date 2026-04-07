@@ -178,84 +178,142 @@ class GameEngine @Inject constructor(
         return null
     }
 
+
     /**
      * Main entry point for executing a node.
-     * Dispatches to handlers based on node type.
-     * Handlers return HandlerScript (commands) which the engine executes step by step.
-     * This enables immediate effect emission and resume-capable execution.
+     * Orchestrates: preparation -> script building -> execution -> navigation.
      *
      * @param nodeId The node ID to execute
-     * @throws IllegalStateException if engine not initialized
      */
     private suspend fun executeNode(nodeId: String) {
         if (isPaused) return
 
-        val graph = checkNotNull(currentGraph) {
-            "Precondition violation: engine not initialized - call initialize() first"
-        }
-
-        val node = graph.getNode(nodeId)
-            ?: run {
-                _state.value = GameEngineState.Error("Node not found: $nodeId")
-                return
-            }
-
+        val context = prepareExecutionContext(nodeId) ?: return
         updateCurrentNodeId(nodeId)
 
-        val handler = getHandler(node)
+        val script = buildScript(context) ?: return
 
-        val script = try {
-            handler.buildScript(node, memory)
+        val shouldContinue = executeScript(script, context)
+        if (!shouldContinue) return
+
+        navigateToNext(context.node, script.nextNodeId)
+    }
+
+    /**
+     * Prepares the execution context by resolving graph, node, and handler.
+     * Returns null if preparation fails (error state already set).
+     */
+    private fun prepareExecutionContext(nodeId: String): ExecutionContext? {
+        val graph = currentGraph ?: run {
+            _state.value = GameEngineState.Error("Engine not initialized - call initialize() first")
+            return null
+        }
+
+        val node = graph.getNode(nodeId) ?: run {
+            _state.value = GameEngineState.Error("Node not found: $nodeId")
+            return null
+        }
+
+        val handler = getHandler(node)
+        return ExecutionContext(graph, node, nodeId, handler)
+    }
+
+    /**
+     * Builds the handler script with exception handling.
+     * Returns null if script building fails (error state already set).
+     */
+    private fun buildScript(context: ExecutionContext): HandlerScript? {
+        return try {
+            context.handler.buildScript(context.node, memory)
         } catch (e: IllegalStateException) {
             _state.value = GameEngineState.Error("State error: ${e.message}")
-            return
+            null
         } catch (e: IllegalArgumentException) {
             _state.value = GameEngineState.Error("Invalid argument: ${e.message}")
-            return
+            null
         } catch (e: IndexOutOfBoundsException) {
             _state.value = GameEngineState.Error("Index out of bounds: ${e.message}")
-            return
+            null
         }
+    }
 
-        // Execute commands sequentially - each effect is applied immediately
+    /**
+     * Executes the script commands sequentially.
+     *
+     * @return true if script completed normally, false if paused/awaiting input
+     */
+    private suspend fun executeScript(
+        script: HandlerScript,
+        context: ExecutionContext
+    ): Boolean {
         for (command in script.commands) {
-            if (isPaused) return
+            if (isPaused) return false
 
-            when (command) {
-                is HandlerCommand.Emit -> applyEffect(command.effect)
+            val shouldContinue = executeCommand(command, script, context)
+            if (!shouldContinue) return false
+        }
+        return true
+    }
 
-                is HandlerCommand.Delay -> {
-                    timingScheduler.delay(command.millis)
-                }
+    /**
+     * Executes a single command.
+     *
+     * @return true to continue script execution, false to halt (awaiting input)
+     */
+    private suspend fun executeCommand(
+        command: HandlerCommand,
+        script: HandlerScript,
+        context: ExecutionContext
+    ): Boolean {
+        return when (command) {
+            is HandlerCommand.Emit -> {
+                applyEffect(command.effect)
+                true
+            }
 
-                is HandlerCommand.AwaitInput -> {
-                    // Defensive: AwaitInput MUST be last - commands after it would be orphaned
-                    val commandIndex = script.commands.indexOf(command)
-                    check(commandIndex == script.commands.lastIndex) {
-                        "Invariant violation: AwaitInput must be the last command in a script. " +
-                                "Found ${script.commands.size - commandIndex - 1} orphaned commands after AwaitInput."
-                    }
+            is HandlerCommand.Delay -> {
+                timingScheduler.delay(command.millis)
+                true
+            }
 
-                    // Set state atomically to prevent race conditions
-                    _state.value = GameEngineState.AwaitingInput(
-                        chapterCode = graph.chapterCode,
-                        currentNodeId = nodeId
-                    )
-                    inputMutex.withLock {
-                        awaitingInput = true
-                    }
-                    return
-                }
+            is HandlerCommand.AwaitInput -> {
+                awaitPlayerInput(command, script, context)
+                false
             }
         }
+    }
 
-        navigateToNext(node, script.nextNodeId)
+    /**
+     * Handles the AwaitInput command: validates position, sets state, and pauses.
+     */
+    private fun awaitPlayerInput(
+        command: HandlerCommand.AwaitInput,
+        script: HandlerScript,
+        context: ExecutionContext
+    ) {
+        val commandIndex = script.commands.indexOf(command)
+
+        check(commandIndex == script.commands.lastIndex) {
+            "Invariant violation: AwaitInput must be the last command. " +
+                    "Found ${script.commands.size - commandIndex - 1} orphaned commands."
+        }
+
+        _state.value = GameEngineState.AwaitingInput(
+            chapterCode = context.graph.chapterCode,
+            currentNodeId = context.nodeId
+        )
+
+        awaitingInput = true
     }
 
     private fun applyEffect(effect: HandlerEffect) {
         when (effect) {
             is HandlerEffect.AddMessage -> {
                 _messages.value += effect.message
+            }
+
+            is HandlerEffect.DeleteMessage -> {
+                _messages.value = _messages.value.filter { it.id != effect.messageId }
             }
 
 
@@ -318,5 +376,6 @@ class GameEngine @Inject constructor(
         is Node.Trophy -> handlerFactory.getHandler(NodeType.TROPHY)
         is Node.Signal -> handlerFactory.getHandler(NodeType.SIGNAL)
         is Node.Background -> handlerFactory.getHandler(NodeType.BACKGROUND)
+        is Node.ConversationModeChange -> handlerFactory.getHandler(NodeType.CONVERSATION_MODE_CHANGE)
     }
 }

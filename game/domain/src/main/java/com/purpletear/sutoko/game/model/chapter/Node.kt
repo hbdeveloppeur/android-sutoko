@@ -79,4 +79,11 @@ sealed class Node {
         override val position: Position,
         val imageUrl: String
     ) : Node()
+
+    @Keep
+    data class ConversationModeChange(
+        override val id: String,
+        override val position: Position,
+        val mode: ConversationMode
+    ) : Node()
 }

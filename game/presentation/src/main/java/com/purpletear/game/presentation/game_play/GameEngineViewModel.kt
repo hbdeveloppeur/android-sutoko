@@ -119,26 +119,14 @@ class GameEngineViewModel @Inject constructor(
                 updateState { it.copy(choices = effect.choices) }
             }
 
-            is HandlerEffect.PlaySound,
-            is HandlerEffect.StopSound,
-            is HandlerEffect.ShowGlitch,
-            is HandlerEffect.SendSignal,
-            is HandlerEffect.ScheduleNotification,
-            is HandlerEffect.LoadImage,
-            is HandlerEffect.SaveScore,
-            is HandlerEffect.UnlockTrophy,
-            is HandlerEffect.PlayVocal,
-            is HandlerEffect.ChangeChapter,
-            is HandlerEffect.ChangeBackground,
-            is HandlerEffect.AddMessage,
-            is HandlerEffect.UpdateMemory -> {
+            else -> {
                 // TODO: Implement effect handling when needed
                 Log.d("GameEngine", "Received effect: ${effect::class.simpleName}")
             }
         }
     }
 
-    
+
     private fun updateState(transform: (GameUiState) -> GameUiState) {
         _uiState.value = transform(_uiState.value)
     }

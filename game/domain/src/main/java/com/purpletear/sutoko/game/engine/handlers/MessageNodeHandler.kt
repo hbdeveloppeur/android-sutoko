@@ -5,7 +5,9 @@ import com.purpletear.sutoko.game.engine.HandlerEffect
 import com.purpletear.sutoko.game.engine.HandlerScript
 import com.purpletear.sutoko.game.engine.NodeHandler
 import com.purpletear.sutoko.game.engine.message.GameMessageText
+import com.purpletear.sutoko.game.engine.message.GameMessageTyping
 import com.purpletear.sutoko.game.engine.processing.TextProcessor
+import com.purpletear.sutoko.game.model.chapter.ConversationMode
 import com.purpletear.sutoko.game.model.chapter.GameMemory
 import com.purpletear.sutoko.game.model.chapter.Node
 import java.util.UUID
@@ -23,6 +25,10 @@ import javax.inject.Inject
  * Also handles special commands embedded in messages:
  * - [BACKGROUND_<url>] - Change background image
  * - [<command>] - Skip/ignore commands
+ *
+ * Respects conversation mode from [ConversationModeChangeNodeHandler]:
+ * - SMS mode: Shows typing indicators with delays (default)
+ * - IRL mode: No typing, messages display immediately
  */
 class MessageNodeHandler @Inject constructor(
     private val textProcessor: TextProcessor
@@ -32,7 +38,6 @@ class MessageNodeHandler @Inject constructor(
         node: Node,
         memory: GameMemory
     ): HandlerScript {
-        // TODO: MUST THROW IF NOT SUCCESS?
         val messageNode = node as? Node.Message ?: return HandlerScript()
 
         val variables = memory.state.value
@@ -52,60 +57,107 @@ class MessageNodeHandler @Inject constructor(
 
             is Command.Message -> {
                 HandlerScript(
-                    commands = buildMessageCommands(messageNode, processedText)
+                    commands = buildMessageCommands(
+                        messageNode,
+                        processedText,
+                        memory.conversationMode
+                    )
                 )
             }
         }
     }
 
     /**
-     * Builds the command sequence for a timed message:
-     * 1. Delay(seenMs) - wait before showing typing
-     * 2. Emit(AddMessage with TYPING) - show typing indicator
-     * 3. Delay(waitMs) - typing duration
-     * 4. Emit(UpdateLastMessageStatus to SENT) - reveal message
+     * Builds the command sequence for a message.
      *
-     * Each effect is applied immediately by the engine, ensuring the UI
-     * sees the TYPING state before the delay and SENT state after.
+     * SMS mode (default):
+     * 1. Delay(seenMs) - wait before showing typing
+     * 2. Emit(AddMessage) - show typing indicator
+     * 3. Delay(waitMs) - typing duration
+     *
+     * IRL mode:
+     * 1. Emit(AddMessage) - immediate display, no typing delays
+     *
+     * Each effect is applied immediately by the engine.
      */
     private fun buildMessageCommands(
         node: Node.Message,
-        processedText: String
+        processedText: String,
+        mode: ConversationMode
     ): List<HandlerCommand> {
         val commands = mutableListOf<HandlerCommand>()
         val messageId = UUID.randomUUID().toString()
 
-        // 1. SEEN DELAY: Wait before showing typing (simulates "reading" previous message)
-        if (node.seenMs > 0) {
-            commands.add(HandlerCommand.Delay(node.seenMs))
-        }
+        when (mode) {
+            ConversationMode.SMS -> {
+                if (node.seenMs > 0) {
+                    commands.add(HandlerCommand.Delay(node.seenMs))
+                }
 
-        // 2. SHOW TYPING: Add message with TYPING status (triggers typing indicator in UI)
-        commands.add(
-            HandlerCommand.Emit(
-                HandlerEffect.AddMessage(
-                    GameMessageText(
-                        id = messageId,
-                        text = processedText,
-                        characterId = node.characterId,
+                commands.add(
+                    HandlerCommand.Emit(
+                        HandlerEffect.AddMessage(
+                            GameMessageTyping(
+                                id = messageId,
+                                characterId = node.characterId,
+                            )
+                        )
                     )
                 )
-            )
-        )
 
-        // 3. TYPING DELAY: Wait during "typing"
-        if (node.waitMs > 0) {
-            commands.add(HandlerCommand.Delay(node.waitMs))
+                val typingDelayMs = determineTypingDuration(node, processedText)
+                commands.add(HandlerCommand.Delay(typingDelayMs))
+
+                commands.add(
+                    HandlerCommand.Emit(
+                        HandlerEffect.DeleteMessage(messageId = messageId)
+                    )
+                )
+
+                // TODO : add a small delay?
+
+                commands.add(
+                    HandlerCommand.Emit(
+                        HandlerEffect.AddMessage(
+                            GameMessageText(
+                                id = messageId,
+                                text = processedText,
+                                characterId = node.characterId,
+                            )
+                        )
+                    )
+                )
+            }
+
+            ConversationMode.IRL -> {
+                if (node.seenMs > 0) {
+                    commands.add(HandlerCommand.Delay(node.seenMs))
+                }
+
+                commands.add(
+                    HandlerCommand.Emit(
+                        HandlerEffect.AddMessage(
+                            GameMessageText(
+                                id = messageId,
+                                text = processedText,
+                                characterId = node.characterId,
+                            )
+                        )
+                    )
+                )
+            }
         }
 
-        // 4. REVEAL: Update to SENT status (reveals the message, hides typing indicator)
-        /*commands.add(
-            HandlerCommand.Emit(
-                HandlerEffect.UpdateLastMessageStatus(GameMessage.Status.SENT)
-            )
-        )*/
-
         return commands
+    }
+
+    private fun determineTypingDuration(node: Node.Message, text: String): Long {
+        return if (node.waitMs.toInt() == 0) {
+            val baseDuration = text.length * 100L
+            baseDuration.coerceIn(1500L, 5000L)
+        } else {
+            node.waitMs
+        }
     }
 
     private fun parseCommand(text: String): Command {

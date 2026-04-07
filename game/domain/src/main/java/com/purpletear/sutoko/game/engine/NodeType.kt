@@ -12,5 +12,6 @@ enum class NodeType {
     INFO,
     TROPHY,
     SIGNAL,
-    BACKGROUND
+    BACKGROUND,
+    CONVERSATION_MODE_CHANGE
 }

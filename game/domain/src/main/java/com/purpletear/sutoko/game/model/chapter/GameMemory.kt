@@ -74,6 +74,20 @@ class GameMemory @Inject constructor(
 
     fun get(key: String): String? = memory[key]
 
+    /**
+     * Current conversation mode for message display.
+     * Defaults to SMS if not set or invalid.
+     */
+    val conversationMode: ConversationMode
+        get() {
+            val modeString = get(CONVERSATION_MODE_KEY)
+            return try {
+                modeString?.let { ConversationMode.valueOf(it) } ?: ConversationMode.SMS
+            } catch (_: IllegalArgumentException) {
+                ConversationMode.SMS
+            }
+        }
+
     fun evaluateCondition(expression: String): Boolean {
         return ConditionEvaluator.evaluate(expression, memory)
     }
@@ -82,6 +96,14 @@ class GameMemory @Inject constructor(
      * Returns a read-only copy of current memory state.
      */
     fun snapshot(): Map<String, String> = memory.toMap()
+
+    companion object {
+        /**
+         * Memory key for storing current conversation mode.
+         * Used by ConversationModeChangeNodeHandler and read by MessageNodeHandler.
+         */
+        const val CONVERSATION_MODE_KEY = "conversation_mode"
+    }
 }
 
 @Keep

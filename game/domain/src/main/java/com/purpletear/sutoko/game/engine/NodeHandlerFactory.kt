@@ -3,6 +3,7 @@ package com.purpletear.sutoko.game.engine
 import com.purpletear.sutoko.game.engine.handlers.BackgroundNodeHandler
 import com.purpletear.sutoko.game.engine.handlers.ChapterChangeNodeHandler
 import com.purpletear.sutoko.game.engine.handlers.ConditionNodeHandler
+import com.purpletear.sutoko.game.engine.handlers.ConversationModeChangeNodeHandler
 import com.purpletear.sutoko.game.engine.handlers.InfoNodeHandler
 import com.purpletear.sutoko.game.engine.handlers.MemoryNodeHandler
 import com.purpletear.sutoko.game.engine.handlers.MessageNodeHandler
@@ -30,7 +31,8 @@ class NodeHandlerFactory @Inject constructor(
     private val infoHandler: InfoNodeHandler,
     private val trophyHandler: TrophyNodeHandler,
     private val signalHandler: SignalNodeHandler,
-    private val backgroundHandler: BackgroundNodeHandler
+    private val backgroundHandler: BackgroundNodeHandler,
+    private val conversationModeChangeHandler: ConversationModeChangeNodeHandler
 ) {
     /**
      * Returns the handler for the given node type.
@@ -46,5 +48,6 @@ class NodeHandlerFactory @Inject constructor(
         NodeType.TROPHY -> trophyHandler
         NodeType.SIGNAL -> signalHandler
         NodeType.BACKGROUND -> backgroundHandler
+        NodeType.CONVERSATION_MODE_CHANGE -> conversationModeChangeHandler
     }
 }

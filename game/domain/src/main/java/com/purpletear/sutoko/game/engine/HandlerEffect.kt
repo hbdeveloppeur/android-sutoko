@@ -19,6 +19,11 @@ sealed class HandlerEffect {
     data class AddMessage(val message: GameMessage) : HandlerEffect()
 
     /**
+     * Add a message to the conversation.
+     */
+    data class DeleteMessage(val messageId: String) : HandlerEffect()
+
+    /**
      * Change the background image.
      */
     data class ChangeBackground(val imageUrl: String) : HandlerEffect()
@@ -103,5 +108,13 @@ sealed class HandlerEffect {
     data class UpdateMemory(
         val key: String,
         val value: String
+    ) : HandlerEffect()
+
+    /**
+     * Change the conversation display mode (SMS or IRL).
+     * Notifies UI to update rendering style.
+     */
+    data class ChangeConversationMode(
+        val mode: String
     ) : HandlerEffect()
 }
