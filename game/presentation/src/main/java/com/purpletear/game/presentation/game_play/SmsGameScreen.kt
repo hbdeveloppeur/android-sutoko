@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.LazyListState
@@ -23,6 +22,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.unit.dp
 import com.purpletear.game.presentation.game_play.mapper.Message
 import com.purpletear.game.presentation.game_play.state.GameUiState
@@ -38,12 +38,25 @@ internal fun SmsGameScreen(
 
         val listState = rememberLazyListState()
         val scope = rememberCoroutineScope()
+        var previousCount by remember { mutableIntStateOf(0) }
 
         LaunchedEffect(state.messages.size) {
-            if (state.messages.isNotEmpty()) {
+            val currentCount = state.messages.size
+            if (currentCount > 0) {
                 scope.launch {
-                    listState.animateScrollToItem(state.messages.size - 1)
+                    if (currentCount > previousCount && previousCount > 0) {
+                        // New message added: first position at previous last item (no animation),
+                        // then animate scroll to new last item for visible push-up effect
+                        listState.scrollToItem(previousCount - 1)
+                        listState.animateScrollToItem(currentCount - 1)
+                    } else {
+                        // Initial load or deletion: just animate to last item
+                        listState.animateScrollToItem(currentCount - 1)
+                    }
+                    previousCount = currentCount
                 }
+            } else {
+                previousCount = 0
             }
         }
 
