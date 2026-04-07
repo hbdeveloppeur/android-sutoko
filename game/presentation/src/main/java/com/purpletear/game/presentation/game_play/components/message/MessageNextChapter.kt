@@ -37,9 +37,12 @@ private fun Preview() {
 }
 
 @Composable
-internal fun MessageNextChapter(onClick: () -> Unit = {}) {
+internal fun MessageNextChapter(
+    onClick: () -> Unit = {},
+    modifier: Modifier = Modifier
+) {
     Column(
-        modifier = Modifier.padding(vertical = 24.dp),
+        modifier = modifier.padding(vertical = 24.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {

@@ -1,5 +1,6 @@
 package com.purpletear.game.presentation.game_play
 
+import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
@@ -14,6 +15,7 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.purpletear.game.presentation.game_play.mapper.Message
@@ -41,7 +43,10 @@ internal fun SmsGameScreen(
 
         SmsColumn(state = listState) {
             items(state.messages, key = { it.id }) { message ->
-                Message(message = message)
+                Message(
+                    message = message,
+                    modifier = Modifier.animateContentSize()
+                )
             }
         }
     }
@@ -64,7 +69,7 @@ private fun SmsColumn(
         modifier = modifier
             .fillMaxSize()
             .padding(horizontal = 16.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp, Alignment.Bottom),
         contentPadding = PaddingValues(vertical = 16.dp),
         content = content,
     )

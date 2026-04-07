@@ -47,8 +47,11 @@ private fun Preview() {
 }
 
 @Composable
-internal fun MessageText(text: String) {
-    MessageBubble {
+internal fun MessageText(
+    text: String,
+    modifier: Modifier = Modifier
+) {
+    MessageBubble(modifier = modifier) {
         Avatar(
             modifier = Modifier.background(Color.Blue),
             size = 26.dp,

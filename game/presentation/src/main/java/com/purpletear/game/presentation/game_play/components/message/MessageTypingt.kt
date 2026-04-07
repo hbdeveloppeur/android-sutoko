@@ -51,12 +51,15 @@ private const val DOT_COUNT = 3
 private const val DOT_DELAY = ANIMATION_DURATION / DOT_COUNT
 
 @Composable
-internal fun MessageTyping(isMainCharacter: Boolean = false) {
+internal fun MessageTyping(
+    isMainCharacter: Boolean = false,
+    modifier: Modifier = Modifier
+) {
     val infiniteTransition = rememberInfiniteTransition(label = "typing_dots")
     val alignment = if (isMainCharacter) Alignment.CenterEnd else Alignment.CenterStart
 
     Box(
-        Modifier
+        modifier
             .fillMaxWidth(),
         contentAlignment = alignment,
     ) {
