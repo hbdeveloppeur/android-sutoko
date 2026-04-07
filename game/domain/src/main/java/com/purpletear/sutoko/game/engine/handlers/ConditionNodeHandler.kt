@@ -19,7 +19,7 @@ import javax.inject.Inject
  * - "hasKey == true && doorUnlocked == false"
  */
 class ConditionNodeHandler @Inject constructor() : NodeHandler {
-    override fun prepare(
+    override fun buildScript(
         node: Node,
         memory: GameMemory
     ): HandlerScript {

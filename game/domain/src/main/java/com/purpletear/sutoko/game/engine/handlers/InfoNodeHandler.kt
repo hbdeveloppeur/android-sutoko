@@ -13,7 +13,7 @@ import javax.inject.Inject
  * They produce no commands and simply pass through to the next node.
  */
 class InfoNodeHandler @Inject constructor() : NodeHandler {
-    override fun prepare(
+    override fun buildScript(
         node: Node,
         memory: GameMemory
     ): HandlerScript {

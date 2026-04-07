@@ -16,7 +16,7 @@ import javax.inject.Inject
  * all state changes flow through the engine and are auditable.
  */
 class MemoryNodeHandler @Inject constructor() : NodeHandler {
-    override fun prepare(
+    override fun buildScript(
         node: Node,
         memory: GameMemory
     ): HandlerScript {

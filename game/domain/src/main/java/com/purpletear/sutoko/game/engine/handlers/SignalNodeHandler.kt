@@ -15,7 +15,7 @@ import javax.inject.Inject
  * (analytics, telemetry, remote logging, etc.).
  */
 class SignalNodeHandler @Inject constructor() : NodeHandler {
-    override fun prepare(
+    override fun buildScript(
         node: Node,
         memory: GameMemory
     ): HandlerScript {

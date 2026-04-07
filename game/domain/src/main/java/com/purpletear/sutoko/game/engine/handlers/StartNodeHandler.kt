@@ -13,7 +13,7 @@ import javax.inject.Inject
  * via graph edges. No commands are produced.
  */
 class StartNodeHandler @Inject constructor() : NodeHandler {
-    override fun prepare(
+    override fun buildScript(
         node: Node,
         memory: GameMemory
     ): HandlerScript {

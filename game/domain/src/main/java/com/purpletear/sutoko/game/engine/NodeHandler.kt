@@ -21,7 +21,7 @@ import com.purpletear.sutoko.game.model.chapter.Node
  */
 interface NodeHandler {
     /**
-     * Prepares a script of commands for the engine to execute.
+     * Builds a script of commands for the engine to execute.
      *
      * @param node The node to execute
      * @param memory The game memory for read-only state inspection
@@ -29,7 +29,7 @@ interface NodeHandler {
      *         - commands: sequence of Emit/Delay/AwaitInput to execute
      *         - nextNodeId: explicit next node, or null to resolve via edges
      */
-    fun prepare(
+    fun buildScript(
         node: Node,
         memory: GameMemory
     ): HandlerScript

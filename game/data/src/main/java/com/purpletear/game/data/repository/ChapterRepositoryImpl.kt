@@ -1,6 +1,7 @@
 package com.purpletear.game.data.repository
 
 import android.content.Context
+import android.util.Log
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.preferencesDataStore
@@ -63,6 +64,7 @@ class ChapterRepositoryImpl @Inject constructor(
                 }
             }
         } catch (e: Exception) {
+            Log.e("ChapterRepositoryImpl", "Error fetching chapters", e)
             if (e is kotlinx.coroutines.CancellationException) throw e
             val cachedChapters = chaptersCache[storyId]?.value
             val dbChapters = chapterDao.getAllForStory(storyId)

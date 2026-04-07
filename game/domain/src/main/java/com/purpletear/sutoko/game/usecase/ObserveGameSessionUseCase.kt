@@ -1,14 +1,14 @@
 package com.purpletear.sutoko.game.usecase
 
-import com.purpletear.sutoko.game.model.Chapter
+import android.util.Log
 import com.purpletear.sutoko.game.model.ErrorType
 import com.purpletear.sutoko.game.model.GameSessionState
 import com.purpletear.sutoko.game.repository.UserGameProgressRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.lastOrNull
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
@@ -31,59 +31,61 @@ class ObserveGameSessionUseCase @Inject constructor(
             }
     }
 
-    private fun loadSessionForChapter(gameId: String, chapterCode: String): Flow<GameSessionState> = flow {
-        emit(GameSessionState.Loading)
+    private fun loadSessionForChapter(gameId: String, chapterCode: String): Flow<GameSessionState> =
+        flow {
+            emit(GameSessionState.Loading)
 
-        val result = try {
-            getChapters(gameId).firstOrNull()
-        } catch (e: Exception) {
-            null
-        }
+            val result = try {
+                getChapters(gameId).lastOrNull()
+            } catch (e: Exception) {
+                Log.e("ObserveGameSessionUseCase", "Error loading chapters", e)
+                null
+            }
 
-        val chapters = result?.getOrNull()
+            val chapters = result?.getOrNull()
 
-        if (chapters.isNullOrEmpty()) {
+            if (chapters.isNullOrEmpty()) {
+                emit(
+                    GameSessionState.Error(
+                        type = ErrorType.NO_CHAPTERS_FOUND,
+                        message = "No chapters available"
+                    )
+                )
+                return@flow
+            }
+
+            val targetChapter = chapters.find { it.normalizedCode == chapterCode }
+                ?: chapters.firstOrNull()
+
+            if (targetChapter == null) {
+                emit(
+                    GameSessionState.Error(
+                        type = ErrorType.CHAPTER_NOT_FOUND,
+                        message = "No available chapter found"
+                    )
+                )
+                return@flow
+            }
+
+            if (!targetChapter.isAvailable) {
+                emit(
+                    GameSessionState.Error(
+                        type = ErrorType.CHAPTER_UNAVAILABLE,
+                        message = "Chapter not yet released"
+                    )
+                )
+                return@flow
+            }
+
+            val progress = userGameProgressRepository.get(gameId)
+
             emit(
-                GameSessionState.Error(
-                    type = ErrorType.NO_CHAPTERS_FOUND,
-                    message = "No chapters available"
+                GameSessionState.Ready(
+                    gameId = gameId,
+                    chapter = targetChapter,
+                    heroName = progress?.heroName ?: "",
+                    totalChapters = chapters.size
                 )
             )
-            return@flow
         }
-
-        val targetChapter = chapters.find { it.normalizedCode == chapterCode }
-            ?: chapters.firstOrNull()
-
-        if (targetChapter == null) {
-            emit(
-                GameSessionState.Error(
-                    type = ErrorType.CHAPTER_NOT_FOUND,
-                    message = "No available chapter found"
-                )
-            )
-            return@flow
-        }
-
-        if (!targetChapter.isAvailable) {
-            emit(
-                GameSessionState.Error(
-                    type = ErrorType.CHAPTER_UNAVAILABLE,
-                    message = "Chapter not yet released"
-                )
-            )
-            return@flow
-        }
-
-        val progress = userGameProgressRepository.get(gameId)
-
-        emit(
-            GameSessionState.Ready(
-                gameId = gameId,
-                chapter = targetChapter,
-                heroName = progress?.heroName ?: "",
-                totalChapters = chapters.size
-            )
-        )
-    }
 }

@@ -28,10 +28,11 @@ class MessageNodeHandler @Inject constructor(
     private val textProcessor: TextProcessor
 ) : NodeHandler {
 
-    override fun prepare(
+    override fun buildScript(
         node: Node,
         memory: GameMemory
     ): HandlerScript {
+        // TODO: MUST THROW IF NOT SUCCESS?
         val messageNode = node as? Node.Message ?: return HandlerScript()
 
         val variables = memory.state.value

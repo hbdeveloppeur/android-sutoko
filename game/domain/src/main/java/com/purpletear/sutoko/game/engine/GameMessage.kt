@@ -6,7 +6,5 @@ package com.purpletear.sutoko.game.engine
  */
 open class GameMessage(
     var id: String,
-    val text: String,
-    val characterId: Int,
     val type: GameMessageType,
 )

@@ -14,7 +14,7 @@ import javax.inject.Inject
  * Emits a ChangeBackground effect to update the scene background.
  */
 class BackgroundNodeHandler @Inject constructor() : NodeHandler {
-    override fun prepare(
+    override fun buildScript(
         node: Node,
         memory: GameMemory
     ): HandlerScript {

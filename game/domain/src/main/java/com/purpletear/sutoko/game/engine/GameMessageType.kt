@@ -1,5 +1,6 @@
 package com.purpletear.sutoko.game.engine
 
 enum class GameMessageType {
-    Text
+    Text,
+    ChapterEnd,
 }

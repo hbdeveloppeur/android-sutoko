@@ -3,10 +3,12 @@ package com.purpletear.game.presentation.game_play
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -14,10 +16,10 @@ import androidx.navigation.compose.rememberNavController
 import com.example.sharedelements.theme.SutokoTheme
 import com.purpletear.game.presentation.BuildConfig
 import com.purpletear.game.presentation.common.components.HideStatusBarEffect
-import com.purpletear.game.presentation.game_chapter_introduction.descriptionScreen
 import com.purpletear.game.presentation.debug.SmsGameDevAction
 import com.purpletear.game.presentation.debug.SmsGameDevViewModel
 import com.purpletear.game.presentation.debug.debugPage
+import com.purpletear.game.presentation.game_chapter_introduction.descriptionScreen
 import com.purpletear.game.presentation.game_play.navigation.gameScreen
 import com.purpletear.sutoko.game.model.GameSessionState
 import dagger.hilt.android.AndroidEntryPoint
@@ -91,6 +93,17 @@ class SmsGameActivity : ComponentActivity() {
                             chapterCode = chapter.normalizedCode
                         )
                     }
+                } else if (sessionState is GameSessionState.Error) {
+                    val errorState = sessionState as GameSessionState.Error
+
+                    // TODO : Display error
+                    LaunchedEffect(errorState) {
+                        Toast.makeText(
+                            applicationContext,
+                            errorState.message,
+                            Toast.LENGTH_LONG
+                        ).show()
+                    }
                 }
             }
         }
@@ -99,7 +112,7 @@ class SmsGameActivity : ComponentActivity() {
     }
 
     private fun extractGameId(): String = if (BuildConfig.DEBUG) {
-        "XWA7PiyAC6e"
+        "taHQ3oyAtC3"
     } else {
         SmsGameActivityArgs.fromIntent(intent)?.gameId
             ?: error("Game ID required")

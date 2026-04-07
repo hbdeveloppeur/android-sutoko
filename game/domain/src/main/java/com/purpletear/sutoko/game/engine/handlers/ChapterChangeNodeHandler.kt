@@ -16,7 +16,7 @@ import javax.inject.Inject
  * is handled by the engine's NodeResolver.
  */
 class ChapterChangeNodeHandler @Inject constructor() : NodeHandler {
-    override fun prepare(
+    override fun buildScript(
         node: Node,
         memory: GameMemory
     ): HandlerScript {

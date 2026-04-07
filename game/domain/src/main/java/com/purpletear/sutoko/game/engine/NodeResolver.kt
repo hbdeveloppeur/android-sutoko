@@ -1,7 +1,6 @@
 package com.purpletear.sutoko.game.engine
 
 import com.purpletear.sutoko.game.model.chapter.ChapterGraph
-import com.purpletear.sutoko.game.model.chapter.Edge
 import com.purpletear.sutoko.game.model.chapter.Node
 import javax.inject.Inject
 
@@ -20,11 +19,11 @@ class NodeResolver @Inject constructor() {
     fun resolveNextNode(
         graph: ChapterGraph,
         currentNode: Node,
-        handlerResult: String?
+        forceNodId: String?
     ): ResolutionResult {
         // Handler explicitly returned next node
-        if (handlerResult != null) {
-            return ResolutionResult.NextNode(handlerResult)
+        if (forceNodId != null) {
+            return ResolutionResult.NextNode(forceNodId)
         }
 
         // Chapter change node = end of current chapter
@@ -33,15 +32,13 @@ class NodeResolver @Inject constructor() {
         }
 
         // Resolve via edges
-        val nextEdges = getNextEdges(graph, currentNode.id)
+        val nextEdges = graph.getNextEdges(currentNode.id)
 
         return when {
+            // TODO: when empty, throw. Bad state
             nextEdges.isEmpty() -> ResolutionResult.NodeNextChapter
             else -> ResolutionResult.NextNode(nextEdges.first().target)
         }
     }
 
-    private fun getNextEdges(graph: ChapterGraph, nodeId: String): List<Edge> {
-        return graph.edges.filter { it.source == nodeId }
-    }
 }

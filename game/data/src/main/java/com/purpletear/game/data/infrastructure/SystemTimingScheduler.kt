@@ -1,9 +1,9 @@
 package com.purpletear.game.data.infrastructure
 
 import com.purpletear.sutoko.game.engine.timing.TimingScheduler
-import kotlinx.coroutines.delay
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlinx.coroutines.delay as coroutinesDelay
 
 /**
  * Production implementation of TimingScheduler using Kotlin coroutines.
@@ -16,10 +16,10 @@ import javax.inject.Singleton
  */
 @Singleton
 class SystemTimingScheduler @Inject constructor() : TimingScheduler {
-    
+
     override suspend fun delay(millis: Long) {
         if (millis > 0) {
-            delay(millis)
+            coroutinesDelay(millis)
         }
     }
 }

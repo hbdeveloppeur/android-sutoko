@@ -3,11 +3,9 @@ package com.purpletear.sutoko.game.engine.message
 import com.purpletear.sutoko.game.engine.GameMessage
 import com.purpletear.sutoko.game.engine.GameMessageType
 
-class GameMessageText(
-    id: String,
-    val text: String,
-    val characterId: Int,
+class GameMessageNextChapter(
+    id: String = "next_chapter",
 ) : GameMessage(
     id = id,
-    type = GameMessageType.Text,
+    type = GameMessageType.ChapterEnd,
 )

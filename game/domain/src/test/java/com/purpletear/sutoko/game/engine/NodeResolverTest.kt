@@ -20,7 +20,7 @@ class NodeResolverTest {
         val result = resolver.resolveNextNode(
             graph = graph,
             currentNode = currentNode,
-            handlerResult = "explicit_next"
+            forceNodId = "explicit_next"
         )
 
         assertEquals(
@@ -41,7 +41,7 @@ class NodeResolverTest {
         val result = resolver.resolveNextNode(
             graph = graph,
             currentNode = chapterChangeNode,
-            handlerResult = null
+            forceNodId = null
         )
 
         assertTrue(result is NodeResolver.ResolutionResult.NodeNextChapter)
@@ -55,7 +55,7 @@ class NodeResolverTest {
         val result = resolver.resolveNextNode(
             graph = graph,
             currentNode = currentNode,
-            handlerResult = null
+            forceNodId = null
         )
 
         assertTrue(result is NodeResolver.ResolutionResult.NodeNextChapter)
@@ -72,7 +72,7 @@ class NodeResolverTest {
         val result = resolver.resolveNextNode(
             graph = graph,
             currentNode = currentNode,
-            handlerResult = null
+            forceNodId = null
         )
 
         assertEquals(

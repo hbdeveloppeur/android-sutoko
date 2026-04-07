@@ -1,6 +1,7 @@
 package com.purpletear.sutoko.game.engine
 
 import android.util.Log
+import com.purpletear.sutoko.game.engine.message.GameMessageNextChapter
 import com.purpletear.sutoko.game.engine.timing.TimingScheduler
 import com.purpletear.sutoko.game.model.chapter.ChapterGraph
 import com.purpletear.sutoko.game.model.chapter.GameMemory
@@ -66,7 +67,7 @@ class GameEngine @Inject constructor(
     suspend fun initialize(gameId: String, graph: ChapterGraph) {
 
         // Defensive: ensure clean state even if reset() was forgotten
-        // TODO : weirdo
+        // TODO : weirdo - it must reset when chapter changes, right?
         if (currentGameId != null && currentGameId != gameId) {
             reset()
         }
@@ -204,7 +205,7 @@ class GameEngine @Inject constructor(
         val handler = getHandler(node)
 
         val script = try {
-            handler.prepare(node, memory)
+            handler.buildScript(node, memory)
         } catch (e: IllegalStateException) {
             _state.value = GameEngineState.Error("State error: ${e.message}")
             return
@@ -260,6 +261,11 @@ class GameEngine @Inject constructor(
 
             is HandlerEffect.UpdateMemory -> {
                 memory.set(effect.key, effect.value)
+            }
+
+            is HandlerEffect.ChangeChapter -> {
+                // Save progress?
+                _messages.value += GameMessageNextChapter()
             }
 
             else -> {
