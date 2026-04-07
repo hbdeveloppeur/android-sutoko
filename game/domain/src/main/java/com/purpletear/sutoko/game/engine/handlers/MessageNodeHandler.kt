@@ -90,9 +90,7 @@ class MessageNodeHandler @Inject constructor(
 
         when (mode) {
             ConversationMode.SMS -> {
-                if (node.seenMs > 0) {
-                    commands.add(HandlerCommand.Delay(node.seenMs))
-                }
+                commands.add(HandlerCommand.Delay(node.seenMs.coerceAtLeast(520)))
 
                 commands.add(
                     HandlerCommand.Emit(
@@ -114,7 +112,7 @@ class MessageNodeHandler @Inject constructor(
                     )
                 )
 
-                // TODO : add a small delay?
+                commands.add(HandlerCommand.Delay(node.seenMs.coerceAtLeast(280)))
 
                 commands.add(
                     HandlerCommand.Emit(
