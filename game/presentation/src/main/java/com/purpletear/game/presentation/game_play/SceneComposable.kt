@@ -1,9 +1,5 @@
 package com.purpletear.game.presentation.game_play
 
-import android.view.Gravity
-import android.view.ViewGroup.LayoutParams.MATCH_PARENT
-import android.widget.FrameLayout
-import android.widget.VideoView
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
@@ -13,22 +9,16 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.viewinterop.AndroidView
-import androidx.core.net.toUri
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.ViewModel
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.purpletear.game.data.provider.GamePathProvider
+import com.purpletear.game.presentation.game_play.components.background.VideoBackground
 import com.purpletear.sutoko.game.model.scene.BackgroundType
 import com.purpletear.sutoko.game.model.scene.Scene
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -154,101 +144,6 @@ private fun SceneContent(
                     .fillMaxSize()
                     .background(filterColor)
             )
-        }
-    }
-}
-
-/**
- * Displays a video background using AndroidView with VideoView.
- * Video loops indefinitely and scales to fill the container (ContentScale.Crop behavior).
- * Video appears only when fully prepared for smooth transitions.
- */
-@Composable
-private fun VideoBackground(
-    videoPath: String,
-    modifier: Modifier = Modifier
-) {
-    var isReady by remember(videoPath) { mutableStateOf(false) }
-    var videoView by remember { mutableStateOf<VideoView?>(null) }
-
-    Box(
-        modifier = modifier.background(Color.Black)
-    ) {
-        if (isReady) {
-            AndroidView(
-                factory = { ctx ->
-                    val frameLayout = FrameLayout(ctx).apply {
-                        layoutParams = FrameLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT)
-                    }
-
-                    val newVideoView = VideoView(ctx).apply {
-                        layoutParams = FrameLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT).apply {
-                            gravity = Gravity.CENTER
-                        }
-
-                        setVideoURI(File(videoPath).toUri())
-
-                        setOnPreparedListener { mediaPlayer ->
-                            mediaPlayer.isLooping = true
-                            mediaPlayer.setVolume(0f, 0f)
-
-                            val videoWidth = mediaPlayer.videoWidth
-                            val videoHeight = mediaPlayer.videoHeight
-
-                            if (videoWidth > 0 && videoHeight > 0) {
-                                post {
-                                    val parentWidth = (parent as FrameLayout).width
-                                    val parentHeight = (parent as FrameLayout).height
-
-                                    if (parentWidth > 0 && parentHeight > 0) {
-                                        val scaleX = parentWidth.toFloat() / videoWidth.toFloat()
-                                        val scaleY = parentHeight.toFloat() / videoHeight.toFloat()
-                                        val scale = maxOf(scaleX, scaleY)
-
-                                        val scaledWidth = (videoWidth * scale).toInt()
-                                        val scaledHeight = (videoHeight * scale).toInt()
-
-                                        layoutParams =
-                                            FrameLayout.LayoutParams(scaledWidth, scaledHeight)
-                                                .apply { gravity = Gravity.CENTER }
-                                    }
-
-                                    start()
-                                }
-                            } else {
-                                start()
-                            }
-                        }
-
-                        setOnErrorListener { _, _, _ -> true }
-                    }
-
-                    frameLayout.addView(newVideoView)
-                    videoView = newVideoView
-                    frameLayout
-                },
-                modifier = Modifier.fillMaxSize(),
-                update = { frameLayout ->
-                    val v = frameLayout.getChildAt(0) as? VideoView
-                    if (v?.isPlaying == false) {
-                        v.start()
-                    }
-                }
-            )
-        }
-
-        DisposableEffect(videoPath) {
-            isReady = true
-            onDispose {
-                videoView?.let {
-                    if (it.isPlaying) {
-                        it.stopPlayback()
-                    }
-                    it.suspend()
-                }
-                videoView = null
-                isReady = false
-            }
         }
     }
 }
