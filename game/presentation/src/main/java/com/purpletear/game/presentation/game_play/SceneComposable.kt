@@ -187,6 +187,7 @@ private fun VideoBackground(
 
                     setOnPreparedListener { mediaPlayer ->
                         mediaPlayer.isLooping = true
+                        mediaPlayer.setVolume(0f, 0f)
 
                         val videoWidth = mediaPlayer.videoWidth
                         val videoHeight = mediaPlayer.videoHeight
