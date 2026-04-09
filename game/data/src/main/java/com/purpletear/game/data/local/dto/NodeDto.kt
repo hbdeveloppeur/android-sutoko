@@ -6,13 +6,7 @@ data class NodeDto(
     val id: String,
     val type: String,
     val version: Int = 1,
-    val position: PositionDto,
     val data: NodeDataDto
-)
-
-data class PositionDto(
-    val x: Float,
-    val y: Float
 )
 
 data class NodeDataDto(
@@ -35,5 +29,7 @@ data class NodeDataDto(
     @SerializedName("imageUrl")
     val imageUrl: String? = null,
     val wait: Long? = null,
-    val seen: Long? = null
+    val seen: Long? = null,
+    @SerializedName("sceneId")
+    val sceneId: Int? = null,
 )

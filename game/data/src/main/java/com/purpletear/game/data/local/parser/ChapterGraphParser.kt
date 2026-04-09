@@ -3,7 +3,6 @@ package com.purpletear.game.data.local.parser
 import com.purpletear.game.data.local.dto.ChapterMetadataDto
 import com.purpletear.game.data.local.dto.EdgeDto
 import com.purpletear.game.data.local.dto.NodeDto
-import com.purpletear.game.data.local.dto.NodeDataDto
 import com.purpletear.sutoko.game.model.chapter.ChapterGraph
 import com.purpletear.sutoko.game.model.chapter.Edge
 import com.purpletear.sutoko.game.model.chapter.EdgeType
@@ -33,18 +32,15 @@ object ChapterGraphParser {
     }
 
     private fun parseNode(dto: NodeDto): Node? {
-        val position = Node.Position(dto.position.x, dto.position.y)
 
         return when (dto.type) {
             "start" -> Node.Start(
                 id = dto.id,
-                position = position,
                 label = dto.data.label ?: "Start"
             )
 
             "message" -> Node.Message(
                 id = dto.id,
-                position = position,
                 text = dto.data.text ?: "",
                 characterId = dto.data.characterId ?: -1,
                 waitMs = dto.data.wait ?: 0,
@@ -53,13 +49,16 @@ object ChapterGraphParser {
 
             "chapter-change" -> Node.ChapterChange(
                 id = dto.id,
-                position = position,
                 chapterCode = dto.data.chapterCode ?: ""
+            )
+
+            "scene-node" -> Node.Scene(
+                id = dto.id,
+                sceneId = dto.data.sceneId ?: 0
             )
 
             "condition" -> Node.Condition(
                 id = dto.id,
-                position = position,
                 expression = dto.data.expression ?: "",
                 trueTargetId = dto.data.trueTargetId ?: "",
                 falseTargetId = dto.data.falseTargetId ?: ""
@@ -67,34 +66,34 @@ object ChapterGraphParser {
 
             "memory" -> Node.Memory(
                 id = dto.id,
-                position = position,
                 key = dto.data.key ?: "",
                 value = dto.data.value ?: ""
             )
 
-            "info" -> Node.Info(
+            "narration" -> Node.Info(
                 id = dto.id,
-                position = position,
                 text = dto.data.text ?: ""
             )
 
             "trophy" -> Node.Trophy(
                 id = dto.id,
-                position = position,
                 trophyId = dto.data.trophyId ?: ""
             )
 
             "signal" -> Node.Signal(
                 id = dto.id,
-                position = position,
                 action = dto.data.action ?: "",
                 payload = emptyMap()
             )
 
             "background" -> Node.Background(
                 id = dto.id,
-                position = position,
                 imageUrl = dto.data.imageUrl ?: ""
+            )
+
+            "scene-node" -> Node.Scene(
+                id = dto.id,
+                sceneId = dto.data.sceneId ?: 0
             )
 
             else -> null

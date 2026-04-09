@@ -10,6 +10,8 @@ import com.purpletear.sutoko.game.engine.GameEngineState
 import com.purpletear.sutoko.game.engine.GameMessage
 import com.purpletear.sutoko.game.engine.HandlerEffect
 import com.purpletear.sutoko.game.model.chapter.ChapterGraph
+import com.purpletear.sutoko.game.repository.SceneRepository
+import com.purpletear.sutoko.game.usecase.GetSceneUseCase
 import com.purpletear.sutoko.game.usecase.LoadChapterGraphUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -27,6 +29,8 @@ import javax.inject.Inject
 class GameEngineViewModel @Inject constructor(
     private val loadChapterGraphUseCase: LoadChapterGraphUseCase,
     private val gameEngine: GameEngine,
+    private val sceneRepository: SceneRepository,
+    private val getSceneUseCase: GetSceneUseCase,
     savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
 
@@ -44,6 +48,11 @@ class GameEngineViewModel @Inject constructor(
         viewModelScope.launch {
             gameEngine.reset()
 
+            // Preload scenes in parallel with chapter graph loading
+            val preloadJob = launch {
+                sceneRepository.preload(gameId)
+            }
+
             launch {
                 gameEngine.state.collect { updateUiStateFromEngine(it) }
             }
@@ -53,7 +62,17 @@ class GameEngineViewModel @Inject constructor(
             launch {
                 gameEngine.effects.collect { handleEffect(it) }
             }
+
             loadChapterGraph(gameId, chapterCode)
+
+            preloadJob.join()
+        }
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        viewModelScope.launch {
+            sceneRepository.clear()
         }
     }
 
@@ -115,9 +134,8 @@ class GameEngineViewModel @Inject constructor(
      */
     private fun handleEffect(effect: HandlerEffect) {
         when (effect) {
-            is HandlerEffect.ShowChoices -> {
-                updateState { it.copy(choices = effect.choices) }
-            }
+
+            is HandlerEffect.ChangeScene -> handleChangeScene(effect)
 
             else -> {
                 // TODO: Implement effect handling when needed
@@ -126,6 +144,12 @@ class GameEngineViewModel @Inject constructor(
         }
     }
 
+    private fun handleChangeScene(effect: HandlerEffect.ChangeScene) {
+        viewModelScope.launch {
+            val scene = getSceneUseCase(effect.sceneId)
+            this@GameEngineViewModel.updateState { it.copy(currentScene = scene) }
+        }
+    }
 
     private fun updateState(transform: (GameUiState) -> GameUiState) {
         _uiState.value = transform(_uiState.value)

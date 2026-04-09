@@ -8,6 +8,7 @@ enum class NodeType {
     MESSAGE,
     CHAPTER_CHANGE,
     CONDITION,
+    SCENE,
     MEMORY,
     INFO,
     TROPHY,

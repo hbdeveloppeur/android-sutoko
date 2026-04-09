@@ -66,7 +66,6 @@ class GameEngine @Inject constructor(
      */
     suspend fun initialize(gameId: String, graph: ChapterGraph) {
 
-        // Defensive: ensure clean state even if reset() was forgotten
         // TODO : weirdo - it must reset when chapter changes, right?
         if (currentGameId != null && currentGameId != gameId) {
             reset()
@@ -377,5 +376,6 @@ class GameEngine @Inject constructor(
         is Node.Signal -> handlerFactory.getHandler(NodeType.SIGNAL)
         is Node.Background -> handlerFactory.getHandler(NodeType.BACKGROUND)
         is Node.ConversationModeChange -> handlerFactory.getHandler(NodeType.CONVERSATION_MODE_CHANGE)
+        is Node.Scene -> handlerFactory.getHandler(NodeType.SCENE)
     }
 }

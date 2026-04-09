@@ -38,11 +38,13 @@ private fun Preview() {
 
 @Composable
 internal fun MessageNextChapter(
+    modifier: Modifier = Modifier,
     onClick: () -> Unit = {},
-    modifier: Modifier = Modifier
 ) {
     Column(
-        modifier = modifier.padding(vertical = 24.dp),
+        modifier = modifier
+            .padding(vertical = 24.dp)
+            .fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(12.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {

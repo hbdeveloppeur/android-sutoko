@@ -117,4 +117,13 @@ sealed class HandlerEffect {
     data class ChangeConversationMode(
         val mode: String
     ) : HandlerEffect()
+
+    /**
+     * Change to a scene configuration.
+     * The presentation layer resolves sceneId to the actual asset
+     * using SceneRepository.
+     */
+    data class ChangeScene(
+        val sceneId: Int
+    ) : HandlerEffect()
 }

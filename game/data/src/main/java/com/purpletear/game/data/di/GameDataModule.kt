@@ -18,6 +18,7 @@ import com.purpletear.game.data.repository.ChapterGraphRepositoryImpl
 import com.purpletear.game.data.repository.GameInstallationRepositoryImpl
 import com.purpletear.game.data.repository.GameRepositoryImpl
 import com.purpletear.game.data.repository.MemoryRepositoryImpl
+import com.purpletear.game.data.repository.SceneRepositoryImpl
 import com.purpletear.game.data.repository.UserGameProgressRepositoryImpl
 import com.purpletear.sutoko.game.engine.processing.TextProcessor
 import com.purpletear.sutoko.game.engine.processing.TextProcessorImpl
@@ -28,6 +29,7 @@ import com.purpletear.sutoko.game.download.GameDownloadManager
 import com.purpletear.sutoko.game.repository.GameInstallationRepository
 import com.purpletear.sutoko.game.repository.GameRepository
 import com.purpletear.sutoko.game.repository.MemoryRepository
+import com.purpletear.sutoko.game.repository.SceneRepository
 import com.purpletear.sutoko.game.repository.UserGameProgressRepository
 import dagger.Module
 import dagger.Provides
@@ -286,5 +288,19 @@ object GameDataModule {
     @Provides
     @Singleton
     fun provideTextProcessor(): TextProcessor = TextProcessorImpl()
+
+    /**
+     * Provides the SceneRepository implementation.
+     *
+     * @param impl The implementation instance.
+     * @return The SceneRepository interface.
+     */
+    @Provides
+    @Singleton
+    fun provideSceneRepository(
+        impl: SceneRepositoryImpl
+    ): SceneRepository {
+        return impl
+    }
 
 }

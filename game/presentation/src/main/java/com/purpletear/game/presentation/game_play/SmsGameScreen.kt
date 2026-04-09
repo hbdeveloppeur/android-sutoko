@@ -18,14 +18,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.purpletear.game.presentation.game_play.mapper.Message
 import com.purpletear.game.presentation.game_play.state.GameUiState
-import com.purpletear.game.presentation.game_play.MediaComposable as BackgroundMedia
 
 @Composable
 internal fun SmsGameScreen(
     state: GameUiState,
 ) {
     Screen {
-        BackgroundMedia(imageUrl = null)
+        SceneComposable(
+            scene = state.currentScene,
+            gameId = state.gameId
+        )
 
         val listState = rememberLazyListState()
 

@@ -34,7 +34,6 @@ class NodeResolverTest {
         val graph = createGraph()
         val chapterChangeNode = Node.ChapterChange(
             id = "end",
-            position = Node.Position(0f, 0f),
             chapterCode = "2A"
         )
 
@@ -94,7 +93,6 @@ class NodeResolverTest {
     private fun createMessageNode(id: String): Node.Message {
         return Node.Message(
             id = id,
-            position = Node.Position(0f, 0f),
             text = "Test message",
             characterId = 1
         )
