@@ -161,71 +161,84 @@ private fun SceneContent(
 /**
  * Displays a video background using AndroidView with VideoView.
  * Video loops indefinitely and scales to fill the container (ContentScale.Crop behavior).
+ * Video appears only when fully prepared for smooth transitions.
  */
 @Composable
 private fun VideoBackground(
     videoPath: String,
     modifier: Modifier = Modifier
 ) {
+    var isReady by remember(videoPath) { mutableStateOf(false) }
     var videoView by remember { mutableStateOf<VideoView?>(null) }
 
     Box(
         modifier = modifier.background(Color.Black)
     ) {
-        AndroidView(
-            factory = { ctx ->
-                val frameLayout = FrameLayout(ctx).apply {
-                    layoutParams = FrameLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT)
-                }
-
-                val newVideoView = VideoView(ctx).apply {
-                    layoutParams = FrameLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT).apply {
-                        gravity = Gravity.CENTER
+        if (isReady) {
+            AndroidView(
+                factory = { ctx ->
+                    val frameLayout = FrameLayout(ctx).apply {
+                        layoutParams = FrameLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT)
                     }
 
-                    setVideoURI(File(videoPath).toUri())
+                    val newVideoView = VideoView(ctx).apply {
+                        layoutParams = FrameLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT).apply {
+                            gravity = Gravity.CENTER
+                        }
 
-                    setOnPreparedListener { mediaPlayer ->
-                        mediaPlayer.isLooping = true
-                        mediaPlayer.setVolume(0f, 0f)
+                        setVideoURI(File(videoPath).toUri())
 
-                        val videoWidth = mediaPlayer.videoWidth
-                        val videoHeight = mediaPlayer.videoHeight
+                        setOnPreparedListener { mediaPlayer ->
+                            mediaPlayer.isLooping = true
+                            mediaPlayer.setVolume(0f, 0f)
 
-                        if (videoWidth > 0 && videoHeight > 0) {
-                            post {
-                                val parentWidth = (parent as FrameLayout).width
-                                val parentHeight = (parent as FrameLayout).height
+                            val videoWidth = mediaPlayer.videoWidth
+                            val videoHeight = mediaPlayer.videoHeight
 
-                                if (parentWidth > 0 && parentHeight > 0) {
-                                    val scaleX = parentWidth.toFloat() / videoWidth.toFloat()
-                                    val scaleY = parentHeight.toFloat() / videoHeight.toFloat()
-                                    val scale = maxOf(scaleX, scaleY)
+                            if (videoWidth > 0 && videoHeight > 0) {
+                                post {
+                                    val parentWidth = (parent as FrameLayout).width
+                                    val parentHeight = (parent as FrameLayout).height
 
-                                    val scaledWidth = (videoWidth * scale).toInt()
-                                    val scaledHeight = (videoHeight * scale).toInt()
+                                    if (parentWidth > 0 && parentHeight > 0) {
+                                        val scaleX = parentWidth.toFloat() / videoWidth.toFloat()
+                                        val scaleY = parentHeight.toFloat() / videoHeight.toFloat()
+                                        val scale = maxOf(scaleX, scaleY)
 
-                                    layoutParams =
-                                        FrameLayout.LayoutParams(scaledWidth, scaledHeight)
-                                            .apply { gravity = Gravity.CENTER }
+                                        val scaledWidth = (videoWidth * scale).toInt()
+                                        val scaledHeight = (videoHeight * scale).toInt()
+
+                                        layoutParams =
+                                            FrameLayout.LayoutParams(scaledWidth, scaledHeight)
+                                                .apply { gravity = Gravity.CENTER }
+                                    }
+
+                                    start()
                                 }
+                            } else {
+                                start()
                             }
                         }
 
-                        start()
+                        setOnErrorListener { _, _, _ -> true }
                     }
 
-                    setOnErrorListener { _, _, _ -> true }
+                    frameLayout.addView(newVideoView)
+                    videoView = newVideoView
+                    frameLayout
+                },
+                modifier = Modifier.fillMaxSize(),
+                update = { frameLayout ->
+                    val v = frameLayout.getChildAt(0) as? VideoView
+                    if (v?.isPlaying == false) {
+                        v.start()
+                    }
                 }
-
-                frameLayout.addView(newVideoView)
-                videoView = newVideoView
-                frameLayout
-            },
-            modifier = Modifier.fillMaxSize()
-        )
+            )
+        }
 
         DisposableEffect(videoPath) {
+            isReady = true
             onDispose {
                 videoView?.let {
                     if (it.isPlaying) {
@@ -234,6 +247,7 @@ private fun VideoBackground(
                     it.suspend()
                 }
                 videoView = null
+                isReady = false
             }
         }
     }
