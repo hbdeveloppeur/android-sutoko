@@ -27,8 +27,9 @@ class SceneNodeHandler @Inject constructor() : NodeHandler {
                 HandlerCommand.Emit(
                     HandlerEffect.ChangeScene(
                         sceneId = sceneNode.sceneId
-                    )
-                )
+                    ),
+                ),
+                HandlerCommand.Delay(1200)
             )
         )
     }

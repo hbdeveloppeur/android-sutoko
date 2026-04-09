@@ -112,4 +112,8 @@ dependencies {
 
     // PRDownloader for file downloads
     implementation(libs.prdownloader)
+
+    // Media3 for video playback
+    implementation(libs.androidx.media3.ui)
+    implementation(libs.androidx.media3.exoplayer)
 }
