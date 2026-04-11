@@ -5,4 +5,5 @@ enum class GameMessageType {
     Info,
     Typing,
     ChapterEnd,
+    Image,
 }

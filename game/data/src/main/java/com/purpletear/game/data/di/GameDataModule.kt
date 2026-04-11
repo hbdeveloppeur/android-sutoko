@@ -11,7 +11,6 @@ import com.purpletear.game.data.local.dao.GameInstallationDao
 import com.purpletear.game.data.local.dao.MemoryDao
 import com.purpletear.game.data.local.dao.UserGameProgressDao
 import com.purpletear.game.data.provider.AndroidGamePathProviderImpl
-import com.purpletear.game.data.provider.GamePathProvider
 import com.purpletear.game.data.remote.GameApi
 import com.purpletear.game.data.remote.GamePortalApi
 import com.purpletear.game.data.repository.ChapterGraphRepositoryImpl
@@ -217,7 +216,21 @@ object GameDataModule {
     @Singleton
     fun provideGamePathProvider(
         @ApplicationContext context: Context
-    ): GamePathProvider {
+    ): com.purpletear.sutoko.game.provider.GamePathProvider {
+        return AndroidGamePathProviderImpl(context)
+    }
+
+    /**
+     * Provides the AndroidGamePathProvider implementation.
+     *
+     * @param context The application context.
+     * @return The AndroidGamePathProvider implementation.
+     */
+    @Provides
+    @Singleton
+    fun provideAndroidGamePathProvider(
+        @ApplicationContext context: Context
+    ): com.purpletear.game.data.provider.AndroidGamePathProvider {
         return AndroidGamePathProviderImpl(context)
     }
 

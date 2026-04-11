@@ -4,8 +4,10 @@ import com.purpletear.sutoko.game.engine.handlers.BackgroundNodeHandler
 import com.purpletear.sutoko.game.engine.handlers.ChapterChangeNodeHandler
 import com.purpletear.sutoko.game.engine.handlers.ConditionNodeHandler
 import com.purpletear.sutoko.game.engine.handlers.ConversationModeChangeNodeHandler
+import com.purpletear.sutoko.game.engine.handlers.EndNodeHandler
 import com.purpletear.sutoko.game.engine.handlers.InfoNodeHandler
 import com.purpletear.sutoko.game.engine.handlers.MemoryNodeHandler
+import com.purpletear.sutoko.game.engine.handlers.MessageImageNodeHandler
 import com.purpletear.sutoko.game.engine.handlers.MessageNodeHandler
 import com.purpletear.sutoko.game.engine.handlers.SceneNodeHandler
 import com.purpletear.sutoko.game.engine.handlers.SignalNodeHandler
@@ -26,6 +28,7 @@ import javax.inject.Singleton
 class NodeHandlerFactory @Inject constructor(
     private val startHandler: StartNodeHandler,
     private val messageHandler: MessageNodeHandler,
+    private val messageImageHandler: MessageImageNodeHandler,
     private val chapterChangeHandler: ChapterChangeNodeHandler,
     private val conditionHandler: ConditionNodeHandler,
     private val memoryHandler: MemoryNodeHandler,
@@ -35,6 +38,7 @@ class NodeHandlerFactory @Inject constructor(
     private val backgroundHandler: BackgroundNodeHandler,
     private val conversationModeChangeHandler: ConversationModeChangeNodeHandler,
     private val sceneHandler: SceneNodeHandler,
+    private val endHandler: EndNodeHandler,
 ) {
     /**
      * Returns the handler for the given node type.
@@ -43,6 +47,7 @@ class NodeHandlerFactory @Inject constructor(
     fun getHandler(type: NodeType): NodeHandler = when (type) {
         NodeType.START -> startHandler
         NodeType.MESSAGE -> messageHandler
+        NodeType.MESSAGE_IMAGE -> messageImageHandler
         NodeType.CHAPTER_CHANGE -> chapterChangeHandler
         NodeType.CONDITION -> conditionHandler
         NodeType.MEMORY -> memoryHandler
@@ -52,5 +57,6 @@ class NodeHandlerFactory @Inject constructor(
         NodeType.BACKGROUND -> backgroundHandler
         NodeType.CONVERSATION_MODE_CHANGE -> conversationModeChangeHandler
         NodeType.SCENE -> sceneHandler
+        NodeType.END -> endHandler
     }
 }

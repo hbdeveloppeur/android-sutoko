@@ -15,9 +15,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
+import coil.request.ImageRequest
 import com.purpletear.game.debug.PreviewOverlayWrapper
 import com.purpletear.game.presentation.R
 import com.purpletear.game.presentation.game_play.components.Avatar
@@ -36,15 +38,21 @@ private fun Preview() {
                 Modifier
                     .padding(4.dp)
             ) {
-                MessageImage()
+                MessageImage(path ="https://data.sutoko.app/resources/sutoko-ai/image/AiChatHomePageHeader.jpg")
             }
         }
     }
 }
 
 @Composable
-internal fun MessageImage() {
+internal fun MessageImage(path: String) {
+    val context = LocalContext.current
     val shape = RoundedCornerShape(16.dp)
+    val imageRequest = ImageRequest.Builder(context)
+        .data(path)
+        .crossfade(300)
+        .build()
+
     Box {
         Box(
             modifier = Modifier
@@ -57,7 +65,7 @@ internal fun MessageImage() {
             AsyncImage(
                 modifier = Modifier
                     .matchParentSize(),
-                model = "https://data.sutoko.app/resources/sutoko-ai/image/AiChatHomePageHeader.jpg",
+                model = imageRequest,
                 contentDescription = null,
                 contentScale = ContentScale.Crop,
             )

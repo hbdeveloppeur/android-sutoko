@@ -9,27 +9,18 @@ import com.purpletear.sutoko.game.model.chapter.Node
 import javax.inject.Inject
 
 /**
- * Handler for memory nodes.
+ * Handler for end nodes.
  *
- * Updates game memory variables. Instead of mutating GameMemory directly,
- * emits an UpdateMemory effect that the engine applies. This ensures
- * all state changes flow through the engine and are auditable.
+ * Emits a StoryFinished effect to signal the end of the game/story.
  */
-class MemoryNodeHandler @Inject constructor() : NodeHandler {
+class EndNodeHandler @Inject constructor() : NodeHandler {
     override fun buildScript(
         node: Node,
         memory: GameMemory
     ): HandlerScript {
-        val memoryNode = node as? Node.Memory ?: return HandlerScript()
-        
         return HandlerScript(
             commands = listOf(
-                HandlerCommand.Emit(
-                    HandlerEffect.UpdateMemory(
-                        key = memoryNode.key,
-                        value = memoryNode.value
-                    )
-                )
+                HandlerCommand.Emit(HandlerEffect.StoryFinished)
             )
         )
     }

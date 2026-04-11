@@ -16,7 +16,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.purpletear.game.presentation.common.extensions.parse
 import com.purpletear.game.presentation.game_play.components.background.ImageBackground
 import com.purpletear.game.presentation.game_play.components.background.VideoBackground
@@ -29,8 +28,6 @@ private const val FILTER_FADE_DURATION: Int = 1200
 @Composable
 internal fun SceneComposable(
     scene: Scene?,
-    gameId: String,
-    viewModel: SceneComposableViewModel = hiltViewModel()
 ) {
     var displayedScene by remember { mutableStateOf<Scene?>(null) }
     var filterIsVisible by remember { mutableStateOf(true) }
@@ -47,8 +44,6 @@ internal fun SceneComposable(
 
     SceneContent(
         scene = displayedScene,
-        gameId = gameId,
-        getAssetPath = { id, path -> viewModel.resolveAssetPath(gameId = id, storagePath = path) },
         onLoaded = {
             filterIsVisible = false
         }
@@ -60,14 +55,11 @@ internal fun SceneComposable(
 @Composable
 private fun SceneContent(
     scene: Scene?,
-    gameId: String,
-    getAssetPath: (String, String) -> String,
     onLoaded: () -> Unit
 ) {
     when (scene?.configuration?.backgroundType) {
         BackgroundType.VIDEO -> {
-            val asset = scene.configuration.asset ?: return
-            val fullPath = getAssetPath(gameId, asset.storagePath)
+            val fullPath = scene.configuration.resolvedPath ?: return
             VideoBackground(
                 videoPath = fullPath,
                 onStarted = onLoaded,
@@ -81,10 +73,8 @@ private fun SceneContent(
             Filter(colorCode = filterColor, opacity = filterOpacity)
         }
 
-
         BackgroundType.IMAGE -> {
-            val asset = scene.configuration.asset ?: return
-            val fullPath = getAssetPath(gameId, asset.storagePath)
+            val fullPath = scene.configuration.resolvedPath ?: return
             ImageBackground(
                 imagePath = fullPath,
                 onStarted = onLoaded,
@@ -97,7 +87,6 @@ private fun SceneContent(
             val filterOpacity = scene.configuration.filterOpacity
             Filter(colorCode = filterColor, opacity = filterOpacity)
         }
-
 
         BackgroundType.COLOR -> {
             onLoaded()

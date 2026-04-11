@@ -7,7 +7,13 @@ data class Edge(
     val source: String,
     val target: String,
     val type: EdgeType = EdgeType.NORMAL,
-    val condition: String? = null
+    val condition: String? = null,
+    val data: EdgeData? = null,
+)
+
+@Keep
+data class EdgeData(
+    val edgeType: String? = null,
 )
 
 @Keep

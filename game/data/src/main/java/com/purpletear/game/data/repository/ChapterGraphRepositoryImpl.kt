@@ -7,7 +7,7 @@ import com.purpletear.game.data.local.dto.ChapterMetadataDto
 import com.purpletear.game.data.local.dto.EdgeDto
 import com.purpletear.game.data.local.dto.NodeDto
 import com.purpletear.game.data.local.parser.ChapterGraphParser
-import com.purpletear.game.data.provider.GamePathProvider
+import com.purpletear.game.data.provider.AndroidGamePathProvider
 import com.purpletear.sutoko.game.model.chapter.ChapterGraph
 import com.purpletear.sutoko.game.repository.ChapterGraphRepository
 import kotlinx.coroutines.flow.Flow
@@ -16,7 +16,7 @@ import java.io.File
 import javax.inject.Inject
 
 class ChapterGraphRepositoryImpl @Inject constructor(
-    private val pathProvider: GamePathProvider
+    private val pathProvider: AndroidGamePathProvider
 ) : ChapterGraphRepository {
 
     private val gson = Gson()
@@ -60,7 +60,7 @@ class ChapterGraphRepositoryImpl @Inject constructor(
                 emptyList()
             }
 
-            val graph = ChapterGraphParser.parse(chapterCode, metadata, nodeDtos, edgeDtos)
+            val graph = ChapterGraphParser.parse(chapterCode, metadata, nodeDtos, edgeDtos, gameId, pathProvider)
             emit(Result.success(graph))
 
         } catch (e: Exception) {

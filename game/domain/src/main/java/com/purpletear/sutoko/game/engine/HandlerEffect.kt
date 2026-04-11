@@ -126,4 +126,9 @@ sealed class HandlerEffect {
     data class ChangeScene(
         val sceneId: Int
     ) : HandlerEffect()
+
+    /**
+     * Signals the end of the story/game.
+     */
+    data object StoryFinished : HandlerEffect()
 }

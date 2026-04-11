@@ -6,6 +6,7 @@ package com.purpletear.sutoko.game.engine
 enum class NodeType {
     START,
     MESSAGE,
+    MESSAGE_IMAGE,
     CHAPTER_CHANGE,
     CONDITION,
     SCENE,
@@ -14,5 +15,6 @@ enum class NodeType {
     TROPHY,
     SIGNAL,
     BACKGROUND,
-    CONVERSATION_MODE_CHANGE
+    CONVERSATION_MODE_CHANGE,
+    END
 }

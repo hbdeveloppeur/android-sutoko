@@ -4,7 +4,7 @@ import android.util.Log
 import com.downloader.Error
 import com.downloader.OnDownloadListener
 import com.downloader.PRDownloader
-import com.purpletear.game.data.provider.GamePathProvider
+import com.purpletear.sutoko.game.provider.GamePathProvider
 import com.purpletear.ntfy.Ntfy
 import com.purpletear.sutoko.game.download.GameDownloadManager
 import com.purpletear.sutoko.game.download.GameDownloadState

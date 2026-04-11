@@ -1,7 +1,9 @@
 package com.purpletear.sutoko.game.model.chapter
 
 import androidx.annotation.Keep
+import com.purpletear.sutoko.game.model.UserGameProgressEntity
 import com.purpletear.sutoko.game.repository.MemoryRepository
+import com.purpletear.sutoko.game.repository.UserGameProgressRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -19,13 +21,15 @@ import javax.inject.Inject
  */
 @Keep
 class GameMemory @Inject constructor(
-    private val repository: MemoryRepository
+    private val repository: MemoryRepository,
+    private val progressRepository: UserGameProgressRepository,
 ) {
     private val _state = MutableStateFlow<Map<String, String>>(emptyMap())
     val state: StateFlow<Map<String, String>> = _state.asStateFlow()
 
     private val memory = mutableMapOf<String, String>()
     private var currentGameId: String? = null
+    private var currentChapterCode: String? = null
     
     /**
      * The currently loaded game ID, or null if not loaded.
@@ -50,7 +54,24 @@ class GameMemory @Inject constructor(
     suspend fun save() {
         currentGameId?.let { gameId ->
             repository.save(gameId, memory.toMap())
+            currentChapterCode?.let { chapter ->
+                progressRepository.save(
+                    UserGameProgressEntity(
+                        gameId = gameId,
+                        currentChapterCode = chapter,
+                        normalizedChapterCode = chapter.lowercase()
+                    )
+                )
+            }
         }
+    }
+
+    /**
+     * Sets the current chapter code.
+     * This is persisted when save() is called.
+     */
+    fun setCurrentChapter(chapterCode: String) {
+        currentChapterCode = chapterCode
     }
 
     /**
@@ -61,6 +82,7 @@ class GameMemory @Inject constructor(
             repository.clear(gameId)
         }
         memory.clear()
+        currentChapterCode = null
         _state.value = emptyMap()
     }
 

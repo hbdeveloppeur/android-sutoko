@@ -5,7 +5,7 @@ import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.purpletear.game.data.local.dto.scene.SceneDto
 import com.purpletear.game.data.mapper.SceneMapper.toDomain
-import com.purpletear.game.data.provider.GamePathProvider
+import com.purpletear.game.data.provider.AndroidGamePathProvider
 import com.purpletear.sutoko.game.model.scene.Scene
 import com.purpletear.sutoko.game.repository.SceneRepository
 import kotlinx.coroutines.Dispatchers
@@ -26,7 +26,7 @@ import javax.inject.Singleton
  */
 @Singleton
 class SceneRepositoryImpl @Inject constructor(
-    private val pathProvider: GamePathProvider
+    private val pathProvider: AndroidGamePathProvider
 ) : SceneRepository {
 
     private val gson = Gson()
@@ -59,7 +59,7 @@ class SceneRepositoryImpl @Inject constructor(
                     }
 
                     sceneCache.clear()
-                    sceneCache.putAll(sceneDtos.map { it.toDomain() }.associateBy { it.id })
+                    sceneCache.putAll(sceneDtos.map { it.toDomain(gameId, pathProvider) }.associateBy { it.id })
                     currentGameId = gameId
 
                     Log.d(TAG, "Loaded ${sceneCache.size} scenes for game $gameId")

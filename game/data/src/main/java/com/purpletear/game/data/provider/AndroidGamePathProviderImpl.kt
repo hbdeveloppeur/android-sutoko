@@ -3,7 +3,7 @@ package com.purpletear.game.data.provider
 import android.content.Context
 import java.io.File
 
-class AndroidGamePathProviderImpl(private val context: Context) : GamePathProvider {
+class AndroidGamePathProviderImpl(private val context: Context) : AndroidGamePathProvider {
     companion object {
         private const val STORIES_DIRECTORY_NAME: String = "games"
     }

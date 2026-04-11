@@ -28,6 +28,16 @@ sealed class Node {
         val seenMs: Long = 0,
     ) : Node()
 
+    @Keep
+    data class MessageImage(
+        override val id: String,
+        val imageUrl: String,
+        val characterId: Int,
+        val assetId: Int? = null,
+        val waitMs: Long = 0,
+        val seenMs: Long = 0,
+    ) : Node()
+
 
     @Keep
     data class Info(
@@ -81,5 +91,10 @@ sealed class Node {
     data class ConversationModeChange(
         override val id: String,
         val mode: ConversationMode
+    ) : Node()
+
+    @Keep
+    data class End(
+        override val id: String
     ) : Node()
 }

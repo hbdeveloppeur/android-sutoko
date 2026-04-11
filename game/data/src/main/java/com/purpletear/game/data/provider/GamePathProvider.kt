@@ -1,10 +1,15 @@
 package com.purpletear.game.data.provider
 
+import com.purpletear.sutoko.game.provider.GamePathProvider
 import java.io.File
 
-interface GamePathProvider {
+/**
+ * Extended GamePathProvider with data-layer specific operations.
+ */
+interface AndroidGamePathProvider : GamePathProvider {
 
-    fun getStoriesDirectoryPath(): String
-    fun getStoryDirectoryPath(storyId: String): String
+    /**
+     * Returns the File object for the games directory.
+     */
     fun getGamesDirectory(): File
 }

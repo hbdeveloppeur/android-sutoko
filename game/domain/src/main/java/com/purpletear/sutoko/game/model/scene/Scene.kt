@@ -1,6 +1,7 @@
 package com.purpletear.sutoko.game.model.scene
 
 import androidx.annotation.Keep
+import com.purpletear.sutoko.game.model.Asset
 
 /**
  * A scene defines a visual background configuration for the game.
@@ -19,23 +20,11 @@ data class Scene(
 @Keep
 data class SceneConfiguration(
     val backgroundType: BackgroundType,
-    val asset: SceneAsset?,
+    val asset: Asset?,
     val filterOpacity: Int = 0,
     val filterColorCode: String? = null,
-    val imagePositionX: Float? = null
-)
-
-/**
- * Asset reference for image or video content.
- */
-@Keep
-data class SceneAsset(
-    val id: Int,
-    val storagePath: String,
-    val thumbnailPath: String?,
-    val width: Int,
-    val height: Int,
-    val mimeType: String
+    val imagePositionX: Float? = null,
+    val resolvedPath: String? = null,
 )
 
 /**

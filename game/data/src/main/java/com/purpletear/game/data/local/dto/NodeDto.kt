@@ -1,12 +1,13 @@
 package com.purpletear.game.data.local.dto
 
+import com.google.gson.JsonElement
 import com.google.gson.annotations.SerializedName
 
 data class NodeDto(
     val id: String,
     val type: String,
     val version: Int = 1,
-    val data: NodeDataDto
+    val data: JsonElement?
 )
 
 data class NodeDataDto(
@@ -32,4 +33,21 @@ data class NodeDataDto(
     val seen: Long? = null,
     @SerializedName("sceneId")
     val sceneId: Int? = null,
+    @SerializedName("storagePath")
+    val storagePath: String? = null,
+    val image: String? = null,
+    @SerializedName("assetId")
+    val assetId: Int? = null,
+    val memory: MemoryDataDto? = null,
+    @SerializedName("expectedValue")
+    val expectedValue: String? = null,
+)
+
+data class MemoryDataDto(
+    val id: String? = null,
+    @SerializedName("chapterId")
+    val chapterId: String? = null,
+    val name: String? = null,
+    val value: String? = null,
+    val description: String? = null,
 )

@@ -26,7 +26,6 @@ internal fun SmsGameScreen(
     Screen {
         SceneComposable(
             scene = state.currentScene,
-            gameId = state.gameId!!
         )
 
         val listState = rememberLazyListState()

@@ -31,7 +31,7 @@ import javax.inject.Inject
  * - IRL mode: No typing, messages display immediately
  */
 class MessageNodeHandler @Inject constructor(
-    private val textProcessor: TextProcessor
+    private val textProcessor: TextProcessor,
 ) : NodeHandler {
 
     override fun buildScript(

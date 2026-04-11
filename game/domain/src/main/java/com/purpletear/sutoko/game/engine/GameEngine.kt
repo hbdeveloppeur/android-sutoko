@@ -1,6 +1,7 @@
 package com.purpletear.sutoko.game.engine
 
 import android.util.Log
+import com.purpletear.sutoko.game.engine.message.GameMessageInfo
 import com.purpletear.sutoko.game.engine.message.GameMessageNextChapter
 import com.purpletear.sutoko.game.engine.timing.TimingScheduler
 import com.purpletear.sutoko.game.model.chapter.ChapterGraph
@@ -185,6 +186,8 @@ class GameEngine @Inject constructor(
      * @param nodeId The node ID to execute
      */
     private suspend fun executeNode(nodeId: String) {
+        assert(nodeId.isNotBlank())
+
         if (isPaused) return
 
         val context = prepareExecutionContext(nodeId) ?: return
@@ -305,7 +308,7 @@ class GameEngine @Inject constructor(
         awaitingInput = true
     }
 
-    private fun applyEffect(effect: HandlerEffect) {
+    private suspend fun applyEffect(effect: HandlerEffect) {
         when (effect) {
             is HandlerEffect.AddMessage -> {
                 _messages.value += effect.message
@@ -321,8 +324,13 @@ class GameEngine @Inject constructor(
             }
 
             is HandlerEffect.ChangeChapter -> {
-                // Save progress?
+                memory.setCurrentChapter(effect.chapterCode)
+                memory.save()
                 _messages.value += GameMessageNextChapter()
+            }
+
+            is HandlerEffect.StoryFinished -> {
+                _messages.value += GameMessageInfo("end_story", "Story finished!")
             }
 
             else -> {
@@ -368,6 +376,7 @@ class GameEngine @Inject constructor(
     private fun getHandler(node: Node): NodeHandler = when (node) {
         is Node.Start -> handlerFactory.getHandler(NodeType.START)
         is Node.Message -> handlerFactory.getHandler(NodeType.MESSAGE)
+        is Node.MessageImage -> handlerFactory.getHandler(NodeType.MESSAGE_IMAGE)
         is Node.ChapterChange -> handlerFactory.getHandler(NodeType.CHAPTER_CHANGE)
         is Node.Condition -> handlerFactory.getHandler(NodeType.CONDITION)
         is Node.Memory -> handlerFactory.getHandler(NodeType.MEMORY)
@@ -377,5 +386,6 @@ class GameEngine @Inject constructor(
         is Node.Background -> handlerFactory.getHandler(NodeType.BACKGROUND)
         is Node.ConversationModeChange -> handlerFactory.getHandler(NodeType.CONVERSATION_MODE_CHANGE)
         is Node.Scene -> handlerFactory.getHandler(NodeType.SCENE)
+        is Node.End -> handlerFactory.getHandler(NodeType.END)
     }
 }
