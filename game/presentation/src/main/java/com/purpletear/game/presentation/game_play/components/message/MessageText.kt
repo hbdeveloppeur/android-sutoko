@@ -58,7 +58,7 @@ internal fun MessageText(
             modifier = Modifier.background(character?.avatarColor() ?: Color.Blue),
             size = 26.dp,
             borderWidth = 1.4.dp,
-            drawable = R.drawable.tmp_avatar
+            imageModel = character?.avatar
         )
 
         Text(

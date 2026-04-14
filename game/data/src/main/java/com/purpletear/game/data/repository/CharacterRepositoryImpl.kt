@@ -58,8 +58,13 @@ class CharacterRepositoryImpl @Inject constructor(
                         gson.fromJson(reader, object : TypeToken<List<CharacterDto>>() {}.type)
                     }
 
+                    val charactersDir = charactersFile.parentFile
+                        ?: File(pathProvider.getGamesDirectory(), "$gameId/characters")
+
                     characterCache.clear()
-                    characterCache.putAll(characterDtos.map { it.toDomain() }.associateBy { it.id })
+                    characterCache.putAll(
+                        characterDtos.map { it.toDomain(charactersDir) }.associateBy { it.id }
+                    )
                     currentGameId = gameId
 
                     Log.d(TAG, "Loaded ${characterCache.size} characters for game $gameId")

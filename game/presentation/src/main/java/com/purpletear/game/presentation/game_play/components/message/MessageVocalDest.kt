@@ -56,7 +56,7 @@ internal fun MessageVocalDest(isPlaying: Boolean, percent: Float, onClick: () ->
             modifier = Modifier.background(Color.Blue),
             size = 22.dp,
             borderWidth = 1.4.dp,
-            drawable = R.drawable.tmp_avatar
+            imageModel = R.drawable.tmp_avatar
         )
         Progress(percent)
         PlayButton(isPlaying, onClick)

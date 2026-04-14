@@ -53,7 +53,7 @@ internal fun ChatHeader(modifier: Modifier = Modifier) {
         horizontalArrangement = Arrangement.spacedBy(1.dp)
     ) {
         BackButton()
-        Avatar(size = 44.dp, drawable = R.drawable.tmp_avatar)
+        Avatar(size = 44.dp, imageModel = R.drawable.tmp_avatar)
         Info()
     }
 }

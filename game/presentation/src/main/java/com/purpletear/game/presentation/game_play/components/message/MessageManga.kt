@@ -45,7 +45,7 @@ internal fun MessageManga(onClick: () -> Unit = {}) {
     ) {
         Avatar(
             size = 44.dp,
-            drawable = R.drawable.page_manga_preview,
+            imageModel = R.drawable.page_manga_preview,
         )
         Text(
             text = "Un page de Manga vous attend",

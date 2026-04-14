@@ -33,7 +33,7 @@ private fun Preview() {
         Box(Modifier.padding(start = 14.dp)) {
             Avatar(
                 size = 24.dp,
-                drawable = R.drawable.tmp_avatar
+                imageModel = R.drawable.tmp_avatar
             )
         }
     }
@@ -44,7 +44,8 @@ internal fun Avatar(
     modifier: Modifier = Modifier,
     size: Dp,
     borderWidth: Dp = 1.dp,
-    @DrawableRes drawable: Int
+    imageModel: Any?,
+    @DrawableRes fallbackDrawable: Int = R.drawable.tmp_avatar
 ) {
     val shape = CircleShape
     AsyncImage(
@@ -53,7 +54,7 @@ internal fun Avatar(
             .border(width = borderWidth, color = Color.White, shape = shape)
             .clip(shape)
             .then(modifier),
-        model = drawable,
+        model = imageModel ?: fallbackDrawable,
         contentDescription = null,
         contentScale = ContentScale.Crop,
     )
