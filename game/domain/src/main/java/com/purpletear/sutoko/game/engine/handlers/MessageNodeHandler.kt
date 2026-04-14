@@ -12,6 +12,7 @@ import com.purpletear.sutoko.game.model.chapter.GameMemory
 import com.purpletear.sutoko.game.model.chapter.Node
 import java.util.UUID
 import javax.inject.Inject
+import kotlin.random.Random
 
 /**
  * Handler for message nodes.
@@ -90,7 +91,25 @@ class MessageNodeHandler @Inject constructor(
 
         when (mode) {
             ConversationMode.SMS -> {
+
                 commands.add(HandlerCommand.Delay(node.seenMs.coerceAtLeast(520)))
+
+                if (node.isHesitating) {
+                    commands.add(
+                        HandlerCommand.Emit(
+                            HandlerEffect.AddMessage(
+                                GameMessageTyping(
+                                    id = messageId,
+                                    characterId = node.characterId,
+                                )
+                            )
+                        )
+                    )
+                    commands.add(HandlerCommand.Delay(Random.nextLong(1000, 3001)))
+                    commands.add(
+                        HandlerCommand.Emit(HandlerEffect.DeleteMessage(messageId = messageId))
+                    )
+                }
 
                 commands.add(
                     HandlerCommand.Emit(
@@ -107,14 +126,8 @@ class MessageNodeHandler @Inject constructor(
                 commands.add(HandlerCommand.Delay(typingDelayMs))
 
                 commands.add(
-                    HandlerCommand.Emit(
-                        HandlerEffect.DeleteMessage(messageId = messageId)
-                    )
+                    HandlerCommand.Emit(HandlerEffect.DeleteMessage(messageId = messageId))
                 )
-
-                if (node.isHesitating) {
-                    commands.add(HandlerCommand.Delay(HESITATION_DELAY_MS))
-                }
 
                 commands.add(HandlerCommand.Delay(node.seenMs.coerceAtLeast(280)))
 
@@ -151,10 +164,6 @@ class MessageNodeHandler @Inject constructor(
         }
 
         return commands
-    }
-
-    companion object {
-        private const val HESITATION_DELAY_MS = 1500L
     }
 
     private fun determineTypingDuration(node: Node.Message, text: String): Long {
