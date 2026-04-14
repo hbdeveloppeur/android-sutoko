@@ -1,6 +1,6 @@
 package com.purpletear.game.presentation.game_chapter_introduction
 
-import android.util.Log
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -9,73 +9,88 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavGraphBuilder
-import androidx.navigation.NavType
 import androidx.navigation.compose.composable
-import androidx.navigation.navArgument
 import coil.compose.AsyncImage
 import com.example.sharedelements.theme.Poppins
 import com.purpletear.game.presentation.R
 import com.purpletear.game.presentation.common.components.SimpleButton
 import com.purpletear.game.presentation.game_play.GameSessionViewModel
 import com.purpletear.game.presentation.game_play.SmsGameRoutes
-
-@Preview
-@Composable
-private fun Preview() {
-    GameChapterDescriptionScreen(
-        number = 1,
-        totalChapters = 5,
-        title = "Title",
-        description = "Description",
-        onContinueButtonClicked = {})
-}
+import com.purpletear.sutoko.game.model.Chapter
+import com.purpletear.sutoko.game.model.GameSessionState
 
 internal fun NavGraphBuilder.descriptionScreen(
-    gameId: String,
-    totalChapters: Int,
+    viewModel: GameSessionViewModel,
     onContinue: () -> Unit
 ) = composable(
     route = SmsGameRoutes.DESCRIPTION,
-    arguments = listOf(navArgument("chapterCode") { type = NavType.StringType })
-) { backStackEntry ->
-    val chapterCode = backStackEntry.arguments?.getString("chapterCode") ?: ""
-    val viewModel: GameSessionViewModel = hiltViewModel()
-    val chapter by viewModel.getChapter(gameId, chapterCode)
-        .collectAsStateWithLifecycle(initialValue = null)
-    Log.d("TEST", "Current chapter ${chapter?.code}")
+) {
+    val state by viewModel.sessionState.collectAsStateWithLifecycle()
 
-    chapter?.let {
-        GameChapterDescriptionScreen(
-            number = it.number,
-            totalChapters = totalChapters,
-            title = it.title,
-            description = it.description,
-            onContinueButtonClicked = onContinue,
+    ChapterDescriptionRoute(
+        state = state,
+        onContinue = onContinue
+    )
+}
+
+@Composable
+private fun ChapterDescriptionRoute(
+    state: GameSessionState,
+    onContinue: () -> Unit,
+) {
+    when (state) {
+        is GameSessionState.Ready -> ChapterDescriptionContent(
+            chapter = state.chapter,
+            totalChapters = state.totalChapters,
+            onContinue = onContinue
         )
+
+        is GameSessionState.Error -> Box(
+            Modifier
+                .fillMaxSize()
+                .background(Color.Red)
+        )
+
+        else -> {}
+    }
+
+    AnimatedVisibility(visible = state is GameSessionState.Loading) {
+        Box(
+            Modifier
+                .fillMaxSize()
+                .background(Color.Black),
+        ) {
+            CircularProgressIndicator(
+                modifier = Modifier
+                    .size(16.dp)
+                    .align(Alignment.Center)
+                    .alpha(1f),
+                color = Color.LightGray,
+                strokeWidth = 2.dp
+            )
+        }
     }
 }
 
 @Composable
-internal fun GameChapterDescriptionScreen(
-    number: Int,
+internal fun ChapterDescriptionContent(
+    chapter: Chapter,
     totalChapters: Int,
-    title: String,
-    description: String,
-    onContinueButtonClicked: () -> Unit
+    onContinue: () -> Unit,
 ) {
     Box(
         Modifier
@@ -89,14 +104,14 @@ internal fun GameChapterDescriptionScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            Title(text = "Chapter $number/$totalChapters")
-            Subtitle(text = title)
-            Description(text = description)
+            Title(text = "Chapter ${chapter.number}/$totalChapters")
+            Subtitle(text = chapter.title)
+            Description(text = chapter.description)
             Spacer(modifier = Modifier.size(4.dp))
             SimpleButton(
                 text = "Continue",
                 onClick = {
-                    onContinueButtonClicked()
+                    onContinue()
                 }
             )
         }

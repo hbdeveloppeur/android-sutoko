@@ -13,7 +13,6 @@ import com.purpletear.game.presentation.game_play.SmsGameScreen
 
 internal fun NavGraphBuilder.gameScreen(
     gameId: String,
-    chapterCode: String,
 ) = composable(
     route = SmsGameRoutes.GAME,
     arguments = listOf(
@@ -23,7 +22,6 @@ internal fun NavGraphBuilder.gameScreen(
         },
         navArgument("chapterCode") {
             type = NavType.StringType
-            defaultValue = chapterCode
         },
     )
 ) {

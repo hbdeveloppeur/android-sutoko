@@ -30,13 +30,10 @@ internal fun SmsGameScreen(
 
         val listState = rememberLazyListState()
 
-        // Reverse the data because the LazyColumn is reversed:
-        // index 0 will be the bottom of the chat.
         val messages = remember(state.messages) {
             state.messages.asReversed()
         }
 
-        // Auto-scroll only if the user is already at the bottom.
         val isAtBottom by remember {
             derivedStateOf {
                 listState.firstVisibleItemIndex == 0 &&
@@ -44,7 +41,6 @@ internal fun SmsGameScreen(
             }
         }
 
-        // When a new last message arrives, keep the chat pinned to the bottom.
         LaunchedEffect(state.messages.lastOrNull()?.id) {
             if (state.messages.isNotEmpty() && isAtBottom) {
                 listState.animateScrollToItem(0)

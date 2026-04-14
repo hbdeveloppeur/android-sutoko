@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -18,22 +19,26 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavType
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
+import com.purpletear.game.presentation.game_play.GameSessionViewModel
 import com.purpletear.game.presentation.game_play.SmsGameRoutes
 import com.purpletear.sutoko.game.model.GameSessionState
 
 
 internal fun NavGraphBuilder.debugPage(
     gameId: String,
-    gameSessionState: GameSessionState,
-    memories: Map<String, String>
+    viewModel: GameSessionViewModel,
 ) = composable(
     route = SmsGameRoutes.DEBUG,
     arguments = listOf(navArgument("gameId") { type = NavType.StringType })
 ) {
+    val gameSessionState by viewModel.sessionState.collectAsStateWithLifecycle()
+    val memories by viewModel.getMemories().collectAsStateWithLifecycle()
+
     SmsGameDebugPage(
         gameSessionState = gameSessionState,
         gameId = gameId,
