@@ -23,6 +23,7 @@ import coil.request.ImageRequest
 import com.purpletear.game.debug.PreviewOverlayWrapper
 import com.purpletear.game.presentation.R
 import com.purpletear.game.presentation.game_play.components.Avatar
+import com.purpletear.sutoko.game.model.character.Character
 
 @Preview(name = "MessageImage")
 @Composable
@@ -45,7 +46,10 @@ private fun Preview() {
 }
 
 @Composable
-internal fun MessageImage(path: String) {
+internal fun MessageImage(
+    path: String,
+    character: Character? = null,
+) {
     val context = LocalContext.current
     val shape = RoundedCornerShape(16.dp)
     val imageRequest = ImageRequest.Builder(context)
@@ -72,12 +76,22 @@ internal fun MessageImage(path: String) {
         }
         Avatar(
             modifier = Modifier
-                .background(Color.Blue)
+                .background(character?.avatarColor() ?: Color.Blue)
                 .align(Alignment.BottomStart),
             size = 26.dp,
             borderWidth = 1.4.dp,
             drawable = R.drawable.tmp_avatar
         )
     }
+}
+
+private fun Character.avatarColor(): Color {
+    return color.startingColor.toComposeColor() ?: Color.Blue
+}
+
+private fun String.toComposeColor(): Color? = try {
+    Color(android.graphics.Color.parseColor(this))
+} catch (_: IllegalArgumentException) {
+    null
 }
 

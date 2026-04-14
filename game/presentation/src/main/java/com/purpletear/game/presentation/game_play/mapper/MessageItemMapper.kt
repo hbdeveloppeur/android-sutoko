@@ -13,21 +13,23 @@ import com.purpletear.sutoko.game.engine.message.GameMessageImage
 import com.purpletear.sutoko.game.engine.message.GameMessageInfo
 import com.purpletear.sutoko.game.engine.message.GameMessageText
 import com.purpletear.sutoko.game.engine.message.GameMessageTyping
+import com.purpletear.sutoko.game.model.character.Character
 
 @Composable
 internal fun Message(
+    modifier: Modifier = Modifier,
     message: GameMessage,
-    modifier: Modifier = Modifier
+    character: Character? = null,
 ) {
     when (message.type) {
         GameMessageType.Text -> {
             message as GameMessageText
-            MessageText(text = message.text, modifier = modifier)
+            MessageText(text = message.text, character = character, modifier = modifier)
         }
 
         GameMessageType.Typing -> {
             message as GameMessageTyping
-            MessageTyping(modifier = modifier)
+            MessageTyping(character = character, modifier = modifier)
         }
 
         GameMessageType.ChapterEnd -> {
@@ -41,7 +43,7 @@ internal fun Message(
 
         GameMessageType.Image -> {
             message as GameMessageImage
-            MessageImage(path = message.imageUrl)
+            MessageImage(path = message.imageUrl, character = character)
         }
     }
 }

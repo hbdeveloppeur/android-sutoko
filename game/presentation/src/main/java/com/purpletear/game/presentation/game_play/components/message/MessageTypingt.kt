@@ -28,6 +28,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.purpletear.game.debug.PreviewOverlayWrapper
 import com.purpletear.game.presentation.R
+import com.purpletear.sutoko.game.model.character.Character
 
 @Preview(name = "GameMessageTyping")
 @Composable
@@ -41,7 +42,7 @@ private fun Preview() {
     ) {
         Column(Modifier.padding(4.dp)) {
             MessageTyping()
-            MessageTyping(isMainCharacter = true)
+            MessageTyping(character = Character(id = 0, name = "Me", avatar = null, isMainCharacter = true, color = com.purpletear.sutoko.game.model.character.CharacterColor(startingColor = "#FFFFFF", endingColor = "#FFFFFF")))
         }
     }
 }
@@ -52,10 +53,11 @@ private const val DOT_DELAY = ANIMATION_DURATION / DOT_COUNT
 
 @Composable
 internal fun MessageTyping(
-    isMainCharacter: Boolean = false,
+    character: Character? = null,
     modifier: Modifier = Modifier
 ) {
     val infiniteTransition = rememberInfiniteTransition(label = "typing_dots")
+    val isMainCharacter = character?.isMainCharacter ?: false
     val alignment = if (isMainCharacter) Alignment.CenterEnd else Alignment.CenterStart
 
     Box(

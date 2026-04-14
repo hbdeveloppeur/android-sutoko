@@ -10,6 +10,7 @@ import com.purpletear.sutoko.game.engine.GameEngineState
 import com.purpletear.sutoko.game.engine.GameMessage
 import com.purpletear.sutoko.game.engine.HandlerEffect
 import com.purpletear.sutoko.game.model.chapter.ChapterGraph
+import com.purpletear.sutoko.game.repository.CharacterRepository
 import com.purpletear.sutoko.game.repository.SceneRepository
 import com.purpletear.sutoko.game.usecase.GetSceneUseCase
 import com.purpletear.sutoko.game.usecase.LoadChapterGraphUseCase
@@ -30,6 +31,7 @@ class GameEngineViewModel @Inject constructor(
     private val loadChapterGraphUseCase: LoadChapterGraphUseCase,
     private val gameEngine: GameEngine,
     private val sceneRepository: SceneRepository,
+    private val characterRepository: CharacterRepository,
     private val getSceneUseCase: GetSceneUseCase,
     savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
@@ -48,9 +50,12 @@ class GameEngineViewModel @Inject constructor(
         viewModelScope.launch {
             gameEngine.reset()
 
-            // Preload scenes in parallel with chapter graph loading
-            val preloadJob = launch {
+            // Preload scenes and characters in parallel with chapter graph loading
+            val preloadScenes = launch {
                 sceneRepository.preload(gameId)
+            }
+            val preloadCharacters = launch {
+                characterRepository.preload(gameId)
             }
 
             launch {
@@ -65,7 +70,13 @@ class GameEngineViewModel @Inject constructor(
 
             loadChapterGraph(gameId, chapterCode)
 
-            preloadJob.join()
+            preloadScenes.join()
+            preloadCharacters.join()
+
+            val characters = characterRepository.getAll().associateBy { it.id }
+            updateState {
+                it.copy(characters = characters)
+            }
         }
     }
 
@@ -73,6 +84,7 @@ class GameEngineViewModel @Inject constructor(
         super.onCleared()
         viewModelScope.launch {
             sceneRepository.clear()
+            characterRepository.clear()
         }
     }
 

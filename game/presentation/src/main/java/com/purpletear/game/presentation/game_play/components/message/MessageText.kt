@@ -18,6 +18,7 @@ import com.example.sharedelements.theme.MontserratFontFamily
 import com.purpletear.game.debug.PreviewOverlayWrapper
 import com.purpletear.game.presentation.R
 import com.purpletear.game.presentation.game_play.components.Avatar
+import com.purpletear.sutoko.game.model.character.Character
 import com.purpletear.game.debug.R as DebugR
 
 @Preview(name = "GameMessageText")
@@ -48,12 +49,13 @@ private fun Preview() {
 
 @Composable
 internal fun MessageText(
+    modifier: Modifier = Modifier,
     text: String,
-    modifier: Modifier = Modifier
+    character: Character? = null,
 ) {
     MessageBubble(modifier = modifier) {
         Avatar(
-            modifier = Modifier.background(Color.Blue),
+            modifier = Modifier.background(character?.avatarColor() ?: Color.Blue),
             size = 26.dp,
             borderWidth = 1.4.dp,
             drawable = R.drawable.tmp_avatar
@@ -70,5 +72,15 @@ internal fun MessageText(
             fontSize = 11.7.sp,
         )
     }
+}
+
+private fun Character.avatarColor(): Color {
+    return color.startingColor.toComposeColor() ?: Color.Blue
+}
+
+private fun String.toComposeColor(): Color? = try {
+    Color(android.graphics.Color.parseColor(this))
+} catch (_: IllegalArgumentException) {
+    null
 }
 

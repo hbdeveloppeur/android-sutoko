@@ -18,6 +18,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.purpletear.game.presentation.game_play.mapper.Message
 import com.purpletear.game.presentation.game_play.state.GameUiState
+import com.purpletear.sutoko.game.engine.message.GameMessageImage
+import com.purpletear.sutoko.game.engine.message.GameMessageText
+import com.purpletear.sutoko.game.engine.message.GameMessageTyping
 
 @Composable
 internal fun SmsGameScreen(
@@ -60,8 +63,15 @@ internal fun SmsGameScreen(
                 items = messages,
                 key = { it.id }
             ) { message ->
+                val characterId = when (message) {
+                    is GameMessageText -> message.characterId
+                    is GameMessageTyping -> message.characterId
+                    is GameMessageImage -> message.characterId
+                    else -> null
+                }
                 Message(
                     message = message,
+                    character = characterId?.let { state.characters[it] },
                     modifier = Modifier.animateItem()
                 )
             }
