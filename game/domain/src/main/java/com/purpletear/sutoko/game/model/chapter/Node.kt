@@ -26,6 +26,7 @@ sealed class Node {
         val characterId: Int,
         val waitMs: Long = 0,
         val seenMs: Long = 0,
+        val isHesitating: Boolean = false,
     ) : Node()
 
     @Keep

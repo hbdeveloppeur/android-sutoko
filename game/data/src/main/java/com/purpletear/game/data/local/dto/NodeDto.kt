@@ -31,6 +31,8 @@ data class NodeDataDto(
     val imageUrl: String? = null,
     val wait: Long? = null,
     val seen: Long? = null,
+    @SerializedName("isHesitating")
+    val isHesitating: Boolean? = null,
     @SerializedName("sceneId")
     val sceneId: Int? = null,
     @SerializedName("storagePath")

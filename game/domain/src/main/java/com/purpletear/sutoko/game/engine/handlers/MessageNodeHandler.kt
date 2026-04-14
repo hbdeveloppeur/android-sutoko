@@ -112,6 +112,10 @@ class MessageNodeHandler @Inject constructor(
                     )
                 )
 
+                if (node.isHesitating) {
+                    commands.add(HandlerCommand.Delay(HESITATION_DELAY_MS))
+                }
+
                 commands.add(HandlerCommand.Delay(node.seenMs.coerceAtLeast(280)))
 
                 commands.add(
@@ -147,6 +151,10 @@ class MessageNodeHandler @Inject constructor(
         }
 
         return commands
+    }
+
+    companion object {
+        private const val HESITATION_DELAY_MS = 1500L
     }
 
     private fun determineTypingDuration(node: Node.Message, text: String): Long {

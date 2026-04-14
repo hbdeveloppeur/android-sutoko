@@ -67,7 +67,8 @@ object ChapterGraphParser {
                 text = data?.text ?: "",
                 characterId = data?.characterId ?: -1,
                 waitMs = data?.wait ?: 0,
-                seenMs = data?.seen ?: 0
+                seenMs = data?.seen ?: 0,
+                isHesitating = data?.isHesitating ?: false
             )
 
             "message-image" -> Node.MessageImage(
