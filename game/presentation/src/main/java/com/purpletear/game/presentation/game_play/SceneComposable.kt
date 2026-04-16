@@ -16,6 +16,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import coil.compose.AsyncImage
+import com.purpletear.game.presentation.R
 import com.purpletear.game.presentation.common.extensions.parse
 import com.purpletear.game.presentation.game_play.components.background.ImageBackground
 import com.purpletear.game.presentation.game_play.components.background.VideoBackground
@@ -121,10 +124,12 @@ private fun MainFilter(isVisible: Boolean) {
         exit = fadeOut(tween(durationMillis = FILTER_FADE_DURATION)),
     )
     {
-        Box(
-            Modifier
-                .fillMaxSize()
-                .background(Color.Black)
+
+        AsyncImage(
+            model = R.drawable.smsgame_background,
+            contentDescription = null,
+            contentScale = ContentScale.Crop,
+            modifier = Modifier.fillMaxSize()
         )
     }
 }

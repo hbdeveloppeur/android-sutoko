@@ -1,13 +1,15 @@
 package com.purpletear.game.presentation.game_play.components.message
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.aspectRatio
-import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
@@ -15,34 +17,23 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.sharedelements.theme.MontserratFontFamily
-import com.purpletear.game.debug.PreviewOverlayWrapper
-import com.purpletear.game.presentation.R
+import com.purpletear.game.debug.PreviewCharacter
 import com.purpletear.game.presentation.game_play.components.Avatar
 import com.purpletear.sutoko.game.model.character.Character
-import com.purpletear.game.debug.R as DebugR
 
 @Preview(name = "GameMessageText")
 @Composable
 private fun Preview() {
-    PreviewOverlayWrapper(
-        imageModifier = Modifier
-            .height(52.dp)
-            .aspectRatio(564f / 166f),
-        drawable = DebugR.drawable.preview_messagedest,
-    ) {
-        Column {
-            Box(
-                Modifier
-                    .padding(4.dp)
-            ) {
-                MessageText(text = "Je ne crois pas")
-            }
-            Box(
-                Modifier
-                    .padding(4.dp)
-            ) {
-                MessageText(text = "Je ne crois pas que tu vas respecter ce que tu viens de dire")
-            }
+    Box(Modifier.padding(12.dp)) {
+        Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+            MessageText(
+                text = "Super c'est le chapitre 2",
+                character = PreviewCharacter,
+            )
+            MessageText(
+                text = "Super c'est le chapitre 2, et alors qu'en est-il du chapitre 20?",
+                character = PreviewCharacter,
+            )
         }
     }
 }
@@ -51,27 +42,120 @@ private fun Preview() {
 internal fun MessageText(
     modifier: Modifier = Modifier,
     text: String,
+    character: Character,
+) {
+    val alignment = if (character.isMainCharacter) Alignment.CenterEnd else Alignment.CenterEnd
+    Box(Modifier.fillMaxWidth(), contentAlignment = alignment) {
+        if (character.isMainCharacter) {
+            MessageMainCharacter(
+                modifier = modifier,
+                text = text,
+                character = character,
+            )
+        } else {
+            MessageDest(
+                modifier = modifier,
+                text = text,
+                character = character,
+            )
+        }
+    }
+}
+
+@Composable
+private fun MessageDest(
+    modifier: Modifier = Modifier,
+    text: String,
     character: Character? = null,
 ) {
-    MessageBubble(modifier = modifier) {
-        Avatar(
-            modifier = Modifier.background(character?.avatarColor() ?: Color.Blue),
-            size = 26.dp,
-            borderWidth = 1.4.dp,
-            imageModel = character?.avatar
-        )
+    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+        character?.let {
+            Row(
+                modifier = Modifier.padding(start = 8.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(6.dp)
+            ) {
+                Avatar(
+                    modifier = Modifier.background(it.avatarColor()),
+                    size = 22.dp,
+                    borderWidth = 1.4.dp,
+                    imageModel = it.avatar
+                )
+                Name(it.name)
+            }
+        }
 
-        Text(
-            modifier = Modifier
-                .padding(vertical = 4.dp)
-                .padding(end = 24.dp),
-            text = text,
-            color = Color.White,
-            fontFamily = MontserratFontFamily,
-            fontWeight = FontWeight.Medium,
-            fontSize = 11.7.sp,
-        )
+
+
+        MessageBubble(modifier = modifier) {
+            Text(
+                modifier = Modifier
+                    .padding(vertical = 6.dp)
+                    .padding(horizontal = 8.dp),
+                text = text,
+                color = Color.White,
+                fontFamily = MontserratFontFamily,
+                fontWeight = FontWeight.Medium,
+                fontSize = 11.7.sp,
+                lineHeight = 16.sp,
+            )
+        }
     }
+}
+
+@Composable
+private fun MessageMainCharacter(
+    modifier: Modifier = Modifier,
+    text: String,
+    character: Character? = null,
+) {
+    Column(
+        verticalArrangement = Arrangement.spacedBy(4.dp),
+        horizontalAlignment = Alignment.End,
+    ) {
+        character?.let {
+            Row(
+                modifier = Modifier.padding(end = 8.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(6.dp)
+            ) {
+                Name(it.name)
+                Avatar(
+                    modifier = Modifier.background(it.avatarColor()),
+                    size = 22.dp,
+                    borderWidth = 1.4.dp,
+                    imageModel = it.avatar
+                )
+            }
+        }
+
+
+
+        MessageBubble(modifier = modifier) {
+            Text(
+                modifier = Modifier
+                    .padding(vertical = 6.dp)
+                    .padding(horizontal = 8.dp),
+                text = text,
+                color = Color.White,
+                fontFamily = MontserratFontFamily,
+                fontWeight = FontWeight.Medium,
+                fontSize = 11.7.sp,
+                lineHeight = 16.sp,
+            )
+        }
+    }
+}
+
+@Composable
+private fun Name(name: String) {
+    Text(
+        text = name,
+        color = Color.White,
+        fontFamily = MontserratFontFamily,
+        fontWeight = FontWeight.SemiBold,
+        fontSize = 12.sp,
+    )
 }
 
 private fun Character.avatarColor(): Color {

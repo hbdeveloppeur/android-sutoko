@@ -26,6 +26,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.purpletear.game.debug.PreviewCharacter
 import com.purpletear.game.debug.PreviewOverlayWrapper
 import com.purpletear.game.presentation.R
 import com.purpletear.sutoko.game.model.character.Character
@@ -42,7 +43,7 @@ private fun Preview() {
     ) {
         Column(Modifier.padding(4.dp)) {
             MessageTyping()
-            MessageTyping(character = Character(id = 0, name = "Me", avatar = null, isMainCharacter = true, color = com.purpletear.sutoko.game.model.character.CharacterColor(startingColor = "#FFFFFF", endingColor = "#FFFFFF")))
+            MessageTyping(character = PreviewCharacter.copy(name = "Me", isMainCharacter = true))
         }
     }
 }

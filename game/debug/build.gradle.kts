@@ -37,6 +37,8 @@ android {
 }
 
 dependencies {
+    implementation(project(":game:domain"))
+
     val composeBom = platform(libs.compose.bom)
     implementation(composeBom)
     implementation(libs.androidx.material3)

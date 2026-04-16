@@ -3,8 +3,7 @@ package com.purpletear.game.presentation.game_play.components.message
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
@@ -20,35 +19,28 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
-import com.purpletear.game.debug.PreviewOverlayWrapper
-import com.purpletear.game.presentation.R
+import com.purpletear.game.debug.PreviewCharacter
 import com.purpletear.game.presentation.game_play.components.Avatar
 import com.purpletear.sutoko.game.model.character.Character
 
 @Preview(name = "MessageImage")
 @Composable
 private fun Preview() {
-    PreviewOverlayWrapper(
-        imageModifier = Modifier
-            .height(200.dp)
-            .aspectRatio(198f / 264f),
-        drawable = R.drawable.preview_messageimagedest,
+    Box(
+        Modifier
+            .padding(4.dp)
     ) {
-        Column {
-            Box(
-                Modifier
-                    .padding(4.dp)
-            ) {
-                MessageImage(path ="https://data.sutoko.app/resources/sutoko-ai/image/AiChatHomePageHeader.jpg")
-            }
-        }
+        MessageImage(
+            path = "https://data.sutoko.app/resources/sutoko-ai/image/AiChatHomePageHeader.jpg",
+            character = PreviewCharacter,
+        )
     }
 }
 
 @Composable
 internal fun MessageImage(
     path: String,
-    character: Character? = null,
+    character: Character,
 ) {
     val context = LocalContext.current
     val shape = RoundedCornerShape(16.dp)
@@ -57,12 +49,16 @@ internal fun MessageImage(
         .crossfade(300)
         .build()
 
-    Box {
+
+    val alignment =
+        if (character.isMainCharacter) Alignment.BottomEnd else Alignment.BottomStart
+    Box(Modifier.fillMaxWidth(), contentAlignment = alignment) {
         Box(
             modifier = Modifier
                 .height(196.dp)
                 .width(146.dp)
-                .padding(start = 4.dp, bottom = 8.dp)
+                .padding(horizontal = 4.dp)
+                .padding(bottom = 8.dp)
                 .border(width = 1.dp, color = Color.White.copy(0.15f), shape = shape)
                 .clip(shape)
         ) {
@@ -76,11 +72,11 @@ internal fun MessageImage(
         }
         Avatar(
             modifier = Modifier
-                .background(character?.avatarColor() ?: Color.Blue)
-                .align(Alignment.BottomStart),
+                .background(character.avatarColor())
+                .align(alignment),
             size = 26.dp,
             borderWidth = 1.4.dp,
-            imageModel = character?.avatar
+            imageModel = character.avatar
         )
     }
 }

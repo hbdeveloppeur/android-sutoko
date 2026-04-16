@@ -23,8 +23,9 @@ internal fun Message(
 ) {
     when (message.type) {
         GameMessageType.Text -> {
+            assert(character != null)
             message as GameMessageText
-            MessageText(text = message.text, character = character, modifier = modifier)
+            MessageText(text = message.text, character = character!!, modifier = modifier)
         }
 
         GameMessageType.Typing -> {
@@ -42,8 +43,9 @@ internal fun Message(
         }
 
         GameMessageType.Image -> {
+            assert(character != null)
             message as GameMessageImage
-            MessageImage(path = message.imageUrl, character = character)
+            MessageImage(path = message.imageUrl, character = character!!)
         }
     }
 }

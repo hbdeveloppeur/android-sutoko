@@ -81,5 +81,7 @@ internal fun SmsGameScreen(
 
 @Composable
 private fun Screen(content: @Composable BoxScope.() -> Unit) {
-    Box(modifier = Modifier.fillMaxSize(), content = content)
+    Box(modifier = Modifier.fillMaxSize()) {
+        content()
+    }
 }

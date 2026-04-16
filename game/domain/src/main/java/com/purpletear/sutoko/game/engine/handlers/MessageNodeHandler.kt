@@ -109,6 +109,7 @@ class MessageNodeHandler @Inject constructor(
                     commands.add(
                         HandlerCommand.Emit(HandlerEffect.DeleteMessage(messageId = messageId))
                     )
+                    commands.add(HandlerCommand.Delay(Random.nextLong(1000, 3001)))
                 }
 
                 commands.add(
