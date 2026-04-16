@@ -2,6 +2,7 @@ package com.purpletear.game.presentation.game_play.mapper
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Rect
 import com.purpletear.game.presentation.game_play.components.message.MessageImage
 import com.purpletear.game.presentation.game_play.components.message.MessageNarration
 import com.purpletear.game.presentation.game_play.components.message.MessageNextChapter
@@ -20,6 +21,7 @@ internal fun Message(
     modifier: Modifier = Modifier,
     message: GameMessage,
     character: Character? = null,
+    onImageClick: (imageUrl: String, bounds: Rect) -> Unit = { _, _ -> },
 ) {
     when (message.type) {
         GameMessageType.Text -> {
@@ -45,7 +47,11 @@ internal fun Message(
         GameMessageType.Image -> {
             assert(character != null)
             message as GameMessageImage
-            MessageImage(path = message.imageUrl, character = character!!)
+            MessageImage(
+                path = message.imageUrl,
+                character = character!!,
+                onClick = { bounds -> onImageClick(message.imageUrl, bounds) }
+            )
         }
     }
 }

@@ -116,4 +116,7 @@ dependencies {
     // Media3 for video playback
     implementation(libs.androidx.media3.ui)
     implementation(libs.androidx.media3.exoplayer)
+
+    // Zoomable for image viewer
+    implementation(libs.zoomable)
 }

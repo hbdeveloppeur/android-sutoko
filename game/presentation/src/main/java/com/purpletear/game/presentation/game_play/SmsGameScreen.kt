@@ -13,19 +13,31 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.unit.dp
+import com.purpletear.game.presentation.game_play.components.image_viewer.ImageViewerOverlay
 import com.purpletear.game.presentation.game_play.mapper.Message
 import com.purpletear.game.presentation.game_play.state.GameUiState
 import com.purpletear.sutoko.game.engine.message.GameMessageImage
 import com.purpletear.sutoko.game.engine.message.GameMessageText
 import com.purpletear.sutoko.game.engine.message.GameMessageTyping
 
+private data class ImageViewerState(
+    val url: String = "",
+    val bounds: Rect? = null,
+    val isExpanded: Boolean = false,
+)
+
 @Composable
 internal fun SmsGameScreen(
     state: GameUiState,
 ) {
+    var viewerState by remember { mutableStateOf(ImageViewerState()) }
+
     Screen {
         SceneComposable(
             scene = state.currentScene,
@@ -72,10 +84,20 @@ internal fun SmsGameScreen(
                 Message(
                     message = message,
                     character = characterId?.let { state.characters[it] },
-                    modifier = Modifier.animateItem()
+                    modifier = Modifier.animateItem(),
+                    onImageClick = { url, bounds ->
+                        viewerState = ImageViewerState(url, bounds, true)
+                    }
                 )
             }
         }
+
+        ImageViewerOverlay(
+            imageUrl = viewerState.url,
+            sourceBounds = viewerState.bounds,
+            isVisible = viewerState.isExpanded,
+            onDismiss = { viewerState = viewerState.copy(isExpanded = false) }
+        )
     }
 }
 
