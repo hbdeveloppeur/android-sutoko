@@ -7,6 +7,10 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.tween
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.navigation.compose.rememberNavController
 import com.example.sharedelements.theme.SutokoTheme
 import com.purpletear.game.presentation.BuildConfig
@@ -17,6 +21,7 @@ import com.purpletear.game.presentation.debug.debugPage
 import com.purpletear.game.presentation.game_chapter_introduction.descriptionScreen
 import com.purpletear.game.presentation.game_play.navigation.gameScreen
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class SmsGameActivity : ComponentActivity() {
@@ -35,10 +40,23 @@ class SmsGameActivity : ComponentActivity() {
                 HideStatusBarEffect()
 
                 val navController = rememberNavController()
+                val overlayAlpha = remember { Animatable(0f) }
+                val scope = rememberCoroutineScope()
+
+                val fadeThenRun = remember(scope) {
+                    { block: () -> Unit ->
+                        scope.launch {
+                            overlayAlpha.animateTo(1f, tween(400))
+                            block()
+                            overlayAlpha.animateTo(0f, tween(400))
+                        }
+                    }
+                }
 
                 SmsGameNavHost(
                     navController = navController,
                     startDestination = SmsGameRoutes.DESCRIPTION,
+                    overlayAlpha = overlayAlpha.value,
                     onDebugAction = { action ->
                         when (action) {
                             SmsGameDevAction.Back -> {
@@ -47,7 +65,9 @@ class SmsGameActivity : ComponentActivity() {
 
                             SmsGameDevAction.OpenDebugView -> {
                                 if (navController.currentDestination?.route != SmsGameRoutes.DEBUG) {
-                                    navController.navigate(SmsGameRoutes.debug(gameId))
+                                    fadeThenRun {
+                                        navController.navigate(SmsGameRoutes.debug(gameId))
+                                    }
                                 }
                             }
 
@@ -70,7 +90,9 @@ class SmsGameActivity : ComponentActivity() {
                         viewModel = viewModel,
                         onContinue = {
                             viewModel.currentChapterCode()?.let {
-                                navController.navigate(SmsGameRoutes.game(it))
+                                fadeThenRun {
+                                    navController.navigate(SmsGameRoutes.game(it))
+                                }
                             }
                         }
                     )
@@ -79,8 +101,10 @@ class SmsGameActivity : ComponentActivity() {
                         gameId = gameId,
                         onNavigateToChapter = {
                             viewModel.currentChapterCode()?.let { nextCode ->
-                                navController.navigate(SmsGameRoutes.game(nextCode)) {
-                                    popUpTo(SmsGameRoutes.GAME) { inclusive = true }
+                                fadeThenRun {
+                                    navController.navigate(SmsGameRoutes.game(nextCode)) {
+                                        popUpTo(SmsGameRoutes.GAME) { inclusive = true }
+                                    }
                                 }
                             }
                         },
