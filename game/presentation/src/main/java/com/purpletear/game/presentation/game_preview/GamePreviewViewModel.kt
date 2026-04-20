@@ -140,6 +140,9 @@ class GamePreviewViewModel @Inject constructor(
     private val _gameSquareLogoUrl = mutableStateOf<String?>(null)
     val gameSquareLogoUrl: State<String?> get() = _gameSquareLogoUrl
 
+    private val _showRestartDialog = mutableStateOf(false)
+    val showRestartDialog: State<Boolean> get() = _showRestartDialog
+
     private val purchases: StateFlow<List<AppPurchaseDetails>> = billingDataService.getPurchases()
 
     private var lastStateRefreshTime = 0L
@@ -391,14 +394,16 @@ class GamePreviewViewModel @Inject constructor(
     }
 
     private fun handleRestart() {
-        val tag = popupManager.showRestartConfirmation()
-        executeFlowUseCase({ observeInteractionUseCase(tag) }, onStream = { interaction ->
-            when (interaction.event) {
-                PopUpUserInteraction.Confirm -> confirmRestart()
-                PopUpUserInteraction.Dismiss -> {}
-                else -> {}
-            }
-        })
+        _showRestartDialog.value = true
+    }
+
+    fun onRestartDialogConfirm() {
+        _showRestartDialog.value = false
+        confirmRestart()
+    }
+
+    fun onRestartDialogDismiss() {
+        _showRestartDialog.value = false
     }
 
     private fun confirmRestart() {

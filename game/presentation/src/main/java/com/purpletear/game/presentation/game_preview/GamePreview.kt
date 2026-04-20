@@ -40,6 +40,7 @@ import com.purpletear.game.presentation.game_preview.components.GamePreviewDescr
 import com.purpletear.game.presentation.game_preview.components.GamePreviewLabel
 import com.purpletear.game.presentation.game_preview.components.GamePreviewUnavailable
 import com.purpletear.game.presentation.game_preview.components.GamePreviewUnlockAnimation
+import com.purpletear.sutoko.alert.presentation.SimpleAlertDialog
 import com.purpletear.sutoko.game.model.Chapter
 import com.purpletear.sutoko.game.model.Game
 import com.purpletear.sutoko.game.model.isPremium
@@ -200,6 +201,17 @@ fun GamePreview(
             }
 
             GamePreviewUnlockAnimation(isVisible = isVisible)
+
+            if (viewModel.showRestartDialog.value) {
+                SimpleAlertDialog(
+                    onDismissRequest = { viewModel.onRestartDialogDismiss() },
+                    onConfirmation = { viewModel.onRestartDialogConfirm() },
+                    dialogTitle = stringResource(R.string.game_restart_confirm_title),
+                    dialogText = stringResource(R.string.game_restart_confirm_description),
+                    confirmButtonText = stringResource(R.string.game_restart_confirm_button),
+                    dismissButtonText = stringResource(android.R.string.cancel),
+                )
+            }
 
             Column(
                 Modifier

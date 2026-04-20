@@ -2,9 +2,11 @@ package com.purpletear.game.presentation.common.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material3.Icon
@@ -15,6 +17,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
@@ -30,22 +33,27 @@ import com.example.sharedelements.theme.Poppins
 fun SimpleButton(
     text: String,
     fontSize: TextUnit = 12.sp,
-    horizontalPadding: Dp = 16.dp,
-    verticalPadding: Dp = 8.dp,
+    horizontalPadding: Dp = 20.dp,
+    verticalPadding: Dp = 12.dp,
+    textColor: Color = Color.Black,
+    backgroundColor: Color = Color(0xFFF8F8F8),
     imageVector: ImageVector? = Icons.AutoMirrored.Filled.KeyboardArrowRight,
     onClick: () -> Unit
 ) {
+    val iconSize = with(LocalDensity.current) { fontSize.toDp() }
+    val shape = RoundedCornerShape(7.dp)
     Row(
         modifier = Modifier
-            .clip(CircleShape)
-            .background(Color(0xFFF8F8F8))
+            .clip(shape)
+            .background(backgroundColor)
             .clickable(onClick = onClick)
             .padding(horizontal = horizontalPadding, vertical = verticalPadding),
         verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(2.dp),
     ) {
         Text(
             text = text,
-            color = Color.Black,
+            color = textColor,
             fontSize = fontSize,
             fontWeight = FontWeight.SemiBold,
             fontFamily = Poppins
@@ -54,7 +62,8 @@ fun SimpleButton(
             Icon(
                 imageVector = imageVector,
                 contentDescription = null,
-                tint = Color.Black,
+                tint = textColor,
+                modifier = Modifier.size(iconSize)
             )
         }
     }

@@ -43,6 +43,7 @@ internal fun MessageText(
     modifier: Modifier = Modifier,
     text: String,
     character: Character,
+    showHeader: Boolean = true,
 ) {
     val alignment = if (character.isMainCharacter) Alignment.CenterEnd else Alignment.CenterEnd
     Box(Modifier.fillMaxWidth(), contentAlignment = alignment) {
@@ -51,12 +52,14 @@ internal fun MessageText(
                 modifier = modifier,
                 text = text,
                 character = character,
+                showHeader = showHeader,
             )
         } else {
             MessageDest(
                 modifier = modifier,
                 text = text,
                 character = character,
+                showHeader = showHeader,
             )
         }
     }
@@ -67,9 +70,10 @@ private fun MessageDest(
     modifier: Modifier = Modifier,
     text: String,
     character: Character? = null,
+    showHeader: Boolean = true,
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-        character?.let {
+        if (showHeader) character?.let {
             Row(
                 modifier = Modifier.padding(start = 8.dp),
                 verticalAlignment = Alignment.CenterVertically,
@@ -108,12 +112,13 @@ private fun MessageMainCharacter(
     modifier: Modifier = Modifier,
     text: String,
     character: Character? = null,
+    showHeader: Boolean = true,
 ) {
     Column(
         verticalArrangement = Arrangement.spacedBy(4.dp),
         horizontalAlignment = Alignment.End,
     ) {
-        character?.let {
+        if (showHeader) character?.let {
             Row(
                 modifier = Modifier.padding(end = 8.dp),
                 verticalAlignment = Alignment.CenterVertically,

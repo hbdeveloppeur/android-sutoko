@@ -72,6 +72,7 @@ dependencies {
     implementation(project(":popup:domain"))
     implementation(project(":popup:data"))
     implementation(project(":popup:presentation"))
+    implementation(project(":alert:alert_presentation"))
     implementation(project(":tools"))
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

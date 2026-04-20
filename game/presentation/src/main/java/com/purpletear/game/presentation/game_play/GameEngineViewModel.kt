@@ -15,10 +15,13 @@ import com.purpletear.sutoko.game.repository.SceneRepository
 import com.purpletear.sutoko.game.usecase.GetSceneUseCase
 import com.purpletear.sutoko.game.usecase.LoadChapterGraphUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -42,6 +45,9 @@ class GameEngineViewModel @Inject constructor(
     private val chapterCode: String = checkNotNull(savedStateHandle["chapterCode"]) {
         "chapterCode is required"
     }
+
+    private val _navigateToNextChapter = Channel<Unit>(Channel.BUFFERED)
+    val navigateToNextChapter: Flow<Unit> = _navigateToNextChapter.receiveAsFlow()
 
     private val _uiState = MutableStateFlow(GameUiState())
     val uiState: StateFlow<GameUiState> = _uiState.asStateFlow()
@@ -77,14 +83,6 @@ class GameEngineViewModel @Inject constructor(
             updateState {
                 it.copy(characters = characters)
             }
-        }
-    }
-
-    override fun onCleared() {
-        super.onCleared()
-        viewModelScope.launch {
-            sceneRepository.clear()
-            characterRepository.clear()
         }
     }
 
@@ -149,6 +147,11 @@ class GameEngineViewModel @Inject constructor(
 
             is HandlerEffect.ChangeScene -> handleChangeScene(effect)
 
+            is HandlerEffect.ChangeChapter -> {
+                // Engine already persists the chapter via memory.setCurrentChapter.
+                // Navigation is triggered by user tap, which reads from GameSessionViewModel.
+            }
+
             else -> {
                 // TODO: Implement effect handling when needed
                 Log.d("GameEngine", "Received effect: ${effect::class.simpleName}")
@@ -161,6 +164,10 @@ class GameEngineViewModel @Inject constructor(
             val scene = getSceneUseCase(effect.sceneId)
             this@GameEngineViewModel.updateState { it.copy(currentScene = scene) }
         }
+    }
+
+    fun onNextChapterClicked() {
+        _navigateToNextChapter.trySend(Unit)
     }
 
     private fun updateState(transform: (GameUiState) -> GameUiState) {

@@ -77,6 +77,13 @@ class SmsGameActivity : ComponentActivity() {
 
                     gameScreen(
                         gameId = gameId,
+                        onNavigateToChapter = {
+                            viewModel.currentChapterCode()?.let { nextCode ->
+                                navController.navigate(SmsGameRoutes.game(nextCode)) {
+                                    popUpTo(SmsGameRoutes.GAME) { inclusive = true }
+                                }
+                            }
+                        },
                     )
                 }
             }

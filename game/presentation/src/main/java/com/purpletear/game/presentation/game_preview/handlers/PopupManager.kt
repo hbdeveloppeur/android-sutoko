@@ -30,20 +30,6 @@ class PopupManager @Inject constructor(
     }
 
     /**
-     * Shows a confirmation dialog before restarting a game.
-     * @return The popup tag for observing interactions
-     */
-    fun showRestartConfirmation(): String {
-        val popUp = SutokoPopUp(
-            title = UiText.StringResource(R.string.game_restart_confirm_title),
-            description = UiText.StringResource(R.string.game_restart_confirm_description),
-            icon = PopUpIconAnimation(id = R.raw.lottie_animation_validation_green),
-            buttonText = UiText.StringResource(R.string.game_restart_confirm_button)
-        )
-        return showPopUpUseCase(popUp)
-    }
-
-    /**
      * Shows an alert when the game was already bought.
      * @return The popup tag for observing interactions
      */

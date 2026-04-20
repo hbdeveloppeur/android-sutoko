@@ -1,5 +1,8 @@
 package com.purpletear.game.presentation.game_play
 
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
@@ -7,7 +10,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -15,12 +18,17 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.launch
 import com.purpletear.game.presentation.game_play.components.image_viewer.ImageViewerOverlay
 import com.purpletear.game.presentation.game_play.mapper.Message
+import com.purpletear.game.presentation.game_play.mapper.characterId
 import com.purpletear.game.presentation.game_play.state.GameUiState
 import com.purpletear.sutoko.game.engine.message.GameMessageImage
 import com.purpletear.sutoko.game.engine.message.GameMessageText
@@ -35,8 +43,25 @@ private data class ImageViewerState(
 @Composable
 internal fun SmsGameScreen(
     state: GameUiState,
+    onNextChapterClick: () -> Unit = {},
 ) {
     var viewerState by remember { mutableStateOf(ImageViewerState()) }
+    val scope = rememberCoroutineScope()
+    val overlayAlpha = remember { Animatable(1f) }
+
+    LaunchedEffect(Unit) {
+        overlayAlpha.animateTo(0f, tween(1000))
+    }
+
+    val handleNextChapterClick = remember(onNextChapterClick) {
+        {
+            scope.launch {
+                overlayAlpha.animateTo(1f, tween(600))
+                onNextChapterClick()
+            }
+            Unit
+        }
+    }
 
     Screen {
         SceneComposable(
@@ -71,23 +96,20 @@ internal fun SmsGameScreen(
             verticalArrangement = Arrangement.spacedBy(8.dp),
             contentPadding = PaddingValues(vertical = 16.dp),
         ) {
-            items(
+            itemsIndexed(
                 items = messages,
-                key = { it.id }
-            ) { message ->
-                val characterId = when (message) {
-                    is GameMessageText -> message.characterId
-                    is GameMessageTyping -> message.characterId
-                    is GameMessageImage -> message.characterId
-                    else -> null
-                }
+                key = { _, item -> item.id }
+            ) { index, message ->
+                val characterId = message.characterId()
                 Message(
                     message = message,
+                    previousMessage = messages.getOrNull(index + 1),
                     character = characterId?.let { state.characters[it] },
                     modifier = Modifier.animateItem(),
                     onImageClick = { url, bounds ->
                         viewerState = ImageViewerState(url, bounds, true)
-                    }
+                    },
+                    onNextChapterClick = handleNextChapterClick
                 )
             }
         }
@@ -98,6 +120,15 @@ internal fun SmsGameScreen(
             isVisible = viewerState.isExpanded,
             onDismiss = { viewerState = viewerState.copy(isExpanded = false) }
         )
+
+        if (overlayAlpha.value > 0f) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .alpha(overlayAlpha.value)
+                    .background(Color.Black)
+            )
+        }
     }
 }
 

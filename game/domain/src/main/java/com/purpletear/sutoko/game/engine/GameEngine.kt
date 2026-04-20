@@ -14,7 +14,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
 import javax.inject.Inject
 
 class GameEngine @Inject constructor(
@@ -105,79 +104,6 @@ class GameEngine @Inject constructor(
         awaitingInput = false
         executeNode(currentNodeId)
     }
-
-    /**
-     * Called when player makes a choice.
-     * Thread-safe and resumes execution if engine was paused for input.
-     *
-     * @param choiceId The choice identifier (typically "0", "1", etc. for edge index)
-     */
-    suspend fun onPlayerChoice(choiceId: String) {
-        val capturedChoice = inputMutex.withLock {
-            if (!awaitingInput) {
-                return  // Silently ignore if not awaiting input
-            }
-            awaitingInput = false
-            choiceId  // Capture inside lock to prevent race conditions
-        }
-
-        // Resume execution outside the lock to avoid deadlock
-        resumeExecution(capturedChoice)
-    }
-
-    /**
-     * Resumes execution after player input.
-     *
-     * @param choice The captured choice value (passed explicitly to avoid race conditions)
-     */
-    private suspend fun resumeExecution(choice: String) {
-        val graph = checkNotNull(currentGraph) {
-            "Precondition violation: engine not initialized"
-        }
-
-        val currentState = checkNotNull(state.value as? GameEngineState.AwaitingInput) {
-            "Precondition violation: expected AwaitingInput state, got ${state.value}"
-        }
-
-        // Map choice to actual node via graph edges
-        val currentNodeId = currentState.currentNodeId
-        val targetNodeId = resolveChoiceToNode(graph, currentNodeId, choice)
-            ?: run {
-                _state.value =
-                    GameEngineState.Error("Invalid choice '$choice' from node '$currentNodeId'")
-                return
-            }
-
-        executeNode(targetNodeId)
-    }
-
-    /**
-     * Resolves a player choice to the target node ID.
-     *
-     * @param graph The chapter graph
-     * @param currentNodeId The current node ID
-     * @param choiceId The choice identifier from player input
-     * @return The target node ID, or null if choice is invalid
-     */
-    private fun resolveChoiceToNode(
-        graph: ChapterGraph,
-        currentNodeId: String,
-        choiceId: String
-    ): String? {
-        // Try to interpret choiceId as a direct node ID first
-        if (graph.getNode(choiceId) != null) {
-            return choiceId
-        }
-
-        // Try to interpret as edge index ("0", "1", etc.)
-        val choiceIndex = choiceId.toIntOrNull()
-        if (choiceIndex != null) {
-            return graph.getNextNode(currentNodeId, choiceIndex)
-        }
-
-        return null
-    }
-
 
     /**
      * Main entry point for executing a node.

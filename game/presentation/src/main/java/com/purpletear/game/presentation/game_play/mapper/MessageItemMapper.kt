@@ -8,6 +8,7 @@ import com.purpletear.game.presentation.game_play.components.message.MessageNarr
 import com.purpletear.game.presentation.game_play.components.message.MessageNextChapter
 import com.purpletear.game.presentation.game_play.components.message.MessageText
 import com.purpletear.game.presentation.game_play.components.message.MessageTyping
+import com.purpletear.game.presentation.game_play.mapper.hasSameCharacter
 import com.purpletear.sutoko.game.engine.GameMessage
 import com.purpletear.sutoko.game.engine.GameMessageType
 import com.purpletear.sutoko.game.engine.message.GameMessageImage
@@ -19,15 +20,22 @@ import com.purpletear.sutoko.game.model.character.Character
 @Composable
 internal fun Message(
     modifier: Modifier = Modifier,
+    previousMessage: GameMessage?,
     message: GameMessage,
     character: Character? = null,
     onImageClick: (imageUrl: String, bounds: Rect) -> Unit = { _, _ -> },
+    onNextChapterClick: () -> Unit = {},
 ) {
     when (message.type) {
         GameMessageType.Text -> {
             assert(character != null)
             message as GameMessageText
-            MessageText(text = message.text, character = character!!, modifier = modifier)
+            MessageText(
+                modifier = modifier,
+                text = message.text,
+                character = character!!,
+                showHeader = !message.hasSameCharacter(previousMessage),
+            )
         }
 
         GameMessageType.Typing -> {
@@ -36,7 +44,7 @@ internal fun Message(
         }
 
         GameMessageType.ChapterEnd -> {
-            MessageNextChapter(modifier = modifier)
+            MessageNextChapter(modifier = modifier, onClick = onNextChapterClick)
         }
 
         GameMessageType.Info -> {
