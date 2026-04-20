@@ -1,5 +1,6 @@
 package com.purpletear.game.presentation.game_play.components.background
 
+import android.view.LayoutInflater
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
@@ -16,14 +17,17 @@ import androidx.media3.common.MediaItem
 import androidx.media3.common.PlaybackException
 import androidx.media3.common.Player
 import androidx.media3.exoplayer.ExoPlayer
-import androidx.media3.ui.AspectRatioFrameLayout.RESIZE_MODE_ZOOM
 import androidx.media3.ui.PlayerView
+import com.purpletear.game.presentation.R
 import java.io.File
 
 /**
  * Displays a looping video background using ExoPlayer.
  * Video scales to fill the container (crop behavior) using RESIZE_MODE_ZOOM.
  * Notifies parent when playback starts and propagates errors.
+ *
+ * Uses TextureView instead of SurfaceView so the video participates in
+ * Compose alpha transitions (e.g., NavHost fade animations).
  *
  * @param videoPath The absolute path to the video file
  * @param modifier The modifier to be applied to the component
@@ -47,10 +51,8 @@ fun VideoBackground(
     Box(modifier = modifier) {
         AndroidView(
             factory = { ctx ->
-                PlayerView(ctx).apply {
+                (LayoutInflater.from(ctx).inflate(R.layout.video_background, null, false) as PlayerView).apply {
                     player = exoPlayer
-                    useController = false
-                    resizeMode = RESIZE_MODE_ZOOM
                 }
             },
             modifier = Modifier.fillMaxSize()
