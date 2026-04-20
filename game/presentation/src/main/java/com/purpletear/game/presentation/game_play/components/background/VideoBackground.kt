@@ -51,7 +51,8 @@ fun VideoBackground(
     Box(modifier = modifier) {
         AndroidView(
             factory = { ctx ->
-                (LayoutInflater.from(ctx).inflate(R.layout.video_background, null, false) as PlayerView).apply {
+                (LayoutInflater.from(ctx)
+                    .inflate(R.layout.video_background, null, false) as PlayerView).apply {
                     player = exoPlayer
                 }
             },
@@ -88,7 +89,7 @@ private fun createExoPlayer(context: android.content.Context, videoPath: String)
         file.toUri()
     } else {
         // Fallback: try as URI string for non-file paths
-        android.net.Uri.parse(videoPath)
+        videoPath.toUri()
     }
 
     return ExoPlayer.Builder(context).build().apply {

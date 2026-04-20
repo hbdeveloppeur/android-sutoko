@@ -78,12 +78,11 @@ class ObserveGameSessionUseCase @Inject constructor(
             }
 
             val progress = userGameProgressRepository.get(gameId)
-
             emit(
                 GameSessionState.Ready(
                     gameId = gameId,
                     chapter = targetChapter,
-                    heroName = progress?.heroName ?: "",
+                    heroName = progress.heroName,
                     totalChapters = chapters.size
                 )
             )

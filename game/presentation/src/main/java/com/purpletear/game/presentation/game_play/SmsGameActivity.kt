@@ -21,6 +21,7 @@ import com.purpletear.game.presentation.debug.debugPage
 import com.purpletear.game.presentation.game_chapter_introduction.descriptionScreen
 import com.purpletear.game.presentation.game_play.navigation.gameScreen
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
@@ -46,9 +47,10 @@ class SmsGameActivity : ComponentActivity() {
                 val fadeThenRun = remember(scope) {
                     { block: () -> Unit ->
                         scope.launch {
-                            overlayAlpha.animateTo(1f, tween(400))
+                            overlayAlpha.animateTo(1f, tween(500))
                             block()
-                            overlayAlpha.animateTo(0f, tween(400))
+                            delay(280)
+                            overlayAlpha.animateTo(0f, tween(durationMillis = 500))
                         }
                     }
                 }

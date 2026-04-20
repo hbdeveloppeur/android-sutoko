@@ -21,10 +21,10 @@ internal fun NavGraphBuilder.gameScreen(
     onNavigateToChapter: () -> Unit,
 ) = composable(
     route = SmsGameRoutes.GAME,
-    enterTransition = { fadeIn(tween(220, easing = FastOutSlowInEasing)) },
-    exitTransition = { fadeOut(tween(180, easing = FastOutSlowInEasing)) },
-    popEnterTransition = { fadeIn(tween(220, easing = FastOutSlowInEasing)) },
-    popExitTransition = { fadeOut(tween(180, easing = FastOutSlowInEasing)) },
+    enterTransition = { fadeIn(tween(500, easing = FastOutSlowInEasing)) },
+    exitTransition = { fadeOut(tween(360, easing = FastOutSlowInEasing)) },
+    popEnterTransition = { fadeIn(tween(500, easing = FastOutSlowInEasing)) },
+    popExitTransition = { fadeOut(tween(360, easing = FastOutSlowInEasing)) },
     arguments = listOf(
         navArgument("gameId") {
             type = NavType.StringType

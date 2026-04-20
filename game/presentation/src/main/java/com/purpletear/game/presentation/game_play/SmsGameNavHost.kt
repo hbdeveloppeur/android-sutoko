@@ -46,8 +46,8 @@ internal fun SmsGameNavHost(
             SmsGameDevCommandLine(
                 onCommand = { command ->
                     when (command) {
-                        "/restart" -> onDebugAction(SmsGameDevAction.Restart)
-                        "/update" -> onDebugAction(SmsGameDevAction.Update)
+                        "restart" -> onDebugAction(SmsGameDevAction.Restart)
+                        "update" -> onDebugAction(SmsGameDevAction.Update)
                     }
                 }
             )
@@ -56,8 +56,8 @@ internal fun SmsGameNavHost(
             NavHost(
                 navController = navController,
                 startDestination = startDestination,
-                enterTransition = { fadeIn(tween(220, easing = FastOutSlowInEasing)) },
-                exitTransition = { fadeOut(tween(180, easing = FastOutSlowInEasing)) },
+                enterTransition = { fadeIn(tween(500, easing = FastOutSlowInEasing)) },
+                exitTransition = { fadeOut(tween(500, easing = FastOutSlowInEasing)) },
                 builder = builder,
             )
             if (overlayAlpha > 0f) {
