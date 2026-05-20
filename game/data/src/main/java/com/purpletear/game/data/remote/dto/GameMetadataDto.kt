@@ -9,10 +9,12 @@ data class GameMetadataDto(
     @SerializedName("title") val title: String,
     @SerializedName("description") val description: String?,
     @SerializedName("lang") val lang: String?,
+    @SerializedName("catchingPhrase") val catchingPhrase: String?,
 )
 
 fun GameMetadataDto.toDomain(): GameMetadata = GameMetadata(
     title = title,
     description = description,
-    lang = lang
+    lang = lang,
+    catchingPhrase = catchingPhrase
 )

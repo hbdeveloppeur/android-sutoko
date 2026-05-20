@@ -9,17 +9,20 @@ data class GameMetadata(
     val title: String,
     val description: String? = null,
     val lang: String? = null,
+    val catchingPhrase: String? = null,
 ) : Parcelable {
     constructor(parcel: Parcel) : this(
         title = parcel.readString() ?: "",
         description = parcel.readString(),
-        lang = parcel.readString()
+        lang = parcel.readString(),
+        catchingPhrase = parcel.readString()
     )
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
         parcel.writeString(title)
         parcel.writeString(description)
         parcel.writeString(lang)
+        parcel.writeString(catchingPhrase)
     }
 
     override fun describeContents(): Int {

@@ -24,7 +24,7 @@ data class GameDto(
     @SerializedName("logoAsset") val logoAsset: AssetDto?,
     @SerializedName("metadata") val metadata: GameMetadataDto,
     @SerializedName("author") val author: AuthorDto?,
-    @SerializedName("isFeatured") val isFeatured: Boolean,
+    @SerializedName("legacyId") val legacyId: Int?,
 )
 
 /**
@@ -47,7 +47,7 @@ fun GameDto.toDomain(): Game {
         logoAsset = logoAsset?.toDomain(),
         metadata = metadata.toDomain(),
         author = author?.toDomain(),
-        isFeatured = isFeatured,
+        legacyId = legacyId,
     )
 }
 

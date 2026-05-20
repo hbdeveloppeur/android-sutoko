@@ -30,7 +30,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.purpletear.sutoko.game.model.Game
@@ -41,7 +40,7 @@ import com.example.sharedelements.R as SharedR
 fun GameSquares(
     modifier: Modifier = Modifier,
     stories: List<Game>,
-    icons: Map<String, Int?>,
+    icons: Map<Int, Int?>,
     onTap: (Game) -> Unit
 ) {
     Box(
@@ -67,7 +66,7 @@ fun GameSquares(
                         .padding(1.dp),
                     card = card,
                     onTap = onTap,
-                    icon = icons[card.id]
+                    icon = icons[card.legacyId]
                 )
             }
         }
@@ -80,7 +79,7 @@ private fun GameSquare(
     modifier: Modifier,
     card: Game,
     onTap: (Game) -> Unit,
-    viewModel: GameSquareViewModel = hiltViewModel(),
+    viewModel: GameSquareViewModel = remember { GameSquareViewModel() },
     icon: Int? = null,
 ) {
     // The GameSquare composable uses the ViewModel from the parent GameSquares composable

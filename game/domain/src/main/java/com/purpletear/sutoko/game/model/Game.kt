@@ -25,7 +25,7 @@ data class Game(
     val logoAsset: Asset? = null,
     val metadata: GameMetadata,
     val author: Author? = null,
-    val isFeatured: Boolean = false,
+    val legacyId: Int? = null,
 ) : Parcelable {
     constructor(parcel: Parcel) : this(
         id = parcel.readString() ?: "",
@@ -43,7 +43,7 @@ data class Game(
         logoAsset = parcel.readParcelable(Asset::class.java.classLoader),
         metadata = parcel.readParcelable(GameMetadata::class.java.classLoader) ?: GameMetadata(""),
         author = parcel.readParcelable(Author::class.java.classLoader),
-        isFeatured = parcel.readByte() != 0.toByte()
+        legacyId = parcel.readValue(Int::class.java.classLoader) as? Int
     )
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
@@ -62,7 +62,7 @@ data class Game(
         parcel.writeParcelable(logoAsset, flags)
         parcel.writeParcelable(metadata, flags)
         parcel.writeParcelable(author, flags)
-        parcel.writeByte(if (isFeatured) 1 else 0)
+        parcel.writeValue(legacyId)
     }
 
     override fun describeContents(): Int {
