@@ -44,6 +44,7 @@ private data class ImageViewerState(
 internal fun SmsGameScreen(
     state: GameUiState,
     onNextChapterClick: () -> Unit = {},
+    onVocalClick: (String) -> Unit = {},
 ) {
     var viewerState by remember { mutableStateOf(ImageViewerState()) }
     val scope = rememberCoroutineScope()
@@ -106,10 +107,14 @@ internal fun SmsGameScreen(
                     previousMessage = messages.getOrNull(index + 1),
                     character = characterId?.let { state.characters[it] },
                     modifier = Modifier.animateItem(),
+                    currentVocalUrl = state.currentVocalUrl,
+                    isVocalPlaying = state.isVocalPlaying,
+                    vocalProgress = state.vocalProgress,
                     onImageClick = { url, bounds ->
                         viewerState = ImageViewerState(url, bounds, true)
                     },
-                    onNextChapterClick = handleNextChapterClick
+                    onNextChapterClick = handleNextChapterClick,
+                    onVocalClick = onVocalClick,
                 )
             }
         }

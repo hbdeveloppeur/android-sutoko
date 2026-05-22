@@ -138,11 +138,42 @@ object ChapterGraphParser {
                 id = dto.id
             )
 
+            "sound" -> Node.Sound(
+                id = dto.id,
+                soundUrl = resolveSoundPath(
+                    data?.storagePath ?: "",
+                    gameId,
+                    pathProvider
+                ),
+                loop = data?.isLooping ?: false
+            )
+
+            "message-vocal" -> Node.MessageVocal(
+                id = dto.id,
+                audioUrl = resolveSoundPath(
+                    data?.storagePath ?: "",
+                    gameId,
+                    pathProvider
+                ),
+                characterId = data?.characterId ?: -1
+            )
+
             else -> null
         }
     }
 
     private fun resolveImagePath(
+        storagePath: String,
+        gameId: String,
+        pathProvider: GamePathProvider
+    ): String {
+        if (storagePath.isBlank()) return ""
+        val fileName = storagePath.substringAfterLast("/")
+        val basePath = pathProvider.getStoryDirectoryPath(gameId)
+        return "$basePath${File.separator}assets${File.separator}$fileName"
+    }
+
+    private fun resolveSoundPath(
         storagePath: String,
         gameId: String,
         pathProvider: GamePathProvider

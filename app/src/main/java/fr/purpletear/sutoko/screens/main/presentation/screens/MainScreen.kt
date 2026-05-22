@@ -7,8 +7,10 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Surface
+import androidx.compose.material3.Surface
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -27,12 +29,16 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.navigation.NavController
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import fr.purpletear.sutoko.R
+import fr.purpletear.sutoko.screens.create.CreatePageComposable
+import fr.purpletear.sutoko.screens.fadeComposable
 import fr.purpletear.sutoko.screens.main.presentation.HomeScreenViewModel
 import fr.purpletear.sutoko.screens.main.presentation.MainEvents
-import fr.purpletear.sutoko.screens.main.presentation.MainScreenPages
-import fr.purpletear.sutoko.screens.main.presentation.screens.components.navigation.NavigationGraph
+import fr.purpletear.sutoko.screens.main.presentation.screens.components.navigation.BottomNavItem
+import fr.purpletear.sutoko.screens.main.presentation.screens.home.HomeScreen
 import kotlinx.coroutines.delay
 
 @Composable
@@ -71,12 +77,26 @@ fun MainScreen(
 
             val bottomNavigationController = rememberNavController()
 
-            NavigationGraph(
-                modifier = Modifier.align(alignment = Alignment.Center),
+            NavHost(
                 navController = bottomNavigationController,
-                viewModel = viewModel,
-                mainNavController = mainNavController
-            )
+                startDestination = BottomNavItem.Home.route,
+                modifier = Modifier
+                    .fillMaxHeight()
+                    .sizeIn(maxWidth = 500.dp)
+                    .navigationBarsPadding()
+                    .then(Modifier.align(alignment = Alignment.Center))
+            ) {
+                composable(BottomNavItem.Home.route) {
+                    HomeScreen(
+                        mainNavController = mainNavController,
+                        viewModel = viewModel
+                    )
+                }
+
+                fadeComposable(BottomNavItem.Create.route) {
+                    CreatePageComposable()
+                }
+            }
 
             BottomNavigation(
                 navController = bottomNavigationController,

@@ -7,9 +7,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
-import kotlin.coroutines.resume
  
 
 fun <T> ViewModel.executeFlowResultUseCase(
@@ -51,24 +50,7 @@ fun <T> ViewModel.executeFlowResultUseCase(
 
 suspend fun <T> ViewModel.awaitFlowResult(
     useCase: suspend () -> Flow<Result<T>>
-): T = suspendCancellableCoroutine { cont ->
-    viewModelScope.launch {
-        useCase()
-            .catch { throwable ->
-                cont.resumeWith(Result.failure(throwable))
-            }
-            .collect { result ->
-                result.fold(
-                    onSuccess = { value ->
-                        cont.resume(value)
-                    },
-                    onFailure = { exception ->
-                        cont.resumeWith(Result.failure(exception))
-                    }
-                )
-            }
-    }
-}
+): T = useCase().first().getOrThrow()
 
 fun <T> ViewModel.executeFlowUseCase(
     useCase: suspend () -> Flow<T>,

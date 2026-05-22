@@ -105,6 +105,7 @@ class MessageNodeHandler @Inject constructor(
                             )
                         )
                     )
+                    commands.add(HandlerCommand.Emit(HandlerEffect.PlayTypingSound))
                     commands.add(HandlerCommand.Delay(Random.nextLong(1000, 3001)))
                     commands.add(
                         HandlerCommand.Emit(HandlerEffect.DeleteMessage(messageId = messageId))
@@ -112,6 +113,7 @@ class MessageNodeHandler @Inject constructor(
                     commands.add(HandlerCommand.Delay(Random.nextLong(1000, 3001)))
                 }
 
+                commands.add(HandlerCommand.Emit(HandlerEffect.PlayTypingSound))
                 commands.add(
                     HandlerCommand.Emit(
                         HandlerEffect.AddMessage(

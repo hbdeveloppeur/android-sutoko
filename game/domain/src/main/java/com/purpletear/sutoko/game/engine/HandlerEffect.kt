@@ -29,6 +29,11 @@ sealed class HandlerEffect {
     data class ChangeBackground(val imageUrl: String) : HandlerEffect()
 
     /**
+     * Play typingSound
+     */
+    data object PlayTypingSound : HandlerEffect()
+
+    /**
      * Play a sound effect or music.
      */
     data class PlaySound(val soundUrl: String, val loop: Boolean = false) : HandlerEffect()

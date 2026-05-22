@@ -372,8 +372,6 @@ class CatalogRepositoryImpl(
                     )
                 )
             )
-        } catch (e: Exception) {
-            emit(Result.failure(e))
         }
     }.catch { e ->
         if (e !is CancellationException) {

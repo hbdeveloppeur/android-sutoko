@@ -16,5 +16,7 @@ enum class NodeType {
     SIGNAL,
     BACKGROUND,
     CONVERSATION_MODE_CHANGE,
-    END
+    END,
+    SOUND,
+    MESSAGE_VOCAL
 }

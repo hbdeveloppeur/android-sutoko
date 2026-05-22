@@ -2,7 +2,6 @@ package com.purpletear.game.data.repository
 
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.purpletear.game.data.remote.GameApi
-import com.purpletear.game.data.remote.GamePortalApi
 import com.purpletear.game.data.remote.dto.toDomain
 import com.purpletear.game.data.utils.ifNotCancellation
 import com.purpletear.ntfy.Ntfy
@@ -24,7 +23,6 @@ import javax.inject.Inject
  */
 class GameRepositoryImpl @Inject constructor(
     private val api: GameApi,
-    private val portalApi: GamePortalApi,
     private val gameInstallationRepository: GameInstallationRepository,
     private val ntfy: Ntfy,
 ) : GameRepository {
@@ -61,8 +59,26 @@ class GameRepositoryImpl @Inject constructor(
      * @return A Flow emitting a Result containing a list of Games.
      */
     override fun getOfficialGames(): Flow<Result<List<Game>>> = flow {
-        // TODO: Implement when official games endpoint is ready
-        emit(Result.success(emptyList()))
+        try {
+            val response = api.getOfficialGames(languageCode = "fr-FR")
+            if (response.isSuccessful) {
+                val games = response.body()?.toDomain() ?: emptyList()
+                officialGamesStateFlow.value = games
+                emit(Result.success(games))
+            } else {
+                val errorBody = try {
+                    response.errorBody()?.string()
+                } catch (_: Exception) {
+                    null
+                } ?: "Unknown error"
+                emit(Result.failure(Exception("Failed to load official games: ${response.code()} - $errorBody")))
+            }
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            FirebaseCrashlytics.getInstance().recordException(e)
+            emit(Result.failure(e))
+        }
     }
 
     /**
@@ -78,6 +94,9 @@ class GameRepositoryImpl @Inject constructor(
         page: Int,
         limit: Int,
     ): Flow<Result<List<Game>>> = flow {
+        require(page >= 1) { "Page must be >= 1, got $page" }
+        require(limit > 0) { "Limit must be > 0, got $limit" }
+
         try {
             val response = api.getUserGames(
                 languageCode = languageCode,
@@ -87,14 +106,24 @@ class GameRepositoryImpl @Inject constructor(
 
             if (response.isSuccessful) {
                 val games = response.body()?.toDomain() ?: emptyList()
-                usersGamesStateFlow.value = games
+                usersGamesStateFlow.value = if (page == 1) {
+                    games
+                } else {
+                    usersGamesStateFlow.value.orEmpty() + games
+                }
                 emit(Result.success(games))
             } else {
-                val errorBody = response.errorBody()?.string() ?: "Unknown error"
+                val errorBody = try {
+                    response.errorBody()?.string()
+                } catch (_: Exception) {
+                    null
+                } ?: "Unknown error"
                 emit(Result.failure(Exception("Failed to load user games: ${response.code()} - $errorBody")))
             }
+        } catch (e: CancellationException) {
+            throw e
         } catch (e: Exception) {
-            e.ifNotCancellation { FirebaseCrashlytics.getInstance().recordException(it) }
+            FirebaseCrashlytics.getInstance().recordException(e)
             emit(Result.failure(e))
         }
     }
@@ -299,7 +328,7 @@ class GameRepositoryImpl @Inject constructor(
         limit: Int,
     ): Flow<Result<List<Game>>> = flow {
         try {
-            val response = portalApi.searchStories(
+            val response = api.searchStories(
                 query = query,
                 languageCode = languageCode,
                 page = page,
@@ -316,7 +345,7 @@ class GameRepositoryImpl @Inject constructor(
         } catch (e: CancellationException) {
             throw e
         } catch (e: Exception) {
-            e.ifNotCancellation { FirebaseCrashlytics.getInstance().recordException(it) }
+            FirebaseCrashlytics.getInstance().recordException(e)
             emit(Result.failure(e))
         }
     }

@@ -35,8 +35,7 @@ import fr.purpletear.sutoko.R
 import fr.purpletear.sutoko.objects.CalendarEvent
 import fr.purpletear.sutoko.popup.domain.PopUpIconDrawable
 import fr.purpletear.sutoko.popup.domain.SutokoPopUp
-import fr.purpletear.sutoko.presentation.util.ImmutableList
-import fr.purpletear.sutoko.presentation.util.ImmutableMap
+
 import fr.purpletear.sutoko.screens.main.domain.popup.util.MainMenuCategory
 import fr.purpletear.sutoko.shop.coinsLogic.Customer
 import kotlinx.coroutines.channels.Channel
@@ -80,14 +79,14 @@ class HomeScreenViewModel @Inject constructor(
     private val _navEvents = Channel<String>(Channel.BUFFERED)
     val navEvents = _navEvents.receiveAsFlow()
 
-    private var _squareStories: MutableState<ImmutableList<Game>> =
-        mutableStateOf(ImmutableList(listOf()))
-    val squareStories: State<ImmutableList<Game>>
+    private var _squareStories: MutableState<List<Game>> =
+        mutableStateOf(emptyList())
+    val squareStories: State<List<Game>>
         get() = _squareStories
 
-    private var _squareIcons: MutableState<ImmutableMap<String, Int?>> =
-        mutableStateOf(ImmutableMap(mapOf()))
-    val squareIcons: State<ImmutableMap<String, Int?>>
+    private var _squareIcons: MutableState<Map<Int, Int?>> =
+        mutableStateOf(emptyMap())
+    val squareIcons: State<Map<Int, Int?>>
         get() = _squareIcons
 
     private var _newsIndex: MutableState<Int> = mutableIntStateOf(0)
@@ -100,8 +99,8 @@ class HomeScreenViewModel @Inject constructor(
 
     // newsState is redundant with news, so it has been removed
 
-    private var _games: MutableState<ImmutableList<Game>> = mutableStateOf(ImmutableList(listOf()))
-    val games: State<ImmutableList<Game>>
+    private var _games: MutableState<List<Game>> = mutableStateOf(emptyList())
+    val games: State<List<Game>>
         get() = _games
 
     private var _aiConversationMessageCount: MutableState<Int?> = mutableStateOf(null)
@@ -113,9 +112,9 @@ class HomeScreenViewModel @Inject constructor(
         get() = _displayAiConversationCard
 
 
-    private var _fullStories: MutableState<ImmutableList<Game>> =
-        mutableStateOf(ImmutableList(listOf()))
-    val fullStories: State<ImmutableList<Game>>
+    private var _fullStories: MutableState<List<Game>> =
+        mutableStateOf(emptyList())
+    val fullStories: State<List<Game>>
         get() = _fullStories
 
 
@@ -171,15 +170,11 @@ class HomeScreenViewModel @Inject constructor(
             getGamesUseCase().collect { result ->
                 result.onSuccess { gamesList ->
                     // Update games state variable
-                    _games.value = ImmutableList(gamesList)
+                    _games.value = gamesList
 
                     // Update square and full stories
-                    _squareStories.value = ImmutableList(
-                        getSquareStories(gamesList) ?: listOf()
-                    )
-                    _fullStories.value = ImmutableList(
-                        getFullWidthStories(gamesList)
-                    )
+                    _squareStories.value = getSquareStories(gamesList) ?: emptyList()
+                    _fullStories.value = getFullWidthStories(gamesList)
 
                     // Update main state with games
                     _state.value = _state.value.copy(
@@ -190,13 +185,11 @@ class HomeScreenViewModel @Inject constructor(
         }
 
         this._squareIcons = mutableStateOf(
-            ImmutableMap(
-                mapOf(
-                    "159" to com.example.sharedelements.R.drawable.logo_card_159,
-                    "161" to com.example.sharedelements.R.drawable.logo_card_161,
-                    "162" to com.example.sharedelements.R.drawable.logo_card_162,
-                    "163" to com.example.sharedelements.R.drawable.logo_card_163,
-                )
+            mapOf(
+                159 to com.example.sharedelements.R.drawable.logo_card_159,
+                161 to com.example.sharedelements.R.drawable.logo_card_161,
+                162 to com.example.sharedelements.R.drawable.logo_card_162,
+                163 to com.example.sharedelements.R.drawable.logo_card_163,
             )
         )
     }
@@ -343,12 +336,8 @@ class HomeScreenViewModel @Inject constructor(
                 _categoryState.value = event.category
                 viewModelScope.launch {
                     val stories = getFormattedStories(event.category, _state.value.initialStories)
-                    _squareStories.value = ImmutableList(
-                        getSquareStories(stories) ?: listOf()
-                    )
-                    _fullStories.value = ImmutableList(
-                        getFullWidthStories(stories)
-                    )
+                    _squareStories.value = getSquareStories(stories) ?: emptyList()
+                    _fullStories.value = getFullWidthStories(stories)
                 }
 
             }

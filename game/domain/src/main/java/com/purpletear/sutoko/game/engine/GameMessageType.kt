@@ -6,4 +6,5 @@ enum class GameMessageType {
     Typing,
     ChapterEnd,
     Image,
+    Vocal,
 }

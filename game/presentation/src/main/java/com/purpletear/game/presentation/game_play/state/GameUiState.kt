@@ -17,4 +17,7 @@ data class GameUiState(
     val isAwaitingInput: Boolean = false,
     val currentScene: Scene? = null,
     val characters: Map<Int, Character> = emptyMap(),
+    val currentVocalUrl: String? = null,
+    val isVocalPlaying: Boolean = false,
+    val vocalProgress: Float = 0f,
 )

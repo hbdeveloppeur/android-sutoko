@@ -76,7 +76,6 @@ import fr.purpletear.sutoko.popup.domain.usecase.ShowPopUpUseCase
 import fr.purpletear.sutoko.screens.account.AccountActivity
 import fr.purpletear.sutoko.screens.accountConnection.AccountConnectionActivity
 import fr.purpletear.sutoko.screens.accountConnection.AccountConnectionActivityModel
-import fr.purpletear.sutoko.screens.create.CreatePageComposable
 import fr.purpletear.sutoko.screens.main.presentation.HomeScreenViewModel
 import fr.purpletear.sutoko.screens.main.presentation.MainEvents
 import fr.purpletear.sutoko.screens.main.presentation.MainScreenPages
@@ -226,11 +225,11 @@ class MainActivity @Inject constructor(
                     }
                 }
 
-                Box(Modifier.Companion.imePadding()) {
+                Box(Modifier.imePadding()) {
                     NavHost(
                         navController,
-                        // startDestination = MainScreenPages.SplashScreen.route,
-                        startDestination = MainScreenPages.Create.route,
+                        startDestination = MainScreenPages.SplashScreen.route,
+                        // startDestination = MainScreenPages.Create.route,
                     ) {
 
                         composable(MainScreenPages.SplashScreen.route) {
@@ -272,28 +271,6 @@ class MainActivity @Inject constructor(
                                 },
                                 onGameDeleted = {
                                     navController.navigateUp()
-                                }
-                            )
-                        }
-
-                        animatedComposable(MainScreenPages.Create.route) { backStackEntry ->
-                            CreatePageComposable(
-                                onAccountButtonPressed = {
-                                    onAccountPressed()
-                                },
-                                onCoinsButtonPressed = {
-                                    onCoinsPressed()
-                                },
-                                onDiamondsButtonPressed = {
-                                    onDiamondPressed()
-                                },
-                                onOptionsButtonPressed = {
-                                    onOptionsPressed()
-                                },
-                                onGameClick = { game ->
-                                    // Launch SmsGameActivity directly
-                                    // Free games are granted, paid games require purchase
-                                    startSmsGameLoaderActivity(game.id)
                                 }
                             )
                         }

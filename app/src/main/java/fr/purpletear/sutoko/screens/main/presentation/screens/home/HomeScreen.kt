@@ -26,6 +26,7 @@ import com.purpletear.aiconversation.presentation.navigation.AiConversationRoute
 import com.purpletear.core.presentation.extensions.Resource
 import com.purpletear.game.presentation.game_catalog.GameCard
 import com.purpletear.game.presentation.game_catalog.GameSquares
+import com.purpletear.sutoko.game.model.Game
 import fr.purpletear.sutoko.BuildConfig
 import fr.purpletear.sutoko.screens.main.domain.popup.util.MainMenuCategory
 import fr.purpletear.sutoko.screens.main.presentation.HomeScreenViewModel
@@ -35,8 +36,6 @@ import fr.purpletear.sutoko.screens.main.presentation.screens.TopNavigation
 import fr.purpletear.sutoko.screens.main.presentation.screens.home.components.AiConversationCard
 import fr.purpletear.sutoko.screens.main.presentation.screens.home.components.HeaderPager
 import fr.purpletear.sutoko.screens.main.presentation.screens.home.components.Menu
-import fr.purpletear.sutoko.presentation.util.ImmutableList as GameImmutableList
-import fr.purpletear.sutoko.presentation.util.ImmutableMap as GameImmutableMap
 
 /**
  * Home screen composable that displays the main content of the application.
@@ -124,9 +123,9 @@ fun HomeScreen(
 private fun HomeContent(
     scrollState: LazyListState,
     news: List<com.purpletear.sutoko.news.model.News>,
-    squareStories: fr.purpletear.sutoko.presentation.util.ImmutableList<com.purpletear.sutoko.game.model.Game>,
-    fullStories: fr.purpletear.sutoko.presentation.util.ImmutableList<com.purpletear.sutoko.game.model.Game>,
-    squareIcons: fr.purpletear.sutoko.presentation.util.ImmutableMap<String, Int?>,
+    squareStories: List<Game>,
+    fullStories: List<com.purpletear.sutoko.game.model.Game>,
+    squareIcons: Map<Int, Int?>,
     categoryState: MainMenuCategory,
     coinsBalance: Resource<com.purpletear.shop.domain.model.Balance>,
     aiConversationMessageCount: Int?,
@@ -209,6 +208,11 @@ private fun LazyListScope.topNavigationSection(
 ) {
     item(key = "top_navigation") {
         TopNavigation(
+            modifier = Modifier
+                .padding(top = 12.dp)
+                .padding(horizontal = 16.dp)
+                .padding(bottom = 8.dp)
+                .padding(start = 8.dp),
             coins = coins,
             diamonds = diamonds,
             isLoading = isLoading,
@@ -252,17 +256,17 @@ private fun LazyListScope.categoryMenuSection(
 
 @OptIn(ExperimentalFoundationApi::class)
 private fun LazyListScope.squareStoriesSection(
-    squareStories: fr.purpletear.sutoko.presentation.util.ImmutableList<com.purpletear.sutoko.game.model.Game>,
-    fullStories: fr.purpletear.sutoko.presentation.util.ImmutableList<com.purpletear.sutoko.game.model.Game>,
-    squareIcons: fr.purpletear.sutoko.presentation.util.ImmutableMap<String, Int?>,
-    onStoryTap: (com.purpletear.sutoko.game.model.Game) -> Unit
+    squareStories: List<Game>,
+    fullStories: List<Game>,
+    squareIcons: Map<Int, Int?>,
+    onStoryTap: (Game) -> Unit
 ) {
-    if (squareStories.items.isEmpty() || fullStories.items.isEmpty()) return
+    if (squareStories.isEmpty() || fullStories.isEmpty()) return
 
     item(key = "square_stories") {
         GameSquares(
-            stories = squareStories.items,
-            icons = squareIcons.map,
+            stories = squareStories,
+            icons = squareIcons,
             onTap = onStoryTap
         )
     }
@@ -270,14 +274,14 @@ private fun LazyListScope.squareStoriesSection(
 
 @OptIn(ExperimentalFoundationApi::class)
 private fun LazyListScope.squareStoriesAsCardsSection(
-    squareStories: fr.purpletear.sutoko.presentation.util.ImmutableList<com.purpletear.sutoko.game.model.Game>,
-    fullStories: fr.purpletear.sutoko.presentation.util.ImmutableList<com.purpletear.sutoko.game.model.Game>,
-    onStoryTap: (com.purpletear.sutoko.game.model.Game) -> Unit
+    squareStories: List<Game>,
+    fullStories: List<Game>,
+    onStoryTap: (Game) -> Unit
 ) {
-    if (squareStories.items.isEmpty() || fullStories.items.isNotEmpty()) return
+    if (squareStories.isEmpty() || fullStories.isNotEmpty()) return
 
     itemsIndexed(
-        items = squareStories.items,
+        items = squareStories,
         key = { _, item -> "card_${item.id}" }
     ) { _, item ->
         GameCard(
@@ -307,13 +311,13 @@ private fun LazyListScope.aiConversationSection(
 
 @OptIn(ExperimentalFoundationApi::class)
 private fun LazyListScope.fullStoriesSection(
-    fullStories: fr.purpletear.sutoko.presentation.util.ImmutableList<com.purpletear.sutoko.game.model.Game>,
-    onStoryTap: (com.purpletear.sutoko.game.model.Game) -> Unit
+    fullStories: List<Game>,
+    onStoryTap: (Game) -> Unit
 ) {
-    if (fullStories.items.isEmpty()) return
+    if (fullStories.isEmpty()) return
 
     itemsIndexed(
-        items = fullStories.items,
+        items = fullStories,
         key = { _, item -> "card_${item.id}" }
     ) { _, item ->
         GameCard(

@@ -40,9 +40,9 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.purpletear.core.presentation.extensions.Resource
 import com.purpletear.game.presentation.common.states.GameState
-import com.purpletear.game.presentation.game_preview.components.GamePreviewModal
 import com.purpletear.game.presentation.game_catalog.GameCardCompact
 import com.purpletear.game.presentation.game_catalog.GameCoverCompact
+import com.purpletear.game.presentation.game_preview.components.GamePreviewModal
 import com.purpletear.sutoko.game.model.Game
 import com.purpletear.sutoko.game.model.getFullUrl
 import com.purpletear.sutoko.game.model.getThumbnailUrl
@@ -143,6 +143,7 @@ internal fun CreatePageComposable(
                     .fillMaxSize()
                     .systemBarsPadding()
                     .padding(top = 12.dp)
+                    .padding(bottom = 70.dp)
                     .pointerInput(Unit) {
                         detectTapGestures(onTap = { focusManager.clearFocus() })
                     },
@@ -233,7 +234,6 @@ internal fun CreatePageComposable(
                     items = games,
                     key = { it.id }
                 ) { game ->
-                    // Observe combined game state (download + installation)
                     val gameState by viewModel.getGameState(game.id)
                         .collectAsState(initial = GameState.Idle)
 
@@ -247,7 +247,9 @@ internal fun CreatePageComposable(
                         isAuthorCertified = game.author?.isCertified ?: false,
                         gameState = gameState,
                         onGetClick = { viewModel.downloadGame(game) },
-                        onOpenClick = { onGameClick(game) },
+                        onOpenClick = {
+                            onGameClick(game)
+                        },
                         onCancelClick = { viewModel.cancelDownload(game.id) },
                         onClick = {
                             selectedGameId = game.id

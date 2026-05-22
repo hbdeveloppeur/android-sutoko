@@ -79,7 +79,7 @@ fun GameCard(
             }
             Text(
                 modifier = Modifier.fillMaxWidth(0.7f),
-                text = game.metadata.description ?: "",
+                text = game.metadata.catchingPhrase ?: "",
                 fontSize = 12.sp,
                 style = SutokoTypography.h3.copy(
                     letterSpacing = 0.5.sp,
@@ -94,7 +94,7 @@ fun GameCard(
             Row {
                 Text(
                     modifier = Modifier,
-                    text = "",
+                    text = "Policer • Amour • Drama",
                     color = Color.White.copy(0.8f),
                     fontSize = 12.sp,
                     style = SutokoTypography.h3.copy(

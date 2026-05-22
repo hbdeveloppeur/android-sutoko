@@ -2,7 +2,6 @@ arguments=--init-script /var/folders/yk/x2p4h3qx6qz5hqn58vksjm8w0000gn/T/db3b08f
 auto.sync=true
 build.scans.enabled=false
 connection.gradle.distribution=GRADLE_DISTRIBUTION(VERSION(8.9))
-connection.project.dir=
 eclipse.preferences.version=1
 gradle.user.home=
 java.home=/opt/homebrew/Cellar/openjdk@17/17.0.15/libexec/openjdk.jdk/Contents/Home

@@ -98,4 +98,18 @@ sealed class Node {
     data class End(
         override val id: String
     ) : Node()
+
+    @Keep
+    data class Sound(
+        override val id: String,
+        val soundUrl: String,
+        val loop: Boolean = false
+    ) : Node()
+
+    @Keep
+    data class MessageVocal(
+        override val id: String,
+        val audioUrl: String,
+        val characterId: Int,
+    ) : Node()
 }

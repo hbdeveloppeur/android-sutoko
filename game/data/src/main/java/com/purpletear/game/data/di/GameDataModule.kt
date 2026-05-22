@@ -12,24 +12,23 @@ import com.purpletear.game.data.local.dao.MemoryDao
 import com.purpletear.game.data.local.dao.UserGameProgressDao
 import com.purpletear.game.data.provider.AndroidGamePathProviderImpl
 import com.purpletear.game.data.remote.GameApi
-import com.purpletear.game.data.remote.GamePortalApi
 import com.purpletear.game.data.repository.ChapterGraphRepositoryImpl
+import com.purpletear.game.data.repository.CharacterRepositoryImpl
 import com.purpletear.game.data.repository.GameInstallationRepositoryImpl
 import com.purpletear.game.data.repository.GameRepositoryImpl
 import com.purpletear.game.data.repository.MemoryRepositoryImpl
-import com.purpletear.game.data.repository.CharacterRepositoryImpl
 import com.purpletear.game.data.repository.SceneRepositoryImpl
 import com.purpletear.game.data.repository.UserGameProgressRepositoryImpl
+import com.purpletear.ntfy.Ntfy
+import com.purpletear.sutoko.game.download.GameDownloadManager
 import com.purpletear.sutoko.game.engine.processing.TextProcessor
 import com.purpletear.sutoko.game.engine.processing.TextProcessorImpl
 import com.purpletear.sutoko.game.engine.timing.TimingScheduler
 import com.purpletear.sutoko.game.repository.ChapterGraphRepository
-import com.purpletear.ntfy.Ntfy
-import com.purpletear.sutoko.game.download.GameDownloadManager
+import com.purpletear.sutoko.game.repository.CharacterRepository
 import com.purpletear.sutoko.game.repository.GameInstallationRepository
 import com.purpletear.sutoko.game.repository.GameRepository
 import com.purpletear.sutoko.game.repository.MemoryRepository
-import com.purpletear.sutoko.game.repository.CharacterRepository
 import com.purpletear.sutoko.game.repository.SceneRepository
 import com.purpletear.sutoko.game.repository.UserGameProgressRepository
 import dagger.Module
@@ -139,26 +138,7 @@ object GameDataModule {
             .cache(null)
             .build()
         return Retrofit.Builder()
-            .baseUrl("https://sutoko.com/api/")
-            .addConverterFactory(GsonConverterFactory.create())
-            .client(okHttpClient)
-            .build()
-    }
-
-    /**
-     * Provides the Retrofit instance for sutoko.com/portal.
-     *
-     * @return The Portal Retrofit instance.
-     */
-    @Provides
-    @Singleton
-    @PortalRetrofit
-    fun providePortalRetrofit(): Retrofit {
-        val okHttpClient: OkHttpClient = OkHttpClient.Builder()
-            .cache(null)
-            .build()
-        return Retrofit.Builder()
-            .baseUrl("https://sutoko.com/portal/")
+            .baseUrl("https://sutoko.com/")
             .addConverterFactory(GsonConverterFactory.create())
             .client(okHttpClient)
             .build()
@@ -177,22 +157,9 @@ object GameDataModule {
     }
 
     /**
-     * Provides the GamePortalApi implementation.
-     *
-     * @param retrofit The Portal Retrofit instance.
-     * @return The GamePortalApi implementation.
-     */
-    @Provides
-    @Singleton
-    fun provideGamePortalApi(@PortalRetrofit retrofit: Retrofit): GamePortalApi {
-        return retrofit.create(GamePortalApi::class.java)
-    } 
-
-    /**
      * Provides the GameRepository implementation.
      *
      * @param gameApi The GameApi instance.
-     * @param gamePortalApi The GamePortalApi instance.
      * @param gameInstallationRepository The GameInstallationRepository instance.
      * @param ntfy The Ntfy instance.
      * @return The GameRepository implementation.
@@ -201,11 +168,10 @@ object GameDataModule {
     @Singleton
     fun provideGameRepository(
         gameApi: GameApi,
-        gamePortalApi: GamePortalApi,
         gameInstallationRepository: GameInstallationRepository,
         ntfy: Ntfy
     ): GameRepository {
-        return GameRepositoryImpl(gameApi, gamePortalApi, gameInstallationRepository, ntfy)
+        return GameRepositoryImpl(gameApi, gameInstallationRepository, ntfy)
     }
 
     /**

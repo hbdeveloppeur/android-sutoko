@@ -43,6 +43,8 @@ data class NodeDataDto(
     val memory: MemoryDataDto? = null,
     @SerializedName("expectedValue")
     val expectedValue: String? = null,
+    @SerializedName("isLooping")
+    val isLooping: Boolean? = null,
 )
 
 data class MemoryDataDto(

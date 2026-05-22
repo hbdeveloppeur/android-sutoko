@@ -313,5 +313,7 @@ class GameEngine @Inject constructor(
         is Node.ConversationModeChange -> handlerFactory.getHandler(NodeType.CONVERSATION_MODE_CHANGE)
         is Node.Scene -> handlerFactory.getHandler(NodeType.SCENE)
         is Node.End -> handlerFactory.getHandler(NodeType.END)
+        is Node.Sound -> handlerFactory.getHandler(NodeType.SOUND)
+        is Node.MessageVocal -> handlerFactory.getHandler(NodeType.MESSAGE_VOCAL)
     }
 }

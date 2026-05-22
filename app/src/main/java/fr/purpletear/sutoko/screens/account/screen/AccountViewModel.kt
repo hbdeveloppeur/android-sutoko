@@ -21,7 +21,6 @@ import com.purpletear.sutoko.game.model.Game
 import com.purpletear.sutoko.game.usecase.GetGamesUseCase
 import com.purpletear.sutoko.user.usecase.IsUserConnectedUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
-import fr.purpletear.sutoko.presentation.util.ImmutableList
 import fr.purpletear.sutoko.screens.account.screen.model.GameWithOwnership
 import fr.purpletear.sutoko.screens.account.screen.transformers.PossessedGamesTransformer
 import fr.purpletear.sutoko.shop.coinsLogic.Customer
@@ -39,7 +38,7 @@ class AccountViewModel @Inject constructor(
     private val isUserConnectedUseCase: IsUserConnectedUseCase,
     var customer: Customer,
 ) : ViewModel() {
-    private var _possessedGames = ImmutableList<GameWithOwnership>(emptyList())
+    private var _possessedGames = emptyList<GameWithOwnership>()
 
     private var _allGames: MutableState<List<GameWithOwnership>> = mutableStateOf(listOf())
     val allGames: State<List<GameWithOwnership>>
@@ -150,7 +149,7 @@ class AccountViewModel @Inject constructor(
             games ?: emptyList(),
             possessedGameIds.toSet()
         )
-        _possessedGames = ImmutableList(possessedGames)
+        _possessedGames = possessedGames
     }
 
     fun getAppParams(): SutokoAppParams {

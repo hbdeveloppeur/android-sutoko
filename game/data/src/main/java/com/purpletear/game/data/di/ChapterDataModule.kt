@@ -1,15 +1,14 @@
 package com.purpletear.game.data.di
 
-import android.content.Context
 import com.purpletear.game.data.database.GameDatabase
 import com.purpletear.game.data.local.dao.ChapterDao
+import com.purpletear.game.data.local.dao.UserGameProgressDao
 import com.purpletear.game.data.remote.ChapterApi
 import com.purpletear.game.data.repository.ChapterRepositoryImpl
 import com.purpletear.sutoko.game.repository.ChapterRepository
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
-import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
@@ -58,7 +57,7 @@ object ChapterDataModule {
      *
      * @param chapterApi The ChapterApi instance.
      * @param chapterDao The ChapterDao instance.
-     * @param context The application context.
+     * @param userGameProgressDao The UserGameProgressDao instance.
      * @return The ChapterRepository implementation.
      */
     @Provides
@@ -66,8 +65,8 @@ object ChapterDataModule {
     fun provideChapterRepository(
         chapterApi: ChapterApi,
         chapterDao: ChapterDao,
-        @ApplicationContext context: Context
+        userGameProgressDao: UserGameProgressDao
     ): ChapterRepository {
-        return ChapterRepositoryImpl(chapterApi, chapterDao, context)
+        return ChapterRepositoryImpl(chapterApi, chapterDao, userGameProgressDao)
     }
 }

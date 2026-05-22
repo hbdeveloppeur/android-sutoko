@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -106,11 +107,13 @@ private fun ProgressBarItem(height: Dp, progress: Float) {
 
 @Composable
 private fun PlayButton(isPlaying: Boolean, onClick: () -> Unit) {
+    val shape = CircleShape
     Image(
         painter = painterResource(id = if (isPlaying) R.drawable.ic_pause_button else R.drawable.ic_play_button),
         contentDescription = "Play",
         modifier = Modifier
             .size(22.dp)
+            .clip(shape)
             .clickable(onClick = onClick)
     )
 }

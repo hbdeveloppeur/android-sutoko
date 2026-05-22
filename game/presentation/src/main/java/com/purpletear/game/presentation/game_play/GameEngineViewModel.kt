@@ -1,9 +1,12 @@
 package com.purpletear.game.presentation.game_play
 
+import android.content.Context
+import android.media.MediaPlayer
 import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.purpletear.game.presentation.R
 import com.purpletear.game.presentation.game_play.state.GameUiState
 import com.purpletear.sutoko.game.engine.GameEngine
 import com.purpletear.sutoko.game.engine.GameEngineState
@@ -22,7 +25,11 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.receiveAsFlow
+import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.Job
 import javax.inject.Inject
 
 /**
@@ -37,7 +44,13 @@ class GameEngineViewModel @Inject constructor(
     private val characterRepository: CharacterRepository,
     private val getSceneUseCase: GetSceneUseCase,
     savedStateHandle: SavedStateHandle,
+    @ApplicationContext private val context: Context,
 ) : ViewModel() {
+
+    private var typingPlayer: MediaPlayer? = null
+    private var soundPlayer: MediaPlayer? = null
+    private var vocalPlayer: MediaPlayer? = null
+    private var vocalProgressJob: Job? = null
 
     private val gameId: String = checkNotNull(savedStateHandle["gameId"]) {
         "gameId is required"
@@ -147,6 +160,14 @@ class GameEngineViewModel @Inject constructor(
 
             is HandlerEffect.ChangeScene -> handleChangeScene(effect)
 
+            is HandlerEffect.PlayTypingSound -> playTypingSound()
+
+            is HandlerEffect.PlaySound -> playSound(effect.soundUrl, effect.loop)
+
+            is HandlerEffect.PlayVocal -> playVocal(effect.audioUrl)
+
+            is HandlerEffect.StopSound -> stopSound()
+
             is HandlerEffect.ChangeChapter -> {
                 // Engine already persists the chapter via memory.setCurrentChapter.
                 // Navigation is triggered by user tap, which reads from GameSessionViewModel.
@@ -157,6 +178,121 @@ class GameEngineViewModel @Inject constructor(
                 Log.d("GameEngine", "Received effect: ${effect::class.simpleName}")
             }
         }
+    }
+
+    private fun playTypingSound() {
+        typingPlayer?.release()
+        typingPlayer = MediaPlayer.create(context, R.raw.typing)?.apply {
+            setOnCompletionListener {
+                release()
+                typingPlayer = null
+            }
+            start()
+        }
+    }
+
+    override fun onCleared() {
+        typingPlayer?.release()
+        typingPlayer = null
+        soundPlayer?.release()
+        soundPlayer = null
+        vocalPlayer?.release()
+        vocalPlayer = null
+        vocalProgressJob?.cancel()
+        super.onCleared()
+    }
+
+    private fun playSound(soundUrl: String, loop: Boolean) {
+        soundPlayer?.release()
+        soundPlayer = try {
+            MediaPlayer().apply {
+                setDataSource(soundUrl)
+                isLooping = loop
+                prepare()
+                setOnCompletionListener {
+                    if (!loop) {
+                        release()
+                        soundPlayer = null
+                    }
+                }
+                start()
+            }
+        } catch (e: Exception) {
+            Log.e("GameEngine", "Failed to play sound: $soundUrl", e)
+            null
+        }
+    }
+
+    fun onVocalClicked(audioUrl: String) {
+        val state = _uiState.value
+        if (state.currentVocalUrl == audioUrl && state.isVocalPlaying) {
+            pauseVocal()
+        } else {
+            playVocal(audioUrl)
+        }
+    }
+
+    private fun pauseVocal() {
+        vocalPlayer?.pause()
+        vocalProgressJob?.cancel()
+        updateState { it.copy(isVocalPlaying = false) }
+    }
+
+    private fun playVocal(audioUrl: String) {
+        vocalPlayer?.setOnCompletionListener(null)
+        vocalPlayer?.release()
+        vocalProgressJob?.cancel()
+
+        vocalPlayer = try {
+            MediaPlayer().apply {
+                setDataSource(audioUrl)
+                prepare()
+                setOnCompletionListener {
+                    // Identity check: only the currently active player may mutate shared state.
+                    // Prevents a stale listener from a previously released player from nuking
+                    // the reference to a newly started player.
+                    if (vocalPlayer === this) {
+                        release()
+                        vocalPlayer = null
+                        vocalProgressJob?.cancel()
+                        updateState { state ->
+                            state.copy(isVocalPlaying = false, vocalProgress = 1f)
+                        }
+                    }
+                }
+                start()
+            }
+        } catch (e: Exception) {
+            Log.e("GameEngine", "Failed to play vocal: $audioUrl", e)
+            null
+        }
+
+        if (vocalPlayer != null) {
+            updateState { it.copy(currentVocalUrl = audioUrl, isVocalPlaying = true, vocalProgress = 0f) }
+            startVocalProgressTracking()
+        }
+    }
+
+    private fun startVocalProgressTracking() {
+        vocalProgressJob?.cancel()
+        vocalProgressJob = viewModelScope.launch {
+            while (isActive) {
+                val player = vocalPlayer
+                val duration = player?.duration?.takeIf { it > 0 }
+                val position = player?.currentPosition?.takeIf { it >= 0 }
+                if (duration != null && position != null) {
+                    val progress = position.toFloat() / duration.toFloat()
+                    updateState { it.copy(vocalProgress = progress.coerceIn(0f, 1f)) }
+                }
+                delay(100)
+            }
+        }
+    }
+
+    private fun stopSound() {
+        soundPlayer?.stop()
+        soundPlayer?.release()
+        soundPlayer = null
     }
 
     private fun handleChangeScene(effect: HandlerEffect.ChangeScene) {
