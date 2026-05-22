@@ -94,7 +94,9 @@ fun MainScreen(
                 }
 
                 fadeComposable(BottomNavItem.Create.route) {
-                    CreatePageComposable()
+                    CreatePageComposable(
+
+                    )
                 }
             }
 

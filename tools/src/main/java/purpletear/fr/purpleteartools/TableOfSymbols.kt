@@ -49,54 +49,6 @@ class TableOfSymbols(gameId: Int) : Serializable, Parcelable {
         }
 
 
-    fun hasReportedUserStory(fsid: String): Boolean {
-        val r = get(-3, fsid)
-        return r != null && r == "true"
-    }
-
-    fun addReportedUserStory(fsid: String) {
-        addOrSet(-3, fsid, "true")
-    }
-
-    fun addChapterToRoute(chapterCode: String) {
-        if (this.route[this.gameId] == null) {
-            this.route[this.gameId] = ArrayList()
-        }
-        var toRemove: Int? = null
-        val n1 = if (chapterCode.length < 2) 1 else chapterCode.substring(
-            0,
-            chapterCode.length - 1
-        ).toInt()
-        this.route[this.gameId]?.forEachIndexed { index, elt ->
-            val n2 = if (elt.length < 2) 1 else elt.substring(
-                0,
-                elt.length - 1
-            ).toInt()
-            if (n2 == n1) {
-                toRemove = index
-            }
-        }
-        if (toRemove != null) {
-            this.route[this.gameId]?.removeAt(toRemove!!)
-        }
-        this.route[this.gameId]?.add(chapterCode)
-    }
-
-    fun userPlayedChapter(code: String): Boolean {
-        this.route[this.gameId]?.forEach {
-            if (it.lowercase() == code.lowercase()) {
-                return true
-            }
-        } ?: return false
-        return false
-    }
-
-
-    fun setHasFinishedStoryOnce() {
-        addOrSet(-3, "hasFinishedStoryAtLeastOnce", "true")
-    }
-
-
     val chapterNumber: Int
         get() {
             val code = chapterCode
@@ -121,12 +73,6 @@ class TableOfSymbols(gameId: Int) : Serializable, Parcelable {
         }
         set(value) {
             addOrSet(0, "prenom", value)
-        }
-
-
-    val isRealTime: Boolean
-        get() {
-            return condition(gameId, "realTime", "true")
         }
 
 
@@ -182,7 +128,7 @@ class TableOfSymbols(gameId: Int) : Serializable, Parcelable {
     }
 
 
-    @field:Transient               // <- important : cible le champ
+    @field:Transient
     private val saveLock = ReentrantLock()
 
     fun save(context: Context): Boolean {
