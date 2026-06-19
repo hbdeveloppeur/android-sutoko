@@ -1,5 +1,6 @@
 package com.purpletear.game.presentation.game_preview
 
+import android.util.Log
 import androidx.annotation.Keep
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
@@ -14,6 +15,7 @@ import com.purpletear.sutoko.game.repository.ChapterRepository
 import com.purpletear.sutoko.game.repository.game.GameInstallRepository
 import com.purpletear.sutoko.game.repository.game.GameRepository
 import com.purpletear.sutoko.game.service.MediaUrlResolver
+import com.purpletear.sutoko.game.usecase.GetChaptersUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import fr.sutoko.inapppurchase.application.domain.repository.PurchaseRepository
 import kotlinx.coroutines.channels.Channel
@@ -45,6 +47,7 @@ class GamePreviewViewModel @Inject constructor(
     gamePurchaseRepository: PurchaseRepository,
     gameInstallRepository: GameInstallRepository,
     mediaUrlResolver: MediaUrlResolver,
+    private val getChaptersUseCase: GetChaptersUseCase,
 ) : ViewModel() {
 
     private val _events = Channel<GamePreviewEvent>(Channel.CONFLATED)
@@ -105,11 +108,22 @@ class GamePreviewViewModel @Inject constructor(
     }
 
     private fun initializeFromSavedState() {
-        // If gameId comes from SavedStateHandle (full-screen mode), auto-initialize
-        gameId.let { id ->
-            viewModelScope.launch {
-
-            }
+        viewModelScope.launch {
+            loadChapters()
         }
+    }
+
+    private suspend fun loadChapters() {
+        getChaptersUseCase(gameId)
+            .collect { result ->
+                result.onFailure { error ->
+                    Log.e(TAG, "Failed to load chapters for gameId=$gameId", error)
+                    _events.send(GamePreviewEvent.ShowError(GameUiError.Load))
+                }
+            }
+    }
+
+    companion object {
+        private const val TAG = "GamePreviewViewModel"
     }
 }

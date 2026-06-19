@@ -82,7 +82,7 @@ fun GamePreview(
                 is GamePreviewUiState.Data -> {
                     GameBackgroundPreviewMedia(
                         imageUrl = currentState.item.imageUrl,
-                        videoUrl = currentState.item.videoUrl?.takeIf { showVideo },
+                        videoUrl = currentState.item.videoUrl.takeIf { showVideo },
                         modifier = Modifier.fillMaxSize()
                     )
                 }
