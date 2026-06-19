@@ -37,7 +37,7 @@ internal fun NavGraphBuilder.debugPage(
     arguments = listOf(navArgument("gameId") { type = NavType.StringType })
 ) {
     val gameSessionState by viewModel.sessionState.collectAsStateWithLifecycle()
-    val memories by viewModel.getMemories().collectAsStateWithLifecycle()
+    val memories by viewModel.memories.collectAsStateWithLifecycle()
 
     SmsGameDebugPage(
         gameSessionState = gameSessionState,

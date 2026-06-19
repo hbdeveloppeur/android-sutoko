@@ -2,6 +2,8 @@ plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.jetbrains.kotlin.android)
     alias(libs.plugins.compose.compiler)
+    alias(libs.plugins.ksp)
+    id("dagger.hilt.android.plugin")
 }
 
 android {
@@ -63,4 +65,9 @@ dependencies {
     androidTestImplementation(libs.androidx.espresso.core)
     implementation(libs.coil.compose)
     implementation(libs.androidx.runtime)
+    implementation(libs.javax.inject)
+
+    // DI
+    implementation(libs.dagger.hilt)
+    ksp(libs.dagger.hilt.compiler)
 }

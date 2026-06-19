@@ -2,6 +2,7 @@ package fr.purpletear.sutoko.di
 
 import android.app.Application
 import android.content.Context
+import android.content.SharedPreferences
 import android.util.Log
 import androidx.room.Room
 import com.google.gson.Gson
@@ -17,8 +18,8 @@ import com.purpletear.aiconversation.data.remote.ImageGenerationApi
 import com.purpletear.aiconversation.data.remote.MediaApi
 import com.purpletear.aiconversation.data.remote.MessageApi
 import com.purpletear.aiconversation.data.remote.StoryChoiceApi
+import com.purpletear.aiconversation.data.remote.ShopApi
 import com.purpletear.aiconversation.data.remote.StyleApi
-import com.purpletear.aiconversation.data.remote.UserConfigApi
 import com.purpletear.aiconversation.data.remote.VersionApi
 import com.purpletear.aiconversation.data.remote.adapters.MessageRoleTypeAdapter
 import com.purpletear.aiconversation.data.remote.adapters.MessageStateTypeAdapter
@@ -35,8 +36,8 @@ import com.purpletear.aiconversation.data.repository.MessageQueueImpl
 import com.purpletear.aiconversation.data.repository.MessageRepositoryImpl
 import com.purpletear.aiconversation.data.repository.MicrophoneRepositoryImpl
 import com.purpletear.aiconversation.data.repository.StoryChoiceRepositoryImpl
+import com.purpletear.aiconversation.data.repository.AiConversationShopRepositoryImpl
 import com.purpletear.aiconversation.data.repository.StyleRepositoryImpl
-import com.purpletear.aiconversation.data.repository.UserConfigRepositoryImpl
 import com.purpletear.aiconversation.data.repository.VersionRepositoryImpl
 import com.purpletear.aiconversation.domain.enums.MessageRole
 import com.purpletear.aiconversation.domain.enums.MessageState
@@ -55,8 +56,8 @@ import com.purpletear.aiconversation.domain.repository.MessageQueue
 import com.purpletear.aiconversation.domain.repository.MessageRepository
 import com.purpletear.aiconversation.domain.repository.MicrophoneRepository
 import com.purpletear.aiconversation.domain.repository.StoryChoiceRepository
+import com.purpletear.aiconversation.domain.repository.AiConversationShopRepository
 import com.purpletear.aiconversation.domain.repository.StyleRepository
-import com.purpletear.aiconversation.domain.repository.UserConfigRepository
 import com.purpletear.aiconversation.domain.repository.VersionRepository
 import com.purpletear.aiconversation.domain.repository.WebSocketDataSource
 import com.purpletear.core.image_downloader.ImageDownloader
@@ -152,33 +153,6 @@ class AiConversationAppModule {
     ): StoryChoiceRepository {
         return StoryChoiceRepositoryImpl(
             api = api,
-        )
-    }
-
-
-    @Provides
-    @Singleton
-    fun provideUserConfigApi(): UserConfigApi {
-        val loggingInterceptor = HttpLoggingInterceptor()
-        loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY)
-        val okHttpClient: OkHttpClient = OkHttpClient.Builder()
-            .addInterceptor(loggingInterceptor)
-            .build()
-        return Retrofit.Builder()
-            .baseUrl("${Server.urlPrefix()}/api/")
-            .addConverterFactory(GsonConverterFactory.create())
-            .client(okHttpClient)
-            .build()
-            .create(UserConfigApi::class.java)
-    }
-
-    @Provides
-    @Singleton
-    fun provideUserConfigRepository(
-        api: UserConfigApi,
-    ): UserConfigRepository {
-        return UserConfigRepositoryImpl(
-            api = api
         )
     }
 
@@ -437,6 +411,34 @@ class AiConversationAppModule {
     ): VersionRepository {
         return VersionRepositoryImpl(
             api
+        )
+    }
+
+    @Provides
+    @Singleton
+    fun provideAiConversationShopApi(): ShopApi {
+        val loggingInterceptor = HttpLoggingInterceptor()
+        loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY)
+        val okHttpClient: OkHttpClient = OkHttpClient.Builder()
+            .addInterceptor(loggingInterceptor)
+            .build()
+        return Retrofit.Builder()
+            .baseUrl("${Server.urlPrefix()}/api/")
+            .addConverterFactory(GsonConverterFactory.create())
+            .client(okHttpClient)
+            .build()
+            .create(ShopApi::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun provideAiConversationShopRepository(
+        api: ShopApi,
+        sharedPreferences: SharedPreferences,
+    ): AiConversationShopRepository {
+        return AiConversationShopRepositoryImpl(
+            api = api,
+            sharedPreferences = sharedPreferences,
         )
     }
 

@@ -40,6 +40,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
@@ -138,12 +139,14 @@ fun ImageGeneratorScreen(viewModel: ImageGeneratorViewModel, navController: NavC
             onChange = viewModel::onPromptTextChanged,
         )
 
+        val isUserConnected by viewModel.isUserConnected.collectAsStateWithLifecycle()
+
         ToolButtonComposable(
             modifier = Modifier
                 .padding(bottom = 12.dp)
                 .padding(vertical = 16.dp)
                 .fillMaxWidth(0.92f),
-            text = if (!viewModel.isUserConnected.value) {
+            text = if (!isUserConnected) {
                 stringResource(R.string.ai_conversation_signin)
             } else {
                 stringResource(

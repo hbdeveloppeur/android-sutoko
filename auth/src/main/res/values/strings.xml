@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="your_nickname">Your nickname…</string>
+    <string name="your_mail_address">Your email address…</string>
+    <string name="your_password">Your password…</string>
+    <string name="sutoko_you_are_connected">You are logged in</string>
+    <string name="sutoko_account_error_unknown">Make sure you are connected to the Internet.</string>
+    <string name="sutoko_account_error_username_not_available">This username is already in use</string>
+    <string name="sutoko_account_error_address_not_available">This email address is already in use.</string>
+    <string name="sutoko_account_error_invalid_credentials">Invalid email and/or password.</string>
+    <string name="sutoko_account_error_weak_password">Use a more complex password (letters, numbers, etc…)</string>
+    <string name="sutoko_account_error_invalid_mail_address">Invalid email address.</string>
+    <string name="sutoko_account_error_mail_provider_banned">Unauthorized email address provider.</string>
+    <string name="sutoko_account_error_cgu">You must accept the terms of use to continue.</string>
+    <string name="sutoko_account_error_invalid_password_confirm">Passwords are different.</string>
+    <string name="sutoko_account_error_invalid_nickname_format">The nickname must not contain any special characters</string>
+    <string name="sutoko_account_error_invalid_nickname_size">Invalid username. It must be between 4 and 16 characters.</string>
+    <string name="sutoko_account_error_invalid_password_size">Invalid password. It must be between 4 and 50 characters.</string>
+    <string name="cgu">I have read and I accept <a href="https://sutoko.app/terms-of-use">the terms of use</a></string>
+    <string name="sutoko_connection_page_register_title">Sign Up</string>
+    <string name="sutoko_connection_page_signin_title">Sign in</string>
+    <string name="sutoko_connection_page_sent_mail_title">Confirm your email</string>
+    <string name="sutoko_connection_page_forgot_pwd_title">Forgot your password?</string>
+    <string name="sutoko_connection_page_signin_subtitle">Community - backup - gifts</string>
+    <string name="sutoko_connection_page_sent_mail_subtitle">Only one more step!</string>
+    <string name="sutoko_connection_page_forgot_pwd_subtitle">What is your email address?</string>
+    <string name="sutoko_connection_page_sent_mail_success_subtitle">Account validated!</string>
+    <string name="sutoko_connection_page_register_button_text">Sign Up</string>
+    <string name="sutoko_connection_page_signin_button_text">Sign in</string>
+    <string name="sutoko_connection_page_sent_button_text">Waiting…</string>
+    <string name="sutoko_connection_page_sent_mail_success_button_text">Start</string>
+    <string name="sutoko_connection_page_forgot_pwd_button_text">Send</string>
+    <string name="sutoko_connection_page_button_cta_forgot">Forgotten password</string>
+    <string name="sutoko_or">or</string>
+    <string name="sutoko_connection_page_button_cta_register">Sign up</string>
+    <string name="sutoko_connection_page_button_cta_signin">Login</string>
+    <string name="sutoko_connection_page_mail_validated_waiting_title">We have sent an email to</string>
+    <string name="sutoko_connection_page_mail_validated_waiting_subtitle">Click on the link in the email to validate your account</string>
+    <string name="sutoko_connection_page_mail_validated_success_title">Congratulations</string>
+    <string name="sutoko_connection_page_mail_validated_success_subtitle">You can start using your account</string>
+    <string name="sutoko_connection_page_forgot_mail_sent_title">We have sent an email to</string>
+    <string name="sutoko_connection_page_forgot_mail_sent_subtitle">Change your password via the link in this email</string>
+    <string name="sutoko_error_cannot_reach_this_mail_address">Impossible to send a link to this email address</string>
+</resources>

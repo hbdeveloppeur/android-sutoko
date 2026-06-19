@@ -4,6 +4,9 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
 import android.os.Build
+import androidx.lifecycle.DefaultLifecycleObserver
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.ProcessLifecycleOwner
 import androidx.multidex.MultiDex
 import androidx.multidex.MultiDexApplication
 import com.bumptech.glide.Glide
@@ -12,23 +15,74 @@ import com.downloader.PRDownloaderConfig
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.FirebaseFirestoreSettings
+import com.purpletear.sutoko.core.android.di.DefaultActivityProvider
 import dagger.hilt.android.HiltAndroidApp
 import dalvik.system.ZipPathValidator
 import fr.purpletear.sutoko.presentation.util.DeleteCoilCache
+import fr.purpletear.sutoko.sync.balance.BalanceSyncCoordinator
+import fr.purpletear.sutoko.sync.catalog.CatalogSyncCoordinator
+import fr.purpletear.sutoko.sync.purchase.PurchaseSyncCoordinator
+import fr.sutoko.inapppurchase.application.domain.coordinator.PurchaseBackendRegistrationCoordinator
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 
 @HiltAndroidApp
-class Application : MultiDexApplication() {
+class Application : MultiDexApplication(), DefaultLifecycleObserver {
+    @Inject
+    lateinit var currentActivityProvider: DefaultActivityProvider
+
+    @Inject
+    lateinit var purchaseSyncCoordinator: PurchaseSyncCoordinator
+
+    @Inject
+    lateinit var catalogSyncCoordinator: CatalogSyncCoordinator
+
+    @Inject
+    lateinit var balanceSyncCoordinator: BalanceSyncCoordinator
+
+    @Inject
+    lateinit var purchaseBackendRegistrationCoordinator: PurchaseBackendRegistrationCoordinator
+
+    private val appSyncScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+
     override fun attachBaseContext(base: Context) {
         super.attachBaseContext(base)
         MultiDex.install(this)
     }
 
     override fun onCreate() {
-        super.onCreate()
+        super<MultiDexApplication>.onCreate()
+
+        registerActivityLifecycleCallbacks(currentActivityProvider)
+
+        val processLifecycleOwner = ProcessLifecycleOwner.get()
+        purchaseSyncCoordinator.start(
+            processLifecycleOwner.lifecycle,
+            appSyncScope
+        )
+        catalogSyncCoordinator.start(
+            processLifecycleOwner.lifecycle,
+            appSyncScope
+        )
+        balanceSyncCoordinator.start(
+            processLifecycleOwner.lifecycle,
+            appSyncScope
+        )
+        purchaseBackendRegistrationCoordinator.start(appSyncScope)
+
+        processLifecycleOwner.lifecycle.addObserver(
+            object : DefaultLifecycleObserver {
+                override fun onDestroy(owner: LifecycleOwner) {
+                    appSyncScope.cancel()
+                }
+            }
+        )
+
         if (Build.VERSION.SDK_INT >= 34) {
             ZipPathValidator.clearCallback()
         }

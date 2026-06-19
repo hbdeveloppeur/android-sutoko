@@ -59,8 +59,10 @@ class GameEngineViewModel @Inject constructor(
         "chapterCode is required"
     }
 
-    private val _navigateToNextChapter = Channel<Unit>(Channel.BUFFERED)
-    val navigateToNextChapter: Flow<Unit> = _navigateToNextChapter.receiveAsFlow()
+    private val _navigateToNextChapter = Channel<String>(Channel.BUFFERED)
+    val navigateToNextChapter: Flow<String> = _navigateToNextChapter.receiveAsFlow()
+
+    private var pendingChapterCode: String? = null
 
     private val _uiState = MutableStateFlow(GameUiState())
     val uiState: StateFlow<GameUiState> = _uiState.asStateFlow()
@@ -109,7 +111,8 @@ class GameEngineViewModel @Inject constructor(
                         startGame(gameId, graph)
                     },
                     onFailure = { error ->
-                        Log.e("TEST", "Failed to load chapter graph : ${error.message}")
+                        Log.e("GameEngine", "Failed to load chapter $chapterCode: ${error.message}")
+                        updateState { it.copy(errorMessage = "Failed to load chapter: ${error.message}") }
                     }
                 )
             }
@@ -169,8 +172,7 @@ class GameEngineViewModel @Inject constructor(
             is HandlerEffect.StopSound -> stopSound()
 
             is HandlerEffect.ChangeChapter -> {
-                // Engine already persists the chapter via memory.setCurrentChapter.
-                // Navigation is triggered by user tap, which reads from GameSessionViewModel.
+                pendingChapterCode = effect.chapterCode
             }
 
             else -> {
@@ -303,7 +305,7 @@ class GameEngineViewModel @Inject constructor(
     }
 
     fun onNextChapterClicked() {
-        _navigateToNextChapter.trySend(Unit)
+        pendingChapterCode?.let { _navigateToNextChapter.trySend(it) }
     }
 
     private fun updateState(transform: (GameUiState) -> GameUiState) {

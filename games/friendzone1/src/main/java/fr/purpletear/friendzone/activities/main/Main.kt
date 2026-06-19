@@ -15,9 +15,11 @@ import android.os.Parcelable
 import android.view.View
 import android.widget.VideoView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsCompat
 import com.bumptech.glide.Glide
 import com.example.sharedelements.SutokoSharedElementsData
-import fr.purpletear.friendzone.BuildConfig.VERSION_CODE
 import fr.purpletear.friendzone.Data
 import fr.purpletear.friendzone.R
 import fr.purpletear.friendzone.activities.game.Game
@@ -29,14 +31,10 @@ import fr.purpletear.friendzone.tables.TableOfCharacters
 import purpletear.fr.purpleteartools.Animation
 import purpletear.fr.purpleteartools.GlobalData
 import purpletear.fr.purpleteartools.Runnable2
-import purpletear.fr.purpleteartools.SimpleSound
 import purpletear.fr.purpleteartools.Std
 import purpletear.fr.purpleteartools.TableOfSymbols
 import purpletear.fr.purpleteartools.Video
 import kotlin.random.Random
-import androidx.core.view.WindowCompat
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
 
 class Main : AppCompatActivity(), MainInterface {
 

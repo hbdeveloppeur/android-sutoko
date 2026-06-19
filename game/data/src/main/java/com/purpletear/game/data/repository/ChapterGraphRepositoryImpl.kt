@@ -10,6 +10,7 @@ import com.purpletear.game.data.local.parser.ChapterGraphParser
 import com.purpletear.game.data.provider.AndroidGamePathProvider
 import com.purpletear.sutoko.game.model.chapter.ChapterGraph
 import com.purpletear.sutoko.game.repository.ChapterGraphRepository
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import java.io.File
@@ -64,8 +65,10 @@ class ChapterGraphRepositoryImpl @Inject constructor(
             emit(Result.success(graph))
 
         } catch (e: Exception) {
-            if (e is kotlinx.coroutines.CancellationException) throw e
-            emit(Result.failure(e))
+            if (e is CancellationException) throw e
+            emit(Result.failure(
+                IllegalStateException("Failed to load chapter $chapterCode: ${e.message}", e)
+            ))
         }
     }
 }

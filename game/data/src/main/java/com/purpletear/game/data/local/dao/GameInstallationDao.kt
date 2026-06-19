@@ -1,10 +1,9 @@
 package com.purpletear.game.data.local.dao
 
 import androidx.room.Dao
-import androidx.room.Insert
-import androidx.room.OnConflictStrategy
 import androidx.room.Query
-import com.purpletear.game.data.local.entity.GameInstallationEntity
+import androidx.room.Upsert
+import com.purpletear.game.data.local.entity.GameInstallEntity
 import kotlinx.coroutines.flow.Flow
 
 /**
@@ -12,25 +11,18 @@ import kotlinx.coroutines.flow.Flow
  */
 @Dao
 interface GameInstallationDao {
+    @Query("SELECT * FROM game_installs WHERE gameId = :gameId")
+    fun observeByGameId(gameId: String): Flow<GameInstallEntity?>
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insert(entity: GameInstallationEntity)
+    @Query("SELECT * FROM game_installs")
+    fun observeAll(): Flow<List<GameInstallEntity>>
 
-    @Query("SELECT * FROM game_installations WHERE gameId = :gameId")
-    suspend fun getById(gameId: String): GameInstallationEntity?
+    @Upsert
+    suspend fun upsert(entity: GameInstallEntity)
 
-    @Query("SELECT * FROM game_installations WHERE gameId = :gameId")
-    fun observeById(gameId: String): Flow<GameInstallationEntity?>
+    @Query("DELETE FROM game_installs WHERE gameId = :gameId")
+    suspend fun deleteByGameId(gameId: String)
 
-    @Query("SELECT installedVersion FROM game_installations WHERE gameId = :gameId")
-    suspend fun getInstalledVersion(gameId: String): String?
-
-    @Query("SELECT EXISTS(SELECT 1 FROM game_installations WHERE gameId = :gameId AND installedVersion != '' AND installedVersion != 'none')")
-    suspend fun isInstalled(gameId: String): Boolean
-
-    @Query("SELECT EXISTS(SELECT 1 FROM game_installations WHERE gameId = :gameId AND installedVersion != '' AND installedVersion != 'none')")
-    fun observeInstallationStatus(gameId: String): Flow<Boolean>
-
-    @Query("DELETE FROM game_installations WHERE gameId = :gameId")
-    suspend fun delete(gameId: String)
+    @Query("UPDATE game_installs SET localVersion = :version WHERE gameId = :gameId")
+    suspend fun markDownloaded(gameId: String, version: String)
 }

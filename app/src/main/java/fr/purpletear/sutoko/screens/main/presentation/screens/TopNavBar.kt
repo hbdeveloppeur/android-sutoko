@@ -22,6 +22,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.sharedelements.theme.Pink
 import com.example.sharedelements.theme.SutokoTypography
+import com.purpletear.core.presentation.extensions.Resource
+import com.purpletear.sutoko.shop.domain.repository.model.Balance
 import fr.purpletear.sutoko.R
 import fr.purpletear.sutoko.screens.create.components.coins_display.CoinsDisplay
 import com.example.sharedelements.R as SharedElementsR
@@ -33,9 +35,7 @@ const val AccountTestTag = "AccountTestTag"
 @Composable
 fun TopNavigation(
     modifier: Modifier = Modifier,
-    coins: Int,
-    diamonds: Int,
-    isLoading: Boolean,
+    balance: Resource<Balance>,
     onAccountButtonPressed: () -> Unit,
     onCoinsButtonPressed: () -> Unit,
     onDiamondsButtonPressed: () -> Unit,
@@ -85,26 +85,25 @@ fun TopNavigation(
         )
 
 
-        // User coins amount
-        CoinsDisplay(
-            modifier = Modifier
-                .padding(start = 8.dp)
-                .alpha(if (isLoading) 0.3f else 1f),
-            amount = coins,
-            onClick = onCoinsButtonPressed
-        )
+        val loadedBalance = balance.data?.takeIf { it.isLoaded() }
+        if (loadedBalance != null) {
+            // User coins amount
+            CoinsDisplay(
+                modifier = Modifier.padding(start = 8.dp),
+                amount = loadedBalance.coins,
+                onClick = onCoinsButtonPressed
+            )
 
-        // User diamonds amount
-        CoinsDisplay(
-            modifier = Modifier
-                .padding(start = 8.dp)
-                .alpha(if (isLoading) 0.3f else 1f),
-            amount = diamonds,
-            onClick = onDiamondsButtonPressed,
-            iconResId = SharedElementsR.drawable.sutoko_ic_diamond,
-            borderColor = Color(0xFF4DB9EC),
-            backgroundColor = Color(0xFF2E3A4F)
-        )
+            // User diamonds amount
+            CoinsDisplay(
+                modifier = Modifier.padding(start = 8.dp),
+                amount = loadedBalance.diamonds,
+                onClick = onDiamondsButtonPressed,
+                iconResId = SharedElementsR.drawable.sutoko_ic_diamond,
+                borderColor = Color(0xFF4DB9EC),
+                backgroundColor = Color(0xFF2E3A4F)
+            )
+        }
 
 
         // Options More
@@ -113,7 +112,7 @@ fun TopNavigation(
                 .testTag(ParamsTestTag)
                 .size(20.dp)
                 .padding(start = 8.dp)
-                .alpha(if (isLoading) 0.3f else 1f)
+                .alpha(if (balance is Resource.Loading) 0.3f else 1f)
                 .clickable(
                     interactionSource = remember { MutableInteractionSource() },
                     indication = null,

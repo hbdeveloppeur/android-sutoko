@@ -2,7 +2,9 @@ package com.purpletear.game.data.local.dto
 
 import com.google.gson.JsonElement
 import com.google.gson.annotations.SerializedName
+import androidx.annotation.Keep
 
+@Keep
 data class NodeDto(
     val id: String,
     val type: String,
@@ -10,6 +12,7 @@ data class NodeDto(
     val data: JsonElement?
 )
 
+@Keep
 data class NodeDataDto(
     val label: String? = null,
     val text: String? = null,
@@ -47,6 +50,7 @@ data class NodeDataDto(
     val isLooping: Boolean? = null,
 )
 
+@Keep
 data class MemoryDataDto(
     val id: String? = null,
     @SerializedName("chapterId")

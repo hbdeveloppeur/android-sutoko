@@ -7,96 +7,72 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.painter.ColorPainter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.ViewModel
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
-import com.purpletear.sutoko.core.domain.helper.provider.HostProvider
-import com.purpletear.sutoko.game.model.Game
-import dagger.hilt.android.lifecycle.HiltViewModel
-import javax.inject.Inject
 
 /**
- * A composable that displays a background media for a game preview.
- * It handles the logic for getting the image URL and displays it.
- * It adapts the video URL based on screen width.
+ * A composable that displays a background media stack: video > image > scrim.
  *
- * @param game The game object containing media information
- * @param modifier The modifier to be applied to the component
- * @param viewModel The ViewModel that provides the image URL logic
+ * When a [videoUrl] is provided, the image fades out to reveal the looping video.
+ * When only an [imageUrl] is provided, the image is displayed with a static scrim.
+ *
+ * @param imageUrl Optional URL of the background image.
+ * @param videoUrl Optional URL of the background video.
+ * @param modifier The modifier to be applied to the root container.
+ * @param overlayAlpha Alpha of the black scrim drawn on top of everything. Default is 0.1f.
  */
 @Composable
 internal fun GameBackgroundPreviewMedia(
-    game: Game,
+    imageUrl: String?,
+    videoUrl: String?,
     modifier: Modifier = Modifier,
-    viewModel: GameBackgroundPreviewMediaViewModel = hiltViewModel()
+    overlayAlpha: Float = 0.1f
 ) {
-    // Get the screen width 
-    val context = LocalContext.current
+    val hasVideo = videoUrl != null
 
-    // Determine if video is present
-    val hasVideo = game.videoUrl != null
-
-    // Animation for fading out the image when video is present
     val imageAlpha by animateFloatAsState(
         targetValue = if (hasVideo) 0f else 1f,
         animationSpec = tween(durationMillis = 1500),
         label = "imageAlpha"
     )
 
-    // Display the video using BackgroundMedia
-    game.videoUrl?.let { videoUrl ->
-        BackgroundMedia(
-            videoUrl = videoUrl,
-            modifier = Modifier.fillMaxSize()
-        )
-    }
+    val context = LocalContext.current
+    val errorPainter = remember { ColorPainter(Color.DarkGray) }
 
-    viewModel.getImagePreviewBackgroundLink(game = game)?.let { backgroundImage ->
-        AsyncImage(
-            model = ImageRequest.Builder(context)
-                .data(backgroundImage)
-                .crossfade(true)
-                .build(),
-            contentDescription = "Background",
-            contentScale = ContentScale.Crop,
+    Box(modifier = modifier.fillMaxSize()) {
+        videoUrl?.let { url ->
+            BackgroundMedia(
+                videoUrl = url,
+                modifier = Modifier.fillMaxSize()
+            )
+        }
+
+        imageUrl?.let { url ->
+            AsyncImage(
+                model = ImageRequest.Builder(context)
+                    .data(url)
+                    .crossfade(true)
+                    .build(),
+                contentDescription = "Background",
+                contentScale = ContentScale.Crop,
+                error = errorPainter,
+                modifier = Modifier
+                    .fillMaxSize()
+                    .alpha(imageAlpha)
+            )
+        }
+
+        Box(
             modifier = Modifier
                 .fillMaxSize()
-                .alpha(imageAlpha)
+                .background(Color.Black.copy(alpha = overlayAlpha))
         )
-    }
-
-    Box(
-        Modifier
-            .fillMaxSize()
-            .background(Color.Black.copy(alpha = 0.1f))
-    )
-}
-
-/**
- * ViewModel for the GameBackgroundPreviewMedia component.
- * Injects HostProvider to access the host name for API requests.
- */
-@HiltViewModel
-class GameBackgroundPreviewMediaViewModel @Inject constructor(
-    private val hostProvider: HostProvider,
-) : ViewModel() {
-
-    /**
-     * Gets the image URL for the game preview background.
-     * Uses bannerAsset's storagePath to generate the URL.
-     *
-     * @param game The game object containing media information
-     * @return The URL of the background image or null if no image is available
-     */
-    fun getImagePreviewBackgroundLink(game: Game): String? {
-        return game.bannerAsset?.storagePath?.let { path ->
-            "https://sutoko.com/$path"
-        }
     }
 }

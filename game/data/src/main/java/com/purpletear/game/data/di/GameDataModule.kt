@@ -5,8 +5,10 @@ import androidx.room.Room
 import com.purpletear.game.data.BuildConfig
 import com.purpletear.game.data.database.GameDatabase
 import com.purpletear.game.data.database.migrations.GameDatabaseMigrations
-import com.purpletear.game.data.download.GameDownloadManagerImpl
+import com.purpletear.game.data.file.GameFileManager
+import com.purpletear.game.data.file.GameFileManagerImpl
 import com.purpletear.game.data.infrastructure.SystemTimingScheduler
+import com.purpletear.game.data.local.dao.GameDao
 import com.purpletear.game.data.local.dao.GameInstallationDao
 import com.purpletear.game.data.local.dao.MemoryDao
 import com.purpletear.game.data.local.dao.UserGameProgressDao
@@ -14,23 +16,24 @@ import com.purpletear.game.data.provider.AndroidGamePathProviderImpl
 import com.purpletear.game.data.remote.GameApi
 import com.purpletear.game.data.repository.ChapterGraphRepositoryImpl
 import com.purpletear.game.data.repository.CharacterRepositoryImpl
-import com.purpletear.game.data.repository.GameInstallationRepositoryImpl
+import com.purpletear.game.data.repository.GameInstallRepositoryImpl
 import com.purpletear.game.data.repository.GameRepositoryImpl
 import com.purpletear.game.data.repository.MemoryRepositoryImpl
 import com.purpletear.game.data.repository.SceneRepositoryImpl
 import com.purpletear.game.data.repository.UserGameProgressRepositoryImpl
-import com.purpletear.ntfy.Ntfy
-import com.purpletear.sutoko.game.download.GameDownloadManager
+import com.purpletear.game.data.service.MediaUrlResolverImpl
 import com.purpletear.sutoko.game.engine.processing.TextProcessor
 import com.purpletear.sutoko.game.engine.processing.TextProcessorImpl
 import com.purpletear.sutoko.game.engine.timing.TimingScheduler
 import com.purpletear.sutoko.game.repository.ChapterGraphRepository
 import com.purpletear.sutoko.game.repository.CharacterRepository
-import com.purpletear.sutoko.game.repository.GameInstallationRepository
-import com.purpletear.sutoko.game.repository.GameRepository
 import com.purpletear.sutoko.game.repository.MemoryRepository
 import com.purpletear.sutoko.game.repository.SceneRepository
 import com.purpletear.sutoko.game.repository.UserGameProgressRepository
+import com.purpletear.sutoko.game.repository.game.GameInstallRepository
+import com.purpletear.sutoko.game.repository.game.GameRepository
+import com.purpletear.sutoko.game.service.MediaUrlResolver
+import dagger.Binds
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -72,6 +75,18 @@ object GameDataModule {
     }
 
     /**
+     * Provides the GameDao instance.
+     *
+     * @param database The GameDatabase instance.
+     * @return The GameDao instance.
+     */
+    @Provides
+    @Singleton
+    fun provideGameDao(database: GameDatabase): GameDao {
+        return database.gameDao()
+    }
+
+    /**
      * Provides the GameInstallationDao instance.
      *
      * @param database The GameDatabase instance.
@@ -81,22 +96,6 @@ object GameDataModule {
     @Singleton
     fun provideGameInstallationDao(database: GameDatabase): GameInstallationDao {
         return database.gameInstallationDao()
-    }
-
-    /**
-     * Provides the GameInstallationRepository implementation.
-     *
-     * @param gameInstallationDao The GameInstallationDao instance.
-     * @param context The application context.
-     * @return The GameInstallationRepository implementation.
-     */
-    @Provides
-    @Singleton
-    fun provideGameInstallationRepository(
-        gameInstallationDao: GameInstallationDao,
-        @ApplicationContext context: Context
-    ): GameInstallationRepository {
-        return GameInstallationRepositoryImpl(gameInstallationDao, context)
     }
 
     /**
@@ -156,23 +155,6 @@ object GameDataModule {
         return retrofit.create(GameApi::class.java)
     }
 
-    /**
-     * Provides the GameRepository implementation.
-     *
-     * @param gameApi The GameApi instance.
-     * @param gameInstallationRepository The GameInstallationRepository instance.
-     * @param ntfy The Ntfy instance.
-     * @return The GameRepository implementation.
-     */
-    @Provides
-    @Singleton
-    fun provideGameRepository(
-        gameApi: GameApi,
-        gameInstallationRepository: GameInstallationRepository,
-        ntfy: Ntfy
-    ): GameRepository {
-        return GameRepositoryImpl(gameApi, gameInstallationRepository, ntfy)
-    }
 
     /**
      * Provides the GamePathProvider implementation.
@@ -200,20 +182,6 @@ object GameDataModule {
         @ApplicationContext context: Context
     ): com.purpletear.game.data.provider.AndroidGamePathProvider {
         return AndroidGamePathProviderImpl(context)
-    }
-
-    /**
-     * Provides the GameDownloadManager implementation.
-     *
-     * @param impl The implementation instance.
-     * @return The GameDownloadManager interface.
-     */
-    @Provides
-    @Singleton
-    fun provideGameDownloadManager(
-        impl: GameDownloadManagerImpl
-    ): GameDownloadManager {
-        return impl
     }
 
     /**
@@ -297,5 +265,23 @@ object GameDataModule {
     ): CharacterRepository {
         return impl
     }
+}
 
+@Module
+@InstallIn(SingletonComponent::class)
+abstract class RepositoryModule {
+    @Binds
+    @Singleton
+    abstract fun bindGameInstallRepository(impl: GameInstallRepositoryImpl): GameInstallRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindGameRepository(impl: GameRepositoryImpl): GameRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindGameFileManager(impl: GameFileManagerImpl): GameFileManager
+
+    @Binds
+    abstract fun bindMediaUrlResolver(impl: MediaUrlResolverImpl): MediaUrlResolver
 }

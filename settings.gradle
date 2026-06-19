@@ -32,17 +32,13 @@ include ':games:friendzone1'
 include ':games:friendzone2'
 include ':games:friendzone3'
 include ':games:friendzone4'
-include ':in-app-purchase:domain'
-include ':in-app-purchase:data'
+include ':platform:play'
+include ':purchase'
 include ':ai-conversation:core'
 include ':ai-conversation:domain'
 include ':ai-conversation:data'
 include ':ai-conversation:presentation'
-include ':shop:presentation'
-include ':shop:domain'
-include ':shop:data'
-include ':user:domain'
-include ':user:data'
+include ':auth'
 include ':core:presentation'
 include ':popup:data'
 include ':Framework'
@@ -51,6 +47,7 @@ include ':permission:data'
 include ':popup:presentation'
 include ':core:domain'
 include ':core:data'
+include ':core:android'
 include ':notification:domain'
 include ':notification:data'
 include ':game:domain'
@@ -62,12 +59,11 @@ include ':news:data'
 include ':news:presentation'
 include ':version:domain'
 include ':version:infrastructure'
-include ':version:presentation'
 include ':ntfy'
+include ':shop'
 
-project(":version:presentation").projectDir = new File(rootDir, "version/presentation")
-project(":in-app-purchase:domain").projectDir = new File(rootDir, "in-app-purchase/domain")
-project(":in-app-purchase:data").projectDir = new File(rootDir, "in-app-purchase/data")
+project(":platform:play").projectDir = new File(rootDir, "platform/play")
+project(":purchase").projectDir = new File(rootDir, "purchase")
 project(":news:domain").projectDir = new File(rootDir, "news/domain")
 project(":news:data").projectDir = new File(rootDir, "news/data")
 project(":news:presentation").projectDir = new File(rootDir, "news/presentation")

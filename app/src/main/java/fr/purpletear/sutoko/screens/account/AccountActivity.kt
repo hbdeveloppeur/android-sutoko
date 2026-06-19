@@ -9,13 +9,13 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import com.example.sharedelements.theme.SutokoTheme
+import com.purpletear.sutoko.auth.presentation.AccountConnectionActivity
+import com.purpletear.sutoko.auth.presentation.AccountConnectionActivityModel
+import com.purpletear.sutoko.shop.presentation.ShopActivity
 import dagger.hilt.android.AndroidEntryPoint
 import fr.purpletear.sutoko.screens.account.screen.AccountEvents
 import fr.purpletear.sutoko.screens.account.screen.AccountScreen
 import fr.purpletear.sutoko.screens.account.screen.AccountViewModel
-import fr.purpletear.sutoko.screens.accountConnection.AccountConnectionActivity
-import fr.purpletear.sutoko.screens.accountConnection.AccountConnectionActivityModel
-import fr.purpletear.sutoko.shop.shop.ShopActivity
 
 @AndroidEntryPoint
 class AccountActivity : AppCompatActivity() {
@@ -45,7 +45,6 @@ class AccountActivity : AppCompatActivity() {
         this.accountLauncher =
             registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
                 if (result.resultCode == RESULT_OK) {
-                    viewModel.customer.read(this@AccountActivity)
                     viewModel.onEvent(AccountEvents.OnAccountStateChanged(true))
                 } else {
                     viewModel.onEvent(AccountEvents.OnAccountStateChanged(false))
@@ -56,7 +55,7 @@ class AccountActivity : AppCompatActivity() {
     private fun registerGameLauncher() {
         this.gameLauncher =
             registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-                viewModel.reloadGames()
+
             }
     }
 
@@ -75,7 +74,7 @@ class AccountActivity : AppCompatActivity() {
             shopActivityLauncher.launch(intent)
         }
 
-        this.viewModel.openGameScreen.observe(this) {
+        this.viewModel.openGameCatalogEntityScreen.observe(this) {
             // TODO : Connect to StoryPreview
         }
     }

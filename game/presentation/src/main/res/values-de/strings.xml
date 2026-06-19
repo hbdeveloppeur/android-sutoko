@@ -85,4 +85,11 @@
     <string name="game_button_get">Holen</string>
     <string name="game_button_open">Öffnen</string>
     <string name="game_button_retry">Wiederholen</string>
+
+    <!-- Spiel-UI-Fehler -->
+    <string name="error_load_game">Spiel konnte nicht geladen werden</string>
+    <string name="error_purchase">Kauf fehlgeschlagen</string>
+    <string name="error_download">Download fehlgeschlagen</string>
+    <string name="error_update">Update fehlgeschlagen</string>
+    <string name="error_delete">Löschen fehlgeschlagen</string>
 </resources>

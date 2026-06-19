@@ -13,7 +13,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.navigation.compose.rememberNavController
 import com.example.sharedelements.theme.SutokoTheme
-import com.purpletear.game.presentation.BuildConfig
 import com.purpletear.game.presentation.common.components.HideStatusBarEffect
 import com.purpletear.game.presentation.debug.SmsGameDevAction
 import com.purpletear.game.presentation.debug.SmsGameDevViewModel
@@ -90,23 +89,19 @@ class SmsGameActivity : ComponentActivity() {
 
                     descriptionScreen(
                         viewModel = viewModel,
-                        onContinue = {
-                            viewModel.currentChapterCode()?.let {
-                                fadeThenRun {
-                                    navController.navigate(SmsGameRoutes.game(it))
-                                }
+                        onContinue = { chapterCode ->
+                            fadeThenRun {
+                                navController.navigate(SmsGameRoutes.game(chapterCode))
                             }
                         }
                     )
 
                     gameScreen(
                         gameId = gameId,
-                        onNavigateToChapter = {
-                            viewModel.currentChapterCode()?.let { nextCode ->
-                                fadeThenRun {
-                                    navController.navigate(SmsGameRoutes.game(nextCode)) {
-                                        popUpTo(SmsGameRoutes.GAME) { inclusive = true }
-                                    }
+                        onNavigateToChapter = { chapterCode ->
+                            fadeThenRun {
+                                navController.navigate(SmsGameRoutes.game(chapterCode)) {
+                                    popUpTo(SmsGameRoutes.GAME) { inclusive = true }
                                 }
                             }
                         },
@@ -118,12 +113,8 @@ class SmsGameActivity : ComponentActivity() {
         viewModel.initialize(gameId)
     }
 
-    private fun extractGameId(): String = if (BuildConfig.DEBUG) {
-        "taHQ3oyAtC3"
-    } else {
-        SmsGameActivityArgs.fromIntent(intent)?.gameId
-            ?: error("Game ID required")
-    }
+    private fun extractGameId(): String = SmsGameActivityArgs.fromIntent(intent)?.gameId
+        ?: error("Game ID required")
 
     companion object {
         fun intent(activity: Activity, args: SmsGameActivityArgs): Intent =

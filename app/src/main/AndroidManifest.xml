@@ -25,7 +25,7 @@
         tools:replace="android:icon,android:theme,android:name,android:label">
 
         <service
-            android:name="com.purpletear.framework.services.MyFirebaseMessagingService"
+            android:name=".fcm.MyFirebaseMessagingService"
             android:exported="false"
             android:foregroundServiceType="dataSync"
             tools:targetApi="34">
@@ -91,7 +91,7 @@
             tools:replace="android:theme" />
 
         <activity
-            android:name=".screens.accountConnection.AccountConnectionActivity"
+            android:name="com.purpletear.sutoko.auth.presentation.AccountConnectionActivity"
             android:exported="false"
             android:screenOrientation="portrait"
             android:theme="@style/AccountCreation"
@@ -113,6 +113,13 @@
             tools:ignore="LockedOrientationActivity" />
         <activity
             android:name=".screens.params.SutokoParamsActivity"
+            android:exported="false"
+            android:screenOrientation="portrait"
+            android:theme="@style/Main"
+            tools:ignore="LockedOrientationActivity" />
+
+        <activity
+            android:name="com.purpletear.sutoko.shop.presentation.ShopActivity"
             android:exported="false"
             android:screenOrientation="portrait"
             android:theme="@style/Main"

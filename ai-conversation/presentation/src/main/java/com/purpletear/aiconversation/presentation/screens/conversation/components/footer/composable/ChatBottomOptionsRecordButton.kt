@@ -29,10 +29,12 @@ import com.purpletear.aiconversation.presentation.R
 import kotlinx.coroutines.launch
 import kotlin.math.abs
 import kotlin.math.roundToInt
+import androidx.annotation.Keep
 
 sealed class Drag(val deleteIconAlpha: Float) {
     data object Idle : Drag(deleteIconAlpha = 0f)
     data object Pressed : Drag(deleteIconAlpha = 0.1f)
+    @Keep
     data class Dragging(val percent: Float) :
         Drag(deleteIconAlpha = if ((percent > 10f)) 0.9f else 0.1f)
 

@@ -1,52 +1,66 @@
 package fr.purpletear.sutoko.screens.account.screen
 
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.State
-import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.sharedelements.Data
-import com.example.sharedelements.OnlineAssetsManager
-import com.example.sharedelements.SutokoAppParams
 import com.purpletear.core.presentation.extensions.Resource
-import com.purpletear.core.presentation.extensions.awaitFlowResult
-import com.purpletear.core.presentation.extensions.executeFlowResultUseCase
 import com.purpletear.core.presentation.extensions.executeFlowUseCase
-import com.purpletear.shop.domain.model.Balance
-import com.purpletear.shop.domain.usecase.GetShopBalanceUseCase
-import com.purpletear.shop.domain.usecase.ObserveShopBalanceUseCase
-import com.purpletear.sutoko.game.model.Game
-import com.purpletear.sutoko.game.usecase.GetGamesUseCase
-import com.purpletear.sutoko.user.usecase.IsUserConnectedUseCase
+import com.purpletear.game.presentation.model.GameItem
+import com.purpletear.sutoko.domain.repository.UserRepository
+import com.purpletear.sutoko.game.repository.game.GameRepository
+import com.purpletear.sutoko.game.service.MediaUrlResolver
+import com.purpletear.sutoko.shop.domain.repository.ShopRepository
+import com.purpletear.sutoko.shop.domain.repository.model.Balance
 import dagger.hilt.android.lifecycle.HiltViewModel
-import fr.purpletear.sutoko.screens.account.screen.model.GameWithOwnership
-import fr.purpletear.sutoko.screens.account.screen.transformers.PossessedGamesTransformer
-import fr.purpletear.sutoko.shop.coinsLogic.Customer
+import fr.sutoko.inapppurchase.application.domain.repository.PurchaseRepository
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import purpletear.fr.purpleteartools.TableOfSymbols
 import javax.inject.Inject
 
 @HiltViewModel
 class AccountViewModel @Inject constructor(
-    private val savedStateHandle: SavedStateHandle,
-    private val symbols: TableOfSymbols,
-    private val getGamesUseCase: GetGamesUseCase,
-    private val observeShopBalanceUseCase: ObserveShopBalanceUseCase,
-    private val getShopBalanceUseCase: GetShopBalanceUseCase,
-    private val isUserConnectedUseCase: IsUserConnectedUseCase,
-    var customer: Customer,
+
+    private val gameRepository: GameRepository,
+    private val gamePurchaseRepository: PurchaseRepository,
+    private val userRepository: UserRepository,
+    private val shopRepository: ShopRepository,
+    mediaUrlResolver: MediaUrlResolver,
 ) : ViewModel() {
-    private var _possessedGames = emptyList<GameWithOwnership>()
+    val isUserConnected: StateFlow<Boolean> = userRepository
+        .observeIsConnected()
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = false,
+        )
 
-    private var _allGames: MutableState<List<GameWithOwnership>> = mutableStateOf(listOf())
-    val allGames: State<List<GameWithOwnership>>
-        get() = _allGames
-
-    private var _isUserConnected: MutableState<Boolean> = mutableStateOf(customer.isUserConnected())
-    val isUserConnected: MutableState<Boolean>
-        get() = _isUserConnected
+    val games: StateFlow<List<GameItem>> = combine(
+        gameRepository.observeOfficialGames(),
+        gamePurchaseRepository.observePurchasedSkus(),
+    ) { catalogs, purchasedSkus ->
+        catalogs.map { catalog ->
+            GameItem(
+                catalog = catalog,
+                install = null,
+                isPurchased = catalog.skus.any { it in purchasedSkus },
+                bannerUrl = mediaUrlResolver.resolveBannerUrl(catalog.banner?.storagePath),
+                logoUrl = mediaUrlResolver.resolveBannerUrl(catalog.logo?.storagePath),
+                downloadProgress = null
+            )
+        }
+    }.catch { e ->
+        emit(emptyList())
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(7000),
+        initialValue = emptyList(),
+    )
 
 
     val openAccountConnectionScreen: MutableLiveData<Unit> by lazy {
@@ -57,119 +71,54 @@ class AccountViewModel @Inject constructor(
     }
 
 
-    val openGameScreen: MutableLiveData<Game> by lazy {
-        MutableLiveData<Game>()
+    val openGameCatalogEntityScreen: MutableLiveData<String> by lazy {
+        MutableLiveData<String>()
     }
 
-    private var _coinsBalance: MutableState<Resource<Balance>> = mutableStateOf(Resource.Loading())
-    val coinsBalance: State<Resource<Balance>> = _coinsBalance
+    private val _coinsBalance = MutableStateFlow<Resource<Balance>>(Resource.Loading())
+    val coinsBalance: StateFlow<Resource<Balance>> = _coinsBalance
+
+    val allGames: StateFlow<List<GameItem>> = games
 
     init {
-        reloadGames()
-        getGames()
-        observeBalance()
+
+        viewModelScope.launch {
+            observeBalance()
+            getBalance()
+        }
     }
 
-    private fun observeBalance() {
-        _coinsBalance.value = Resource.Loading()
-        observeUserConnection()
-        viewModelScope.launch {
-            executeFlowUseCase({
-                observeShopBalanceUseCase()
-            }, onStream = {
-                it?.let { balance ->
-                    _coinsBalance.value = Resource.Success(balance)
-                }
-            }, onFailure = { exception ->
+    private suspend fun observeBalance() {
+        shopRepository.observeBalance()
+            .catch { exception ->
                 _coinsBalance.value = Resource.Error(exception)
-            })
-        }
-    }
-
-    private fun reloadBalance() {
-
-        viewModelScope.launch {
-            if (customer.isUserConnected()) {
-                val result = awaitFlowResult {
-                    getShopBalanceUseCase(
-                        userId = customer.getUserId(),
-                        userToken = customer.getUserToken()
-                    )
-                }
             }
-        }
+            .collect { balance ->
+                _coinsBalance.value = Resource.Success(balance)
+            }
     }
 
+    private suspend fun getBalance() {
+        _coinsBalance.value = Resource.Loading()
 
-    private fun observeUserConnection() {
+        val user = userRepository.observeUser().first() ?: return
+
         executeFlowUseCase({
-            isUserConnectedUseCase()
-        }, onStream = { isConnected ->
-            _isUserConnected.value = isConnected ?: false
+            shopRepository.loadBalance(userId = user.id, userToken = user.token)
+        }, onStream = { result ->
+            result.fold(
+                onSuccess = {
+                    // Updated balance is emitted via observeBalance()
+                },
+                onFailure = { exception ->
+                    _coinsBalance.value = Resource.Error(exception)
+                }
+            )
+        }, onFailure = { exception ->
+            _coinsBalance.value = Resource.Error(exception)
         })
     }
 
-
-    /**
-     * Retrieves the list of games by invoking the associated use case and updates the local state with the result.
-     *
-     * This method executes a use case to fetch a list of games using a flow. Upon successful retrieval,
-     * the fetched games are stored in the `_allGames` state. In case of a failure, no specific error-handling
-     * logic is currently implemented.
-     *
-     * The execution is managed using the `executeFlowResultUseCase` helper function, which handles flow collection and
-     * success/failure behavior.
-     */
-    private fun getGames() {
-        executeFlowResultUseCase({
-            getGamesUseCase()
-        }, onSuccess = { games ->
-            _allGames.value = games.map { game ->
-                GameWithOwnership(
-                    card = game,
-                    isPossessed = hasGame(game)
-                )
-            }.sortedByDescending { it.isPossessed }
-        }, onFailure = {
-
-        })
-    }
-
-    fun reloadGames() {
-        val games = listOf<Game>()
-        val possessedGameIds = games.mapNotNull {
-            if (hasGame(it)) {
-                it.id
-            } else {
-                null
-            }
-        }
-
-        val possessedGames = PossessedGamesTransformer.transform(
-            games ?: emptyList(),
-            possessedGameIds.toSet()
-        )
-        _possessedGames = possessedGames
-    }
-
-    fun getAppParams(): SutokoAppParams {
-        return savedStateHandle.get<SutokoAppParams>(
-            Data.Companion.Extra.APP_PARAMS.id
-        ) ?: SutokoAppParams()
-    }
-
-    /**
-     * Check if the game is available for the user
-     * @param card the game to check
-     * @return true if the game is available for the user
-     */
-    private fun hasGame(card: Game): Boolean {
-        return card.id.hashCode() == 162 || OnlineAssetsManager.hasStoryFiles(
-            card.id,
-            card.version.toString(),
-            symbols
-        ) || customer.history.hasStory(card.id)
-    }
 
     fun onEvent(event: AccountEvents) {
         when (event) {
@@ -193,7 +142,7 @@ class AccountViewModel @Inject constructor(
             }
 
             is AccountEvents.OnGamePressed -> {
-                openGameScreen.value = event.game
+                openGameCatalogEntityScreen.value = event.game.id
             }
         }
     }
@@ -203,6 +152,6 @@ class AccountViewModel @Inject constructor(
      * Updates user connection status, reloads games, and refreshes balance information.
      */
     fun onResume() {
-        reloadBalance()
+        viewModelScope.launch { getBalance() }
     }
 }

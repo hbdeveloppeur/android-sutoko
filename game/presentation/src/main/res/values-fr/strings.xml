@@ -85,4 +85,11 @@
     <string name="game_button_get">Obtenir</string>
     <string name="game_button_open">Ouvrir</string>
     <string name="game_button_retry">Réessayer</string>
+
+    <!-- Erreurs de l\'interface de jeu -->
+    <string name="error_load_game">Impossible de charger le jeu</string>
+    <string name="error_purchase">Échec de l\'achat</string>
+    <string name="error_download">Échec du téléchargement</string>
+    <string name="error_update">Échec de la mise à jour</string>
+    <string name="error_delete">Échec de la suppression</string>
 </resources>

@@ -4,8 +4,8 @@ package com.purpletear.aiconversation.presentation.screens.media.image_generator
 import android.util.Log
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.purpletear.aiconversation.domain.model.Document
 import com.purpletear.aiconversation.domain.usecase.CreateDocumentUseCase
 import com.purpletear.aiconversation.domain.usecase.LoadImageGenerationRequestsRepository
@@ -14,21 +14,20 @@ import com.purpletear.aiconversation.domain.usecase.ObserveSelectedDocumentUseCa
 import com.purpletear.aiconversation.domain.usecase.SelectDocumentUseCase
 import com.purpletear.core.presentation.extensions.executeFlowResultUseCase
 import com.purpletear.core.presentation.extensions.executeFlowUseCase
-import com.purpletear.sutoko.user.usecase.IsUserConnectedUseCase
+import com.purpletear.sutoko.domain.repository.UserRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
-import fr.purpletear.sutoko.shop.coinsLogic.Customer
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class DocumentsRowViewModel @Inject constructor(
-    private val savedStateHandle: SavedStateHandle,
     private val loadImageGenerationRequestsRepository: LoadImageGenerationRequestsRepository,
     private val observeImageGenerationDocuments: ObserveImageGenerationDocuments,
-    private val isUserConnectedUseCase: IsUserConnectedUseCase,
     private val observeSelectedDocument: ObserveSelectedDocumentUseCase,
     private val selectDocumentUseCase: SelectDocumentUseCase,
     private val createDocumentUseCase: CreateDocumentUseCase,
-    private val customer: Customer,
+    private val userRepository: UserRepository,
 ) : ViewModel() {
 
     private var _documents: MutableState<List<Document>> = mutableStateOf(emptyList())
@@ -38,18 +37,18 @@ class DocumentsRowViewModel @Inject constructor(
     val selectedDocumentId: MutableState<String?> get() = _selectedDocumentId
 
     init {
-        observeConnection()
-        observeDocuments()
+        viewModelScope.launch {
+            observeConnection()
+            observeDocuments()
+        }
     }
 
-    private fun observeConnection() {
-        executeFlowUseCase({
-            isUserConnectedUseCase()
-        }, onStream = { isConnected ->
+    private suspend fun observeConnection() {
+        userRepository.observeIsConnected().collect { isConnected ->
             if (isConnected) {
                 loadDocuments()
             }
-        })
+        }
     }
 
     internal fun onClickDocument(document: Document) {
@@ -65,15 +64,17 @@ class DocumentsRowViewModel @Inject constructor(
         // TODO
     }
 
-    private fun loadDocuments() {
-        if (!customer.isUserConnected()) {
+    private suspend fun loadDocuments() {
+        val user = userRepository.observeUser().first()
+        if (null == user) {
             onUserNotConnected()
             return
         }
+
         executeFlowResultUseCase({
             loadImageGenerationRequestsRepository(
-                userId = customer.getUserId(),
-                userToken = customer.getUserToken(),
+                userId = user.id,
+                userToken = user.token,
             )
         }, onSuccess = {
 

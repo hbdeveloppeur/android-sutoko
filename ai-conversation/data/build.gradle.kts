@@ -17,6 +17,7 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles("consumer-rules.pro")
         buildConfigField("String", "VERSION_NAME", "\"${extra["versionName"]}\"")
+        buildConfigField("int", "VERSION_CODE", "${rootProject.findProperty("versionCode") as? Int ?: 1}")
     }
 
     buildFeatures {
@@ -45,6 +46,7 @@ dependencies {
     implementation(project(":notification:domain"))
     implementation(project(":tools"))
     implementation(project(":ai-conversation:core"))
+    implementation(project(":auth"))
 
     implementation(libs.androidx.ktx)
     implementation(libs.androidx.appcompat)

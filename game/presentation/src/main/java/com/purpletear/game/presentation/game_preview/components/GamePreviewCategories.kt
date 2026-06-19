@@ -11,10 +11,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.sharedelements.theme.PlusJakartaSansFontFamily
-import com.purpletear.sutoko.game.model.Game
 
 @Composable
-internal fun GamePreviewCategories(modifier: Modifier = Modifier, game: Game) {
+internal fun GamePreviewCategories(
+    modifier: Modifier = Modifier,
+) {
     Row(
         modifier = modifier,
         horizontalArrangement = Arrangement.spacedBy(6.dp),

@@ -2,224 +2,79 @@ package fr.purpletear.sutoko.screens.params
 
 import android.app.Activity
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
 import android.os.Parcelable
-import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.widget.Toolbar
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
+import androidx.activity.viewModels
 import com.example.sharedelements.Data
 import com.example.sharedelements.SutokoAppParams
-import com.purpletear.sutoko.user.repository.UserRepository
+import com.example.sharedelements.theme.SutokoTheme
 import dagger.hilt.android.AndroidEntryPoint
 import fr.purpletear.sutoko.R
-import fr.purpletear.sutoko.screens.themes_flavors_settings.ThemesFlavorActivity
 import fr.purpletear.sutoko.screens.web.WebActivity
-import purpletear.fr.purpleteartools.FingerV2
-import purpletear.fr.purpleteartools.Std
-import javax.inject.Inject
-
 
 @AndroidEntryPoint
-class SutokoParamsActivity : AppCompatActivity() {
+class SutokoParamsActivity : ComponentActivity() {
 
-    // Handles vars
-    private lateinit var model: SutokoParamsActivityModel
-    private var isReloadingAccountData: Boolean = false
-
-
-    @Inject
-    lateinit var userRepository: UserRepository
+    private val viewModel: SutokoParamsViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_sutoko_params)
-        SutokoParamsActivityGraphics.setVersionText(this)
-        model = SutokoParamsActivityModel(this)
-        setListeners()
-    }
 
-    override fun onWindowFocusChanged(hasFocus: Boolean) {
-        super.onWindowFocusChanged(hasFocus)
-        if (hasFocus && model.isFirstStart()) {
+        val appParams = extractAppParams()
+        viewModel.setPrivacyPolicyUrl(appParams.privacyPolicyUrl)
 
-            SutokoParamsActivityGraphics.setOptionSentence(
-                this, R.id.sutoko_params_privacy_hitbox, getString(
-                    R.string.sutoko_privacy_policy
+        setContent {
+            SutokoTheme {
+                SutokoParamsScreen(
+                    viewModel = viewModel,
+                    onOpenPrivacyPolicy = ::openPrivacyPolicy,
+                    onShareApp = ::shareApp,
+                    onNavigateBack = ::finish,
                 )
-            )
-            SutokoParamsActivityGraphics.setOptionSentence(
-                this, R.id.sutoko_params_social_share, getString(
-                    R.string.sutoko_share_app
-                )
-            )
-            SutokoParamsActivityGraphics.setOptionSentence(
-                this, R.id.sutoko_params_account_disconnect, getString(
-                    R.string.sutoko_disconnect
-                )
-            )
-
-            if (model.isUserConnected(this)) {
-                setAccountOptionsVisibility(true)
-                SutokoParamsActivityGraphics.setOptionSentence(
-                    this, R.id.sutoko_params_user_reload, getString(
-                        R.string.sutoko_params_activity_reload_my_account_data
-                    )
-                )
-                SutokoParamsActivityGraphics.setOptionSentence(
-                    this, R.id.sutoko_params_user_delete, getString(
-                        R.string.sutoko_params_activity_delete_my_account_data
-                    )
-                )
-            } else {
-                setAccountOptionsVisibility(false)
             }
         }
     }
 
-    private fun setAccountOptionsVisibility(isVisible: Boolean) {
-
-        SutokoParamsActivityGraphics.setRowVisibility(
-            this,
-            R.id.sutoko_params_user_reload,
-            isVisible
-        )
-        SutokoParamsActivityGraphics.setRowVisibility(
-            this,
-            R.id.sutoko_params_user_delete,
-            isVisible
-        )
-        SutokoParamsActivityGraphics.setRowVisibility(
-            this,
-            R.id.sutoko_params_account_disconnect,
-            isVisible
-        )
-    }
-
-    private fun onFlavorSettingsButtonPressed() {
-        startActivity(
-            Intent(this, ThemesFlavorActivity::class.java)
-        )
-    }
-
-    private fun onBugSignalButtonPressed() {
-
-    }
-
-    private fun onCreditsButtonPressed() {
-        val params =
-            intent.getParcelableExtra(Data.Companion.Extra.APP_PARAMS.id) as SutokoAppParams?
-        params?.let {
-            val i = WebActivity.require(
-                this,
-                "https://www.sutoko.app/credits",
-                null,
-                it
+    private fun extractAppParams(): SutokoAppParams {
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            intent.getParcelableExtra(
+                Data.Companion.Extra.APP_PARAMS.id,
+                SutokoAppParams::class.java,
             )
-            startActivity(i)
-        }
+        } else {
+            @Suppress("DEPRECATION")
+            intent.getParcelableExtra(Data.Companion.Extra.APP_PARAMS.id)
+        } ?: SutokoAppParams()
     }
 
-    private fun onReloadAccountPressed() {
-        if (isReloadingAccountData) {
-            return
-        }
-
-        Std.confirm(
-            this,
-            R.string.sutoko_params_activity_reload_my_account_data_confirm,
-            R.string.sutoko_ok,
-            R.string.sutoko_abort, {
-                reloadAccountData()
-            }, {}
-        )
+    private fun openPrivacyPolicy(url: String) {
+        if (url.isBlank()) return
+        val intent = WebActivity.require(this, url, null, extractAppParams())
+        startActivity(intent)
     }
 
-    private fun onDeleteAccountPressed() {
-        Std.confirm(
-            this,
-            R.string.sutoko_params_activity_delete_my_account_data_confirm,
-            R.string.sutoko_ok,
-            R.string.sutoko_abort, {
-                SutokoParamsActivityGraphics.setProgressBarVisibility(
-                    this,
-                    SutokoParamsActivityGraphics.SutokoParamsProgressBar.USER_DELETE,
-                    true
+    private fun shareApp() {
+        val intent = Intent(Intent.ACTION_SEND).apply {
+            type = "text/plain"
+            putExtra(
+                Intent.EXTRA_TEXT,
+                getString(
+                    R.string.sutoko_share_app_message,
+                    "https://play.google.com/store/apps/details?id=fr.purpletear.sutoko"
                 )
-                userRepository.disconnect()
-                model.deleteAccount(this) {
-                    SutokoParamsActivityGraphics.setProgressBarVisibility(
-                        this,
-                        SutokoParamsActivityGraphics.SutokoParamsProgressBar.USER_DELETE,
-                        false
-                    )
-                    setAccountOptionsVisibility(false)
-                    Toast.makeText(
-                        applicationContext,
-                        getString(R.string.account_deleted),
-                        Toast.LENGTH_LONG
-                    ).show()
-                }
-            }, {}
-        )
-    }
-
-    private fun onDisconnectButtonPressed() {
-        Std.confirm(
-            this,
-            R.string.sutoko_disconnect,
-            R.string.sutoko_ok,
-            R.string.sutoko_abort, {
-                userRepository.disconnect()
-                model.disconnectUser(this)
-                setAccountOptionsVisibility(false)
-                Toast.makeText(
-                    applicationContext,
-                    getString(R.string.sutoko_params_activity_disconnect_success),
-                    Toast.LENGTH_LONG
-                ).show()
-            }, {}
-        )
-    }
-
-    private fun reloadAccountData() {
-        isReloadingAccountData = true
-
-        SutokoParamsActivityGraphics.setProgressBarVisibility(
-            this,
-            SutokoParamsActivityGraphics.SutokoParamsProgressBar.USER_RELOAD,
-            true
-        )
-    }
-
-    private fun onShareButtonPressed() {
-        this.model.shareApp(this)
-    }
-
-    private fun setListeners() {
-        FingerV2.register(this, R.id.sutoko_params_privacy_hitbox) {
-            val appParams: SutokoAppParams =
-                intent.getParcelableExtra(Data.Companion.Extra.APP_PARAMS.id)!!
-            SutokoParamsActivityModel.onPrivacyButtonPressed(this, appParams)
+            )
         }
-//        FingerV2.register(
-//            this,
-//            R.id.sutoko_params_settings_flavors_gender
-//        ) { onFlavorSettingsButtonPressed() }
-//        FingerV2.register(this, R.id.sutoko_params_signal_bug_hitbox) { onBugSignalButtonPressed() }
-        FingerV2.register(this, R.id.sutoko_params_user_reload) { onReloadAccountPressed() }
-        FingerV2.register(this, R.id.sutoko_params_user_delete, ::onDeleteAccountPressed)
-        FingerV2.register(this, R.id.sutoko_params_social_share, ::onShareButtonPressed)
-        FingerV2.register(this, R.id.sutoko_params_account_disconnect, ::onDisconnectButtonPressed)
-        findViewById<Toolbar>(R.id.sutoko_params_toolbars).setNavigationOnClickListener {
-            onBackPressedDispatcher.onBackPressed()
-        }
+        startActivity(Intent.createChooser(intent, null))
     }
 
     companion object {
         fun require(activity: Activity, appParams: SutokoAppParams): Intent {
-            val i = Intent(activity, SutokoParamsActivity::class.java)
-            i.putExtra(Data.Companion.Extra.APP_PARAMS.id, appParams as Parcelable)
-            return i
+            return Intent(activity, SutokoParamsActivity::class.java).apply {
+                putExtra(Data.Companion.Extra.APP_PARAMS.id, appParams as Parcelable)
+            }
         }
     }
 }

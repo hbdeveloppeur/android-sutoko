@@ -5,7 +5,7 @@ import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.purpletear.sutoko.game.model.Asset
 import com.purpletear.sutoko.game.model.Author
-import com.purpletear.sutoko.game.model.GameMetadata
+import com.purpletear.sutoko.game.model.game.GameMetadata
 
 class GameTypeConverters {
     private val gson = Gson()

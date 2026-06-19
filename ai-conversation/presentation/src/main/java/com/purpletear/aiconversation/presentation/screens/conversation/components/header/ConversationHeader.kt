@@ -67,9 +67,9 @@ import com.purpletear.aiconversation.presentation.common.utils.SharedElementTran
 import com.purpletear.aiconversation.presentation.common.utils.capitalizeFirstLetter
 import com.purpletear.aiconversation.presentation.common.utils.getRemoteAssetsUrl
 import com.purpletear.aiconversation.presentation.component.options_button.OptionButtonComposable
-import com.purpletear.core.presentation.services.performVibration
 import com.purpletear.aiconversation.presentation.screens.conversation.viewmodels.ConversationViewModel
 import com.purpletear.aiconversation.presentation.theme.AiConversationTheme
+import com.purpletear.core.presentation.services.performVibration
 import kotlinx.coroutines.delay
 
 
@@ -163,7 +163,15 @@ internal fun ConversationHeader(
                 }
             }
 
-            if (viewModel.userIsModerator()) {
+            val userIsModerator = remember { mutableStateOf(false) }
+            LaunchedEffect(Unit) {
+                userIsModerator.value = try {
+                    viewModel.userIsModerator()
+                } catch (_: Exception) {
+                    false
+                }
+            }
+            if (userIsModerator.value) {
                 SaveForFineTuning(
                     onClick = viewModel::onClickSaveForFineTuning,
                     isLoading = viewModel.isLoadingSavingForFineTuning.value

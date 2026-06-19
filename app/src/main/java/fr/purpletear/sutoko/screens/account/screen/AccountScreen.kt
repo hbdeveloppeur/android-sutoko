@@ -8,15 +8,22 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import fr.purpletear.sutoko.screens.account.screen.components.Connection
 import fr.purpletear.sutoko.screens.account.screen.components.GamesGrid
+import com.purpletear.sutoko.shop.R as ShopR
 
 @Composable
 fun AccountScreen(viewModel: AccountViewModel) {
+    val isConnected by viewModel.isUserConnected.collectAsState()
+    val coinsBalance by viewModel.coinsBalance.collectAsState()
+    val allGames by viewModel.allGames.collectAsState()
+
     Surface(
         modifier = Modifier
             .fillMaxSize(),
@@ -29,16 +36,16 @@ fun AccountScreen(viewModel: AccountViewModel) {
                     .heightIn(max = 400.dp)
             ) {
                 Image(
-                    painterResource(fr.purpletear.sutoko.shop.presentation.R.drawable.sutoko_shop_card_item_premium_pass),
+                    painterResource(ShopR.drawable.sutoko_shop_card_item_premium_pass),
                     contentDescription = null,
                     contentScale = ContentScale.FillBounds,
                     modifier = Modifier
                         .matchParentSize()
                 )
                 Connection(
-                    isConnected = viewModel.isUserConnected.value,
-                    coins = viewModel.coinsBalance.value.data?.coins ?: -1,
-                    diamonds = viewModel.coinsBalance.value.data?.diamonds ?: -1,
+                    isConnected = isConnected,
+                    coins = coinsBalance.data?.coins ?: -1,
+                    diamonds = coinsBalance.data?.diamonds ?: -1,
                     onClickCoins = {
                         viewModel.onEvent(AccountEvents.OnClickCoins)
                     },
@@ -49,7 +56,7 @@ fun AccountScreen(viewModel: AccountViewModel) {
                 )
             }
             GamesGrid(
-                list = viewModel.allGames.value,
+                list = allGames,
                 onTap = { viewModel.onEvent(AccountEvents.OnGamePressed(it)) }
             )
         }

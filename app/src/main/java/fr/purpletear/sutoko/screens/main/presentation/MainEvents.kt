@@ -1,7 +1,7 @@
 package fr.purpletear.sutoko.screens.main.presentation
 
 import androidx.annotation.Keep
-import com.purpletear.sutoko.game.model.Game
+import com.purpletear.sutoko.game.model.game.GameCatalog
 import fr.purpletear.sutoko.screens.main.domain.popup.util.MainMenuCategory
 
 sealed class MainEvents {
@@ -13,21 +13,13 @@ sealed class MainEvents {
         MainEvents()
 
     object OnAppear : MainEvents()
-    object OptionButtonPressed : MainEvents()
-    object AccountButtonPressed : MainEvents()
-    object DiamondButtonPressed : MainEvents()
-    object CoinButtonPressed : MainEvents()
 
     @Keep
-    data class Open(val card: Game) : MainEvents()
+    data class Open(val card: GameCatalog) : MainEvents()
     object TapAiConversationMenu : MainEvents()
 
     @Keep
     data class TapMenu(val category: MainMenuCategory) : MainEvents()
-    object TapDiamondsLabel : MainEvents()
-    object TapCoinsLabel : MainEvents()
-    object OnPopUpDismissed : MainEvents()
-
     object OnFlavorModalDismissed : MainEvents()
     data object TapShop : MainEvents()
 

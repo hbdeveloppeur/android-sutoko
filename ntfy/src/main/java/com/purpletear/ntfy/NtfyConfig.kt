@@ -1,5 +1,7 @@
 package com.purpletear.ntfy
 
+import androidx.annotation.Keep
+
 /**
  * Configuration class for Ntfy client
  *
@@ -10,6 +12,7 @@ package com.purpletear.ntfy
  * @property silent If true, exceptions during notification will be swallowed (default: false)
  * @property appName Optional app name to display in notification titles
  */
+@Keep
 data class NtfyConfig(
     val errorChannelId: String = "",
     val logChannelId: String = "",

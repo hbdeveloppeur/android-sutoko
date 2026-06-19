@@ -15,12 +15,19 @@ sealed class WebSocketMessage {
     data object Seen : WebSocketMessage()
     data object Typing : WebSocketMessage()
     data object Block : WebSocketMessage()
+    @Keep
     data class CharacterNewStatus(val status: CharacterStatus) : WebSocketMessage()
+    @Keep
     data class BackgroundImageUpdate(val url: String) : WebSocketMessage()
+    @Keep
     data class ConversationModeUpdate(val mode: ConversationMode) : WebSocketMessage()
     data object StopTyping : WebSocketMessage()
+    @Keep
     data class ChatMessage(val message: Message) : WebSocketMessage()
+    @Keep
     data class ErrorCode(val exception: Exception) : WebSocketMessage()
+    @Keep
     data class MessagesAck(val serialIds: List<String>) : WebSocketMessage()
+    @Keep
     data class InviteCharacters(val characters: List<AiCharacter>) : WebSocketMessage()
 }

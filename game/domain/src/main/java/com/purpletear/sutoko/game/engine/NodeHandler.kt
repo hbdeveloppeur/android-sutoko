@@ -2,6 +2,7 @@ package com.purpletear.sutoko.game.engine
 
 import com.purpletear.sutoko.game.model.chapter.GameMemory
 import com.purpletear.sutoko.game.model.chapter.Node
+import androidx.annotation.Keep
 
 /**
  * Handler for executing a specific node type.
@@ -43,6 +44,7 @@ interface NodeHandler {
  *                    Delays are handled by the engine's TimingScheduler.
  * @property nextNodeId Explicit next node ID, or null to let engine resolve via graph edges
  */
+@Keep
 data class HandlerScript(
     val commands: List<HandlerCommand> = emptyList(),
     val nextNodeId: String? = null

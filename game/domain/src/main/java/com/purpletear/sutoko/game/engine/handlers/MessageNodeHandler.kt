@@ -13,6 +13,7 @@ import com.purpletear.sutoko.game.model.chapter.Node
 import java.util.UUID
 import javax.inject.Inject
 import kotlin.random.Random
+import androidx.annotation.Keep
 
 /**
  * Handler for message nodes.
@@ -192,6 +193,7 @@ class MessageNodeHandler @Inject constructor(
     }
 
     private sealed class Command {
+        @Keep
         data class ChangeBackground(val imageUrl: String) : Command()
         data object Skip : Command()
         data object Message : Command()

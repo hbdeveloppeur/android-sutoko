@@ -1,5 +1,7 @@
 package com.purpletear.sutoko.game.engine
 
+import androidx.annotation.Keep
+
 /**
  * Effects returned by handlers that the engine applies to state.
  * Pure data representation of side effects for predictable behavior.
@@ -16,16 +18,19 @@ sealed class HandlerEffect {
     /**
      * Add a message to the conversation.
      */
+    @Keep
     data class AddMessage(val message: GameMessage) : HandlerEffect()
 
     /**
      * Add a message to the conversation.
      */
+    @Keep
     data class DeleteMessage(val messageId: String) : HandlerEffect()
 
     /**
      * Change the background image.
      */
+    @Keep
     data class ChangeBackground(val imageUrl: String) : HandlerEffect()
 
     /**
@@ -36,6 +41,7 @@ sealed class HandlerEffect {
     /**
      * Play a sound effect or music.
      */
+    @Keep
     data class PlaySound(val soundUrl: String, val loop: Boolean = false) : HandlerEffect()
 
     /**
@@ -46,11 +52,13 @@ sealed class HandlerEffect {
     /**
      * Show glitch effect on screen for thriller atmosphere.
      */
+    @Keep
     data class ShowGlitch(val durationMs: Int = 300) : HandlerEffect()
 
     /**
      * Send a signal/event to external systems (analytics, telemetry, etc.).
      */
+    @Keep
     data class SendSignal(
         val action: String,
         val payload: Map<String, String> = emptyMap()
@@ -59,6 +67,7 @@ sealed class HandlerEffect {
     /**
      * Schedule a local notification for later delivery.
      */
+    @Keep
     data class ScheduleNotification(
         val title: String,
         val message: String,
@@ -68,11 +77,13 @@ sealed class HandlerEffect {
     /**
      * Load and display an image in the conversation.
      */
+    @Keep
     data class LoadImage(val imageUrl: String) : HandlerEffect()
 
     /**
      * Save a score or achievement remotely.
      */
+    @Keep
     data class SaveScore(
         val score: Int,
         val metadata: Map<String, String> = emptyMap()
@@ -81,14 +92,17 @@ sealed class HandlerEffect {
     /**
      * Unlock a trophy/achievement.
      */
+    @Keep
     data class UnlockTrophy(val trophyId: String) : HandlerEffect()
 
     /**
      * Show action choices to the player and pause for input.
      */
+    @Keep
     data class ShowChoices(
         val choices: List<Choice>
     ) : HandlerEffect() {
+        @Keep
         data class Choice(
             val id: String,
             val text: String,
@@ -100,16 +114,19 @@ sealed class HandlerEffect {
     /**
      * Play a vocal/audio message.
      */
+    @Keep
     data class PlayVocal(val audioUrl: String) : HandlerEffect()
 
     /**
      * Change to a different chapter.
      */
+    @Keep
     data class ChangeChapter(val chapterCode: String) : HandlerEffect()
 
     /**
      * Update game memory (variables).
      */
+    @Keep
     data class UpdateMemory(
         val key: String,
         val value: String
@@ -119,6 +136,7 @@ sealed class HandlerEffect {
      * Change the conversation display mode (SMS or IRL).
      * Notifies UI to update rendering style.
      */
+    @Keep
     data class ChangeConversationMode(
         val mode: String
     ) : HandlerEffect()
@@ -128,6 +146,7 @@ sealed class HandlerEffect {
      * The presentation layer resolves sceneId to the actual asset
      * using SceneRepository.
      */
+    @Keep
     data class ChangeScene(
         val sceneId: Int
     ) : HandlerEffect()

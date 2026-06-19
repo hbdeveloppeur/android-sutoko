@@ -100,4 +100,11 @@
     <string name="game_announce_reminder_enabled">Reminder set</string>
     <string name="game_announce_button_remind_me">Remind me</string>
     <string name="game_announce_available">Available</string>
+
+    <!-- Game UI errors -->
+    <string name="error_load_game">Failed to load the game</string>
+    <string name="error_purchase">Purchase failed</string>
+    <string name="error_download">Download failed</string>
+    <string name="error_update">Update failed</string>
+    <string name="error_delete">Delete failed</string>
 </resources>

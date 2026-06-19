@@ -30,6 +30,7 @@ import com.purpletear.aiconversation.domain.sealed.WebSocketMessage
 import com.purpletear.aiconversation.domain.usecase.AddMessageToConversationUseCase
 import com.purpletear.aiconversation.domain.usecase.ClearConversationRepositoryUseCase
 import com.purpletear.aiconversation.domain.usecase.DescribeMediaUseCase
+import com.purpletear.aiconversation.domain.usecase.GetAiTokensStateUseCase
 import com.purpletear.aiconversation.domain.usecase.GetAvatarAndBannerPairUseCase
 import com.purpletear.aiconversation.domain.usecase.GetCharacterStatusUseCase
 import com.purpletear.aiconversation.domain.usecase.GetConversationMessagesUseCase
@@ -52,7 +53,7 @@ import com.purpletear.aiconversation.presentation.sealed.AlertState
 import com.purpletear.core.presentation.extensions.executeFlowResultUseCase
 import com.purpletear.core.presentation.extensions.executeFlowUseCase
 import com.purpletear.core.presentation.services.MakeToastService
-import com.purpletear.shop.domain.usecase.GetUserAccountStateUseCase
+import com.purpletear.sutoko.domain.repository.UserRepository
 import com.purpletear.sutoko.permission.domain.sealed.Permission
 import com.purpletear.sutoko.permission.domain.usecase.AskPermissionUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -62,10 +63,10 @@ import fr.purpletear.sutoko.popup.domain.PopUpUserInteraction
 import fr.purpletear.sutoko.popup.domain.SutokoPopUp
 import fr.purpletear.sutoko.popup.domain.usecase.GetPopUpInteractionUseCase
 import fr.purpletear.sutoko.popup.domain.usecase.ShowPopUpUseCase
-import fr.purpletear.sutoko.shop.coinsLogic.Customer
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -84,7 +85,8 @@ class ConversationViewModel @Inject constructor(
     private val transformTextToMessageUseCase: TransformTextToUserMessageUseCase,
     private val getAvatarAndBannerPairUseCase: GetAvatarAndBannerPairUseCase,
     private val restartConversationUseCase: RestartConversationUseCase,
-    private val getUserAccountStateUseCase: GetUserAccountStateUseCase,
+    private val userRepository: UserRepository,
+    private val getAiTokensStateUseCase: GetAiTokensStateUseCase,
     private val getCharacterStatusUseCase: GetCharacterStatusUseCase,
     private val popUpInteractionUseCase: GetPopUpInteractionUseCase,
     private val saveForFineTuningUseCase: SaveForFineTuningUseCase,
@@ -97,7 +99,6 @@ class ConversationViewModel @Inject constructor(
     private val showPopUpUseCase: ShowPopUpUseCase,
     private val messageQueue: MessageQueue,
     private val clearConversationRepositoryUseCase: ClearConversationRepositoryUseCase,
-    private val customer: Customer,
     private val toastService: MakeToastService,
     private val askPermissionUseCase: AskPermissionUseCase,
     private val updateDeviceTokenUseCase: UpdateDeviceTokenUseCase,
@@ -168,24 +169,28 @@ class ConversationViewModel @Inject constructor(
     init {
         clearConversationRepositoryUseCase()
         aiCharacterId = savedStateHandle.get<Int>("character_id") ?: 1
-        getConversationSettings()
-        streamMessages()
-        getCharacterStatus()
-        bindToWebSocket()
+        viewModelScope.launch {
+            getConversationSettings()
+            streamMessages()
+            getCharacterStatus()
+            bindToWebSocket()
+        }
         requestNotificationPermission()
-        setUserDeviceToken()
+        viewModelScope.launch {
+            setUserDeviceToken()
+        }
     }
 
     fun onResume() {
-        updateUserCoinsCount()
+        viewModelScope.launch {
+            updateUserCoinsCount()
+        }
     }
 
-    private fun setUserDeviceToken() {
-        if (!customer.isUserConnected()) {
-            return
-        }
+    private suspend fun setUserDeviceToken() {
+        val user = userRepository.observeUser().first() ?: return
         executeFlowResultUseCase({
-            updateDeviceTokenUseCase(customer.getUserId(), customer.getUserToken())
+            updateDeviceTokenUseCase(user.id, user.token)
         })
     }
 
@@ -208,12 +213,14 @@ class ConversationViewModel @Inject constructor(
             if (interaction.event is PopUpUserInteraction.ConfirmText) {
                 val messagesToInsert = messageQueue.messages
                 messageQueue.cancelTimer()
-                sendMessage(
-                    userName = (interaction.event as PopUpUserInteraction.ConfirmText).text,
-                    messages = messagesToInsert.value,
-                    onSuccess = {
-                        messageQueue.remove { m -> m.id in messagesToInsert.value.map { s -> s.id } }
-                    })
+                viewModelScope.launch {
+                    sendMessage(
+                        userName = (interaction.event as PopUpUserInteraction.ConfirmText).text,
+                        messages = messagesToInsert.value,
+                        onSuccess = {
+                            messageQueue.remove { m -> m.id in messagesToInsert.value.map { s -> s.id } }
+                        })
+                }
             }
         }, onFailure = {
             Log.d("ConversationViewModel", "on Failure: ${it.message}")
@@ -239,8 +246,9 @@ class ConversationViewModel @Inject constructor(
         })
     }
 
-    internal fun userIsModerator(): Boolean {
-        return customer.user.uid == "8be954c7a18f4e7cba9c"
+    internal suspend fun userIsModerator(): Boolean {
+        val user = userRepository.observeUser().first() ?: return false
+        return user.id == "8be954c7a18f4e7cba9c"
     }
 
     internal fun closeInviteCharacterPage() {
@@ -269,9 +277,9 @@ class ConversationViewModel @Inject constructor(
      * Checks if any overlay is currently open.
      */
     internal fun hasOpenOverlays(): Boolean {
-        return _inviteCharacterPageIsOpened.value || 
-               _settingsViewIsOpened.value || 
-               _toolsViewIsOpened.value
+        return _inviteCharacterPageIsOpened.value ||
+                _settingsViewIsOpened.value ||
+                _toolsViewIsOpened.value
     }
 
     private var _isLoadingSavingForFineTuning: MutableState<Boolean> = mutableStateOf(false)
@@ -279,21 +287,25 @@ class ConversationViewModel @Inject constructor(
 
 
     internal fun onClickSaveForFineTuning() {
-        _isLoadingSavingForFineTuning.value = true
-        executeFlowResultUseCase(
-            useCase = { saveForFineTuningUseCase(customer.user.uid!!) },
-            onSuccess = {
-                _isLoadingSavingForFineTuning.value = false
-            },
-            onFailure = {
-                _isLoadingSavingForFineTuning.value = false
-                Log.d("ConversationViewModel", "on Failure: ${it.message}")
-            }
-        )
+        viewModelScope.launch {
+            val user = userRepository.observeUser().first() ?: throw IllegalStateException()
+            _isLoadingSavingForFineTuning.value = true
+            executeFlowResultUseCase(
+                useCase = { saveForFineTuningUseCase(user.id) },
+                onSuccess = {
+                    _isLoadingSavingForFineTuning.value = false
+                },
+                onFailure = {
+                    _isLoadingSavingForFineTuning.value = false
+                    Log.d("ConversationViewModel", "on Failure: ${it.message}")
+                }
+            )
+        }
     }
 
-    private fun getConversationSettings() {
-        if (!customer.isUserConnected()) {
+    private suspend fun getConversationSettings() {
+        val user = userRepository.observeUser().first()
+        if (null == user) {
             onUserNotConnected()
             return
         }
@@ -301,7 +313,7 @@ class ConversationViewModel @Inject constructor(
         _isLoading.value = true
         executeFlowUseCase(
             useCase = {
-                getConversationSettingsUseCase(customer.user.uid!!, aiCharacterId)
+                getConversationSettingsUseCase(user.id, aiCharacterId)
             },
             onStream = { conversation ->
                 _conversationSettings.value = conversation
@@ -312,8 +324,9 @@ class ConversationViewModel @Inject constructor(
         )
     }
 
-    private fun streamMessages() {
-        if (!customer.isUserConnected()) {
+    private suspend fun streamMessages() {
+        val user = userRepository.observeUser().first()
+        if (null == user) {
             onUserNotConnected()
             return
         }
@@ -321,7 +334,7 @@ class ConversationViewModel @Inject constructor(
         executeFlowUseCase(
             useCase = {
                 getConversationMessagesUseCase(
-                    customer.user.uid!!, aiCharacterId, customer.user.token!!,
+                    user.id, aiCharacterId, user.token,
                 )
             },
             onStream = { messages ->
@@ -336,7 +349,9 @@ class ConversationViewModel @Inject constructor(
     internal fun onAlertClick(alertState: AlertState) {
         when (alertState) {
             is AlertState.CharacterBlockedUser -> {
-                restartConversation()
+                viewModelScope.launch {
+                    restartConversation()
+                }
             }
         }
     }
@@ -347,8 +362,9 @@ class ConversationViewModel @Inject constructor(
             _conversationSettings.value?.copy(isBlocked = false, mode = ConversationMode.Sms)
     }
 
-    private fun restartConversation() {
-        if (!customer.isUserConnected()) {
+    private suspend fun restartConversation() {
+        val user = userRepository.observeUser().first()
+        if (null == user) {
             onUserNotConnected()
             return
         }
@@ -356,7 +372,7 @@ class ConversationViewModel @Inject constructor(
         reset()
         _isLoading.value = true
         executeFlowResultUseCase(
-            useCase = { restartConversationUseCase(customer.user.uid!!, aiCharacterId) },
+            useCase = { restartConversationUseCase(user.id, aiCharacterId) },
             onSuccess = {
                 _isLoading.value = false
                 messages.clear()
@@ -369,14 +385,15 @@ class ConversationViewModel @Inject constructor(
         )
     }
 
-    private fun getCharacterStatus() {
-        if (!customer.isUserConnected()) {
+    private suspend fun getCharacterStatus() {
+        val user = userRepository.observeUser().first()
+        if (null == user) {
             onUserNotConnected()
             return
         }
 
         executeFlowResultUseCase(
-            useCase = { getCharacterStatusUseCase(customer.user.uid!!, aiCharacterId) },
+            useCase = { getCharacterStatusUseCase(user.id, aiCharacterId) },
             onSuccess = {
                 _characterStatus.value = it.state
             },
@@ -412,36 +429,39 @@ class ConversationViewModel @Inject constructor(
         messageStoryChoice: MessageStoryChoice,
         messageStoryChoiceGroup: MessageStoryChoiceGroup
     ) {
-        if (!customer.isUserConnected()) {
-            onUserNotConnected()
-            return
-        }
-
-        if (messageStoryChoiceGroup.isConsumed) {
-            return
-        }
-
-        executeFlowResultUseCase(
-            useCase = { selectMessageChoice(messageStoryChoiceGroup, messageStoryChoice) },
-            onSuccess = {
-
-            },
-            onFailure = {
-                Log.d("ConversationViewModel", "onFailure: ${it.message}")
-                // TODO :  Failure.
+        viewModelScope.launch {
+            val user = userRepository.observeUser().first()
+            if (null == user) {
+                onUserNotConnected()
+                return@launch
             }
-        )
 
-        executeFlowResultUseCase(
-            useCase = { makeStoryChoiceUseCase(customer.user.uid!!, messageStoryChoice) },
-            onSuccess = {
-
-            },
-            onFailure = {
-                Log.d("ConversationViewModel", "onFailure: ${it.message}")
-                // TODO :  Failure
+            if (messageStoryChoiceGroup.isConsumed) {
+                return@launch
             }
-        )
+
+            executeFlowResultUseCase(
+                useCase = { selectMessageChoice(messageStoryChoiceGroup, messageStoryChoice) },
+                onSuccess = {
+
+                },
+                onFailure = {
+                    Log.d("ConversationViewModel", "onFailure: ${it.message}")
+                    // TODO :  Failure.
+                }
+            )
+
+            executeFlowResultUseCase(
+                useCase = { makeStoryChoiceUseCase(user.id, messageStoryChoice) },
+                onSuccess = {
+
+                },
+                onFailure = {
+                    Log.d("ConversationViewModel", "onFailure: ${it.message}")
+                    // TODO :  Failure
+                }
+            )
+        }
     }
 
     // TODO
@@ -464,16 +484,20 @@ class ConversationViewModel @Inject constructor(
         val imageRequestSerialId: String? = savedStateHandle?.get("imageRequestSerialId")
         imageRequestSerialId?.let {
             savedStateHandle["imageRequestSerialId"] = null
-            insertImageInConversation(it)
+            viewModelScope.launch {
+                insertImageInConversation(it)
+            }
         }
     }
 
-    private fun insertImageInConversation(imageRequestSerialId: String) {
+    private suspend fun insertImageInConversation(imageRequestSerialId: String) {
         if (messages.isEmpty()) {
             toastService(R.string.ai_conversation_error_insert_media_conversation_empty)
             return
         }
-        if (!customer.isUserConnected()) {
+
+        val user = userRepository.observeUser().first()
+        if (null == user) {
             onUserNotConnected()
             return
         }
@@ -491,8 +515,8 @@ class ConversationViewModel @Inject constructor(
 
                     executeFlowResultUseCase(useCase = {
                         sendMessageImageUseCase(
-                            userId = customer.user.uid!!,
-                            token = customer.user.token!!,
+                            userId = user.id,
+                            token = user.token,
                             aiCharacterId = aiCharacterId,
                             userName = null,
                             mediaId = media.id,
@@ -505,7 +529,9 @@ class ConversationViewModel @Inject constructor(
                     })
 
                     if (message.description == null) {
-                        loadMediaDescription(message, media)
+                        viewModelScope.launch {
+                            loadMediaDescription(message, media)
+                        }
                     }
                 }
             },
@@ -516,8 +542,9 @@ class ConversationViewModel @Inject constructor(
         )
     }
 
-    private fun loadMediaDescription(message: MessageImage, media: Media) {
-        if (!customer.isUserConnected()) {
+    private suspend fun loadMediaDescription(message: MessageImage, media: Media) {
+        val user = userRepository.observeUser().first()
+        if (null == user) {
             onUserNotConnected()
             return
         }
@@ -526,7 +553,7 @@ class ConversationViewModel @Inject constructor(
         executeFlowResultUseCase(useCase = {
             describeMediaUseCase(
                 mediaId = media.id,
-                userId = customer.user.uid!!,
+                userId = user.id,
             )
         }, onSuccess = { description ->
             updateMessageToConversationUseCase(message) { message ->
@@ -539,8 +566,9 @@ class ConversationViewModel @Inject constructor(
     }
 
 
-    private fun bindToWebSocket() {
-        if (!customer.isUserConnected()) {
+    private suspend fun bindToWebSocket() {
+        val user = userRepository.observeUser().first()
+        if (null == user) {
             onUserNotConnected()
             return
         }
@@ -548,8 +576,8 @@ class ConversationViewModel @Inject constructor(
         _isLoading.value = true
         viewModelScope.launch(Dispatchers.IO) {
             webSocketDataSource.connect(
-                uid = customer.user.uid!!,
-                token = customer.user.token!!
+                uid = user.id,
+                token = user.token
             ).collect { message ->
                 withContext(Dispatchers.Main) {
                     handleWebSocketMessage(message)
@@ -573,7 +601,13 @@ class ConversationViewModel @Inject constructor(
         messageQueue.acknowledge(ids)
     }
 
-    private fun handleWebSocketMessage(it: WebSocketMessage) {
+    private suspend fun handleWebSocketMessage(it: WebSocketMessage) {
+        val user = userRepository.observeUser().first()
+        if (null == user) {
+            onUserNotConnected()
+            return
+        }
+
         when (it) {
 
             is WebSocketMessage.MessagesAck -> {
@@ -606,12 +640,7 @@ class ConversationViewModel @Inject constructor(
             }
 
             WebSocketMessage.Ping -> {
-
-                if (customer.isUserConnected()) {
-                    this.webSocketDataSource.sendPong(customer.user.uid!!, customer.user.token!!)
-                } else {
-                    onUserNotConnected()
-                }
+                this.webSocketDataSource.sendPong(user.id, user.token)
             }
 
             WebSocketMessage.Seen -> {
@@ -721,9 +750,11 @@ class ConversationViewModel @Inject constructor(
     override fun onCleared() {
         if (messageQueue.isNotEmpty()) {
             val messagesToInsert = messageQueue.messages
-            sendMessage(messages = messagesToInsert.value, onSuccess = {
-                messageQueue.remove { m -> m.id in messagesToInsert.value.map { s -> s.id } }
-            })
+            viewModelScope.launch {
+                sendMessage(messages = messagesToInsert.value, onSuccess = {
+                    messageQueue.remove { m -> m.id in messagesToInsert.value.map { s -> s.id } }
+                })
+            }
         }
         messageQueue.cancelTimer()
         // Reset overlay states to prevent stale state issues
@@ -734,16 +765,18 @@ class ConversationViewModel @Inject constructor(
     private fun startMessageQueueTimer() {
         messageQueue.cancelTimer()
         messageQueue.startTimer { messages ->
-            sendMessage(messages = messages, onSuccess = {
-                messageQueue.remove { m -> m.id in messages.map { s -> s.id } }
-            })
+            viewModelScope.launch {
+                sendMessage(messages = messages, onSuccess = {
+                    messageQueue.remove { m -> m.id in messages.map { s -> s.id } }
+                })
+            }
         }
     }
 
-    private fun sendMessage(
+    private suspend fun sendMessage(
         userName: String? = null,
         messages: List<Message>,
-        onSuccess: () -> Unit
+        onSuccess: () -> Unit = {}
     ) {
         val messagesToSend =
             messages.filter {
@@ -752,7 +785,9 @@ class ConversationViewModel @Inject constructor(
                     MessageState.Sent
                 ) && !it.isAcknowledged
             }
-        if (!customer.isUserConnected()) {
+
+        val user = userRepository.observeUser().first()
+        if (null == user) {
             onUserNotConnected()
             return
         }
@@ -793,8 +828,8 @@ class ConversationViewModel @Inject constructor(
                 sendMessageUseCase(
                     characterId = aiCharacterId,
                     messages = messagesToSend.filter { elt -> elt.hiddenState !in setOf(MessageState.Sent) && !elt.isAcknowledged },
-                    userId = customer.user.uid!!,
-                    token = customer.user.token!!,
+                    userId = user.id,
+                    token = user.token,
                     userName = userName,
                 )
             },
@@ -814,15 +849,17 @@ class ConversationViewModel @Inject constructor(
         )
     }
 
-    private fun updateUserCoinsCount() {
-        if (!customer.isUserConnected()) {
+    private suspend fun updateUserCoinsCount() {
+        val user = userRepository.observeUser().first()
+        if (null == user) {
             onUserNotConnected()
             return
         }
+
         executeFlowResultUseCase(
             useCase = {
-                getUserAccountStateUseCase(
-                    userId = customer.user.uid!!,
+                getAiTokensStateUseCase(
+                    userId = user.id,
                 )
             },
             onSuccess = {
@@ -853,9 +890,9 @@ class ConversationViewModel @Inject constructor(
         messageQueue.add(message)
         messageQueue.cancelTimer()
         messageQueue.startTimer { messages ->
-            sendMessage(messages = messages, onSuccess = {
-
-            })
+            viewModelScope.launch {
+                sendMessage(messages = messages)
+            }
         }
     }
 

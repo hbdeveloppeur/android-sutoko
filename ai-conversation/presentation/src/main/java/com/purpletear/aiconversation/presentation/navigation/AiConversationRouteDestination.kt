@@ -3,6 +3,7 @@ package com.purpletear.aiconversation.presentation.navigation
 import androidx.navigation.NamedNavArgument
 import androidx.navigation.NavType
 import androidx.navigation.navArgument
+import androidx.annotation.Keep
 
 sealed class AiConversationRouteDestination(
     val route: String,
@@ -18,6 +19,7 @@ sealed class AiConversationRouteDestination(
 
     data object AddCharacter : AiConversationRouteDestination(route = "add_character")
     data object GenerateImage : AiConversationRouteDestination(route = "generate_image")
+    @Keep
     data class ImageViewer(val url: String = "url") :
         AiConversationRouteDestination(
             route = "image_viewer/{url}",

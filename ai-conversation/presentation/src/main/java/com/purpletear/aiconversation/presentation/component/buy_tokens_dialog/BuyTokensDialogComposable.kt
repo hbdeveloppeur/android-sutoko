@@ -51,7 +51,6 @@ import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.animateLottieCompositionAsState
 import com.airbnb.lottie.compose.rememberLottieComposition
 import com.purpletear.aiconversation.presentation.R
-import com.purpletear.aiconversation.presentation.component.buy_tokens_dialog.events.BuyTokensDialogAbort
 import com.purpletear.aiconversation.presentation.component.buy_tokens_dialog.states.BuyTokensCoinsDialogState
 import com.purpletear.aiconversation.presentation.component.buy_tokens_dialog.states.BuyTokensDialogState
 import com.purpletear.aiconversation.presentation.component.buy_tokens_dialog.viewModels.BuyTokensDialogViewModel
@@ -137,13 +136,11 @@ fun BuyTokensDialogComposable(
                                         R.string.ai_conversation_cta_get_coins,
                                         aiMessagePack.tokensCount
                                     ),
-                                    subtitle = "${aiMessagePack.productDetails?.price}",
+                                    subtitle = "TODO",
                                     modifier = Modifier.padding(top = if (isFirst) 16.dp else 8.dp),
                                     background = drawableId,
                                     onClick = {
-                                        viewModel.onClickMessagePack(
-                                            aiMessagePack
-                                        )
+                                        // TODO
                                     }
                                 )
                             }
@@ -158,7 +155,7 @@ fun BuyTokensDialogComposable(
                     is BuyTokensDialogState.Error.NotEnoughCoins -> {
                         val error = state.message
                         NotEnoughCoinsErrorComposable(error.asString()) {
-                            viewModel.displayListOfPacks()
+                            // TODO
                         }
                     }
 
@@ -181,7 +178,7 @@ fun BuyTokensDialogComposable(
                                     title = stringResource(R.string.ai_conversation_cancel),
                                     subtitle = null,
                                     onClick = {
-                                        viewModel.cancelAction(BuyTokensDialogAbort.Buy)
+                                        // TODO
                                     },
                                 )
                                 CallToActionButtonComposable(
@@ -202,7 +199,7 @@ fun BuyTokensDialogComposable(
                                 title = stringResource(R.string.ai_conversation_cancel),
                                 subtitle = null,
                                 onClick = {
-                                    viewModel.cancelAction(BuyTokensDialogAbort.Try)
+                                    // TODO
                                 },
                             )
 
@@ -211,7 +208,7 @@ fun BuyTokensDialogComposable(
                                 subtitle = stringResource(R.string.ai_conversation_count_try),
                                 backgroundColor = Color(0xFFFF087F),
                                 onClick = {
-                                    viewModel.onTryClicked()
+                                    // TODO
                                 },
                             )
                         }

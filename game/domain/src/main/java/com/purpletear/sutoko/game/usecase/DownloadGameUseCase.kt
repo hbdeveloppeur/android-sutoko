@@ -1,9 +1,9 @@
 package com.purpletear.sutoko.game.usecase
 
-import com.purpletear.sutoko.game.download.GameDownloadManager
-import com.purpletear.sutoko.game.exception.UserNotConnectedException
-import com.purpletear.sutoko.game.model.Game
-import com.purpletear.sutoko.game.model.isPremium
+import com.purpletear.sutoko.game.repository.game.GameInstallRepository
+import com.purpletear.sutoko.game.repository.game.GameRepository
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.firstOrNull
 import javax.inject.Inject
 
 /**
@@ -12,45 +12,33 @@ import javax.inject.Inject
  * and download initiation.
  */
 class DownloadGameUseCase @Inject constructor(
-    private val gameDownloadManager: GameDownloadManager,
+    private val gameRepository: GameRepository,
+    private val gameInstallRepository: GameInstallRepository,
 ) {
-    /**
-     * Invoke the use case to download a game.
-     *
-     * Business rules applied:
-     * - Premium games require user authentication (userId and userToken)
-     * - Free games can be downloaded without authentication
-     *
-     * @param game The game to download.
-     * @param userId The user ID for authenticated downloads (required for premium games).
-     * @param userToken The user token for authenticated downloads (required for premium games).
-     * @param isUserConnected Whether the user is currently authenticated.
-     * @return Result containing Unit on success, or exception on failure.
-     * @throws UserNotConnectedException if premium game and user not authenticated.
-     */
+
     suspend operator fun invoke(
-        game: Game,
+        gameId: String,
         userId: String?,
         userToken: String?,
-        isUserConnected: Boolean,
-    ): Result<Unit> {
-        // Business rule: Premium games require authenticated user
-        if (game.isPremium() && !isUserConnected) {
-            return Result.failure(UserNotConnectedException())
-        }
+    ): Flow<Float> {
+        assert(gameId.isNotBlank(), { "gameId must not be blank" })
+        assert(userId == null || userId.isNotBlank(), { "userId must not be blank" })
+        assert(userToken == null || userToken.isNotBlank(), { "userToken must not be blank" })
 
-        val actualUserId = if (game.isPremium()) userId else null
-        val actualUserToken = if (game.isPremium()) userToken else null
 
-        return try {
-            gameDownloadManager.downloadGame(
-                game = game,
-                userId = actualUserId,
-                userToken = actualUserToken
-            )
-            Result.success(Unit)
-        } catch (e: Exception) {
-            Result.failure(e)
-        }
+        val game = gameRepository.observeGame(gameId).firstOrNull()
+            ?: throw IllegalArgumentException("Game not found: $gameId")
+
+        val downloadUrl = gameRepository.getDownloadLink(
+            gameId = gameId,
+            userId = userId,
+            userToken = userToken,
+        ).getOrThrow()
+
+        return gameInstallRepository.download(
+            gameId = gameId,
+            gameDownloadUrl = downloadUrl,
+            gameVersion = game.version.toString(),
+        )
     }
 }

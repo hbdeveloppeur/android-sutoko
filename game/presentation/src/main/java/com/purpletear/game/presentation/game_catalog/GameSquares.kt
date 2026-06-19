@@ -32,16 +32,16 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
-import com.purpletear.sutoko.game.model.Game
+import com.purpletear.sutoko.game.model.game.GameCatalog
 import com.example.sharedelements.R as SharedR
 
 
 @Composable
 fun GameSquares(
     modifier: Modifier = Modifier,
-    stories: List<Game>,
+    stories: List<GameCatalog>,
     icons: Map<Int, Int?>,
-    onTap: (Game) -> Unit
+    onTap: (GameCatalog) -> Unit
 ) {
     Box(
         modifier = Modifier
@@ -77,8 +77,8 @@ fun GameSquares(
 @Composable
 private fun GameSquare(
     modifier: Modifier,
-    card: Game,
-    onTap: (Game) -> Unit,
+    card: GameCatalog,
+    onTap: (GameCatalog) -> Unit,
     viewModel: GameSquareViewModel = remember { GameSquareViewModel() },
     icon: Int? = null,
 ) {
@@ -107,7 +107,7 @@ private fun GameSquare(
                     modifier = Modifier.matchParentSize(),
                     model = ImageRequest.Builder(LocalContext.current)
                         .data(
-                            viewModel.getLogoUrl(game = card)
+                            viewModel.getLogoUrl(gameCatalog = card)
                         )
                         .crossfade(true)
                         .build(),

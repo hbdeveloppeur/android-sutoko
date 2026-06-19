@@ -5,7 +5,6 @@ import androidx.compose.runtime.Stable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.ui.unit.dp
 import androidx.core.text.isDigitsOnly
 import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.MutableLiveData
@@ -17,29 +16,28 @@ import com.example.sharedelements.SutokoAppParams
 import com.example.sharedelements.utils.UiText
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.purpletear.core.presentation.extensions.Resource
-import com.purpletear.core.presentation.extensions.executeFlowUseCase
 import com.purpletear.framework.services.OpenDiscordOrBrowserService
-import com.purpletear.shop.domain.model.Balance
-import com.purpletear.shop.domain.usecase.ObserveShopBalanceUseCase
 import com.purpletear.sutoko.core.domain.appaction.ActionName
 import com.purpletear.sutoko.core.domain.appaction.AppAction
-import com.purpletear.sutoko.game.model.Game
-import com.purpletear.sutoko.game.model.isPremium
-import com.purpletear.sutoko.game.usecase.GetGamesUseCase
+import com.purpletear.sutoko.game.model.game.GameCatalog
+import com.purpletear.sutoko.game.model.game.isPremium
+import com.purpletear.sutoko.game.usecase.ObserveOfficialGamesUseCase
 import com.purpletear.sutoko.news.model.News
 import com.purpletear.sutoko.news.usecase.GetNewsUseCase
 import com.purpletear.sutoko.notification.sealed.Screen
 import com.purpletear.sutoko.notification.usecase.SetCurrentScreenUseCase
+import com.purpletear.sutoko.shop.domain.repository.ShopRepository
+import com.purpletear.sutoko.shop.domain.repository.model.Balance
 import dagger.hilt.android.lifecycle.HiltViewModel
 import fr.purpletear.sutoko.R
 import fr.purpletear.sutoko.objects.CalendarEvent
-import fr.purpletear.sutoko.popup.domain.PopUpIconDrawable
-import fr.purpletear.sutoko.popup.domain.SutokoPopUp
-
 import fr.purpletear.sutoko.screens.main.domain.popup.util.MainMenuCategory
-import fr.purpletear.sutoko.shop.coinsLogic.Customer
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import purpletear.fr.purpleteartools.TableOfSymbols
 import javax.inject.Inject
@@ -51,13 +49,27 @@ class HomeScreenViewModel @Inject constructor(
     private var firebaseAnalytics: FirebaseAnalytics,
     private val screenUseCase: SetCurrentScreenUseCase,
     private val symbols: TableOfSymbols,
-    val customer: Customer,
     private val getNewsUseCase: GetNewsUseCase,
-    private val getGamesUseCase: GetGamesUseCase,
-    private val observeShopBalanceUseCase: ObserveShopBalanceUseCase,
+    private val observeOfficialGamesUseCase: ObserveOfficialGamesUseCase,
     private val openDiscordOrBrowser: OpenDiscordOrBrowserService,
+    private val shopRepository: ShopRepository,
 ) : ViewModel(), LifecycleObserver {
 
+    val balance: StateFlow<Resource<Balance>> = shopRepository.observeBalance()
+        .map { Resource.Success(it) }
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(7000),
+            initialValue = Resource.Loading(),
+        )
+
+    // Observe official games from the repository cache; sync is handled by CatalogSyncCoordinator
+    private val games: StateFlow<List<GameCatalog>> = observeOfficialGamesUseCase()
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(7000),
+            initialValue = emptyList(),
+        )
 
     private val _state: MutableState<MainState> = mutableStateOf(
         MainState(
@@ -79,9 +91,9 @@ class HomeScreenViewModel @Inject constructor(
     private val _navEvents = Channel<String>(Channel.BUFFERED)
     val navEvents = _navEvents.receiveAsFlow()
 
-    private var _squareStories: MutableState<List<Game>> =
+    private var _squareStories: MutableState<List<GameCatalog>> =
         mutableStateOf(emptyList())
-    val squareStories: State<List<Game>>
+    val squareStories: State<List<GameCatalog>>
         get() = _squareStories
 
     private var _squareIcons: MutableState<Map<Int, Int?>> =
@@ -99,10 +111,6 @@ class HomeScreenViewModel @Inject constructor(
 
     // newsState is redundant with news, so it has been removed
 
-    private var _games: MutableState<List<Game>> = mutableStateOf(emptyList())
-    val games: State<List<Game>>
-        get() = _games
-
     private var _aiConversationMessageCount: MutableState<Int?> = mutableStateOf(null)
     val aiConversationMessageCount: State<Int?>
         get() = _aiConversationMessageCount
@@ -112,9 +120,9 @@ class HomeScreenViewModel @Inject constructor(
         get() = _displayAiConversationCard
 
 
-    private var _fullStories: MutableState<List<Game>> =
+    private var _fullStories: MutableState<List<GameCatalog>> =
         mutableStateOf(emptyList())
-    val fullStories: State<List<Game>>
+    val fullStories: State<List<GameCatalog>>
         get() = _fullStories
 
 
@@ -133,14 +141,6 @@ class HomeScreenViewModel @Inject constructor(
         MutableLiveData()
     }
 
-    val navigate: MutableLiveData<MainEvents> by lazy {
-        MutableLiveData<MainEvents>()
-    }
-
-
-    private var _coinsBalance: MutableState<Resource<Balance>> = mutableStateOf(Resource.Loading())
-    val coinsBalance: State<Resource<Balance>> = _coinsBalance
-
     init {
         // Initialize with empty list, will be updated from GetNewsUseCase
         val events =
@@ -153,7 +153,6 @@ class HomeScreenViewModel @Inject constructor(
             notificationsOn = symbols.isFirebaseNotificationEnabled
         )
 
-        observeBalance()
 
         // Fetch news from the repository cache
         viewModelScope.launch {
@@ -165,22 +164,12 @@ class HomeScreenViewModel @Inject constructor(
             }
         }
 
-        // Fetch games from the repository cache
+        // Derive square/full stories and main state from the observed games
         viewModelScope.launch {
-            getGamesUseCase().collect { result ->
-                result.onSuccess { gamesList ->
-                    // Update games state variable
-                    _games.value = gamesList
-
-                    // Update square and full stories
-                    _squareStories.value = getSquareStories(gamesList) ?: emptyList()
-                    _fullStories.value = getFullWidthStories(gamesList)
-
-                    // Update main state with games
-                    _state.value = _state.value.copy(
-                        initialStories = gamesList
-                    )
-                }
+            games.collect { gamesList ->
+                _squareStories.value = getSquareStories(gamesList) ?: emptyList()
+                _fullStories.value = getFullWidthStories(gamesList)
+                _state.value = _state.value.copy(initialStories = gamesList)
             }
         }
 
@@ -192,21 +181,6 @@ class HomeScreenViewModel @Inject constructor(
                 163 to com.example.sharedelements.R.drawable.logo_card_163,
             )
         )
-    }
-
-    private fun observeBalance() {
-        _coinsBalance.value = Resource.Loading()
-        viewModelScope.launch {
-            executeFlowUseCase({
-                observeShopBalanceUseCase()
-            }, onStream = {
-                it?.let { balance ->
-                    _coinsBalance.value = Resource.Success(balance)
-                }
-            }, onFailure = { exception ->
-                _coinsBalance.value = Resource.Error(exception)
-            })
-        }
     }
 
     fun onResume() {
@@ -226,7 +200,7 @@ class HomeScreenViewModel @Inject constructor(
         this.saveSymbols.value = this.symbols
     }
 
-    private fun getSortedCards(cards: Set<Game>): List<Game> {
+    private fun getSortedCards(cards: Set<GameCatalog>): List<GameCatalog> {
         val cardsWithIndex = cards.mapIndexed { index, card -> Pair(index, card) }
 
         return cardsWithIndex.sortedBy { it.second.isPremium() }.map { it.second }
@@ -235,8 +209,8 @@ class HomeScreenViewModel @Inject constructor(
 
     private fun getFormattedStories(
         category: MainMenuCategory,
-        stories: List<Game>
-    ): List<Game> {
+        stories: List<GameCatalog>
+    ): List<GameCatalog> {
         return when (category) {
             MainMenuCategory.All -> {
                 stories
@@ -261,7 +235,7 @@ class HomeScreenViewModel @Inject constructor(
      * @param stories a list of `Card` objects
      * @return List<Card>?
      */
-    private fun getSquareStories(stories: List<Game>): List<Game>? {
+    private fun getSquareStories(stories: List<GameCatalog>): List<GameCatalog>? {
         if (stories.size < 4) {
             return null
         }
@@ -277,27 +251,13 @@ class HomeScreenViewModel @Inject constructor(
      * @return List<Card>
      */
     private fun getFullWidthStories(
-        stories: List<Game>,
-    ): List<Game> {
+        stories: List<GameCatalog>,
+    ): List<GameCatalog> {
         if (stories.size < 4) {
             return stories
         }
         val storiesToSort = stories.subList(4, stories.size)
         return getSortedCards(storiesToSort.toSet())
-    }
-
-    private fun getDiamondsMessage(): Int {
-        return when (this._coinsBalance.value.data?.diamonds) {
-            0 -> R.string.sutoko_diamonds_context
-            else -> R.string.sutoko_diamonds_congrats
-        }
-    }
-
-    private fun getCoinsMessage(): Int {
-        return when (this._coinsBalance.value.data?.coins) {
-            0 -> R.string.sutoko_coins_context
-            else -> R.string.sutoko_coins_congrats
-        }
     }
 
     fun displayAiConversationCard(appParams: SutokoAppParams) {
@@ -328,10 +288,6 @@ class HomeScreenViewModel @Inject constructor(
             is MainEvents.EndScroll -> {
             }
 
-            is MainEvents.AccountButtonPressed, MainEvents.OptionButtonPressed, MainEvents.DiamondButtonPressed, MainEvents.CoinButtonPressed -> {
-                navigate.value = event
-            }
-
             is MainEvents.TapMenu -> {
                 _categoryState.value = event.category
                 viewModelScope.launch {
@@ -344,38 +300,6 @@ class HomeScreenViewModel @Inject constructor(
 
             is MainEvents.Open -> {
 
-            }
-
-            is MainEvents.TapDiamondsLabel -> {
-                this._state.value = this._state.value.copy(
-                    popUp = SutokoPopUp(
-                        title = UiText.StringResource(
-                            R.string.sutoko_count_diamonds,
-                            this.customer.getDiamonds()
-                        ),
-                        description = UiText.StringResource(this.getDiamondsMessage()),
-                        icon = PopUpIconDrawable(fr.purpletear.sutoko.shop.presentation.R.drawable.sutoko_diamond_big),
-                        buttonText = UiText.StringResource(R.string.sutoko_continue),
-                    ),
-                )
-                this._state.value = this._state.value.copy(isPopUpDisplayed = true)
-            }
-
-            is MainEvents.TapCoinsLabel -> {
-                this._state.value = this._state.value.copy(
-                    popUp = SutokoPopUp(
-                        icon = PopUpIconDrawable(fr.purpletear.sutoko.shop.presentation.R.drawable.sutoko_shop_item_mega),
-                        iconHeight = 90.dp,
-                        title = UiText.StringResource(R.string.sutoko_count_coins),
-                        description = UiText.StringResource(this.getCoinsMessage()),
-                        buttonText = UiText.StringResource(R.string.sutoko_continue),
-                    ),
-                )
-                this._state.value = this._state.value.copy(isPopUpDisplayed = true)
-            }
-
-            is MainEvents.OnPopUpDismissed -> {
-                this._state.value = this._state.value.copy(isPopUpDisplayed = false)
             }
 
             is MainEvents.ToggleNotifications -> {

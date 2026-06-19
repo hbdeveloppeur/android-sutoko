@@ -4,13 +4,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.purpletear.core.presentation.services.MakeToastService
 import com.purpletear.game.presentation.R
-import com.purpletear.sutoko.game.download.GameDownloadState
-import com.purpletear.sutoko.game.usecase.ObserveDownloadStateUseCase
-import com.purpletear.sutoko.game.usecase.RedownloadGameUseCase
+import com.purpletear.sutoko.domain.repository.UserRepository
 import com.purpletear.sutoko.game.usecase.RestartGameUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
-import fr.purpletear.sutoko.shop.coinsLogic.Customer
-import kotlinx.coroutines.flow.takeWhile
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -21,10 +18,8 @@ import javax.inject.Inject
 @HiltViewModel
 class SmsGameDevViewModel @Inject constructor(
     private val restartGame: RestartGameUseCase,
-    private val redownloadGame: RedownloadGameUseCase,
-    private val observeDownloadStateUseCase: ObserveDownloadStateUseCase,
     private val makeToastService: MakeToastService,
-    private val customer: Customer,
+    private val userRepository: UserRepository,
 ) : ViewModel() {
 
     /**
@@ -56,16 +51,7 @@ class SmsGameDevViewModel @Inject constructor(
      * Runs in parallel with the download operation.
      */
     private fun observeDownloadProgress(gameId: String) = viewModelScope.launch {
-        observeDownloadStateUseCase(gameId)
-            .takeWhile { !it.isTerminal() }
-            .collect { state ->
-                when (state) {
-                    is GameDownloadState.Completed -> toast(R.string.game_redownload_completed)
-                    is GameDownloadState.Error -> toast(R.string.game_redownload_error)
-                    else -> { /* Downloading, Extracting, Idle, Cancelled - no toast */
-                    }
-                }
-            }
+        // TODO
     }
 
     /**
@@ -73,36 +59,23 @@ class SmsGameDevViewModel @Inject constructor(
      */
     private suspend fun startRedownload(gameId: String) {
         val credentials = getUserCredentials()
-
-        redownloadGame(
-            gameId = gameId,
-            userId = credentials.userId,
-            userToken = credentials.userToken,
-            isUserConnected = credentials.isConnected,
-        )
-            .onSuccess { toast(R.string.game_redownload_started) }
-            .onFailure { toast(R.string.game_redownload_error) }
     }
 
     /**
      * Returns user credentials if connected, nulls otherwise.
      * Premium games require authentication; free games don't.
      */
-    private fun getUserCredentials(): UserCredentials {
-        val isConnected = customer.isUserConnected()
+    private suspend fun getUserCredentials(): UserCredentials {
+        val user = userRepository.observeUser().first()
         return UserCredentials(
-            userId = if (isConnected) customer.getUserId() else null,
-            userToken = if (isConnected) customer.getUserToken() else null,
-            isConnected = isConnected,
+            userId = user?.id,
+            userToken = user?.token,
+            isConnected = user != null,
         )
     }
 
     private fun toast(messageResId: Int) {
         makeToastService(messageResId)
-    }
-
-    private fun GameDownloadState.isTerminal(): Boolean {
-        return this is GameDownloadState.Completed || this is GameDownloadState.Error
     }
 }
 

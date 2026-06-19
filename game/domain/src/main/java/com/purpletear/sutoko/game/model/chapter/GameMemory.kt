@@ -1,7 +1,7 @@
 package com.purpletear.sutoko.game.model.chapter
 
 import androidx.annotation.Keep
-import com.purpletear.sutoko.game.model.UserGameProgressEntity
+import com.purpletear.sutoko.game.model.UserGameProgress
 import com.purpletear.sutoko.game.repository.MemoryRepository
 import com.purpletear.sutoko.game.repository.UserGameProgressRepository
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -30,7 +30,7 @@ class GameMemory @Inject constructor(
     private val memory = mutableMapOf<String, String>()
     private var currentGameId: String? = null
     private var currentChapterCode: String? = null
-    
+
     /**
      * The currently loaded game ID, or null if not loaded.
      */
@@ -56,7 +56,7 @@ class GameMemory @Inject constructor(
             repository.save(gameId, memory.toMap())
             currentChapterCode?.let { chapter ->
                 progressRepository.save(
-                    UserGameProgressEntity(
+                    UserGameProgress(
                         gameId = gameId,
                         currentChapterCode = chapter,
                         normalizedChapterCode = chapter.lowercase()

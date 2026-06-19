@@ -32,24 +32,26 @@ import com.purpletear.aiconversation.presentation.sealed.NavigationEvent
 import com.purpletear.core.presentation.extensions.executeFlowResultUseCase
 import com.purpletear.core.presentation.extensions.executeFlowUseCase
 import com.purpletear.core.presentation.services.MakeToastService
-import com.purpletear.sutoko.user.usecase.IsUserConnectedUseCase
-import com.purpletear.sutoko.user.usecase.OpenSignInPageUseCase
+import com.purpletear.sutoko.domain.repository.UserRepository
+import com.purpletear.sutoko.domain.usecase.ObserveUserConnectedUseCase
+import com.purpletear.sutoko.domain.usecase.OpenSignInPageUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import fr.purpletear.sutoko.popup.domain.PopUpIconDrawable
 import fr.purpletear.sutoko.popup.domain.PopUpUserInteraction
 import fr.purpletear.sutoko.popup.domain.SutokoPopUp
 import fr.purpletear.sutoko.popup.domain.usecase.GetPopUpInteractionUseCase
 import fr.purpletear.sutoko.popup.domain.usecase.ShowPopUpUseCase
-import fr.purpletear.sutoko.shop.coinsLogic.Customer
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
 import javax.inject.Inject
+import com.example.sharedelements.R as sharedElementsR
 
 @HiltViewModel
 class AddCharacterViewModel @Inject constructor(
@@ -60,14 +62,14 @@ class AddCharacterViewModel @Inject constructor(
     private val uploadMediaUseCase: UploadMediaUseCase,
     private val saveBitmapUseCase: SaveBitmapUseCase,
     private val addCharacterUseCase: AddCharacterUseCase,
-    private val isUserConnectedUseCase: IsUserConnectedUseCase,
+    private val observeUserConnectedUseCase: ObserveUserConnectedUseCase,
     private val openSignInPageUseCase: OpenSignInPageUseCase,
     private val makeToastService: MakeToastService,
     private val showPopUpUseCase: ShowPopUpUseCase,
     private val loadCharactersUseCase: LoadCharactersUseCase,
     private val observeCharactersUseCase: ObserveCharactersUseCase,
     private val observeInteractionUseCase: GetPopUpInteractionUseCase,
-    private val customer: Customer,
+    private val userRepository: UserRepository,
 ) : ViewModel() {
 
     private var _characterDescription = mutableStateOf("")
@@ -129,16 +131,17 @@ class AddCharacterViewModel @Inject constructor(
     }
 
     fun onResume() {
-        loadCharacters()
+        viewModelScope.launch { loadCharacters() }
     }
 
 
-    private fun loadCharacters() {
-        if (!customer.isUserConnected()) {
+    private suspend fun loadCharacters() {
+        if (!_isUserConnected.value) {
             return
         }
+        val user = userRepository.observeUser().first() ?: return
         executeFlowResultUseCase({
-            loadCharactersUseCase(customer.getUserId(), customer.getUserToken())
+            loadCharactersUseCase(user.id, user.token)
         })
         executeFlowUseCase({
             observeCharactersUseCase()
@@ -154,7 +157,7 @@ class AddCharacterViewModel @Inject constructor(
         val popUp = SutokoPopUp(
             title = UiText.StringResource(R.string.ai_conversation_pop_up_characters_limit_reached_title),
             description = UiText.StringResource(R.string.ai_conversation_pop_up_characters_limit_reached_description),
-            icon = PopUpIconDrawable(fr.purpletear.sutoko.shop.presentation.R.drawable.account_creation_character),
+            icon = PopUpIconDrawable(sharedElementsR.drawable.account_creation_character),
             buttonText = UiText.StringResource(R.string.ai_conversation_continue)
         )
         val tag = showPopUpUseCase(popUp)
@@ -189,7 +192,7 @@ class AddCharacterViewModel @Inject constructor(
 
     private fun observeIsUserConnected() {
         executeFlowUseCase({
-            isUserConnectedUseCase()
+            observeUserConnectedUseCase()
         }, onStream = ::loadAccountState, onFailure = {
             reloadState()
             it.printStackTrace()
@@ -269,9 +272,10 @@ class AddCharacterViewModel @Inject constructor(
         _submitCharacterLoadingState.value = ProcessStatus.PROCESSING
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
+                val user = userRepository.observeUser().first() ?: return@withContext
                 addCharacterUseCase(
-                    userId = customer.user.uid!!,
-                    token = customer.user.token!!,
+                    userId = user.id,
+                    token = user.token,
                     firstName = name,
                     lastName = lastName,
                     gender = if (_characterGender.value == Gender.Female.n) Gender.Female else Gender.Male,
@@ -300,11 +304,12 @@ class AddCharacterViewModel @Inject constructor(
         }
     }
 
-    private fun uploadAvatar(file: File) {
+    private suspend fun uploadAvatar(file: File) {
+        val user = userRepository.observeUser().first() ?: return
         executeFlowResultUseCase({
             uploadMediaUseCase(
-                userId = customer.user.uid!!,
-                userToken = customer.user.token!!,
+                userId = user.id,
+                userToken = user.token,
                 file = file,
                 mediaType = MediaType.Avatar
             )
@@ -337,7 +342,9 @@ class AddCharacterViewModel @Inject constructor(
             withContext(Dispatchers.IO) {
                 val fileResult = saveBitmapUseCase(image.asAndroidBitmap())
                 fileResult.fold(
-                    onSuccess = ::uploadAvatar,
+                    onSuccess = {
+                        uploadAvatar(it)
+                    },
                     onFailure = {
                         makeToastService(R.string.ai_conversation_file_rejected)
                     }

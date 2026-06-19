@@ -18,6 +18,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
+import com.purpletear.sutoko.shop.R as ShopR
 
 class NotificationHelper @Inject constructor() {
 
@@ -63,7 +64,7 @@ class NotificationHelper @Inject constructor() {
 
         // Create the notification content
         var builder = NotificationCompat.Builder(context, "sutoko_fcm")
-            .setSmallIcon(fr.purpletear.sutoko.shop.presentation.R.drawable.sutoko_ic_diamond)
+            .setSmallIcon(ShopR.drawable.sutoko_ic_diamond)
             .setContentTitle(notification.title)
             .setContentText(notification.message)
             .setContentIntent(pendingIntent)

@@ -1,13 +1,9 @@
 package com.purpletear.sutoko.game.model
 
 import androidx.annotation.Keep
-import androidx.room.Entity
-import androidx.room.PrimaryKey
 
 @Keep
-@Entity(tableName = "chapters")
 data class Chapter(
-    @PrimaryKey
     val id: String = "",
     val number: Int = 1,
     val alternative: String = "",

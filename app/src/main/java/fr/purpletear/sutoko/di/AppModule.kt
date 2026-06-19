@@ -2,7 +2,7 @@ package fr.purpletear.sutoko.di
 
 import android.app.Application
 import android.content.Context
-import android.content.SharedPreferences
+import androidx.room.Room
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.firestore.FirebaseFirestore
 import com.purpletear.core.presentation.services.MakeToastService
@@ -12,10 +12,13 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
-import fr.purpletear.sutoko.shop.coinsLogic.Customer
 import purpletear.fr.purpleteartools.DelayHandler
 import purpletear.fr.purpleteartools.TableOfPlayersV2
 import purpletear.fr.purpleteartools.TableOfSymbols
+import purpletear.fr.purpleteartools.symbols.SymbolsRoomStorage
+import purpletear.fr.purpleteartools.symbols.SymbolsStorage
+import purpletear.fr.purpleteartools.symbols.data.SymbolsDatabase
+import java.io.File
 import javax.inject.Singleton
 
 @Module
@@ -27,12 +30,6 @@ object AppModule {
     @Provides
     fun provideToastService(@ApplicationContext context: Context): MakeToastService {
         return MakeToastService(context)
-    }
-
-    @Provides
-    @Singleton
-    fun provideSharedPreferences(@ApplicationContext context: Context): SharedPreferences {
-        return context.getSharedPreferences("sharedPrefs", Context.MODE_PRIVATE)
     }
 
     @Provides
@@ -67,16 +64,28 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideTableOfSymbols(@ApplicationContext appContext: Context): TableOfSymbols {
-        val symbols = TableOfSymbols(-1)
-        symbols.read(appContext)
-        return symbols
+    fun provideSymbolsDatabase(@ApplicationContext context: Context): SymbolsDatabase {
+        return Room.databaseBuilder(context, SymbolsDatabase::class.java, "symbols.db")
+            .allowMainThreadQueries()
+            .build()
     }
 
     @Provides
     @Singleton
-    fun provideCustomer(@ApplicationContext appContext: Context): Customer {
-        return Customer(appContext, callbacks = null)
+    fun provideSymbolsStorage(
+        database: SymbolsDatabase,
+        @ApplicationContext context: Context
+    ): SymbolsStorage {
+        val legacyFile = File(context.filesDir, "symbols/symbols.json")
+        val storage = SymbolsRoomStorage(database, legacyFile)
+        TableOfSymbols.storage = storage
+        return storage
+    }
+
+    @Provides
+    @Singleton
+    fun provideTableOfSymbols(storage: SymbolsStorage): TableOfSymbols {
+        return storage.load() ?: TableOfSymbols(-1)
     }
 
     @Provides

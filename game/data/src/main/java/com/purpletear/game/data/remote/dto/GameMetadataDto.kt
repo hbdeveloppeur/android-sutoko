@@ -2,7 +2,7 @@ package com.purpletear.game.data.remote.dto
 
 import androidx.annotation.Keep
 import com.google.gson.annotations.SerializedName
-import com.purpletear.sutoko.game.model.GameMetadata
+import com.purpletear.sutoko.game.model.game.GameMetadata
 
 @Keep
 data class GameMetadataDto(

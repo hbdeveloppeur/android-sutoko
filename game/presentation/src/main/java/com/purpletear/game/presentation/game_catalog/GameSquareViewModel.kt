@@ -5,7 +5,7 @@ import androidx.compose.ui.platform.LocalContext
 import coil.compose.AsyncImagePainter
 import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
-import com.purpletear.sutoko.game.model.Game
+import com.purpletear.sutoko.game.model.game.GameCatalog
 import com.purpletear.sutoko.game.model.getThumbnailUrl
 
 /**
@@ -17,22 +17,22 @@ class GameSquareViewModel {
     /**
      * Get the URL for the game's logo image.
      *
-     * @param game The game object containing the media logo information.
+     * @param GameCatalog The game object containing the media logo information.
      * @return The URL string for the logo image, or null if not available.
      */
-    fun getLogoUrl(game: Game): String? {
-        return game.logoAsset.getThumbnailUrl()
+    fun getLogoUrl(gameCatalog: GameCatalog): String? {
+        return gameCatalog.logo.getThumbnailUrl()
     }
 
     /**
      * Create an ImageRequest for the logo image.
      *
-     * @param game The game object containing the media logo information.
+     * @param gameCatalog The game object containing the media logo information.
      * @return An ImageRequest configured for the logo image, or null if not available.
      */
     @Composable
-    fun createLogoImageRequest(game: Game): ImageRequest? {
-        val logoUrl = getLogoUrl(game) ?: return null
+    fun createLogoImageRequest(gameCatalog: GameCatalog): ImageRequest? {
+        val logoUrl = getLogoUrl(gameCatalog) ?: return null
         return ImageRequest.Builder(LocalContext.current)
             .data(logoUrl)
             .crossfade(true)
@@ -42,12 +42,12 @@ class GameSquareViewModel {
     /**
      * Create an AsyncImagePainter for the logo image.
      *
-     * @param game The game object containing the media logo information.
+     * @param GameCatalog The game object containing the media logo information.
      * @return An AsyncImagePainter configured for the logo image, or null if not available.
      */
     @Composable
-    fun createLogoPainter(game: Game): AsyncImagePainter? {
-        val imageRequest = createLogoImageRequest(game) ?: return null
+    fun createLogoPainter(gameCatalog: GameCatalog): AsyncImagePainter? {
+        val imageRequest = createLogoImageRequest(gameCatalog) ?: return null
         return rememberAsyncImagePainter(imageRequest)
     }
 }

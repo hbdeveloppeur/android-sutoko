@@ -1,21 +1,17 @@
 package com.purpletear.game.presentation.game_play
 
-import androidx.compose.runtime.State
-import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.purpletear.sutoko.game.model.GameSessionState
-import com.purpletear.sutoko.game.usecase.GetChaptersUseCase
 import com.purpletear.sutoko.game.usecase.ObserveGameSessionUseCase
 import com.purpletear.sutoko.game.usecase.ObserveMemoriesUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.flow.stateIn
 import javax.inject.Inject
 
 /**
@@ -26,44 +22,36 @@ import javax.inject.Inject
 @HiltViewModel
 class GameSessionViewModel @Inject constructor(
     private val observeGameSession: ObserveGameSessionUseCase,
-    private val getChapters: GetChaptersUseCase,
     private val observeMemories: ObserveMemoriesUseCase,
 ) : ViewModel() {
 
     private val _sessionState = MutableStateFlow<GameSessionState>(GameSessionState.Loading)
     val sessionState: StateFlow<GameSessionState> = _sessionState.asStateFlow()
 
-    private val _showRestartDialog = mutableStateOf(false)
-    val showRestartDialog: State<Boolean> get() = _showRestartDialog
+    private val _showRestartDialog = MutableStateFlow(false)
+    val showRestartDialog: StateFlow<Boolean> = _showRestartDialog.asStateFlow()
+
+    private val _memories = MutableStateFlow<Map<String, String>>(emptyMap())
+    val memories: StateFlow<Map<String, String>> = _memories.asStateFlow()
 
     private var currentGameId: String? = null
-    private var memoriesFlow: StateFlow<Map<String, String>>? = null
+    private var sessionJob: Job? = null
+    private var memoriesJob: Job? = null
 
     fun initialize(gameId: String) {
         if (currentGameId == gameId) return
         currentGameId = gameId
 
-        observeGameSession(gameId)
-            .onEach { state ->
-                _sessionState.value = state
-            }
+        sessionJob?.cancel()
+        memoriesJob?.cancel()
+
+        sessionJob = observeGameSession(gameId)
+            .onEach { _sessionState.value = it }
             .launchIn(viewModelScope)
 
-        memoriesFlow = observeMemories(gameId)
-            .stateIn(
-                scope = viewModelScope,
-                started = SharingStarted.WhileSubscribed(5000),
-                initialValue = emptyMap()
-            )
-    }
-
-    fun getMemories(): StateFlow<Map<String, String>> {
-        return memoriesFlow ?: MutableStateFlow(emptyMap())
-    }
-
-    fun currentChapterCode(): String? {
-        return (_sessionState.value as? GameSessionState.Ready)
-            ?.chapter?.normalizedCode
+        memoriesJob = observeMemories(gameId)
+            .onEach { _memories.value = it }
+            .launchIn(viewModelScope)
     }
 
     fun onRestartPressed() {
@@ -77,5 +65,13 @@ class GameSessionViewModel @Inject constructor(
 
     fun onRestartDialogDismiss() {
         _showRestartDialog.value = false
+    }
+
+    override fun onCleared() {
+        sessionJob?.cancel()
+        sessionJob = null
+        memoriesJob?.cancel()
+        memoriesJob = null
+        super.onCleared()
     }
 }

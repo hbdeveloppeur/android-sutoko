@@ -10,11 +10,13 @@ import androidx.annotation.Keep
 sealed class GameSessionState {
     object Loading : GameSessionState()
 
+    @Keep
     data class Error(
         val type: ErrorType,
         val message: String
     ) : GameSessionState()
 
+    @Keep
     data class Ready(
         val gameId: String,
         val chapter: Chapter,

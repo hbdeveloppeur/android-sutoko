@@ -1,16 +1,19 @@
 package com.purpletear.game.data.local.dto.scene
 
 import com.google.gson.annotations.SerializedName
+import androidx.annotation.Keep
 
 /**
  * DTO for scenes.json parsing.
  */
+@Keep
 data class SceneDto(
     val id: Int,
     val name: String,
     val configuration: SceneConfigurationDto
 )
 
+@Keep
 data class SceneConfigurationDto(
     val id: Int,
     val asset: SceneAssetDto?,
@@ -21,6 +24,7 @@ data class SceneConfigurationDto(
     val imagePositionX: Float?
 )
 
+@Keep
 data class SceneAssetDto(
     @SerializedName("originalFilename")
     val originalFilename: String,

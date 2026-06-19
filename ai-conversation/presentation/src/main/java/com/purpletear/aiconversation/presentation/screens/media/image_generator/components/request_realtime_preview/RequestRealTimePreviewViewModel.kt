@@ -5,6 +5,7 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.purpletear.aiconversation.domain.enums.Direction
 import com.purpletear.aiconversation.domain.model.Document
 import com.purpletear.aiconversation.domain.usecase.DeleteSelectedImageGenerationRequestUseCase
@@ -16,14 +17,18 @@ import com.purpletear.core.image_downloader.ImageDownloader
 import com.purpletear.core.presentation.extensions.executeFlowResultUseCase
 import com.purpletear.core.presentation.extensions.executeFlowUseCase
 import com.purpletear.core.presentation.services.MakeToastService
+import com.purpletear.sutoko.domain.model.User
+import com.purpletear.sutoko.domain.repository.UserRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
-import fr.purpletear.sutoko.shop.coinsLogic.Customer
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.stateIn
 import javax.inject.Inject
 
 @HiltViewModel
 class RequestRealTimePreviewViewModel @Inject constructor(
     private val savedStateHandle: SavedStateHandle,
-    private val customer: Customer,
+    private val userRepository: UserRepository,
     private val imageDownloader: ImageDownloader,
     private val makeToastService: MakeToastService,
     private val moveDocumentCursorUseCase: MoveDocumentCursorUseCase,
@@ -36,6 +41,14 @@ class RequestRealTimePreviewViewModel @Inject constructor(
 
     private val _isLoading: MutableState<Boolean> = mutableStateOf(false)
     val isLoading: MutableState<Boolean> get() = _isLoading
+
+
+    private val user: StateFlow<User?> = userRepository.observeUser()
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = null,
+        )
 
     init {
         observeSelectedDocument()
@@ -74,15 +87,15 @@ class RequestRealTimePreviewViewModel @Inject constructor(
     }
 
     fun onClickDeleteImage() {
-        if (!customer.isUserConnected()) {
+        if (null == user.value) {
             makeToastService(R.string.ai_conversation_you_are_not_connected)
             return
         }
         _isLoading.value = true
         executeFlowResultUseCase({
             deleteSelectedImageGenerationRequestUseCase(
-                userId = customer.getUserId(),
-                userToken = customer.getUserToken(),
+                userId = user.value!!.id,
+                userToken = user.value!!.token,
             )
         }, finally = {
             _isLoading.value = false

@@ -5,30 +5,16 @@ import android.content.Context
 import android.os.Bundle
 import android.os.Parcel
 import android.os.Parcelable
-import android.util.AtomicFile
-import android.util.Log
 import androidx.annotation.Keep
-import com.google.gson.Gson
-import com.google.gson.GsonBuilder
-import com.google.gson.JsonParseException
-import com.google.gson.JsonParser
-import java.io.File
-import java.io.FileOutputStream
-import java.io.IOException
-import java.io.Serializable
+import purpletear.fr.purpleteartools.symbols.SymbolsStorage
 import java.util.Locale
-import java.util.concurrent.locks.ReentrantLock
-import kotlin.concurrent.withLock
-
 
 @Keep
-class TableOfSymbols(gameId: Int) : Serializable, Parcelable {
+class TableOfSymbols(gameId: Int) : Parcelable {
 
     var gameId: Int = gameId
     private var map: HashMap<Int, ArrayList<Symbol>> = HashMap()
     var route: HashMap<Int, ArrayList<String>> = HashMap()
-    private val SYMBOLS_DIR_PATH = "symbols/"
-    private val SYMBOLS_FILE_NAME = "symbols.json"
 
     var chapterCode: String
         get() {
@@ -48,20 +34,17 @@ class TableOfSymbols(gameId: Int) : Serializable, Parcelable {
             return r == null || r == "true"
         }
 
-
     val chapterNumber: Int
         get() {
             val code = chapterCode
-            return if (code.length < 2) 1 else code.substring(
-                0,
-                code.length - 1
-            ).toInt()
+            return if (code.length < 2) 1 else code.substring(0, code.length - 1).toInt()
         }
-
 
     var firstName: String
         get() {
-            return (get(gameId, "prenom") ?: "Nick").capitalize(Locale.getDefault())
+            return (get(gameId, "prenom") ?: "Nick").replaceFirstChar {
+                if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString()
+            }
         }
         set(value) {
             addOrSet(gameId, "prenom", value)
@@ -69,56 +52,46 @@ class TableOfSymbols(gameId: Int) : Serializable, Parcelable {
 
     var globalFirstName: String
         get() {
-            return (get(0, "prenom") ?: "Nick").capitalize(Locale.getDefault())
+            return (get(0, "prenom") ?: "Nick").replaceFirstChar {
+                if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString()
+            }
         }
         set(value) {
             addOrSet(0, "prenom", value)
         }
 
-
     fun getArray(id: Int): ArrayList<Symbol> {
         return map[id] ?: ArrayList()
     }
 
-    fun read(context: Context): Boolean {
-        val file = File(File(context.filesDir, SYMBOLS_DIR_PATH), SYMBOLS_FILE_NAME)
-        if (!file.exists()) return false
+    fun getAllRowIds(): Set<Int> = map.keys.toSet()
 
-        val json = file.bufferedReader().use { it.readText() }
-        val table = try {
-            gson.fromJson(json, TableOfSymbols::class.java)
-        } catch (e: JsonParseException) {
-            e.printStackTrace()
-            val sanitized = removeSaveLock(json) ?: return false
-            gson.fromJson(sanitized, TableOfSymbols::class.java).also {
-                val atomic = AtomicFile(file)
-                val out = atomic.startWrite()
-                out.bufferedWriter().use { it.write(sanitized) }
-                atomic.finishWrite(out)
-            }
+    @Deprecated("Context no longer needed", ReplaceWith("read()"))
+    fun read(context: Context): Boolean = read()
+
+    fun read(): Boolean {
+        val loaded = storage?.load() ?: return false
+        if (loaded.getAllRowIds().isEmpty() && loaded.route.isEmpty()) {
+            return false
         }
-
-        map = table.map
-        route = table.route
+        this.map = loaded.map
+        this.route = loaded.route
         return true
     }
 
-    private fun removeSaveLock(json: String): String? = try {
-        val root = JsonParser.parseString(json).asJsonObject
-        root.remove("saveLock")
-        root.toString()
-    } catch (_: Exception) {
-        null
-    }
+    @Deprecated("Context no longer needed", ReplaceWith("save()"))
+    fun save(context: Context): Boolean = save()
 
+    fun save(): Boolean {
+        return storage?.save(this) ?: false
+    }
 
     /**
      * Removes vars that are from chapters upper than chapterNumber
      * @param chapterNumber the chapterNumber;
      */
     fun removeFromASpecificChapterNumber(id: Int, chapterNumber: Int) {
-        val newArray: ArrayList<Symbol> =
-            java.util.ArrayList<Symbol>()
+        val newArray: ArrayList<Symbol> = ArrayList()
         for (s in map[id] ?: ArrayList()) {
             if (s.identifier < chapterNumber) {
                 newArray.add(s)
@@ -127,55 +100,20 @@ class TableOfSymbols(gameId: Int) : Serializable, Parcelable {
         map[id] = newArray
     }
 
-
-    @field:Transient
-    private val saveLock = ReentrantLock()
-
-    fun save(context: Context): Boolean {
-        val dir = File(context.filesDir, SYMBOLS_DIR_PATH)
-        if (!dir.exists() && !dir.mkdirs()) {
-            Log.e("TableOfSymbols", "Impossible de créer ${dir.absolutePath}")
-            return false
-        }
-
-        val atomicFile = AtomicFile(File(dir, SYMBOLS_FILE_NAME))
-
-        val json = try {
-            gson.toJson(this)
-        } catch (e: Exception) {
-            Log.e("TableOfSymbols", "Sérialisation JSON impossible", e)
-            return false
-        }
-
-        return saveLock.withLock {
-            var output: FileOutputStream? = null
-            try {
-                output = atomicFile.startWrite()
-                output.bufferedWriter(Charsets.UTF_8).use { writer ->
-                    writer.write(json)
-                }
-                atomicFile.finishWrite(output)
-                true
-            } catch (e: IOException) {
-                atomicFile.failWrite(output)
-                Log.e("TableOfSymbols", "Sauvegarde échouée", e)
-                false
-            }
-        }
-    }
-
     fun removeVar(rowId: Int, name: String) {
         if (!map.containsKey(rowId)) {
             return
         }
-
-        if (map[rowId] != null) {
-            map[rowId]!!.remove(Symbol(rowId, name, ""))
-        }
+        map[rowId]?.remove(Symbol(rowId, name, ""))
     }
 
-
+    @Deprecated("Activity no longer needed", ReplaceWith("reset(id).also { save() }"))
     fun reset(activity: Activity, id: Int) {
+        reset(id)
+        save()
+    }
+
+    fun reset(id: Int) {
         if (!map.containsKey(id)) {
             return
         }
@@ -187,7 +125,6 @@ class TableOfSymbols(gameId: Int) : Serializable, Parcelable {
         if (hasEscapeGame) {
             addOrSet(id, "escapeGame", "true", -1)
         }
-        save(activity)
     }
 
     /**
@@ -201,16 +138,9 @@ class TableOfSymbols(gameId: Int) : Serializable, Parcelable {
             return false
         }
         map.remove(rowId)
+        route.remove(rowId)
         return true
     }
-
-    fun copy(context: Context, table: TableOfSymbols): Boolean {
-        map = table.map
-        route = table.route
-
-        return true
-    }
-
 
     fun get(rowId: Int, symbolName: String): String? {
         createIfDontExist(rowId)
@@ -220,8 +150,7 @@ class TableOfSymbols(gameId: Int) : Serializable, Parcelable {
         val hasSymbol: Boolean = indexOfSymbol != -1
 
         return if (hasSymbol) {
-            (map[rowId]
-                ?: throw NullPointerException("Symbol row not found"))[indexOfSymbol].v
+            (map[rowId] ?: throw NullPointerException("Symbol row not found"))[indexOfSymbol].v
         } else {
             null
         }
@@ -244,10 +173,8 @@ class TableOfSymbols(gameId: Int) : Serializable, Parcelable {
     }
 
     fun getAppControlTime(): String? {
-
         return get(0, "testAppTime")
     }
-
 
     /**
      * Adds or set a Symbol given a rowId
@@ -330,7 +257,6 @@ class TableOfSymbols(gameId: Int) : Serializable, Parcelable {
             .add(Symbol(rowId, symbolName, symmbolValue, chapterNumber))
     }
 
-
     /**
      * Updates a Symbol to the given row
      *
@@ -380,8 +306,8 @@ class TableOfSymbols(gameId: Int) : Serializable, Parcelable {
     }
 
     companion object {
-        private val gson: Gson = GsonBuilder()
-            .create()
+        @JvmStatic
+        var storage: SymbolsStorage? = null
 
         @JvmField
         val CREATOR: Parcelable.Creator<TableOfSymbols> =
@@ -398,66 +324,5 @@ class TableOfSymbols(gameId: Int) : Serializable, Parcelable {
 
     override fun describeContents(): Int {
         return 0
-    }
-
-}
-
-class Symbol(var rowId: Int, var n: String, var v: String, var identifier: Int) :
-    Parcelable {
-
-    constructor(rowId: Int, n: String, v: String) : this(rowId, n, v, -1)
-
-
-    override fun equals(other: Any?): Boolean {
-        if (other === this) return true
-        if (other !is Symbol) return false
-
-        if (other.rowId != rowId) {
-            return false
-        }
-
-        if (other.n != n) {
-            return false
-        }
-
-        return true
-    }
-
-    override fun hashCode(): Int {
-        var result = rowId
-        result = 31 * result + n.hashCode()
-        result = 31 * result + v.hashCode()
-        return result
-    }
-
-    protected constructor(`in`: Parcel) : this(-1, "", "", -1) {
-        this.rowId = `in`.readInt()
-        this.n = `in`.readString() ?: ""
-        this.v = `in`.readString() ?: ""
-        this.identifier = `in`.readInt()
-    }
-
-    companion object {
-        @JvmField
-        val CREATOR: Parcelable.Creator<Symbol> = object : Parcelable.Creator<Symbol> {
-            override fun createFromParcel(`in`: Parcel): Symbol {
-                return Symbol(`in`)
-            }
-
-            override fun newArray(size: Int): Array<Symbol?> {
-                return arrayOfNulls(size)
-            }
-        }
-    }
-
-    override fun describeContents(): Int {
-        return 0
-    }
-
-    override fun writeToParcel(dest: Parcel, flags: Int) {
-        dest.writeInt(rowId)
-        dest.writeString(n)
-        dest.writeString(v)
-        dest.writeInt(identifier)
     }
 }

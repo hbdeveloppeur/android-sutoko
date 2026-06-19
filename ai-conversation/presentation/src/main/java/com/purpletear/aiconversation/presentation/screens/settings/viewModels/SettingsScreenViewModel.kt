@@ -7,6 +7,7 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.example.sharedelements.utils.UiText
 import com.purpletear.aiconversation.domain.model.Version
 import com.purpletear.aiconversation.domain.repository.MessageQueue
@@ -16,13 +17,15 @@ import com.purpletear.aiconversation.presentation.R
 import com.purpletear.core.presentation.extensions.executeFlowResultUseCase
 import com.purpletear.core.presentation.extensions.executeFlowUseCase
 import com.purpletear.core.presentation.services.MakeToastService
+import com.purpletear.sutoko.domain.repository.UserRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import fr.purpletear.sutoko.popup.domain.AlertPopUp
 import fr.purpletear.sutoko.popup.domain.PopUpUserInteraction
 import fr.purpletear.sutoko.popup.domain.usecase.GetPopUpInteractionUseCase
 import fr.purpletear.sutoko.popup.domain.usecase.ShowPopUpUseCase
-import fr.purpletear.sutoko.shop.coinsLogic.Customer
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
@@ -33,8 +36,8 @@ internal class SettingsScreenViewModel @Inject constructor(
     private val showPopUpUseCase: ShowPopUpUseCase,
     private val popUpInteractionUseCase: GetPopUpInteractionUseCase,
     private val messageQueue: MessageQueue,
-    private val customer: Customer,
     private val toastService: MakeToastService,
+    private val userRepository: UserRepository,
 
     ) : ViewModel() {
 
@@ -71,7 +74,7 @@ internal class SettingsScreenViewModel @Inject constructor(
             popUpInteractionUseCase(tag)
         }, onStream = { interaction ->
             if (interaction.event is PopUpUserInteraction.Confirm) {
-                restartConversation()
+                viewModelScope.launch { restartConversation() }
             }
         }, onFailure = {
             // Failure
@@ -88,8 +91,9 @@ internal class SettingsScreenViewModel @Inject constructor(
     }
 
 
-    private fun restartConversation() {
-        if (!customer.isUserConnected()) {
+    private suspend fun restartConversation() {
+        val user = userRepository.observeUser().first()
+        if (null == user) {
             onUserNotConnected()
             return
         }
@@ -98,10 +102,8 @@ internal class SettingsScreenViewModel @Inject constructor(
         executeFlowResultUseCase(
             useCase = {
                 delay(1000L)
-                // TODO
                 restartConversationUseCase(
-                    userId = customer.user.uid!!,
-                    // TODO
+                    userId = user.id,
                     aiCharacterId = aiCharacterId,
                 )
             },

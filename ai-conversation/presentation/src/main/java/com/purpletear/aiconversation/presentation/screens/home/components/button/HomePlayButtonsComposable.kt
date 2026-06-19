@@ -9,6 +9,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.purpletear.aiconversation.presentation.R
 import com.purpletear.aiconversation.presentation.component.button.ButtonComposable
 import com.purpletear.aiconversation.presentation.component.button.ButtonTheme
@@ -31,6 +32,7 @@ fun HomePlayButtonsComposable(
     ) {
         val characterName: String? = viewModel.selectedCharacter.value?.firstName
         val state = viewModel.playabilityState.value
+        val isUserConnected = viewModel.isUserConnected.collectAsStateWithLifecycle()
 
         ButtonComposable(
             title = when (state) {
@@ -53,10 +55,10 @@ fun HomePlayButtonsComposable(
             isLoading = state == Loading,
             isEnabled = viewModel.selectedCharacter.value != null,
             onClick = {
-                if (viewModel.isConnected()) {
+                if (isUserConnected.value) {
                     when (state) {
                         is PlayabilityState.Triable -> {
-                            viewModel.onTryPressed(isAd = state.isAd)
+                            viewModel.onTryPressed()
                         }
 
                         else -> {
@@ -71,7 +73,7 @@ fun HomePlayButtonsComposable(
 
         ButtonComposable(
             title = stringResource(R.string.ai_conversation_button_buy_coins_title),
-            subtitle = if (viewModel.isConnected.value) {
+            subtitle = if (isUserConnected.value) {
                 stringResource(
                     R.string.ai_conversation_button_buy_coins_subtitle,
                     viewModel.customerCoins.value ?: -1

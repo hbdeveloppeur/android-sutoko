@@ -38,10 +38,6 @@ dependencies {
     implementation(libs.androidx.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.android.material)
-    implementation(project(":ai-conversation:domain"))
-    implementation(project(":shop:domain"))
-    implementation(project(":shop:presentation"))
-    implementation(project(":notification:domain"))
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -51,8 +47,5 @@ dependencies {
     ksp(libs.androidx.hilt.compiler)
     implementation(libs.androidx.hilt.work)
 
-    implementation(platform(libs.firebase.bom))
-    implementation(libs.firebase.analytics.ktx)
-    implementation(libs.google.firebase.messaging.ktx)
     implementation(libs.androidx.runtime)
 }

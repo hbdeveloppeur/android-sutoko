@@ -11,7 +11,8 @@ import com.purpletear.aiconversation.domain.model.Style
 
 @Database(
     entities = [Style::class, Media::class],
-    version = 21
+    version = 21,
+    exportSchema = false,
 )
 @TypeConverters(AiCharacterConverter::class)
 abstract class AiConversationDatabase : RoomDatabase() {

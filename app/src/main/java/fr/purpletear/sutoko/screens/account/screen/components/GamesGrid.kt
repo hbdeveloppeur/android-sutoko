@@ -39,20 +39,17 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
-import com.purpletear.sutoko.game.model.Game
-import com.purpletear.sutoko.game.model.isPremium
+import com.purpletear.game.presentation.model.GameItem
 import fr.purpletear.sutoko.R
-import fr.purpletear.sutoko.screens.account.screen.components.viewmodels.CardViewModel
-import fr.purpletear.sutoko.screens.account.screen.model.GameWithOwnership
+import com.purpletear.sutoko.shop.R as ShopR
 
 
 const val GamesGridTag = "GamesGridTag"
 
 @Composable
-fun GamesGrid(list: List<GameWithOwnership>, onTap: (Game) -> Unit) {
+fun GamesGrid(list: List<GameItem>, onTap: (GameItem) -> Unit) {
     Surface(modifier = Modifier.background(Color(0xFF1A1A1A))) {
         Column(
             modifier = Modifier
@@ -91,8 +88,8 @@ fun GamesGrid(list: List<GameWithOwnership>, onTap: (Game) -> Unit) {
                     CardView(
                         modifier = Modifier
                             .padding(8.dp)
-                            .alpha(if (list[index].isPossessed) 1f else 0.4f),
-                        card = list[index].card,
+                            .alpha(if (list[index].isPurchased) 1f else 0.4f),
+                        card = list[index],
                         onTap = onTap,
                     )
                 }
@@ -104,10 +101,9 @@ fun GamesGrid(list: List<GameWithOwnership>, onTap: (Game) -> Unit) {
 @Composable
 private fun CardView(
     modifier: Modifier = Modifier,
-    card: Game,
-    onTap: (Game) -> Unit,
+    card: GameItem,
+    onTap: (GameItem) -> Unit,
     icon: Int? = null,
-    viewModel: CardViewModel = hiltViewModel()
 ) {
     Box(
         modifier = modifier.clickable(
@@ -128,7 +124,7 @@ private fun CardView(
                 AsyncImage(
                     modifier = Modifier.matchParentSize(),
                     model = ImageRequest.Builder(LocalContext.current)
-                        .data(viewModel.getImageSquareLogo(game = card))
+                        .data(card.logoUrl)
                         .crossfade(true)
                         .build(),
                     contentDescription = null,
@@ -153,7 +149,7 @@ private fun CardView(
 
             Text(
                 modifier = Modifier.padding(top = 12.dp),
-                text = card.metadata.title,
+                text = card.title,
                 maxLines = 1,
                 textAlign = TextAlign.Center,
                 color = Color.White,
@@ -162,25 +158,24 @@ private fun CardView(
                 fontFamily = FontFamily(Font(R.font.font_poppins_semibold, FontWeight.SemiBold))
             )
             Row {
-                val chaptersCount = stringResource(
-                    id = R.string.sutoko_index_chapter_plural,
-                    card.cachedChaptersCount
-                )
-                val text: String =
-                    if (card.isPremium()) "${card.price}" else chaptersCount
-                Text(
-                    text = text,
-                    textAlign = TextAlign.Center,
-                    fontSize = 9.sp,
-                    color = Color.White,
-                    fontFamily = FontFamily(Font(R.font.font_poppins_regular, FontWeight.Normal))
-                )
-                if (card.isPremium()) {
+                if (!card.isFree) {
+                    Text(
+                        text = "960",
+                        textAlign = TextAlign.Center,
+                        fontSize = 9.sp,
+                        color = Color.White,
+                        fontFamily = FontFamily(
+                            Font(
+                                R.font.font_poppins_regular,
+                                FontWeight.Normal
+                            )
+                        )
+                    )
                     Image(
                         modifier = Modifier
                             .size(14.dp)
                             .padding(start = 4.dp),
-                        painter = painterResource(id = fr.purpletear.sutoko.shop.presentation.R.drawable.sutoko_item_coin),
+                        painter = painterResource(id = ShopR.drawable.sutoko_shop_item_coins),
                         contentDescription = null
                     )
                 }

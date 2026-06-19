@@ -1,6 +1,0 @@
-package com.purpletear.shop.data.exception
-
-open class InsufficientFundsException(
-    message: String? = null,
-    cause: Throwable? = null
-) : ShopApiException(message, cause)

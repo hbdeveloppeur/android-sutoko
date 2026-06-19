@@ -1,9 +1,12 @@
 package com.purpletear.aiconversation.presentation.component.buy_tokens_dialog.events
 
-import com.purpletear.shop.domain.model.AiMessagePack
+import com.purpletear.aiconversation.domain.model.AiMessagePack
+import androidx.annotation.Keep
+
 
 sealed interface BuyDialogEvent {
 
+    @Keep
     data class OnClickMessagePack(val pack: AiMessagePack) : BuyDialogEvent
 
     data object OnClickBuy : BuyDialogEvent
@@ -11,6 +14,7 @@ sealed interface BuyDialogEvent {
     data object OnDismissBuyDialog : BuyDialogEvent
 
     data object OnClickLogin : BuyDialogEvent
+    @Keep
     data class OnUserLoggedIn(val isSuccess: Boolean) : BuyDialogEvent
 
     data object OnClickShop : BuyDialogEvent

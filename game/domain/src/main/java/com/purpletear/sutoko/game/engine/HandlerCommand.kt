@@ -1,5 +1,7 @@
 package com.purpletear.sutoko.game.engine
 
+import androidx.annotation.Keep
+
 /**
  * Commands returned by NodeHandlers that the GameEngine executes.
  *
@@ -19,6 +21,7 @@ sealed class HandlerCommand {
      * Emit an effect immediately. The engine applies this effect
      * synchronously before proceeding to the next command.
      */
+    @Keep
     data class Emit(val effect: HandlerEffect) : HandlerCommand()
 
     /**
@@ -27,6 +30,7 @@ sealed class HandlerCommand {
      *
      * @param millis Duration in milliseconds. Must be >= 0.
      */
+    @Keep
     data class Delay(val millis: Long) : HandlerCommand() {
         init {
             require(millis >= 0) { "Delay must be non-negative, was $millis" }
@@ -39,5 +43,6 @@ sealed class HandlerCommand {
      *
      * @param choices Available choices for the player
      */
+    @Keep
     data class AwaitInput(val choices: List<HandlerEffect.ShowChoices.Choice>) : HandlerCommand()
 }

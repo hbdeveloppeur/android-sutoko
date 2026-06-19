@@ -2,7 +2,7 @@ package com.purpletear.game.data.remote.dto
 
 import androidx.annotation.Keep
 import com.google.gson.annotations.SerializedName
-import com.purpletear.sutoko.game.model.Game
+import com.purpletear.game.data.local.entity.GameCatalogEntity
 
 /**
  * Data Transfer Object for Game.
@@ -25,35 +25,33 @@ data class GameDto(
     @SerializedName("metadata") val metadata: GameMetadataDto,
     @SerializedName("author") val author: AuthorDto?,
     @SerializedName("legacyId") val legacyId: Int?,
+    @SerializedName("official") val official: Boolean?,
 )
 
 /**
  * Extension function to convert GameDto to Game domain model.
  */
-fun GameDto.toDomain(): Game {
-    return Game(
+fun GameDto.toDomain(): GameCatalogEntity {
+    return GameCatalogEntity(
         id = id,
         version = version,
-        interactionCount = interactionCount,
-        downloadCount = downloadCount,
         isCertified = isCertified,
-        status = status,
-        createdAt = createdAt,
         price = price,
         skuIdentifiers = skuIdentifiers,
         videoUrl = videoUrl,
-        cachedChaptersCount = cachedChaptersCount,
-        bannerAsset = bannerAsset?.toDomain(),
-        logoAsset = logoAsset?.toDomain(),
+        chaptersCount = cachedChaptersCount,
+        banner = bannerAsset?.toDomain(),
+        logo = logoAsset?.toDomain(),
         metadata = metadata.toDomain(),
         author = author?.toDomain(),
         legacyId = legacyId,
+        isOfficial = official ?: false,
     )
 }
 
 /**
  * Extension function to convert a list of GameDto to a list of Game domain models.
  */
-fun List<GameDto>.toDomain(): List<Game> {
+fun List<GameDto>.toDomain(): List<GameCatalogEntity> {
     return map { it.toDomain() }
 }

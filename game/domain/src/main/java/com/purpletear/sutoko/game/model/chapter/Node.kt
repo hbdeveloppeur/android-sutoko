@@ -76,13 +76,6 @@ sealed class Node {
     ) : Node()
 
     @Keep
-    data class Signal(
-        override val id: String,
-        val action: String,
-        val payload: Map<String, String> = emptyMap()
-    ) : Node()
-
-    @Keep
     data class Background(
         override val id: String,
         val imageUrl: String

@@ -27,13 +27,6 @@ android {
         versionName "Your Turn"
         vectorDrawables.useSupportLibrary true
         resourceConfigurations += ['fr', 'es', 'es-rES', 'en', 'de']
-        // externalNativeBuild {
-        //     // For ndk-build, instead use the ndkBuild block.
-        //     cmake {
-        //         // Passes optional arguments to CMake.
-        //         arguments "-DANDROID_SUPPORT_FLEXIBLE_PAGE_SIZES=ON"
-        //     }
-        // }
     }
 
     signingConfigs {
@@ -129,17 +122,14 @@ dependencies {
     // implementation 'androidx.compose.ui:ui-graphics'
     implementation project(path: ':alert:alert_presentation')
     implementation project(path: ':popup:domain')
-    implementation project(':in-app-purchase:data')
-    implementation project(':in-app-purchase:domain')
+    implementation project(':platform:play')
+    implementation project(':purchase')
     implementation project(':ai-conversation:domain')
     implementation project(':ai-conversation:presentation')
     implementation project(':ai-conversation:data')
     implementation project(':ai-conversation:core')
-    implementation project(':shop:presentation')
-    implementation project(':shop:domain')
-    implementation project(':shop:data')
-    implementation project(':user:domain')
-    implementation project(':user:data')
+    implementation project(':auth')
+    implementation project(':auth')
     implementation project(':core:presentation')
     implementation project(':popup:data')
     implementation project(':Framework')
@@ -147,9 +137,11 @@ dependencies {
     implementation project(':game:domain')
     implementation project(':game:data')
     implementation project(':game:presentation')
-    implementation project(':version:presentation')
     implementation project(':core:presentation')
+    implementation project(':core:android')
     implementation project(':ntfy')
+    implementation project(':auth')
+    implementation project(':shop')
 
     // DESUGARING
     coreLibraryDesugaring "com.android.tools:desugar_jdk_libs:$desugar_jdk_libs_version"
@@ -235,7 +227,6 @@ dependencies {
 
 
     implementation libs.prdownloader
-    implementation libs.billing
     implementation libs.androidx.ktx
 
     implementation libs.androidx.media3.ui

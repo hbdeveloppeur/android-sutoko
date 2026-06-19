@@ -1,5 +1,7 @@
 package fr.purpletear.sutoko.screens.main.presentation.screens
 
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -16,8 +18,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -34,17 +34,20 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import fr.purpletear.sutoko.R
 import fr.purpletear.sutoko.screens.create.CreatePageComposable
-import fr.purpletear.sutoko.screens.fadeComposable
 import fr.purpletear.sutoko.screens.main.presentation.HomeScreenViewModel
 import fr.purpletear.sutoko.screens.main.presentation.MainEvents
 import fr.purpletear.sutoko.screens.main.presentation.screens.components.navigation.BottomNavItem
 import fr.purpletear.sutoko.screens.main.presentation.screens.home.HomeScreen
-import kotlinx.coroutines.delay
 
 @Composable
 fun MainScreen(
     viewModel: HomeScreenViewModel,
     mainNavController: NavController,
+    onAccountPressed: () -> Unit,
+    onOptionsPressed: () -> Unit,
+    onCoinsPressed: () -> Unit,
+    onDiamondsPressed: () -> Unit,
+    onGamePressed: (String) -> Unit,
     size: WindowWidthSizeClass
 ) {
 
@@ -86,16 +89,38 @@ fun MainScreen(
                     .navigationBarsPadding()
                     .then(Modifier.align(alignment = Alignment.Center))
             ) {
-                composable(BottomNavItem.Home.route) {
+                composable(
+                    route = BottomNavItem.Home.route,
+                    enterTransition = { EnterTransition.None },
+                    exitTransition = { ExitTransition.None },
+                    popEnterTransition = { EnterTransition.None },
+                    popExitTransition = { ExitTransition.None }
+                ) {
                     HomeScreen(
                         mainNavController = mainNavController,
+                        onAccountPressed = onAccountPressed,
+                        onOptionsPressed = onOptionsPressed,
+                        onCoinsPressed = onCoinsPressed,
+                        onDiamondsPressed = onDiamondsPressed,
                         viewModel = viewModel
                     )
                 }
 
-                fadeComposable(BottomNavItem.Create.route) {
+                composable(
+                    route = BottomNavItem.Create.route,
+                    enterTransition = { EnterTransition.None },
+                    exitTransition = { ExitTransition.None },
+                    popEnterTransition = { EnterTransition.None },
+                    popExitTransition = { ExitTransition.None }
+                ) {
                     CreatePageComposable(
-
+                        onAccountPressed = onAccountPressed,
+                        onOptionsPressed = onOptionsPressed,
+                        onCoinsPressed = onCoinsPressed,
+                        onDiamondsPressed = onDiamondsPressed,
+                        onGamePressed = { game ->
+                            onGamePressed(game.id)
+                        }
                     )
                 }
             }
@@ -106,15 +131,6 @@ fun MainScreen(
                     viewModel.onEvent(MainEvents.TapShop)
                 }
             )
-
-            val displayFilter = remember {
-                mutableStateOf(true)
-            }
-
-            LaunchedEffect(true) {
-                delay(1280)
-                displayFilter.value = false
-            }
 
         }
 

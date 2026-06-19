@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material3.CircularProgressIndicator
@@ -40,17 +41,18 @@ import com.purpletear.sutoko.game.model.GameSessionState
 
 internal fun NavGraphBuilder.descriptionScreen(
     viewModel: GameSessionViewModel,
-    onContinue: () -> Unit,
+    onContinue: (String) -> Unit,
 ) = composable(
     route = SmsGameRoutes.DESCRIPTION,
 ) {
     val state by viewModel.sessionState.collectAsStateWithLifecycle()
+    val showRestartDialog by viewModel.showRestartDialog.collectAsStateWithLifecycle()
 
     ChapterDescriptionRoute(
         state = state,
         onContinue = onContinue,
         onRestart = viewModel::onRestartPressed,
-        showRestartDialog = viewModel.showRestartDialog.value,
+        showRestartDialog = showRestartDialog,
         onRestartDialogConfirm = viewModel::onRestartDialogConfirm,
         onRestartDialogDismiss = viewModel::onRestartDialogDismiss,
     )
@@ -59,7 +61,7 @@ internal fun NavGraphBuilder.descriptionScreen(
 @Composable
 private fun ChapterDescriptionRoute(
     state: GameSessionState,
-    onContinue: () -> Unit,
+    onContinue: (String) -> Unit,
     onRestart: () -> Unit,
     showRestartDialog: Boolean,
     onRestartDialogConfirm: () -> Unit,
@@ -68,7 +70,7 @@ private fun ChapterDescriptionRoute(
     when (state) {
         is GameSessionState.Ready -> ChapterDescriptionContent(
             chapter = state.chapter,
-            onContinue = onContinue,
+            onContinue = { onContinue(state.chapter.normalizedCode) },
             onRestart = onRestart,
             showRestartDialog = showRestartDialog,
             onRestartDialogConfirm = onRestartDialogConfirm,
@@ -77,9 +79,11 @@ private fun ChapterDescriptionRoute(
 
         is GameSessionState.Error -> Box(
             Modifier
-                .fillMaxSize()
-                .background(Color.Red)
-        )
+                .fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(text = "Error: ${state.message}", color = Color.White)
+        }
 
         else -> {}
     }
@@ -118,12 +122,13 @@ internal fun ChapterDescriptionContent(
     Box(
         Modifier
             .fillMaxSize()
-            .background(Color.Black),
+            .background(Color.Black)
+            .padding(horizontal = 12.dp),
         contentAlignment = Alignment.Center
     ) {
         Background()
         Column(
-            modifier = Modifier.widthIn(max = 400.dp),
+            modifier = Modifier.widthIn(max = 360.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {

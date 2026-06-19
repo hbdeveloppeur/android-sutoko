@@ -66,7 +66,6 @@ class GameEngine @Inject constructor(
      */
     suspend fun initialize(gameId: String, graph: ChapterGraph) {
 
-        // TODO : weirdo - it must reset when chapter changes, right?
         if (currentGameId != null && currentGameId != gameId) {
             reset()
         }
@@ -132,6 +131,8 @@ class GameEngine @Inject constructor(
      * Returns null if preparation fails (error state already set).
      */
     private fun prepareExecutionContext(nodeId: String): ExecutionContext? {
+        assert(nodeId.isNotBlank())
+
         val graph = currentGraph ?: run {
             _state.value = GameEngineState.Error("Engine not initialized - call initialize() first")
             return null
@@ -272,6 +273,10 @@ class GameEngine @Inject constructor(
         currentNode: Node,
         explicitNextNodeId: String?
     ) {
+        explicitNextNodeId?.let {
+            assert(it.isNotBlank())
+        }
+
         val graph = checkNotNull(currentGraph) {
             "Precondition violation: currentGraph is null during navigation"
         }
@@ -308,7 +313,6 @@ class GameEngine @Inject constructor(
         is Node.Memory -> handlerFactory.getHandler(NodeType.MEMORY)
         is Node.Info -> handlerFactory.getHandler(NodeType.INFO)
         is Node.Trophy -> handlerFactory.getHandler(NodeType.TROPHY)
-        is Node.Signal -> handlerFactory.getHandler(NodeType.SIGNAL)
         is Node.Background -> handlerFactory.getHandler(NodeType.BACKGROUND)
         is Node.ConversationModeChange -> handlerFactory.getHandler(NodeType.CONVERSATION_MODE_CHANGE)
         is Node.Scene -> handlerFactory.getHandler(NodeType.SCENE)

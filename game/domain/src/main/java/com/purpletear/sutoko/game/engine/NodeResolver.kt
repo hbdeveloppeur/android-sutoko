@@ -3,6 +3,7 @@ package com.purpletear.sutoko.game.engine
 import com.purpletear.sutoko.game.model.chapter.ChapterGraph
 import com.purpletear.sutoko.game.model.chapter.Node
 import javax.inject.Inject
+import androidx.annotation.Keep
 
 /**
  * Handles all node navigation logic.
@@ -11,8 +12,10 @@ import javax.inject.Inject
 class NodeResolver @Inject constructor() {
 
     sealed class ResolutionResult {
+        @Keep
         data class NextNode(val nodeId: String) : ResolutionResult()
         data object NodeNextChapter : ResolutionResult()
+        @Keep
         data class Error(val message: String) : ResolutionResult()
     }
 
@@ -21,7 +24,6 @@ class NodeResolver @Inject constructor() {
         currentNode: Node,
         forceNodId: String?
     ): ResolutionResult {
-        // Handler explicitly returned next node
         if (forceNodId != null) {
             return ResolutionResult.NextNode(forceNodId)
         }
@@ -37,7 +39,11 @@ class NodeResolver @Inject constructor() {
         return when {
             // TODO: when empty, throw. Bad state
             nextEdges.isEmpty() -> ResolutionResult.NodeNextChapter
-            else -> ResolutionResult.NextNode(nextEdges.first().target)
+            else -> {
+                val target = nextEdges.first().target
+                assert(target.isNotBlank())
+                ResolutionResult.NextNode(target)
+            }
         }
     }
 

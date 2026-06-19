@@ -7,6 +7,7 @@ import androidx.compose.ui.res.stringResource
 
 @Keep
 sealed class UiText {
+    @Keep
     data class DynamicText(val text: String) : UiText()
     class StringResource(
         @StringRes val id: Int,

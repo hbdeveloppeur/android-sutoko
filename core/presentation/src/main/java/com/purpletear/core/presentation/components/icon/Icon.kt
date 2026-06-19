@@ -13,8 +13,10 @@ import androidx.compose.ui.res.painterResource
 import com.airbnb.lottie.compose.LottieAnimation
 import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.rememberLottieComposition
+import androidx.annotation.Keep
 
 sealed class Icon(open val offsetX: Int = 0, open val offsetY: Int = 0) {
+    @Keep
     data class Image(
         @DrawableRes val drawableId: Int,
         override val offsetX: Int = 0,
@@ -23,6 +25,7 @@ sealed class Icon(open val offsetX: Int = 0, open val offsetY: Int = 0) {
         val scaleY: Float = 1f,
     ) : Icon(offsetX, offsetY)
 
+    @Keep
     data class LottieAnimation(
         @RawRes val drawableId: Int,
         override val offsetX: Int = 0,

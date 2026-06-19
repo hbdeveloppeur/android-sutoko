@@ -27,10 +27,10 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.compose.LocalLifecycleOwner
-import androidx.lifecycle.repeatOnLifecycle
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.purpletear.core.presentation.util.openAppInStore
 import com.purpletear.game.presentation.R
 import com.purpletear.game.presentation.game_preview.components.GamePreviewAnimatedGameTitle
@@ -40,10 +40,10 @@ import com.purpletear.game.presentation.game_preview.components.GamePreviewDescr
 import com.purpletear.game.presentation.game_preview.components.GamePreviewLabel
 import com.purpletear.game.presentation.game_preview.components.GamePreviewUnavailable
 import com.purpletear.game.presentation.game_preview.components.GamePreviewUnlockAnimation
+import com.purpletear.game.presentation.game_preview.events.GamePreviewEvent
+import com.purpletear.game.presentation.model.GameItem
 import com.purpletear.sutoko.alert.presentation.SimpleAlertDialog
-import com.purpletear.sutoko.game.model.Chapter
-import com.purpletear.sutoko.game.model.Game
-import com.purpletear.sutoko.game.model.isPremium
+import com.purpletear.sutoko.game.model.game.GameCatalog
 import kotlinx.coroutines.delay
 
 /**
@@ -52,57 +52,21 @@ import kotlinx.coroutines.delay
 @Composable
 fun GamePreview(
     modifier: Modifier = Modifier,
+    viewModel: GamePreviewViewModel,
     onNavigateToGame: (String, Boolean) -> Unit = { _, _ -> },
-    onBuyGame: (Game) -> Unit = {},
-    onOpenChapters: (Game, List<Chapter>) -> Unit,
+    onBuyGame: (GameCatalog) -> Unit = {},
     onOpenShop: () -> Unit = {},
-    onGameDeleted: () -> Unit = {},
-    viewModel: GamePreviewViewModel = hiltViewModel()
 ) {
     // Get the game from the ViewModel
-    val game: Game? = viewModel.game.value
-    val currentChapter = viewModel.currentChapter.collectAsState()
-    val isGameBought = viewModel.isGameBought
-    val isUserPremium = viewModel.isUserPremium
+    val state by viewModel.game.collectAsStateWithLifecycle()
+    val gameItem: GameItem? = (state as? GamePreviewUiState.Data)?.item
+
+    val currentChapter by viewModel.currentChapter.collectAsStateWithLifecycle()
+    val isUserPremium by viewModel.isUserPremium.collectAsStateWithLifecycle()
 
     val lifecycleOwner = LocalLifecycleOwner.current
-    val lifecycleState by lifecycleOwner.lifecycle.currentStateFlow.collectAsState()
 
-
-    // Call onResume when the screen is resumed
-    LaunchedEffect(lifecycleOwner) {
-        lifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.RESUMED) {
-            viewModel.onResume()
-        }
-    }
-
-
-    // Show header only after the navigation enter animation has finished (760ms)
-    var showVideo by remember { mutableStateOf(false) }
-    // Enter: delay to show header after navigation animation
-    LaunchedEffect(Unit) {
-        delay(720)
-        showVideo = true
-    }
-    // Exit: hide header as soon as screen is not RESUMED (start of exit transition)
-    LaunchedEffect(lifecycleState) {
-        if (lifecycleState != Lifecycle.State.RESUMED) {
-            showVideo = false
-        } else {
-            // When returning to this screen (RESUMED), show the video again after the enter delay
-            delay(720)
-            showVideo = true
-        }
-    }
-
-
-    // Call stopMenuSound when the composable is disposed (navigation changes or composable is closed)
-    DisposableEffect(Unit) {
-        onDispose {
-            // Ensure background video stops immediately before leaving the page
-            showVideo = false
-        }
-    }
+    val showVideo = rememberShowVideoAfterNavigation(lifecycleOwner)
 
     Surface(
         modifier = modifier
@@ -113,18 +77,17 @@ fun GamePreview(
                 .fillMaxSize()
                 .background(Color.Black)
         ) {
-            // Use the new GameBackgroundPreviewMedia component
-            game?.let { game ->
-                if (showVideo && game.videoUrl != null) {
+            // Background media: image always, video only after navigation animation
+            when (val currentState = state) {
+                is GamePreviewUiState.Data -> {
                     GameBackgroundPreviewMedia(
-                        game = game,
+                        imageUrl = currentState.item.imageUrl,
+                        videoUrl = currentState.item.videoUrl?.takeIf { showVideo },
                         modifier = Modifier.fillMaxSize()
                     )
-                } else if (game.videoUrl == null) {
-                    GameBackgroundPreviewMedia(
-                        game = game,
-                        modifier = Modifier.fillMaxSize()
-                    )
+                }
+
+                else -> { /* Black background from parent Box */
                 }
             }
 
@@ -138,74 +101,53 @@ fun GamePreview(
                 screenHeight = screenHeight
             )
 
-            val unlockEventFlow = viewModel.gameBoughtEvents
             val animationDuration = 5250L
-            var isVisible by remember { mutableStateOf(false) }
+            var unlockAnimationIsVisible by remember { mutableStateOf(false) }
+            val context = LocalContext.current
 
-            LaunchedEffect(unlockEventFlow) {
-                unlockEventFlow.collect {
-                    isVisible = true
-                    delay(animationDuration)
-                    isVisible = false
-                }
-            }
+            LaunchedEffect(Unit) {
+                viewModel.events.collect { event ->
+                    when (event) {
+                        GamePreviewEvent.PurchaseSuccess -> {
+                            unlockAnimationIsVisible = true
+                            delay(animationDuration)
+                            unlockAnimationIsVisible = false
+                        }
 
-            // Collect play game events
-            val playGameEventFlow = viewModel.playGameEvents
-            LaunchedEffect(playGameEventFlow) {
-                playGameEventFlow.collect {
-                    viewModel.game.value?.id?.let { gameId ->
-                        onNavigateToGame(gameId, viewModel.isGameBought.value)
+                        GamePreviewEvent.OpenShop -> {
+                            onOpenShop()
+                        }
+
+                        GamePreviewEvent.OpenAppStore -> {
+                            context.openAppInStore()
+                        }
+
+                        is GamePreviewEvent.PlayGame -> {
+                            onNavigateToGame(event.gameId, event.isPurchased)
+                        }
+
+                        is GamePreviewEvent.OnBuyGameClicked -> {
+                            onBuyGame(event.gameCatalog)
+                        }
+
+                        else -> {
+
+                        }
                     }
                 }
             }
 
-            // Collect buy game events
-            val buyGameEventFlow = viewModel.buyGameEvents
-            LaunchedEffect(buyGameEventFlow) {
-                buyGameEventFlow.collect { game ->
-                    onBuyGame(game)
-                }
-            }
+            GamePreviewUnlockAnimation(isVisible = unlockAnimationIsVisible)
 
-            // Collect open chapters events
-            val openChaptersEventFlow = viewModel.openChaptersEvents
-            LaunchedEffect(openChaptersEventFlow) {
-                openChaptersEventFlow.collect { (game, chapters) ->
-                    onOpenChapters(game, chapters)
-                }
-            }
+            var showRestartDialog by remember { mutableStateOf(false) }
 
-            // Collect open shop events
-            val openShopEventFlow = viewModel.openShopEvents
-            LaunchedEffect(openShopEventFlow) {
-                openShopEventFlow.collect {
-                    onOpenShop()
-                }
-            }
-
-            // Collect game deleted events
-            val gameDeletedEventFlow = viewModel.gameDeletedEvents
-            LaunchedEffect(gameDeletedEventFlow) {
-                gameDeletedEventFlow.collect {
-                    onGameDeleted()
-                }
-            }
-
-            // Collect open store events
-            val context = LocalContext.current
-            LaunchedEffect(viewModel.openStoreEvents) {
-                viewModel.openStoreEvents.collect {
-                    context.openAppInStore()
-                }
-            }
-
-            GamePreviewUnlockAnimation(isVisible = isVisible)
-
-            if (viewModel.showRestartDialog.value) {
+            if (showRestartDialog) {
                 SimpleAlertDialog(
-                    onDismissRequest = { viewModel.onRestartDialogDismiss() },
-                    onConfirmation = { viewModel.onRestartDialogConfirm() },
+                    onDismissRequest = { showRestartDialog = false },
+                    onConfirmation = {
+                        showRestartDialog = false
+                        // TODO: trigger restart when ready
+                    },
                     dialogTitle = stringResource(R.string.game_restart_confirm_title),
                     dialogText = stringResource(R.string.game_restart_confirm_description),
                     confirmButtonText = stringResource(R.string.game_restart_confirm_button),
@@ -221,11 +163,11 @@ fun GamePreview(
                 verticalArrangement = Arrangement.spacedBy(26.dp)
 
             ) {
-                game?.let { game ->
+                gameItem?.let { game ->
                     GamePreviewAnimatedGameTitle(
                         modifier = Modifier
                             .align(Alignment.CenterHorizontally),
-                        title = game.metadata.title,
+                        title = game.title,
                     )
                 }
 
@@ -235,7 +177,7 @@ fun GamePreview(
                 Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
 
                     // Display the current chapter title if available, otherwise show a default
-                    currentChapter.value?.let { chapter ->
+                    currentChapter?.let { chapter ->
                         GamePreviewChapterTitle(
                             text = stringResource(
                                 R.string.game_preview_chapter_title,
@@ -247,10 +189,11 @@ fun GamePreview(
                         GamePreviewChapterTitle(text = stringResource(R.string.game_preview_loading_chapter))
                     }
 
-                    if (currentChapter.value != null && !currentChapter.value!!.isAvailable) {
-                        GamePreviewUnavailable(chapter = currentChapter.value!!)
-                    } else if (game != null) {
-                        GamePreviewCategories(game = game)
+                    val unavailableChapter = currentChapter?.takeIf { !it.isAvailable }
+                    if (unavailableChapter != null) {
+                        GamePreviewUnavailable(chapter = unavailableChapter)
+                    } else if (gameItem != null) {
+                        GamePreviewCategories()
                     }
                 }
 
@@ -258,9 +201,11 @@ fun GamePreview(
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
 
-                    if (null != game && game.isPremium()) {
+                    if (null != gameItem) {
                         GamePreviewLabel(
-                            text = stringResource(R.string.game_preview_premium),
+                            text = stringResource(
+                                if (gameItem.isFree) R.string.game_preview_free else R.string.game_preview_premium
+                            ),
                             borderColor = Background.Gradient(
                                 colors = listOf(
                                     Color(0xFFFECF00),
@@ -269,21 +214,9 @@ fun GamePreview(
                                 )
                             )
                         )
-                    } else if (null != game) {
-                        GamePreviewLabel(
-                            text = stringResource(R.string.game_preview_free),
-                            borderColor = Background.Gradient(
-                                colors = listOf(
-                                    Color(0xFFFFFFFF),
-                                    Color(0xFFFFFFFF),
-                                    Color(0xFFFFFFFF),
-                                )
-                            )
-                        )
                     }
 
-
-                    if (isUserPremium.value) {
+                    if (isUserPremium) {
                         GamePreviewLabel(
                             text = stringResource(R.string.game_preview_premium_active),
                             borderColor = Background.Gradient(
@@ -296,7 +229,7 @@ fun GamePreview(
                         )
                     }
 
-                    if (isGameBought.value) {
+                    if (true == gameItem?.isPurchased) {
                         GamePreviewLabel(
                             text = stringResource(R.string.game_preview_unlocked),
                             textColor = Color(0xFFADFFA1),
@@ -312,8 +245,8 @@ fun GamePreview(
                 }
 
                 GamePreviewDescription(
-                    avatarUrl = viewModel.gameSquareLogoUrl.value ?: "",
-                    description = game?.metadata?.description ?: "",
+                    avatarUrl = gameItem?.logoUrl ?: "",
+                    description = gameItem?.description ?: "",
                 )
 
                 val buttonsState = viewModel.gameButtonsState
@@ -356,4 +289,43 @@ private fun Gradients(
                 .align(Alignment.TopCenter)
         )
     }
+}
+
+
+private const val NAVIGATION_ENTER_DELAY_MS = 720L
+
+/**
+ * Tracks whether background video should be shown.
+ *
+ * Delays showing the video until the navigation enter animation has finished,
+ * hides it while the screen is not RESUMED, and ensures it stops on dispose.
+ */
+@Composable
+private fun rememberShowVideoAfterNavigation(lifecycleOwner: LifecycleOwner): Boolean {
+    var showVideo by remember { mutableStateOf(false) }
+
+    // Enter: delay to show video after navigation animation
+    LaunchedEffect(Unit) {
+        delay(NAVIGATION_ENTER_DELAY_MS)
+        showVideo = true
+    }
+
+    // Exit: hide video as soon as screen is not RESUMED
+    val lifecycleState by lifecycleOwner.lifecycle.currentStateFlow.collectAsState()
+    LaunchedEffect(lifecycleState) {
+        if (lifecycleState != Lifecycle.State.RESUMED) {
+            showVideo = false
+        } else {
+            delay(NAVIGATION_ENTER_DELAY_MS)
+            showVideo = true
+        }
+    }
+
+    DisposableEffect(Unit) {
+        onDispose {
+            showVideo = false
+        }
+    }
+
+    return showVideo
 }

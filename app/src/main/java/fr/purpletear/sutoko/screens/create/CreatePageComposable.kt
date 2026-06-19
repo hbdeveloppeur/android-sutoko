@@ -1,51 +1,33 @@
 package fr.purpletear.sutoko.screens.create
 
-import android.util.Log
-import androidx.compose.animation.core.animateIntAsState
-import androidx.compose.animation.core.spring
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.pullrefresh.PullRefreshIndicator
 import androidx.compose.material.pullrefresh.pullRefresh
 import androidx.compose.material.pullrefresh.rememberPullRefreshState
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalFocusManager
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.purpletear.core.presentation.extensions.Resource
-import com.purpletear.game.presentation.common.states.GameState
-import com.purpletear.game.presentation.game_catalog.GameCardCompact
-import com.purpletear.game.presentation.game_catalog.GameCoverCompact
-import com.purpletear.game.presentation.game_preview.components.GamePreviewModal
-import com.purpletear.sutoko.game.model.Game
-import com.purpletear.sutoko.game.model.getFullUrl
-import com.purpletear.sutoko.game.model.getThumbnailUrl
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.purpletear.game.data.local.entity.GameCatalogEntity
 import fr.purpletear.sutoko.R
 import fr.purpletear.sutoko.screens.create.components.create_story_button.CreateStoryButton
 import fr.purpletear.sutoko.screens.create.components.create_story_button.CreateStoryButtonVariant
@@ -54,76 +36,27 @@ import fr.purpletear.sutoko.screens.create.components.search_box.SearchBox
 import fr.purpletear.sutoko.screens.create.components.section_title.SectionTitle
 import fr.purpletear.sutoko.screens.main.presentation.screens.TopNavigation
 
-private const val BACKGROUND_ALPHA = 0.15f
-private const val GRADIENT_TOP_ALPHA = 0.08f
-private const val GRADIENT_BOTTOM_ALPHA = 0.00001f
-
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 internal fun CreatePageComposable(
     modifier: Modifier = Modifier,
     viewModel: CreateViewModel = hiltViewModel(),
-    onAccountButtonPressed: () -> Unit = {},
-    onCoinsButtonPressed: () -> Unit = {},
-    onDiamondsButtonPressed: () -> Unit = {},
-    onOptionsButtonPressed: () -> Unit = {},
-    onGameClick: (Game) -> Unit = {},
+    onAccountPressed: () -> Unit = {},
+    onOptionsPressed: () -> Unit = {},
+    onCoinsPressed: () -> Unit = {},
+    onDiamondsPressed: () -> Unit = {},
+    onGamePressed: (GameCatalogEntity) -> Unit = {},
 ) {
     var isPreviewModalVisible by remember { mutableStateOf(false) }
     var selectedGameId by remember { mutableStateOf<String?>(null) }
 
+    val isRefreshing by remember { mutableStateOf(false) }
     val focusManager = LocalFocusManager.current
-    val balance by viewModel.balance
-    val userGames by viewModel.userGames
-    val isLoadingMore by viewModel.isLoadingMore
-    val hasMorePages by viewModel.hasMorePages
-    val isRefreshing by viewModel.isRefreshing
-
-    val targetCoins = when (balance) {
-        is Resource.Success -> {
-            (balance as Resource.Success).data?.coins
-                ?: viewModel.getCoins()
-        }
-
-        else -> viewModel.getCoins()
-    }
-
-    val targetDiamonds = when (balance) {
-        is Resource.Success -> {
-            (balance as Resource.Success).data?.diamonds
-                ?: viewModel.getDiamonds()
-        }
-
-        else -> viewModel.getDiamonds()
-    }
-
-    val coins by animateIntAsState(
-        targetValue = targetCoins,
-        animationSpec = spring(
-            dampingRatio = 0.8f,
-            stiffness = 200f
-        ),
-        label = "coins_animation"
-    )
-
-    val diamonds by animateIntAsState(
-        targetValue = targetDiamonds,
-        animationSpec = spring(
-            dampingRatio = 0.8f,
-            stiffness = 200f
-        ),
-        label = "diamonds_animation"
-    )
-
-    val isBalanceLoading = balance is Resource.Loading
-    val games = (userGames as? Resource.Success)?.data.orEmpty()
-    val featuredGames by viewModel.featuredGames
-    val isGamesLoading = userGames is Resource.Loading && !isRefreshing
-    val isSearching by viewModel.isSearching
+    val balance = viewModel.balance.collectAsStateWithLifecycle()
 
     val pullRefreshState = rememberPullRefreshState(
         refreshing = isRefreshing,
-        onRefresh = { viewModel.refreshUserGames() }
+        onRefresh = { }
     )
 
     Box(
@@ -131,8 +64,6 @@ internal fun CreatePageComposable(
             .fillMaxSize()
             .background(Color.Black.copy(.5f))
     ) {
-        Background()
-
         Box(
             modifier = Modifier
                 .fillMaxSize()
@@ -153,13 +84,11 @@ internal fun CreatePageComposable(
                         modifier = Modifier
                             .padding(horizontal = 16.dp)
                             .padding(start = 8.dp),
-                        coins = coins,
-                        diamonds = diamonds,
-                        isLoading = isBalanceLoading,
-                        onAccountButtonPressed = onAccountButtonPressed,
-                        onCoinsButtonPressed = onCoinsButtonPressed,
-                        onDiamondsButtonPressed = onDiamondsButtonPressed,
-                        onOptionsButtonPressed = onOptionsButtonPressed
+                        balance = balance.value,
+                        onAccountButtonPressed = onAccountPressed,
+                        onCoinsButtonPressed = onCoinsPressed,
+                        onDiamondsButtonPressed = onDiamondsPressed,
+                        onOptionsButtonPressed = onOptionsPressed,
                     )
                 }
 
@@ -168,24 +97,6 @@ internal fun CreatePageComposable(
                         text = stringResource(R.string.create_page_section_title_community),
                         modifier = Modifier.padding(top = 16.dp, bottom = 16.dp)
                     )
-                }
-
-                // Featured game cover (first game from original list, never changes during search)
-                item {
-                    val featuredGame = featuredGames.firstOrNull()
-                    featuredGame?.let { game ->
-                        GameCoverCompact(
-                            modifier = Modifier.padding(horizontal = 16.dp),
-                            coverUrl = game.bannerAsset.getFullUrl() ?: "",
-                            title = game.metadata.title,
-                            author = game.author?.displayName ?: "",
-                            thumbnailUrl = game.logoAsset.getThumbnailUrl() ?: "",
-                            onClick = {
-                                selectedGameId = game.id
-                                isPreviewModalVisible = true
-                            }
-                        )
-                    }
                 }
 
                 item {
@@ -205,70 +116,21 @@ internal fun CreatePageComposable(
                             .padding(horizontal = 16.dp)
                             .padding(top = 16.dp),
                         onSearch = { query ->
-                            viewModel.onSearchSubmit(query)
+                            // viewModel.onSearchSubmit(query)
                         },
                         onValueChange = { query ->
-                            viewModel.onSearchQueryChange(query)
+                            // viewModel.onSearchQueryChange(query)
                         }
                     )
                 }
 
-                // Loading state (initial load only)
-                if (isGamesLoading) {
-                    item {
-                        Box(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(vertical = 32.dp),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            CircularProgressIndicator(
-                                color = Color.White.copy(alpha = 0.7f)
-                            )
-                        }
-                    }
-                }
-
-                // Games list with reactive download and installation states
-                items(
-                    items = games,
-                    key = { it.id }
-                ) { game ->
-                    val gameState by viewModel.getGameState(game.id)
-                        .collectAsState(initial = GameState.Idle)
-
-                    GameCardCompact(
-                        modifier = Modifier
-                            .padding(top = 16.dp)
-                            .animateItem(),
-                        title = game.metadata.title,
-                        author = game.author?.displayName ?: "",
-                        imageUrl = game.logoAsset.getThumbnailUrl() ?: "",
-                        isAuthorCertified = game.author?.isCertified ?: false,
-                        gameState = gameState,
-                        onGetClick = { viewModel.downloadGame(game) },
-                        onOpenClick = {
-                            onGameClick(game)
-                        },
-                        onCancelClick = { viewModel.cancelDownload(game.id) },
-                        onClick = {
-                            selectedGameId = game.id
-                            isPreviewModalVisible = true
-                        }
+                item {
+                    LoadMoreButton(
+                        onClick = { },
+                        isLoading = false,
+                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 16.dp)
                     )
                 }
-
-                // Load more button (hidden when searching)
-                if ((hasMorePages || isLoadingMore) && !isSearching) {
-                    item {
-                        LoadMoreButton(
-                            onClick = { viewModel.loadMoreUserGames() },
-                            isLoading = isLoadingMore,
-                            modifier = Modifier.padding(horizontal = 16.dp, vertical = 16.dp)
-                        )
-                    }
-                }
-
                 // Bottom spacer for better scrolling experience
                 item {
                     Spacer(modifier = Modifier.height(24.dp))
@@ -283,7 +145,7 @@ internal fun CreatePageComposable(
                 contentColor = Color.White
             )
 
-            GamePreviewModal(
+            /*GamePreviewModal(
                 isVisible = isPreviewModalVisible,
                 onDismiss = {
                     Log.d("CreatePageComposable", "onDismiss called - hiding modal")
@@ -296,47 +158,16 @@ internal fun CreatePageComposable(
                         "CreatePageComposable",
                         "onPlayGame called with game=${game.id}"
                     )
-                    onGameClick(game)
+                    onGamePressed(game)
                 },
                 onGameDeleted = {
                     Log.d(
                         "CreatePageComposable",
                         "onGameDeleted called - refreshing games list"
                     )
-                    viewModel.refreshUserGames()
                 }
-            )
+            ) */
         }
     }
 }
 
-@Composable
-private fun Background() {
-    Box(
-        modifier = Modifier.fillMaxSize(),
-        contentAlignment = Alignment.TopCenter
-    ) {
-        Image(
-            painter = painterResource(R.drawable.book_details_background),
-            contentDescription = null,
-            contentScale = ContentScale.Crop,
-            modifier = Modifier
-                .fillMaxSize()
-                .alpha(BACKGROUND_ALPHA)
-        )
-
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(100.dp)
-                .background(
-                    brush = Brush.verticalGradient(
-                        colors = listOf(
-                            Color(0xFF4DB9EC).copy(alpha = GRADIENT_TOP_ALPHA),
-                            Color(0xFF4DB9EC).copy(alpha = GRADIENT_BOTTOM_ALPHA),
-                        )
-                    )
-                )
-        )
-    }
-}

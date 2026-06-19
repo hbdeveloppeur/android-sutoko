@@ -33,7 +33,8 @@ object ChapterGraphParser {
         gameId: String,
         pathProvider: GamePathProvider
     ): ChapterGraph {
-        val nodes = nodeDtos.mapNotNull { parseNode(it, gameId, pathProvider) }.associateBy { it.id }
+        val nodes =
+            nodeDtos.mapNotNull { parseNode(it, gameId, pathProvider) }.associateBy { it.id }
         val edges = edgeDtos.map { parseEdge(it) }
         val resolvedNodes = resolveConditionTargets(nodes, edges)
         val startNodeId = resolvedNodes.values.filterIsInstance<Node.Start>().firstOrNull()?.id
@@ -64,69 +65,88 @@ object ChapterGraphParser {
 
             "message" -> Node.Message(
                 id = dto.id,
-                text = data?.text ?: "",
+                text = requireNotNull(data?.text) { "message node ${dto.id} missing text" },
                 characterId = data?.characterId ?: -1,
                 waitMs = data?.wait ?: 0,
                 seenMs = data?.seen ?: 0,
                 isHesitating = data?.isHesitating ?: false
             )
 
-            "message-image" -> Node.MessageImage(
-                id = dto.id,
-                imageUrl = resolveImagePath(
-                    data?.storagePath ?: data?.image ?: "",
-                    gameId,
-                    pathProvider
-                ),
-                characterId = data?.characterId ?: -1,
-                waitMs = data?.wait ?: 0,
-                seenMs = data?.seen ?: 0
-            )
+            "message-image" -> {
+                val imagePath = data?.storagePath ?: data?.image
+                require(imagePath != null) { "message-image node ${dto.id} missing storagePath or image" }
+                Node.MessageImage(
+                    id = dto.id,
+                    imageUrl = resolveImagePath(imagePath, gameId, pathProvider),
+                    characterId = data?.characterId ?: -1,
+                    waitMs = data?.wait ?: 0,
+                    seenMs = data?.seen ?: 0
+                )
+            }
 
-            "chapter-change" -> Node.ChapterChange(
-                id = dto.id,
-                chapterCode = data?.chapterCode ?: ""
-            )
+            "chapter-change" -> {
+                val id = dto.id
+                val chapterCode = data?.chapterCode
+                require(id.isNotBlank()) { "chapter-change node missing id" }
+                require(!chapterCode.isNullOrBlank()) { "chapter-change node $id missing chapterCode" }
+                Node.ChapterChange(
+                    id = id,
+                    chapterCode = chapterCode
+                )
+            }
 
             "scene-node" -> Node.Scene(
                 id = dto.id,
-                sceneId = data?.sceneId ?: 0
+                sceneId = requireNotNull(data?.sceneId) { "scene-node ${dto.id} missing sceneId" }
             )
 
             "condition" -> Node.Condition(
                 id = dto.id,
-                expression = data?.expression ?: "",
-                trueTargetId = data?.trueTargetId ?: "",
-                falseTargetId = data?.falseTargetId ?: ""
+                expression = requireNotNull(data?.expression) { "condition node ${dto.id} missing expression" },
+                trueTargetId = requireNotNull(data?.trueTargetId) { "condition node ${dto.id} missing trueTargetId" },
+                falseTargetId = requireNotNull(data?.falseTargetId) { "condition node ${dto.id} missing falseTargetId" }
             )
 
-            "memory", "memory-save-node" -> Node.Memory(
-                id = dto.id,
-                key = data?.memory?.name ?: data?.key ?: "",
-                value = data?.memory?.value ?: data?.value ?: ""
-            )
+            "memory", "memory-save-node" -> {
+                val id = dto.id
+                val key = data?.memory?.name ?: data?.key
+                val value = data?.memory?.value ?: data?.value
+                require(id.isNotBlank()) { "memory node missing id" }
+                require(!key.isNullOrBlank()) { "memory node $id missing key" }
+                require(!value.isNullOrBlank()) { "memory node $id missing value" }
+                Node.Memory(
+                    id = id,
+                    key = key,
+                    value = value
+                )
+            }
 
-            "memory-condition-node" -> Node.Condition(
-                id = dto.id,
-                expression = "${data?.memory?.name ?: ""} == ${data?.expectedValue ?: ""}",
-                trueTargetId = "",
-                falseTargetId = ""
-            )
+            "memory-condition-node" -> {
+                val key = data?.memory?.name ?: data?.key
+                require(!key.isNullOrBlank()) { "memory-condition-node ${dto.id} missing key" }
+                val expectedValue =
+                    requireNotNull(data?.expectedValue) { "memory-condition-node ${dto.id} missing expectedValue" }
+                Node.Condition(
+                    id = dto.id,
+                    expression = "$key == $expectedValue",
+                    trueTargetId = requireNotNull(data?.trueTargetId) { "memory-condition-node ${dto.id} missing trueTargetId" },
+                    falseTargetId = requireNotNull(data?.falseTargetId) { "memory-condition-node ${dto.id} missing falseTargetId" }
+                )
+            }
 
-            "narration" -> Node.Info(
-                id = dto.id,
-                text = data?.text ?: ""
-            )
+            "narration" -> {
+                val id = dto.id
+                val text = data?.text
+                require(id.isNotBlank()) { "narration node missing id" }
+                require(!text.isNullOrBlank()) { "narration node $id missing text" }
+                Node.Info(
+                    id = id, text = text,
+                )
+            }
 
             "trophy" -> Node.Trophy(
                 id = dto.id,
-                trophyId = data?.trophyId ?: ""
-            )
-
-            "signal" -> Node.Signal(
-                id = dto.id,
-                action = data?.action ?: "",
-                payload = emptyMap()
+                trophyId = requireNotNull(data?.trophyId) { "trophy node ${dto.id} missing trophyId" }
             )
 
             "background" -> Node.Background(
@@ -138,25 +158,30 @@ object ChapterGraphParser {
                 id = dto.id
             )
 
-            "sound" -> Node.Sound(
-                id = dto.id,
-                soundUrl = resolveSoundPath(
-                    data?.storagePath ?: "",
-                    gameId,
-                    pathProvider
-                ),
-                loop = data?.isLooping ?: false
-            )
+            "sound" -> {
+                val storagePath =
+                    requireNotNull(data?.storagePath) { "sound node ${dto.id} missing storagePath" }
+                val id = dto.id
+                val loop = data.isLooping ?: false
+                Node.Sound(
+                    id = id,
+                    soundUrl = resolveSoundPath(storagePath, gameId, pathProvider),
+                    loop = loop
+                )
+            }
 
-            "message-vocal" -> Node.MessageVocal(
-                id = dto.id,
-                audioUrl = resolveSoundPath(
-                    data?.storagePath ?: "",
-                    gameId,
-                    pathProvider
-                ),
-                characterId = data?.characterId ?: -1
-            )
+            "message-vocal" -> {
+                val storagePath =
+                    requireNotNull(data?.storagePath) { "message-vocal node ${dto.id} missing storagePath" }
+                val characterId =
+                    requireNotNull(data.characterId) { "message-vocal node ${dto.id} missing characterId" }
+
+                Node.MessageVocal(
+                    id = dto.id,
+                    audioUrl = resolveSoundPath(storagePath, gameId, pathProvider),
+                    characterId = characterId
+                )
+            }
 
             else -> null
         }

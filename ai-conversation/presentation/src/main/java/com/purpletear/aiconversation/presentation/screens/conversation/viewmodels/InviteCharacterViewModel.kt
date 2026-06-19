@@ -7,6 +7,7 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.example.sharedelements.utils.UiText
 import com.purpletear.aiconversation.domain.model.AiCharacter
 import com.purpletear.aiconversation.domain.model.AiCharacterWithStatus
@@ -19,16 +20,20 @@ import com.purpletear.aiconversation.domain.usecase.InviteCharactersUseCase
 import com.purpletear.aiconversation.presentation.R
 import com.purpletear.core.presentation.extensions.executeFlowResultUseCase
 import com.purpletear.core.presentation.extensions.executeFlowUseCase
+import com.purpletear.sutoko.domain.model.User
+import com.purpletear.sutoko.domain.repository.UserRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import fr.purpletear.sutoko.popup.domain.PopUpIconDrawable
 import fr.purpletear.sutoko.popup.domain.PopUpUserInteraction
 import fr.purpletear.sutoko.popup.domain.SutokoPopUp
 import fr.purpletear.sutoko.popup.domain.usecase.GetPopUpInteractionUseCase
 import fr.purpletear.sutoko.popup.domain.usecase.ShowPopUpUseCase
-import fr.purpletear.sutoko.shop.coinsLogic.Customer
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.stateIn
 import javax.inject.Inject
+import com.example.sharedelements.R as sharedElementsR
 
 @HiltViewModel
 class InviteCharacterViewModel @Inject constructor(
@@ -39,8 +44,17 @@ class InviteCharacterViewModel @Inject constructor(
     private val getConversationSettingsUseCase: GetConversationSettingsUseCase,
     private val showPopUpUseCase: ShowPopUpUseCase,
     private val interactionUseCase: GetPopUpInteractionUseCase,
-    private val customer: Customer,
+    private val userRepository: UserRepository,
 ) : ViewModel() {
+
+
+    private val user: StateFlow<User?> = userRepository.observeUser()
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = null,
+        )
+
 
     private var _isLoading: MutableState<Boolean> = mutableStateOf(true)
     val isLoading: State<Boolean> get() = _isLoading
@@ -82,7 +96,7 @@ class InviteCharacterViewModel @Inject constructor(
     }
 
     internal fun confirmPopUp() {
-        if (!customer.isUserConnected()) {
+        if (null == user.value) {
             onUserNotConnected()
             return
         }
@@ -90,7 +104,7 @@ class InviteCharacterViewModel @Inject constructor(
         _isInviteCharacterLoading.value = true
         executeFlowResultUseCase({
             inviteCharactersUseCase(
-                userId = customer.user.uid!!,
+                userId = user.value!!.id,
                 conversationCharacterId = aiCharacterId,
                 characters = _characters.value.map {
                     it.character
@@ -110,7 +124,7 @@ class InviteCharacterViewModel @Inject constructor(
     }
 
     private fun getConversationSettings() {
-        if (!customer.isUserConnected()) {
+        if (null == user.value) {
             onUserNotConnected()
             return
         }
@@ -119,7 +133,7 @@ class InviteCharacterViewModel @Inject constructor(
         executeFlowUseCase(
 
             useCase = {
-                getConversationSettingsUseCase(customer.user.uid!!, aiCharacterId)
+                getConversationSettingsUseCase(user.value!!.id, aiCharacterId)
             },
 
             onStream = { conversation ->
@@ -161,13 +175,15 @@ class InviteCharacterViewModel @Inject constructor(
     }
 
     private fun getCharacters() {
-        if (!customer.isUserConnected()) {
+        if (null == user.value) {
+            onUserNotConnected()
             return
         }
+
         _isLoading.value = true
         executeFlowResultUseCase({
             getAllCharactersWithStatusUseCase(
-                userId = customer.user.uid!!
+                userId = user.value!!.id
             )
         }, onSuccess = {
             _characters.value = it
@@ -187,7 +203,7 @@ class InviteCharacterViewModel @Inject constructor(
         val tag = showPopUpUseCase(
             SutokoPopUp(
                 title = UiText.StringResource(R.string.ai_conversation_confirm_invite_title),
-                icon = PopUpIconDrawable(fr.purpletear.sutoko.shop.presentation.R.drawable.account_creation_character),
+                icon = PopUpIconDrawable(sharedElementsR.drawable.account_creation_character),
                 iconHeight = null,
                 buttonText = UiText.StringResource(R.string.ai_conversation_invite),
                 description = UiText.StringResource(

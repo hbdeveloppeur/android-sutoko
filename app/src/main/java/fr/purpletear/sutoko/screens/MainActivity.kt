@@ -34,13 +34,10 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import com.android.billingclient.api.BillingClientStateListener
-import com.android.billingclient.api.BillingResult
 import com.example.sharedelements.Data
 import com.example.sharedelements.SutokoAppParams
 import com.example.sharedelements.theme.SutokoTheme
 import com.example.sharedelements.utils.UiText
-import com.purpletear.aiconversation.presentation.R
 import com.purpletear.aiconversation.presentation.common.utils.executeFlowUseCase
 import com.purpletear.aiconversation.presentation.navigation.AiConversationRouteDestination
 import com.purpletear.aiconversation.presentation.screens.character.add_character.AddCharacterScreen
@@ -56,8 +53,11 @@ import com.purpletear.aiconversation.presentation.screens.shopDialog.MessagesCoi
 import com.purpletear.game.presentation.game_play.SmsGameActivity
 import com.purpletear.game.presentation.game_play.SmsGameActivityArgs
 import com.purpletear.game.presentation.game_preview.GamePreview
-import com.purpletear.sutoko.game.model.Game
-import com.purpletear.sutoko.game.usecase.GetGameUseCase
+import com.purpletear.game.presentation.game_preview.GamePreviewViewModel
+import com.purpletear.sutoko.auth.coordinator.AuthCoordinator
+import com.purpletear.sutoko.auth.coordinator.AuthEvent
+import com.purpletear.sutoko.auth.presentation.AccountConnectionActivity
+import com.purpletear.sutoko.auth.presentation.AccountConnectionActivityModel
 import com.purpletear.sutoko.news.model.News
 import com.purpletear.sutoko.notification.sealed.Screen
 import com.purpletear.sutoko.notification.usecase.ObserveNotificationRequestUseCase
@@ -65,8 +65,8 @@ import com.purpletear.sutoko.notification.usecase.SetCurrentScreenUseCase
 import com.purpletear.sutoko.permission.domain.repository.PermissionRepository
 import com.purpletear.sutoko.permission.domain.sealed.Permission
 import com.purpletear.sutoko.popup.presentation.PopUpComposable
-import com.purpletear.sutoko.user.usecase.OpenSignInPageObservableUseCase
 import dagger.hilt.android.AndroidEntryPoint
+import fr.purpletear.sutoko.R
 import fr.purpletear.sutoko.helpers.NotificationHelper
 import fr.purpletear.sutoko.popup.domain.PopUpIconUrl
 import fr.purpletear.sutoko.popup.domain.PopUpUserInteraction
@@ -74,8 +74,6 @@ import fr.purpletear.sutoko.popup.domain.SutokoPopUp
 import fr.purpletear.sutoko.popup.domain.usecase.GetPopUpInteractionUseCase
 import fr.purpletear.sutoko.popup.domain.usecase.ShowPopUpUseCase
 import fr.purpletear.sutoko.screens.account.AccountActivity
-import fr.purpletear.sutoko.screens.accountConnection.AccountConnectionActivity
-import fr.purpletear.sutoko.screens.accountConnection.AccountConnectionActivityModel
 import fr.purpletear.sutoko.screens.main.presentation.HomeScreenViewModel
 import fr.purpletear.sutoko.screens.main.presentation.MainEvents
 import fr.purpletear.sutoko.screens.main.presentation.MainScreenPages
@@ -83,18 +81,13 @@ import fr.purpletear.sutoko.screens.main.presentation.screens.MainScreen
 import fr.purpletear.sutoko.screens.params.SutokoParamsActivity
 import fr.purpletear.sutoko.screens.splashscreen.SplashScreen
 import fr.purpletear.sutoko.screens.web.WebActivity
-import fr.purpletear.sutoko.shop.coinsLogic.Customer
-import fr.purpletear.sutoko.shop.coinsLogic.CustomerCallbacks
-import fr.purpletear.sutoko.shop.coinsLogic.objects.operations.Order
-import fr.purpletear.sutoko.shop.shop.ShopActivity
-import fr.sutoko.inapppurchase.data.datasource.BillingDataSource
-import fr.sutoko.inapppurchase.data.repository.BillingRepositoryImpl
-import fr.sutoko.inapppurchase.domain.repository.BillingRepository
+import com.purpletear.sutoko.shop.presentation.ShopActivity
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import purpletear.fr.purpleteartools.TableOfSymbols
 import javax.inject.Inject
+import com.purpletear.aiconversation.presentation.R as AiConversationR
 import fr.purpletear.friendzone.activities.load.Load as Friendzoned1Loader
 import fr.purpletear.friendzone2.activities.load.Load as Friendzoned2Loader
 import fr.purpletear.friendzone4.game.activities.load.Load as Friendzoned4Loader
@@ -103,8 +96,7 @@ import friendzone3.purpletear.fr.friendzon3.Load as Friendzoned3Loader
 @AndroidEntryPoint
 class MainActivity @Inject constructor(
 
-) : ComponentActivity(),
-    CustomerCallbacks, BillingClientStateListener {
+) : ComponentActivity() {
     private lateinit var loginLauncher: ActivityResultLauncher<Intent>
     private lateinit var optionsLauncher: ActivityResultLauncher<Intent>
     private lateinit var userStoryLauncher: ActivityResultLauncher<Intent>
@@ -115,14 +107,9 @@ class MainActivity @Inject constructor(
     private var _newDestination: MutableStateFlow<String?> =
         MutableStateFlow(null)
 
-    @Inject
-    lateinit var billingDataSource: BillingDataSource
 
     @Inject
-    lateinit var openSignInPageObservableUseCase: OpenSignInPageObservableUseCase
-
-    @Inject
-    lateinit var billingRepository: BillingRepository
+    lateinit var authCoordinator: AuthCoordinator
 
     @Inject
     lateinit var showPopUpUseCase: ShowPopUpUseCase
@@ -142,11 +129,30 @@ class MainActivity @Inject constructor(
     @Inject
     lateinit var symbols: TableOfSymbols
 
-    @Inject
-    lateinit var getGameUseCase: GetGameUseCase
 
-    @Inject
-    lateinit var customer: Customer
+    private fun observeAuthEvents() {
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                authCoordinator.events.collect { event ->
+                    when (event) {
+                        is AuthEvent.OpenSignIn -> {
+                            openConnectionPage()
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+
+    private fun openConnectionPage() {
+        val intent =
+            AccountConnectionActivity.require(
+                this@MainActivity,
+                AccountConnectionActivityModel.Page.SIGNIN
+            )
+        this@MainActivity.loginLauncher.launch(intent)
+    }
 
 
     override fun onDestroy() {
@@ -155,9 +161,7 @@ class MainActivity @Inject constructor(
         viewModel.navigateToNews.removeObservers(this)
         viewModel.saveSymbols.removeObservers(this)
         viewModel.navigateToShop.removeObservers(this)
-        viewModel.navigate.removeObservers(this)
 
-        (billingRepository as BillingRepositoryImpl).clearActivity()
         super.onDestroy()
     }
 
@@ -177,14 +181,11 @@ class MainActivity @Inject constructor(
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         WindowCompat.setDecorFitsSystemWindows(window, false)
-        this.registerOptionsLauncher()
-        this.registerUserStoryLauncher()
-        this.registerLoginLauncher()
-        this.load()
-
-        (billingRepository as BillingRepositoryImpl).setActivity(this)
-
-        openSignInPageObservableUseCase().observe(this@MainActivity, accountObserver())
+        registerOptionsLauncher()
+        registerUserStoryLauncher()
+        registerLoginLauncher()
+        load()
+        observeAuthEvents()
 
         setContent {
             SutokoTheme {
@@ -251,27 +252,23 @@ class MainActivity @Inject constructor(
                                 navArgument("gameId") { type = NavType.StringType }
                             )
                         ) { backStackEntry ->
+                            val viewModel: GamePreviewViewModel = hiltViewModel()
                             GamePreview(
+                                viewModel = viewModel,
                                 onNavigateToGame = onNavigateToGame@{ gameId, isGranted ->
                                     // Legacy game IDs are now string-based; checks moved to repository layer
                                     if (gameId.hashCode() in intArrayOf(159, 161, 162, 163)) {
                                         startFriendzoned(gameId, isGranted)
                                         return@onNavigateToGame
                                     }
-                                    startSmsGameLoaderActivity(gameId)
+                                    startSmsGameActivity(gameId)
                                 },
                                 onBuyGame = { game ->
-                                    onBuyGame(game)
-                                },
-                                onOpenChapters = { game, _ ->
-                                    navController.navigate(MainScreenPages.Chapters.createRoute(game.id))
+                                    // TODO : delete this useless callback
                                 },
                                 onOpenShop = {
                                     startShop()
                                 },
-                                onGameDeleted = {
-                                    navController.navigateUp()
-                                }
                             )
                         }
 
@@ -284,6 +281,11 @@ class MainActivity @Inject constructor(
                             MainScreen(
                                 viewModel = viewModel,
                                 size = widthSizeClass,
+                                onAccountPressed = ::onAccountPressed,
+                                onOptionsPressed = ::onOptionsPressed,
+                                onDiamondsPressed = ::onDiamondPressed,
+                                onCoinsPressed = ::onCoinsPressed,
+                                onGamePressed = ::startSmsGameActivity,
                                 mainNavController = navController
                             )
                         }
@@ -368,13 +370,7 @@ class MainActivity @Inject constructor(
 
     override fun onResume() {
         super.onResume()
-        viewModel.customer.read(this)
         viewModel.onEvent(MainEvents.OnAppear)
-    }
-
-
-    override fun onCoinsOrDiamondsUpdated(coins: Int, diamonds: Int) {
-
     }
 
     /**
@@ -419,10 +415,10 @@ class MainActivity @Inject constructor(
             ) {
                 val tag = showPopUpUseCase(
                     popUp = SutokoPopUp(
-                        title = UiText.StringResource(R.string.ai_conversation_confirm_delete_title),
+                        title = UiText.StringResource(AiConversationR.string.ai_conversation_confirm_delete_title),
                         icon = PopUpIconUrl("https://data.sutoko.app/resources/sutoko-ai/image/background_waiting_screen.jpg"),
                         iconHeight = 68.dp,
-                        buttonText = UiText.StringResource(fr.purpletear.sutoko.shop.presentation.R.string.sutoko_continue),
+                        buttonText = UiText.StringResource(R.string.sutoko_continue),
                         description = UiText.DynamicText("Eva is able to send notification"),
                     )
                 )
@@ -442,16 +438,6 @@ class MainActivity @Inject constructor(
                 requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
             }
         }
-    }
-
-
-    private fun accountObserver() = Observer<Unit> {
-        val intent =
-            AccountConnectionActivity.Companion.require(
-                this,
-                AccountConnectionActivityModel.Page.SIGNIN
-            )
-        this.loginLauncher.launch(intent)
     }
 
     /**
@@ -485,42 +471,6 @@ class MainActivity @Inject constructor(
         }
 
         viewModel.navigateToShop.observe(this, navigateToShopObserver)
-
-        val navigateObserver = Observer<MainEvents> { event ->
-            when (event) {
-
-                is MainEvents.AccountButtonPressed -> {
-                    this.onAccountPressed()
-                }
-
-                is MainEvents.OptionButtonPressed -> {
-                    this.onOptionsPressed()
-                }
-
-                is MainEvents.CoinButtonPressed -> {
-                    this.onCoinsPressed()
-                }
-
-                is MainEvents.DiamondButtonPressed -> {
-                    this.onDiamondPressed()
-                }
-
-                else -> {
-                    // Log the unhandled event instead of throwing an exception to prevent crashes
-                    android.util.Log.w("MainActivity", "Unhandled event: $event")
-                }
-            }
-        }
-
-        viewModel.navigate.observe(this, navigateObserver)
-    }
-
-    private fun onBuyGame(game: Game) {
-        customer.onBuyStory(
-            activity = this,
-            card = game,
-            money = Order.Money.COINS
-        )
     }
 
     private fun onAccountPressed() {
@@ -557,7 +507,7 @@ class MainActivity @Inject constructor(
         startActivity(intent)
     }
 
-    private fun startSmsGameLoaderActivity(gameId: String) {
+    private fun startSmsGameActivity(gameId: String) {
         val args = SmsGameActivityArgs(gameId = gameId)
         val intent = SmsGameActivity.intent(this, args)
         startActivity(intent)
@@ -566,7 +516,6 @@ class MainActivity @Inject constructor(
     private fun registerLoginLauncher() {
         this.loginLauncher =
             registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-                viewModel.customer.read(this)
                 val isSuccessful = result.resultCode == RESULT_OK
 
                 if (isSuccessful) {
@@ -578,7 +527,7 @@ class MainActivity @Inject constructor(
     private fun registerOptionsLauncher() {
         this.optionsLauncher =
             registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-                viewModel.customer.read(this)
+
             }
     }
 
@@ -596,11 +545,11 @@ class MainActivity @Inject constructor(
     }
 
     private fun onDiamondPressed() {
-        this.viewModel.onEvent(MainEvents.TapDiamondsLabel)
+        this.startShop()
     }
 
     private fun onCoinsPressed() {
-        this.viewModel.onEvent(MainEvents.TapCoinsLabel)
+        this.startShop()
     }
 
     private fun registerLaunchForResultShopActivity(): ActivityResultLauncher<Intent> {
@@ -608,7 +557,7 @@ class MainActivity @Inject constructor(
             if (result.resultCode == RESULT_OK) {
                 // There are no request codes
                 val data: Intent? = result.data
-                this.viewModel.customer.read(this@MainActivity)
+
             }
         }
     }
@@ -616,15 +565,5 @@ class MainActivity @Inject constructor(
     private fun startShop() {
         val intent = Intent(this, ShopActivity::class.java)
         shopActivityLauncher.launch(intent)
-    }
-
-    override fun onBillingServiceDisconnected() {
-        // Billing service disconnection is handled by BillingRepositoryImpl
-        // No additional action needed in MainActivity
-    }
-
-    override fun onBillingSetupFinished(p0: BillingResult) {
-        // Billing setup completion is handled by BillingRepositoryImpl
-        // No additional action needed in MainActivity
     }
 }

@@ -26,7 +26,8 @@ import com.purpletear.aiconversation.presentation.navigation.AiConversationRoute
 import com.purpletear.core.presentation.extensions.Resource
 import com.purpletear.game.presentation.game_catalog.GameCard
 import com.purpletear.game.presentation.game_catalog.GameSquares
-import com.purpletear.sutoko.game.model.Game
+import com.purpletear.sutoko.game.model.game.GameCatalog
+import com.purpletear.sutoko.shop.domain.repository.model.Balance
 import fr.purpletear.sutoko.BuildConfig
 import fr.purpletear.sutoko.screens.main.domain.popup.util.MainMenuCategory
 import fr.purpletear.sutoko.screens.main.presentation.HomeScreenViewModel
@@ -47,6 +48,10 @@ import fr.purpletear.sutoko.screens.main.presentation.screens.home.components.Me
 @Composable
 fun HomeScreen(
     mainNavController: NavController,
+    onAccountPressed: () -> Unit,
+    onOptionsPressed: () -> Unit,
+    onCoinsPressed: () -> Unit,
+    onDiamondsPressed: () -> Unit,
     viewModel: HomeScreenViewModel
 ) {
     val context = LocalContext.current
@@ -77,6 +82,8 @@ fun HomeScreen(
         systemUiController.isStatusBarVisible = true
     }
 
+    val balance = viewModel.balance.collectAsStateWithLifecycle()
+
     HomeContent(
         scrollState = scrollState,
         news = viewModel.news.value,
@@ -84,15 +91,13 @@ fun HomeScreen(
         fullStories = viewModel.fullStories.value,
         squareIcons = viewModel.squareIcons.value,
         categoryState = viewModel.categoryState.value,
-        coinsBalance = viewModel.coinsBalance.value,
+        coinsBalance = balance.value,
         aiConversationMessageCount = viewModel.aiConversationMessageCount.value,
         displayAiConversationCard = viewModel.displayAiConversationCard.value,
-        customerCoins = viewModel.customer.getCoins(),
-        customerDiamonds = viewModel.customer.getDiamonds(),
-        onAccountButtonPressed = { viewModel.onEvent(MainEvents.AccountButtonPressed) },
-        onCoinsButtonPressed = { viewModel.onEvent(MainEvents.CoinButtonPressed) },
-        onDiamondsButtonPressed = { viewModel.onEvent(MainEvents.DiamondButtonPressed) },
-        onOptionsButtonPressed = { viewModel.onEvent(MainEvents.OptionButtonPressed) },
+        onAccountButtonPressed = onAccountPressed,
+        onCoinsButtonPressed = onCoinsPressed,
+        onDiamondsButtonPressed = onDiamondsPressed,
+        onOptionsButtonPressed = onOptionsPressed,
         onNewsPressed = { action -> viewModel.handleAppAction(action = action) },
         onCategorySelected = { category ->
             viewModel.onEvent(MainEvents.TapMenu(category))
@@ -123,23 +128,21 @@ fun HomeScreen(
 private fun HomeContent(
     scrollState: LazyListState,
     news: List<com.purpletear.sutoko.news.model.News>,
-    squareStories: List<Game>,
-    fullStories: List<com.purpletear.sutoko.game.model.Game>,
+    squareStories: List<GameCatalog>,
+    fullStories: List<GameCatalog>,
     squareIcons: Map<Int, Int?>,
     categoryState: MainMenuCategory,
-    coinsBalance: Resource<com.purpletear.shop.domain.model.Balance>,
+    coinsBalance: Resource<Balance>,
     aiConversationMessageCount: Int?,
     displayAiConversationCard: Boolean,
-    customerCoins: Int,
-    customerDiamonds: Int,
     onAccountButtonPressed: () -> Unit,
     onCoinsButtonPressed: () -> Unit,
     onDiamondsButtonPressed: () -> Unit,
     onOptionsButtonPressed: () -> Unit,
     onNewsPressed: (com.purpletear.sutoko.core.domain.appaction.AppAction) -> Unit,
     onCategorySelected: (MainMenuCategory) -> Unit,
-    onSquareStoryTap: (com.purpletear.sutoko.game.model.Game) -> Unit,
-    onFullStoryTap: (com.purpletear.sutoko.game.model.Game) -> Unit,
+    onSquareStoryTap: (GameCatalog) -> Unit,
+    onFullStoryTap: (GameCatalog) -> Unit,
     onAiConversationTap: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -151,9 +154,7 @@ private fun HomeContent(
             .padding(bottom = 55.dp)
     ) {
         topNavigationSection(
-            coins = coinsBalance.data?.coins ?: customerCoins,
-            diamonds = coinsBalance.data?.diamonds ?: customerDiamonds,
-            isLoading = coinsBalance is Resource.Loading,
+            balance = coinsBalance,
             onAccountButtonPressed = onAccountButtonPressed,
             onCoinsButtonPressed = onCoinsButtonPressed,
             onDiamondsButtonPressed = onDiamondsButtonPressed,
@@ -198,9 +199,7 @@ private fun HomeContent(
 }
 
 private fun LazyListScope.topNavigationSection(
-    coins: Int,
-    diamonds: Int,
-    isLoading: Boolean,
+    balance: Resource<Balance>,
     onAccountButtonPressed: () -> Unit,
     onCoinsButtonPressed: () -> Unit,
     onDiamondsButtonPressed: () -> Unit,
@@ -213,9 +212,7 @@ private fun LazyListScope.topNavigationSection(
                 .padding(horizontal = 16.dp)
                 .padding(bottom = 8.dp)
                 .padding(start = 8.dp),
-            coins = coins,
-            diamonds = diamonds,
-            isLoading = isLoading,
+            balance = balance,
             onAccountButtonPressed = onAccountButtonPressed,
             onCoinsButtonPressed = onCoinsButtonPressed,
             onDiamondsButtonPressed = onDiamondsButtonPressed,
@@ -256,10 +253,10 @@ private fun LazyListScope.categoryMenuSection(
 
 @OptIn(ExperimentalFoundationApi::class)
 private fun LazyListScope.squareStoriesSection(
-    squareStories: List<Game>,
-    fullStories: List<Game>,
+    squareStories: List<GameCatalog>,
+    fullStories: List<GameCatalog>,
     squareIcons: Map<Int, Int?>,
-    onStoryTap: (Game) -> Unit
+    onStoryTap: (GameCatalog) -> Unit
 ) {
     if (squareStories.isEmpty() || fullStories.isEmpty()) return
 
@@ -274,9 +271,9 @@ private fun LazyListScope.squareStoriesSection(
 
 @OptIn(ExperimentalFoundationApi::class)
 private fun LazyListScope.squareStoriesAsCardsSection(
-    squareStories: List<Game>,
-    fullStories: List<Game>,
-    onStoryTap: (Game) -> Unit
+    squareStories: List<GameCatalog>,
+    fullStories: List<GameCatalog>,
+    onStoryTap: (GameCatalog) -> Unit
 ) {
     if (squareStories.isEmpty() || fullStories.isNotEmpty()) return
 
@@ -286,7 +283,7 @@ private fun LazyListScope.squareStoriesAsCardsSection(
     ) { _, item ->
         GameCard(
             modifier = Modifier.animateItemPlacement(),
-            game = item,
+            gameCatalog = item,
             onTap = { card -> onStoryTap(card) }
         )
     }
@@ -311,8 +308,8 @@ private fun LazyListScope.aiConversationSection(
 
 @OptIn(ExperimentalFoundationApi::class)
 private fun LazyListScope.fullStoriesSection(
-    fullStories: List<Game>,
-    onStoryTap: (Game) -> Unit
+    fullStories: List<GameCatalog>,
+    onStoryTap: (GameCatalog) -> Unit
 ) {
     if (fullStories.isEmpty()) return
 
@@ -322,7 +319,7 @@ private fun LazyListScope.fullStoriesSection(
     ) { _, item ->
         GameCard(
             modifier = Modifier.animateItemPlacement(),
-            game = item,
+            gameCatalog = item,
             onTap = { card -> onStoryTap(card) }
         )
     }

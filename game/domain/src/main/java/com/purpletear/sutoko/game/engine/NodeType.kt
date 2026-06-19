@@ -13,7 +13,6 @@ enum class NodeType {
     MEMORY,
     INFO,
     TROPHY,
-    SIGNAL,
     BACKGROUND,
     CONVERSATION_MODE_CHANGE,
     END,

@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="your_nickname">Ihr Anzeigename…</string>
+    <string name="your_mail_address">Ihre E-Mail Adresse…</string>
+    <string name="your_password">Ihr Passwort…</string>
+    <string name="sutoko_you_are_connected">Sie sind eingeloggt</string>
+    <string name="sutoko_account_error_unknown">Stellen Sie sicher, dass Sie mit dem Internet verbunden sind.</string>
+    <string name="sutoko_account_error_username_not_available">Dieser Benutzername wird bereits verwendet</string>
+    <string name="sutoko_account_error_address_not_available">Diese E-Mail-Adresse wird bereits verwendet.</string>
+    <string name="sutoko_account_error_invalid_credentials">Ungültige E-Mail und/oder ungültiges Passwort.</string>
+    <string name="sutoko_account_error_weak_password">Verwenden Sie ein komplexeres Passwort (Buchstaben, Zahlen, etc…)</string>
+    <string name="sutoko_account_error_invalid_mail_address">Ungültige E-Mail-Adresse.</string>
+    <string name="sutoko_account_error_mail_provider_banned">Nicht autorisierter Anbieter von E-Mail-Adressen.</string>
+    <string name="sutoko_account_error_cgu">Sie müssen die Nutzungsbedingungen akzeptieren, um fortzufahren.</string>
+    <string name="sutoko_account_error_invalid_password_confirm">Die Passwörter sind unterschiedlich.</string>
+    <string name="sutoko_account_error_invalid_nickname_format">Der Nickname darf keine Sonderzeichen enthalten</string>
+    <string name="sutoko_account_error_invalid_nickname_size">Ungültiger Benutzername. Er muss zwischen den Zeichen 4 und 16 liegen.</string>
+    <string name="sutoko_account_error_invalid_password_size">Ungültiges Passwort. Es muss zwischen 4 und 50 Zeichen enthalten.</string>
+    <string name="cgu">Ich habe die <a href="https://sutoko.app/terms-of-use">Nutzungsbedingungen</a> gelesen und akzeptiere sie.</string>
+    <string name="sutoko_connection_page_register_title">Registrieren</string>
+    <string name="sutoko_connection_page_signin_title">Melden Sie sich an</string>
+    <string name="sutoko_connection_page_sent_mail_title">Bestätigen Sie Ihre E-Mail-Adresse</string>
+    <string name="sutoko_connection_page_forgot_pwd_title">Haben Sie Ihr Passwort vergessen?</string>
+    <string name="sutoko_connection_page_signin_subtitle">Gemeinschaft - Sicherung - Geschenke</string>
+    <string name="sutoko_connection_page_sent_mail_subtitle">Mehr als ein Schritt!</string>
+    <string name="sutoko_connection_page_forgot_pwd_subtitle">Wie lautet deine E-Mail-Adresse?</string>
+    <string name="sutoko_connection_page_sent_mail_success_subtitle">Konto bestätigt!</string>
+    <string name="sutoko_connection_page_register_button_text">Registrieren</string>
+    <string name="sutoko_connection_page_signin_button_text">Melden Sie sich an</string>
+    <string name="sutoko_connection_page_sent_button_text">In der Warteschleife …</string>
+    <string name="sutoko_connection_page_sent_mail_success_button_text">Beginnen</string>
+    <string name="sutoko_connection_page_forgot_pwd_button_text">Senden</string>
+    <string name="sutoko_connection_page_button_cta_forgot">Passwort vergessen</string>
+    <string name="sutoko_or">oder</string>
+    <string name="sutoko_connection_page_button_cta_register">Sich anmelden</string>
+    <string name="sutoko_connection_page_button_cta_signin">Anmelden</string>
+    <string name="sutoko_connection_page_mail_validated_waiting_title">Wir haben eine E-Mail an</string>
+    <string name="sutoko_connection_page_mail_validated_waiting_subtitle">Gehen Sie zum Link in der E-Mail, um Ihr Konto zu bestätigen.</string>
+    <string name="sutoko_connection_page_mail_validated_success_title">Herzlichen Glückwunsch</string>
+    <string name="sutoko_connection_page_mail_validated_success_subtitle">Sie können mit der Nutzung Ihres Kontos beginnen</string>
+    <string name="sutoko_connection_page_forgot_mail_sent_title">Wir haben eine E-Mail an</string>
+    <string name="sutoko_connection_page_forgot_mail_sent_subtitle">Ändern Sie Ihr Passwort über den Link in dieser E-Mail.</string>
+    <string name="sutoko_error_cannot_reach_this_mail_address">Es ist nicht möglich, einen Link an diese E-Mail-Adresse zu senden</string>
+</resources>

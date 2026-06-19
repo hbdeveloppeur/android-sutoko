@@ -7,6 +7,7 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.example.sharedelements.utils.UiText
 import com.purpletear.aiconversation.domain.model.AiCharacter
 import com.purpletear.aiconversation.domain.usecase.DeleteCharacterUseCase
@@ -15,23 +16,25 @@ import com.purpletear.aiconversation.presentation.common.utils.getRemoteAssetsUr
 import com.purpletear.core.presentation.extensions.executeFlowResultUseCase
 import com.purpletear.core.presentation.extensions.executeFlowUseCase
 import com.purpletear.core.presentation.services.MakeToastService
+import com.purpletear.sutoko.domain.repository.UserRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import fr.purpletear.sutoko.popup.domain.PopUpIconUrl
 import fr.purpletear.sutoko.popup.domain.PopUpUserInteraction
 import fr.purpletear.sutoko.popup.domain.SutokoPopUp
 import fr.purpletear.sutoko.popup.domain.usecase.GetPopUpInteractionUseCase
 import fr.purpletear.sutoko.popup.domain.usecase.ShowPopUpUseCase
-import fr.purpletear.sutoko.shop.coinsLogic.Customer
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class CharactersTableViewModel @Inject constructor(
-    private val customer: Customer,
     private val showPopUpUseCase: ShowPopUpUseCase,
     private val makeToastService: MakeToastService,
     private val deleteCharacterUseCase: DeleteCharacterUseCase,
     private val getPopUpInteractionUseCase: GetPopUpInteractionUseCase,
+    private val userRepository: UserRepository,
 ) : ViewModel() {
 
     private var _loadingUsers: MutableState<List<AiCharacter>> = mutableStateOf(emptyList())
@@ -46,7 +49,13 @@ class CharactersTableViewModel @Inject constructor(
 
     }
 
-    private fun onConfirmDialog() {
+    private suspend fun onConfirmDialog() {
+        val user = userRepository.observeUser().first()
+        if (null == user) {
+            makeToastService(R.string.ai_conversation_presentation_error_user_not_logged_in)
+            return
+        }
+
         val character = _tmpCharacterToRemove.value ?: return
 
         addCharacterToLoadingList(character)
@@ -54,8 +63,8 @@ class CharactersTableViewModel @Inject constructor(
         executeFlowResultUseCase({
             delay(2128)
             deleteCharacterUseCase(
-                userId = customer.user.uid!!,
-                token = customer.user.token!!,
+                userId = user.id,
+                token = user.token,
                 aiCharacter = _tmpCharacterToRemove.value!!
             )
         }, onSuccess = {
@@ -69,39 +78,42 @@ class CharactersTableViewModel @Inject constructor(
 
 
     fun deleteCharacter(character: AiCharacter) {
-        if (!customer.isUserConnected()) {
-            makeToastService(R.string.ai_conversation_presentation_error_user_not_logged_in)
-            return
-        }
-
-        _tmpCharacterToRemove.value = character
-
-        val tag = showPopUpUseCase(
-            popUp = SutokoPopUp(
-                title = UiText.StringResource(R.string.ai_conversation_confirm_delete_title),
-                icon = PopUpIconUrl(getRemoteAssetsUrl(character.avatarUrl ?: "")),
-                iconHeight = 68.dp,
-                buttonText = UiText.StringResource(fr.purpletear.sutoko.shop.presentation.R.string.sutoko_continue),
-                // TODO
-                description = UiText.StringResource(
-                    R.string.ai_conversation_confirm_delete_description,
-                    character.firstName
-                ),
-            )
-        )
-
-
-        executeFlowUseCase({
-            getPopUpInteractionUseCase(tag)
-        }, onStream = { interaction ->
-            when (interaction.event) {
-                PopUpUserInteraction.Dismiss -> onDismissDialog()
-                PopUpUserInteraction.Confirm -> onConfirmDialog()
-                else -> {}
+        viewModelScope.launch {
+            val user = userRepository.observeUser().first()
+            if (null == user) {
+                makeToastService(R.string.ai_conversation_presentation_error_user_not_logged_in)
+                return@launch
             }
-        }, onFailure = {
-            Log.d("CharactersTableViewModel", it.toString())
-        })
+
+            _tmpCharacterToRemove.value = character
+
+            val tag = showPopUpUseCase(
+                popUp = SutokoPopUp(
+                    title = UiText.StringResource(R.string.ai_conversation_confirm_delete_title),
+                    icon = PopUpIconUrl(getRemoteAssetsUrl(character.avatarUrl ?: "")),
+                    iconHeight = 68.dp,
+                    buttonText = UiText.StringResource(R.string.ai_conversation_continue),
+                    // TODO
+                    description = UiText.StringResource(
+                        R.string.ai_conversation_confirm_delete_description,
+                        character.firstName
+                    ),
+                )
+            )
+
+
+            executeFlowUseCase({
+                getPopUpInteractionUseCase(tag)
+            }, onStream = { interaction ->
+                when (interaction.event) {
+                    PopUpUserInteraction.Dismiss -> onDismissDialog()
+                    PopUpUserInteraction.Confirm -> viewModelScope.launch { onConfirmDialog() }
+                    else -> {}
+                }
+            }, onFailure = {
+                Log.d("CharactersTableViewModel", it.toString())
+            })
+        }
     }
 
     private fun addCharacterToLoadingList(character: AiCharacter) {

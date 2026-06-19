@@ -23,7 +23,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.sharedelements.theme.Poppins
-import fr.purpletear.sutoko.shop.presentation.R as ShopR
+import com.purpletear.sutoko.shop.R as ShopR
 
 private val CoinGold = Color(0xFFFCAC12)
 private val DiamondBlue = Color(0xFF4DB9EC)

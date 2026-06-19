@@ -16,5 +16,4 @@ sealed class MainScreenPages(val route: String) {
 
     object Home : MainScreenPages("home")
     object Create : MainScreenPages("create")
-    object AiConversationPreview : MainScreenPages("ai_conversation_preview")
 }

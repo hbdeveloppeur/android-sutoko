@@ -2,6 +2,7 @@ package com.purpletear.game.debug.ruler
 
 import androidx.compose.ui.graphics.Color
 import java.util.UUID
+import androidx.annotation.Keep
 
 /**
  * Orientation of a ruler line.
@@ -19,6 +20,7 @@ enum class RulerOrientation {
  * @property position Position in percentage of container (0f..1f)
  * @property color Visual color of the ruler line
  */
+@Keep
 data class Ruler(
     val id: String,
     val orientation: RulerOrientation,

@@ -58,6 +58,9 @@ dependencies {
     implementation(project(":core:domain"))
     implementation(project(":core:data"))
     implementation(project(":ntfy"))
+    implementation(project(":tools"))
+    implementation(project(":purchase"))
+    implementation(project(":auth"))
 
     // Zip4j for zip file extraction
     implementation("net.lingala.zip4j:zip4j:2.11.5")
@@ -65,7 +68,6 @@ dependencies {
     implementation(libs.androidx.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.android.material)
-    implementation(project(":tools"))
     testImplementation(libs.junit)
     testImplementation("com.squareup.okhttp3:mockwebserver:4.12.0")
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.8.1")

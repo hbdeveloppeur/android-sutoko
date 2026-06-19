@@ -5,34 +5,46 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.purpletear.aiconversation.domain.enums.ProcessStatus
 import com.purpletear.aiconversation.domain.model.ImageGenerationRequest
 import com.purpletear.aiconversation.domain.usecase.GenerateImageFromPromptUseCase
+import com.purpletear.aiconversation.domain.usecase.GetAiTokensStateUseCase
 import com.purpletear.aiconversation.domain.usecase.GetCurrentImageGenerationRequestUseCase
 import com.purpletear.aiconversation.presentation.R
+import com.purpletear.aiconversation.presentation.usecase.OpenMessagesCoinsDialogUseCase
 import com.purpletear.core.presentation.extensions.executeFlowResultUseCase
 import com.purpletear.core.presentation.extensions.executeFlowUseCase
 import com.purpletear.core.presentation.services.MakeToastService
-import com.purpletear.shop.domain.usecase.GetUserAccountStateUseCase
-import com.purpletear.shop.domain.usecase.OpenMessagesCoinsDialogUseCase
-import com.purpletear.sutoko.user.usecase.IsUserConnectedUseCase
-import com.purpletear.sutoko.user.usecase.OpenSignInPageUseCase
+import com.purpletear.sutoko.domain.repository.UserRepository
+import com.purpletear.sutoko.domain.usecase.OpenSignInPageUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
-import fr.purpletear.sutoko.shop.coinsLogic.Customer
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class ImageGeneratorViewModel @Inject constructor(
-    private val customer: Customer,
     private val makeToastService: MakeToastService,
     private val openSignInPageUseCase: OpenSignInPageUseCase,
-    private val isUserConnectedUseCase: IsUserConnectedUseCase,
-    private val getUserAccountStateUseCase: GetUserAccountStateUseCase,
+    private val userRepository: UserRepository,
+    private val getAiTokensStateUseCase: GetAiTokensStateUseCase,
     private val openMessagesCoinsDialogUseCase: OpenMessagesCoinsDialogUseCase,
     private val generateImageFromPromptUseCase: GenerateImageFromPromptUseCase,
     private val getCurrentImageGenerationRequestUseCase: GetCurrentImageGenerationRequestUseCase,
 ) : ViewModel() {
+    val isUserConnected: StateFlow<Boolean> = userRepository
+        .observeIsConnected()
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = false,
+        )
+
     private val _prompt: MutableState<String> = mutableStateOf("")
     val prompt: State<String> get() = _prompt
 
@@ -50,29 +62,20 @@ class ImageGeneratorViewModel @Inject constructor(
     private var _isCoinsLoading: MutableState<Boolean> = mutableStateOf(false)
     val isCoinsLoading: State<Boolean> get() = _isCoinsLoading
 
-    private var _isUserConnected: MutableState<Boolean> = mutableStateOf(customer.isUserConnected())
-    val isUserConnected: State<Boolean> get() = _isUserConnected
 
     private var _currentImageRequest: MutableState<ImageGenerationRequest?> = mutableStateOf(null)
     val currentImageRequest: State<ImageGenerationRequest?> get() = _currentImageRequest
     val canUseImage: Boolean get() = _currentImageRequest.value != null
 
     init {
-        observeSignIn()
         observeCurrentImageGenerationRequest()
     }
 
     fun onResume() {
         reloadIsEnabled()
-        getUserAccountState(1280L)
-    }
-
-    private fun observeSignIn() {
-        executeFlowUseCase({
-            isUserConnectedUseCase()
-        }, onStream = {
-            _isUserConnected.value = it
-        })
+        viewModelScope.launch {
+            getUserAccountState(1280L)
+        }
     }
 
     private fun onUserNotConnected() {
@@ -86,7 +89,7 @@ class ImageGeneratorViewModel @Inject constructor(
 
     private fun reloadIsEnabled() {
         _isEnabled.value =
-            customer.isUserConnected() && _prompt.value.isNotBlank() && _prompt.value.trim().length > 3
+            isUserConnected.value && _prompt.value.isNotBlank() && _prompt.value.trim().length > 3
     }
 
     private fun observeCurrentImageGenerationRequest() {
@@ -102,12 +105,14 @@ class ImageGeneratorViewModel @Inject constructor(
         })
     }
 
-    private fun getUserAccountState(wait: Long = 1280L) {
+    private suspend fun getUserAccountState(wait: Long = 1280L) {
+        val user = userRepository.observeUser().first() ?: throw IllegalStateException()
+
         _isCoinsLoading.value = true
         executeFlowResultUseCase({
             delay(wait)
-            getUserAccountStateUseCase(
-                userId = customer.getUserId(),
+            getAiTokensStateUseCase(
+                userId = user.id,
             )
         }, onSuccess = {
             _coins.value = it.messagesCount
@@ -121,7 +126,7 @@ class ImageGeneratorViewModel @Inject constructor(
     }
 
     fun onClickGenerateImage() {
-        if (!customer.isUserConnected()) {
+        if (!isUserConnected.value) {
             onUserNotConnected()
             return
         }
@@ -131,16 +136,21 @@ class ImageGeneratorViewModel @Inject constructor(
             return
         }
 
-        executeFlowResultUseCase({
-            generateImageFromPromptUseCase(
-                userId = customer.getUserId(),
-                userToken = customer.getUserToken(),
-                prompt = prompt.value,
-            )
-        }, onFailure = {
-            makeToastService.invoke(R.string.ai_conversation_presentation_error_unknown)
-        }, finally = {
-            getUserAccountState(0L)
-        })
+        viewModelScope.launch {
+            val user = userRepository.observeUser().first() ?: throw IllegalStateException()
+            executeFlowResultUseCase({
+                generateImageFromPromptUseCase(
+                    userId = user.id,
+                    userToken = user.token,
+                    prompt = prompt.value,
+                )
+            }, onFailure = {
+                makeToastService.invoke(R.string.ai_conversation_presentation_error_unknown)
+            }, finally = {
+                viewModelScope.launch {
+                    getUserAccountState(0L)
+                }
+            })
+        }
     }
 }

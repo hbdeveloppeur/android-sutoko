@@ -28,16 +28,16 @@ import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.example.sharedelements.theme.SutokoTypography
-import com.purpletear.sutoko.game.model.Game
-import com.purpletear.sutoko.game.model.isPremium
+import com.purpletear.sutoko.game.model.game.GameCatalog
+import com.purpletear.sutoko.game.model.game.isPremium
 
 @Composable
 fun GameCard(
     modifier: Modifier = Modifier,
-    game: Game,
+    gameCatalog: GameCatalog,
     premiumIconPainter: Painter? = null,
     boldFontFamily: FontFamily = FontFamily.Default,
-    onTap: (Game) -> Unit,
+    onTap: (GameCatalog) -> Unit,
 ) {
     Box(
         modifier = Modifier
@@ -46,13 +46,13 @@ fun GameCard(
             .background(Color.Black.copy(0.3f))
             .then(modifier)
             .clickable {
-                onTap(game)
+                onTap(gameCatalog)
             }) {
 
         AsyncImage(
             modifier = Modifier
                 .fillMaxSize(),
-            model = game.bannerImageRequest(LocalContext.current)
+            model = gameCatalog.bannerImageRequest(LocalContext.current)
                 ?: ImageRequest.Builder(LocalContext.current).build(),
             contentDescription = null,
             contentScale = ContentScale.Crop,
@@ -66,7 +66,7 @@ fun GameCard(
         ) {
             Row {
                 Text(
-                    text = game.metadata.title, fontSize = 16.sp,
+                    text = gameCatalog.metadata.title, fontSize = 16.sp,
                     style = TextStyle(
                         letterSpacing = 0.5.sp,
                         platformStyle = PlatformTextStyle(
@@ -79,7 +79,7 @@ fun GameCard(
             }
             Text(
                 modifier = Modifier.fillMaxWidth(0.7f),
-                text = game.metadata.catchingPhrase ?: "",
+                text = gameCatalog.metadata.catchingPhrase ?: "",
                 fontSize = 12.sp,
                 style = SutokoTypography.h3.copy(
                     letterSpacing = 0.5.sp,
@@ -105,7 +105,7 @@ fun GameCard(
                     )
                 )
 
-                if (game.isPremium() && premiumIconPainter != null) {
+                if (gameCatalog.isPremium() && premiumIconPainter != null) {
                     Image(
                         painter = premiumIconPainter,
                         contentDescription = null,

@@ -23,9 +23,6 @@
     <string name="sutoko_main_title_short_stories">Kurze Geschichten</string>
     <string name="story_creation_text">Sie möchten Ihre eigenen Geschichten schreiben? Lassen Sie uns anfangen!</string>
     <string name="create_an_account">Ein Konto erstellen</string>
-    <string name="your_nickname">Ihr Anzeigename…</string>
-    <string name="your_mail_address">Ihre E-Mail Adresse…</string>
-    <string name="your_password">Ihr Passwort…</string>
     <string name="creation_account_avatar_upload_title">Ein Profilbild hochladen</string>
     <string name="creation_account_avatar_upload_subtitle">Dieses Foto wird für Ihre Spieler sichtbar sein!</string>
     <string name="characteristic_title">Informationen</string>
@@ -69,7 +66,6 @@
     <string name="store_link">https://teespring.com/en/stores/friendzoned-the-game</string>
     <string name="sutoko_outlet_item_owned">Sie besitzen diesen Artikel bereits</string>
     <string name="sutoko_account_creation_error_email_not_verified">Sie müssen Ihr Konto verifizieren, indem Sie auf den Link in der E-Mail klicken.</string>
-    <string name="sutoko_you_are_connected">Sie sind eingeloggt</string>
     <string name="sutoko_trophy">Trophäe</string>
     <string name="sutoko_trophies">Trophäen</string>
     <string name="sutoko_store_not_enough_points">Sie haben nicht genug Punkte</string>
@@ -98,18 +94,6 @@
     <string name="sutoko_outlet_title">Shop</string>
     <string name="sutoko_my_orders_subtitle">Meine Einkäufe und Geschenke</string>
     <string name="sutoko_my_orders_title">Bibliothek</string>
-    <string name="sutoko_account_error_unknown">Stellen Sie sicher, dass Sie mit dem Internet verbunden sind.</string>
-    <string name="sutoko_account_error_username_not_available">Dieser Benutzername wird bereits verwendet</string>
-    <string name="sutoko_account_error_address_not_available">Diese E-Mail-Adresse wird bereits verwendet.</string>
-    <string name="sutoko_account_error_invalid_credentials">Ungültige E-Mail und/oder ungültiges Passwort.</string>
-    <string name="sutoko_account_error_weak_password">Verwenden Sie ein komplexeres Passwort (Buchstaben, Zahlen, etc…)</string>
-    <string name="sutoko_account_error_invalid_mail_address">Ungültige E-Mail-Adresse.</string>
-    <string name="sutoko_account_error_mail_provider_banned">Nicht autorisierter Anbieter von E-Mail-Adressen.</string>
-    <string name="sutoko_account_error_cgu">Sie müssen die Nutzungsbedingungen akzeptieren, um fortzufahren.</string>
-    <string name="sutoko_account_error_invalid_password_confirm">Die Passwörter sind unterschiedlich.</string>
-    <string name="sutoko_account_error_invalid_nickname_format">Der Nickname darf keine Sonderzeichen enthalten</string>
-    <string name="sutoko_account_error_invalid_nickname_size">Ungültiger Benutzername. Er muss zwischen den Zeichen 4 und 16 liegen.</string>
-    <string name="sutoko_account_error_invalid_password_size">Ungültiges Passwort. Es muss zwischen 4 und 50 Zeichen enthalten.</string>
     <string name="sutoko_account_button_connection">Anmeldung</string>
     <string name="sutoko_account_button_loading">Laden…</string>
     <string name="sutoko_event_hello_sutoko_title">Bereit, Kurzgeschichten zu schreiben?</string>
@@ -208,7 +192,6 @@
     <string name="sutoko_main_section_subtitle_games">%1$d Abenteuerliche Geschichten</string>
     <string name="sutoko_community_section_title_games">Von Spielern erstellte Spiele</string>
     <string name="sutoko_community_section_subtitle_games">Rang</string>
-    <string name="cgu">Ich habe die <a href="https://sutoko.app/terms-of-use">Nutzungsbedingungen</a> gelesen und akzeptiere sie.</string>
     <string name="sutoko_user_story_publisher_conditions">Ich habe die </string>
     <string name="sutoko_free">Kostenlos</string>
     <string name="sutoko_not_enough_space">Nicht genügend Speicherplatz verfügbar</string>
@@ -304,30 +287,6 @@ Geben Sie Ihren Benutzernamen für die Rangliste ein!</string>
     <string name="sutoko_share_app_message">Spiele Sutoko ein Text-Erzählspiel hier : %1$s</string>
     <string name="sutoko_storychapters_cannot_rewind_title">Sie haben die Geschichte nicht beendet</string>
     <string name="sutoko_storychapters_cannot_rewind_message">Sie müssen die Geschichte mindestens einmal beenden, um zurückgehen zu können.</string>
-    <string name="sutoko_connection_page_register_title">Registrieren</string>
-    <string name="sutoko_connection_page_signin_title">Melden Sie sich an</string>
-    <string name="sutoko_connection_page_sent_mail_title">Bestätigen Sie Ihre E-Mail-Adresse</string>
-    <string name="sutoko_connection_page_forgot_pwd_title">Haben Sie Ihr Passwort vergessen?</string>
-    <string name="sutoko_connection_page_signin_subtitle">Gemeinschaft - Sicherung - Geschenke</string>
-    <string name="sutoko_connection_page_sent_mail_subtitle">Mehr als ein Schritt!</string>
-    <string name="sutoko_connection_page_forgot_pwd_subtitle">Wie lautet deine E-Mail-Adresse?</string>
-    <string name="sutoko_connection_page_sent_mail_success_subtitle">Konto bestätigt!</string>
-    <string name="sutoko_connection_page_register_button_text">Registrieren</string>
-    <string name="sutoko_connection_page_signin_button_text">Melden Sie sich an</string>
-    <string name="sutoko_connection_page_sent_button_text">In der Warteschleife …</string>
-    <string name="sutoko_connection_page_sent_mail_success_button_text">Beginnen</string>
-    <string name="sutoko_connection_page_forgot_pwd_button_text">Senden</string>
-    <string name="sutoko_connection_page_button_cta_forgot">Passwort vergessen</string>
-    <string name="sutoko_or">oder</string>
-    <string name="sutoko_connection_page_button_cta_register">Sich anmelden</string>
-    <string name="sutoko_connection_page_button_cta_signin">Anmelden</string>
-    <string name="sutoko_connection_page_mail_validated_waiting_title">Wir haben eine E-Mail an</string>
-    <string name="sutoko_connection_page_mail_validated_waiting_subtitle">Gehen Sie zum Link in der E-Mail, um Ihr Konto zu bestätigen.</string>
-    <string name="sutoko_connection_page_mail_validated_success_title">Herzlichen Glückwunsch</string>
-    <string name="sutoko_connection_page_mail_validated_success_subtitle">Sie können mit der Nutzung Ihres Kontos beginnen</string>
-    <string name="sutoko_connection_page_forgot_mail_sent_title">Wir haben eine E-Mail an</string>
-    <string name="sutoko_connection_page_forgot_mail_sent_subtitle">Ändern Sie Ihr Passwort über den Link in dieser E-Mail.</string>
-    <string name="sutoko_error_cannot_reach_this_mail_address">Es ist nicht möglich, einen Link an diese E-Mail-Adresse zu senden</string>
 
     <string name="sutoko_see_chapters">Kapitel ansehen</string>
     <string name="sutoko_see_choices">Ihre Auswahl vergleichen</string>

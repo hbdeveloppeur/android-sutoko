@@ -1,6 +1,6 @@
 package com.purpletear.aiconversation.domain.usecase
 
-import com.purpletear.aiconversation.domain.repository.UserConfigRepository
+import com.purpletear.sutoko.domain.repository.UserConfigRepository
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
@@ -11,9 +11,6 @@ class UpdateDeviceTokenUseCase @Inject constructor(
         userId: String,
         userToken: String
     ): Flow<Result<Unit>> {
-        return userConfigRepository.updateDeviceToken(
-            userId = userId,
-            userToken = userToken,
-        )
+        return userConfigRepository.updateDeviceToken()
     }
 }

@@ -4,10 +4,12 @@ import com.google.gson.annotations.SerializedName
 import com.purpletear.sutoko.core.domain.model.MediaImage
 import com.purpletear.sutoko.version.model.Version
 import com.purpletear.sutoko.version.model.VersionMetadata
+import androidx.annotation.Keep
 
 /**
  * DTO for Version returned by portal API.
  */
+@Keep
 data class VersionDto(
     @SerializedName("id") val id: Int,
     @SerializedName("isOnline") val isOnline: Boolean,
@@ -33,6 +35,7 @@ fun VersionDto.toDomain(): Version = Version(
 /**
  * MediaImage DTO used by Version payloads.
  */
+@Keep
 data class MediaImageDto(
     @SerializedName("id") val id: Long,
     @SerializedName("type") val type: String,
@@ -58,6 +61,7 @@ fun MediaImageDto.toDomain(): MediaImage = MediaImage(
 /**
  * Metadata DTO for Version.
  */
+@Keep
 data class VersionMetadataDto(
     @SerializedName("id") val id: Int,
     @SerializedName("title") val title: String,

@@ -24,15 +24,17 @@ import com.purpletear.aiconversation.presentation.screens.conversation.viewmodel
 import com.purpletear.core.permission.PermissionChecker
 import com.purpletear.core.presentation.extensions.executeFlowResultUseCase
 import com.purpletear.core.presentation.extensions.executeFlowUseCase
+import com.purpletear.sutoko.domain.repository.UserRepository
+import com.purpletear.sutoko.domain.usecase.IsUserConnectedUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import fr.purpletear.sutoko.popup.domain.EditTextPopUp
 import fr.purpletear.sutoko.popup.domain.PopUpUserInteraction
 import fr.purpletear.sutoko.popup.domain.usecase.GetPopUpInteractionUseCase
 import fr.purpletear.sutoko.popup.domain.usecase.ShowPopUpUseCase
-import fr.purpletear.sutoko.shop.coinsLogic.Customer
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -47,7 +49,8 @@ class VoiceRecordViewModel @Inject constructor(
     private val addMessageToConversationUseCase: AddMessageToConversationUseCase,
     private val popUpInteractionUseCase: GetPopUpInteractionUseCase,
     private val showPopUpUseCase: ShowPopUpUseCase,
-    private val customer: Customer,
+    private val isUserConnectedUseCase: IsUserConnectedUseCase,
+    private val userRepository: UserRepository,
 ) : ViewModel() {
 
     private var aiCharacterId: Int = 1
@@ -82,7 +85,7 @@ class VoiceRecordViewModel @Inject constructor(
     }
 
     private fun isUserConnected(): Boolean {
-        return customer.isUserConnected()
+        return isUserConnectedUseCase().getOrElse { false }
     }
 
     // TODO
@@ -90,11 +93,17 @@ class VoiceRecordViewModel @Inject constructor(
 
     }
 
-    private fun sendMessage(
+    private suspend fun sendMessage(
         userName: String? = null,
         messages: List<Message>,
         onSuccess: () -> Unit
     ) {
+        val user = userRepository.observeUser().first()
+        if (null == user) {
+            onUserNotConnected()
+            return
+        }
+
         val messagesToSend =
             messages.filter {
                 it.hiddenState !in listOf(
@@ -102,10 +111,7 @@ class VoiceRecordViewModel @Inject constructor(
                     MessageState.Sent
                 ) && !it.isAcknowledged
             }
-        if (!customer.isUserConnected()) {
-            onUserNotConnected()
-            return
-        }
+
 
         if (messagesToSend.isEmpty()) {
             return
@@ -120,8 +126,8 @@ class VoiceRecordViewModel @Inject constructor(
                 sendMessageUseCase(
                     characterId = aiCharacterId,
                     messages = messagesToSend,
-                    userId = customer.user.uid!!,
-                    token = customer.user.token!!,
+                    userId = user.id,
+                    token = user.token,
                     userName = userName,
                 )
             },
@@ -157,12 +163,14 @@ class VoiceRecordViewModel @Inject constructor(
             if (interaction.event is PopUpUserInteraction.ConfirmText) {
                 val messagesToInsert = messageQueue.messages
                 messageQueue.cancelTimer()
-                sendMessage(
-                    userName = (interaction.event as PopUpUserInteraction.ConfirmText).text,
-                    messages = messagesToInsert.value,
-                    onSuccess = {
-                        messageQueue.remove { m -> m.id in messagesToInsert.value.map { s -> s.id } }
-                    })
+                viewModelScope.launch {
+                    sendMessage(
+                        userName = (interaction.event as PopUpUserInteraction.ConfirmText).text,
+                        messages = messagesToInsert.value,
+                        onSuccess = {
+                            messageQueue.remove { m -> m.id in messagesToInsert.value.map { s -> s.id } }
+                        })
+                }
             }
         }, onFailure = {
             // Failure
@@ -173,9 +181,11 @@ class VoiceRecordViewModel @Inject constructor(
     private fun startMessageQueueTimer() {
         messageQueue.cancelTimer()
         messageQueue.startTimer { messages ->
-            sendMessage(messages = messages, onSuccess = {
-                messageQueue.remove { m -> m.id in messages.map { s -> s.id } }
-            })
+            viewModelScope.launch {
+                sendMessage(messages = messages, onSuccess = {
+                    messageQueue.remove { m -> m.id in messages.map { s -> s.id } }
+                })
+            }
         }
     }
 

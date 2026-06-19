@@ -8,22 +8,22 @@ import com.purpletear.game.data.local.dao.GameDao
 import com.purpletear.game.data.local.dao.GameInstallationDao
 import com.purpletear.game.data.local.dao.MemoryDao
 import com.purpletear.game.data.local.dao.UserGameProgressDao
-import com.purpletear.game.data.local.entity.GameInstallationEntity
+import com.purpletear.game.data.local.entity.ChapterEntity
+import com.purpletear.game.data.local.entity.GameCatalogEntity
+import com.purpletear.game.data.local.entity.GameInstallEntity
 import com.purpletear.game.data.local.entity.MemoryEntity
-import com.purpletear.sutoko.game.model.Chapter
-import com.purpletear.sutoko.game.model.Game
-import com.purpletear.sutoko.game.model.UserGameProgressEntity
+import com.purpletear.game.data.local.entity.UserGameProgressEntity
 
 @Database(
     entities = [
-        Chapter::class,
+        ChapterEntity::class,
         UserGameProgressEntity::class,
-        Game::class,
-        GameInstallationEntity::class,
-        MemoryEntity::class
+        GameCatalogEntity::class,
+        GameInstallEntity::class,
+        MemoryEntity::class,
     ],
-    version = 7,
-    exportSchema = false
+    version = 8,
+    exportSchema = false,
 )
 @TypeConverters(GameTypeConverters::class)
 abstract class GameDatabase : RoomDatabase() {

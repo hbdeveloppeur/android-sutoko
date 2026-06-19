@@ -11,19 +11,24 @@ package fr.purpletear.friendzone.activities.game;
 import android.content.Context;
 import android.graphics.Point;
 import android.graphics.drawable.AnimationDrawable;
-import android.os.Handler;
-import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.Display;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.appcompat.app.AppCompatActivity;
+
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.RequestManager;
 
 import fr.purpletear.friendzone.R;
-import purpletear.fr.purpleteartools.*;
+import purpletear.fr.purpleteartools.Animation;
+import purpletear.fr.purpleteartools.Finger;
+import purpletear.fr.purpleteartools.MemoryHandler;
+import purpletear.fr.purpleteartools.Runnable2;
+import purpletear.fr.purpleteartools.TableOfSymbols;
 
 
 public class Game extends AppCompatActivity {
@@ -104,19 +109,19 @@ public class Game extends AppCompatActivity {
         animateCharacters();
     }
 
-    private void updateLife(){
-        ImageView image =  findViewById(R.id.game_character_bryan_life);
+    private void updateLife() {
+        ImageView image = findViewById(R.id.game_character_bryan_life);
         zombieLife--;
-        switch (zombieLife){
-            case 8 :
+        switch (zombieLife) {
+            case 8:
                 break;
-            case 6 :
+            case 6:
                 break;
-            case 4 :
+            case 4:
                 break;
-            case 2 :
+            case 2:
                 break;
-            case 0 :
+            case 0:
                 Animation.setAnimation(image, Animation.Animations.ANIMATION_FADEOUT, this);
                 Animation.setAnimation(findViewById(R.id.game_character_bryan), Animation.Animations.ANIMATION_FADEOUT, this);
                 Animation.setAnimation(findViewById(R.id.game_character_bryan_name), Animation.Animations.ANIMATION_FADEOUT, this);
@@ -153,7 +158,7 @@ public class Game extends AppCompatActivity {
 
     private void animate(String name, ImageView i) {
         int id = getResources().getIdentifier(name, "drawable", getPackageName());
-        if(id == 0) {
+        if (id == 0) {
             throw new IllegalArgumentException("Animation" + " " + name + " " + "Not found");
         }
         i.setBackgroundResource(id);
@@ -166,10 +171,10 @@ public class Game extends AppCompatActivity {
     private Sentence randomSentence() {
         final int min = 0;
         final int max = 1;
-        switch (min + (int)(Math.random() * ((max - min) + 1))){
-            case 0 :
+        switch (min + (int) (Math.random() * ((max - min) + 1))) {
+            case 0:
                 return Sentence.superb;
-            case 1 :
+            case 1:
                 return Sentence.notBad;
         }
         throw new IllegalArgumentException();
@@ -192,7 +197,7 @@ public class Game extends AppCompatActivity {
     }
 
     private int getIdFromSentence(Sentence sentence) {
-        switch(sentence) {
+        switch (sentence) {
             case saveZoe:
                 return R.drawable.game_context;
             case superb:
@@ -244,10 +249,10 @@ public class Game extends AppCompatActivity {
 
     private void hit() {
         animationHit();
-        if(touches((findViewById(R.id.game_character_zoe)))){
+        if (touches((findViewById(R.id.game_character_zoe)))) {
             displaySentence(Sentence.notZoe);
-        } else if(touches(findViewById(R.id.game_character_bryan)) && bryanIsAlive()){
-            if(zombieLife == 1) {
+        } else if (touches(findViewById(R.id.game_character_bryan)) && bryanIsAlive()) {
+            if (zombieLife == 1) {
                 displaySentence(Sentence.win);
             } else {
                 displaySentence(randomSentence());
@@ -261,7 +266,7 @@ public class Game extends AppCompatActivity {
         return zombieLife > 0;
     }
 
-    private boolean touches(View w){
+    private boolean touches(View w) {
         View v = findViewById(R.id.game_character_nick);
         return (w.getX() < v.getX() + ((direction == Direction.left) ? 0f : v.getWidth())
                 && v.getX() + ((direction == Direction.left) ? 0f : v.getWidth()) < w.getX() + w.getWidth());
