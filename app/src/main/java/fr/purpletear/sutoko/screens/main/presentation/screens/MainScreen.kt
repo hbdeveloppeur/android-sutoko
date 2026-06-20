@@ -118,7 +118,7 @@ fun MainScreen(
                         onOptionsPressed = onOptionsPressed,
                         onCoinsPressed = onCoinsPressed,
                         onDiamondsPressed = onDiamondsPressed,
-                        onGamePressed = { game ->
+                        openGame = { game ->
                             onGamePressed(game.id)
                         }
                     )

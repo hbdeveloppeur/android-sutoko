@@ -19,14 +19,23 @@ interface GameDao {
     fun observeGame(id: String): Flow<GameCatalogEntity?>
 
     @Query("DELETE FROM games WHERE isOfficial = 1")
-    suspend fun deleteAll()
+    suspend fun deleteAllOfficial()
+
+    @Query("DELETE FROM games WHERE isOfficial = 0")
+    suspend fun deleteAllUserGames()
 
     @Upsert
     suspend fun upsertAll(entities: List<GameCatalogEntity>)
 
     @Transaction
-    suspend fun replaceAll(entities: List<GameCatalogEntity>) {
-        deleteAll()
+    suspend fun replaceAllOfficial(entities: List<GameCatalogEntity>) {
+        deleteAllOfficial()
+        upsertAll(entities)
+    }
+
+    @Transaction
+    suspend fun replaceAllUserGames(entities: List<GameCatalogEntity>) {
+        deleteAllUserGames()
         upsertAll(entities)
     }
 }

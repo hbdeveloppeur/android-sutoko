@@ -22,6 +22,7 @@ import fr.purpletear.sutoko.presentation.util.DeleteCoilCache
 import fr.purpletear.sutoko.sync.balance.BalanceSyncCoordinator
 import fr.purpletear.sutoko.sync.catalog.CatalogSyncCoordinator
 import fr.purpletear.sutoko.sync.purchase.PurchaseSyncCoordinator
+import fr.purpletear.sutoko.sync.usergames.UserGamesSyncCoordinator
 import fr.sutoko.inapppurchase.application.domain.coordinator.PurchaseBackendRegistrationCoordinator
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -46,6 +47,9 @@ class Application : MultiDexApplication(), DefaultLifecycleObserver {
     lateinit var balanceSyncCoordinator: BalanceSyncCoordinator
 
     @Inject
+    lateinit var userGamesSyncCoordinator: UserGamesSyncCoordinator
+
+    @Inject
     lateinit var purchaseBackendRegistrationCoordinator: PurchaseBackendRegistrationCoordinator
 
     private val appSyncScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
@@ -66,6 +70,10 @@ class Application : MultiDexApplication(), DefaultLifecycleObserver {
             appSyncScope
         )
         catalogSyncCoordinator.start(
+            processLifecycleOwner.lifecycle,
+            appSyncScope
+        )
+        userGamesSyncCoordinator.start(
             processLifecycleOwner.lifecycle,
             appSyncScope
         )

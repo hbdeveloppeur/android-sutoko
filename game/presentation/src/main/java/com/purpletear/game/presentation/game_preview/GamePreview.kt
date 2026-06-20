@@ -42,6 +42,7 @@ import com.purpletear.game.presentation.game_preview.components.GamePreviewUnava
 import com.purpletear.game.presentation.game_preview.components.GamePreviewUnlockAnimation
 import com.purpletear.game.presentation.game_preview.events.GamePreviewEvent
 import com.purpletear.game.presentation.model.GameItem
+import com.purpletear.game.presentation.model.toGameAction
 import com.purpletear.sutoko.alert.presentation.SimpleAlertDialog
 import com.purpletear.sutoko.game.model.game.GameCatalog
 import kotlinx.coroutines.delay
@@ -63,6 +64,7 @@ fun GamePreview(
 
     val currentChapter by viewModel.currentChapter.collectAsStateWithLifecycle()
     val isUserPremium by viewModel.isUserPremium.collectAsStateWithLifecycle()
+    val appBuildNumber = viewModel.appBuildNumber
 
     val lifecycleOwner = LocalLifecycleOwner.current
 
@@ -81,7 +83,7 @@ fun GamePreview(
             when (val currentState = state) {
                 is GamePreviewUiState.Data -> {
                     GameBackgroundPreviewMedia(
-                        imageUrl = currentState.item.imageUrl,
+                        imageUrl = currentState.item.menuBackgroundUrl,
                         videoUrl = currentState.item.videoUrl.takeIf { showVideo },
                         modifier = Modifier.fillMaxSize()
                     )
@@ -249,10 +251,15 @@ fun GamePreview(
                     description = gameItem?.description ?: "",
                 )
 
-                val buttonsState = viewModel.gameButtonsState
 
                 GameActionButtons(
-                    state = buttonsState,
+                    gameAction = gameItem?.toGameAction(
+                        isPending = false,
+                        isPurchasing = false,
+                        currentChapter = currentChapter,
+                        appBuildNumber = appBuildNumber,
+                        isGameFinished = false,
+                    ),
                     modifier = Modifier.padding(bottom = 12.dp),
                 )
             }

@@ -51,6 +51,7 @@ class AccountViewModel @Inject constructor(
                 isPurchased = catalog.skus.any { it in purchasedSkus },
                 bannerUrl = mediaUrlResolver.resolveBannerUrl(catalog.banner?.storagePath),
                 logoUrl = mediaUrlResolver.resolveBannerUrl(catalog.logo?.storagePath),
+                menuBackgroundUrl = mediaUrlResolver.resolveBannerUrl(catalog.menuBackground?.storagePath),
                 downloadProgress = null
             )
         }

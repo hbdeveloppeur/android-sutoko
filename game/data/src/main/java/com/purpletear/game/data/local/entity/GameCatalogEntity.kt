@@ -18,6 +18,7 @@ data class GameCatalogEntity(
     val price: Int = 0,
     val skuIdentifiers: List<String> = emptyList(),
     val videoUrl: String? = null,
+    val menuBackground: Asset? = null,
     val chaptersCount: Int = 0,
     val banner: Asset? = null,
     val logo: Asset? = null,
@@ -25,6 +26,7 @@ data class GameCatalogEntity(
     val author: Author? = null,
     val legacyId: Int? = null,
     val isOfficial: Boolean = false,
+    val minAppBuild: Int = 1,
 )
 
 
@@ -36,10 +38,12 @@ fun GameCatalogEntity.toDomain(): GameCatalog = GameCatalog(
     skus = skuIdentifiers,
     videoUrl = videoUrl,
     chaptersCount = chaptersCount,
+    menuBackground = menuBackground,
     banner = banner,
     logo = logo,
     metadata = metadata,
     author = author,
     legacyId = legacyId,
     isOfficial = isOfficial,
+    minAppBuild = minAppBuild,
 )

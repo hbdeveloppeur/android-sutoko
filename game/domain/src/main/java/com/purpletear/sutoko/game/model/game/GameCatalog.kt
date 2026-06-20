@@ -12,6 +12,7 @@ data class GameCatalog(
     val price: Int = 0,
     val skus: List<String> = emptyList(),
     val videoUrl: String? = null,
+    val menuBackground: Asset? = null,
     val chaptersCount: Int = 0,
     val banner: Asset? = null,
     val logo: Asset? = null,
@@ -19,6 +20,7 @@ data class GameCatalog(
     val author: Author? = null,
     val legacyId: Int? = null,
     val isOfficial: Boolean = false,
+    val minAppBuild: Int,
 )
 
 fun GameCatalog.isPremium(): Boolean = price > 0

@@ -35,6 +35,8 @@ class GameInstallRepositoryImpl @Inject constructor(
     override fun observeDownloadProgress(gameId: String): Flow<Float?> =
         activeDownloads.map { it[gameId] }.distinctUntilChanged()
 
+    override fun observeDownloadProgresses(): Flow<Map<String, Float>> = activeDownloads
+
     override fun download(
         gameId: String,
         gameDownloadUrl: String,

@@ -5,5 +5,5 @@ import androidx.annotation.Keep
 @Keep
 data class GameInstall(
     val gameId: String,
-    val localVersion: String? = null,
+    val localVersion: Int? = null,
 )

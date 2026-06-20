@@ -34,6 +34,8 @@
     <string name="game_menu_reload_game">Reload the game</string>
     <string name="game_menu_buy">Buy</string>
     <string name="game_menu_buy_to_continue">Buy the game to continue</string>
+    <string name="game_menu_pending">Pending</string>
+    <string name="game_menu_pending_subtitle">Waiting for validation</string>
     <string name="game_chapters_continue">Continue</string>
 
     <!-- Chapter selection popup strings -->

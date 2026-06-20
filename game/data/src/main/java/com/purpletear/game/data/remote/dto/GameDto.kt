@@ -21,11 +21,13 @@ data class GameDto(
     @SerializedName("videoUrl") val videoUrl: String?,
     @SerializedName("cachedChaptersCount") val cachedChaptersCount: Int,
     @SerializedName("bannerAsset") val bannerAsset: AssetDto?,
+    @SerializedName("menuBackgroundAsset") val menuBackgroundAsset: AssetDto?,
     @SerializedName("logoAsset") val logoAsset: AssetDto?,
     @SerializedName("metadata") val metadata: GameMetadataDto,
     @SerializedName("author") val author: AuthorDto?,
     @SerializedName("legacyId") val legacyId: Int?,
     @SerializedName("official") val official: Boolean?,
+    @SerializedName("minAppBuildAndroid") val minAppBuild: Int,
 )
 
 /**
@@ -40,12 +42,14 @@ fun GameDto.toDomain(): GameCatalogEntity {
         skuIdentifiers = skuIdentifiers,
         videoUrl = videoUrl,
         chaptersCount = cachedChaptersCount,
+        menuBackground = menuBackgroundAsset?.toDomain(),
         banner = bannerAsset?.toDomain(),
         logo = logoAsset?.toDomain(),
         metadata = metadata.toDomain(),
         author = author?.toDomain(),
         legacyId = legacyId,
         isOfficial = official ?: false,
+        minAppBuild = minAppBuild,
     )
 }
 

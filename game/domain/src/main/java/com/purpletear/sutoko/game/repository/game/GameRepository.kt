@@ -13,4 +13,5 @@ interface GameRepository {
 
     suspend fun getDownloadLink(gameId: String, userId: String?, userToken: String?): Result<String>
     suspend fun syncOfficialGames(languageTag: String): Result<Unit>
+    suspend fun syncUserGames(languageTag: String): Result<Unit>
 }

@@ -16,5 +16,5 @@ object NetworkModule {
 
     @Provides
     @Named("mediaBaseUrl")
-    fun provideMediaBaseUrl(): String = "https://sutoko.com/"
+    fun provideMediaBaseUrl(): String = "https://sutoko.com/media/"
 }

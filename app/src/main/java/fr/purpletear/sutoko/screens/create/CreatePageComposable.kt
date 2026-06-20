@@ -17,7 +17,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -28,6 +27,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.purpletear.game.data.local.entity.GameCatalogEntity
+import com.purpletear.game.presentation.game_catalog.GameCardCompact
 import fr.purpletear.sutoko.R
 import fr.purpletear.sutoko.screens.create.components.create_story_button.CreateStoryButton
 import fr.purpletear.sutoko.screens.create.components.create_story_button.CreateStoryButtonVariant
@@ -45,14 +45,13 @@ internal fun CreatePageComposable(
     onOptionsPressed: () -> Unit = {},
     onCoinsPressed: () -> Unit = {},
     onDiamondsPressed: () -> Unit = {},
-    onGamePressed: (GameCatalogEntity) -> Unit = {},
+    openGame: (GameCatalogEntity) -> Unit = {},
 ) {
-    var isPreviewModalVisible by remember { mutableStateOf(false) }
-    var selectedGameId by remember { mutableStateOf<String?>(null) }
-
     val isRefreshing by remember { mutableStateOf(false) }
     val focusManager = LocalFocusManager.current
     val balance = viewModel.balance.collectAsStateWithLifecycle()
+    val games = viewModel.games.collectAsStateWithLifecycle()
+    val appBuildNumber = viewModel.appBuildNumber
 
     val pullRefreshState = rememberPullRefreshState(
         refreshing = isRefreshing,
@@ -123,6 +122,25 @@ internal fun CreatePageComposable(
                         }
                     )
                 }
+
+                items(
+                    count = games.value.size
+                ) { index ->
+                    val game = games.value[index]
+                    GameCardCompact(
+                        isPending = false,
+                        isPurchasing = false,
+                        currentChapter = null,
+                        appBuildNumber = appBuildNumber,
+                        isGameFinished = false,
+                        game = game,
+                        showGetButton = true,
+                        onGetClick = {},
+                        onOpenClick = {},
+                        onCancelClick = {}
+                    )
+                }
+
 
                 item {
                     LoadMoreButton(

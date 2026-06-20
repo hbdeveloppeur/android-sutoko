@@ -34,6 +34,8 @@
     <string name="game_menu_reload_game">Spiel neu laden</string>
     <string name="game_menu_buy">Kaufen</string>
     <string name="game_menu_buy_to_continue">Kaufen Sie das Spiel, um fortzufahren</string>
+    <string name="game_menu_pending">Ausstehend</string>
+    <string name="game_menu_pending_subtitle">Wartet auf Freigabe</string>
     <string name="game_chapters_continue">Fortfahren</string>
 
     <!-- Chapter selection popup strings -->

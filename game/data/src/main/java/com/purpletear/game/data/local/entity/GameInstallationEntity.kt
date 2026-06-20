@@ -14,7 +14,7 @@ import com.purpletear.sutoko.game.model.game.GameInstall
 data class GameInstallEntity(
     @PrimaryKey
     val gameId: String,
-    val localVersion: String? = null
+    val localVersion: Int? = null
 )
 
 /**

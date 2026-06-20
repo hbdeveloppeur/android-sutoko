@@ -2,7 +2,6 @@ package com.purpletear.game.data.di
 
 import android.content.Context
 import androidx.room.Room
-import com.purpletear.game.data.BuildConfig
 import com.purpletear.game.data.database.GameDatabase
 import com.purpletear.game.data.database.migrations.GameDatabaseMigrations
 import com.purpletear.game.data.file.GameFileManager
@@ -66,11 +65,7 @@ object GameDataModule {
             "game_database"
         )
             .addMigrations(*GameDatabaseMigrations.ALL)
-            .apply {
-                if (BuildConfig.DEBUG) {
-                    fallbackToDestructiveMigration()
-                }
-            }
+            .fallbackToDestructiveMigration()
             .build()
     }
 

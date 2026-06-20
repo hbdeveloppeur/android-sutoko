@@ -5,12 +5,12 @@ import androidx.annotation.Keep
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.purpletear.game.presentation.common.states.GameButtonsState
 import com.purpletear.game.presentation.game_preview.events.GamePreviewEvent
 import com.purpletear.game.presentation.model.GameItem
 import com.purpletear.game.presentation.model.GameUiError
 import com.purpletear.sutoko.game.model.Chapter
 import com.purpletear.sutoko.game.model.game.GameCatalog
+import com.purpletear.sutoko.core.domain.helper.AppVersionProvider
 import com.purpletear.sutoko.game.repository.ChapterRepository
 import com.purpletear.sutoko.game.repository.game.GameInstallRepository
 import com.purpletear.sutoko.game.repository.game.GameRepository
@@ -48,7 +48,10 @@ class GamePreviewViewModel @Inject constructor(
     gameInstallRepository: GameInstallRepository,
     mediaUrlResolver: MediaUrlResolver,
     private val getChaptersUseCase: GetChaptersUseCase,
+    appVersionProvider: AppVersionProvider,
 ) : ViewModel() {
+
+    val appBuildNumber: Int = appVersionProvider.getVersionCode()
 
     private val _events = Channel<GamePreviewEvent>(Channel.CONFLATED)
     val events = _events.receiveAsFlow()
@@ -70,9 +73,6 @@ class GamePreviewViewModel @Inject constructor(
             initialValue = null,
         )
 
-    internal val gameButtonsState: GameButtonsState
-        get() = GameButtonsState() // TODO: derive from game state and current chapter
-
     val game: StateFlow<GamePreviewUiState> = combine(
         gameRepository.observeGame(id = gameId),
         gameInstallRepository.observeInstall(gameId = gameId),
@@ -88,6 +88,7 @@ class GamePreviewViewModel @Inject constructor(
                     isPurchased = catalog.skus.any { it in purchasedSkus },
                     bannerUrl = mediaUrlResolver.resolveBannerUrl(catalog.banner?.storagePath),
                     logoUrl = mediaUrlResolver.resolveBannerUrl(catalog.logo?.storagePath),
+                    menuBackgroundUrl = mediaUrlResolver.resolveBannerUrl(catalog.menuBackground?.storagePath),
                     downloadProgress,
                 ),
                 gameCatalog = catalog,

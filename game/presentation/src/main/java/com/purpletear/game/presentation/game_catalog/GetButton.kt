@@ -36,7 +36,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.sharedelements.theme.Poppins
 import com.purpletear.game.presentation.R
-import com.purpletear.game.presentation.common.states.GameState
+import com.purpletear.game.presentation.model.GameAction
 
 private val ButtonShape = RoundedCornerShape(16.dp)
 private val BackgroundIdle = Color(0xFF2A2A2A)
@@ -46,7 +46,7 @@ private val ProgressColor = Color(0xFF4DB9EC)
 @Composable
 fun GetButton(
     modifier: Modifier = Modifier,
-    gameState: GameState = GameState.Idle,
+    gameState: GameAction,
     onGetClick: () -> Unit = {},
     onOpenClick: () -> Unit = {},
     onCancelClick: (() -> Unit)? = null,
@@ -54,10 +54,8 @@ fun GetButton(
     val interactionSource = remember { MutableInteractionSource() }
     val isPressed by interactionSource.collectIsPressedAsState()
 
-    val isError = gameState == GameState.LoadingError
-
     val backgroundColor by animateColorAsState(
-        targetValue = if (isError) BackgroundError else BackgroundIdle,
+        targetValue = BackgroundIdle,
         animationSpec = tween(200, easing = FastOutSlowInEasing),
         label = "bg_color"
     )
@@ -71,9 +69,8 @@ fun GetButton(
     val clickHandler = remember(gameState) {
         {
             when (gameState) {
-                is GameState.DownloadingGame -> onCancelClick?.invoke() ?: Unit
-                GameState.ReadyToPlay -> onOpenClick()
-                GameState.LoadingError -> onGetClick()
+                is GameAction.Downloading -> onCancelClick?.invoke() ?: Unit
+                is GameAction.Play -> onOpenClick()
                 else -> onGetClick()
             }
         }
@@ -102,7 +99,7 @@ fun GetButton(
             label = "content"
         ) { state ->
             when (state) {
-                is GameState.DownloadingGame -> {
+                is GameAction.Downloading -> {
                     if (state.progress < 100) {
                         CircularProgress(
                             progress = state.progress / 100f,
@@ -122,8 +119,7 @@ fun GetButton(
 
                 else -> {
                     val text = when (state) {
-                        GameState.ReadyToPlay -> stringResource(R.string.game_button_open)
-                        GameState.LoadingError -> stringResource(R.string.game_button_retry)
+                        is GameAction.Play -> stringResource(R.string.game_button_open)
                         else -> stringResource(R.string.game_button_get)
                     }
                     ButtonLabel(text)

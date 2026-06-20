@@ -1,8 +1,10 @@
 package com.purpletear.game.data.repository
 
 import com.purpletear.game.data.local.dao.GameDao
+import com.purpletear.game.data.local.entity.GameCatalogEntity
 import com.purpletear.game.data.local.entity.toDomain
 import com.purpletear.game.data.remote.GameApi
+import com.purpletear.game.data.remote.dto.GameDto
 import com.purpletear.game.data.remote.dto.toDomain
 import com.purpletear.sutoko.game.exception.GameDownloadForbiddenException
 import com.purpletear.sutoko.game.model.game.GameCatalog
@@ -11,8 +13,11 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import retrofit2.HttpException
+import retrofit2.Response
 import javax.inject.Inject
 import javax.inject.Singleton
+
+private const val USER_GAMES_PAGE_SIZE = 50
 
 @Singleton
 class GameRepositoryImpl @Inject constructor(
@@ -72,12 +77,53 @@ class GameRepositoryImpl @Inject constructor(
     override suspend fun syncOfficialGames(languageTag: String): Result<Unit> {
         return try {
             val remote = api.getOfficialGames(languageTag)
-            dao.replaceAll(remote.map { it.toDomain() })
+            dao.replaceAllOfficial(remote.map { it.toDomain() })
             Result.success(Unit)
         } catch (e: CancellationException) {
             throw e
         } catch (e: Exception) {
             Result.failure(e)
         }
+    }
+
+    override suspend fun syncUserGames(languageTag: String): Result<Unit> {
+        return try {
+            val remote = fetchAllUserGames(languageTag)
+            dao.replaceAllUserGames(
+                remote.map { it.toDomain().copy(isOfficial = false) }
+            )
+            Result.success(Unit)
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    private suspend fun fetchAllUserGames(languageTag: String): List<GameDto> {
+        val result = mutableListOf<GameDto>()
+        var page = 1
+
+        while (true) {
+            val response: Response<List<GameDto>> = api.getUserGames(
+                languageCode = languageTag,
+                page = page,
+                limit = USER_GAMES_PAGE_SIZE,
+            )
+
+            if (!response.isSuccessful) {
+                throw HttpException(response)
+            }
+
+            val pageItems = response.body().orEmpty()
+            if (pageItems.isEmpty()) {
+                break
+            }
+
+            result.addAll(pageItems)
+            page++
+        }
+
+        return result
     }
 }

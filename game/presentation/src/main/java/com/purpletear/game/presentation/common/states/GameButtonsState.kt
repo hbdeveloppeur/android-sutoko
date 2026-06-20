@@ -3,9 +3,14 @@ package com.purpletear.game.presentation.common.states
 import androidx.annotation.Keep
 import androidx.compose.ui.graphics.Color
 import com.example.sharedelements.utils.UiText
+import com.example.sharedelements.utils.UiText.DynamicText
+import com.example.sharedelements.utils.UiText.StringResource
 import com.purpletear.core.presentation.components.icon.Icon
+import com.purpletear.core.presentation.components.icon.Icon.Image
+import com.purpletear.core.presentation.components.icon.Icon.LottieAnimation
 import com.purpletear.game.presentation.R
 import com.purpletear.game.presentation.game_preview.GamePreviewAction
+import com.purpletear.game.presentation.model.GameAction
 import com.example.sharedelements.R as SutokoSharedElementsR
 
 /**
@@ -34,25 +39,24 @@ internal data class ButtonUiState(
 /**
  * Maps GameState to GameButtonsState based on the current game context.
  */
-internal fun GameState.toButtonsState(
-    currentChapterNumber: Int,
-    gamePrice: Int?,
+internal fun GameAction?.toButtonsState(
     onAction: (GamePreviewAction) -> Unit,
 ): GameButtonsState = when (this) {
-    is GameState.ChapterUnavailable -> GameButtonsState(
-        left = restartLeftButton(currentChapterNumber, onAction),
+    is GameAction.Play -> GameButtonsState(
+        left = restartLeftButton(this.chapterNumber, onAction),
         right = ButtonUiState(
-            title = UiText.StringResource(R.string.game_menu_play),
-            subtitle = UiText.StringResource(
+            title = StringResource(R.string.game_menu_play),
+            subtitle = StringResource(
                 R.string.game_menu_chapter_number,
-                currentChapterNumber
+                this.chapterNumber
             ),
             weight = 3f,
             isEnabled = false,
+            onClick = { onAction(GamePreviewAction.OnPlay) },
         )
     )
 
-    GameState.Idle, GameState.Loading -> GameButtonsState(
+    null -> GameButtonsState(
         left = ButtonUiState(
             weight = 2f,
             isEnabled = false,
@@ -65,115 +69,106 @@ internal fun GameState.toButtonsState(
         )
     )
 
-    GameState.ReadyToPlay -> GameButtonsState(
+    is GameAction.GameFinished -> GameButtonsState(
         left = deleteLeftButton(onAction),
         right = ButtonUiState(
-            title = UiText.StringResource(R.string.game_menu_play),
-            subtitle = UiText.StringResource(
-                R.string.game_menu_chapter_number,
-                currentChapterNumber
-            ),
-            weight = 3f,
-            onClick = { onAction(GamePreviewAction.OnPlay) },
-        )
-    )
-
-    GameState.GameFinished -> GameButtonsState(
-        left = deleteLeftButton(onAction),
-        right = ButtonUiState(
-            title = UiText.StringResource(R.string.game_menu_restart),
-            subtitle = UiText.StringResource(R.string.game_menu_game_finished),
+            title = StringResource(R.string.game_menu_restart),
+            subtitle = StringResource(R.string.game_menu_game_finished),
             weight = 3f,
             onClick = { onAction(GamePreviewAction.OnRestart) },
         )
     )
 
-    GameState.UpdateAppRequired -> GameButtonsState(
+    is GameAction.UpdateApp -> GameButtonsState(
         left = deleteLeftButton(onAction),
         right = ButtonUiState(
-            title = UiText.StringResource(R.string.game_menu_play),
-            subtitle = UiText.StringResource(R.string.game_menu_app_update_required),
+            title = StringResource(R.string.game_menu_play),
+            subtitle = StringResource(R.string.game_menu_app_update_required),
             weight = 3f,
             isEnabled = false,
             onClick = { onAction(GamePreviewAction.OnUpdateApp) },
         )
     )
 
-    GameState.UpdateGameRequired -> GameButtonsState(
+    is GameAction.UpdateGame -> GameButtonsState(
         left = deleteLeftButton(onAction),
         right = ButtonUiState(
-            title = UiText.StringResource(R.string.game_menu_update_game),
-            subtitle = UiText.StringResource(R.string.game_menu_game_update_required),
+            title = StringResource(R.string.game_menu_update_game),
+            subtitle = StringResource(R.string.game_menu_game_update_required),
             weight = 3f,
             isEnabled = true,
             onClick = { onAction(GamePreviewAction.OnUpdateGame) },
         )
     )
 
-    is GameState.ConfirmBuy -> GameButtonsState(
-        left = ButtonUiState(
-            weight = 1f,
-            icon = Icon.Image(
-                SutokoSharedElementsR.drawable.shared_ic_arrow_back_ios,
-            ),
-            onClick = { onAction(GamePreviewAction.OnAbortBuy) },
-            isEnabled = !isLoading,
-        ),
-        right = ButtonUiState(
-            title = UiText.StringResource(R.string.game_menu_confirm_order),
-            subtitle = UiText.StringResource(R.string.game_menu_coins, gamePrice ?: 0),
-            weight = 5f,
-            backgroundColor = Color(0xFF006FFF),
-            onClick = { onAction(GamePreviewAction.OnBuyConfirm) },
-            isLoading = isLoading,
-        )
-    )
-
-    GameState.ConfirmedBuy -> GameButtonsState(
-        right = ButtonUiState(
-            weight = 1f,
-            backgroundColor = Color(0xFF006FFF),
-            icon = Icon.LottieAnimation(
-                SutokoSharedElementsR.raw.lottie_check_white,
-                offsetY = -2,
+    is GameAction.ConfirmPurchase -> {
+        if (isBought) {
+            GameButtonsState(
+                right = ButtonUiState(
+                    weight = 1f,
+                    backgroundColor = Color(0xFF006FFF),
+                    icon = LottieAnimation(
+                        SutokoSharedElementsR.raw.lottie_check_white,
+                        offsetY = -2,
+                    )
+                )
             )
-        )
-    )
+        } else {
+            GameButtonsState(
+                left = ButtonUiState(
+                    weight = 2f,
+                    icon = Image(
+                        SutokoSharedElementsR.drawable.shared_ic_arrow_back_ios,
+                    ),
+                    onClick = { onAction(GamePreviewAction.OnAbortBuy) },
+                    isEnabled = true,
+                ),
+                right = ButtonUiState(
+                    weight = 8f,
+                    title = StringResource(R.string.game_menu_confirm_order),
+                    subtitle = StringResource(R.string.game_menu_coins, 960),
+                    backgroundColor = Color(0xFF006FFF),
+                    onClick = { onAction(GamePreviewAction.OnBuyConfirm) },
+                    isLoading = false,
+                )
+            )
+        }
+    }
 
-    GameState.DownloadRequired -> GameButtonsState(
+    is GameAction.Download -> GameButtonsState(
         right = ButtonUiState(
-            title = UiText.StringResource(R.string.game_menu_download_game),
-            subtitle = UiText.StringResource(R.string.game_menu_download_size),
+            title = StringResource(R.string.game_menu_download_game),
+            subtitle = StringResource(R.string.game_menu_download_size),
             weight = 1f,
             onClick = { onAction(GamePreviewAction.OnDownload) },
         )
     )
 
-    is GameState.DownloadingGame -> GameButtonsState(
+    is GameAction.Downloading -> GameButtonsState(
         right = ButtonUiState(
-            title = UiText.StringResource(R.string.game_menu_downloading),
-            subtitle = UiText.DynamicText("%d%%".format(progress)),
+            title = StringResource(R.string.game_menu_downloading),
+            subtitle = DynamicText("%d%%".format(progress)),
             backgroundColor = Color(0xFF006FFF),
             weight = 1f,
         )
     )
 
-    GameState.LoadingError -> GameButtonsState(
+    is GameAction.Purchase -> GameButtonsState(
+        left = restartLeftButton(1, onAction),
         right = ButtonUiState(
-            title = UiText.StringResource(R.string.game_menu_reload_game),
-            weight = 1f,
-            onClick = { onAction(GamePreviewAction.OnReload) },
-            backgroundColor = Color(0xFF171717),
+            title = StringResource(R.string.game_menu_buy),
+            subtitle = StringResource(R.string.game_menu_buy_to_continue),
+            weight = 3f,
+            onClick = { onAction(GamePreviewAction.OnBuy) },
         )
     )
 
-    GameState.PaymentRequired -> GameButtonsState(
-        left = restartLeftButton(currentChapterNumber, onAction),
+    is GameAction.Pending -> GameButtonsState(
         right = ButtonUiState(
-            title = UiText.StringResource(R.string.game_menu_buy),
-            subtitle = UiText.StringResource(R.string.game_menu_buy_to_continue),
-            weight = 3f,
-            onClick = { onAction(GamePreviewAction.OnBuy) },
+            title = StringResource(R.string.game_menu_pending),
+            subtitle = StringResource(R.string.game_menu_pending_subtitle),
+            backgroundColor = Color(0xFF006FFF),
+            weight = 1f,
         )
     )
 }
