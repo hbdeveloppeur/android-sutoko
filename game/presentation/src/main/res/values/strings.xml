@@ -1,23 +1,38 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+
+    <!-- Game catalog -->
     <string name="sutoko_index_chapter_plural">%1$d Chapters</string>
-    <string name="game_buy_story_error_check_internet">Couldn\'t buy the story, check your internet connection.</string>
-    <string name="game_story_preview_buy_story_unknown_error_occured_you_have_been_refunded">An unknown error occured, you have been refunded.</string>
-    <string name="game_story_preview_buy_story_story_not_buyable_anymore">This Story is not buyable anymore</string>
+    <string name="game_card_genre_fallback">Police • Romance • Drama</string>
 
-    <!-- Already bought alert strings -->
-    <string name="already_bought_alert_title">You already had the story!</string>
-    <string name="already_bought_alert_description">It seems that you already bought the story, so you keep your coins!</string>
-    <string name="already_bought_alert_button">Continue</string>
+    <!-- Game card buttons -->
+    <string name="game_button_get">Get</string>
+    <string name="game_button_open">Open</string>
+    <string name="game_button_retry">Retry</string>
 
-    <!-- Insufficient funds alert strings -->
-    <string name="insufficient_funds_alert_title">Insufficient Funds</string>
-    <string name="insufficient_funds_alert_description">You don\'t have enough coins to buy this item.</string>
-    <string name="insufficient_funds_alert_button">Continue</string>
-    <string name="game_story_chapters_button_chapters">Chapters</string>
-    <string name="game_story_chapters_button_chapters_count">%1$d chapters</string>
+    <!-- Game announce card -->
+    <string name="game_announce_update_today">Update your app today</string>
+    <string name="game_announce_soon_available">Soon available</string>
+    <string name="game_announce_title_create_stories">Create your own stories</string>
+    <string name="game_announce_subtitle_features">New features coming soon</string>
+    <string name="game_announce_button_update">Update</string>
+    <string name="game_announce_reminder_enabled">Reminder set</string>
+    <string name="game_announce_button_remind_me">Remind me</string>
+    <string name="game_announce_available">Available</string>
 
-    <!-- Game menu state strings -->
+    <!-- Game preview -->
+    <string name="game_preview_chapter_title">Chapter %1$d: *%2$s*</string>
+    <string name="game_preview_loading_chapter">Loading chapter…</string>
+    <string name="game_preview_premium">Premium</string>
+    <string name="game_preview_premium_active">Premium Active</string>
+    <string name="game_preview_unlocked">Unlocked</string>
+    <string name="game_preview_calendar_icon">Calendar Icon</string>
+    <string name="game_preview_next_chapter">Next chapter - %1$s</string>
+    <string name="game_preview_free">Free</string>
+    <string name="game_preview_background_description">Background</string>
+    <string name="game_preview_avatar_description">Avatar</string>
+
+    <!-- Game menu state -->
     <string name="game_menu_play">Play</string>
     <string name="game_menu_chapter_number">Chapter %1$d</string>
     <string name="game_menu_restart">Restart</string>
@@ -31,22 +46,52 @@
     <string name="game_menu_download_size">10 Mo</string>
     <string name="game_menu_downloading">Downloading…</string>
     <string name="game_menu_download_progress">%.1f%%</string>
+    <string name="game_menu_download_progress_percent">%d%%</string>
     <string name="game_menu_reload_game">Reload the game</string>
     <string name="game_menu_buy">Buy</string>
     <string name="game_menu_buy_to_continue">Buy the game to continue</string>
     <string name="game_menu_pending">Pending</string>
     <string name="game_menu_pending_subtitle">Waiting for validation</string>
-    <string name="game_chapters_continue">Continue</string>
+    <string name="game_menu_delete">Delete</string>
 
-    <!-- Chapter selection popup strings -->
+    <!-- Restart confirmation popup -->
+    <string name="game_restart_confirm_title">Restart the game?</string>
+    <string name="game_restart_confirm_description">This will reset your progress for the current game. You won\'t lose purchased content. Do you want to continue?</string>
+    <string name="game_restart_confirm_button">Restart</string>
+
+    <!-- Delete game -->
+    <string name="game_delete_confirm_title">Delete the game?</string>
+    <string name="game_delete_confirm_description">This will delete the game files from your device. You won\'t lose your progress or purchased content.</string>
+    <string name="game_delete_confirm_description_short">This will delete the game files from your device.</string>
+    <string name="game_delete_confirm_button">Delete</string>
+    <string name="game_delete_success">Game deleted successfully</string>
+    <string name="game_delete_error">Failed to delete the game</string>
+    <string name="game_restart_success">Game restart</string>
+    <string name="game_restart_error">Failed to restart the game</string>
+    <string name="game_redownload_started">Game redownload started</string>
+    <string name="game_redownload_completed">Game redownload completed</string>
+    <string name="game_redownload_error">Failed to redownload the game</string>
+
+    <!-- First name prompt -->
+    <string name="first_name_prompt_title">Enter your character\'s first name</string>
+    <string name="first_name_prompt_placeholder">Nick</string>
+
+    <!-- Chapter selection screen -->
+    <string name="game_chapter_selection_title">Select a chapter</string>
+    <string name="game_chapter_selection_success">Chapter selected</string>
+    <string name="game_chapter_selection_current">Current</string>
+    <string name="game_chapter_selection_locked">Locked</string>
+
+    <!-- Chapter selection popup -->
     <string name="game_chapters_goto_title">Go to chapter %1$d</string>
     <string name="game_chapters_goto_description">You will lose choices made in the story after this chapter. Are you sure you want to continue?</string>
 
-    <!-- Chapters screen strings -->
+    <!-- Chapters screen -->
     <string name="game_chapters_no_chapters_available">No chapters available</string>
     <string name="game_chapters_back">Back</string>
     <string name="game_chapters_title">Chapters</string>
     <string name="game_chapters_select">Select a chapter</string>
+    <string name="game_chapters_continue">Continue</string>
 
     <!-- Chapter item strings -->
     <string name="game_chapter_locked">Locked</string>
@@ -55,53 +100,28 @@
     <string name="game_chapter_return">Return to this chapter</string>
     <string name="game_chapter_current">Current</string>
 
-    <!-- Game preview strings -->
-    <string name="game_preview_chapter_title">Chapter %1$d: *%2$s*</string>
-    <string name="game_preview_loading_chapter">Loading chapter…</string>
-    <string name="game_preview_premium">Premium</string>
-    <string name="game_preview_premium_active">Premium Active</string>
-    <string name="game_preview_unlocked">Unlocked</string>
-    <string name="game_preview_calendar_icon">Calendar Icon</string>
-    <string name="game_preview_next_chapter">Next chapter - %1$s</string>
-    <string name="game_preview_free">Free</string>
+    <!-- Chapter introduction -->
+    <string name="game_description_chapter_title">Chapter %1$d</string>
+    <string name="game_description_restart">Restart Game</string>
+    <string name="game_description_continue">Continue</string>
+    <string name="game_description_error">Error: %1$s</string>
 
-    <!-- Restart confirmation popup -->
-    <string name="game_restart_confirm_title">Restart the game?</string>
-    <string name="game_restart_confirm_description">This will reset your progress for the current game. You won\'t lose purchased content. Do you want to continue?</string>
-    <string name="game_restart_confirm_button">Restart</string>
+    <!-- Game play / chat -->
+    <string name="chat_header_back_button_description">Back button</string>
+    <string name="chat_header_character_name">Eva Belle</string>
+    <string name="chat_header_status_away">Away</string>
+    <string name="chat_footer_send_description">Send message</string>
+    <string name="chat_footer_placeholder">Your message</string>
+    <string name="message_manga_prompt">A manga page is waiting for you</string>
+    <string name="message_manga_open">Open</string>
+    <string name="message_next_chapter_title">End of chapter</string>
+    <string name="message_next_chapter_button">Next chapter</string>
+    <string name="message_vocal_play_description">Play</string>
+    <string name="message_story_finished">Story finished!</string>
 
-    <!-- First name prompt -->
-    <string name="first_name_prompt_title">Enter your character\'s first name</string>
-    <string name="first_name_prompt_placeholder">Nick</string>
-
-    <!-- Delete game -->
-    <string name="game_menu_delete">Delete</string>
-    <string name="game_delete_confirm_title">Delete the game?</string>
-    <string name="game_delete_confirm_description">This will delete the game files from your device. You won\'t lose your progress or purchased content.</string>
-    <string name="game_delete_confirm_description_short">This will delete the game files from your device.</string>
-    <string name="game_delete_confirm_button">Delete</string>
-    <string name="game_delete_success">Game deleted successfully</string>
-    <string name="game_delete_error">Failed to delete the game</string>
-    <string name="game_restart_success">Game restarted successfully</string>
-    <string name="game_restart_error">Failed to restart the game</string>
-    <string name="game_redownload_started">Game redownload started</string>
-    <string name="game_redownload_completed">Game redownload completed</string>
-    <string name="game_redownload_error">Failed to redownload the game</string>
-
-    <!-- Game Card Buttons -->
-    <string name="game_button_get">Get</string>
-    <string name="game_button_open">Open</string>
-    <string name="game_button_retry">Retry</string>
-
-    <!-- Game Announce Card -->
-    <string name="game_announce_update_today">Update your app today</string>
-    <string name="game_announce_soon_available">Soon available</string>
-    <string name="game_announce_title_create_stories">Create your own stories</string>
-    <string name="game_announce_subtitle_features">New features coming soon</string>
-    <string name="game_announce_button_update">Update</string>
-    <string name="game_announce_reminder_enabled">Reminder set</string>
-    <string name="game_announce_button_remind_me">Remind me</string>
-    <string name="game_announce_available">Available</string>
+    <!-- Choices box -->
+    <string name="game_choices_title">Your choice:</string>
+    <string name="game_choices_make_a_choice">Make a choice</string>
 
     <!-- Game UI errors -->
     <string name="error_load_game">Failed to load the game</string>
@@ -109,4 +129,28 @@
     <string name="error_download">Download failed</string>
     <string name="error_update">Update failed</string>
     <string name="error_delete">Delete failed</string>
+    <string name="error_restart">Failed to restart the game</string>
+
+    <!-- Session errors -->
+    <string name="error_game_not_found">Game not found</string>
+    <string name="error_game_not_installed">Game not installed</string>
+    <string name="error_game_update_required">App update required</string>
+    <string name="error_chapter_unavailable">Chapter not yet released</string>
+    <string name="error_chapter_not_found">No available chapter found</string>
+    <string name="error_no_chapters_found">No chapters available</string>
+    <string name="error_unknown">An unknown error occurred</string>
+
+    <!-- Purchase / alert strings -->
+    <string name="game_buy_story_error_check_internet">Couldn\'t buy the story, check your internet connection.</string>
+    <string name="game_story_preview_buy_story_unknown_error_occured_you_have_been_refunded">An unknown error occured, you have been refunded.</string>
+    <string name="game_story_preview_buy_story_story_not_buyable_anymore">This Story is not buyable anymore</string>
+    <string name="already_bought_alert_title">You already had the story!</string>
+    <string name="already_bought_alert_description">It seems that you already bought the story, so you keep your coins!</string>
+    <string name="already_bought_alert_button">Continue</string>
+    <string name="insufficient_funds_alert_title">Insufficient Funds</string>
+    <string name="insufficient_funds_alert_description">You don\'t have enough coins to buy this item.</string>
+    <string name="insufficient_funds_alert_button">Continue</string>
+    <string name="game_story_chapters_button_chapters">Chapters</string>
+    <string name="game_story_chapters_button_chapters_count">%1$d chapters</string>
+
 </resources>

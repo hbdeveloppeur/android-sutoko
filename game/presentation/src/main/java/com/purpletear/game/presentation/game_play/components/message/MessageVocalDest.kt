@@ -3,11 +3,10 @@ package com.purpletear.game.presentation.game_play.components.message
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -17,47 +16,29 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.purpletear.game.debug.PreviewOverlayWrapper
 import com.purpletear.game.presentation.R
 import com.purpletear.game.presentation.game_play.components.Avatar
-
-@Preview(name = "GameMessageText")
-@Composable
-private fun Preview() {
-    PreviewOverlayWrapper(
-        imageModifier = Modifier
-            .height(52.dp)
-            .padding(2.dp)
-            .aspectRatio(228f / 74f),
-        drawable = R.drawable.preview_vocaldest,
-    ) {
-        Column {
-            Box(
-                Modifier
-                    .padding(2.dp)
-            ) {
-                MessageVocalDest(isPlaying = true, percent = 0.2f)
-            }
-        }
-    }
-}
+import com.purpletear.sutoko.game.model.character.Character
 
 @Composable
-internal fun MessageVocalDest(isPlaying: Boolean, percent: Float, onClick: () -> Unit = {}) {
+internal fun MessageVocalDest(
+    character: Character, isPlaying: Boolean, percent: Float, onClick: () -> Unit = {}
+) {
     MessageBubble(Modifier.padding(end = 4.dp)) {
         Avatar(
             modifier = Modifier.background(Color.Blue),
             size = 22.dp,
             borderWidth = 1.4.dp,
-            imageModel = R.drawable.tmp_avatar
+            imageModel = character.avatar
         )
         Progress(percent)
         PlayButton(isPlaying, onClick)
@@ -108,12 +89,22 @@ private fun ProgressBarItem(height: Dp, progress: Float) {
 @Composable
 private fun PlayButton(isPlaying: Boolean, onClick: () -> Unit) {
     val shape = CircleShape
-    Image(
-        painter = painterResource(id = if (isPlaying) R.drawable.ic_pause_button else R.drawable.ic_play_button),
-        contentDescription = "Play",
+    Box(
         modifier = Modifier
-            .size(22.dp)
-            .clip(shape)
-            .clickable(onClick = onClick)
-    )
+            .size(32.dp)
+            .clickable(
+                interactionSource = remember { MutableInteractionSource() },
+                indication = null,
+                onClick = onClick
+            ),
+        contentAlignment = Alignment.Center
+    ) {
+        Image(
+            painter = painterResource(id = if (isPlaying) R.drawable.ic_pause_button else R.drawable.ic_play_button),
+            contentDescription = stringResource(R.string.message_vocal_play_description),
+            modifier = Modifier
+                .size(22.dp)
+                .clip(shape)
+        )
+    }
 }

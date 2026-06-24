@@ -10,8 +10,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
@@ -31,6 +31,8 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import coil.compose.AsyncImage
 import com.example.sharedelements.theme.Poppins
+import com.purpletear.game.presentation.BuildConfig
+import com.purpletear.game.presentation.common.extensions.toUiString
 import com.purpletear.game.presentation.R
 import com.purpletear.game.presentation.common.components.SimpleButton
 import com.purpletear.game.presentation.game_play.GameSessionViewModel
@@ -42,6 +44,7 @@ import com.purpletear.sutoko.game.model.GameSessionState
 internal fun NavGraphBuilder.descriptionScreen(
     viewModel: GameSessionViewModel,
     onContinue: (String) -> Unit,
+    onSelectChapter: () -> Unit,
 ) = composable(
     route = SmsGameRoutes.DESCRIPTION,
 ) {
@@ -51,6 +54,7 @@ internal fun NavGraphBuilder.descriptionScreen(
     ChapterDescriptionRoute(
         state = state,
         onContinue = onContinue,
+        onSelectChapter = onSelectChapter,
         onRestart = viewModel::onRestartPressed,
         showRestartDialog = showRestartDialog,
         onRestartDialogConfirm = viewModel::onRestartDialogConfirm,
@@ -62,6 +66,7 @@ internal fun NavGraphBuilder.descriptionScreen(
 private fun ChapterDescriptionRoute(
     state: GameSessionState,
     onContinue: (String) -> Unit,
+    onSelectChapter: () -> Unit,
     onRestart: () -> Unit,
     showRestartDialog: Boolean,
     onRestartDialogConfirm: () -> Unit,
@@ -71,6 +76,7 @@ private fun ChapterDescriptionRoute(
         is GameSessionState.Ready -> ChapterDescriptionContent(
             chapter = state.chapter,
             onContinue = { onContinue(state.chapter.normalizedCode) },
+            onSelectChapter = onSelectChapter,
             onRestart = onRestart,
             showRestartDialog = showRestartDialog,
             onRestartDialogConfirm = onRestartDialogConfirm,
@@ -79,10 +85,14 @@ private fun ChapterDescriptionRoute(
 
         is GameSessionState.Error -> Box(
             Modifier
-                .fillMaxSize(),
+                .fillMaxSize()
+                .statusBarsPadding(),
             contentAlignment = Alignment.Center
         ) {
-            Text(text = "Error: ${state.message}", color = Color.White)
+            Text(
+                text = stringResource(R.string.game_description_error, state.type.toUiString()),
+                color = Color.White
+            )
         }
 
         else -> {}
@@ -114,6 +124,7 @@ private fun ChapterDescriptionRoute(
 internal fun ChapterDescriptionContent(
     chapter: Chapter,
     onContinue: () -> Unit,
+    onSelectChapter: () -> Unit,
     onRestart: () -> Unit,
     showRestartDialog: Boolean = false,
     onRestartDialogConfirm: () -> Unit = {},
@@ -122,23 +133,24 @@ internal fun ChapterDescriptionContent(
     Box(
         Modifier
             .fillMaxSize()
-            .background(Color.Black)
-            .padding(horizontal = 12.dp),
+            .background(Color.Black),
         contentAlignment = Alignment.Center
     ) {
         Background()
         Column(
-            modifier = Modifier.widthIn(max = 360.dp),
+            modifier = Modifier
+                .statusBarsPadding()
+                .widthIn(max = 280.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            Title(text = "Chapter ${chapter.number}")
+            Title(text = stringResource(R.string.game_description_chapter_title, chapter.number))
             Subtitle(text = chapter.title)
             Description(text = chapter.description)
             Spacer(modifier = Modifier.size(4.dp))
             Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                 SimpleButton(
-                    text = "Restart Game",
+                    text = stringResource(R.string.game_description_restart),
                     imageVector = null,
                     backgroundColor = Color(0xFF1B1D22),
                     textColor = Color.White,
@@ -147,12 +159,21 @@ internal fun ChapterDescriptionContent(
                     }
                 )
                 SimpleButton(
-                    text = "Continue",
+                    text = stringResource(R.string.game_description_continue),
                     backgroundColor = Color(0xFFFF007A),
                     textColor = Color.White,
                     onClick = {
                         onContinue()
                     }
+                )
+            }
+
+            if (BuildConfig.DEBUG) {
+                SimpleButton(
+                    text = "Debug: Select a chapter",
+                    backgroundColor = Color(0xFF1B1D22),
+                    textColor = Color.White,
+                    onClick = onSelectChapter
                 )
             }
         }

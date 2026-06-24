@@ -20,6 +20,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -46,7 +47,11 @@ private fun Preview() {
 }
 
 @Composable
-internal fun ChatHeader(modifier: Modifier = Modifier) {
+internal fun ChatHeader(
+    modifier: Modifier = Modifier,
+    characterName: String = stringResource(R.string.chat_header_character_name),
+    status: String = stringResource(R.string.chat_header_status_away),
+) {
     Row(
         Modifier.then(modifier),
         verticalAlignment = Alignment.CenterVertically,
@@ -54,18 +59,21 @@ internal fun ChatHeader(modifier: Modifier = Modifier) {
     ) {
         BackButton()
         Avatar(size = 44.dp, imageModel = R.drawable.tmp_avatar)
-        Info()
+        Info(characterName = characterName, status = status)
     }
 }
 
 @Composable
-internal fun Info() {
+internal fun Info(
+    characterName: String,
+    status: String,
+) {
     Column(
         Modifier
             .padding(start = 18.dp),
         verticalArrangement = Arrangement.spacedBy(6.dp)
     ) {
-        Label(text = "Eva Belle")
+        Label(text = characterName)
         Row(
             Modifier.padding(start = 4.dp),
             horizontalArrangement = Arrangement.spacedBy(6.dp),
@@ -79,7 +87,7 @@ internal fun Info() {
                 contentDescription = null,
                 contentScale = ContentScale.Crop,
             )
-            SubLabel(text = "Away")
+            SubLabel(text = status)
         }
     }
 }
@@ -119,7 +127,7 @@ private fun BackButton(modifier: Modifier = Modifier, onClick: () -> Unit = {}) 
     ) {
         Icon(
             imageVector = ImageVector.vectorResource(id = R.drawable.ic_back_button),
-            contentDescription = "Back button",
+            contentDescription = stringResource(R.string.chat_header_back_button_description),
             modifier = Modifier
                 .size(14.dp)
                 .graphicsLayer {

@@ -49,9 +49,11 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.net.toUri
+import androidx.compose.ui.res.stringResource
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.example.sharedelements.R
+import com.purpletear.game.presentation.R as GameR
 
 @Composable
 internal fun GamePreviewDescription(
@@ -160,7 +162,7 @@ private fun Avatar(url: String, totalHeight: Dp, minHeight: Dp = 20.dp) {
                 .data(uri)
                 .crossfade(true)
                 .build(),
-            contentDescription = "Avatar",
+            contentDescription = stringResource(GameR.string.game_preview_avatar_description),
             contentScale = ContentScale.Crop,
             modifier = Modifier
                 .size(imageSize)

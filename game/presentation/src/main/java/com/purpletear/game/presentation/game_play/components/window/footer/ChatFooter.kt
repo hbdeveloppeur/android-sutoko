@@ -23,6 +23,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -55,7 +56,10 @@ private fun Preview() {
 }
 
 @Composable
-internal fun ChatFooter(onClickSend: () -> Unit = {}) {
+internal fun ChatFooter(
+    onClickSend: () -> Unit = {},
+    sendContentDescription: String = stringResource(R.string.chat_footer_send_description),
+) {
     Row(
         Modifier
             .height(44.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -68,13 +72,17 @@ internal fun ChatFooter(onClickSend: () -> Unit = {}) {
             size = 16.dp,
             transformX = 5f,
             onClick = onClickSend,
-            contentDescription = "Send message"
+            contentDescription = sendContentDescription
         )
     }
 }
 
 @Composable
-internal fun MessageBox(modifier: Modifier = Modifier, onClick: () -> Unit = {}) {
+internal fun MessageBox(
+    modifier: Modifier = Modifier,
+    placeholder: String = stringResource(R.string.chat_footer_placeholder),
+    onClick: () -> Unit = {}
+) {
     val shape = RoundedCornerShape(percent = 50)
     Box(
         modifier = Modifier
@@ -86,7 +94,7 @@ internal fun MessageBox(modifier: Modifier = Modifier, onClick: () -> Unit = {})
             .clickable(onClick = onClick)
     ) {
         Text(
-            text = "Votre message",
+            text = placeholder,
             color = Color.White,
             fontFamily = MontserratFontFamily,
             fontWeight = FontWeight.Medium,

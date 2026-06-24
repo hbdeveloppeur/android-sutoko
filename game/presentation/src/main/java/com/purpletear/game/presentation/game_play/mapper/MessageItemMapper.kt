@@ -3,13 +3,13 @@ package com.purpletear.game.presentation.game_play.mapper
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.res.stringResource
 import com.purpletear.game.presentation.game_play.components.message.MessageImage
 import com.purpletear.game.presentation.game_play.components.message.MessageNarration
 import com.purpletear.game.presentation.game_play.components.message.MessageNextChapter
 import com.purpletear.game.presentation.game_play.components.message.MessageText
 import com.purpletear.game.presentation.game_play.components.message.MessageTyping
 import com.purpletear.game.presentation.game_play.components.message.MessageVocalDest
-import com.purpletear.game.presentation.game_play.mapper.hasSameCharacter
 import com.purpletear.sutoko.game.engine.GameMessage
 import com.purpletear.sutoko.game.engine.GameMessageType
 import com.purpletear.sutoko.game.engine.message.GameMessageImage
@@ -17,6 +17,7 @@ import com.purpletear.sutoko.game.engine.message.GameMessageInfo
 import com.purpletear.sutoko.game.engine.message.GameMessageText
 import com.purpletear.sutoko.game.engine.message.GameMessageTyping
 import com.purpletear.sutoko.game.engine.message.GameMessageVocal
+import com.purpletear.game.presentation.R
 import com.purpletear.sutoko.game.model.character.Character
 
 @Composable
@@ -55,7 +56,12 @@ internal fun Message(
 
         GameMessageType.Info -> {
             message as GameMessageInfo
-            MessageNarration(text = message.text)
+            val text = if (message.id == "end_story") {
+                stringResource(R.string.message_story_finished)
+            } else {
+                message.text
+            }
+            MessageNarration(text = text)
         }
 
         GameMessageType.Image -> {
@@ -75,6 +81,7 @@ internal fun Message(
             val percent = if (message.audioUrl == currentVocalUrl) vocalProgress else 0f
             MessageVocalDest(
                 isPlaying = isThisPlaying,
+                character = character!!,
                 percent = percent,
                 onClick = { onVocalClick(message.audioUrl) }
             )

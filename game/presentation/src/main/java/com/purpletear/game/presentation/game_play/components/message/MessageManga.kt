@@ -12,6 +12,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -38,7 +39,11 @@ private fun Preview() {
 }
 
 @Composable
-internal fun MessageManga(onClick: () -> Unit = {}) {
+internal fun MessageManga(
+    prompt: String = stringResource(R.string.message_manga_prompt),
+    openButtonText: String = stringResource(R.string.message_manga_open),
+    onClick: () -> Unit = {}
+) {
     Column(
         verticalArrangement = Arrangement.spacedBy(12.dp),
         horizontalAlignment = Alignment.CenterHorizontally
@@ -48,12 +53,12 @@ internal fun MessageManga(onClick: () -> Unit = {}) {
             imageModel = R.drawable.page_manga_preview,
         )
         Text(
-            text = "Un page de Manga vous attend",
+            text = prompt,
             color = Color.White,
             fontFamily = CrimsonTextFontFamily
         )
         SimpleButton(
-            text = "Ouvrir",
+            text = openButtonText,
             fontSize = 11.sp,
             onClick = onClick,
             imageVector = null,

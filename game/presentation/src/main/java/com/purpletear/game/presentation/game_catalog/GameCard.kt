@@ -20,6 +20,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.PlatformTextStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
@@ -28,6 +29,7 @@ import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.example.sharedelements.theme.SutokoTypography
+import com.purpletear.game.presentation.R
 import com.purpletear.sutoko.game.model.game.GameCatalog
 import com.purpletear.sutoko.game.model.game.isPremium
 
@@ -94,7 +96,7 @@ fun GameCard(
             Row {
                 Text(
                     modifier = Modifier,
-                    text = "Policer • Amour • Drama",
+                    text = stringResource(R.string.game_card_genre_fallback),
                     color = Color.White.copy(0.8f),
                     fontSize = 12.sp,
                     style = SutokoTypography.h3.copy(

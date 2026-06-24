@@ -14,8 +14,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.ColorPainter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
+import com.purpletear.game.presentation.R
 
 /**
  * A composable that displays a background media stack: video > image > scrim.
@@ -60,7 +62,7 @@ internal fun GameBackgroundPreviewMedia(
                     .data(url)
                     .crossfade(true)
                     .build(),
-                contentDescription = "Background",
+                contentDescription = stringResource(R.string.game_preview_background_description),
                 contentScale = ContentScale.Crop,
                 error = errorPainter,
                 modifier = Modifier
