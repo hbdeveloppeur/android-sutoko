@@ -106,6 +106,9 @@
     <string name="sutoko_story_require_update">Veuillez mettre à jour Sutoko sur Google play, pour pouvoir jouer à ce jeu</string>
     <string name="sutoko_params_activity_delete_my_account_data">Supprimer mon compte et ses données</string>
     <string name="sutoko_params_activity_delete_my_account_data_confirm">Êtes-vous sûr de vouloir supprimer votre compte et vos histoires?</string>
+    <string name="sutoko_params_activity_delete_downloaded_stories">Supprimer toutes les histoires téléchargées</string>
+    <string name="sutoko_params_activity_delete_downloaded_stories_confirm">Êtes-vous sûr de vouloir supprimer toutes les histoires téléchargées ?</string>
+    <string name="sutoko_params_activity_delete_downloaded_stories_success">Histoires téléchargées supprimées</string>
     <string name="sutoko_params_activity_reload_my_account_data">Actualiser mes données de compte utilisateur</string>
     <string name="sutoko_params_activity_reload_my_account_data_confirm">Vous êtes sur le point de recharger toutes les données de votre compte</string>
     <string name="sutoko_params_account_data_reloaded_success">Données de compte rechargées</string>

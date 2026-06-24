@@ -94,7 +94,7 @@ interface GameApi {
     ): DownloadLinkResponseDto
 
 
-    @POST("games/buy")
+    @POST("api/games/buy")
     suspend fun grantGame(
         @Field("user_id") userId: String,
         @Field("user_token") userToken: String,

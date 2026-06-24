@@ -1,8 +1,8 @@
 package com.purpletear.game.data.local.dto
 
+import androidx.annotation.Keep
 import com.google.gson.JsonElement
 import com.google.gson.annotations.SerializedName
-import androidx.annotation.Keep
 
 @Keep
 data class NodeDto(
@@ -43,19 +43,12 @@ data class NodeDataDto(
     val image: String? = null,
     @SerializedName("assetId")
     val assetId: Int? = null,
-    val memory: MemoryDataDto? = null,
+    @SerializedName("assetName")
+    val assetName: String? = null,
+    val memoryKey: String? = null,
+    val memoryValue: String? = null,
     @SerializedName("expectedValue")
     val expectedValue: String? = null,
     @SerializedName("isLooping")
     val isLooping: Boolean? = null,
-)
-
-@Keep
-data class MemoryDataDto(
-    val id: String? = null,
-    @SerializedName("chapterId")
-    val chapterId: String? = null,
-    val name: String? = null,
-    val value: String? = null,
-    val description: String? = null,
 )

@@ -45,7 +45,7 @@ internal fun MessageText(
     character: Character,
     showHeader: Boolean = true,
 ) {
-    val alignment = if (character.isMainCharacter) Alignment.CenterEnd else Alignment.CenterEnd
+    val alignment = if (character.isMainCharacter) Alignment.CenterEnd else Alignment.CenterStart
     Box(Modifier.fillMaxWidth(), contentAlignment = alignment) {
         if (character.isMainCharacter) {
             MessageMainCharacter(
@@ -72,7 +72,10 @@ private fun MessageDest(
     character: Character? = null,
     showHeader: Boolean = true,
 ) {
-    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+    Column(
+        verticalArrangement = Arrangement.spacedBy(4.dp),
+        horizontalAlignment = Alignment.Start,
+    ) {
         if (showHeader) character?.let {
             Row(
                 modifier = Modifier.padding(start = 8.dp),

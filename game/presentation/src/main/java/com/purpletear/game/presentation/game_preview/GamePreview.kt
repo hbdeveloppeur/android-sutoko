@@ -7,15 +7,12 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -27,9 +24,6 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.purpletear.core.presentation.util.openAppInStore
 import com.purpletear.game.presentation.R
@@ -37,12 +31,16 @@ import com.purpletear.game.presentation.game_preview.components.GamePreviewAnima
 import com.purpletear.game.presentation.game_preview.components.GamePreviewCategories
 import com.purpletear.game.presentation.game_preview.components.GamePreviewChapterTitle
 import com.purpletear.game.presentation.game_preview.components.GamePreviewDescription
+import com.purpletear.game.presentation.game_preview.components.GamePreviewGradients
 import com.purpletear.game.presentation.game_preview.components.GamePreviewLabel
 import com.purpletear.game.presentation.game_preview.components.GamePreviewUnavailable
 import com.purpletear.game.presentation.game_preview.components.GamePreviewUnlockAnimation
+import com.purpletear.game.presentation.game_preview.components.PremiumActiveLabelGradient
+import com.purpletear.game.presentation.game_preview.components.PremiumLabelGradient
+import com.purpletear.game.presentation.game_preview.components.UnlockedLabelGradient
 import com.purpletear.game.presentation.game_preview.events.GamePreviewEvent
 import com.purpletear.game.presentation.model.GameItem
-import com.purpletear.game.presentation.model.toGameAction
+import com.purpletear.game.presentation.model.toGameActionState
 import com.purpletear.sutoko.alert.presentation.SimpleAlertDialog
 import com.purpletear.sutoko.game.model.game.GameCatalog
 import kotlinx.coroutines.delay
@@ -64,11 +62,11 @@ fun GamePreview(
 
     val currentChapter by viewModel.currentChapter.collectAsStateWithLifecycle()
     val isUserPremium by viewModel.isUserPremium.collectAsStateWithLifecycle()
+    val isPurchasing by viewModel.isPurchasing.collectAsStateWithLifecycle()
+    val isPurchaseLoading by viewModel.isPurchaseLoading.collectAsStateWithLifecycle()
     val appBuildNumber = viewModel.appBuildNumber
 
-    val lifecycleOwner = LocalLifecycleOwner.current
-
-    val showVideo = rememberShowVideoAfterNavigation(lifecycleOwner)
+    val showVideo = rememberShowVideoAfterNavigation()
 
     Surface(
         modifier = modifier
@@ -98,13 +96,14 @@ fun GamePreview(
             val screenWidth = configuration.screenWidthDp
             val screenHeight = configuration.screenHeightDp
 
-            Gradients(
+            GamePreviewGradients(
                 screenWidth = screenWidth,
                 screenHeight = screenHeight
             )
 
             val animationDuration = 5250L
             var unlockAnimationIsVisible by remember { mutableStateOf(false) }
+            var showRestartDialog by remember { mutableStateOf(false) }
             val context = LocalContext.current
 
             LaunchedEffect(Unit) {
@@ -128,27 +127,27 @@ fun GamePreview(
                             onNavigateToGame(event.gameId, event.isPurchased)
                         }
 
+                        GamePreviewEvent.ShowRestartDialog -> {
+                            showRestartDialog = true
+                        }
+
                         is GamePreviewEvent.OnBuyGameClicked -> {
                             onBuyGame(event.gameCatalog)
                         }
 
-                        else -> {
-
-                        }
+                        is GamePreviewEvent.ShowError -> Unit
                     }
                 }
             }
 
             GamePreviewUnlockAnimation(isVisible = unlockAnimationIsVisible)
 
-            var showRestartDialog by remember { mutableStateOf(false) }
-
             if (showRestartDialog) {
                 SimpleAlertDialog(
                     onDismissRequest = { showRestartDialog = false },
                     onConfirmation = {
                         showRestartDialog = false
-                        // TODO: trigger restart when ready
+                        viewModel.onAction(GamePreviewAction.OnRestartConfirm)
                     },
                     dialogTitle = stringResource(R.string.game_restart_confirm_title),
                     dialogText = stringResource(R.string.game_restart_confirm_description),
@@ -203,45 +202,27 @@ fun GamePreview(
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
 
-                    if (null != gameItem) {
+                    if (gameItem != null) {
                         GamePreviewLabel(
                             text = stringResource(
                                 if (gameItem.isFree) R.string.game_preview_free else R.string.game_preview_premium
                             ),
-                            borderColor = Background.Gradient(
-                                colors = listOf(
-                                    Color(0xFFFECF00),
-                                    Color(0xFFFF7FDF),
-                                    Color(0xFF5D8BFF),
-                                )
-                            )
+                            borderColor = Background.Gradient(colors = PremiumLabelGradient)
                         )
                     }
 
                     if (isUserPremium) {
                         GamePreviewLabel(
                             text = stringResource(R.string.game_preview_premium_active),
-                            borderColor = Background.Gradient(
-                                colors = listOf(
-                                    Color(0xFFFECF00),
-                                    Color(0xFFFF7FDF),
-                                    Color(0xFF3B30E7),
-                                )
-                            )
+                            borderColor = Background.Gradient(colors = PremiumActiveLabelGradient)
                         )
                     }
 
-                    if (true == gameItem?.isPurchased) {
+                    if (gameItem?.isPurchased == true) {
                         GamePreviewLabel(
                             text = stringResource(R.string.game_preview_unlocked),
                             textColor = Color(0xFFADFFA1),
-                            borderColor = Background.Gradient(
-                                colors = listOf(
-                                    Color(0xFF3D753A),
-                                    Color(0xFF51FF40),
-                                    Color(0xFF50A44D),
-                                )
-                            )
+                            borderColor = Background.Gradient(colors = UnlockedLabelGradient)
                         )
                     }
                 }
@@ -253,13 +234,13 @@ fun GamePreview(
 
 
                 GameActionButtons(
-                    gameAction = gameItem?.toGameAction(
-                        isPending = false,
-                        isPurchasing = false,
+                    gameActionState = gameItem?.toGameActionState(
+                        isPurchasing = isPurchasing,
+                        isPurchaseLoading = isPurchaseLoading,
                         currentChapter = currentChapter,
                         appBuildNumber = appBuildNumber,
-                        isGameFinished = false,
                     ),
+                    onAction = viewModel::onAction,
                     modifier = Modifier.padding(bottom = 12.dp),
                 )
             }
@@ -267,72 +248,3 @@ fun GamePreview(
     }
 }
 
-
-@Composable
-private fun Gradients(
-    screenWidth: Int = 0,
-    screenHeight: Int = 0,
-) {
-    Box(Modifier.fillMaxSize()) {
-        // Left positioned gradient
-        PositionedCircularGradient(
-            screenWidth = screenWidth,
-            screenHeight = screenHeight,
-            translationXFactor = -2f,
-            alpha = 0.2f
-        )
-
-        // Right positioned gradient
-        PositionedCircularGradient(
-            screenWidth = screenWidth,
-            screenHeight = screenHeight,
-            translationXFactor = 2f,
-            alpha = 0.1f
-        )
-
-        VerticalGradient(
-            modifier = Modifier
-                .height(160.dp)
-                .align(Alignment.TopCenter)
-        )
-    }
-}
-
-
-private const val NAVIGATION_ENTER_DELAY_MS = 720L
-
-/**
- * Tracks whether background video should be shown.
- *
- * Delays showing the video until the navigation enter animation has finished,
- * hides it while the screen is not RESUMED, and ensures it stops on dispose.
- */
-@Composable
-private fun rememberShowVideoAfterNavigation(lifecycleOwner: LifecycleOwner): Boolean {
-    var showVideo by remember { mutableStateOf(false) }
-
-    // Enter: delay to show video after navigation animation
-    LaunchedEffect(Unit) {
-        delay(NAVIGATION_ENTER_DELAY_MS)
-        showVideo = true
-    }
-
-    // Exit: hide video as soon as screen is not RESUMED
-    val lifecycleState by lifecycleOwner.lifecycle.currentStateFlow.collectAsState()
-    LaunchedEffect(lifecycleState) {
-        if (lifecycleState != Lifecycle.State.RESUMED) {
-            showVideo = false
-        } else {
-            delay(NAVIGATION_ENTER_DELAY_MS)
-            showVideo = true
-        }
-    }
-
-    DisposableEffect(Unit) {
-        onDispose {
-            showVideo = false
-        }
-    }
-
-    return showVideo
-}

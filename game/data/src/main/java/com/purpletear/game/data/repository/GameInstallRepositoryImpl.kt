@@ -8,14 +8,16 @@ import com.purpletear.sutoko.game.model.game.GameInstall
 import com.purpletear.sutoko.game.repository.game.GameInstallRepository
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.channelFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.firstOrNull
-import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
+import java.util.concurrent.ConcurrentHashMap
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -25,6 +27,7 @@ class GameInstallRepositoryImpl @Inject constructor(
     val fileManager: GameFileManager,
 ) : GameInstallRepository {
     private val activeDownloads = MutableStateFlow<Map<String, Float>>(emptyMap())
+    private val activeProducers = ConcurrentHashMap<String, Job>()
 
     override fun observeInstalls(): Flow<List<GameInstall>> =
         installDao.observeAll().map { list -> list.map { it.toDomain() } }.distinctUntilChanged()
@@ -41,19 +44,22 @@ class GameInstallRepositoryImpl @Inject constructor(
         gameId: String,
         gameDownloadUrl: String,
         gameVersion: String
-    ): Flow<Float> = flow {
+    ): Flow<Float> = channelFlow {
         assert(gameId.isNotBlank(), { "gameId must not be blank" })
         assert(gameDownloadUrl.isNotBlank(), { "gameDownloadUrl must not be blank" })
         assert(gameVersion.isNotBlank(), { "gameVersion must not be blank" })
 
         activeDownloads.update { downloads ->
-            if (downloads.contains(gameId)) {
+            if (downloads.containsKey(gameId)) {
                 throw IllegalStateException("Download already in progress")
             }
             downloads + (gameId to 0f)
         }
 
-        emit(0f)
+        activeProducers[gameId] = coroutineContext[Job]
+            ?: error("download() must be collected inside a CoroutineScope")
+
+        send(0f)
         val existing = installDao.observeByGameId(gameId).firstOrNull()
         installDao.upsert(GameInstallEntity(gameId = gameId, existing?.localVersion))
 
@@ -65,7 +71,7 @@ class GameInstallRepositoryImpl @Inject constructor(
                 onProgress = { progress ->
                     if (progress - lastReported >= 0.05f || progress >= 0.99f) {
                         activeDownloads.update { it + (gameId to progress) }
-                        emit(progress)
+                        send(progress)
                         lastReported = progress
                     }
                 })
@@ -79,9 +85,15 @@ class GameInstallRepositoryImpl @Inject constructor(
             throw e
         } finally {
             activeDownloads.update { it - gameId }
+            activeProducers.remove(gameId)
         }
-        emit(1f)
+        send(1f)
     }.flowOn(Dispatchers.IO)
+
+    override fun cancelDownload(gameId: String) {
+        activeProducers.remove(gameId)?.cancel()
+        activeDownloads.update { it - gameId }
+    }
 
     override suspend fun deleteGame(gameId: String): Result<Unit> {
         if (activeDownloads.value.containsKey(gameId)) {

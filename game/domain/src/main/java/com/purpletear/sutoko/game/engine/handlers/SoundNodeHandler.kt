@@ -1,5 +1,6 @@
 package com.purpletear.sutoko.game.engine.handlers
 
+import com.purpletear.sutoko.game.engine.GameEngineLogger
 import com.purpletear.sutoko.game.engine.HandlerCommand
 import com.purpletear.sutoko.game.engine.HandlerEffect
 import com.purpletear.sutoko.game.engine.HandlerScript
@@ -20,6 +21,8 @@ class SoundNodeHandler @Inject constructor() : NodeHandler {
         memory: GameMemory
     ): HandlerScript {
         val soundNode = node as? Node.Sound ?: return HandlerScript()
+
+        GameEngineLogger.d("HAND") { "Sound ${soundNode.id}: ${soundNode.soundUrl} loop=${soundNode.loop}" }
 
         return HandlerScript(
             commands = listOf(

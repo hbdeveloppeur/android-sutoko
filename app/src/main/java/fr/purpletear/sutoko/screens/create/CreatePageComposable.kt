@@ -5,6 +5,7 @@ import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBarsPadding
@@ -14,6 +15,7 @@ import androidx.compose.material.pullrefresh.PullRefreshIndicator
 import androidx.compose.material.pullrefresh.pullRefresh
 import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -21,13 +23,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.purpletear.game.data.local.entity.GameCatalogEntity
+import com.purpletear.core.presentation.util.openAppInStore
 import com.purpletear.game.presentation.game_catalog.GameCardCompact
+import com.purpletear.game.presentation.model.GameItem
 import fr.purpletear.sutoko.R
 import fr.purpletear.sutoko.screens.create.components.create_story_button.CreateStoryButton
 import fr.purpletear.sutoko.screens.create.components.create_story_button.CreateStoryButtonVariant
@@ -45,13 +49,22 @@ internal fun CreatePageComposable(
     onOptionsPressed: () -> Unit = {},
     onCoinsPressed: () -> Unit = {},
     onDiamondsPressed: () -> Unit = {},
-    openGame: (GameCatalogEntity) -> Unit = {},
+    openGame: (GameItem) -> Unit = {},
 ) {
     val isRefreshing by remember { mutableStateOf(false) }
     val focusManager = LocalFocusManager.current
+    val context = LocalContext.current
     val balance = viewModel.balance.collectAsStateWithLifecycle()
     val games = viewModel.games.collectAsStateWithLifecycle()
     val appBuildNumber = viewModel.appBuildNumber
+
+    LaunchedEffect(Unit) {
+        viewModel.events.collect { event ->
+            when (event) {
+                CreatePageEvent.OpenAppStore -> context.openAppInStore()
+            }
+        }
+    }
 
     val pullRefreshState = rememberPullRefreshState(
         refreshing = isRefreshing,
@@ -115,10 +128,10 @@ internal fun CreatePageComposable(
                             .padding(horizontal = 16.dp)
                             .padding(top = 16.dp),
                         onSearch = { query ->
-                            // viewModel.onSearchSubmit(query)
+                            viewModel.onSearchSubmit(query)
                         },
                         onValueChange = { query ->
-                            // viewModel.onSearchQueryChange(query)
+                            viewModel.onSearchQueryChange(query)
                         }
                     )
                 }
@@ -128,26 +141,31 @@ internal fun CreatePageComposable(
                 ) { index ->
                     val game = games.value[index]
                     GameCardCompact(
+                        modifier = Modifier.padding(top = 16.dp),
                         isPending = false,
                         isPurchasing = false,
+                        isPurchaseLoading = false,
                         currentChapter = null,
                         appBuildNumber = appBuildNumber,
                         isGameFinished = false,
                         game = game,
                         showGetButton = true,
-                        onGetClick = {},
-                        onOpenClick = {},
-                        onCancelClick = {}
+                        onGetClick = { viewModel.onGameGetClick(game) },
+                        onOpenClick = { openGame(game) },
+                        onCancelClick = { viewModel.onGameCancelClick(game.id) }
                     )
                 }
 
 
                 item {
-                    LoadMoreButton(
-                        onClick = { },
-                        isLoading = false,
-                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 16.dp)
-                    )
+                    Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
+                        LoadMoreButton(
+                            // TODO
+                            onClick = { },
+                            isLoading = false,
+                            modifier = Modifier.padding(horizontal = 16.dp, vertical = 32.dp)
+                        )
+                    }
                 }
                 // Bottom spacer for better scrolling experience
                 item {

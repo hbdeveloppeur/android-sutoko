@@ -9,7 +9,7 @@ import androidx.annotation.Keep
 @Keep
 data class UserGameProgress(
     val gameId: String = "",
-    val currentChapterCode: String = "1a",
-    val normalizedChapterCode: String = "1a",
+    val currentChapterCode: String = "1A",
+    val normalizedChapterCode: String = "1A",
     val heroName: String = ""
 )

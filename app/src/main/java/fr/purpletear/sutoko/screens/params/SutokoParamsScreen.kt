@@ -2,7 +2,6 @@ package fr.purpletear.sutoko.screens.params
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -16,7 +15,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.material.Divider
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
-import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
 import androidx.compose.material.TopAppBar
@@ -124,6 +122,12 @@ private fun SutokoParamsContent(
                 onClick = { onEvent(SutokoParamsEvent.OnSharePressed) }
             )
 
+            ParamsRow(
+                label = stringResource(R.string.sutoko_params_activity_delete_downloaded_stories),
+                isLoading = uiState.isDeleteDownloadedStoriesLoading,
+                onClick = { onEvent(SutokoParamsEvent.OnDeleteDownloadedStoriesPressed) }
+            )
+
             if (uiState.isUserConnected) {
                 ParamsRow(
                     label = stringResource(R.string.sutoko_disconnect),
@@ -166,7 +170,7 @@ private fun ParamsRow(
         Text(
             text = label,
             color = Color.White,
-            fontSize = 16.sp,
+            fontSize = 13.sp,
             fontWeight = FontWeight.Normal,
             modifier = Modifier.weight(1f)
         )

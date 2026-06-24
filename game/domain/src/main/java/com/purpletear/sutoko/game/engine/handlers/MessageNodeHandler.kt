@@ -1,5 +1,6 @@
 package com.purpletear.sutoko.game.engine.handlers
 
+import com.purpletear.sutoko.game.engine.GameEngineLogger
 import com.purpletear.sutoko.game.engine.HandlerCommand
 import com.purpletear.sutoko.game.engine.HandlerEffect
 import com.purpletear.sutoko.game.engine.HandlerScript
@@ -28,9 +29,10 @@ import androidx.annotation.Keep
  * - [BACKGROUND_<url>] - Change background image
  * - [<command>] - Skip/ignore commands
  *
- * Respects conversation mode from [ConversationModeChangeNodeHandler]:
- * - SMS mode: Shows typing indicators with delays (default)
+ * Respects conversation mode from [GameMemory.conversationMode]:
+ * - SMS mode: Shows typing indicators with delays
  * - IRL mode: No typing, messages display immediately
+ * See [GameMemory] for the priority between [typingAnimation] and [conversation_mode].
  */
 class MessageNodeHandler @Inject constructor(
     private val textProcessor: TextProcessor,
@@ -46,8 +48,13 @@ class MessageNodeHandler @Inject constructor(
         val processedText = textProcessor.process(messageNode.text, variables)
         val command = parseCommand(processedText)
 
+        GameEngineLogger.d("HAND") {
+            "Message ${messageNode.id}: raw=\"${messageNode.text}\" processed=\"$processedText\" mode=${memory.conversationMode}"
+        }
+
         return when (command) {
             is Command.ChangeBackground -> {
+                GameEngineLogger.d("HAND") { "Change background: ${command.imageUrl}" }
                 HandlerScript(
                     commands = listOf(
                         HandlerCommand.Emit(HandlerEffect.ChangeBackground(command.imageUrl))
@@ -55,16 +62,29 @@ class MessageNodeHandler @Inject constructor(
                 )
             }
 
-            is Command.Skip -> HandlerScript()
+            is Command.Skip -> {
+                GameEngineLogger.d("HAND") { "Skip command: $processedText" }
+                HandlerScript()
+            }
 
             is Command.Message -> {
-                HandlerScript(
-                    commands = buildMessageCommands(
-                        messageNode,
-                        processedText,
-                        memory.conversationMode
+                if (processedText.isBlank()) {
+                    GameEngineLogger.d("MSG") {
+                        "Skipping blank message ${messageNode.id} from character ${messageNode.characterId}"
+                    }
+                    HandlerScript()
+                } else {
+                    GameEngineLogger.d("MSG") {
+                        "MessageText from character ${messageNode.characterId}: \"$processedText\""
+                    }
+                    HandlerScript(
+                        commands = buildMessageCommands(
+                            messageNode,
+                            processedText,
+                            memory.conversationMode
+                        )
                     )
-                )
+                }
             }
         }
     }
@@ -72,7 +92,7 @@ class MessageNodeHandler @Inject constructor(
     /**
      * Builds the command sequence for a message.
      *
-     * SMS mode (default):
+     * SMS mode:
      * 1. Delay(seenMs) - wait before showing typing
      * 2. Emit(AddMessage) - show typing indicator
      * 3. Delay(waitMs) - typing duration

@@ -1,5 +1,6 @@
 package com.purpletear.sutoko.game.engine.handlers
 
+import com.purpletear.sutoko.game.engine.GameEngineLogger
 import com.purpletear.sutoko.game.engine.HandlerCommand
 import com.purpletear.sutoko.game.engine.HandlerEffect
 import com.purpletear.sutoko.game.engine.HandlerScript
@@ -26,6 +27,8 @@ class ConversationModeChangeNodeHandler @Inject constructor() : NodeHandler {
         val modeNode = node as? Node.ConversationModeChange ?: return HandlerScript()
 
         val modeName = modeNode.mode.name
+
+        GameEngineLogger.d("HAND") { "Conversation mode change ${modeNode.id} → $modeName" }
 
         return HandlerScript(
             commands = listOf(

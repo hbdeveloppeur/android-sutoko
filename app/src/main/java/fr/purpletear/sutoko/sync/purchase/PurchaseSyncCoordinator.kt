@@ -4,9 +4,11 @@ import android.util.Log
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
+import fr.purpletear.sutoko.BuildConfig
 import fr.sutoko.inapppurchase.application.domain.repository.PurchaseRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -27,6 +29,7 @@ class PurchaseSyncCoordinator @Inject constructor(
 ) {
 
     private val syncMutex = Mutex()
+    private var startupLogDone = false
 
     fun start(lifecycle: Lifecycle, scope: CoroutineScope) {
         lifecycle.addObserver(
@@ -61,5 +64,14 @@ class PurchaseSyncCoordinator @Inject constructor(
     private suspend fun sync() = syncMutex.withLock {
         purchaseRepository.syncPurchases()
             .onFailure { Log.w("PurchaseSyncCoordinator", "Purchase sync failed", it) }
+            .onSuccess {
+                if (BuildConfig.DEBUG && !startupLogDone) {
+                    startupLogDone = true
+                    runCatching {
+                        val skus = purchaseRepository.observePurchasedSkus().first()
+                        Log.d("BoughtSkus", "User bought SKUs: $skus")
+                    }
+                }
+            }
     }
 }

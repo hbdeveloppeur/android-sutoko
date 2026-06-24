@@ -1,5 +1,6 @@
 package com.purpletear.sutoko.game.engine.handlers
 
+import com.purpletear.sutoko.game.engine.GameEngineLogger
 import com.purpletear.sutoko.game.engine.HandlerScript
 import com.purpletear.sutoko.game.engine.NodeHandler
 import com.purpletear.sutoko.game.model.chapter.GameMemory
@@ -18,6 +19,7 @@ class StartNodeHandler @Inject constructor() : NodeHandler {
         memory: GameMemory
     ): HandlerScript {
         // Start node is just an entry point - follow edges to next node
+        GameEngineLogger.d("HAND") { "Start node ${node.id}" }
         return HandlerScript()
     }
 }

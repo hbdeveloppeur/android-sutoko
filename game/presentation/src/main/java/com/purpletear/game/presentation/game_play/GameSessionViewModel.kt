@@ -1,12 +1,17 @@
 package com.purpletear.game.presentation.game_play
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.purpletear.core.presentation.services.MakeToastService
+import com.purpletear.game.presentation.R
 import com.purpletear.sutoko.game.model.GameSessionState
 import com.purpletear.sutoko.game.usecase.ObserveGameSessionUseCase
 import com.purpletear.sutoko.game.usecase.ObserveMemoriesUseCase
+import com.purpletear.sutoko.game.usecase.RestartGameUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -23,6 +28,8 @@ import javax.inject.Inject
 class GameSessionViewModel @Inject constructor(
     private val observeGameSession: ObserveGameSessionUseCase,
     private val observeMemories: ObserveMemoriesUseCase,
+    private val restartGameUseCase: RestartGameUseCase,
+    private val makeToastService: MakeToastService,
 ) : ViewModel() {
 
     private val _sessionState = MutableStateFlow<GameSessionState>(GameSessionState.Loading)
@@ -60,11 +67,25 @@ class GameSessionViewModel @Inject constructor(
 
     fun onRestartDialogConfirm() {
         _showRestartDialog.value = false
-        // TODO: perform actual restart
+
+        val gameId = currentGameId ?: return
+        viewModelScope.launch {
+            restartGameUseCase(gameId)
+                .onSuccess {
+                    makeToastService(R.string.game_restart_success)
+                }
+                .onFailure { error ->
+                    Log.e(TAG, "Restart failed for gameId=$gameId", error)
+                }
+        }
     }
 
     fun onRestartDialogDismiss() {
         _showRestartDialog.value = false
+    }
+
+    companion object {
+        private const val TAG = "GameSessionViewModel"
     }
 
     override fun onCleared() {

@@ -11,6 +11,7 @@ import androidx.activity.viewModels
 import com.example.sharedelements.Data
 import com.example.sharedelements.SutokoAppParams
 import com.example.sharedelements.theme.SutokoTheme
+import com.purpletear.sutoko.popup.presentation.PopUpComposable
 import dagger.hilt.android.AndroidEntryPoint
 import fr.purpletear.sutoko.R
 import fr.purpletear.sutoko.screens.web.WebActivity
@@ -34,6 +35,8 @@ class SutokoParamsActivity : ComponentActivity() {
                     onShareApp = ::shareApp,
                     onNavigateBack = ::finish,
                 )
+
+                PopUpComposable()
             }
         }
     }

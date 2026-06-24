@@ -11,7 +11,7 @@ object GameDatabaseMigrations {
 
     /**
      * Migration from version 6 to 7:
-     * - Replaces currentChapterNumber (Int) and currentAlternative (String) 
+     * - Replaces currentChapterNumber (Int) and currentAlternative (String)
      *   with currentChapterCode (String) and normalizedChapterCode (String)
      */
     val MIGRATION_6_7 = object : Migration(6, 7) {
@@ -32,7 +32,7 @@ object GameDatabaseMigrations {
             db.execSQL(
                 """
                 INSERT INTO user_game_progress_new (gameId, currentChapterCode, normalizedChapterCode, heroName)
-                SELECT 
+                SELECT
                     gameId,
                     CAST(currentChapterNumber AS TEXT) || currentAlternative,
                     LOWER(CAST(currentChapterNumber AS TEXT) || currentAlternative),
@@ -54,7 +54,23 @@ object GameDatabaseMigrations {
         }
     }
 
+    /**
+     * Migration from version 10 to 11:
+     * - Adds chapterNumber column to game_memories so each memory can be tagged with
+     *   the chapter in which it was written.
+     * - Existing rows default to Int.MAX_VALUE so they are treated as "future" state
+     *   and cleaned up the next time a chapter loads, preventing overlap with replays.
+     */
+    val MIGRATION_10_11 = object : Migration(10, 11) {
+        override fun migrate(db: SupportSQLiteDatabase) {
+            db.execSQL(
+                "ALTER TABLE game_memories ADD COLUMN chapterNumber INTEGER NOT NULL DEFAULT ${Int.MAX_VALUE}"
+            )
+        }
+    }
+
     val ALL: Array<Migration> = arrayOf(
-        MIGRATION_6_7
+        MIGRATION_6_7,
+        MIGRATION_10_11
     )
 }

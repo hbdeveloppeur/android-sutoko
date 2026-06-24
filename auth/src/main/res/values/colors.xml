@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="headerBlue">#0085fe</color>
+    <color name="white">#FFFFFF</color>
+    <color name="black">#000000</color>
+    <color name="mainActivityBackgroundColor">#020203</color>
+    <color name="darkModeWhite2">#e2e2e2</color>
+    <color name="darkModeWhite3">#D8D8D8</color>
+</resources>

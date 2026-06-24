@@ -1,8 +1,8 @@
 package com.purpletear.game.data.repository
 
-import android.content.Context
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
+import com.purpletear.game.data.local.dao.ChapterDao
 import com.purpletear.game.data.local.dto.ChapterMetadataDto
 import com.purpletear.game.data.local.dto.EdgeDto
 import com.purpletear.game.data.local.dto.NodeDto
@@ -17,7 +17,8 @@ import java.io.File
 import javax.inject.Inject
 
 class ChapterGraphRepositoryImpl @Inject constructor(
-    private val pathProvider: AndroidGamePathProvider
+    private val pathProvider: AndroidGamePathProvider,
+    private val chapterDao: ChapterDao
 ) : ChapterGraphRepository {
 
     private val gson = Gson()
@@ -53,7 +54,7 @@ class ChapterGraphRepositoryImpl @Inject constructor(
 
             val nodeListType = object : TypeToken<List<NodeDto>>() {}.type
             val nodeDtos: List<NodeDto> = gson.fromJson(nodesFile.readText(), nodeListType)
-            
+
             val edgeDtos = if (edgesFile.exists()) {
                 val edgeListType = object : TypeToken<List<EdgeDto>>() {}.type
                 gson.fromJson<List<EdgeDto>>(edgesFile.readText(), edgeListType)
@@ -61,7 +62,17 @@ class ChapterGraphRepositoryImpl @Inject constructor(
                 emptyList()
             }
 
-            val graph = ChapterGraphParser.parse(chapterCode, metadata, nodeDtos, edgeDtos, gameId, pathProvider)
+            val chapterNumber = chapterDao.getByStoryAndCode(gameId, chapterCode)?.number ?: 1
+
+            val graph = ChapterGraphParser.parse(
+                chapterCode = chapterCode,
+                chapterNumber = chapterNumber,
+                metadata = metadata,
+                nodeDtos = nodeDtos,
+                edgeDtos = edgeDtos,
+                gameId = gameId,
+                pathProvider = pathProvider
+            )
             emit(Result.success(graph))
 
         } catch (e: Exception) {

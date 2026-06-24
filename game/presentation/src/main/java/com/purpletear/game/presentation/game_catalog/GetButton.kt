@@ -36,7 +36,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.sharedelements.theme.Poppins
 import com.purpletear.game.presentation.R
-import com.purpletear.game.presentation.model.GameAction
+import com.purpletear.game.presentation.model.GameActionState
 
 private val ButtonShape = RoundedCornerShape(16.dp)
 private val BackgroundIdle = Color(0xFF2A2A2A)
@@ -46,7 +46,7 @@ private val ProgressColor = Color(0xFF4DB9EC)
 @Composable
 fun GetButton(
     modifier: Modifier = Modifier,
-    gameState: GameAction,
+    gameState: GameActionState,
     onGetClick: () -> Unit = {},
     onOpenClick: () -> Unit = {},
     onCancelClick: (() -> Unit)? = null,
@@ -69,8 +69,8 @@ fun GetButton(
     val clickHandler = remember(gameState) {
         {
             when (gameState) {
-                is GameAction.Downloading -> onCancelClick?.invoke() ?: Unit
-                is GameAction.Play -> onOpenClick()
+                is GameActionState.Downloading -> onCancelClick?.invoke() ?: Unit
+                is GameActionState.Play -> onOpenClick()
                 else -> onGetClick()
             }
         }
@@ -96,10 +96,11 @@ fun GetButton(
                 fadeIn(tween(120)) + scaleIn(spring(stiffness = 350f), 0.92f) togetherWith
                         fadeOut(tween(80))
             },
-            label = "content"
+            label = "content",
+            contentAlignment = Alignment.Center,
         ) { state ->
             when (state) {
-                is GameAction.Downloading -> {
+                is GameActionState.Downloading -> {
                     if (state.progress < 100) {
                         CircularProgress(
                             progress = state.progress / 100f,
@@ -119,7 +120,7 @@ fun GetButton(
 
                 else -> {
                     val text = when (state) {
-                        is GameAction.Play -> stringResource(R.string.game_button_open)
+                        is GameActionState.Play -> stringResource(R.string.game_button_open)
                         else -> stringResource(R.string.game_button_get)
                     }
                     ButtonLabel(text)

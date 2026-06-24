@@ -1,7 +1,6 @@
 package com.purpletear.game.data.repository
 
 import com.purpletear.game.data.local.dao.GameDao
-import com.purpletear.game.data.local.entity.GameCatalogEntity
 import com.purpletear.game.data.local.entity.toDomain
 import com.purpletear.game.data.remote.GameApi
 import com.purpletear.game.data.remote.dto.GameDto
@@ -17,7 +16,7 @@ import retrofit2.Response
 import javax.inject.Inject
 import javax.inject.Singleton
 
-private const val USER_GAMES_PAGE_SIZE = 50
+private const val USER_GAMES_PAGE_SIZE = 20
 
 @Singleton
 class GameRepositoryImpl @Inject constructor(
@@ -93,6 +92,35 @@ class GameRepositoryImpl @Inject constructor(
                 remote.map { it.toDomain().copy(isOfficial = false) }
             )
             Result.success(Unit)
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    override suspend fun searchStories(
+        query: String,
+        languageTag: String,
+        page: Int,
+        limit: Int,
+    ): Result<List<GameCatalog>> {
+        return try {
+            val response = api.searchStories(
+                query = query,
+                languageCode = languageTag,
+                page = page,
+                limit = limit,
+            )
+
+            if (!response.isSuccessful) {
+                return Result.failure(HttpException(response))
+            }
+
+            val catalogs = response.body().orEmpty().map {
+                it.toDomain().toDomain()
+            }
+            Result.success(catalogs)
         } catch (e: CancellationException) {
             throw e
         } catch (e: Exception) {

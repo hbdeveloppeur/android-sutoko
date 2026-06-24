@@ -14,8 +14,8 @@ import com.purpletear.sutoko.game.model.UserGameProgress
 data class UserGameProgressEntity(
     @PrimaryKey
     val gameId: String = "",
-    val currentChapterCode: String = "1a",
-    val normalizedChapterCode: String = "1a",
+    val currentChapterCode: String = "1A",
+    val normalizedChapterCode: String = "1A",
     val heroName: String = ""
 )
 

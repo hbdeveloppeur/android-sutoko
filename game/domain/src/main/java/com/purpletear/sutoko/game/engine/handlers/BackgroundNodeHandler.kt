@@ -1,5 +1,6 @@
 package com.purpletear.sutoko.game.engine.handlers
 
+import com.purpletear.sutoko.game.engine.GameEngineLogger
 import com.purpletear.sutoko.game.engine.HandlerCommand
 import com.purpletear.sutoko.game.engine.HandlerEffect
 import com.purpletear.sutoko.game.engine.HandlerScript
@@ -19,6 +20,8 @@ class BackgroundNodeHandler @Inject constructor() : NodeHandler {
         memory: GameMemory
     ): HandlerScript {
         val backgroundNode = node as? Node.Background ?: return HandlerScript()
+
+        GameEngineLogger.d("HAND") { "Background change ${backgroundNode.id} → ${backgroundNode.imageUrl}" }
 
         return HandlerScript(
             commands = listOf(

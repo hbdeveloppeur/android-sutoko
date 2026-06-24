@@ -8,35 +8,29 @@ import androidx.compose.foundation.layout.Arrangement.spacedBy
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.purpletear.game.presentation.common.states.toButtonsState
 import com.purpletear.game.presentation.game_preview.components.GamePreviewButton
-import com.purpletear.game.presentation.model.GameAction
+import com.purpletear.game.presentation.model.GameActionState
 
 /**
  * A reusable component that displays the primary action buttons for a game.
- * This component is stateless and receives all data through [state].
+ * This component is stateless and receives all data through [gameAction].
  *
- * @param state The UI state defining how buttons should appear and behave
- * @param onLeftClick Callback when the left button is clicked (if no click handler in state)
- * @param onRightClick Callback when the right button is clicked (if no click handler in state)
+ * @param gameActionState The UI state defining how buttons should appear and behave
+ * @param onAction Callback when a button action is triggered
  * @param modifier Modifier for the container
  */
 @Composable
 internal fun GameActionButtons(
-    gameAction: GameAction?,
+    gameActionState: GameActionState?,
+    onAction: (GamePreviewAction) -> Unit,
     modifier: Modifier = Modifier,
-    onLeftClick: (() -> Unit)? = null,
-    onRightClick: (() -> Unit)? = null,
 ) {
-    val state = gameAction.toButtonsState(onAction = { action ->
-
-    })
+    val state = gameActionState.toButtonsState(onAction = onAction)
 
     val animationSpec = spring<Float>(
         dampingRatio = Spring.DampingRatioNoBouncy,
@@ -54,42 +48,45 @@ internal fun GameActionButtons(
         label = "SecondButtonWeight"
     )
 
+    val animatedLeftButtonColor by animateColorAsState(
+        targetValue = state.left.backgroundColor,
+        label = "LeftButtonColor"
+    )
     val animatedRightButtonColor by animateColorAsState(
         targetValue = state.right.backgroundColor,
         label = "RightButtonColor"
     )
 
-    Column {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .then(modifier),
-            horizontalArrangement = spacedBy(10.dp),
-        ) {
-            if (firstButtonWeight > 0.1f) {
-                GamePreviewButton(
-                    modifier = Modifier.weight(firstButtonWeight),
-                    title = state.left.title?.asString(),
-                    subtitle = state.left.subtitle?.asString(),
-                    onClick = { state.left.onClick?.invoke() ?: onLeftClick?.invoke() },
-                    background = Background.Solid(Color(0xFF191919)),
-                    icon = state.left.icon,
-                    isEnabled = state.left.isEnabled,
-                    isLoading = state.left.isLoading,
-                )
-            }
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .then(modifier),
+        horizontalArrangement = spacedBy(10.dp),
+    ) {
+        if (firstButtonWeight > 0.1f) {
+            GamePreviewButton(
+                modifier = Modifier.weight(firstButtonWeight),
+                title = state.left.title?.asString(),
+                subtitle = state.left.subtitle?.asString(),
+                onClick = { state.left.onClick?.invoke() },
+                background = Background.Solid(animatedLeftButtonColor),
+                icon = state.left.icon,
+                isEnabled = state.left.isEnabled,
+                isLoading = state.left.isLoading,
+            )
+        }
 
+        if (secondButtonWeight > 0.1f) {
             GamePreviewButton(
                 modifier = Modifier.weight(secondButtonWeight),
                 title = state.right.title?.asString(),
                 subtitle = state.right.subtitle?.asString(),
-                onClick = { state.right.onClick?.invoke() ?: onRightClick?.invoke() },
+                onClick = { state.right.onClick?.invoke() },
                 background = Background.Solid(animatedRightButtonColor),
                 icon = state.right.icon,
                 isEnabled = state.right.isEnabled,
                 isLoading = state.right.isLoading,
             )
         }
-        Text("State: $gameAction", color = Color.White)
     }
 }

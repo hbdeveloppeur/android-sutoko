@@ -83,19 +83,12 @@ class AccountActivity : AppCompatActivity() {
     private fun registerLaunchForResultShopActivity(): ActivityResultLauncher<Intent> {
         return registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             if (result.resultCode == Activity.RESULT_OK) {
-                // There are no request codes
-                val data: Intent? = result.data
-                val coins = data?.getIntExtra("coins", -1) ?: -1
-                val diamonds = data?.getIntExtra("diamonds", -1) ?: -1
-                if (coins != -1 && diamonds != -1) {
-                    viewModel.onEvent(AccountEvents.OnShopStateChanged(coins, diamonds))
-                }
+                
             }
         }
     }
 
     override fun onResume() {
         super.onResume()
-        viewModel.onResume()
     }
 }

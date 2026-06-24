@@ -21,7 +21,7 @@ import com.purpletear.sutoko.shop.R as ShopR
 @Composable
 fun AccountScreen(viewModel: AccountViewModel) {
     val isConnected by viewModel.isUserConnected.collectAsState()
-    val coinsBalance by viewModel.coinsBalance.collectAsState()
+    val coinsBalance by viewModel.balance.collectAsState()
     val allGames by viewModel.allGames.collectAsState()
 
     Surface(

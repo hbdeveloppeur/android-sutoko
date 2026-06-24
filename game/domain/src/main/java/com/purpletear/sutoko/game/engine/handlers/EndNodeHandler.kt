@@ -1,5 +1,6 @@
 package com.purpletear.sutoko.game.engine.handlers
 
+import com.purpletear.sutoko.game.engine.GameEngineLogger
 import com.purpletear.sutoko.game.engine.HandlerCommand
 import com.purpletear.sutoko.game.engine.HandlerEffect
 import com.purpletear.sutoko.game.engine.HandlerScript
@@ -18,6 +19,7 @@ class EndNodeHandler @Inject constructor() : NodeHandler {
         node: Node,
         memory: GameMemory
     ): HandlerScript {
+        GameEngineLogger.d("HAND") { "End node ${node.id}: story finished" }
         return HandlerScript(
             commands = listOf(
                 HandlerCommand.Emit(HandlerEffect.StoryFinished)

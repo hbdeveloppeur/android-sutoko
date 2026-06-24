@@ -31,7 +31,7 @@ import coil.request.ImageRequest
 import com.example.sharedelements.theme.Poppins
 import com.purpletear.game.presentation.R
 import com.purpletear.game.presentation.model.GameItem
-import com.purpletear.game.presentation.model.toGameAction
+import com.purpletear.game.presentation.model.toGameActionState
 import com.purpletear.sutoko.game.model.Chapter
 
 private const val CROSSFADE_DURATION_MS = 400
@@ -40,6 +40,7 @@ private const val CROSSFADE_DURATION_MS = 400
 fun GameCardCompact(
     isPending: Boolean,
     isPurchasing: Boolean,
+    isPurchaseLoading: Boolean,
     currentChapter: Chapter?,
     appBuildNumber: Int,
     isGameFinished: Boolean,
@@ -131,9 +132,10 @@ fun GameCardCompact(
 
             if (showGetButton) {
                 GetButton(
-                    gameState = game.toGameAction(
+                    gameState = game.toGameActionState(
                         isPending = isPending,
                         isPurchasing = isPurchasing,
+                        isPurchaseLoading = isPurchaseLoading,
                         currentChapter = currentChapter,
                         appBuildNumber = appBuildNumber,
                         isGameFinished = isGameFinished,

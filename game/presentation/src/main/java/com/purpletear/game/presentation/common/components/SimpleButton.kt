@@ -31,6 +31,7 @@ import com.example.sharedelements.theme.Poppins
  */
 @Composable
 fun SimpleButton(
+    modifier: Modifier = Modifier,
     text: String,
     fontSize: TextUnit = 12.sp,
     horizontalPadding: Dp = 20.dp,
@@ -43,7 +44,7 @@ fun SimpleButton(
     val iconSize = with(LocalDensity.current) { fontSize.toDp() }
     val shape = RoundedCornerShape(7.dp)
     Row(
-        modifier = Modifier
+        modifier = modifier
             .clip(shape)
             .background(backgroundColor)
             .clickable(onClick = onClick)

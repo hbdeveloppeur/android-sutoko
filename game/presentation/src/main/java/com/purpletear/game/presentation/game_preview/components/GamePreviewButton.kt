@@ -33,6 +33,13 @@ import com.purpletear.core.presentation.components.icon.IconComposable
 import com.purpletear.game.presentation.game_preview.Background
 import com.purpletear.game.presentation.game_preview.toBrush
 
+private val WorkSansSemiBold = FontFamily(
+    Font(R.font.font_worksans_semibold, FontWeight.SemiBold)
+)
+private val WorkSansRegular = FontFamily(
+    Font(R.font.font_worksans_regular, FontWeight.Normal)
+)
+
 
 @Composable
 internal fun GamePreviewButton(
@@ -70,30 +77,18 @@ internal fun GamePreviewButton(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = spacedBy(2.dp)
             ) {
-                // Title with Work Sans Semi Bold
                 Text(
                     text = title ?: "",
-                    fontFamily = FontFamily(
-                        Font(
-                            R.font.font_worksans_semibold,
-                            FontWeight.SemiBold
-                        )
-                    ),
+                    fontFamily = WorkSansSemiBold,
                     fontSize = 12.sp,
                     color = Color.White,
                     textAlign = TextAlign.Center
                 )
 
-                // Subtitle with Work Sans Regular if not null
                 subtitle?.let {
                     Text(
                         text = it,
-                        fontFamily = FontFamily(
-                            Font(
-                                R.font.font_worksans_regular,
-                                FontWeight.Normal
-                            )
-                        ),
+                        fontFamily = WorkSansRegular,
                         fontSize = 9.5.sp,
                         color = Color.White.copy(alpha = 0.8f),
                         textAlign = TextAlign.Center

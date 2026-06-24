@@ -41,8 +41,8 @@ class UserGameProgressRepositoryImpl @Inject constructor(
     private fun createDefault(gameId: String): UserGameProgressEntity =
         UserGameProgressEntity(
             gameId = gameId,
-            currentChapterCode = "1a",
-            normalizedChapterCode = "1a",
+            currentChapterCode = "1A",
+            normalizedChapterCode = "1A",
             heroName = ""
         )
 }

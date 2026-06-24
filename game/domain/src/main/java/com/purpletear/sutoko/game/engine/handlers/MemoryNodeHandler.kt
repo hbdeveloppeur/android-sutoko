@@ -1,5 +1,6 @@
 package com.purpletear.sutoko.game.engine.handlers
 
+import com.purpletear.sutoko.game.engine.GameEngineLogger
 import com.purpletear.sutoko.game.engine.HandlerCommand
 import com.purpletear.sutoko.game.engine.HandlerEffect
 import com.purpletear.sutoko.game.engine.HandlerScript
@@ -21,7 +22,9 @@ class MemoryNodeHandler @Inject constructor() : NodeHandler {
         memory: GameMemory
     ): HandlerScript {
         val memoryNode = node as? Node.Memory ?: return HandlerScript()
-        
+
+        GameEngineLogger.d("HAND") { "Memory node ${memoryNode.id}: ${memoryNode.key}=${memoryNode.value}" }
+
         return HandlerScript(
             commands = listOf(
                 HandlerCommand.Emit(

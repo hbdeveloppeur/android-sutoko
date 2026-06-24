@@ -5,4 +5,5 @@ sealed class SmsGameDevAction {
     data object OpenDebugView : SmsGameDevAction()
     data object Restart : SmsGameDevAction()
     data object Update : SmsGameDevAction()
+    data object Delete : SmsGameDevAction()
 }

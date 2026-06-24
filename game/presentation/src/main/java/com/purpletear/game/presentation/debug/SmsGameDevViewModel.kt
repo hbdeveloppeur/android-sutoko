@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.purpletear.core.presentation.services.MakeToastService
 import com.purpletear.game.presentation.R
 import com.purpletear.sutoko.domain.repository.UserRepository
+import com.purpletear.sutoko.game.usecase.RemoveGameUseCase
 import com.purpletear.sutoko.game.usecase.RestartGameUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.first
@@ -18,6 +19,7 @@ import javax.inject.Inject
 @HiltViewModel
 class SmsGameDevViewModel @Inject constructor(
     private val restartGame: RestartGameUseCase,
+    private val removeGame: RemoveGameUseCase,
     private val makeToastService: MakeToastService,
     private val userRepository: UserRepository,
 ) : ViewModel() {
@@ -31,6 +33,21 @@ class SmsGameDevViewModel @Inject constructor(
             restartGame(gameId)
                 .onSuccess { toast(R.string.game_restart_success) }
                 .onFailure { toast(R.string.game_restart_error) }
+        }
+    }
+
+    /**
+     * Deletes the game by removing its installed files.
+     * Calls [onComplete] on success and shows a toast on failure.
+     */
+    fun delete(gameId: String, onComplete: () -> Unit) {
+        viewModelScope.launch {
+            removeGame(gameId)
+                .onSuccess {
+                    onComplete()
+                    toast(R.string.game_delete_success)
+                }
+                .onFailure { toast(R.string.game_delete_error) }
         }
     }
 

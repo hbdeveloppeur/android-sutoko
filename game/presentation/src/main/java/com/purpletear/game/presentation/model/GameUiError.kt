@@ -28,6 +28,10 @@ sealed interface GameUiError {
     data object Delete : GameUiError {
         override val stringRes = R.string.error_delete
     }
+
+    data object Restart : GameUiError {
+        override val stringRes = R.string.error_restart
+    }
 }
 
 @Composable

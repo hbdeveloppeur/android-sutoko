@@ -1,5 +1,6 @@
 package com.purpletear.sutoko.game.engine.handlers
 
+import com.purpletear.sutoko.game.engine.GameEngineLogger
 import com.purpletear.sutoko.game.engine.HandlerCommand
 import com.purpletear.sutoko.game.engine.HandlerEffect
 import com.purpletear.sutoko.game.engine.HandlerScript
@@ -30,6 +31,8 @@ class MessageImageNodeHandler @Inject constructor() : NodeHandler {
         memory: GameMemory
     ): HandlerScript {
         val imageNode = node as? Node.MessageImage ?: return HandlerScript()
+
+        GameEngineLogger.d("HAND") { "Image message ${imageNode.id}: ${imageNode.imageUrl}" }
 
         return HandlerScript(
             commands = buildImageCommands(

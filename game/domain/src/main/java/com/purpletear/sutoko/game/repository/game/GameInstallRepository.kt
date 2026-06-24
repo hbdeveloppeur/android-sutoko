@@ -10,4 +10,5 @@ interface GameInstallRepository {
     fun observeDownloadProgress(gameId: String): Flow<Float?>
     fun observeDownloadProgresses(): Flow<Map<String, Float>>
     suspend fun deleteGame(gameId: String): Result<Unit>
+    fun cancelDownload(gameId: String)
 }

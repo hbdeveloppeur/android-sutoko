@@ -1,5 +1,6 @@
 package com.purpletear.sutoko.game.engine.handlers
 
+import com.purpletear.sutoko.game.engine.GameEngineLogger
 import com.purpletear.sutoko.game.engine.HandlerCommand
 import com.purpletear.sutoko.game.engine.HandlerEffect
 import com.purpletear.sutoko.game.engine.HandlerScript
@@ -23,17 +24,27 @@ class MessageVocalNodeHandler @Inject constructor() : NodeHandler {
     ): HandlerScript {
         val vocalNode = node as? Node.MessageVocal ?: return HandlerScript()
 
+        GameEngineLogger.d("HAND") { "Vocal message ${vocalNode.id}: ${vocalNode.audioUrl}" }
+
         val commands = mutableListOf<HandlerCommand>()
+
+        val messageId = UUID.randomUUID().toString()
 
         commands.add(
             HandlerCommand.Emit(
                 HandlerEffect.AddMessage(
                     GameMessageVocal(
-                        id = UUID.randomUUID().toString(),
+                        id = messageId,
                         audioUrl = vocalNode.audioUrl,
                         characterId = vocalNode.characterId,
                     )
                 )
+            )
+        )
+
+        commands.add(
+            HandlerCommand.Emit(
+                HandlerEffect.PlayVocal(vocalNode.audioUrl)
             )
         )
 

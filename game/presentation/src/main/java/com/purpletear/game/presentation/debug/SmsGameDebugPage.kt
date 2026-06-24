@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -128,7 +129,9 @@ private fun DebugSubtitle(text: String, value: String) {
 @Composable
 private fun DebugColumn(content: @Composable ColumnScope.() -> Unit) {
     Column(
-        modifier = Modifier.padding(12.dp),
+        modifier = Modifier
+            .statusBarsPadding()
+            .padding(12.dp),
         content = content,
         verticalArrangement = Arrangement.spacedBy(6.dp)
     )

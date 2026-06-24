@@ -1,5 +1,6 @@
 package com.purpletear.sutoko.game.engine.handlers
 
+import com.purpletear.sutoko.game.engine.GameEngineLogger
 import com.purpletear.sutoko.game.engine.HandlerScript
 import com.purpletear.sutoko.game.engine.NodeHandler
 import com.purpletear.sutoko.game.model.chapter.GameMemory
@@ -31,6 +32,10 @@ class ConditionNodeHandler @Inject constructor() : NodeHandler {
             conditionNode.trueTargetId
         } else {
             conditionNode.falseTargetId
+        }
+
+        GameEngineLogger.d("COND") {
+            "\"${conditionNode.expression}\" = $isTrue → $nextNodeId"
         }
 
         return HandlerScript(nextNodeId = nextNodeId)

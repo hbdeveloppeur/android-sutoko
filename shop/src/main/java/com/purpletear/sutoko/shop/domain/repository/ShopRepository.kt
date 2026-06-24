@@ -19,5 +19,4 @@ interface ShopRepository {
     ): Flow<Result<Unit>>
 
     suspend fun getPacks(): Result<List<ShopPack>>
-
 }

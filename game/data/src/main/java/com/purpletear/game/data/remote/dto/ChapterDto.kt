@@ -45,7 +45,7 @@ fun ChapterDto.toDomain(): Chapter {
         title = metas.title,
         description = metas.description,
         canvasAppVersion = canvasAppVersion,
-        code = code
+        code = code.uppercase()
     )
 }
 

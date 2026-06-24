@@ -8,6 +8,7 @@ import com.purpletear.core.presentation.extensions.executeFlowUseCase
 import com.purpletear.core.presentation.services.MakeToastService
 import com.purpletear.sutoko.domain.repository.AccountRepository
 import com.purpletear.sutoko.domain.repository.UserRepository
+import com.purpletear.sutoko.game.repository.game.GameInstallRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import fr.purpletear.sutoko.BuildConfig
 import fr.purpletear.sutoko.R
@@ -27,6 +28,7 @@ import javax.inject.Inject
 class SutokoParamsViewModel @Inject constructor(
     private val userRepository: UserRepository,
     private val accountRepository: AccountRepository,
+    private val gameInstallRepository: GameInstallRepository,
     private val showPopUpUseCase: ShowPopUpUseCase,
     private val getPopUpInteractionUseCase: GetPopUpInteractionUseCase,
     private val toastService: MakeToastService,
@@ -53,7 +55,8 @@ class SutokoParamsViewModel @Inject constructor(
             is SutokoParamsEvent.OnSharePressed -> emitEffect(SutokoParamsEffect.ShareApp)
             is SutokoParamsEvent.OnReloadPressed -> confirmReloadAccountData()
             is SutokoParamsEvent.OnDeletePressed -> confirmDeleteAccount()
-            is SutokoParamsEvent.OnDisconnectPressed -> confirmDisconnect()
+            is SutokoParamsEvent.OnDeleteDownloadedStoriesPressed -> confirmDeleteDownloadedStories()
+            is SutokoParamsEvent.OnDisconnectPressed -> disconnect()
             is SutokoParamsEvent.OnBackPressed -> emitEffect(SutokoParamsEffect.NavigateBack)
             is SutokoParamsEvent.OnEffectConsumed -> _uiState.update { it.copy(effect = null) }
         }
@@ -92,11 +95,38 @@ class SutokoParamsViewModel @Inject constructor(
         )
     }
 
-    private fun confirmDisconnect() {
+    private fun confirmDeleteDownloadedStories() {
         showConfirmation(
-            title = UiText.StringResource(R.string.sutoko_disconnect),
-            onConfirm = ::disconnect
+            title = UiText.StringResource(R.string.sutoko_params_activity_delete_downloaded_stories_confirm),
+            onConfirm = ::deleteDownloadedStories
         )
+    }
+
+    private fun deleteDownloadedStories() {
+        viewModelScope.launch {
+            _uiState.update { it.copy(isDeleteDownloadedStoriesLoading = true) }
+
+            val installs = gameInstallRepository.observeInstalls().first()
+            if (installs.isEmpty()) {
+                _uiState.update { it.copy(isDeleteDownloadedStoriesLoading = false) }
+                toastService(R.string.sutoko_params_activity_delete_downloaded_stories_success)
+                return@launch
+            }
+
+            var hasFailure = false
+            installs.forEach { install ->
+                gameInstallRepository.deleteGame(install.gameId)
+                    .onFailure { hasFailure = true }
+            }
+
+            _uiState.update { it.copy(isDeleteDownloadedStoriesLoading = false) }
+
+            if (hasFailure) {
+                toastService(R.string.sutoko_error_unknown)
+            } else {
+                toastService(R.string.sutoko_params_activity_delete_downloaded_stories_success)
+            }
+        }
     }
 
     private fun showConfirmation(title: UiText, onConfirm: () -> Unit) {

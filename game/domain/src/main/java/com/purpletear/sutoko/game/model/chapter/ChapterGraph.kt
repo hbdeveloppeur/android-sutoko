@@ -5,6 +5,7 @@ import androidx.annotation.Keep
 @Keep
 data class ChapterGraph(
     val chapterCode: String,
+    val chapterNumber: Int = 1,
     val title: String,
     val nodes: Map<String, Node>,
     val edges: List<Edge>,

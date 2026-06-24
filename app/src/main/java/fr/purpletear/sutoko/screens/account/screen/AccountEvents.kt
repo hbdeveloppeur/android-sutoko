@@ -14,7 +14,4 @@ sealed class AccountEvents {
     @Keep
     data class OnGamePressed(val game: GameItem) : AccountEvents()
 
-    @Keep
-    data class OnShopStateChanged(val coins: Int, val diamonds: Int) : AccountEvents()
-
 }

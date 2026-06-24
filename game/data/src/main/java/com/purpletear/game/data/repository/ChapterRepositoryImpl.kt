@@ -99,6 +99,6 @@ class ChapterRepositoryImpl @Inject constructor(
     }
 
     companion object {
-        private const val DEFAULT_CHAPTER_CODE = "1a"
+        private const val DEFAULT_CHAPTER_CODE = "1A"
     }
 }

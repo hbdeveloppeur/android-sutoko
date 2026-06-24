@@ -106,6 +106,9 @@
     <string name="sutoko_story_require_update">Please update Sutoko on Google play, so you can play this game</string>
     <string name="sutoko_params_activity_delete_my_account_data">Delete my account and its data</string>
     <string name="sutoko_params_activity_delete_my_account_data_confirm">Are you sure you want to delete your account and stories?</string>
+    <string name="sutoko_params_activity_delete_downloaded_stories">Delete all downloaded stories</string>
+    <string name="sutoko_params_activity_delete_downloaded_stories_confirm">Are you sure you want to delete all downloaded stories?</string>
+    <string name="sutoko_params_activity_delete_downloaded_stories_success">Downloaded stories deleted</string>
     <string name="sutoko_params_activity_reload_my_account_data">Reload my account data</string>
     <string name="sutoko_params_activity_reload_my_account_data_confirm">You are about to reload all you account data</string>
     <string name="sutoko_params_account_data_reloaded_success">Account data reloaded</string>

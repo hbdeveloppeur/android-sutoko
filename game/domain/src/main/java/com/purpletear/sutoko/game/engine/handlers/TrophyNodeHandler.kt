@@ -1,5 +1,6 @@
 package com.purpletear.sutoko.game.engine.handlers
 
+import com.purpletear.sutoko.game.engine.GameEngineLogger
 import com.purpletear.sutoko.game.engine.HandlerCommand
 import com.purpletear.sutoko.game.engine.HandlerEffect
 import com.purpletear.sutoko.game.engine.HandlerScript
@@ -21,6 +22,8 @@ class TrophyNodeHandler @Inject constructor() : NodeHandler {
         memory: GameMemory
     ): HandlerScript {
         val trophyNode = node as? Node.Trophy ?: return HandlerScript()
+
+        GameEngineLogger.d("HAND") { "Unlock trophy ${trophyNode.id}: ${trophyNode.trophyId}" }
 
         return HandlerScript(
             commands = listOf(

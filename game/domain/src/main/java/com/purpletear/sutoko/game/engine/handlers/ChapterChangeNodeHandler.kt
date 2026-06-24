@@ -1,5 +1,6 @@
 package com.purpletear.sutoko.game.engine.handlers
 
+import com.purpletear.sutoko.game.engine.GameEngineLogger
 import com.purpletear.sutoko.game.engine.HandlerCommand
 import com.purpletear.sutoko.game.engine.HandlerEffect
 import com.purpletear.sutoko.game.engine.HandlerScript
@@ -21,6 +22,8 @@ class ChapterChangeNodeHandler @Inject constructor() : NodeHandler {
         memory: GameMemory
     ): HandlerScript {
         val chapterNode = node as? Node.ChapterChange ?: return HandlerScript()
+
+        GameEngineLogger.d("HAND") { "Chapter change ${chapterNode.id} → ${chapterNode.chapterCode}" }
 
         return HandlerScript(
             commands = listOf(

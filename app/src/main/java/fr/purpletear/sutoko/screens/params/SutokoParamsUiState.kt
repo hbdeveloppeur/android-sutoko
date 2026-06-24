@@ -7,6 +7,7 @@ import androidx.annotation.Keep
 data class SutokoParamsUiState(
     val isUserConnected: Boolean = false,
     val isDeleteLoading: Boolean = false,
+    val isDeleteDownloadedStoriesLoading: Boolean = false,
     val isReloadLoading: Boolean = false,
     val versionText: String = "",
     val privacyPolicyUrl: String = "",

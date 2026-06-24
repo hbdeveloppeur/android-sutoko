@@ -13,11 +13,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.navigation.compose.rememberNavController
 import com.example.sharedelements.theme.SutokoTheme
-import com.purpletear.game.presentation.common.components.HideStatusBarEffect
+import com.purpletear.game.presentation.BuildConfig
 import com.purpletear.game.presentation.debug.SmsGameDevAction
 import com.purpletear.game.presentation.debug.SmsGameDevViewModel
 import com.purpletear.game.presentation.debug.debugPage
 import com.purpletear.game.presentation.game_chapter_introduction.descriptionScreen
+import com.purpletear.game.presentation.game_chapter_selection.chapterSelectionScreen
 import com.purpletear.game.presentation.game_play.navigation.gameScreen
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.delay
@@ -37,7 +38,6 @@ class SmsGameActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             SutokoTheme {
-                HideStatusBarEffect()
 
                 val navController = rememberNavController()
                 val overlayAlpha = remember { Animatable(0f) }
@@ -79,6 +79,10 @@ class SmsGameActivity : ComponentActivity() {
                             SmsGameDevAction.Update -> {
                                 devViewModel.redownload(gameId)
                             }
+
+                            SmsGameDevAction.Delete -> {
+                                devViewModel.delete(gameId) { finish() }
+                            }
                         }
                     }
                 ) {
@@ -93,8 +97,28 @@ class SmsGameActivity : ComponentActivity() {
                             fadeThenRun {
                                 navController.navigate(SmsGameRoutes.game(chapterCode))
                             }
+                        },
+                        onSelectChapter = {
+                            val state = viewModel.sessionState.value
+                            val currentChapterCode =
+                                (state as? com.purpletear.sutoko.game.model.GameSessionState.Ready)?.chapter?.code
+                                    ?: ""
+                            fadeThenRun {
+                                navController.navigate(
+                                    SmsGameRoutes.chapterSelection(currentChapterCode)
+                                )
+                            }
                         }
                     )
+
+                    if (BuildConfig.DEBUG) {
+                        chapterSelectionScreen(
+                            gameId = gameId,
+                            onNavigateBack = {
+                                navController.popBackStack()
+                            }
+                        )
+                    }
 
                     gameScreen(
                         gameId = gameId,

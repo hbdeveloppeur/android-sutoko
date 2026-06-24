@@ -89,6 +89,7 @@ android {
 
     buildTypes.getByName("release") {
         debuggable false
+        signingConfig signingConfigs.release
     }
 
     buildTypes.getByName("debug") {

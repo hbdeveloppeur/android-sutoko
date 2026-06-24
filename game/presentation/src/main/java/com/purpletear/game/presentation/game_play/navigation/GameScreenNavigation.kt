@@ -48,5 +48,8 @@ internal fun NavGraphBuilder.gameScreen(
         state = state,
         onNextChapterClick = viewModel::onNextChapterClicked,
         onVocalClick = viewModel::onVocalClicked,
+        onChoiceSelected = viewModel::onChoiceSelected,
+        onRevealChoicesClicked = viewModel::onRevealChoicesClicked,
+        onHideChoicesClicked = viewModel::onHideChoicesClicked,
     )
 }
