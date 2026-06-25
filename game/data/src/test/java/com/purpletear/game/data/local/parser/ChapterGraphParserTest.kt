@@ -40,6 +40,7 @@ class ChapterGraphParserTest {
             nodeDtos = nodes,
             edgeDtos = edges,
             gameId = "game1",
+            legacyId = null,
             pathProvider = pathProvider
         )
 
@@ -76,6 +77,7 @@ class ChapterGraphParserTest {
             nodeDtos = nodes,
             edgeDtos = edges,
             gameId = "game1",
+            legacyId = null,
             pathProvider = pathProvider
         )
 
@@ -108,6 +110,7 @@ class ChapterGraphParserTest {
             nodeDtos = nodes,
             edgeDtos = edges,
             gameId = "game1",
+            legacyId = null,
             pathProvider = pathProvider
         )
 
@@ -137,6 +140,7 @@ class ChapterGraphParserTest {
             nodeDtos = nodes,
             edgeDtos = edges,
             gameId = "game1",
+            legacyId = null,
             pathProvider = pathProvider
         )
 
@@ -164,6 +168,7 @@ class ChapterGraphParserTest {
             nodeDtos = nodes,
             edgeDtos = edges,
             gameId = "game1",
+            legacyId = null,
             pathProvider = pathProvider
         )
 
@@ -188,6 +193,7 @@ class ChapterGraphParserTest {
             nodeDtos = nodes,
             edgeDtos = edges,
             gameId = "game1",
+            legacyId = null,
             pathProvider = pathProvider
         )
 
@@ -216,6 +222,7 @@ class ChapterGraphParserTest {
             nodeDtos = nodes,
             edgeDtos = edges,
             gameId = "game1",
+            legacyId = null,
             pathProvider = pathProvider
         )
 
@@ -254,6 +261,7 @@ class ChapterGraphParserTest {
 
     private class FakeGamePathProvider : GamePathProvider {
         override fun getStoriesDirectoryPath(): String = "/tmp/games"
-        override fun getStoryDirectoryPath(storyId: String): String = "/tmp/games/$storyId"
+        override fun getStoryDirectoryPath(storyId: String, legacyId: Int?): String =
+            "/tmp/games/${legacyId ?: storyId}"
     }
 }

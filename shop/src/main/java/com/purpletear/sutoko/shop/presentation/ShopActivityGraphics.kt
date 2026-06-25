@@ -10,6 +10,7 @@ import android.os.Looper
 import android.view.View
 import android.view.WindowManager
 import android.widget.ImageView
+import android.widget.TextView
 import androidx.constraintlayout.motion.widget.MotionLayout
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
@@ -25,6 +26,7 @@ import com.example.sharedelements.SutokoSharedElementsData
 import com.purpletear.sutoko.shop.R
 import com.purpletear.sutoko.shop.databinding.ActivityShopFixedBinding
 import com.purpletear.sutoko.shop.databinding.LayoutShopBuyValidationBinding
+import com.purpletear.sutoko.shop.domain.model.PackItem
 import com.purpletear.sutoko.shop.domain.repository.model.CoinsPackType
 import com.purpletear.sutoko.shop.domain.repository.model.ShopPack
 import purpletear.fr.purpleteartools.Animation
@@ -361,13 +363,29 @@ object ShopActivityGraphics {
         binding: ActivityShopFixedBinding,
         packsItems: List<PackItem>,
     ) {
-        fun price(type: CoinsPackType): String {
-            return packsItems.firstOrNull { it.pack.type == type }?.formattedPrice ?: ""
+        fun bind(cardRoot: View, button: TextView, type: CoinsPackType) {
+            val price = packsItems.firstOrNull { it.pack.type == type }?.formattedPrice
+            button.text = price ?: ""
+            val enabled = !price.isNullOrBlank()
+            cardRoot.isEnabled = enabled
+            button.isEnabled = enabled
         }
 
-        binding.sutokoShopCard1.sutokoCoinsCardButtonBuy.text = price(CoinsPackType.Low)
-        binding.sutokoShopCard2.sutokoCoinsCardButtonBuy.text = price(CoinsPackType.Medium)
-        binding.sutokoShopCard3.sutokoCoinsCardLargeButtonBuy.text = price(CoinsPackType.High)
+        bind(
+            binding.sutokoShopCard1.root,
+            binding.sutokoShopCard1.sutokoCoinsCardButtonBuy,
+            CoinsPackType.Low
+        )
+        bind(
+            binding.sutokoShopCard2.root,
+            binding.sutokoShopCard2.sutokoCoinsCardButtonBuy,
+            CoinsPackType.Medium
+        )
+        bind(
+            binding.sutokoShopCard3.root,
+            binding.sutokoShopCard3.sutokoCoinsCardLargeButtonBuy,
+            CoinsPackType.High
+        )
     }
 
     fun headerShouldDisappear(

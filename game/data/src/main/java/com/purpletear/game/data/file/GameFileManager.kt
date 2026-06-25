@@ -4,10 +4,11 @@ interface GameFileManager {
     suspend fun downloadAndExtract(
         gameId: String,
         downloadUrl: String,
-        onProgress: suspend (Float) -> Unit
+        onProgress: suspend (Float) -> Unit,
+        legacyId: Int? = null,
     ): String
 
-    suspend fun deleteGame(gameId: String)
+    suspend fun deleteGame(gameId: String, legacyId: Int? = null)
 
-    fun getInstallPath(gameId: String): String
+    fun getInstallPath(gameId: String, legacyId: Int? = null): String
 }

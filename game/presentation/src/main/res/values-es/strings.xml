@@ -102,7 +102,7 @@
 
     <!-- Chapter introduction -->
     <string name="game_description_chapter_title">Capítulo %1$d</string>
-    <string name="game_description_restart">Reiniciar juego</string>
+    <string name="game_description_restart">Reiniciar</string>
     <string name="game_description_continue">Continuar</string>
     <string name="game_description_error">Error: %1$s</string>
 

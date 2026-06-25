@@ -24,8 +24,5 @@ sealed class MainEvents {
     data object TapShop : MainEvents()
 
     @Keep
-    data class SwitchNews(val index: Int) : MainEvents()
-
-    @Keep
     data class ToggleNotifications(val notificationsOn: Boolean) : MainEvents()
 }

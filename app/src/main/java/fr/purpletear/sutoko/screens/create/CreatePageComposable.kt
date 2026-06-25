@@ -56,6 +56,8 @@ internal fun CreatePageComposable(
     val context = LocalContext.current
     val balance = viewModel.balance.collectAsStateWithLifecycle()
     val games = viewModel.games.collectAsStateWithLifecycle()
+    val isLoadingMore = viewModel.isLoadingMore.collectAsStateWithLifecycle()
+    val hasMoreGames = viewModel.hasMoreGames.collectAsStateWithLifecycle()
     val appBuildNumber = viewModel.appBuildNumber
 
     LaunchedEffect(Unit) {
@@ -157,14 +159,15 @@ internal fun CreatePageComposable(
                 }
 
 
-                item {
-                    Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
-                        LoadMoreButton(
-                            // TODO
-                            onClick = { },
-                            isLoading = false,
-                            modifier = Modifier.padding(horizontal = 16.dp, vertical = 32.dp)
-                        )
+                if (hasMoreGames.value) {
+                    item {
+                        Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
+                            LoadMoreButton(
+                                onClick = { viewModel.loadMore() },
+                                isLoading = isLoadingMore.value,
+                                modifier = Modifier.padding(horizontal = 16.dp, vertical = 32.dp)
+                            )
+                        }
                     }
                 }
                 // Bottom spacer for better scrolling experience

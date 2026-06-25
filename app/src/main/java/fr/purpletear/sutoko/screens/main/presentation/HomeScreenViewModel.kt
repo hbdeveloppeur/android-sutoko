@@ -3,7 +3,6 @@ package fr.purpletear.sutoko.screens.main.presentation
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.State
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.core.text.isDigitsOnly
 import androidx.lifecycle.LifecycleObserver
@@ -23,7 +22,7 @@ import com.purpletear.sutoko.game.model.game.GameCatalog
 import com.purpletear.sutoko.game.model.game.isPremium
 import com.purpletear.sutoko.game.usecase.ObserveOfficialGamesUseCase
 import com.purpletear.sutoko.news.model.News
-import com.purpletear.sutoko.news.usecase.GetNewsUseCase
+import com.purpletear.sutoko.news.usecase.ObserveNewsUseCase
 import com.purpletear.sutoko.notification.sealed.Screen
 import com.purpletear.sutoko.notification.usecase.SetCurrentScreenUseCase
 import com.purpletear.sutoko.shop.domain.repository.ShopRepository
@@ -49,7 +48,7 @@ class HomeScreenViewModel @Inject constructor(
     private var firebaseAnalytics: FirebaseAnalytics,
     private val screenUseCase: SetCurrentScreenUseCase,
     private val symbols: TableOfSymbols,
-    private val getNewsUseCase: GetNewsUseCase,
+    private val observeNewsUseCase: ObserveNewsUseCase,
     private val observeOfficialGamesUseCase: ObserveOfficialGamesUseCase,
     private val openDiscordOrBrowser: OpenDiscordOrBrowserService,
     private val shopRepository: ShopRepository,
@@ -101,15 +100,12 @@ class HomeScreenViewModel @Inject constructor(
     val squareIcons: State<Map<Int, Int?>>
         get() = _squareIcons
 
-    private var _newsIndex: MutableState<Int> = mutableIntStateOf(0)
-    val newsIndex: State<Int>
-        get() = _newsIndex
-
-    private var _news: MutableState<List<News>> = mutableStateOf(listOf())
-    val news: State<List<News>>
-        get() = _news
-
-    // newsState is redundant with news, so it has been removed
+    var news: StateFlow<List<News>> = observeNewsUseCase()
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(7000),
+            initialValue = emptyList(),
+        )
 
     private var _aiConversationMessageCount: MutableState<Int?> = mutableStateOf(null)
     val aiConversationMessageCount: State<Int?>
@@ -142,7 +138,7 @@ class HomeScreenViewModel @Inject constructor(
     }
 
     init {
-        // Initialize with empty list, will be updated from GetNewsUseCase
+        // Initialize with empty list, news is observed below
         val events =
             savedStateHandle.get<List<CalendarEvent>>(Data.Companion.Extra.CALENDAR_EVENTS.id)
                 ?.toList() ?: listOf()
@@ -153,16 +149,6 @@ class HomeScreenViewModel @Inject constructor(
             notificationsOn = symbols.isFirebaseNotificationEnabled
         )
 
-
-        // Fetch news from the repository cache
-        viewModelScope.launch {
-            getNewsUseCase().collect { result ->
-                result.onSuccess { news ->
-                    // Update news state variable
-                    _news.value = news
-                }
-            }
-        }
 
         // Derive square/full stories and main state from the observed games
         viewModelScope.launch {
@@ -306,10 +292,6 @@ class HomeScreenViewModel @Inject constructor(
                 this.setNotifications(event.notificationsOn)
                 this._state.value =
                     this._state.value.copy(notificationsOn = this.symbols.isFirebaseNotificationEnabled)
-            }
-
-            is MainEvents.SwitchNews -> {
-                this._newsIndex.value = event.index
             }
 
             is MainEvents.TapShop -> {

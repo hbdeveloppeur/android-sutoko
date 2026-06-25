@@ -1,4 +1,4 @@
-package com.purpletear.sutoko.shop.presentation
+package com.purpletear.sutoko.shop.domain.model
 
 import com.purpletear.sutoko.shop.domain.repository.model.ShopPack
 import androidx.annotation.Keep

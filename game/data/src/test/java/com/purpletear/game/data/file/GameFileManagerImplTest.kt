@@ -129,9 +129,11 @@ class GameFileManagerImplTest {
 
     private class FakeAndroidGamePathProvider(private val gamesDir: File) : AndroidGamePathProvider {
         override fun getStoriesDirectoryPath(): String = gamesDir.absolutePath
-        override fun getStoryDirectoryPath(storyId: String): String =
-            File(gamesDir, storyId).absolutePath
+        override fun getStoryDirectoryPath(storyId: String, legacyId: Int?): String =
+            File(gamesDir, legacyId?.toString() ?: storyId).absolutePath
 
         override fun getGamesDirectory(): File = gamesDir
+        override fun getGameDirectory(gameId: String, legacyId: Int?): File =
+            File(gamesDir, legacyId?.toString() ?: gameId)
     }
 }

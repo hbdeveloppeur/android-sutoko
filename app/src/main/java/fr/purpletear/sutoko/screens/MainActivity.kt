@@ -88,10 +88,7 @@ import kotlinx.coroutines.launch
 import purpletear.fr.purpleteartools.TableOfSymbols
 import javax.inject.Inject
 import com.purpletear.aiconversation.presentation.R as AiConversationR
-import fr.purpletear.friendzone.activities.load.Load as Friendzoned1Loader
-import fr.purpletear.friendzone2.activities.load.Load as Friendzoned2Loader
-import fr.purpletear.friendzone4.game.activities.load.Load as Friendzoned4Loader
-import friendzone3.purpletear.fr.friendzon3.Load as Friendzoned3Loader
+import fr.purpletear.sutoko.friendzoned.FriendzonedGameRouter
 
 @AndroidEntryPoint
 class MainActivity @Inject constructor(
@@ -255,10 +252,12 @@ class MainActivity @Inject constructor(
                             val viewModel: GamePreviewViewModel = hiltViewModel()
                             GamePreview(
                                 viewModel = viewModel,
-                                onNavigateToGame = onNavigateToGame@{ gameId, isGranted ->
-                                    // Legacy game IDs are now string-based; checks moved to repository layer
-                                    if (gameId.hashCode() in intArrayOf(159, 161, 162, 163)) {
-                                        startFriendzoned(gameId, isGranted)
+                                onNavigateToGame = onNavigateToGame@{ gameId, legacyId, isGranted ->
+                                    val friendzonedId = legacyId?.takeIf {
+                                        FriendzonedGameRouter.loaderClassFor(it) != null
+                                    }
+                                    if (friendzonedId != null) {
+                                        startFriendzoned(friendzonedId, isGranted)
                                         return@onNavigateToGame
                                     }
                                     startSmsGameActivity(gameId)
@@ -490,18 +489,10 @@ class MainActivity @Inject constructor(
         }
     }
 
-    private fun startFriendzoned(gameId: String, isGranted: Boolean) {
-        // Legacy game loaders - these will need to be updated with new string IDs
-        // For now, we hash the string ID to match the old Int-based logic
-        val intent = when (gameId.hashCode()) {
-            162 -> Intent(this, Friendzoned1Loader::class.java)
-            161 -> Intent(this, Friendzoned2Loader::class.java)
-            159 -> Intent(this, Friendzoned3Loader::class.java)
-            163 -> Intent(this, Friendzoned4Loader::class.java)
-            else -> throw IllegalArgumentException("Invalid gameId: $gameId")
-        }
+    private fun startFriendzoned(legacyId: Int, isGranted: Boolean) {
+        val intent = FriendzonedGameRouter.intentFor(this, legacyId)
 
-        intent.putExtra("symbols", symbols as Parcelable)
+        intent.putExtra("symbols", TableOfSymbols(legacyId) as Parcelable)
         intent.putExtra("granted", isGranted)
 
         startActivity(intent)

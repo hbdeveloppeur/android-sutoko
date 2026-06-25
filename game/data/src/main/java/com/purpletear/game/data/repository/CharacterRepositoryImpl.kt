@@ -8,7 +8,9 @@ import com.purpletear.game.data.mapper.CharacterMapper.toDomain
 import com.purpletear.game.data.provider.AndroidGamePathProvider
 import com.purpletear.sutoko.game.model.character.Character
 import com.purpletear.sutoko.game.repository.CharacterRepository
+import com.purpletear.sutoko.game.repository.game.GameRepository
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
@@ -26,7 +28,8 @@ import javax.inject.Singleton
  */
 @Singleton
 class CharacterRepositoryImpl @Inject constructor(
-    private val pathProvider: AndroidGamePathProvider
+    private val pathProvider: AndroidGamePathProvider,
+    private val gameRepository: GameRepository,
 ) : CharacterRepository {
 
     private val gson = Gson()
@@ -42,10 +45,9 @@ class CharacterRepositoryImpl @Inject constructor(
 
             withContext(Dispatchers.IO) {
                 try {
-                    val charactersFile = File(
-                        pathProvider.getGamesDirectory(),
-                        "$gameId/characters/characters.json"
-                    )
+                    val legacyId = gameRepository.observeGame(gameId).firstOrNull()?.legacyId
+                    val gameDir = pathProvider.getGameDirectory(gameId, legacyId)
+                    val charactersFile = File(gameDir, "characters/characters.json")
 
                     if (!charactersFile.exists()) {
                         Log.w(TAG, "Characters file not found: ${charactersFile.absolutePath}")
@@ -59,7 +61,7 @@ class CharacterRepositoryImpl @Inject constructor(
                     }
 
                     val charactersDir = charactersFile.parentFile
-                        ?: File(pathProvider.getGamesDirectory(), "$gameId/characters")
+                        ?: File(gameDir, "characters")
 
                     characterCache.clear()
                     characterCache.putAll(

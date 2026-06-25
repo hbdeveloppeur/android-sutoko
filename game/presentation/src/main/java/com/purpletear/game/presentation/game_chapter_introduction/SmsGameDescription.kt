@@ -32,9 +32,9 @@ import androidx.navigation.compose.composable
 import coil.compose.AsyncImage
 import com.example.sharedelements.theme.Poppins
 import com.purpletear.game.presentation.BuildConfig
-import com.purpletear.game.presentation.common.extensions.toUiString
 import com.purpletear.game.presentation.R
 import com.purpletear.game.presentation.common.components.SimpleButton
+import com.purpletear.game.presentation.common.extensions.toUiString
 import com.purpletear.game.presentation.game_play.GameSessionViewModel
 import com.purpletear.game.presentation.game_play.SmsGameRoutes
 import com.purpletear.sutoko.alert.presentation.SimpleAlertDialog
@@ -140,7 +140,7 @@ internal fun ChapterDescriptionContent(
         Column(
             modifier = Modifier
                 .statusBarsPadding()
-                .widthIn(max = 280.dp),
+                .widthIn(max = 300.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {

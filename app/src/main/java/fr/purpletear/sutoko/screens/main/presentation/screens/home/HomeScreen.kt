@@ -15,18 +15,16 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
-import coil.imageLoader
-import coil.request.ImageRequest
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.purpletear.aiconversation.presentation.navigation.AiConversationRouteDestination
 import com.purpletear.core.presentation.extensions.Resource
 import com.purpletear.game.presentation.game_catalog.GameCard
 import com.purpletear.game.presentation.game_catalog.GameSquares
 import com.purpletear.sutoko.game.model.game.GameCatalog
+import com.purpletear.sutoko.news.model.News
 import com.purpletear.sutoko.shop.domain.repository.model.Balance
 import fr.purpletear.sutoko.BuildConfig
 import fr.purpletear.sutoko.screens.main.domain.popup.util.MainMenuCategory
@@ -54,9 +52,9 @@ fun HomeScreen(
     onDiamondsPressed: () -> Unit,
     viewModel: HomeScreenViewModel
 ) {
-    val context = LocalContext.current
     val scrollState = rememberLazyListState()
     val systemUiController = rememberSystemUiController()
+    val news = viewModel.news.collectAsStateWithLifecycle()
 
     // Collect navigation events with lifecycle awareness
     val navEvent by viewModel.navEvents.collectAsStateWithLifecycle(initialValue = null)
@@ -64,16 +62,6 @@ fun HomeScreen(
     LaunchedEffect(navEvent) {
         navEvent?.let { route ->
             mainNavController.navigate(route)
-        }
-    }
-
-    // Preload first news image for better UX
-    LaunchedEffect(viewModel.news.value) {
-        viewModel.news.value.firstOrNull()?.let { firstNews ->
-            val request = ImageRequest.Builder(context)
-                .data(firstNews.media.filename)
-                .build()
-            context.imageLoader.enqueue(request)
         }
     }
 
@@ -86,7 +74,7 @@ fun HomeScreen(
 
     HomeContent(
         scrollState = scrollState,
-        news = viewModel.news.value,
+        news = news.value,
         squareStories = viewModel.squareStories.value,
         fullStories = viewModel.fullStories.value,
         squareIcons = viewModel.squareIcons.value,
@@ -127,7 +115,7 @@ fun HomeScreen(
 @Composable
 private fun HomeContent(
     scrollState: LazyListState,
-    news: List<com.purpletear.sutoko.news.model.News>,
+    news: List<News>,
     squareStories: List<GameCatalog>,
     fullStories: List<GameCatalog>,
     squareIcons: Map<Int, Int?>,

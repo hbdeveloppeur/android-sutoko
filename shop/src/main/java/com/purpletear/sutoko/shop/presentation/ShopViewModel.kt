@@ -4,8 +4,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.purpletear.sutoko.domain.repository.UserRepository
 import com.purpletear.sutoko.shop.domain.repository.model.Balance
+import com.purpletear.sutoko.shop.domain.model.PackItem
 import com.purpletear.sutoko.shop.domain.repository.model.CoinsPackType
-import com.purpletear.sutoko.shop.domain.usecase.GetShopPacksUseCase
+import com.purpletear.sutoko.shop.domain.usecase.GetShopPackPricesUseCase
 import com.purpletear.sutoko.shop.domain.usecase.ObserveShopBalanceUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import fr.sutoko.inapppurchase.application.domain.model.PurchaseErrorType
@@ -18,6 +19,8 @@ import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -26,7 +29,7 @@ import javax.inject.Inject
 class ShopViewModel @Inject constructor(
     private val userRepository: UserRepository,
     observeShopBalanceUseCase: ObserveShopBalanceUseCase,
-    private val getShopPacksUseCase: GetShopPacksUseCase,
+    private val getShopPackPricesUseCase: GetShopPackPricesUseCase,
     private val purchaseRepository: PurchaseRepository,
 ) : ViewModel() {
 
@@ -55,25 +58,18 @@ class ShopViewModel @Inject constructor(
         viewModelScope.launch {
             loadPacks()
         }
+
+        viewModelScope.launch {
+            purchaseRepository.connectionState
+                .distinctUntilChanged()
+                .filter { it }
+                .collect { loadPacks() }
+        }
     }
 
     private suspend fun loadPacks() {
-        getShopPacksUseCase()
-            .mapCatching { shopPacks ->
-                val products = purchaseRepository
-                    .queryProductDetails(shopPacks.map { it.sku })
-                    .getOrThrow()
-                val productBySku = products.associateBy { it.sku }
-
-                shopPacks.map { pack ->
-                    PackItem(
-                        pack = pack,
-                        formattedPrice = productBySku[pack.sku]?.formattedPrice,
-                    )
-                }
-            }
+        getShopPackPricesUseCase()
             .onSuccess { _packs.value = it }
-            .onFailure { _packs.value = emptyList() }
     }
 
     fun onEvent(event: ShopEvent) {
@@ -87,8 +83,8 @@ class ShopViewModel @Inject constructor(
 
     private suspend fun buy(packType: CoinsPackType) {
         val packItem = _packs.value.firstOrNull { it.pack.type == packType }
-        if (packItem == null) {
-            _purchaseEvents.emit(ShopPurchaseEvent.Failed(packType, "Pack not found"))
+        if (packItem == null || packItem.formattedPrice.isNullOrBlank()) {
+            _purchaseEvents.emit(ShopPurchaseEvent.Failed(packType, "Pack not available"))
             return
         }
 

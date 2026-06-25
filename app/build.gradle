@@ -261,4 +261,8 @@ dependencies {
     implementation project(path: ':news:domain')
     implementation project(path: ':news:data')
     implementation project(path: ':news:presentation')
+
+    testImplementation libs.junit
+    testImplementation "io.mockk:mockk:1.13.8"
+    testImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.3"
 }

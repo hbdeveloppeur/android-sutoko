@@ -13,7 +13,6 @@ import javax.inject.Inject
 
 /**
  * ViewModel for the splash screen.
- * Injects the GetNewsUseCase and GetGamesUseCase to fetch news and games.
  * Tracks the completion status of splash screen animations and data loading.
  */
 @HiltViewModel

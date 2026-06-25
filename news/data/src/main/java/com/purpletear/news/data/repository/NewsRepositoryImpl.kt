@@ -7,8 +7,9 @@ import com.purpletear.sutoko.news.model.News
 import com.purpletear.sutoko.news.repository.NewsRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.map
+import java.util.Locale
 import javax.inject.Inject
 
 /**
@@ -23,38 +24,11 @@ class NewsRepositoryImpl @Inject constructor(
     private val newsStateFlow = MutableStateFlow<List<News>?>(null)
 
     /**
-     * Get a list of all news.
+     * Observe the cached list of news.
      *
-     * @return A Flow emitting a Result containing a list of News.
+     * @return A Flow emitting the list of News.
      */
-    override fun getNews(): Flow<Result<List<News>>> = flow {
-        try {
-            // Return cached value if available
-            newsStateFlow.value?.let {
-                emit(Result.success(it))
-            } ?: run {
-                // Fetch from API (first load)
-                val langCode = java.util.Locale.getDefault().language
-                val response = apiWrapper.getNews(langCode, appVersionProvider.getVersionCode())
-                if (response.isSuccessful) {
-                    val news = response.body()?.toDomain() ?: emptyList()
-                    newsStateFlow.value = news
-                    android.util.Log.d("CRFAH", "Found ${news.size} news")
-                    emit(Result.success(news))
-                } else {
-                    val errorBody = response.errorBody()?.string() ?: "Unknown error"
-                    android.util.Log.d("CRFAH", "Answer is not successful ${errorBody}")
-                    val exception =
-                        Exception("API call failed with code ${response.code()}: $errorBody")
-                    emit(Result.failure(exception))
-                }
-            }
-        } catch (e: Exception) {
-            e.printStackTrace()
-            android.util.Log.d("CRFAH", "Answer is exception ${e.message}")
-            emit(Result.failure(e))
-        }
-    }
+    override fun observeNews(): Flow<List<News>> = newsStateFlow.map { it ?: emptyList() }
 
     /**
      * Get a specific news by its ID.
@@ -84,22 +58,27 @@ class NewsRepositoryImpl @Inject constructor(
     }
 
     /**
-     * Refresh the news data from the remote source.
+     * Synchronize news with the remote source.
+     *
+     * @param languageTag The BCP-47 language tag to request news for.
+     * @return A Result indicating success or failure of the sync operation.
      */
-    override suspend fun refreshNews() {
-
-        val langCode = java.util.Locale.getDefault().language
-        val response = apiWrapper.getNews(langCode, appVersionProvider.getVersionCode())
-        if (response.isSuccessful) {
-            val apiNews = response.body()?.toDomain() ?: emptyList()
-            newsStateFlow.value = apiNews
+    override suspend fun syncNews(languageTag: String): Result<Unit> {
+        return try {
+            val langCode = Locale.forLanguageTag(languageTag).language
+            val response = apiWrapper.getNews(langCode, appVersionProvider.getVersionCode())
+            if (response.isSuccessful) {
+                val news = response.body()?.toDomain() ?: emptyList()
+                newsStateFlow.value = news
+                Result.success(Unit)
+            } else {
+                val errorBody = response.errorBody()?.string() ?: "Unknown error"
+                val exception =
+                    Exception("API call failed with code ${response.code()}: $errorBody")
+                Result.failure(exception)
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
         }
     }
-
-    /**
-     * Observe the cached news data.
-     *
-     * @return A StateFlow emitting the cached list of News.
-     */
-    override fun observeCachedNews(): StateFlow<List<News>?> = newsStateFlow
 }

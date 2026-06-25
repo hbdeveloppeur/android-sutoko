@@ -4,8 +4,10 @@ import android.util.Log
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
+import com.purpletear.sutoko.game.repository.game.GameInstallRepository
 import com.purpletear.sutoko.game.repository.game.GameRepository
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import java.util.Locale
 import javax.inject.Inject
@@ -19,6 +21,7 @@ import javax.inject.Singleton
 @Singleton
 class CatalogSyncCoordinator @Inject constructor(
     private val gameRepository: GameRepository,
+    private val gameInstallRepository: GameInstallRepository,
 ) {
 
     fun start(lifecycle: Lifecycle, scope: CoroutineScope) {
@@ -34,6 +37,10 @@ class CatalogSyncCoordinator @Inject constructor(
     private suspend fun sync() {
         val languageTag = Locale.getDefault().toLanguageTag()
         gameRepository.syncOfficialGames(languageTag)
+            .onSuccess {
+                val catalogs = gameRepository.observeOfficialGames().first()
+                gameInstallRepository.ensureBuiltInGamesInstalled(catalogs)
+            }
             .onFailure { Log.w("CatalogSyncCoordinator", "Catalog sync failed", it) }
     }
 }

@@ -10,15 +10,18 @@ import com.purpletear.game.data.local.parser.ChapterGraphParser
 import com.purpletear.game.data.provider.AndroidGamePathProvider
 import com.purpletear.sutoko.game.model.chapter.ChapterGraph
 import com.purpletear.sutoko.game.repository.ChapterGraphRepository
+import com.purpletear.sutoko.game.repository.game.GameRepository
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flow
 import java.io.File
 import javax.inject.Inject
 
 class ChapterGraphRepositoryImpl @Inject constructor(
     private val pathProvider: AndroidGamePathProvider,
-    private val chapterDao: ChapterDao
+    private val chapterDao: ChapterDao,
+    private val gameRepository: GameRepository,
 ) : ChapterGraphRepository {
 
     private val gson = Gson()
@@ -29,8 +32,9 @@ class ChapterGraphRepositoryImpl @Inject constructor(
         language: String
     ): Flow<Result<ChapterGraph>> = flow {
         try {
-            val baseDir = File(pathProvider.getGamesDirectory(), gameId)
-            val chapterDir = File(baseDir, "chapters/$language/${chapterCode.lowercase()}")
+            val legacyId = gameRepository.observeGame(gameId).firstOrNull()?.legacyId
+            val gameDir = pathProvider.getGameDirectory(gameId, legacyId)
+            val chapterDir = File(gameDir, "chapters/$language/${chapterCode.lowercase()}")
 
             if (!chapterDir.exists()) {
                 emit(Result.failure(IllegalArgumentException("Chapter directory not found: ${chapterDir.absolutePath}")))
@@ -71,6 +75,7 @@ class ChapterGraphRepositoryImpl @Inject constructor(
                 nodeDtos = nodeDtos,
                 edgeDtos = edgeDtos,
                 gameId = gameId,
+                legacyId = legacyId,
                 pathProvider = pathProvider
             )
             emit(Result.success(graph))

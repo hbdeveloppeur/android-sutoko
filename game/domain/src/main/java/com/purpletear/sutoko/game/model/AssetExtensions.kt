@@ -30,13 +30,18 @@ fun Asset?.getThumbnailUrl(): String? {
 /**
  * Resolves the local file system path for this asset.
  *
- * @param gameId The game/story ID for directory lookup
- * @param pathProvider Provider for story directory paths
- * @return The absolute local file path, or null if asset or storagePath is invalid
+ * @param gameId The game/story ID for directory lookup.
+ * @param legacyId The legacy integer identifier, if any.
+ * @param pathProvider Provider for story directory paths.
+ * @return The absolute local file path, or null if asset or storagePath is invalid.
  */
-fun Asset?.resolveLocalPath(gameId: String, pathProvider: GamePathProvider): String? {
+fun Asset?.resolveLocalPath(
+    gameId: String,
+    legacyId: Int?,
+    pathProvider: GamePathProvider,
+): String? {
     if (this == null || storagePath.isBlank()) return null
     val fileName = storagePath.substringAfterLast("/")
-    val basePath = pathProvider.getStoryDirectoryPath(gameId)
+    val basePath = pathProvider.getStoryDirectoryPath(gameId, legacyId)
     return "$basePath${File.separator}assets${File.separator}$fileName"
 }

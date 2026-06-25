@@ -15,6 +15,7 @@ import com.purpletear.sutoko.game.repository.game.GameInstallRepository
 import com.purpletear.sutoko.game.repository.game.GameRepository
 import com.purpletear.sutoko.game.service.MediaUrlResolver
 import com.purpletear.sutoko.game.usecase.DownloadGameUseCase
+import com.purpletear.sutoko.game.usecase.LoadMoreUserGamesUseCase
 import com.purpletear.sutoko.game.usecase.SearchGamesUseCase
 import com.purpletear.sutoko.shop.domain.repository.ShopRepository
 import com.purpletear.sutoko.shop.domain.repository.model.Balance
@@ -49,6 +50,7 @@ class CreateViewModel @Inject constructor(
     appVersionProvider: AppVersionProvider,
     private val downloadGameUseCase: DownloadGameUseCase,
     private val searchGamesUseCase: SearchGamesUseCase,
+    private val loadMoreUserGamesUseCase: LoadMoreUserGamesUseCase,
     private val userRepository: UserRepository,
 ) : ViewModel() {
     val appBuildNumber: Int = appVersionProvider.getVersionCode()
@@ -68,8 +70,24 @@ class CreateViewModel @Inject constructor(
     private val _searchQuery = MutableStateFlow("")
     private val _searchResults = MutableStateFlow<List<GameCatalog>>(emptyList())
     private val _isSearching = MutableStateFlow(false)
+    private val _isLoadingMore = MutableStateFlow(false)
+    private val _hasMoreUserGames = MutableStateFlow(true)
+    private val _searchPage = MutableStateFlow(1)
+    private val _hasMoreSearchResults = MutableStateFlow(true)
 
     val isSearching: StateFlow<Boolean> = _isSearching
+    val isLoadingMore: StateFlow<Boolean> = _isLoadingMore
+    val hasMoreGames: StateFlow<Boolean> = combine(
+        _searchQuery,
+        _hasMoreUserGames,
+        _hasMoreSearchResults,
+    ) { query, hasMoreUserGames, hasMoreSearch ->
+        if (query.isBlank()) hasMoreUserGames else hasMoreSearch
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(7000),
+        initialValue = true,
+    )
 
     private data class GameOwnershipState(
         val purchasedSkus: Set<String>,
@@ -124,6 +142,8 @@ class CreateViewModel @Inject constructor(
     fun onSearchSubmit(query: String) {
         val trimmed = query.trim()
         _searchQuery.value = trimmed
+        _searchPage.value = 1
+        _hasMoreSearchResults.value = true
         if (trimmed.isEmpty()) {
             _searchResults.value = emptyList()
             return
@@ -134,12 +154,49 @@ class CreateViewModel @Inject constructor(
             searchGamesUseCase(
                 query = trimmed,
                 languageTag = Locale.getDefault().toLanguageTag(),
+                page = 1,
             ).onSuccess { catalogs ->
                 _searchResults.value = catalogs
+                _hasMoreSearchResults.value = catalogs.size >= SEARCH_PAGE_SIZE
             }.onFailure { error ->
                 Log.e(TAG, "Search failed for query=$trimmed", error)
             }
             _isSearching.value = false
+        }
+    }
+
+    fun loadMore() {
+        if (_isLoadingMore.value) return
+
+        viewModelScope.launch {
+            _isLoadingMore.value = true
+            try {
+                val languageTag = Locale.getDefault().toLanguageTag()
+                if (_searchQuery.value.isBlank()) {
+                    loadMoreUserGamesUseCase(languageTag)
+                        .onSuccess { hasMore ->
+                            _hasMoreUserGames.value = hasMore
+                        }
+                        .onFailure { error ->
+                            Log.e(TAG, "Load more user games failed", error)
+                        }
+                } else {
+                    val nextPage = _searchPage.value + 1
+                    searchGamesUseCase(
+                        query = _searchQuery.value,
+                        languageTag = languageTag,
+                        page = nextPage,
+                    ).onSuccess { catalogs ->
+                        _searchResults.value = _searchResults.value + catalogs
+                        _searchPage.value = nextPage
+                        _hasMoreSearchResults.value = catalogs.size >= SEARCH_PAGE_SIZE
+                    }.onFailure { error ->
+                        Log.e(TAG, "Load more search results failed", error)
+                    }
+                }
+            } finally {
+                _isLoadingMore.value = false
+            }
         }
     }
 
@@ -221,5 +278,6 @@ class CreateViewModel @Inject constructor(
 
     companion object {
         private const val TAG = "CreateViewModel"
+        private const val SEARCH_PAGE_SIZE = 20
     }
 }

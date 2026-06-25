@@ -222,8 +222,14 @@ class GamePreviewViewModel @Inject constructor(
     }
 
     private fun navigateToPlay() {
-        val item = currentItem()
-        sendEvent(GamePreviewEvent.PlayGame(gameId, item?.isPurchased ?: false))
+        val data = game.value as? GamePreviewUiState.Data
+        sendEvent(
+            GamePreviewEvent.PlayGame(
+                gameId = gameId,
+                legacyId = data?.gameCatalog?.legacyId,
+                isPurchased = data?.item?.isPurchased ?: false,
+            )
+        )
     }
 
     private fun resetPurchaseState() {

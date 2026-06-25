@@ -35,8 +35,8 @@ class ChapterGraphParserSoundPathTest {
             override fun getStoriesDirectoryPath(): String =
                 temporaryFolder.root.resolve("games").absolutePath
 
-            override fun getStoryDirectoryPath(storyId: String): String =
-                getStoriesDirectoryPath() + File.separator + storyId
+            override fun getStoryDirectoryPath(storyId: String, legacyId: Int?): String =
+                getStoriesDirectoryPath() + File.separator + (legacyId ?: storyId)
         }
 
         val data = JsonObject().apply {
@@ -50,6 +50,7 @@ class ChapterGraphParserSoundPathTest {
             nodeDtos = listOf(NodeDto(id = "vocal-1", type = "message-vocal", data = data)),
             edgeDtos = emptyList(),
             gameId = gameId,
+            legacyId = null,
             pathProvider = pathProvider
         )
 

@@ -15,6 +15,14 @@ interface GameRepository {
     suspend fun syncOfficialGames(languageTag: String): Result<Unit>
     suspend fun syncUserGames(languageTag: String): Result<Unit>
 
+    /**
+     * Load the next page of user-created games.
+     *
+     * @param languageTag The BCP-47 language tag to request games for.
+     * @return A Result containing `true` if more pages remain, `false` if the loaded page was the last one.
+     */
+    suspend fun loadMoreUserGames(languageTag: String): Result<Boolean>
+
     suspend fun searchStories(
         query: String,
         languageTag: String,

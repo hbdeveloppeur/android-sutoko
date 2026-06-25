@@ -21,18 +21,19 @@ class GameFileManagerImpl @Inject constructor(
         pathProvider.getGamesDirectory().also { it.mkdirs() }
     }
 
-    private fun getGameDir(gameId: String): File {
+    private fun getGameDir(gameId: String, legacyId: Int?): File {
         require(gameId.isNotBlank()) { "gameId must not be blank" }
-        require(gameId.none { it == '/' || it == '\\' }) {
-            "gameId must not contain path separators: $gameId"
+        val dirName = directoryName(gameId, legacyId)
+        require(dirName.none { it == '/' || it == '\\' }) {
+            "game directory name must not contain path separators: $dirName"
         }
-        val dir = File(baseDir, gameId)
+        val dir = File(baseDir, dirName)
         val canonicalDir = dir.canonicalFile
         val canonicalBase = baseDir.canonicalFile
         if (!canonicalDir.path.startsWith(canonicalBase.path + File.separator) &&
             canonicalDir != canonicalBase
         ) {
-            throw SecurityException("gameId escapes base directory: $gameId")
+            throw SecurityException("game directory escapes base directory: $dirName")
         }
         return dir
     }
@@ -40,10 +41,12 @@ class GameFileManagerImpl @Inject constructor(
     override suspend fun downloadAndExtract(
         gameId: String,
         downloadUrl: String,
-        onProgress: suspend (Float) -> Unit
+        onProgress: suspend (Float) -> Unit,
+        legacyId: Int?,
     ): String = withContext(Dispatchers.IO) {
-        val gameDir = getGameDir(gameId)
-        val tempDir = File(baseDir, "$gameId.tmp")
+        val gameDir = getGameDir(gameId, legacyId)
+        val dirName = directoryName(gameId, legacyId)
+        val tempDir = File(baseDir, "$dirName.tmp")
         val extractDir = File(tempDir, EXTRACTED_DIR)
 
         try {
@@ -109,13 +112,6 @@ class GameFileManagerImpl @Inject constructor(
                 throw IOException("Failed to move extracted game to final directory")
             }
 
-            val expectedIndex = File(gameDir, SCENES_INDEX)
-            if (!expectedIndex.exists()) {
-                throw IOException(
-                    "Downloaded game is missing expected index file: ${expectedIndex.absolutePath}"
-                )
-            }
-
             gameDir.absolutePath
         } catch (e: Throwable) {
             tempDir.deleteRecursively()
@@ -127,13 +123,17 @@ class GameFileManagerImpl @Inject constructor(
         }
     }
 
-    override fun getInstallPath(gameId: String): String =
-        getGameDir(gameId).absolutePath
+    override fun getInstallPath(gameId: String, legacyId: Int?): String =
+        getGameDir(gameId, legacyId).absolutePath
 
-    override suspend fun deleteGame(gameId: String) {
+    override suspend fun deleteGame(gameId: String, legacyId: Int?) {
         withContext(Dispatchers.IO) {
-            getGameDir(gameId).deleteRecursively()
+            getGameDir(gameId, legacyId).deleteRecursively()
         }
+    }
+
+    private fun directoryName(gameId: String, legacyId: Int?): String {
+        return legacyId?.toString() ?: gameId
     }
 
     private suspend fun extractZip(archiveFile: File, extractDir: File) {

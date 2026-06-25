@@ -21,6 +21,7 @@ import dalvik.system.ZipPathValidator
 import fr.purpletear.sutoko.presentation.util.DeleteCoilCache
 import fr.purpletear.sutoko.sync.balance.BalanceSyncCoordinator
 import fr.purpletear.sutoko.sync.catalog.CatalogSyncCoordinator
+import fr.purpletear.sutoko.sync.news.NewsSyncCoordinator
 import fr.purpletear.sutoko.sync.purchase.PurchaseSyncCoordinator
 import fr.purpletear.sutoko.sync.usergames.UserGamesSyncCoordinator
 import fr.sutoko.inapppurchase.application.domain.coordinator.PurchaseBackendRegistrationCoordinator
@@ -42,6 +43,9 @@ class Application : MultiDexApplication(), DefaultLifecycleObserver {
 
     @Inject
     lateinit var catalogSyncCoordinator: CatalogSyncCoordinator
+
+    @Inject
+    lateinit var newsSyncCoordinator: NewsSyncCoordinator
 
     @Inject
     lateinit var balanceSyncCoordinator: BalanceSyncCoordinator
@@ -70,6 +74,10 @@ class Application : MultiDexApplication(), DefaultLifecycleObserver {
             appSyncScope
         )
         catalogSyncCoordinator.start(
+            processLifecycleOwner.lifecycle,
+            appSyncScope
+        )
+        newsSyncCoordinator.start(
             processLifecycleOwner.lifecycle,
             appSyncScope
         )

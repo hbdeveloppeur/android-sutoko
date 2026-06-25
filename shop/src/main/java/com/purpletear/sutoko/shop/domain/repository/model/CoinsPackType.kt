@@ -4,5 +4,4 @@ sealed class CoinsPackType {
     object Low : CoinsPackType()
     object Medium : CoinsPackType()
     object High : CoinsPackType()
-    object Premium : CoinsPackType()
 }

@@ -8,7 +8,9 @@ import com.purpletear.game.data.mapper.SceneMapper.toDomain
 import com.purpletear.game.data.provider.AndroidGamePathProvider
 import com.purpletear.sutoko.game.model.scene.Scene
 import com.purpletear.sutoko.game.repository.SceneRepository
+import com.purpletear.sutoko.game.repository.game.GameRepository
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
@@ -26,7 +28,8 @@ import javax.inject.Singleton
  */
 @Singleton
 class SceneRepositoryImpl @Inject constructor(
-    private val pathProvider: AndroidGamePathProvider
+    private val pathProvider: AndroidGamePathProvider,
+    private val gameRepository: GameRepository,
 ) : SceneRepository {
 
     private val gson = Gson()
@@ -42,10 +45,9 @@ class SceneRepositoryImpl @Inject constructor(
 
             withContext(Dispatchers.IO) {
                 try {
-                    val scenesFile = File(
-                        pathProvider.getGamesDirectory(),
-                        "$gameId/scenes/scenes.json"
-                    )
+                    val legacyId = gameRepository.observeGame(gameId).firstOrNull()?.legacyId
+                    val gameDir = pathProvider.getGameDirectory(gameId, legacyId)
+                    val scenesFile = File(gameDir, "scenes/scenes.json")
 
                     if (!scenesFile.exists()) {
                         Log.w(TAG, "Scenes file not found: ${scenesFile.absolutePath}")
@@ -59,7 +61,11 @@ class SceneRepositoryImpl @Inject constructor(
                     }
 
                     sceneCache.clear()
-                    sceneCache.putAll(sceneDtos.map { it.toDomain(gameId, pathProvider) }.associateBy { it.id })
+                    sceneCache.putAll(
+                        sceneDtos.map {
+                            it.toDomain(gameId, legacyId, pathProvider)
+                        }.associateBy { it.id }
+                    )
                     currentGameId = gameId
 
                     Log.d(TAG, "Loaded ${sceneCache.size} scenes for game $gameId")

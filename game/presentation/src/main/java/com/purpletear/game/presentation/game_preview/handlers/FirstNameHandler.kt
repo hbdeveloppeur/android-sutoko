@@ -30,15 +30,15 @@ class FirstNameHandler @Inject constructor(
      * Checks if we should ask for first name.
      * Only asks on chapter 1 when no name is stored.
      *
-     * @param gameId The game ID
+     * @param legacyId The legacy integer game ID used by [TableOfSymbols].
      * @param currentChapter The current chapter
      * @return Result indicating whether to ask or not
      */
-    fun checkFirstNameNeeded(gameId: String, currentChapter: Chapter?): Result {
+    fun checkFirstNameNeeded(legacyId: Int, currentChapter: Chapter?): Result {
         if (currentChapter?.number != 1) return Result.AlreadySet
 
         val existing = try {
-            tableOfSymbols.get(gameId.hashCode(), "prenom")
+            tableOfSymbols.get(legacyId, "prenom")
         } catch (_: Exception) {
             null
         }
@@ -61,17 +61,17 @@ class FirstNameHandler @Inject constructor(
     /**
      * Saves the first name for a game.
      *
-     * @param gameId The game ID
+     * @param legacyId The legacy integer game ID used by [TableOfSymbols].
      * @param name The first name to save
      * @param appContext Application context for saving
      * @return true if saved successfully
      */
-    fun saveFirstName(gameId: String, name: String, appContext: Context): Boolean {
+    fun saveFirstName(legacyId: Int, name: String, appContext: Context): Boolean {
         val sanitized = sanitizeFirstName(name)
         if (sanitized.isEmpty()) return false
 
         return try {
-            tableOfSymbols.addOrSet(gameId.hashCode(), "prenom", sanitized)
+            tableOfSymbols.addOrSet(legacyId, "prenom", sanitized)
             tableOfSymbols.save(appContext)
             true
         } catch (_: Exception) {
@@ -83,12 +83,12 @@ class FirstNameHandler @Inject constructor(
      * Removes the stored first name for a game.
      * Called when restarting a game.
      *
-     * @param gameId The game ID
+     * @param legacyId The legacy integer game ID used by [TableOfSymbols].
      * @param appContext Application context for saving
      */
-    fun clearFirstName(gameId: String, appContext: Context) {
+    fun clearFirstName(legacyId: Int, appContext: Context) {
         try {
-            tableOfSymbols.removeVar(gameId.hashCode(), "prenom")
+            tableOfSymbols.removeVar(legacyId, "prenom")
             tableOfSymbols.save(appContext)
         } catch (_: Exception) {
             // Silently fail

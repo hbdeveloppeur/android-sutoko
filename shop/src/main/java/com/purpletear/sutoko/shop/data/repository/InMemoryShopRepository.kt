@@ -73,12 +73,6 @@ class InMemoryShopRepository @Inject constructor(
                 sku = "coins_pack_mega",
                 type = CoinsPackType.High
             ),
-            ShopPack(
-                coins = 1000,
-                diamonds = 1000,
-                sku = "sutoko_premium_yearly_69",
-                type = CoinsPackType.Premium
-            ),
         )
         return Result.success(list)
     }

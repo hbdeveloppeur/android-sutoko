@@ -4,6 +4,7 @@ import com.purpletear.game.data.file.GameFileManager
 import com.purpletear.game.data.local.dao.GameInstallationDao
 import com.purpletear.game.data.local.entity.GameInstallEntity
 import com.purpletear.game.data.local.entity.toDomain
+import com.purpletear.sutoko.game.model.game.GameCatalog
 import com.purpletear.sutoko.game.model.game.GameInstall
 import com.purpletear.sutoko.game.repository.game.GameInstallRepository
 import kotlinx.coroutines.CancellationException
@@ -17,6 +18,7 @@ import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
+import purpletear.fr.purpleteartools.GlobalData
 import java.util.concurrent.ConcurrentHashMap
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -43,7 +45,8 @@ class GameInstallRepositoryImpl @Inject constructor(
     override fun download(
         gameId: String,
         gameDownloadUrl: String,
-        gameVersion: String
+        gameVersion: String,
+        legacyId: Int?,
     ): Flow<Float> = channelFlow {
         assert(gameId.isNotBlank(), { "gameId must not be blank" })
         assert(gameDownloadUrl.isNotBlank(), { "gameDownloadUrl must not be blank" })
@@ -74,7 +77,9 @@ class GameInstallRepositoryImpl @Inject constructor(
                         send(progress)
                         lastReported = progress
                     }
-                })
+                },
+                legacyId = legacyId,
+            )
             installDao.markDownloaded(gameId, gameVersion)
         } catch (e: Throwable) {
             if (existing == null) {
@@ -95,13 +100,13 @@ class GameInstallRepositoryImpl @Inject constructor(
         activeDownloads.update { it - gameId }
     }
 
-    override suspend fun deleteGame(gameId: String): Result<Unit> {
+    override suspend fun deleteGame(gameId: String, legacyId: Int?): Result<Unit> {
         if (activeDownloads.value.containsKey(gameId)) {
             throw IllegalStateException("Download in progress")
         }
 
         try {
-            fileManager.deleteGame(gameId)
+            fileManager.deleteGame(gameId, legacyId)
             installDao.deleteByGameId(gameId)
         } catch (e: CancellationException) {
             throw e
@@ -109,5 +114,20 @@ class GameInstallRepositoryImpl @Inject constructor(
             return Result.failure(e)
         }
         return Result.success(Unit)
+    }
+
+    override suspend fun ensureBuiltInGamesInstalled(catalogs: List<GameCatalog>) {
+        val builtInLegacyIds = setOf(GlobalData.Game.FRIENDZONE.id)
+
+        catalogs
+            .filter { it.legacyId in builtInLegacyIds }
+            .forEach { catalog ->
+                installDao.upsert(
+                    GameInstallEntity(
+                        gameId = catalog.id,
+                        localVersion = catalog.version,
+                    )
+                )
+            }
     }
 }

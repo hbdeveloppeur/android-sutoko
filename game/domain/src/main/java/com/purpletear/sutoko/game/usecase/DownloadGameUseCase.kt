@@ -39,6 +39,7 @@ class DownloadGameUseCase @Inject constructor(
             gameId = gameId,
             gameDownloadUrl = downloadUrl,
             gameVersion = game.version.toString(),
+            legacyId = game.legacyId,
         )
     }
 }

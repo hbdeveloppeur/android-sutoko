@@ -15,11 +15,19 @@ class AndroidGamePathProviderImpl(private val context: Context) : AndroidGamePat
         ).absolutePath
     }
 
-    override fun getStoryDirectoryPath(storyId: String): String {
-        return getStoriesDirectoryPath() + File.separator + storyId
+    override fun getStoryDirectoryPath(storyId: String, legacyId: Int?): String {
+        return getStoriesDirectoryPath() + File.separator + directoryNameFor(storyId, legacyId)
     }
 
     override fun getGamesDirectory(): File {
         return File(context.filesDir, STORIES_DIRECTORY_NAME)
+    }
+
+    override fun getGameDirectory(gameId: String, legacyId: Int?): File {
+        return File(getGamesDirectory(), directoryNameFor(gameId, legacyId))
+    }
+
+    private fun directoryNameFor(gameId: String, legacyId: Int?): String {
+        return legacyId?.toString() ?: gameId
     }
 }

@@ -109,7 +109,8 @@ class ShopActivity : AppCompatActivity() {
 
                     when (event) {
                         is ShopPurchaseEvent.Started -> {
-                            pack?.let { startBuyAnimation(isPending = true, it) }
+                            // The Play Billing dialog provides its own in-progress UI.
+                            // Do not show the unlock/success overlay before a real result.
                         }
 
                         is ShopPurchaseEvent.Success -> {
@@ -117,7 +118,7 @@ class ShopActivity : AppCompatActivity() {
                         }
 
                         is ShopPurchaseEvent.Pending -> {
-                            // Unlock page is already shown in pending state.
+                            pack?.let { startBuyAnimation(isPending = true, it) }
                         }
 
                         is ShopPurchaseEvent.Cancelled,

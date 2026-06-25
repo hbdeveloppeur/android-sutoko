@@ -52,7 +52,7 @@ import kotlinx.coroutines.delay
 fun GamePreview(
     modifier: Modifier = Modifier,
     viewModel: GamePreviewViewModel,
-    onNavigateToGame: (String, Boolean) -> Unit = { _, _ -> },
+    onNavigateToGame: (String, Int?, Boolean) -> Unit = { _, _, _ -> },
     onBuyGame: (GameCatalog) -> Unit = {},
     onOpenShop: () -> Unit = {},
 ) {
@@ -124,7 +124,7 @@ fun GamePreview(
                         }
 
                         is GamePreviewEvent.PlayGame -> {
-                            onNavigateToGame(event.gameId, event.isPurchased)
+                            onNavigateToGame(event.gameId, event.legacyId, event.isPurchased)
                         }
 
                         GamePreviewEvent.ShowRestartDialog -> {

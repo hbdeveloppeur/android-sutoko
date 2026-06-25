@@ -8,7 +8,11 @@ import androidx.annotation.Keep
 sealed interface GamePreviewEvent {
     data object PurchaseSuccess : GamePreviewEvent
     @Keep
-    data class PlayGame(val gameId: String, val isPurchased: Boolean) : GamePreviewEvent
+    data class PlayGame(
+        val gameId: String,
+        val legacyId: Int?,
+        val isPurchased: Boolean,
+    ) : GamePreviewEvent
     @Keep
     data class OnBuyGameClicked(val gameCatalog: GameCatalog) : GamePreviewEvent
     data object OpenShop : GamePreviewEvent

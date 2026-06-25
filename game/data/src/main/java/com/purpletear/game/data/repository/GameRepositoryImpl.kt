@@ -24,6 +24,13 @@ class GameRepositoryImpl @Inject constructor(
     private val dao: GameDao,
 ) : GameRepository {
 
+    private data class UserGamesPagination(
+        val currentPage: Int = 0,
+        val hasMore: Boolean = true
+    )
+
+    private var userGamesPagination = UserGamesPagination()
+
 
     override fun observeOfficialGames(): Flow<List<GameCatalog>> =
         dao.observeOfficialGames().map { list ->
@@ -87,11 +94,35 @@ class GameRepositoryImpl @Inject constructor(
 
     override suspend fun syncUserGames(languageTag: String): Result<Unit> {
         return try {
-            val remote = fetchAllUserGames(languageTag)
+            userGamesPagination = UserGamesPagination()
+            val (items, hasMore) = fetchUserGamesPage(languageTag, page = 1)
             dao.replaceAllUserGames(
-                remote.map { it.toDomain().copy(isOfficial = false) }
+                items.map { it.toDomain().copy(isOfficial = false) }
+            )
+            userGamesPagination = userGamesPagination.copy(
+                currentPage = 1,
+                hasMore = hasMore
             )
             Result.success(Unit)
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    override suspend fun loadMoreUserGames(languageTag: String): Result<Boolean> {
+        return try {
+            val nextPage = userGamesPagination.currentPage + 1
+            val (items, hasMore) = fetchUserGamesPage(languageTag, nextPage)
+            dao.upsertAll(
+                items.map { it.toDomain().copy(isOfficial = false) }
+            )
+            userGamesPagination = userGamesPagination.copy(
+                currentPage = nextPage,
+                hasMore = hasMore
+            )
+            Result.success(hasMore)
         } catch (e: CancellationException) {
             throw e
         } catch (e: Exception) {
@@ -128,30 +159,22 @@ class GameRepositoryImpl @Inject constructor(
         }
     }
 
-    private suspend fun fetchAllUserGames(languageTag: String): List<GameDto> {
-        val result = mutableListOf<GameDto>()
-        var page = 1
+    private suspend fun fetchUserGamesPage(
+        languageTag: String,
+        page: Int
+    ): Pair<List<GameDto>, Boolean> {
+        val response: Response<List<GameDto>> = api.getUserGames(
+            languageCode = languageTag,
+            page = page,
+            limit = USER_GAMES_PAGE_SIZE,
+        )
 
-        while (true) {
-            val response: Response<List<GameDto>> = api.getUserGames(
-                languageCode = languageTag,
-                page = page,
-                limit = USER_GAMES_PAGE_SIZE,
-            )
-
-            if (!response.isSuccessful) {
-                throw HttpException(response)
-            }
-
-            val pageItems = response.body().orEmpty()
-            if (pageItems.isEmpty()) {
-                break
-            }
-
-            result.addAll(pageItems)
-            page++
+        if (!response.isSuccessful) {
+            throw HttpException(response)
         }
 
-        return result
+        val items = response.body().orEmpty()
+        val hasMore = items.size >= USER_GAMES_PAGE_SIZE
+        return Pair(items, hasMore)
     }
 }

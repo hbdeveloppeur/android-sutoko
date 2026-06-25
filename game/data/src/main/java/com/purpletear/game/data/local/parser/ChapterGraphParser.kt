@@ -34,13 +34,14 @@ object ChapterGraphParser {
         nodeDtos: List<NodeDto>,
         edgeDtos: List<EdgeDto>,
         gameId: String,
+        legacyId: Int?,
         pathProvider: GamePathProvider
     ): ChapterGraph {
         val (compactedNodeDtos, compactedEdgeDtos, ignoreBypassTargets) =
             compactIgnoreNodes(nodeDtos, edgeDtos)
 
         val nodes = compactedNodeDtos
-            .mapNotNull { parseNode(it, gameId, pathProvider) }
+            .mapNotNull { parseNode(it, gameId, legacyId, pathProvider) }
             .associateBy { it.id }
             .mapValues { (_, node) -> rewriteConditionTargets(node, ignoreBypassTargets) }
         val edges = compactedEdgeDtos.map { parseEdge(it) }
@@ -128,6 +129,7 @@ object ChapterGraphParser {
     private fun parseNode(
         dto: NodeDto,
         gameId: String,
+        legacyId: Int?,
         pathProvider: GamePathProvider
     ): Node? {
         val data = dto.data.toNodeData()
@@ -152,7 +154,7 @@ object ChapterGraphParser {
                 require(imagePath != null) { "message-image node ${dto.id} missing storagePath or image" }
                 Node.MessageImage(
                     id = dto.id,
-                    imageUrl = resolveImagePath(imagePath, gameId, pathProvider),
+                    imageUrl = resolveImagePath(imagePath, gameId, legacyId, pathProvider),
                     characterId = data?.characterId ?: -1,
                     waitMs = data?.wait ?: 0,
                     seenMs = data?.seen ?: 0
@@ -240,7 +242,7 @@ object ChapterGraphParser {
                 val loop = data.isLooping ?: false
                 Node.Sound(
                     id = id,
-                    soundUrl = resolveSoundPath(storagePath, gameId, pathProvider),
+                    soundUrl = resolveSoundPath(storagePath, gameId, legacyId, pathProvider),
                     loop = loop
                 )
             }
@@ -253,7 +255,7 @@ object ChapterGraphParser {
 
                 Node.MessageVocal(
                     id = dto.id,
-                    audioUrl = resolveSoundPath(storagePath, gameId, pathProvider),
+                    audioUrl = resolveSoundPath(storagePath, gameId, legacyId, pathProvider),
                     characterId = characterId
                 )
             }
@@ -265,23 +267,25 @@ object ChapterGraphParser {
     private fun resolveImagePath(
         storagePath: String,
         gameId: String,
+        legacyId: Int?,
         pathProvider: GamePathProvider
     ): String {
         if (storagePath.isBlank()) return ""
         val fileName = storagePath.substringAfterLast("/")
-        val basePath = pathProvider.getStoryDirectoryPath(gameId)
+        val basePath = pathProvider.getStoryDirectoryPath(gameId, legacyId)
         return "$basePath${File.separator}assets${File.separator}$fileName"
     }
 
     private fun resolveSoundPath(
         storagePath: String,
         gameId: String,
+        legacyId: Int?,
         pathProvider: GamePathProvider
     ): String {
         val assetName = storagePath.substringAfterLast("/")
         if (assetName.isBlank()) return ""
 
-        val storyPath = pathProvider.getStoryDirectoryPath(gameId)
+        val storyPath = pathProvider.getStoryDirectoryPath(gameId, legacyId)
         val primary = "$storyPath${File.separator}assets${File.separator}$assetName"
 
         // Legacy archives placed sound files under medias/sounds/.
