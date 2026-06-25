@@ -1,5 +1,6 @@
 package fr.purpletear.sutoko.screens.main.presentation.screens.home
 
+import android.util.Log
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
@@ -61,7 +62,11 @@ fun HomeScreen(
 
     LaunchedEffect(navEvent) {
         navEvent?.let { route ->
-            mainNavController.navigate(route)
+            try {
+                mainNavController.navigate(route)
+            } catch (e: Exception) {
+                Log.e("HomeScreen", "Error navigating to route: $route", e)
+            }
         }
     }
 

@@ -29,4 +29,10 @@ interface GameRepository {
         page: Int = 1,
         limit: Int = 20,
     ): Result<List<GameCatalog>>
+
+    suspend fun getOneUserGames(
+        userId: String,
+        page: Int,
+        limit: Int,
+    ): Result<List<GameCatalog>>
 }

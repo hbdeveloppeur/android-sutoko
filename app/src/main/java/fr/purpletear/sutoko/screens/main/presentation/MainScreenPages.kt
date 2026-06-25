@@ -16,4 +16,5 @@ sealed class MainScreenPages(val route: String) {
 
     object Home : MainScreenPages("home")
     object Create : MainScreenPages("create")
+    object CreateStory : MainScreenPages("create_story")
 }

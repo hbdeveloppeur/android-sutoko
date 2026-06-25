@@ -76,6 +76,7 @@ import fr.purpletear.sutoko.popup.domain.usecase.ShowPopUpUseCase
 import fr.purpletear.sutoko.screens.account.AccountActivity
 import fr.purpletear.sutoko.screens.main.presentation.HomeScreenViewModel
 import fr.purpletear.sutoko.screens.main.presentation.MainEvents
+import fr.purpletear.sutoko.screens.create.CreateStoryPage
 import fr.purpletear.sutoko.screens.main.presentation.MainScreenPages
 import fr.purpletear.sutoko.screens.main.presentation.screens.MainScreen
 import fr.purpletear.sutoko.screens.params.SutokoParamsActivity
@@ -285,6 +286,9 @@ class MainActivity @Inject constructor(
                                 onDiamondsPressed = ::onDiamondPressed,
                                 onCoinsPressed = ::onCoinsPressed,
                                 onGamePressed = ::startSmsGameActivity,
+                                onCreateStoryPressed = {
+                                    navController.navigate(MainScreenPages.CreateStory.route)
+                                },
                                 mainNavController = navController
                             )
                         }
@@ -346,6 +350,12 @@ class MainActivity @Inject constructor(
 
                         animatedComposable(AiConversationRouteDestination.ImageViewer().route) { backStackEntry ->
                             ImageViewerScreen(url = backStackEntry.arguments?.getString("url")!!)
+                        }
+
+                        animatedComposable(MainScreenPages.CreateStory.route) {
+                            CreateStoryPage(
+                                onBackPressed = { navController.popBackStack() }
+                            )
                         }
                     }
 

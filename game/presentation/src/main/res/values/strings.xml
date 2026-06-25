@@ -8,6 +8,7 @@
     <!-- Game card buttons -->
     <string name="game_button_get">Get</string>
     <string name="game_button_open">Open</string>
+    <string name="game_button_test">Test</string>
     <string name="game_button_retry">Retry</string>
 
     <!-- Game announce card -->

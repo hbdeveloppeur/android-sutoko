@@ -49,6 +49,7 @@ fun GameCardCompact(
 
     modifier: Modifier = Modifier,
     showGetButton: Boolean = true,
+    openButtonLabel: String? = null,
 
     onGetClick: () -> Unit = {},
     onOpenClick: () -> Unit = {},
@@ -140,6 +141,7 @@ fun GameCardCompact(
                         appBuildNumber = appBuildNumber,
                         isGameFinished = isGameFinished,
                     ),
+                    playButtonLabel = openButtonLabel,
                     onGetClick = onGetClick,
                     onOpenClick = onOpenClick,
                     onCancelClick = onCancelClick

@@ -383,4 +383,13 @@ Buena suerte :D</string>
     <string name="app_ai_conversation_card_tag">Juega con Monedas de Mensajes</string>
     <string name="app_game_access_denied">No posees \"%1$s\".</string>
     
+
+    <!-- Create Story Page -->
+    <string name="create_page_section_title_my_stories">Mis historias</string>
+    <string name="create_story_page_title">Crea tu historia</string>
+    <string name="create_story_page_body">Para dar forma a tu mundo, siéntate en el escritorio del creador.</string>
+    <string name="create_story_page_url">sutoko.com</string>
+    <string name="create_story_page_url_hint">Abre en tu ordenador</string>
+    <string name="create_story_page_back_content_description">Atrás</string>
+
 </resources>

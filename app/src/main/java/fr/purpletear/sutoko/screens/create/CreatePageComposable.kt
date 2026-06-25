@@ -49,6 +49,7 @@ internal fun CreatePageComposable(
     onOptionsPressed: () -> Unit = {},
     onCoinsPressed: () -> Unit = {},
     onDiamondsPressed: () -> Unit = {},
+    onCreateStoryPressed: () -> Unit = {},
     openGame: (GameItem) -> Unit = {},
 ) {
     val isRefreshing by remember { mutableStateOf(false) }
@@ -58,6 +59,8 @@ internal fun CreatePageComposable(
     val games = viewModel.games.collectAsStateWithLifecycle()
     val isLoadingMore = viewModel.isLoadingMore.collectAsStateWithLifecycle()
     val hasMoreGames = viewModel.hasMoreGames.collectAsStateWithLifecycle()
+    val isConnected = viewModel.isConnected.collectAsStateWithLifecycle()
+    val myStories = viewModel.myStories.collectAsStateWithLifecycle()
     val appBuildNumber = viewModel.appBuildNumber
 
     LaunchedEffect(Unit) {
@@ -106,6 +109,36 @@ internal fun CreatePageComposable(
                     )
                 }
 
+                if (isConnected.value && myStories.value.isNotEmpty()) {
+                    item {
+                        SectionTitle(
+                            text = stringResource(R.string.create_page_section_title_my_stories),
+                            modifier = Modifier.padding(top = 16.dp, bottom = 16.dp)
+                        )
+                    }
+
+                    items(
+                        count = myStories.value.size
+                    ) { index ->
+                        val game = myStories.value[index]
+                        GameCardCompact(
+                            modifier = Modifier.padding(top = 16.dp),
+                            isPending = false,
+                            isPurchasing = false,
+                            isPurchaseLoading = false,
+                            currentChapter = null,
+                            appBuildNumber = appBuildNumber,
+                            isGameFinished = false,
+                            game = game,
+                            showGetButton = true,
+                            openButtonLabel = stringResource(com.purpletear.game.presentation.R.string.game_button_test),
+                            onGetClick = { viewModel.onGameGetClick(game) },
+                            onOpenClick = { openGame(game) },
+                            onCancelClick = { viewModel.onGameCancelClick(game.id) }
+                        )
+                    }
+                }
+
                 item {
                     SectionTitle(
                         text = stringResource(R.string.create_page_section_title_community),
@@ -117,7 +150,7 @@ internal fun CreatePageComposable(
                     CreateStoryButton(
                         text = stringResource(R.string.create_page_button_create_story),
                         variant = CreateStoryButtonVariant.Violet,
-                        onClick = { /* TODO */ },
+                        onClick = onCreateStoryPressed,
                         modifier = Modifier
                             .padding(horizontal = 16.dp)
                             .padding(top = 16.dp)

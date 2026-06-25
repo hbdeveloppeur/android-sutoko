@@ -159,6 +159,33 @@ class GameRepositoryImpl @Inject constructor(
         }
     }
 
+    override suspend fun getOneUserGames(
+        userId: String,
+        page: Int,
+        limit: Int,
+    ): Result<List<GameCatalog>> {
+        return try {
+            val response = api.getOneUserGames(
+                userId = userId,
+                page = page,
+                limit = limit,
+            )
+
+            if (!response.isSuccessful) {
+                return Result.failure(HttpException(response))
+            }
+
+            val catalogs = response.body().orEmpty().map {
+                it.toDomain().toDomain()
+            }
+            Result.success(catalogs)
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
     private suspend fun fetchUserGamesPage(
         languageTag: String,
         page: Int

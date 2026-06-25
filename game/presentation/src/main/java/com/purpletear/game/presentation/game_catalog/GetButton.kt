@@ -47,6 +47,7 @@ private val ProgressColor = Color(0xFF4DB9EC)
 fun GetButton(
     modifier: Modifier = Modifier,
     gameState: GameActionState,
+    playButtonLabel: String? = null,
     onGetClick: () -> Unit = {},
     onOpenClick: () -> Unit = {},
     onCancelClick: (() -> Unit)? = null,
@@ -120,7 +121,7 @@ fun GetButton(
 
                 else -> {
                     val text = when (state) {
-                        is GameActionState.Play -> stringResource(R.string.game_button_open)
+                        is GameActionState.Play -> playButtonLabel ?: stringResource(R.string.game_button_open)
                         else -> stringResource(R.string.game_button_get)
                     }
                     ButtonLabel(text)

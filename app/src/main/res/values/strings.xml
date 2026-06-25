@@ -389,10 +389,18 @@ Enter your nickname for the leaderboard!</string>
 
     <!-- Create Page -->
     <string name="create_page_section_title_community">Community stories</string>
+    <string name="create_page_section_title_my_stories">My stories</string>
     <string name="create_page_button_create_story">Create my story</string>
     <string name="create_page_search_hint">An author, a title, a theme</string>
     <string name="create_page_button_load_more">Load more stories</string>
     <string name="create_page_search_clear">Clear search</string>
+
+    <!-- Create Story Page -->
+    <string name="create_story_page_title">Create your story</string>
+    <string name="create_story_page_body">To shape your world, take a seat at the creator\'s desk.</string>
+    <string name="create_story_page_url">sutoko.com</string>
+    <string name="create_story_page_url_hint">Open on your computer</string>
+    <string name="create_story_page_back_content_description">Back</string>
 
     
 </resources>

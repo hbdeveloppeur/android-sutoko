@@ -49,6 +49,12 @@ interface GameApi {
     @GET("portal/stories/official")
     suspend fun getOfficialGames(@Query("languageCode") languageCode: String): List<GameDto>
 
+    @GET("portal/user/{userId}/games")
+    suspend fun getOneUserGames(
+        @Path("userId") userId: String,
+        @Query("page") page: Int,
+        @Query("limit") limit: Int,
+    ): Response<List<GameDto>>
 
     /**
      * Get a paginated list of user-created games.

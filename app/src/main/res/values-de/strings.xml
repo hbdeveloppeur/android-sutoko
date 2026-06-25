@@ -378,6 +378,7 @@ Geben Sie Ihren Benutzernamen für die Rangliste ein!</string>
     <string name="sutoko_params_themes_flavor">Thèmes favoris et genre</string>
     <string name="sutoko_flavor_saved">Params successfully saved</string>
     <string name="sutoko_functionality_maintenance">Funktion in Wartung, versuchen Sie es später noch einmal</string>
+    <string name="create_page_section_title_my_stories">Meine Geschichten</string>
     <string name="app_ai_conversation_card_title">AI Texting phone</string>
     <string name="app_ai_conversation_card_subtitle">Talk to Eva with your own messages.</string>
     <string name="app_ai_conversation_card_tag">Play with Messages Coins</string>

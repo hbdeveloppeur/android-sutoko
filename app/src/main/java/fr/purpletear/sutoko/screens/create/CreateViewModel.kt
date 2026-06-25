@@ -15,6 +15,7 @@ import com.purpletear.sutoko.game.repository.game.GameInstallRepository
 import com.purpletear.sutoko.game.repository.game.GameRepository
 import com.purpletear.sutoko.game.service.MediaUrlResolver
 import com.purpletear.sutoko.game.usecase.DownloadGameUseCase
+import com.purpletear.sutoko.game.usecase.GetOneUserGamesUseCase
 import com.purpletear.sutoko.game.usecase.LoadMoreUserGamesUseCase
 import com.purpletear.sutoko.game.usecase.SearchGamesUseCase
 import com.purpletear.sutoko.shop.domain.repository.ShopRepository
@@ -46,11 +47,12 @@ class CreateViewModel @Inject constructor(
     gameRepository: GameRepository,
     private val gamePurchaseRepository: PurchaseRepository,
     private val gameInstallRepository: GameInstallRepository,
-    mediaUrlResolver: MediaUrlResolver,
+    private val mediaUrlResolver: MediaUrlResolver,
     appVersionProvider: AppVersionProvider,
     private val downloadGameUseCase: DownloadGameUseCase,
     private val searchGamesUseCase: SearchGamesUseCase,
     private val loadMoreUserGamesUseCase: LoadMoreUserGamesUseCase,
+    private val getOneUserGamesUseCase: GetOneUserGamesUseCase,
     private val userRepository: UserRepository,
 ) : ViewModel() {
     val appBuildNumber: Int = appVersionProvider.getVersionCode()
@@ -66,6 +68,15 @@ class CreateViewModel @Inject constructor(
             initialValue = Resource.Loading(),
         )
 
+    val isConnected: StateFlow<Boolean> = userRepository.observeIsConnected()
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(7000),
+            initialValue = false,
+        )
+
+    private val _myStories = MutableStateFlow<List<GameItem>>(emptyList())
+    val myStories: StateFlow<List<GameItem>> = _myStories
 
     private val _searchQuery = MutableStateFlow("")
     private val _searchResults = MutableStateFlow<List<GameCatalog>>(emptyList())
@@ -130,6 +141,35 @@ class CreateViewModel @Inject constructor(
         started = SharingStarted.WhileSubscribed(7000),
         initialValue = emptyList(),
     )
+
+    init {
+        viewModelScope.launch {
+            isConnected.collect { connected ->
+                if (connected) {
+                    loadMyStories()
+                } else {
+                    _myStories.value = emptyList()
+                }
+            }
+        }
+    }
+
+    private suspend fun loadMyStories() {
+        val user = userRepository.observeUser().firstOrNull() ?: return
+        getOneUserGamesUseCase(userId = user.id)
+            .onSuccess { catalogs ->
+                _myStories.value = catalogs.map { catalog ->
+                    buildMyStoryItem(
+                        catalog = catalog,
+                        mediaUrlResolver = mediaUrlResolver,
+                    )
+                }
+            }
+            .onFailure { error ->
+                Log.e(TAG, "Failed to load my stories for userId=${user.id}", error)
+                _myStories.value = emptyList()
+            }
+    }
 
     fun onSearchQueryChange(query: String) {
         val trimmed = query.trimStart()
@@ -274,6 +314,17 @@ class CreateViewModel @Inject constructor(
         logoUrl = mediaUrlResolver.resolveBannerUrl(catalog.logo?.storagePath),
         menuBackgroundUrl = mediaUrlResolver.resolveBannerUrl(catalog.menuBackground?.storagePath),
         downloadProgress = downloads[catalog.id],
+    )
+
+    private fun buildMyStoryItem(
+        catalog: GameCatalog,
+        mediaUrlResolver: MediaUrlResolver,
+    ): GameItem = buildGameItem(
+        catalog = catalog,
+        purchasedSkus = catalog.skus.toSet(),
+        installs = emptyList(),
+        downloads = emptyMap(),
+        mediaUrlResolver = mediaUrlResolver,
     )
 
     companion object {

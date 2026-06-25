@@ -238,6 +238,85 @@ class GameRepositoryImplSearchStoriesTest {
         assertEquals(emptyList<GameDto>(), result.getOrThrow())
     }
 
+    @Test
+    fun `getOneUserGames returns mapped domain catalogs on success`() = runTest {
+        val api = object : FakeGameApi() {
+            override suspend fun getOneUserGames(
+                userId: String,
+                page: Int,
+                limit: Int
+            ): Response<List<GameDto>> {
+                assertEquals("user-1", userId)
+                assertEquals(1, page)
+                assertEquals(20, limit)
+                return Response.success(listOf(stubGameDto("game-1")))
+            }
+        }
+
+        val repository = GameRepositoryImpl(api, stubGameDao)
+
+        val result = repository.getOneUserGames(
+            userId = "user-1",
+            page = 1,
+            limit = 20,
+        )
+
+        assertTrue("Expected success but got $result", result.isSuccess)
+        val catalogs = result.getOrThrow()
+        assertEquals(1, catalogs.size)
+        assertEquals("game-1", catalogs.first().id)
+    }
+
+    @Test
+    fun `getOneUserGames returns failure with HttpException on error response`() = runTest {
+        val api = object : FakeGameApi() {
+            override suspend fun getOneUserGames(
+                userId: String,
+                page: Int,
+                limit: Int
+            ): Response<List<GameDto>> = Response.error(
+                404,
+                "Not found".toResponseBody(null)
+            )
+        }
+
+        val repository = GameRepositoryImpl(api, stubGameDao)
+
+        val result = repository.getOneUserGames(
+            userId = "user-1",
+            page = 1,
+            limit = 20,
+        )
+
+        assertTrue("Expected failure but got $result", result.isFailure)
+        assertTrue(
+            "Expected HttpException but got ${result.exceptionOrNull()}",
+            result.exceptionOrNull() is HttpException
+        )
+    }
+
+    @Test
+    fun `getOneUserGames returns empty list when body is null`() = runTest {
+        val api = object : FakeGameApi() {
+            override suspend fun getOneUserGames(
+                userId: String,
+                page: Int,
+                limit: Int
+            ): Response<List<GameDto>> = Response.success(null)
+        }
+
+        val repository = GameRepositoryImpl(api, stubGameDao)
+
+        val result = repository.getOneUserGames(
+            userId = "user-1",
+            page = 1,
+            limit = 20,
+        )
+
+        assertTrue(result.isSuccess)
+        assertEquals(emptyList<GameDto>(), result.getOrThrow())
+    }
+
     private class RecordingGameDao : GameDao {
         val replaceAllUserGamesCalls = mutableListOf<List<GameCatalogEntity>>()
         val upsertAllCalls = mutableListOf<List<GameCatalogEntity>>()
@@ -295,6 +374,12 @@ class GameRepositoryImplSearchStoriesTest {
     private open class FakeGameApi : GameApi {
         override suspend fun getOfficialGames(languageCode: String): List<GameDto> =
             throw NotImplementedError()
+
+        override suspend fun getOneUserGames(
+            userId: String,
+            page: Int,
+            limit: Int
+        ): Response<List<GameDto>> = throw NotImplementedError()
 
         override suspend fun getUserGames(
             languageCode: String,
