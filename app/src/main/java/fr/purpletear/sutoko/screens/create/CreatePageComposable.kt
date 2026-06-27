@@ -8,28 +8,26 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.systemBarsPadding
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.pullrefresh.PullRefreshIndicator
 import androidx.compose.material.pullrefresh.pullRefresh
 import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.purpletear.core.presentation.util.openAppInStore
 import com.purpletear.game.presentation.game_catalog.GameCardCompact
 import com.purpletear.game.presentation.model.GameItem
 import fr.purpletear.sutoko.R
@@ -52,24 +50,15 @@ internal fun CreatePageComposable(
     onCreateStoryPressed: () -> Unit = {},
     openGame: (GameItem) -> Unit = {},
 ) {
+    var isMyStoriesExpanded by remember { mutableStateOf(false) }
     val isRefreshing by remember { mutableStateOf(false) }
     val focusManager = LocalFocusManager.current
-    val context = LocalContext.current
     val balance = viewModel.balance.collectAsStateWithLifecycle()
     val games = viewModel.games.collectAsStateWithLifecycle()
     val isLoadingMore = viewModel.isLoadingMore.collectAsStateWithLifecycle()
     val hasMoreGames = viewModel.hasMoreGames.collectAsStateWithLifecycle()
     val isConnected = viewModel.isConnected.collectAsStateWithLifecycle()
     val myStories = viewModel.myStories.collectAsStateWithLifecycle()
-    val appBuildNumber = viewModel.appBuildNumber
-
-    LaunchedEffect(Unit) {
-        viewModel.events.collect { event ->
-            when (event) {
-                CreatePageEvent.OpenAppStore -> context.openAppInStore()
-            }
-        }
-    }
 
     val pullRefreshState = rememberPullRefreshState(
         refreshing = isRefreshing,
@@ -89,9 +78,8 @@ internal fun CreatePageComposable(
             LazyColumn(
                 modifier = Modifier
                     .fillMaxSize()
-                    .systemBarsPadding()
+                    .statusBarsPadding()
                     .padding(top = 12.dp)
-                    .padding(bottom = 70.dp)
                     .pointerInput(Unit) {
                         detectTapGestures(onTap = { focusManager.clearFocus() })
                     },
@@ -117,25 +105,31 @@ internal fun CreatePageComposable(
                         )
                     }
 
+                    val displayedMyStories =
+                        if (isMyStoriesExpanded) myStories.value else myStories.value.take(3)
+
                     items(
-                        count = myStories.value.size
+                        count = displayedMyStories.size
                     ) { index ->
-                        val game = myStories.value[index]
+                        val game = displayedMyStories[index]
                         GameCardCompact(
                             modifier = Modifier.padding(top = 16.dp),
-                            isPending = false,
-                            isPurchasing = false,
-                            isPurchaseLoading = false,
-                            currentChapter = null,
-                            appBuildNumber = appBuildNumber,
-                            isGameFinished = false,
                             game = game,
-                            showGetButton = true,
                             openButtonLabel = stringResource(com.purpletear.game.presentation.R.string.game_button_test),
-                            onGetClick = { viewModel.onGameGetClick(game) },
-                            onOpenClick = { openGame(game) },
-                            onCancelClick = { viewModel.onGameCancelClick(game.id) }
+                            onOpenClick = { openGame(game) }
                         )
+                    }
+
+                    if (myStories.value.size > 3 && !isMyStoriesExpanded) {
+                        item {
+                            Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
+                                LoadMoreButton(
+                                    onClick = { isMyStoriesExpanded = true },
+                                    isLoading = false,
+                                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 16.dp)
+                                )
+                            }
+                        }
                     }
                 }
 
@@ -177,17 +171,8 @@ internal fun CreatePageComposable(
                     val game = games.value[index]
                     GameCardCompact(
                         modifier = Modifier.padding(top = 16.dp),
-                        isPending = false,
-                        isPurchasing = false,
-                        isPurchaseLoading = false,
-                        currentChapter = null,
-                        appBuildNumber = appBuildNumber,
-                        isGameFinished = false,
                         game = game,
-                        showGetButton = true,
-                        onGetClick = { viewModel.onGameGetClick(game) },
-                        onOpenClick = { openGame(game) },
-                        onCancelClick = { viewModel.onGameCancelClick(game.id) }
+                        onOpenClick = { openGame(game) }
                     )
                 }
 
@@ -242,4 +227,3 @@ internal fun CreatePageComposable(
         }
     }
 }
-

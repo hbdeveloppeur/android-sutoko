@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material3.Surface
@@ -88,7 +89,8 @@ fun MainScreen(
                     .fillMaxHeight()
                     .sizeIn(maxWidth = 500.dp)
                     .navigationBarsPadding()
-                    .then(Modifier.align(alignment = Alignment.Center))
+                    .padding(bottom = BottomNavigationHeight)
+                    .align(Alignment.Center)
             ) {
                 composable(
                     route = BottomNavItem.Home.route,

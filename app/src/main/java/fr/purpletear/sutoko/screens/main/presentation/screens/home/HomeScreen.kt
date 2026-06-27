@@ -2,9 +2,10 @@ package fr.purpletear.sutoko.screens.main.presentation.screens.home
 
 import android.util.Log
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.systemBarsPadding
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.LazyListState
@@ -142,9 +143,7 @@ private fun HomeContent(
     LazyColumn(
         state = scrollState,
         modifier = modifier
-            .navigationBarsPadding()
-            .systemBarsPadding()
-            .padding(bottom = 55.dp)
+            .statusBarsPadding()
     ) {
         topNavigationSection(
             balance = coinsBalance,
@@ -188,6 +187,8 @@ private fun HomeContent(
             fullStories = fullStories,
             onStoryTap = onFullStoryTap
         )
+
+        item { Spacer(modifier = Modifier.height(24.dp)) }
     }
 }
 

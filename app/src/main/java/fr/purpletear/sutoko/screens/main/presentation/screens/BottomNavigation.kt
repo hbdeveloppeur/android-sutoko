@@ -48,12 +48,14 @@ import com.purpletear.core.presentation.components.icon.IconComposable
 import fr.purpletear.sutoko.R
 import fr.purpletear.sutoko.screens.main.presentation.screens.components.navigation.BottomNavItem
 
+internal val BottomNavigationHeight = 92.dp
+
 @Composable
 fun BottomNavigation(
     navController: NavController,
     onShopPressed: () -> Unit,
 ) {
-    val height = 92.dp
+    val height = BottomNavigationHeight
 
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route

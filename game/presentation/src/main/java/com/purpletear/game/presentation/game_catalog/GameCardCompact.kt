@@ -3,6 +3,9 @@ package com.purpletear.game.presentation.game_catalog
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -14,14 +17,18 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -31,29 +38,17 @@ import coil.request.ImageRequest
 import com.example.sharedelements.theme.Poppins
 import com.purpletear.game.presentation.R
 import com.purpletear.game.presentation.model.GameItem
-import com.purpletear.game.presentation.model.toGameActionState
-import com.purpletear.sutoko.game.model.Chapter
 
 private const val CROSSFADE_DURATION_MS = 400
+private val ButtonShape = RoundedCornerShape(16.dp)
+private val BackgroundIdle = Color(0xFF2A2A2A)
 
 @Composable
 fun GameCardCompact(
-    isPending: Boolean,
-    isPurchasing: Boolean,
-    isPurchaseLoading: Boolean,
-    currentChapter: Chapter?,
-    appBuildNumber: Int,
-    isGameFinished: Boolean,
-
     game: GameItem,
-
     modifier: Modifier = Modifier,
-    showGetButton: Boolean = true,
     openButtonLabel: String? = null,
-
-    onGetClick: () -> Unit = {},
     onOpenClick: () -> Unit = {},
-    onCancelClick: (() -> Unit)? = null,
 ) {
     Column(
         modifier = modifier
@@ -131,22 +126,46 @@ fun GameCardCompact(
                 }
             }
 
-            if (showGetButton) {
-                GetButton(
-                    gameState = game.toGameActionState(
-                        isPending = isPending,
-                        isPurchasing = isPurchasing,
-                        isPurchaseLoading = isPurchaseLoading,
-                        currentChapter = currentChapter,
-                        appBuildNumber = appBuildNumber,
-                        isGameFinished = isGameFinished,
-                    ),
-                    playButtonLabel = openButtonLabel,
-                    onGetClick = onGetClick,
-                    onOpenClick = onOpenClick,
-                    onCancelClick = onCancelClick
-                )
-            }
+            OpenButton(
+                label = openButtonLabel ?: stringResource(R.string.game_button_open),
+                onClick = onOpenClick
+            )
         }
+    }
+}
+
+@Composable
+private fun OpenButton(
+    label: String,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val interactionSource = remember { MutableInteractionSource() }
+    val isPressed by interactionSource.collectIsPressedAsState()
+    val scale by androidx.compose.animation.core.animateFloatAsState(
+        targetValue = if (isPressed) 0.95f else 1f,
+        label = "press_scale"
+    )
+
+    Box(
+        modifier = modifier
+            .scale(scale)
+            .clip(ButtonShape)
+            .background(BackgroundIdle)
+            .clickable(
+                interactionSource = interactionSource,
+                indication = null,
+                onClick = onClick
+            )
+            .padding(horizontal = 14.dp, vertical = 6.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        Text(
+            text = label,
+            fontFamily = Poppins,
+            fontWeight = FontWeight.Medium,
+            fontSize = 12.sp,
+            color = Color.White
+        )
     }
 }
