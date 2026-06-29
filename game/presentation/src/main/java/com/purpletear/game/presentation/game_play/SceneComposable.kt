@@ -38,6 +38,7 @@ internal fun SceneComposable(
     LaunchedEffect(scene) {
         if (null == scene) {
             filterIsVisible = true
+            displayedScene = null
             return@LaunchedEffect
         }
         filterIsVisible = true

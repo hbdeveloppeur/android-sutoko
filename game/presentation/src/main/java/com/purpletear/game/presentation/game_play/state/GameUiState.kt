@@ -23,4 +23,5 @@ data class GameUiState(
     val currentVocalUrl: String? = null,
     val isVocalPlaying: Boolean = false,
     val vocalProgress: Float = 0f,
+    val isLoadingStoryUpdates: Boolean = false,
 )

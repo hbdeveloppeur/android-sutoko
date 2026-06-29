@@ -1,0 +1,338 @@
+# Android — Real-time story testing integration
+
+This guide explains how the Android app (the "phone") connects to a private test session, receives
+live chapter updates from the Sutoko api, downloads test packages, and plays from a specific node
+on demand.
+
+**User point of view:** the player sees no extra buttons or UI, only a transparent overlay with a
+spinner "Loading story updates". This feature is triggered while the user is playing the story in
+`SmsGameActivity`; the technical terms and connection details are hidden from them.
+
+This documentation is intended for the Android developer who needs to implement the phone side of
+the real-time testing feature.
+
+---
+
+## 1. What the phone must do
+
+1. Authenticate with the same token as the web canvas.
+2. Join a test session for a given `storyId`.
+3. Open a long-lived **Server-Sent Events (SSE)** connection.
+4. React to events:
+    - `CONNECTED` → sync local seed state with the server's `chapterSeeds`.
+    - `SEED_UPDATED` → download the test package for the new seed.
+    - `PLAY_FROM_NODE` → start playing from the requested node.
+5. Keep a local asset inventory so future downloads can be small **delta** packages.
+
+There is no WebSocket, Socket.IO, or Mercure. SSE is plain HTTP and works through the existing nginx
+proxy.
+
+---
+
+## 2. Assumptions
+
+- The Android app already knows how to play a Sutoko chapter from a node id.
+- The phone has obtained a valid auth token (`token`) that identifies the story owner.
+- The phone has the `storyId` that the author is testing.
+- The phone tracks its current chapter and the last known seed **per chapter**.
+- **Terminology:** `chapterId` in the testing API means the UUID of the `Chapter` entity (
+  `Chapter::getId()`), *not* the human-readable `chapterCode` used in canvas URLs. The phone only
+  deals with UUIDs; the front/canvas resolves `chapterCode` → UUID before emitting events.
+- The backend base URL is configurable and must include the `/api` path, e.g.:
+  `https://canvas.sutoko.com/api`
+
+---
+
+## 3. Authentication
+
+All endpoints require the token in one of these forms:
+
+```http
+Authorization: Bearer <token>
+```
+
+---
+
+## 4. Join a test session
+
+### Request
+
+```http
+POST /api/test-session/join
+Content-Type: application/json
+Authorization: Bearer <token>
+
+{
+  "storyId": "story-abc",
+  "deviceInfo": "Pixel 9 - Android 15"
+}
+```
+
+### Response
+
+```json
+{
+  "sessionId": "sess_7d3a...",
+  "chapterSeeds": {
+    "chapter-uuid-001": 5,
+    "chapter-uuid-002": 1
+  }
+}
+```
+
+- `chapterSeeds` is a map of chapter UUID (`Chapter::getId()`) → latest seed on the server.
+- Save `sessionId`. You will need it for the SSE channel and for registering your asset inventory.
+
+### Kotlin example
+
+```kotlin
+suspend fun joinTestSession(
+    storyId: String,
+    token: String,
+    deviceInfo: String
+): TestSession {
+    val response = httpClient.post("$baseUrl/test-session/join") {
+        header("Authorization", "Bearer $token")
+        contentType(ContentType.Application.Json)
+        setBody(
+            mapOf(
+                "storyId" to storyId,
+                "deviceInfo" to deviceInfo
+            )
+        )
+    }
+    return response.body()
+}
+```
+
+---
+
+## 5. Register the phone's asset inventory (recommended)
+
+To receive **delta packages** (only new/changed assets), the phone must tell the server what assets
+it already owns. You can build a manifest by listing the files in the games directory path "<gameId>
+/assets/"
+
+When receiving the delta packages, it overrides the existing story archives.
+
+Send the assets you already own as a JSON object: `{ "assets": [ { "uniqueFileName": "..." } ] }`.
+
+### Request
+
+```http
+POST /api/test-session/{sessionId}/inventory
+Content-Type: application/json
+Authorization: Bearer <token>
+
+{ "assets": [...] }
+```
+
+### Response
+
+```json
+{
+  "inventoryToken": "eyJhc3NldH...signature"
+}
+```
+
+Save `inventoryToken`. It is signed and expires after a configurable TTL (default 1 hour). Refresh
+it when it expires or when your local inventory changes significantly.
+
+---
+
+## 6. Open the SSE channel
+
+```http
+GET /api/test-session/{sessionId}/events?clientType=phone&deviceInfo=Pixel%209&assetInventoryToken=...&token=...
+Accept: text/event-stream
+Cache-Control: no-cache
+```
+
+Query parameters:
+
+- `clientType` — optional, defaults to `phone`. Use `phone`.
+- `deviceInfo` — optional human-readable device name.
+- `assetInventoryToken` — optional token from `POST /inventory`; enables delta packages.
+- `token` — optional auth token fallback when headers cannot be used.
+
+### Reconnection
+
+The backend keeps a short event journal. On reconnect, send the `Last-Event-ID` header with the `id`
+of the last event you received. If the event is too old (or the journal has been cleaned up), the
+server sends a fresh `CONNECTED` event with the current `chapterSeeds`; use it to re-sync.
+
+### Kotlin example with OkHttp
+
+```kotlin
+val url = "$baseUrl/test-session/$sessionId/events".toHttpUrl().newBuilder()
+    .addQueryParameter("clientType", "phone")
+    .addQueryParameter("deviceInfo", deviceInfo)
+    .apply { inventoryToken?.let { addQueryParameter("assetInventoryToken", it) } }
+    .build()
+
+val request = Request.Builder()
+    .url(url)
+    .header("Accept", "text/event-stream")
+    .header("Cache-Control", "no-cache")
+    .header("Authorization", "Bearer $token")
+    .build()
+
+val eventSource = EventSource.Factory.create().newEventSource(request, listener)
+```
+
+---
+
+## 7. SSE event reference
+
+Events are delivered as SSE lines: an `event:` line, an `id:` line, and a `data:` line containing a
+JSON payload.
+
+### Event types
+
+- `CONNECTED` (targeted) — payload `{ sessionId, chapterSeeds }`. Sync `localSeeds` with `chapterSeeds`.
+- `PHONE_CONNECTED` (broadcast) — payload `{ phoneId, deviceInfo? }`. You receive your own; ignore or use for diagnostics.
+- `PHONE_DISCONNECTED` (broadcast) — payload `{ phoneId }`. **Not emitted in v1.** Rely on your own reconnection logic.
+- `SEED_UPDATED` (broadcast to phones) — payload `{ chapterId, seed, packageUrl, changedAssets }`. If it is the current chapter and `seed` > local seed, download `packageUrl`.
+- `PLAY_FROM_NODE` (broadcast to phones) — payload `{ chapterId, nodeId, seedAtRequest }`. Switch chapter if needed, sync if behind, then play from `nodeId`.
+- `ERROR` (targeted or broadcast) — payload `{ code, message }`. Log and handle it.
+
+### Event ordering rule
+
+The phone must ignore any event whose `seed` or `seedAtRequest` is older than the phone's local seed
+for that chapter. The server can fan out events out of order under load.
+
+---
+
+## 8. Seed state machine
+
+Keep a map in memory or prefs: `localSeeds: Map<chapterId, seed>` and `currentChapterId`. Define
+`localSeed()` as `localSeeds[currentChapterId] ?: 0`.
+
+- **On `CONNECTED`:** for every `(chapterId, seed)` in `chapterSeeds`, if `seed` is newer than the
+  locally stored seed, download the package at `/api/test-package/{chapterId}/{seed}.zip` and update
+  `localSeeds[chapterId]`.
+- **On `SEED_UPDATED`:** if the chapter is not the current one, just cache the seed. If it is the
+  current chapter and `seed` > `localSeed()`, download the package from `packageUrl` and update the
+  local seed.
+- **On `PLAY_FROM_NODE`:** switch chapter if needed. If `seedAtRequest` < `localSeed()`, ignore the
+  stale command. If `seedAtRequest` > `localSeed()`, download the package for that seed first. Then
+  start playing from `nodeId`.
+
+---
+
+## 9. Download and apply a test package
+
+A package is a ZIP file:
+
+```http
+GET /api/test-package/{chapterId}/{seed}.zip?assetInventoryToken=...
+Authorization: Bearer <token>
+```
+
+`{chapterId}` is the chapter id (`Chapter::getId()`), the same value you receive in event payloads.
+
+If you opened SSE with an `assetInventoryToken`, the `packageUrl` from events already contains the
+token. You can download the URL as-is.
+
+A package ZIP contains `manifest.json` plus an `assets/` folder with the files for that seed.
+`manifest.json` contains:
+
+- `seed` — the package seed.
+- `chapterId` — the chapter UUID.
+- `storyId` — the story id.
+- `updatedAt` — package generation timestamp.
+- `nodes` and `edges` — the chapter graph to display.
+- `assetInventory` — the full list of asset `uniqueFileName`s that belong to this chapter.
+
+### Applying the package
+
+1. Extract the ZIP to a temporary directory.
+2. Read `manifest.json`.
+3. Replace the current chapter graph with `nodes` and `edges`.
+4. Copy files from `assets/` into your local cache keyed by `uniqueFileName`.
+5. Update your local asset inventory to `manifest.assetInventory`.
+6. Set `localSeed = manifest.seed`.
+7. Once you downloaded and installed the assets, refresh your `assetInventoryToken` by calling
+   `POST /inventory` with the new inventory.
+
+### Delta packages
+
+When `assetInventoryToken` is provided, the server omits assets the phone already owns from the ZIP.
+The `manifest.assetInventory` is still complete, so the phone knows which cached files are valid. Do
+**not** delete cached assets that are listed in the manifest but missing from the ZIP.
+
+---
+
+## 10. Play from a node
+
+When the author taps play under a node, the phone receives `PLAY_FROM_NODE` with a JSON payload such
+as `{ "chapterId": "...", "nodeId": "...", "seedAtRequest": 6 }`.
+
+Rules:
+
+1. If `chapterId` is not the current chapter → switch to that chapter (download its package if
+   needed).
+2. If `seedAtRequest < localSeed()` → ignore (stale).
+3. If `seedAtRequest > localSeed()` → download the package for `chapterId`/`seedAtRequest` first,
+   then play.
+4. If `seedAtRequest == localSeed()` → start the chapter from `nodeId` immediately.
+5. If `nodeId` does not exist in the current graph → ignore or show a local error. The API will not
+   retry.
+
+The front emits `PLAY_FROM_NODE` with the chapter **code** it knows from the canvas URL; the backend
+resolves it to the chapter UUID before broadcasting the event.
+
+---
+
+## 11. Reconnection and error handling
+
+- **Network drop:** close the old SSE connection and reconnect with `Last-Event-ID`.
+- **`Last-Event-ID` too old:** the server sends `CONNECTED` with `chapterSeeds`; sync any stale chapters.
+- **403 / `access_denied`:** token expired or the user does not own the story. Stop and ask the user to log in again.
+- **404 / `test_session_not_found`:** the session was deleted. Stop testing.
+- **Package 404 / `package_not_found`:** the package expired or there is a seed mismatch. Re-join the session and sync.
+- **Missing asset in ZIP:** the manifest still lists it; log and continue. The backend skips assets it cannot download.
+
+SSE keep-alive pings are sent as comment lines (`:ping\n\n`). Your SSE parser should ignore lines
+starting with `:`.
+
+Connections are also closed automatically after a configurable maximum duration (6 hours by
+default). The phone must reconnect when the stream ends.
+
+---
+
+## 12. End-to-end flow example
+
+1. Phone `POST /test-session/join` → receives `{ sessionId, chapterSeeds }`.
+2. Phone `POST /test-session/{id}/inventory` → receives `{ inventoryToken }`.
+3. Phone opens `GET /events?clientType=phone&assetInventoryToken=...`.
+4. Server sends `CONNECTED`, then `PHONE_CONNECTED`.
+5. Author saves the canvas → server sends `SEED_UPDATED seed=1`.
+6. Phone downloads the package at the provided `packageUrl`.
+7. Author taps play → server sends `PLAY_FROM_NODE node=x`.
+8. Phone starts playing from that node.
+
+---
+
+## 13. Quick reference
+
+### Endpoints
+
+```http
+POST   /api/test-session                       # front only; creates or returns existing session (returns sseUrl)
+POST   /api/test-session/join                   # phone entry point
+POST   /api/test-session/{sessionId}/inventory
+GET    /api/test-session/{sessionId}/events
+PUT    /api/test-session/{sessionId}/play      # front only; chapterId is the chapterCode here
+GET    /api/test-package/{chapterId}/{seed}.zip
+```
+
+### Golden rules
+
+1. Use **SSE**, not WebSocket.
+2. Pass `clientType=phone` (it is the default, but being explicit is safer).
+3. Treat the seed as monotonic; ignore stale events.
+4. Cache assets and send the inventory token for fast delta downloads.
+5. The manifest is the source of truth for the current graph and asset list.
+6. The phone is responsible for tolerating missing nodes in `PLAY_FROM_NODE`.
+

@@ -40,7 +40,7 @@ class ChapterGraphParserSoundPathTest {
         }
 
         val data = JsonObject().apply {
-            addProperty("assetName", assetName)
+            addProperty("storagePath", "assets/$assetName")
             addProperty("characterId", 83)
         }
 
@@ -94,14 +94,14 @@ class ChapterGraphParserSoundPathTest {
     }
 
     @Test
-    fun `resolveSoundPath preserves subdirectories in assetName`() {
+    fun `resolveSoundPath resolves to assets root and strips subdirectories`() {
         val node = parseVocalNode(
             assetName = "vocals/snow_walking.mp3",
-            createFiles = listOf("assets/vocals/snow_walking.mp3")
+            createFiles = listOf("assets/snow_walking.mp3")
         )
 
         assertEquals("snow_walking.mp3", File(node.audioUrl).name)
-        assertEquals("vocals", File(node.audioUrl).parentFile?.name)
+        assertEquals("assets", File(node.audioUrl).parentFile?.name)
     }
 
     @Test

@@ -11,6 +11,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import javax.inject.Inject
+import javax.inject.Singleton
 
 /**
  * In-memory store for game variables with persistence support.
@@ -19,10 +20,11 @@ import javax.inject.Inject
  * This follows explicit persistence points (chapter end, pause) rather than
  * auto-save on every change for predictable behavior and simpler debugging.
  *
- * One instance per game session to ensure isolation between games.
- * load() must be called with specific gameId to populate.
+ * Scoped as a singleton so that test coordinators and the game engine view model
+ * observe the same memory state; load() resets in-memory state per game session.
  */
 @Keep
+@Singleton
 class GameMemory @Inject constructor(
     private val repository: MemoryRepository,
     private val progressRepository: UserGameProgressRepository,
@@ -34,6 +36,20 @@ class GameMemory @Inject constructor(
     private var currentGameId: String? = null
     private var currentChapterCode: String? = null
     private var currentChapterNumber: Int? = null
+    private var namespace: String? = null
+
+    /**
+     * Sets an optional namespace for persistence.
+     * When set, load/save/clear operate on a prefixed game id so test sessions do not
+     * overwrite the user's real progress.
+     */
+    fun setNamespace(namespace: String?) {
+        this.namespace = namespace
+    }
+
+    private fun namespacedGameId(gameId: String): String {
+        return namespace?.let { "$it:$gameId" } ?: gameId
+    }
 
     /**
      * The currently loaded game ID, or null if not loaded.
@@ -51,7 +67,7 @@ class GameMemory @Inject constructor(
         currentGameId = gameId
         currentChapterNumber = chapterNumber
         memory.clear()
-        memory.putAll(repository.load(gameId, chapterNumber))
+        memory.putAll(repository.load(namespacedGameId(gameId), chapterNumber))
         _state.value = memory.mapValues { it.value.value }
         GameEngineLogger.d("MEM") { "Loaded for gameId=$gameId up to chapter $chapterNumber — ${memory.size} entries" }
     }
@@ -62,12 +78,13 @@ class GameMemory @Inject constructor(
      */
     suspend fun save() {
         currentGameId?.let { gameId ->
-            repository.save(gameId, memory.toMap())
+            val namespacedId = namespacedGameId(gameId)
+            repository.save(namespacedId, memory.toMap())
             GameEngineLogger.d("MEM") { "Saved for gameId=$gameId — ${memory.size} entries" }
             currentChapterCode?.let { chapter ->
                 progressRepository.save(
                     UserGameProgress(
-                        gameId = gameId,
+                        gameId = namespacedId,
                         currentChapterCode = chapter,
                         normalizedChapterCode = chapter.lowercase()
                     )
@@ -97,7 +114,7 @@ class GameMemory @Inject constructor(
      */
     suspend fun clear() {
         currentGameId?.let { gameId ->
-            repository.clear(gameId)
+            repository.clear(namespacedGameId(gameId))
         }
         memory.clear()
         currentChapterCode = null

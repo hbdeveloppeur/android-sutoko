@@ -11,11 +11,15 @@ import kotlinx.parcelize.Parcelize
  * Arguments/Parameters for launching SmsGameActivity.
  *
  * @property gameId The unique identifier of the game to be played
+ * @property storyId Optional story identifier for real-time author testing mode.
+ * @property isTestMode When true, the activity connects to a backend test session.
  */
 @Keep
 @Parcelize
 data class SmsGameActivityArgs(
-    val gameId: String
+    val gameId: String,
+    val storyId: String? = null,
+    val isTestMode: Boolean = false,
 ) : Parcelable {
     companion object {
         private val EXTRA_KEY = Data.Companion.Extra.SMS_GAME_MODEL.id

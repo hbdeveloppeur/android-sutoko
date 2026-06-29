@@ -17,6 +17,7 @@ import com.purpletear.sutoko.game.engine.HandlerEffect
 import com.purpletear.sutoko.game.model.chapter.ChapterGraph
 import com.purpletear.sutoko.game.repository.CharacterRepository
 import com.purpletear.sutoko.game.repository.SceneRepository
+import com.purpletear.sutoko.game.testing.StoryTestingLogger
 import com.purpletear.sutoko.game.usecase.GetSceneUseCase
 import com.purpletear.sutoko.game.usecase.LoadChapterGraphUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -29,6 +30,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
@@ -47,6 +50,7 @@ class GameEngineViewModel @Inject constructor(
     private val characterRepository: CharacterRepository,
     private val getSceneUseCase: GetSceneUseCase,
     private val makeToastService: MakeToastService,
+    private val storyTestingCoordinator: StoryTestingCoordinator,
     savedStateHandle: SavedStateHandle,
     @ApplicationContext private val context: Context,
 ) : ViewModel() {
@@ -62,6 +66,7 @@ class GameEngineViewModel @Inject constructor(
     private val chapterCode: String = checkNotNull(savedStateHandle["chapterCode"]) {
         "chapterCode is required"
     }
+    private val isTestMode: Boolean = savedStateHandle.get<Boolean>("isTestMode") ?: false
 
     private val _navigateToNextChapter = Channel<String>(Channel.BUFFERED)
     val navigateToNextChapter: Flow<String> = _navigateToNextChapter.receiveAsFlow()
@@ -86,7 +91,11 @@ class GameEngineViewModel @Inject constructor(
             launch { gameEngine.messages.collect { updateMessages(it) } }
             launch { gameEngine.effects.collect { handleEffect(it) } }
 
-            loadChapterGraphAndStartGame(gameId, chapterCode)
+            if (isTestMode) {
+                observeStoryTestingState()
+            } else {
+                loadChapterGraphAndStartGame(gameId, chapterCode)
+            }
 
             preloadScenes.join()
             preloadCharacters.join()
@@ -114,25 +123,112 @@ class GameEngineViewModel @Inject constructor(
             }
     }
 
-    private fun startGame(gameId: String, graph: ChapterGraph) {
+    private fun resetForNewPlay() {
+        typingPlayer?.release()
+        typingPlayer = null
+
+        soundPlayer?.stop()
+        soundPlayer?.release()
+        soundPlayer = null
+
+        vocalPlayer?.setOnCompletionListener(null)
+        vocalPlayer?.release()
+        vocalPlayer = null
+        vocalProgressJob?.cancel()
+        vocalProgressJob = null
+
+        pendingChapterCode = null
+
+        updateState {
+            it.copy(
+                messages = emptyList(),
+                choices = emptyList(),
+                isChoicesRevealed = false,
+                isAwaitingInput = false,
+                currentScene = null,
+                currentVocalUrl = null,
+                isVocalPlaying = false,
+                vocalProgress = 0f
+            )
+        }
+    }
+
+    private fun startGame(gameId: String, graph: ChapterGraph, startNodeId: String? = null) {
+        resetForNewPlay()
+
         updateState {
             it.copy(
                 gameId = gameId,
                 chapterCode = graph.chapterCode,
                 messages = emptyList(),
-                isAwaitingInput = false
+                choices = emptyList(),
+                isChoicesRevealed = false,
+                isAwaitingInput = false,
+                isLoadingStoryUpdates = true
             )
         }
 
+
         viewModelScope.launch {
+            delay(1000)
+
+            updateState {
+                it.copy(
+                    isLoadingStoryUpdates = false
+                )
+            }
+            delay(280)
             gameEngine.initialize(gameId, graph)
 
             val debugStartNode = debugStartNodeFor(graph.chapterCode)
-            if (debugStartNode != null) {
-                Log.d("GameEngine", "Debug override — chapter ${graph.chapterCode} starts at $debugStartNode")
-                gameEngine.jumpToNode(debugStartNode)
-            } else {
-                gameEngine.start()
+            when {
+                startNodeId != null -> gameEngine.startFromNode(startNodeId)
+                debugStartNode != null -> {
+                    Log.d(
+                        "GameEngine",
+                        "Debug override — chapter ${graph.chapterCode} starts at $debugStartNode"
+                    )
+                    gameEngine.jumpToNode(debugStartNode)
+                }
+
+                else -> gameEngine.start()
+            }
+        }
+    }
+
+    private fun observeStoryTestingState() {
+        StoryTestingLogger.i("NAV") { "GameEngineViewModel entering test mode — gameId=$gameId" }
+
+        viewModelScope.launch {
+            storyTestingCoordinator.state
+                .map { it.isLoading }
+                .distinctUntilChanged()
+                .collectLatest { isLoading ->
+                    updateState { it.copy(isLoadingStoryUpdates = isLoading) }
+                }
+        }
+
+        viewModelScope.launch {
+            var lastLoggedError: String? = null
+            var lastPlayRequestCount = 0
+            storyTestingCoordinator.state.collect { testingState ->
+                testingState.error?.let { error ->
+                    if (error != lastLoggedError) {
+                        lastLoggedError = error
+                        StoryTestingLogger.e("NAV") { "Story testing error: $error" }
+                        makeToastService(R.string.error_load_game)
+                    }
+                } ?: run {
+                    lastLoggedError = null
+                }
+
+                val graph = testingState.currentGraph
+                val targetNodeId = testingState.targetNodeId
+                if (graph != null && targetNodeId != null && testingState.playRequestCount != lastPlayRequestCount) {
+                    StoryTestingLogger.i("NAV") { "Test mode starting game — ${graph.chapterCode} → $targetNodeId" }
+                    lastPlayRequestCount = testingState.playRequestCount
+                    startGame(gameId, graph, targetNodeId)
+                }
             }
         }
     }

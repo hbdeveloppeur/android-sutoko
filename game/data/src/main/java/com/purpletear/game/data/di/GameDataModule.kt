@@ -13,6 +13,12 @@ import com.purpletear.game.data.local.dao.MemoryDao
 import com.purpletear.game.data.local.dao.UserGameProgressDao
 import com.purpletear.game.data.provider.AndroidGamePathProviderImpl
 import com.purpletear.game.data.remote.GameApi
+import com.purpletear.game.data.remote.testing.TestEventDataSourceImpl
+import com.purpletear.game.data.remote.testing.TestSessionApi
+import com.purpletear.game.data.repository.testing.TestChapterGraphRepositoryImpl
+import com.purpletear.game.data.repository.testing.TestPackageRepositoryImpl
+import com.purpletear.game.data.repository.testing.TestSessionRepositoryImpl
+import com.purpletear.sutoko.core.domain.helper.provider.HostProvider
 import com.purpletear.game.data.repository.ChapterGraphRepositoryImpl
 import com.purpletear.game.data.repository.CharacterRepositoryImpl
 import com.purpletear.game.data.repository.GameInstallRepositoryImpl
@@ -29,6 +35,10 @@ import com.purpletear.sutoko.game.repository.CharacterRepository
 import com.purpletear.sutoko.game.repository.MemoryRepository
 import com.purpletear.sutoko.game.repository.SceneRepository
 import com.purpletear.sutoko.game.repository.UserGameProgressRepository
+import com.purpletear.sutoko.game.repository.testing.TestChapterGraphRepository
+import com.purpletear.sutoko.game.repository.testing.TestEventDataSource
+import com.purpletear.sutoko.game.repository.testing.TestPackageRepository
+import com.purpletear.sutoko.game.repository.testing.TestSessionRepository
 import com.purpletear.sutoko.game.repository.game.GameInstallRepository
 import com.purpletear.sutoko.game.repository.game.GameRepository
 import com.purpletear.sutoko.game.service.MediaUrlResolver
@@ -258,6 +268,96 @@ object GameDataModule {
     fun provideCharacterRepository(
         impl: CharacterRepositoryImpl
     ): CharacterRepository {
+        return impl
+    }
+
+    /**
+     * Provides a shared OkHttp client for SSE and package downloads.
+     */
+    @Provides
+    @Singleton
+    @TestingOkHttpClient
+    fun provideOkHttpClient(): OkHttpClient {
+        return OkHttpClient.Builder()
+            .cache(null)
+            .build()
+    }
+
+    /**
+     * Provides the base URL for the real-time testing API.
+     */
+    @Provides
+    @Singleton
+    @TestingBaseUrl
+    fun provideTestingBaseUrl(): String = "https://canvas.sutoko.com/api/"
+
+    /**
+     * Provides the Retrofit instance for the testing API.
+     */
+    @Provides
+    @Singleton
+    @TestingApi
+    fun provideTestingRetrofit(@TestingBaseUrl baseUrl: String): Retrofit {
+        val okHttpClient: OkHttpClient = OkHttpClient.Builder()
+            .cache(null)
+            .build()
+        return Retrofit.Builder()
+            .baseUrl(baseUrl)
+            .addConverterFactory(GsonConverterFactory.create())
+            .client(okHttpClient)
+            .build()
+    }
+
+    /**
+     * Provides the TestSessionApi implementation.
+     */
+    @Provides
+    @Singleton
+    fun provideTestSessionApi(@TestingApi retrofit: Retrofit): TestSessionApi {
+        return retrofit.create(TestSessionApi::class.java)
+    }
+
+    /**
+     * Provides the TestSessionRepository implementation.
+     */
+    @Provides
+    @Singleton
+    fun provideTestSessionRepository(
+        impl: TestSessionRepositoryImpl
+    ): TestSessionRepository {
+        return impl
+    }
+
+    /**
+     * Provides the TestPackageRepository implementation.
+     */
+    @Provides
+    @Singleton
+    fun provideTestPackageRepository(
+        impl: TestPackageRepositoryImpl
+    ): TestPackageRepository {
+        return impl
+    }
+
+    /**
+     * Provides the TestEventDataSource implementation.
+     */
+    @Provides
+    @Singleton
+    fun provideTestEventDataSource(
+        impl: TestEventDataSourceImpl
+    ): TestEventDataSource {
+        return impl
+    }
+
+    /**
+     * Provides the TestChapterGraphRepository implementation.
+     */
+    @Provides
+    @Singleton
+    fun provideTestChapterGraphRepository(
+        impl: TestChapterGraphRepositoryImpl
+    ): TestChapterGraphRepository {
         return impl
     }
 }

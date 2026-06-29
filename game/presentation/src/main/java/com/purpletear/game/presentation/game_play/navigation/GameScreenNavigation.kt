@@ -33,6 +33,10 @@ internal fun NavGraphBuilder.gameScreen(
         navArgument("chapterCode") {
             type = NavType.StringType
         },
+        navArgument("isTestMode") {
+            type = NavType.BoolType
+            defaultValue = false
+        },
     )
 ) {
     val viewModel: GameEngineViewModel = hiltViewModel()

@@ -23,17 +23,30 @@ import com.purpletear.game.presentation.game_play.navigation.gameScreen
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class SmsGameActivity : ComponentActivity() {
 
     private val viewModel: GameSessionViewModel by viewModels()
     private val devViewModel: SmsGameDevViewModel by viewModels()
+    @Inject
+    lateinit var storyTestingCoordinator: StoryTestingCoordinator
+
+    private var isTestMode: Boolean = false
+    private var storyId: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val gameId = extractGameId()
+        val args = extractArgs()
+        val gameId = args.gameId
+        isTestMode = args.isTestMode
+        storyId = args.storyId
+
+        if (isTestMode) {
+            storyId?.let { storyTestingCoordinator.startTesting(gameId, it) }
+        }
 
         enableEdgeToEdge()
         setContent {
@@ -54,9 +67,15 @@ class SmsGameActivity : ComponentActivity() {
                     }
                 }
 
+                val startDestination = if (isTestMode) {
+                    SmsGameRoutes.game("test", isTestMode = true)
+                } else {
+                    SmsGameRoutes.DESCRIPTION
+                }
+
                 SmsGameNavHost(
                     navController = navController,
-                    startDestination = SmsGameRoutes.DESCRIPTION,
+                    startDestination = startDestination,
                     overlayAlpha = overlayAlpha.value,
                     onDebugAction = { action ->
                         when (action) {
@@ -95,7 +114,7 @@ class SmsGameActivity : ComponentActivity() {
                         viewModel = viewModel,
                         onContinue = { chapterCode ->
                             fadeThenRun {
-                                navController.navigate(SmsGameRoutes.game(chapterCode))
+                                navController.navigate(SmsGameRoutes.game(chapterCode, isTestMode))
                             }
                         },
                         onSelectChapter = {
@@ -124,7 +143,7 @@ class SmsGameActivity : ComponentActivity() {
                         gameId = gameId,
                         onNavigateToChapter = { chapterCode ->
                             fadeThenRun {
-                                navController.navigate(SmsGameRoutes.game(chapterCode)) {
+                                navController.navigate(SmsGameRoutes.game(chapterCode, isTestMode)) {
                                     popUpTo(SmsGameRoutes.GAME) { inclusive = true }
                                 }
                             }
@@ -137,8 +156,17 @@ class SmsGameActivity : ComponentActivity() {
         viewModel.initialize(gameId)
     }
 
-    private fun extractGameId(): String = SmsGameActivityArgs.fromIntent(intent)?.gameId
-        ?: error("Game ID required")
+    override fun onDestroy() {
+        super.onDestroy()
+        if (isTestMode) {
+            storyTestingCoordinator.stopTesting()
+        }
+    }
+
+    private fun extractArgs(): SmsGameActivityArgs {
+        return SmsGameActivityArgs.fromIntent(intent)
+            ?: error("SmsGameActivityArgs required")
+    }
 
     companion object {
         fun intent(activity: Activity, args: SmsGameActivityArgs): Intent =

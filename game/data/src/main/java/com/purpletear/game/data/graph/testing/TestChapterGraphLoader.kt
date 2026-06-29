@@ -1,0 +1,283 @@
+package com.purpletear.game.data.graph.testing
+
+import com.google.gson.Gson
+import com.purpletear.game.data.file.testing.TestAssetCacheManager
+import com.purpletear.game.data.local.dto.EdgeDto
+import com.purpletear.game.data.local.dto.NodeDataDto
+import com.purpletear.game.data.local.dto.NodeDto
+import com.purpletear.game.data.remote.testing.dto.TestPackageManifestDto
+import com.purpletear.game.data.remote.testing.dto.parseManifest
+import com.purpletear.sutoko.game.model.chapter.ChapterGraph
+import com.purpletear.sutoko.game.testing.StoryTestingLogger
+import com.purpletear.sutoko.game.model.chapter.Edge
+import com.purpletear.sutoko.game.model.chapter.EdgeData
+import com.purpletear.sutoko.game.model.chapter.EdgeType
+import com.purpletear.sutoko.game.model.chapter.Node
+import java.io.File
+import javax.inject.Inject
+import javax.inject.Singleton
+
+@Singleton
+class TestChapterGraphLoader @Inject constructor(
+    private val assetCacheManager: TestAssetCacheManager,
+) {
+
+    private val gson = Gson()
+
+    /**
+     * Loads a [ChapterGraph] from an extracted test package directory.
+     *
+     * @param extractedDirectory Path to the extracted ZIP contents.
+     * @param gameId Game identifier used to locate the test asset cache.
+     * @return The loaded chapter graph.
+     */
+    fun load(extractedDirectory: String, gameId: String): ChapterGraph {
+        val extractDir = File(extractedDirectory)
+        val manifestFile = File(extractDir, MANIFEST_FILE)
+        require(manifestFile.exists()) { "Manifest not found in $extractedDirectory" }
+
+        val manifest = gson.parseManifest(manifestFile.readText())
+        StoryTestingLogger.d("GRPH") { "Loading graph — ${manifest.chapterId} seed ${manifest.seed}, ${manifest.nodes.size} raw nodes" }
+
+        val assetLookup = buildAssetLookup(gameId, manifest.assetInventory)
+
+        val (compactedNodes, compactedEdges) = compactIgnoreNodes(manifest.nodes, manifest.edges)
+        val nodes = compactedNodes
+            .mapNotNull { parseNode(it, assetLookup) }
+            .associateBy { it.id }
+        val edges = compactedEdges.map { parseEdge(it) }
+        val resolvedNodes = resolveConditionTargets(nodes, edges)
+
+        val startNodeId = resolvedNodes.values.filterIsInstance<Node.Start>().firstOrNull()?.id
+            ?: resolvedNodes.keys.firstOrNull()
+            ?: throw IllegalArgumentException("No start node found")
+
+        StoryTestingLogger.d("GRPH") { "Graph ready — ${manifest.chapterId}: ${resolvedNodes.size} nodes, ${edges.size} edges, start=$startNodeId" }
+        return ChapterGraph(
+            chapterCode = manifest.chapterId,
+            chapterNumber = 1,
+            title = "",
+            nodes = resolvedNodes,
+            edges = edges,
+            startNodeId = startNodeId,
+        )
+    }
+
+    private fun buildAssetLookup(gameId: String, assetInventory: List<String>): Map<String, String> {
+        val cacheDir = assetCacheManager.getCacheDirectory(gameId)
+        val cachedAssets = assetCacheManager.listCachedAssets(gameId)
+
+        return assetInventory.associateBy { uniqueFileName ->
+            val fileName = File(uniqueFileName).name
+            // Prefer a cached file that exactly matches the uniqueFileName.
+            val exactCached = cachedAssets.find { it == uniqueFileName }
+            exactCached ?: fileName
+        }
+    }
+
+    private fun parseNode(dto: NodeDto, assetLookup: Map<String, String>): Node? {
+        val data = dto.data?.let { gson.fromJson(it, NodeDataDto::class.java) } ?: return null
+
+        return when (dto.type) {
+            "start" -> Node.Start(
+                id = dto.id,
+                label = data.label ?: "Start"
+            )
+
+            "message" -> Node.Message(
+                id = dto.id,
+                text = requireNotNull(data.text) { "message node ${dto.id} missing text" },
+                characterId = data.characterId ?: -1,
+                waitMs = data.wait ?: 0,
+                seenMs = data.seen ?: 0,
+                isHesitating = data.isHesitating ?: false
+            )
+
+            "message-image" -> {
+                val storagePath = data.storagePath ?: data.image
+                require(storagePath != null) { "message-image node ${dto.id} missing storagePath or image" }
+                Node.MessageImage(
+                    id = dto.id,
+                    imageUrl = resolveAssetPath(storagePath, assetLookup),
+                    characterId = data.characterId ?: -1,
+                    waitMs = data.wait ?: 0,
+                    seenMs = data.seen ?: 0
+                )
+            }
+
+            "chapter-change" -> {
+                val chapterCode = data.chapterCode
+                require(!chapterCode.isNullOrBlank()) { "chapter-change node ${dto.id} missing chapterCode" }
+                Node.ChapterChange(id = dto.id, chapterCode = chapterCode)
+            }
+
+            "scene-node" -> Node.Scene(
+                id = dto.id,
+                sceneId = requireNotNull(data.sceneId) { "scene-node ${dto.id} missing sceneId" }
+            )
+
+            "condition" -> Node.Condition(
+                id = dto.id,
+                expression = requireNotNull(data.expression) { "condition node ${dto.id} missing expression" },
+                trueTargetId = requireNotNull(data.trueTargetId) { "condition node ${dto.id} missing trueTargetId" },
+                falseTargetId = requireNotNull(data.falseTargetId) { "condition node ${dto.id} missing falseTargetId" }
+            )
+
+            "memory", "memory-save-node" -> {
+                val key = data.memoryKey ?: data.key
+                val value = data.memoryValue ?: data.value
+                require(!key.isNullOrBlank()) { "memory node ${dto.id} missing key" }
+                require(!value.isNullOrBlank()) { "memory node ${dto.id} missing value" }
+                Node.Memory(id = dto.id, key = key, value = value)
+            }
+
+            "memory-condition-node" -> {
+                val key = data.memoryKey ?: data.key
+                require(!key.isNullOrBlank()) { "memory-condition-node ${dto.id} missing key" }
+                Node.Condition(
+                    id = dto.id,
+                    expression = "$key == ${data.expectedValue}",
+                    trueTargetId = requireNotNull(data.trueTargetId) { "memory-condition-node ${dto.id} missing trueTargetId" },
+                    falseTargetId = requireNotNull(data.falseTargetId) { "memory-condition-node ${dto.id} missing falseTargetId" }
+                )
+            }
+
+            "narration" -> {
+                val text = data.text
+                require(!text.isNullOrBlank()) { "narration node ${dto.id} missing text" }
+                Node.Info(id = dto.id, text = text)
+            }
+
+            "trophy" -> Node.Trophy(
+                id = dto.id,
+                trophyId = requireNotNull(data.trophyId) { "trophy node ${dto.id} missing trophyId" }
+            )
+
+            "background" -> Node.Background(
+                id = dto.id,
+                imageUrl = data.imageUrl?.let { resolveAssetPath(it, assetLookup) } ?: ""
+            )
+
+            "end" -> Node.End(id = dto.id)
+
+            "sound" -> {
+                val storagePath = requireNotNull(data.storagePath) { "sound node ${dto.id} missing storagePath" }
+                Node.Sound(
+                    id = dto.id,
+                    soundUrl = resolveAssetPath(storagePath, assetLookup),
+                    loop = data.isLooping ?: false
+                )
+            }
+
+            "message-vocal" -> {
+                val storagePath = requireNotNull(data.storagePath) { "message-vocal node ${dto.id} missing storagePath" }
+                val characterId = requireNotNull(data.characterId) { "message-vocal node ${dto.id} missing characterId" }
+                Node.MessageVocal(
+                    id = dto.id,
+                    audioUrl = resolveAssetPath(storagePath, assetLookup),
+                    characterId = characterId
+                )
+            }
+
+            else -> null
+        }
+    }
+
+    private fun resolveAssetPath(storagePath: String, assetLookup: Map<String, String>): String {
+        if (storagePath.isBlank()) return ""
+        val fileName = File(storagePath).name
+        return assetLookup[fileName]
+            ?: assetLookup[storagePath]
+            ?: storagePath
+    }
+
+    private fun parseEdge(dto: EdgeDto): Edge {
+        return Edge(
+            source = dto.source,
+            target = dto.target,
+            type = parseEdgeType(dto.data?.edgeType),
+            condition = dto.data?.condition,
+            data = dto.data?.let { EdgeData(edgeType = it.edgeType) }
+        )
+    }
+
+    private fun parseEdgeType(type: String?): EdgeType {
+        return when (type?.uppercase()) {
+            "CONDITIONAL", "CONDITIONTRUE", "CONDITIONFALSE" -> EdgeType.CONDITIONAL
+            "CHOICE" -> EdgeType.CHOICE
+            else -> EdgeType.NORMAL
+        }
+    }
+
+    private fun resolveConditionTargets(
+        nodes: Map<String, Node>,
+        edges: List<Edge>
+    ): Map<String, Node> {
+        val conditionTargets = edges
+            .filter { it.type == EdgeType.CONDITIONAL }
+            .groupBy { it.source }
+            .mapValues { (_, outgoingEdges) ->
+                val targets = mutableMapOf<Boolean, String>()
+                outgoingEdges.forEach { edge ->
+                    when (edge.data?.edgeType?.uppercase()) {
+                        "CONDITIONTRUE" -> targets[true] = edge.target
+                        "CONDITIONFALSE" -> targets[false] = edge.target
+                    }
+                }
+                targets
+            }
+
+        return nodes.mapValues { (_, node) ->
+            if (node is Node.Condition) {
+                val targets = conditionTargets[node.id]
+                node.copy(
+                    trueTargetId = targets?.get(true) ?: node.trueTargetId,
+                    falseTargetId = targets?.get(false) ?: node.falseTargetId
+                )
+            } else {
+                node
+            }
+        }
+    }
+
+    private fun compactIgnoreNodes(
+        nodeDtos: List<NodeDto>,
+        edgeDtos: List<EdgeDto>
+    ): Pair<List<NodeDto>, List<EdgeDto>> {
+        val ignoreNodeIds = nodeDtos
+            .filter { it.type == "ignore" }
+            .map { it.id }
+            .toSet()
+
+        if (ignoreNodeIds.isEmpty()) {
+            return nodeDtos to edgeDtos
+        }
+
+        val ignoreBypassTargets = ignoreNodeIds.associateWith { ignoreId ->
+            val outgoing = edgeDtos.filter { it.source == ignoreId }
+            when (outgoing.size) {
+                1 -> outgoing.first().target
+                else -> null
+            }
+        }
+
+        val compactedEdges = edgeDtos.mapNotNull { edge ->
+            when {
+                edge.source in ignoreNodeIds -> null
+                edge.target in ignoreNodeIds -> {
+                    val bypassTarget = ignoreBypassTargets[edge.target]
+                    bypassTarget?.let { edge.copy(target = it) }
+                }
+
+                else -> edge
+            }
+        }
+
+        val compactedNodes = nodeDtos.filter { it.type != "ignore" }
+        return compactedNodes to compactedEdges
+    }
+
+    private companion object {
+        const val MANIFEST_FILE = "manifest.json"
+    }
+}

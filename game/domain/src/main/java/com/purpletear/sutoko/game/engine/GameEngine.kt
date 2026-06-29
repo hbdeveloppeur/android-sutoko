@@ -123,26 +123,25 @@ class GameEngine @Inject constructor(
     }
 
     /**
-     * Debug-only: jumps to an arbitrary node in the current chapter.
+     * Starts execution from an arbitrary node in the current chapter.
      *
      * Clears transient input/message state and executes the target node as if the engine had
-     * just navigated to it. Intended for reproducing user-reported bugs deep in a chapter
-     * without replaying from the start.
+     * just navigated to it. This is the production-safe entry point used by real-time testing
+     * when the author asks the phone to play from a specific node.
      *
      * Precondition: [initialize] must have been called.
      * Precondition: [nodeId] must exist in the current graph.
      *
-     * @throws IllegalStateException in release builds or when preconditions are violated.
+     * @throws IllegalStateException if preconditions are violated.
      */
-    suspend fun jumpToNode(nodeId: String) {
-        check(BuildConfig.DEBUG) { "jumpToNode is a debug-only API" }
+    suspend fun startFromNode(nodeId: String) {
         assert(nodeId.isNotBlank())
 
         val graph = checkNotNull(currentGraph) {
-            "Precondition violation: initialize() must be called before jumpToNode()"
+            "Precondition violation: initialize() must be called before startFromNode()"
         }
         checkNotNull(graph.getNode(nodeId)) {
-            "Debug jump target not found in chapter ${graph.chapterCode}: $nodeId"
+            "Jump target not found in chapter ${graph.chapterCode}: $nodeId"
         }
 
         awaitingInput = false
@@ -154,8 +153,20 @@ class GameEngine @Inject constructor(
             currentNodeId = nodeId,
         )
 
-        GameEngineLogger.d("GAME") { "Debug jump — chapter ${graph.chapterCode} → node $nodeId" }
+        GameEngineLogger.d("GAME") { "Start from node — chapter ${graph.chapterCode} → node $nodeId" }
         executeNode(nodeId)
+    }
+
+    /**
+     * Debug-only: jumps to an arbitrary node in the current chapter.
+     *
+     * Delegates to [startFromNode] after verifying the build is debug.
+     *
+     * @throws IllegalStateException in release builds or when preconditions are violated.
+     */
+    suspend fun jumpToNode(nodeId: String) {
+        check(BuildConfig.DEBUG) { "jumpToNode is a debug-only API" }
+        startFromNode(nodeId)
     }
 
     /**
