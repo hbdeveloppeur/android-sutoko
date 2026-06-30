@@ -40,4 +40,5 @@ data class GameUiState(
     val vocalProgress: Float = 0f,
     val isLoadingStoryUpdates: Boolean = false,
     val liveUpdateStatus: LiveUpdateStatus? = null,
+    val hasPendingStoryUpdate: Boolean = false,
 )

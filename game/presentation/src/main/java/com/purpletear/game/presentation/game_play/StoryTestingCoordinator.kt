@@ -301,29 +301,25 @@ class StoryTestingCoordinator @Inject constructor(
                     pendingNodeId != null && _state.value.currentChapterId == chapterId
                 StoryTestingLogger.i("GRPH") { "Test graph loaded — ${graph.chapterCode}, ${graph.nodes.size} nodes, ${graph.edges.size} edges" }
 
-                // If the author has not sent a PLAY_FROM_NODE event, start from the chapter's
-                // first node so the "Try" button immediately launches the test session.
+                // Only PLAY_FROM_NODE forces an immediate jump. Seed updates simply publish a
+                // new graph version and let the UI decide when to resume (usually after the
+                // author confirms, or from the current node on first load).
                 val targetNodeId = when {
                     shouldPlayFromPending -> pendingNodeId
-                    _state.value.targetNodeId == null -> graph.startNodeId
                     else -> _state.value.targetNodeId
                 }
-
-                // Increment the request counter whenever we issue a new play command,
-                // including repeated "Play from this node" requests for the same node.
-                val shouldIncrementPlayCount = targetNodeId != null &&
-                    (shouldPlayFromPending || _state.value.targetNodeId == null)
 
                 _state.value = _state.value.copy(
                     currentGraph = graph,
                     currentChapterId = chapterId,
                     targetNodeId = targetNodeId,
                     pendingNodeId = if (shouldPlayFromPending) null else _state.value.pendingNodeId,
-                    playRequestCount = if (shouldIncrementPlayCount) {
+                    playRequestCount = if (shouldPlayFromPending) {
                         _state.value.playRequestCount + 1
                     } else {
                         _state.value.playRequestCount
-                    }
+                    },
+                    graphVersion = _state.value.graphVersion + 1
                 )
             }
             .onFailure { error ->

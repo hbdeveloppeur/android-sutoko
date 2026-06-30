@@ -124,6 +124,7 @@
     <string name="live_update_connected">Mise à jour en direct connectée</string>
     <string name="live_update_disconnected">Mise à jour en direct déconnectée</string>
     <string name="live_update_loading">Chargement des modifications…</string>
+    <string name="live_update_reload">Histoire mise à jour — recharger pour appliquer</string>
 
     <!-- Choices box -->
     <string name="game_choices_title">Votre choix :</string>

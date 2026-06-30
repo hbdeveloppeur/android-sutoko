@@ -124,6 +124,7 @@
     <string name="live_update_connected">Live-Update verbunden</string>
     <string name="live_update_disconnected">Live-Update getrennt</string>
     <string name="live_update_loading">Änderungen werden geladen…</string>
+    <string name="live_update_reload">Story aktualisiert — zum Anwenden neu laden</string>
 
     <!-- Choices box -->
     <string name="game_choices_title">Deine Wahl:</string>

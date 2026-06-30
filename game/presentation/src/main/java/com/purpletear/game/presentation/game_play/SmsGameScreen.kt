@@ -6,6 +6,7 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
@@ -66,6 +67,7 @@ internal fun SmsGameScreen(
     onChoiceSelected: (HandlerEffect.ShowChoices.Choice) -> Unit = {},
     onRevealChoicesClicked: () -> Unit = {},
     onHideChoicesClicked: () -> Unit = {},
+    onReloadStoryUpdates: () -> Unit = {},
 ) {
     var viewerState by remember { mutableStateOf(ImageViewerState()) }
     val scope = rememberCoroutineScope()
@@ -118,6 +120,10 @@ internal fun SmsGameScreen(
         ) {
             state.liveUpdateStatus?.let { status ->
                 LiveUpdateLabel(status = status)
+            }
+
+            if (state.hasPendingStoryUpdate) {
+                StoryUpdateBanner(onClick = onReloadStoryUpdates)
             }
 
             LazyColumn(
@@ -261,6 +267,32 @@ private fun LiveUpdateLabel(status: LiveUpdateStatus) {
                     style = MaterialTheme.typography.caption
                 )
             }
+        }
+    }
+}
+
+@Composable
+private fun StoryUpdateBanner(onClick: () -> Unit) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(top = 8.dp),
+        contentAlignment = Alignment.TopCenter
+    ) {
+        Row(
+            modifier = Modifier
+                .height(36.dp)
+                .background(Color(0xFF2196F3), RoundedCornerShape(18.dp))
+                .clickable(onClick = onClick)
+                .padding(horizontal = 16.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            Text(
+                text = stringResource(R.string.live_update_reload),
+                color = Color.White,
+                style = MaterialTheme.typography.caption
+            )
         }
     }
 }

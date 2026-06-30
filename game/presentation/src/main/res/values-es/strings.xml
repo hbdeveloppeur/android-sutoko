@@ -124,6 +124,7 @@
     <string name="live_update_connected">Actualización en vivo conectada</string>
     <string name="live_update_disconnected">Actualización en vivo desconectada</string>
     <string name="live_update_loading">Cargando cambios…</string>
+    <string name="live_update_reload">Historia actualizada — recarga para aplicar</string>
 
     <!-- Choices box -->
     <string name="game_choices_title">Tu elección:</string>

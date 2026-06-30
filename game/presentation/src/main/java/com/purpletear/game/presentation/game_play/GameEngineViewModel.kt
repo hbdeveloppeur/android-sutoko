@@ -73,6 +73,10 @@ class GameEngineViewModel @Inject constructor(
 
     private var pendingChapterCode: String? = null
 
+    private var lastPlayRequestCount = 0
+    private var lastGraphVersion = 0
+    private var hasStartedGame = false
+
     private val _uiState = MutableStateFlow(GameUiState())
     val uiState: StateFlow<GameUiState> = _uiState.asStateFlow()
 
@@ -206,7 +210,6 @@ class GameEngineViewModel @Inject constructor(
 
         viewModelScope.launch {
             var lastLoggedError: String? = null
-            var lastPlayRequestCount = 0
             storyTestingCoordinator.state.collect { testingState ->
                 val status = when {
                     !testingState.isActive -> null
@@ -229,10 +232,34 @@ class GameEngineViewModel @Inject constructor(
 
                 val graph = testingState.currentGraph
                 val targetNodeId = testingState.targetNodeId
+
+                // Explicit author request: always restart from the requested node.
                 if (graph != null && targetNodeId != null && testingState.playRequestCount != lastPlayRequestCount) {
-                    StoryTestingLogger.i("NAV") { "Test mode starting game — ${graph.chapterCode} → $targetNodeId" }
+                    StoryTestingLogger.i("NAV") { "Test mode explicit play — ${graph.chapterCode} → $targetNodeId" }
                     lastPlayRequestCount = testingState.playRequestCount
+                    lastGraphVersion = testingState.graphVersion
+                    updateState { it.copy(hasPendingStoryUpdate = false) }
+                    hasStartedGame = true
                     startGame(gameId, graph, targetNodeId)
+                    return@collect
+                }
+
+                // New graph arrived. First graph auto-starts from its start node; later ones
+                // for the current chapter surface a reload banner so the author controls when
+                // to reset playback. Updates for other chapters are ignored until the author
+                // explicitly asks to play from them.
+                if (graph != null && testingState.graphVersion != lastGraphVersion) {
+                    lastGraphVersion = testingState.graphVersion
+                    if (!hasStartedGame) {
+                        StoryTestingLogger.i("NAV") { "Test mode initial start — ${graph.chapterCode} → ${graph.startNodeId}" }
+                        hasStartedGame = true
+                        startGame(gameId, graph, graph.startNodeId)
+                    } else if (graph.chapterCode == _uiState.value.chapterCode) {
+                        StoryTestingLogger.i("NAV") { "Test mode graph updated — reload available" }
+                        updateState { it.copy(hasPendingStoryUpdate = true) }
+                    } else {
+                        StoryTestingLogger.d("NAV") { "Test mode graph update ignored — ${graph.chapterCode} is not current chapter" }
+                    }
                 }
             }
         }
@@ -244,9 +271,27 @@ class GameEngineViewModel @Inject constructor(
                 updateState { it.copy(isAwaitingInput = true) }
             }
 
+            is GameEngineState.Playing -> {
+                updateState {
+                    it.copy(
+                        isAwaitingInput = false,
+                        choices = emptyList(),
+                        isChoicesRevealed = false
+                    )
+                }
+            }
+
+            is GameEngineState.Ready -> {
+                updateState {
+                    it.copy(
+                        isAwaitingInput = false,
+                        choices = emptyList(),
+                        isChoicesRevealed = false
+                    )
+                }
+            }
+
             is GameEngineState.Idle,
-            is GameEngineState.Ready,
-            is GameEngineState.Playing,
             is GameEngineState.ChapterFinished,
             is GameEngineState.Error -> {
                 updateState {
@@ -457,6 +502,22 @@ class GameEngineViewModel @Inject constructor(
 
     fun onHideChoicesClicked() {
         updateState { it.copy(isChoicesRevealed = false) }
+    }
+
+    /**
+     * Applies a graph update that arrived while the engine was already running.
+     * Playback resets and resumes from the last known node if it still exists in the new graph,
+     * otherwise from the chapter start node.
+     */
+    fun onReloadStoryUpdates() {
+        if (!_uiState.value.hasPendingStoryUpdate) return
+
+        val graph = storyTestingCoordinator.state.value.currentGraph ?: return
+        val resumeNodeId = graph.startNodeId
+
+        StoryTestingLogger.i("NAV") { "Test mode reloading — ${graph.chapterCode} → $resumeNodeId" }
+        updateState { it.copy(hasPendingStoryUpdate = false) }
+        startGame(gameId, graph, resumeNodeId)
     }
 
     private fun updateState(transform: (GameUiState) -> GameUiState) {

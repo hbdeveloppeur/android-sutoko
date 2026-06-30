@@ -55,5 +55,6 @@ internal fun NavGraphBuilder.gameScreen(
         onChoiceSelected = viewModel::onChoiceSelected,
         onRevealChoicesClicked = viewModel::onRevealChoicesClicked,
         onHideChoicesClicked = viewModel::onHideChoicesClicked,
+        onReloadStoryUpdates = viewModel::onReloadStoryUpdates,
     )
 }

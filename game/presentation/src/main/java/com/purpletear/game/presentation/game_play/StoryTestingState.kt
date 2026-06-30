@@ -27,6 +27,8 @@ enum class StoryTestingConnectionState {
  *           react to repeated requests for the same node.
  * @property pendingNodeId Most recent PLAY_FROM_NODE node not yet loaded.
  * @property currentChapterId Backend chapter UUID currently being tested.
+ * @property graphVersion Incremented each time a new [currentGraph] is loaded. The UI can compare
+ *           this value to detect a fresh graph without deep-equality checks.
  */
 @Keep
 data class StoryTestingState(
@@ -39,4 +41,5 @@ data class StoryTestingState(
     val playRequestCount: Int = 0,
     val pendingNodeId: String? = null,
     val currentChapterId: String? = null,
+    val graphVersion: Int = 0,
 )
