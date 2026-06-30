@@ -16,7 +16,12 @@ data class TestPackageManifestDto(
     val updatedAt: String,
     val nodes: List<NodeDto>,
     val edges: List<EdgeDto>,
-    val assetInventory: List<String>,
+    val assetInventory: List<AssetInventoryItemDto>,
+)
+
+@Keep
+data class AssetInventoryItemDto(
+    val uniqueFileName: String,
 )
 
 /**

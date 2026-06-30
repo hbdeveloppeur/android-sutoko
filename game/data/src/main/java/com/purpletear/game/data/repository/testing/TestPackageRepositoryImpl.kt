@@ -96,7 +96,7 @@ class TestPackageRepositoryImpl @Inject constructor(
                 chapterId = dto.chapterId,
                 storyId = dto.storyId,
                 updatedAt = dto.updatedAt,
-                assetInventory = dto.assetInventory,
+                assetInventory = dto.assetInventory.map { it.uniqueFileName },
                 extractedDirectory = extractedDirectory,
             )
         }.onFailure { error ->

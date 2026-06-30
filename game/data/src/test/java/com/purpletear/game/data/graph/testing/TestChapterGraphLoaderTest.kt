@@ -4,6 +4,7 @@ import com.google.gson.Gson
 import com.google.gson.JsonObject
 import com.purpletear.game.data.file.testing.TestAssetCacheManager
 import com.purpletear.game.data.provider.AndroidGamePathProvider
+import com.purpletear.game.data.remote.testing.dto.AssetInventoryItemDto
 import com.purpletear.game.data.remote.testing.dto.TestPackageManifestDto
 import com.purpletear.sutoko.game.model.chapter.Node
 import org.junit.Assert.assertEquals
@@ -49,8 +50,9 @@ class TestChapterGraphLoaderTest {
 
         File(extractDir, "manifest.json").writeText(gson.toJson(manifest))
 
-        val assetCacheManager = TestAssetCacheManager(FakeAndroidGamePathProvider(tempFolder.root))
-        val loader = TestChapterGraphLoader(assetCacheManager)
+        val pathProvider = FakeAndroidGamePathProvider(tempFolder.root)
+        val assetCacheManager = TestAssetCacheManager(pathProvider)
+        val loader = TestChapterGraphLoader(assetCacheManager, pathProvider)
 
         val graph = loader.load(extractDir.absolutePath, gameId = "game1")
 
@@ -93,8 +95,9 @@ class TestChapterGraphLoaderTest {
 
         File(extractDir, "manifest.json").writeText(gson.toJson(listOf(manifest)))
 
-        val assetCacheManager = TestAssetCacheManager(FakeAndroidGamePathProvider(tempFolder.root))
-        val loader = TestChapterGraphLoader(assetCacheManager)
+        val pathProvider = FakeAndroidGamePathProvider(tempFolder.root)
+        val assetCacheManager = TestAssetCacheManager(pathProvider)
+        val loader = TestChapterGraphLoader(assetCacheManager, pathProvider)
 
         val graph = loader.load(extractDir.absolutePath, gameId = "game1")
         assertEquals("chapter-array", graph.chapterCode)
@@ -102,12 +105,13 @@ class TestChapterGraphLoaderTest {
     }
 
     @Test
-    fun `resolves message-image asset paths from cache`() {
+    fun `resolves message-image asset paths from test cache as absolute path`() {
         val extractDir = tempFolder.newFolder("extracted")
         val rootDir = tempFolder.root
         val gameDir = File(rootDir, "games/game1").apply { mkdirs() }
-        val assetsDir = File(gameDir, "test-assets").apply { mkdirs() }
-        File(assetsDir, "cached-image.png").writeText("png")
+        // copyAssets flattens files from the ZIP's assets/ directory into test-assets/.
+        val testAssetsDir = File(gameDir, "test-assets").apply { mkdirs() }
+        File(testAssetsDir, "cached-image.png").writeText("png")
 
         val manifest = TestPackageManifestDto(
             seed = 1,
@@ -127,19 +131,68 @@ class TestChapterGraphLoaderTest {
                 edgeDto("start-0", "image-1"),
                 edgeDto("image-1", "end-2")
             ),
-            assetInventory = listOf("assets/cached-image.png")
+            assetInventory = listOf(AssetInventoryItemDto("assets/cached-image.png"))
         )
 
         File(extractDir, "manifest.json").writeText(gson.toJson(manifest))
 
-        val assetCacheManager = TestAssetCacheManager(FakeAndroidGamePathProvider(rootDir))
-        val loader = TestChapterGraphLoader(assetCacheManager)
+        val pathProvider = FakeAndroidGamePathProvider(rootDir)
+        val assetCacheManager = TestAssetCacheManager(pathProvider)
+        val loader = TestChapterGraphLoader(assetCacheManager, pathProvider)
 
         val graph = loader.load(extractDir.absolutePath, gameId = "game1")
         val imageNode = graph.getNode("image-1") as? Node.MessageImage
 
         assertNotNull(imageNode)
-        assertEquals("assets/cached-image.png", imageNode?.imageUrl)
+        assertEquals(
+            File(testAssetsDir, "cached-image.png").absolutePath,
+            imageNode?.imageUrl
+        )
+    }
+
+    @Test
+    fun `falls back to installed story assets when test cache misses`() {
+        val extractDir = tempFolder.newFolder("extracted")
+        val rootDir = tempFolder.root
+        val gameDir = File(rootDir, "games/game1").apply { mkdirs() }
+        val originalAssetsDir = File(gameDir, "assets").apply { mkdirs() }
+        File(originalAssetsDir, "delta-only.webp").writeText("webp")
+
+        val manifest = TestPackageManifestDto(
+            seed = 1,
+            chapterId = "chapter-1",
+            storyId = "story-1",
+            updatedAt = "2024-01-01T00:00:00Z",
+            nodes = listOf(
+                nodeDto("start-0", "start"),
+                nodeDto(
+                    "image-1",
+                    "message-image",
+                    storagePath = "assets/delta-only.webp"
+                ),
+                nodeDto("end-2", "end")
+            ),
+            edges = listOf(
+                edgeDto("start-0", "image-1"),
+                edgeDto("image-1", "end-2")
+            ),
+            assetInventory = listOf(AssetInventoryItemDto("assets/delta-only.webp"))
+        )
+
+        File(extractDir, "manifest.json").writeText(gson.toJson(manifest))
+
+        val pathProvider = FakeAndroidGamePathProvider(rootDir)
+        val assetCacheManager = TestAssetCacheManager(pathProvider)
+        val loader = TestChapterGraphLoader(assetCacheManager, pathProvider)
+
+        val graph = loader.load(extractDir.absolutePath, gameId = "game1")
+        val imageNode = graph.getNode("image-1") as? Node.MessageImage
+
+        assertNotNull(imageNode)
+        assertEquals(
+            File(originalAssetsDir, "delta-only.webp").absolutePath,
+            imageNode?.imageUrl
+        )
     }
 
     private fun nodeDto(

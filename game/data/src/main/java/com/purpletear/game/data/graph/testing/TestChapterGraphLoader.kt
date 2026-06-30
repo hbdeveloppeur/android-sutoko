@@ -3,6 +3,7 @@ package com.purpletear.game.data.graph.testing
 import com.google.gson.Gson
 import com.purpletear.game.data.file.testing.TestAssetCacheManager
 import com.purpletear.game.data.local.dto.EdgeDto
+import com.purpletear.game.data.provider.AndroidGamePathProvider
 import com.purpletear.game.data.local.dto.NodeDataDto
 import com.purpletear.game.data.local.dto.NodeDto
 import com.purpletear.game.data.remote.testing.dto.TestPackageManifestDto
@@ -20,6 +21,7 @@ import javax.inject.Singleton
 @Singleton
 class TestChapterGraphLoader @Inject constructor(
     private val assetCacheManager: TestAssetCacheManager,
+    private val pathProvider: AndroidGamePathProvider,
 ) {
 
     private val gson = Gson()
@@ -39,7 +41,7 @@ class TestChapterGraphLoader @Inject constructor(
         val manifest = gson.parseManifest(manifestFile.readText())
         StoryTestingLogger.d("GRPH") { "Loading graph — ${manifest.chapterId} seed ${manifest.seed}, ${manifest.nodes.size} raw nodes" }
 
-        val assetLookup = buildAssetLookup(gameId, manifest.assetInventory)
+        val assetLookup = buildAssetLookup(gameId, manifest.assetInventory.map { it.uniqueFileName })
 
         val (compactedNodes, compactedEdges) = compactIgnoreNodes(manifest.nodes, manifest.edges)
         val nodes = compactedNodes
@@ -66,13 +68,51 @@ class TestChapterGraphLoader @Inject constructor(
     private fun buildAssetLookup(gameId: String, assetInventory: List<String>): Map<String, String> {
         val cacheDir = assetCacheManager.getCacheDirectory(gameId)
         val cachedAssets = assetCacheManager.listCachedAssets(gameId)
+        val originalAssetsDir = File(
+            pathProvider.getGameDirectory(gameId, legacyId = null),
+            ORIGINAL_ASSETS_DIR
+        )
 
-        return assetInventory.associateBy { uniqueFileName ->
-            val fileName = File(uniqueFileName).name
-            // Prefer a cached file that exactly matches the uniqueFileName.
-            val exactCached = cachedAssets.find { it == uniqueFileName }
-            exactCached ?: fileName
+        val lookup = mutableMapOf<String, String>()
+        assetInventory.forEach { uniqueFileName ->
+            val absolutePath = resolveAbsoluteAssetPath(
+                uniqueFileName = uniqueFileName,
+                cachedAssets = cachedAssets,
+                cacheDir = cacheDir,
+                originalAssetsDir = originalAssetsDir
+            ) ?: return@forEach
+
+            lookup[uniqueFileName] = absolutePath
+            lookup[File(uniqueFileName).name] = absolutePath
         }
+        return lookup
+    }
+
+    private fun resolveAbsoluteAssetPath(
+        uniqueFileName: String,
+        cachedAssets: List<String>,
+        cacheDir: File,
+        originalAssetsDir: File
+    ): String? {
+        val fileName = File(uniqueFileName).name
+
+        // 1. Prefer an exact cached match (preserves any subdirectory structure).
+        cachedAssets.find { it == uniqueFileName }?.let {
+            return File(cacheDir, it).absolutePath
+        }
+
+        // 2. Fall back to a cached file with the same file name.
+        cachedAssets.find { File(it).name == fileName }?.let {
+            return File(cacheDir, it).absolutePath
+        }
+
+        // 3. Delta packages omit unchanged assets; fall back to the installed story assets.
+        val originalFile = File(originalAssetsDir, fileName)
+        if (originalFile.exists()) {
+            return originalFile.absolutePath
+        }
+
+        return null
     }
 
     private fun parseNode(dto: NodeDto, assetLookup: Map<String, String>): Node? {
@@ -279,5 +319,6 @@ class TestChapterGraphLoader @Inject constructor(
 
     private companion object {
         const val MANIFEST_FILE = "manifest.json"
+        const val ORIGINAL_ASSETS_DIR = "assets"
     }
 }
