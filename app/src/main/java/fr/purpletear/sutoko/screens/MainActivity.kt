@@ -6,6 +6,7 @@ import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import android.os.Parcelable
+import android.os.Trace
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -29,6 +30,7 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import kotlinx.coroutines.Dispatchers
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -471,7 +473,11 @@ class MainActivity @Inject constructor(
 
         // saveSymbols
         val saveSymbolsObserver = Observer<TableOfSymbols> { symbols ->
-            symbols.save(this)
+            lifecycleScope.launch(Dispatchers.IO) {
+                Trace.beginSection("MainActivity.saveSymbols")
+                symbols.save(this@MainActivity)
+                Trace.endSection()
+            }
         }
         viewModel.saveSymbols.observe(this, saveSymbolsObserver)
 

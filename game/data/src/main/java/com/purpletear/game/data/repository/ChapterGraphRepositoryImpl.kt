@@ -1,5 +1,6 @@
 package com.purpletear.game.data.repository
 
+import android.os.Trace
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.purpletear.game.data.local.dao.ChapterDao
@@ -12,9 +13,11 @@ import com.purpletear.sutoko.game.model.chapter.ChapterGraph
 import com.purpletear.sutoko.game.repository.ChapterGraphRepository
 import com.purpletear.sutoko.game.repository.game.GameRepository
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOn
 import java.io.File
 import javax.inject.Inject
 
@@ -31,6 +34,7 @@ class ChapterGraphRepositoryImpl @Inject constructor(
         chapterCode: String,
         language: String
     ): Flow<Result<ChapterGraph>> = flow {
+        Trace.beginSection("ChapterGraphRepositoryImpl.loadChapterGraph")
         try {
             val legacyId = gameRepository.observeGame(gameId).firstOrNull()?.legacyId
             val gameDir = pathProvider.getGameDirectory(gameId, legacyId)
@@ -85,6 +89,8 @@ class ChapterGraphRepositoryImpl @Inject constructor(
             emit(Result.failure(
                 IllegalStateException("Failed to load chapter $chapterCode: ${e.message}", e)
             ))
+        } finally {
+            Trace.endSection()
         }
-    }
+    }.flowOn(Dispatchers.IO)
 }

@@ -2,6 +2,7 @@ package com.purpletear.game.presentation.game_play
 
 import android.content.Context
 import android.media.MediaPlayer
+import android.os.Trace
 import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
@@ -77,32 +78,37 @@ class GameEngineViewModel @Inject constructor(
     val uiState: StateFlow<GameUiState> = _uiState.asStateFlow()
 
     init {
+        Trace.beginSection("GameEngineViewModel.init")
         viewModelScope.launch {
-            gameEngine.reset()
+            try {
+                gameEngine.reset()
 
-            val preloadScenes = launch {
-                sceneRepository.preload(gameId)
-            }
-            val preloadCharacters = launch {
-                characterRepository.preload(gameId)
-            }
+                val preloadScenes = launch {
+                    sceneRepository.preload(gameId)
+                }
+                val preloadCharacters = launch {
+                    characterRepository.preload(gameId)
+                }
 
-            launch { gameEngine.state.collect { updateUiStateFromEngine(it) } }
-            launch { gameEngine.messages.collect { updateMessages(it) } }
-            launch { gameEngine.effects.collect { handleEffect(it) } }
+                launch { gameEngine.state.collect { updateUiStateFromEngine(it) } }
+                launch { gameEngine.messages.collect { updateMessages(it) } }
+                launch { gameEngine.effects.collect { handleEffect(it) } }
 
-            if (isTestMode) {
-                observeStoryTestingState()
-            } else {
-                loadChapterGraphAndStartGame(gameId, chapterCode)
-            }
+                if (isTestMode) {
+                    observeStoryTestingState()
+                } else {
+                    loadChapterGraphAndStartGame(gameId, chapterCode)
+                }
 
-            preloadScenes.join()
-            preloadCharacters.join()
+                preloadScenes.join()
+                preloadCharacters.join()
 
-            val characters = characterRepository.getAll().associateBy { it.id }
-            updateState {
-                it.copy(characters = characters)
+                val characters = characterRepository.getAll().associateBy { it.id }
+                updateState {
+                    it.copy(characters = characters)
+                }
+            } finally {
+                Trace.endSection()
             }
         }
     }
@@ -311,6 +317,7 @@ class GameEngineViewModel @Inject constructor(
     }
 
     override fun onCleared() {
+        Trace.beginSection("GameEngineViewModel.onCleared")
         typingPlayer?.release()
         typingPlayer = null
         soundPlayer?.release()
@@ -318,6 +325,7 @@ class GameEngineViewModel @Inject constructor(
         vocalPlayer?.release()
         vocalPlayer = null
         vocalProgressJob?.cancel()
+        Trace.endSection()
         super.onCleared()
     }
 

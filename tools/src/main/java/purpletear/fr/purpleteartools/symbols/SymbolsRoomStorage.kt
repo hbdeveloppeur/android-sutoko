@@ -1,5 +1,6 @@
 package purpletear.fr.purpleteartools.symbols
 
+import android.os.Trace
 import android.util.Log
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
@@ -18,6 +19,7 @@ class SymbolsRoomStorage(
     private val gson = Gson()
 
     override fun load(): TableOfSymbols? {
+        Trace.beginSection("SymbolsRoomStorage.load")
         migrateLegacyFileIfNeeded()
 
         return try {
@@ -42,10 +44,13 @@ class SymbolsRoomStorage(
         } catch (e: Exception) {
             Log.e(TAG, "Failed to load symbols from Room", e)
             null
+        } finally {
+            Trace.endSection()
         }
     }
 
     override fun save(table: TableOfSymbols): Boolean {
+        Trace.beginSection("SymbolsRoomStorage.save")
         return try {
             database.runInTransaction {
                 dao.clearAllSymbols()
@@ -74,6 +79,8 @@ class SymbolsRoomStorage(
         } catch (e: Exception) {
             Log.e(TAG, "Failed to save symbols to Room", e)
             false
+        } finally {
+            Trace.endSection()
         }
     }
 

@@ -41,15 +41,11 @@ class UserRepositoryImpl @Inject constructor(
             return Result.failure(IllegalArgumentException("id and token must not be blank"))
         }
         return try {
-            val success = prefs.edit()
+            prefs.edit()
                 .putString(KEY_ID, id)
                 .putString(KEY_TOKEN, token)
-                .commit()
-            if (success) {
-                Result.success(Unit)
-            } else {
-                Result.failure(IllegalStateException("Failed to persist user"))
-            }
+                .apply()
+            Result.success(Unit)
         } catch (e: CancellationException) {
             throw e
         } catch (e: Exception) {
@@ -59,15 +55,11 @@ class UserRepositoryImpl @Inject constructor(
 
     override suspend fun disconnect(): Result<Unit> {
         return try {
-            val success = prefs.edit()
+            prefs.edit()
                 .remove(KEY_ID)
                 .remove(KEY_TOKEN)
-                .commit()
-            if (success) {
-                Result.success(Unit)
-            } else {
-                Result.failure(IllegalStateException("Failed to clear user"))
-            }
+                .apply()
+            Result.success(Unit)
         } catch (e: CancellationException) {
             throw e
         } catch (e: Exception) {

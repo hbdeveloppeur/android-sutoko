@@ -3,6 +3,7 @@ package com.purpletear.game.presentation.game_play
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
+import android.os.Trace
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -37,6 +38,7 @@ class SmsGameActivity : ComponentActivity() {
     private var storyId: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        Trace.beginSection("SmsGameActivity.onCreate")
         super.onCreate(savedInstanceState)
 
         val args = extractArgs()
@@ -154,13 +156,16 @@ class SmsGameActivity : ComponentActivity() {
         }
 
         viewModel.initialize(gameId)
+        Trace.endSection()
     }
 
     override fun onDestroy() {
+        Trace.beginSection("SmsGameActivity.onDestroy")
         super.onDestroy()
         if (isTestMode) {
             storyTestingCoordinator.stopTesting()
         }
+        Trace.endSection()
     }
 
     private fun extractArgs(): SmsGameActivityArgs {

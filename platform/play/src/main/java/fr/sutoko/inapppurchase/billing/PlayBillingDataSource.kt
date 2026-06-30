@@ -1,6 +1,7 @@
 package fr.sutoko.inapppurchase.billing
 
 import android.app.Activity
+import android.os.Trace
 import com.android.billingclient.api.AcknowledgePurchaseParams
 import com.android.billingclient.api.BillingClient
 import com.android.billingclient.api.BillingClientStateListener
@@ -30,7 +31,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -109,12 +109,25 @@ internal class PlayBillingDataSource @Inject constructor(
         }
     }
 
-    private val billingClientWrapper: BillingClientWrapper
+    @Volatile
+    private var billingClientWrapper: BillingClientWrapper? = null
 
-    init {
-        // Play BillingClient should be created on the main thread.
-        billingClientWrapper = runBlocking(Dispatchers.Main.immediate) {
-            wrapperFactory.create(purchasesListener)
+    private val initMutex = Mutex()
+
+    private suspend fun billingClient(): BillingClientWrapper {
+        billingClientWrapper?.let { return it }
+
+        return initMutex.withLock {
+            billingClientWrapper?.let { return@withLock it }
+
+            Trace.beginSection("PlayBillingDataSource.createBillingClient")
+            val wrapper = withContext(Dispatchers.Main.immediate) {
+                wrapperFactory.create(purchasesListener)
+            }
+            Trace.endSection()
+
+            billingClientWrapper = wrapper
+            wrapper
         }
     }
 
@@ -210,7 +223,7 @@ internal class PlayBillingDataSource @Inject constructor(
                         .setDebugMessage("No available foreground Activity for purchase flow")
                         .build()
                 }
-                billingClientWrapper.launchBillingFlow(
+                billingClient().launchBillingFlow(
                     activity,
                     flowParamsBuilder.build()
                 )
@@ -333,7 +346,7 @@ internal class PlayBillingDataSource @Inject constructor(
 
         applicationScope.cancel()
         _connectionState.value = false
-        billingClientWrapper.endConnection()
+        billingClientWrapper?.endConnection()
     }
 
     private suspend fun processPurchaseSafely(
@@ -504,10 +517,12 @@ internal class PlayBillingDataSource @Inject constructor(
             )
             .build()
 
+        val client = billingClient()
+
         suspendCancellableCoroutine { continuation ->
             val resumeOnce = continuation.singleShotResume()
 
-            billingClientWrapper.queryProductDetailsAsync(params) { result, queryResult ->
+            client.queryProductDetailsAsync(params) { result, queryResult ->
                 if (result.responseCode == BillingClient.BillingResponseCode.OK) {
                     val productById = products.associateBy { it.sku }
                     resumeOnce(
@@ -561,10 +576,12 @@ internal class PlayBillingDataSource @Inject constructor(
             .setProductType(productType)
             .build()
 
+        val client = billingClient()
+
         suspendCancellableCoroutine { continuation ->
             val resumeOnce = continuation.singleShotResume()
 
-            billingClientWrapper.queryPurchasesAsync(params) { result, purchases ->
+            client.queryPurchasesAsync(params) { result, purchases ->
                 if (result.responseCode == BillingClient.BillingResponseCode.OK) {
                     resumeOnce(Result.success(purchases))
                 } else {
@@ -590,10 +607,12 @@ internal class PlayBillingDataSource @Inject constructor(
             .setPurchaseToken(token)
             .build()
 
+        val client = billingClient()
+
         suspendCancellableCoroutine { continuation ->
             val resumeOnce = continuation.singleShotResume()
 
-            billingClientWrapper.acknowledgePurchase(params) { result ->
+            client.acknowledgePurchase(params) { result ->
                 if (result.responseCode == BillingClient.BillingResponseCode.OK) {
                     resumeOnce(Result.success(Unit))
                 } else {
@@ -619,10 +638,12 @@ internal class PlayBillingDataSource @Inject constructor(
             .setPurchaseToken(token)
             .build()
 
+        val client = billingClient()
+
         suspendCancellableCoroutine { continuation ->
             val resumeOnce = continuation.singleShotResume()
 
-            billingClientWrapper.consumeAsync(params) { result, _ ->
+            client.consumeAsync(params) { result, _ ->
                 if (result.responseCode == BillingClient.BillingResponseCode.OK) {
                     resumeOnce(Result.success(Unit))
                 } else {
@@ -640,7 +661,9 @@ internal class PlayBillingDataSource @Inject constructor(
     }
 
     private suspend fun ensureConnected() {
-        if (billingClientWrapper.isReady) {
+        val client = billingClient()
+
+        if (client.isReady) {
             _connectionState.value = true
             return
         }
@@ -648,7 +671,7 @@ internal class PlayBillingDataSource @Inject constructor(
         val result = suspendCancellableCoroutine { continuation ->
             val resumeOnce = continuation.singleShotResume()
 
-            billingClientWrapper.startConnection(
+            client.startConnection(
                 object : BillingClientStateListener {
                     override fun onBillingSetupFinished(result: BillingResult) {
                         if (result.responseCode == BillingClient.BillingResponseCode.OK) {

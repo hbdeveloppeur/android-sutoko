@@ -4,6 +4,8 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
 import android.os.Build
+import android.os.StrictMode
+import android.os.Trace
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ProcessLifecycleOwner
@@ -66,6 +68,10 @@ class Application : MultiDexApplication(), DefaultLifecycleObserver {
     override fun onCreate() {
         super<MultiDexApplication>.onCreate()
 
+        if (BuildConfig.DEBUG) {
+            enableStrictMode()
+        }
+
         registerActivityLifecycleCallbacks(currentActivityProvider)
 
         val processLifecycleOwner = ProcessLifecycleOwner.get()
@@ -109,10 +115,12 @@ class Application : MultiDexApplication(), DefaultLifecycleObserver {
 
         createNotificationChannel()
 
-        val settings = FirebaseFirestoreSettings.Builder()
-            .setPersistenceEnabled(true)
-            .build()
-        FirebaseFirestore.getInstance().firestoreSettings = settings
+        appSyncScope.launch {
+            val settings = FirebaseFirestoreSettings.Builder()
+                .setPersistenceEnabled(true)
+                .build()
+            FirebaseFirestore.getInstance().firestoreSettings = settings
+        }
 
         val config: PRDownloaderConfig = PRDownloaderConfig.newBuilder()
             .setReadTimeout(30000)
@@ -135,6 +143,25 @@ class Application : MultiDexApplication(), DefaultLifecycleObserver {
         }
     }
 
+
+    private fun enableStrictMode() {
+        StrictMode.setThreadPolicy(
+            StrictMode.ThreadPolicy.Builder()
+                .detectDiskReads()
+                .detectDiskWrites()
+                .detectNetwork()
+                .detectResourceMismatches()
+                .penaltyLog()
+                .build()
+        )
+        StrictMode.setVmPolicy(
+            StrictMode.VmPolicy.Builder()
+                .detectLeakedSqlLiteObjects()
+                .detectLeakedClosableObjects()
+                .penaltyLog()
+                .build()
+        )
+    }
 
     private fun createNotificationChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {

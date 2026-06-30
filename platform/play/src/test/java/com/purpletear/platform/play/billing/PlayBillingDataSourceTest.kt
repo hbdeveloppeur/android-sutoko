@@ -365,6 +365,14 @@ internal class PlayBillingDataSourceTest {
     @Test
     fun `purchaseUpdates emits redelivered purchase without pending flow`() =
         runTest(dispatcher) {
+            // Lazy billing client: initialize the wrapper so the purchases listener is wired.
+            wrapper.queryPurchasesAnswers[BillingClient.ProductType.INAPP] =
+                okResult() to emptyList()
+            wrapper.queryPurchasesAnswers[BillingClient.ProductType.SUBS] =
+                okResult() to emptyList()
+            dataSource.reconcilePurchases()
+            advanceUntilIdle()
+
             val emitted = mutableListOf<List<PurchaseResult>>()
             val received = CompletableDeferred<Unit>()
             backgroundScope.launch {
