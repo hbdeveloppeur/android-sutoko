@@ -6,6 +6,7 @@ import android.content.Context
 import android.os.Build
 import android.os.StrictMode
 import android.os.Trace
+import android.util.Log
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ProcessLifecycleOwner
@@ -32,8 +33,11 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
+import java.util.concurrent.Executors
 import javax.inject.Inject
 
+
+private const val STRICT_MODE_TAG = "StrictMode"
 
 @HiltAndroidApp
 class Application : MultiDexApplication(), DefaultLifecycleObserver {
@@ -145,15 +149,24 @@ class Application : MultiDexApplication(), DefaultLifecycleObserver {
 
 
     private fun enableStrictMode() {
-        StrictMode.setThreadPolicy(
-            StrictMode.ThreadPolicy.Builder()
-                .detectDiskReads()
-                .detectDiskWrites()
-                .detectNetwork()
-                .detectResourceMismatches()
-                .penaltyLog()
-                .build()
-        )
+        val threadPolicyBuilder = StrictMode.ThreadPolicy.Builder()
+            .detectDiskReads()
+            .detectDiskWrites()
+            .detectNetwork()
+            .detectResourceMismatches()
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            threadPolicyBuilder.penaltyListener(Executors.newSingleThreadExecutor()) { violation ->
+                if (violation.stackTrace.any { it.className.startsWithVendorPrefix() }) {
+                    return@penaltyListener
+                }
+                Log.w(STRICT_MODE_TAG, "Thread policy violation", violation)
+            }
+        } else {
+            threadPolicyBuilder.penaltyLog()
+        }
+
+        StrictMode.setThreadPolicy(threadPolicyBuilder.build())
         StrictMode.setVmPolicy(
             StrictMode.VmPolicy.Builder()
                 .detectLeakedSqlLiteObjects()
@@ -161,6 +174,13 @@ class Application : MultiDexApplication(), DefaultLifecycleObserver {
                 .penaltyLog()
                 .build()
         )
+    }
+
+    private fun String.startsWithVendorPrefix(): Boolean {
+        return startsWith("com.oplus.") ||
+            startsWith("com.coloros.") ||
+            startsWith("com.heytap.") ||
+            startsWith("com.oneplus.")
     }
 
     private fun createNotificationChannel() {
