@@ -11,10 +11,14 @@ import com.purpletear.sutoko.game.model.testing.TestPackageManifest
 import com.purpletear.sutoko.game.repository.testing.TestPackageRepository
 import com.purpletear.sutoko.game.testing.StoryTestingLogger
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import java.io.File
+import java.io.InputStream
+import java.io.OutputStream
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -38,22 +42,32 @@ class TestPackageRepositoryImpl @Inject constructor(
         StoryTestingLogger.d("PKG") { "Download package — $chapterId seed $seed from $packageUrl" }
         runCatching {
             val gameDir = pathProvider.getGameDirectory(gameId = gameId, legacyId = null)
-            val tempDir = File(gameDir, "test-session/.tmp/$chapterId/$seed")
-            tempDir.mkdirs()
+            require(gameDir.exists() || gameDir.mkdirs()) {
+                "Failed to create game directory: $gameDir"
+            }
+
+            val downloadId = System.currentTimeMillis().toString()
+            val tempDir = File(gameDir, "test-session/.tmp/$chapterId/$seed/$downloadId")
+            require(tempDir.mkdirs()) {
+                "Failed to create temp directory: $tempDir"
+            }
 
             val archiveFile = File(tempDir, "package.zip")
-            val resolvedUrl = resolvePackageUrl(packageUrl)
-            downloadToFile(resolvedUrl, archiveFile)
-
             val extractDir = File(gameDir, "test-session/$chapterId/$seed")
-            extractDir.mkdirs()
-            extractor.extract(archiveFile, extractDir)
+            val resolvedUrl = resolvePackageUrl(packageUrl)
 
-            archiveFile.delete()
-            tempDir.deleteRecursively()
+            try {
+                downloadToFile(resolvedUrl, archiveFile)
 
-            StoryTestingLogger.d("PKG") { "Package extracted — $extractDir" }
-            extractDir.absolutePath
+                extractDir.mkdirs()
+                extractor.extract(archiveFile, extractDir)
+
+                StoryTestingLogger.d("PKG") { "Package extracted — $extractDir" }
+                extractDir.absolutePath
+            } finally {
+                archiveFile.delete()
+                tempDir.deleteRecursively()
+            }
         }.onFailure { error ->
             StoryTestingLogger.e(
                 "PKG",
@@ -93,28 +107,40 @@ class TestPackageRepositoryImpl @Inject constructor(
         }
     }
 
-    private suspend fun downloadToFile(url: String, destination: File) =
-        withContext(Dispatchers.IO) {
-            val request = Request.Builder()
-                .url(url)
-                .header("Cache-Control", "no-cache")
-                .build()
+    private suspend fun downloadToFile(url: String, destination: File) {
+        val request = Request.Builder()
+            .url(url)
+            .header("Cache-Control", "no-cache")
+            .build()
 
-            StoryTestingLogger.d("PKG") { "Downloading $url" }
-            client.newCall(request).execute().use { response ->
-                if (!response.isSuccessful) {
-                    throw TestPackageException("Download failed: HTTP ${response.code}")
-                }
-                val body = response.body ?: throw TestPackageException("Empty response body")
-                val contentLength = body.contentLength()
-                body.byteStream().use { input ->
-                    destination.outputStream().use { output ->
-                        val bytes = input.copyTo(output)
-                        StoryTestingLogger.d("PKG") { "Downloaded $bytes bytes (declared=$contentLength)" }
-                    }
+        StoryTestingLogger.d("PKG") { "Downloading $url" }
+        client.newCall(request).execute().use { response ->
+            if (!response.isSuccessful) {
+                throw TestPackageException("Download failed: HTTP ${response.code}")
+            }
+            val body = response.body ?: throw TestPackageException("Empty response body")
+            val contentLength = body.contentLength()
+            body.byteStream().use { input ->
+                destination.outputStream().use { output ->
+                    val bytes = copyCancellable(input, output)
+                    StoryTestingLogger.d("PKG") { "Downloaded $bytes bytes (declared=$contentLength)" }
                 }
             }
         }
+    }
+
+    private suspend fun copyCancellable(input: InputStream, output: OutputStream): Long {
+        val buffer = ByteArray(DEFAULT_BUFFER_SIZE)
+        var total = 0L
+        while (true) {
+            currentCoroutineContext().ensureActive()
+            val read = input.read(buffer)
+            if (read == -1) break
+            output.write(buffer, 0, read)
+            total += read
+        }
+        return total
+    }
 
     private fun resolvePackageUrl(packageUrl: String): String {
         return if (packageUrl.startsWith("http://") || packageUrl.startsWith("https://")) {
