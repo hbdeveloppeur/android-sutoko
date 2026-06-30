@@ -162,7 +162,12 @@ class GameEngineViewModel @Inject constructor(
         }
     }
 
-    private fun startGame(gameId: String, graph: ChapterGraph, startNodeId: String? = null) {
+    private fun startGame(
+        gameId: String,
+        graph: ChapterGraph,
+        startNodeId: String? = null,
+        showLoadingOverlay: Boolean = true,
+    ) {
         resetForNewPlay()
 
         updateState {
@@ -173,20 +178,17 @@ class GameEngineViewModel @Inject constructor(
                 choices = emptyList(),
                 isChoicesRevealed = false,
                 isAwaitingInput = false,
-                isLoadingStoryUpdates = true
+                isLoadingStoryUpdates = showLoadingOverlay
             )
         }
 
-
         viewModelScope.launch {
-            delay(1000)
-
-            updateState {
-                it.copy(
-                    isLoadingStoryUpdates = false
-                )
+            if (showLoadingOverlay) {
+                delay(1000)
+                updateState { it.copy(isLoadingStoryUpdates = false) }
+                delay(280)
             }
-            delay(280)
+
             gameEngine.initialize(gameId, graph)
 
             val debugStartNode = debugStartNodeFor(graph.chapterCode)
@@ -240,20 +242,21 @@ class GameEngineViewModel @Inject constructor(
                     lastGraphVersion = testingState.graphVersion
                     updateState { it.copy(hasPendingStoryUpdate = false) }
                     hasStartedGame = true
-                    startGame(gameId, graph, targetNodeId)
+                    startGame(gameId, graph, targetNodeId, showLoadingOverlay = false)
                     return@collect
                 }
 
-                // New graph arrived. First graph auto-starts from its start node; later ones
-                // for the current chapter surface a reload banner so the author controls when
-                // to reset playback. Updates for other chapters are ignored until the author
-                // explicitly asks to play from them.
                 if (graph != null && testingState.graphVersion != lastGraphVersion) {
                     lastGraphVersion = testingState.graphVersion
                     if (!hasStartedGame) {
+                        val initialChapterId = testingState.initialChapterId
+                        if (initialChapterId != null && graph.chapterCode != initialChapterId) {
+                            StoryTestingLogger.d("NAV") { "Test mode initial start skipped — ${graph.chapterCode} is not the initial chapter $initialChapterId" }
+                            return@collect
+                        }
                         StoryTestingLogger.i("NAV") { "Test mode initial start — ${graph.chapterCode} → ${graph.startNodeId}" }
                         hasStartedGame = true
-                        startGame(gameId, graph, graph.startNodeId)
+                        startGame(gameId, graph, graph.startNodeId, showLoadingOverlay = false)
                     } else if (graph.chapterCode == _uiState.value.chapterCode) {
                         StoryTestingLogger.i("NAV") { "Test mode graph updated — reload available" }
                         updateState { it.copy(hasPendingStoryUpdate = true) }
@@ -517,7 +520,7 @@ class GameEngineViewModel @Inject constructor(
 
         StoryTestingLogger.i("NAV") { "Test mode reloading — ${graph.chapterCode} → $resumeNodeId" }
         updateState { it.copy(hasPendingStoryUpdate = false) }
-        startGame(gameId, graph, resumeNodeId)
+        startGame(gameId, graph, resumeNodeId, showLoadingOverlay = false)
     }
 
     private fun updateState(transform: (GameUiState) -> GameUiState) {

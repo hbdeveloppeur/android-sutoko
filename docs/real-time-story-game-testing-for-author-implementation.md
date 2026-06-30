@@ -284,7 +284,26 @@ resolves it to the chapter UUID before broadcasting the event.
 
 ---
 
-## 11. Reconnection and error handling
+## 11. Initial chapter selection
+
+When a test session starts, the phone receives multiple chapters in `chapterSeeds`. The phone must
+pick one chapter to start from.
+
+Resolution order:
+
+1. **Last-tested chapter (client memory):** the phone persists the chapter UUID from the most recent
+   `PLAY_FROM_NODE` event, keyed by `storyId`. If that chapter is still in `chapterSeeds`, start there.
+2. **Highest seed:** if no last-tested chapter is known, or it is no longer in `chapterSeeds`, start
+   from the chapter with the highest seed. This is a pragmatic proxy for "most recently published".
+3. **First chapter:** final fallback, use the first chapter in the order supplied by the backend.
+
+The phone downloads all out-of-date chapters, but it does **not** publish a different chapter as the
+current graph until the chosen initial chapter has been loaded. This prevents a faster download for
+an unrelated chapter from hijacking the start.
+
+---
+
+## 12. Reconnection and error handling
 
 - **Network drop:** close the old SSE connection and reconnect with `Last-Event-ID`.
 - **`Last-Event-ID` too old:** the server sends `CONNECTED` with `chapterSeeds`; sync any stale chapters.
@@ -301,7 +320,7 @@ default). The phone must reconnect when the stream ends.
 
 ---
 
-## 12. End-to-end flow example
+## 13. End-to-end flow example
 
 1. Phone `POST /test-session/join` → receives `{ sessionId, chapterSeeds }`.
 2. Phone `POST /test-session/{id}/inventory` → receives `{ inventoryToken }`.
@@ -314,7 +333,7 @@ default). The phone must reconnect when the stream ends.
 
 ---
 
-## 13. Quick reference
+## 14. Quick reference
 
 ### Endpoints
 

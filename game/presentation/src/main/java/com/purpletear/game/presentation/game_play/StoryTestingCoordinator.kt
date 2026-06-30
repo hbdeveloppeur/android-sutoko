@@ -11,6 +11,7 @@ import com.purpletear.sutoko.game.usecase.testing.JoinTestSessionUseCase
 import com.purpletear.sutoko.game.usecase.testing.LoadTestChapterGraphUseCase
 import com.purpletear.sutoko.game.usecase.testing.ObserveTestEventsUseCase
 import com.purpletear.sutoko.game.usecase.testing.RegisterAssetInventoryUseCase
+import com.purpletear.sutoko.game.repository.testing.LastTestedChapterRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -34,6 +35,7 @@ class StoryTestingCoordinator @Inject constructor(
     private val loadTestChapterGraph: LoadTestChapterGraphUseCase,
     private val assetCacheManager: TestAssetCacheManager,
     private val gameMemory: GameMemory,
+    private val lastTestedChapterRepository: LastTestedChapterRepository,
 ) {
 
     private val _state = MutableStateFlow(StoryTestingState())
@@ -47,6 +49,10 @@ class StoryTestingCoordinator @Inject constructor(
 
     private val localSeeds = mutableMapOf<String, Int>()
     private val activeDownloads = mutableMapOf<String, Job>()
+    private val extractedDirectories = mutableMapOf<String, String>()
+
+    private var initialChapterId: String? = null
+    private var initialGraphPublished: Boolean = false
 
     /**
      * Starts a test session for [gameId] / [storyId].
@@ -64,6 +70,10 @@ class StoryTestingCoordinator @Inject constructor(
 
         val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
         coordinatorScope = scope
+
+        initialChapterId = null
+        initialGraphPublished = false
+        extractedDirectories.clear()
 
         _state.value = StoryTestingState(
             isActive = true,
@@ -103,8 +113,11 @@ class StoryTestingCoordinator @Inject constructor(
         sessionId = null
         inventoryToken = null
         localSeeds.clear()
+        extractedDirectories.clear()
         currentGameId = null
         currentStoryId = null
+        initialChapterId = null
+        initialGraphPublished = false
 
         _state.value = StoryTestingState()
     }
@@ -123,6 +136,17 @@ class StoryTestingCoordinator @Inject constructor(
 
         gameMemory.setNamespace("test-session-${session.sessionId}")
         StoryTestingLogger.d("MEM") { "Memory namespace set to test-session-${session.sessionId}" }
+
+        val lastWorkedOnChapterId = runCatching {
+            lastTestedChapterRepository.get(storyId)
+        }.getOrElse { error ->
+            StoryTestingLogger.e("PREFS", error) { "Failed to read last-tested chapter for $storyId" }
+            null
+        }
+        StoryTestingLogger.i("SESS") { "Last-tested chapter — story=$storyId, chapter=$lastWorkedOnChapterId" }
+        _state.value = _state.value.copy(lastWorkedOnChapterId = lastWorkedOnChapterId)
+
+        syncChaptersFromSeeds(gameId, session.chapterSeeds)
 
         observeEvents(session.sessionId)
     }
@@ -178,21 +202,64 @@ class StoryTestingCoordinator @Inject constructor(
         val gameId = currentGameId ?: return
         StoryTestingLogger.i("SYNC") { "Connected — session ${event.sessionId}, seeds=${event.chapterSeeds}" }
 
-        event.chapterSeeds.forEach { (chapterId, seed) ->
-            val local = localSeed(chapterId)
-            if (seed > local) {
-                StoryTestingLogger.d("SYNC") { "Seed ahead — $chapterId: local=$local, server=$seed" }
-                downloadAndApplyPackage(gameId, chapterId, seed, packageUrlFor(chapterId, seed))
-            } else {
-                StoryTestingLogger.d("SYNC") { "Seed up-to-date — $chapterId: local=$local, server=$seed" }
-            }
-        }
+        // Re-sync in case the SSE event carries seeds that differ from the join response
+        // (e.g. reconnect after a network drop). Already-in-flight downloads are skipped.
+        syncChaptersFromSeeds(gameId, event.chapterSeeds)
 
         _state.value = _state.value.copy(
             connectionState = StoryTestingConnectionState.CONNECTED,
             error = null
         )
-        updateLoadingState()
+    }
+
+    private fun syncChaptersFromSeeds(gameId: String, chapterSeeds: Map<String, Int>) {
+        if (chapterSeeds.isEmpty()) {
+            StoryTestingLogger.w("SYNC") { "No chapter seeds to sync" }
+            updateLoadingState()
+            return
+        }
+
+        val resolvedInitialChapterId = StoryTestingInitialChapterResolver.resolve(
+            chapterSeeds,
+            _state.value.lastWorkedOnChapterId
+        )
+        initialChapterId = resolvedInitialChapterId
+        initialGraphPublished = false
+        _state.value = _state.value.copy(initialChapterId = resolvedInitialChapterId)
+        StoryTestingLogger.i("SYNC") { "Initial chapter for this session — $resolvedInitialChapterId" }
+
+        var anyDownloadStarted = false
+        chapterSeeds.forEach { (chapterId, seed) ->
+            if (activeDownloads.containsKey(chapterId)) {
+                StoryTestingLogger.d("SYNC") { "Sync skipped — $chapterId already downloading" }
+                return@forEach
+            }
+
+            val local = localSeed(chapterId)
+            if (seed > local) {
+                StoryTestingLogger.d("SYNC") { "Seed ahead — $chapterId: local=$local, server=$seed" }
+                downloadAndApplyPackage(gameId, chapterId, seed, packageUrlFor(chapterId, seed))
+                anyDownloadStarted = true
+            } else {
+                StoryTestingLogger.d("SYNC") { "Seed up-to-date — $chapterId: local=$local, server=$seed" }
+            }
+        }
+
+        // If the initial chapter is already up-to-date, we can load it from the last extracted
+        // directory instead of waiting for a download that will never finish.
+        resolvedInitialChapterId?.let { chapterId ->
+            val seed = chapterSeeds.getValue(chapterId)
+            if (seed <= localSeed(chapterId)) {
+                extractedDirectories[chapterId]?.let { extractedDir ->
+                    StoryTestingLogger.i("SYNC") { "Initial chapter up-to-date — loading from cache — $chapterId" }
+                    onPackageApplied(extractedDir, gameId, chapterId)
+                }
+            }
+        }
+
+        if (!anyDownloadStarted) {
+            updateLoadingState()
+        }
     }
 
     private fun handleSeedUpdated(event: TestEvent.SeedUpdated) {
@@ -225,6 +292,14 @@ class StoryTestingCoordinator @Inject constructor(
 
         StoryTestingLogger.d("NAV") { "Play from node — chapter=$chapterId, node=$nodeId, seedAtRequest=$seedAtRequest, local=$local" }
 
+        currentStoryId?.let { storyId ->
+            StoryTestingLogger.d("PREFS") { "Saving last-tested chapter from PLAY_FROM_NODE — $chapterId" }
+            coordinatorScope?.launch {
+                lastTestedChapterRepository.set(storyId, chapterId)
+                _state.value = _state.value.copy(lastWorkedOnChapterId = chapterId)
+            }
+        }
+
         if (seedAtRequest < local) {
             StoryTestingLogger.w("NAV") { "Stale play request ignored — $chapterId seed $seedAtRequest < local $local" }
             return
@@ -243,16 +318,31 @@ class StoryTestingCoordinator @Inject constructor(
             return
         }
 
-        val graph = _state.value.currentGraph
-        if (graph != null && graph.chapterCode == chapterId) {
-            StoryTestingLogger.i("NAV") { "Playing from node $nodeId in $chapterId" }
-            _state.value = _state.value.copy(
-                targetNodeId = nodeId,
-                pendingNodeId = null,
-                playRequestCount = _state.value.playRequestCount + 1
+        when (
+            val graphState = StoryTestingPlayFromNodeResolver.resolve(
+                chapterId,
+                _state.value.currentGraph,
+                extractedDirectories
             )
-        } else {
-            StoryTestingLogger.w("NAV") { "Graph not ready for $chapterId — node $nodeId queued" }
+        ) {
+            PlayFromNodeGraphState.Ready -> {
+                StoryTestingLogger.i("NAV") { "Playing from node $nodeId in $chapterId" }
+                _state.value = _state.value.copy(
+                    targetNodeId = nodeId,
+                    pendingNodeId = null,
+                    playRequestCount = _state.value.playRequestCount + 1
+                )
+            }
+
+            is PlayFromNodeGraphState.Cached -> {
+                StoryTestingLogger.i("NAV") { "Loading cached graph for explicit play — $chapterId" }
+                onPackageApplied(graphState.extractedDir, gameId, chapterId)
+                return
+            }
+
+            PlayFromNodeGraphState.Missing -> {
+                StoryTestingLogger.w("NAV") { "Graph not ready for $chapterId — node $nodeId queued" }
+            }
         }
     }
 
@@ -294,11 +384,23 @@ class StoryTestingCoordinator @Inject constructor(
     }
 
     private fun onPackageApplied(extractedDir: String, gameId: String, chapterId: String) {
+        extractedDirectories[chapterId] = extractedDir
+
         loadTestChapterGraph(extractedDir, gameId)
             .onSuccess { graph ->
                 val pendingNodeId = _state.value.pendingNodeId
                 val shouldPlayFromPending =
                     pendingNodeId != null && _state.value.currentChapterId == chapterId
+
+                // During initial load, only the chosen initial chapter (or an explicit
+                // PLAY_FROM_NODE) should become currentGraph. This prevents a faster download
+                // for another chapter from hijacking the start.
+                val isInitialChapter = chapterId == initialChapterId
+                if (!shouldPlayFromPending && !isInitialChapter && !initialGraphPublished) {
+                    StoryTestingLogger.d("GRPH") { "Graph loaded but not published yet — $chapterId is not the initial chapter" }
+                    return@onSuccess
+                }
+
                 StoryTestingLogger.i("GRPH") { "Test graph loaded — ${graph.chapterCode}, ${graph.nodes.size} nodes, ${graph.edges.size} edges" }
 
                 // Only PLAY_FROM_NODE forces an immediate jump. Seed updates simply publish a
@@ -307,6 +409,16 @@ class StoryTestingCoordinator @Inject constructor(
                 val targetNodeId = when {
                     shouldPlayFromPending -> pendingNodeId
                     else -> _state.value.targetNodeId
+                }
+
+                if (isInitialChapter && !initialGraphPublished) {
+                    initialGraphPublished = true
+                    currentStoryId?.let { storyId ->
+                        StoryTestingLogger.d("PREFS") { "Saving last-tested chapter from initial start — $chapterId" }
+                        coordinatorScope?.launch {
+                            lastTestedChapterRepository.set(storyId, chapterId)
+                        }
+                    }
                 }
 
                 _state.value = _state.value.copy(

@@ -1,6 +1,11 @@
 package com.purpletear.game.data.di
 
 import android.content.Context
+import androidx.datastore.core.DataStore
+import androidx.datastore.core.handlers.ReplaceFileCorruptionHandler
+import androidx.datastore.preferences.core.PreferenceDataStoreFactory
+import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.emptyPreferences
 import androidx.room.Room
 import com.purpletear.game.data.database.GameDatabase
 import com.purpletear.game.data.database.migrations.GameDatabaseMigrations
@@ -15,10 +20,6 @@ import com.purpletear.game.data.provider.AndroidGamePathProviderImpl
 import com.purpletear.game.data.remote.GameApi
 import com.purpletear.game.data.remote.testing.TestEventDataSourceImpl
 import com.purpletear.game.data.remote.testing.TestSessionApi
-import com.purpletear.game.data.repository.testing.TestChapterGraphRepositoryImpl
-import com.purpletear.game.data.repository.testing.TestPackageRepositoryImpl
-import com.purpletear.game.data.repository.testing.TestSessionRepositoryImpl
-import com.purpletear.sutoko.core.domain.helper.provider.HostProvider
 import com.purpletear.game.data.repository.ChapterGraphRepositoryImpl
 import com.purpletear.game.data.repository.CharacterRepositoryImpl
 import com.purpletear.game.data.repository.GameInstallRepositoryImpl
@@ -26,6 +27,10 @@ import com.purpletear.game.data.repository.GameRepositoryImpl
 import com.purpletear.game.data.repository.MemoryRepositoryImpl
 import com.purpletear.game.data.repository.SceneRepositoryImpl
 import com.purpletear.game.data.repository.UserGameProgressRepositoryImpl
+import com.purpletear.game.data.repository.testing.DataStoreLastTestedChapterRepository
+import com.purpletear.game.data.repository.testing.TestChapterGraphRepositoryImpl
+import com.purpletear.game.data.repository.testing.TestPackageRepositoryImpl
+import com.purpletear.game.data.repository.testing.TestSessionRepositoryImpl
 import com.purpletear.game.data.service.MediaUrlResolverImpl
 import com.purpletear.sutoko.game.engine.processing.TextProcessor
 import com.purpletear.sutoko.game.engine.processing.TextProcessorImpl
@@ -35,12 +40,13 @@ import com.purpletear.sutoko.game.repository.CharacterRepository
 import com.purpletear.sutoko.game.repository.MemoryRepository
 import com.purpletear.sutoko.game.repository.SceneRepository
 import com.purpletear.sutoko.game.repository.UserGameProgressRepository
+import com.purpletear.sutoko.game.repository.game.GameInstallRepository
+import com.purpletear.sutoko.game.repository.game.GameRepository
+import com.purpletear.sutoko.game.repository.testing.LastTestedChapterRepository
 import com.purpletear.sutoko.game.repository.testing.TestChapterGraphRepository
 import com.purpletear.sutoko.game.repository.testing.TestEventDataSource
 import com.purpletear.sutoko.game.repository.testing.TestPackageRepository
 import com.purpletear.sutoko.game.repository.testing.TestSessionRepository
-import com.purpletear.sutoko.game.repository.game.GameInstallRepository
-import com.purpletear.sutoko.game.repository.game.GameRepository
 import com.purpletear.sutoko.game.service.MediaUrlResolver
 import dagger.Binds
 import dagger.Module
@@ -51,6 +57,7 @@ import dagger.hilt.components.SingletonComponent
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import java.io.File
 import javax.inject.Singleton
 
 /**
@@ -360,6 +367,21 @@ object GameDataModule {
     ): TestChapterGraphRepository {
         return impl
     }
+
+    /**
+     * Provides the DataStore used for real-time testing preferences.
+     */
+    @Provides
+    @Singleton
+    fun provideTestingDataStore(@ApplicationContext context: Context): DataStore<Preferences> {
+        return PreferenceDataStoreFactory.create(
+            corruptionHandler = ReplaceFileCorruptionHandler {
+                com.purpletear.sutoko.game.testing.StoryTestingLogger.e("PREFS") { "Testing preferences corrupted — resetting" }
+                emptyPreferences()
+            },
+            produceFile = { File(context.filesDir, "datastore/testing_prefs.preferences_pb") }
+        )
+    }
 }
 
 @Module
@@ -379,4 +401,10 @@ abstract class RepositoryModule {
 
     @Binds
     abstract fun bindMediaUrlResolver(impl: MediaUrlResolverImpl): MediaUrlResolver
+
+    @Binds
+    @Singleton
+    abstract fun bindLastTestedChapterRepository(
+        impl: DataStoreLastTestedChapterRepository
+    ): LastTestedChapterRepository
 }

@@ -29,6 +29,8 @@ enum class StoryTestingConnectionState {
  * @property currentChapterId Backend chapter UUID currently being tested.
  * @property graphVersion Incremented each time a new [currentGraph] is loaded. The UI can compare
  *           this value to detect a fresh graph without deep-equality checks.
+ * @property lastWorkedOnChapterId Chapter UUID persisted from the author's previous test session.
+ * @property initialChapterId Chapter UUID the coordinator decided to start this session from.
  */
 @Keep
 data class StoryTestingState(
@@ -42,4 +44,6 @@ data class StoryTestingState(
     val pendingNodeId: String? = null,
     val currentChapterId: String? = null,
     val graphVersion: Int = 0,
+    val lastWorkedOnChapterId: String? = null,
+    val initialChapterId: String? = null,
 )
