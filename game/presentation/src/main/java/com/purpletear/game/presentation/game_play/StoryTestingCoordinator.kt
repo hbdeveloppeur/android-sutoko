@@ -12,6 +12,7 @@ import com.purpletear.sutoko.game.usecase.testing.LoadTestChapterGraphUseCase
 import com.purpletear.sutoko.game.usecase.testing.ObserveTestEventsUseCase
 import com.purpletear.sutoko.game.usecase.testing.RegisterAssetInventoryUseCase
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
@@ -61,7 +62,7 @@ class StoryTestingCoordinator @Inject constructor(
         currentGameId = gameId
         currentStoryId = storyId
 
-        val scope = CoroutineScope(SupervisorJob())
+        val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
         coordinatorScope = scope
 
         _state.value = StoryTestingState(isActive = true, isLoading = false, error = null)

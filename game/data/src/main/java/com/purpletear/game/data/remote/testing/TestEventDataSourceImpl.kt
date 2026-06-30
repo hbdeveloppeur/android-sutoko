@@ -8,11 +8,13 @@ import com.purpletear.sutoko.game.model.testing.TestEvent
 import com.purpletear.sutoko.game.repository.testing.TestEventDataSource
 import com.purpletear.sutoko.game.testing.StoryTestingLogger
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.isActive
 import okhttp3.HttpUrl.Companion.toHttpUrl
 import okhttp3.OkHttpClient
@@ -32,6 +34,7 @@ class TestEventDataSourceImpl @Inject constructor(
     @TestingBaseUrl private val baseUrl: String,
 ) : TestEventDataSource {
 
+    @Volatile
     private var activeCall: okhttp3.Call? = null
     private var lastEventId: String? = null
 
@@ -102,7 +105,7 @@ class TestEventDataSourceImpl @Inject constructor(
         }
 
         awaitClose { close() }
-    }
+    }.flowOn(Dispatchers.IO)
 
     private suspend fun openConnection(
         sessionId: String,
@@ -215,7 +218,7 @@ class TestEventDataSourceImpl @Inject constructor(
     private companion object {
         const val RECONNECT_DELAY_MS = 3000L
         const val MAX_CONSECUTIVE_FAILURES = 5
-        const val SSE_READ_TIMEOUT_SECONDS = 60L
+        const val SSE_READ_TIMEOUT_SECONDS = 45L
         const val SSE_WRITE_TIMEOUT_SECONDS = 60L
     }
 }

@@ -6,12 +6,10 @@ import com.purpletear.game.data.di.TestingOkHttpClient
 import com.purpletear.game.data.file.testing.TestAssetCacheManager
 import com.purpletear.game.data.file.testing.TestPackageExtractor
 import com.purpletear.game.data.provider.AndroidGamePathProvider
-import com.purpletear.game.data.remote.testing.dto.TestPackageManifestDto
 import com.purpletear.game.data.remote.testing.dto.parseManifest
 import com.purpletear.sutoko.game.model.testing.TestPackageManifest
 import com.purpletear.sutoko.game.repository.testing.TestPackageRepository
 import com.purpletear.sutoko.game.testing.StoryTestingLogger
-
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
@@ -57,7 +55,10 @@ class TestPackageRepositoryImpl @Inject constructor(
             StoryTestingLogger.d("PKG") { "Package extracted — $extractDir" }
             extractDir.absolutePath
         }.onFailure { error ->
-            StoryTestingLogger.e("PKG", error) { "Package download/extract failed — $chapterId seed $seed" }
+            StoryTestingLogger.e(
+                "PKG",
+                error
+            ) { "Package download/extract failed — $chapterId seed $seed" }
         }
     }
 
@@ -85,7 +86,10 @@ class TestPackageRepositoryImpl @Inject constructor(
                 extractedDirectory = extractedDirectory,
             )
         }.onFailure { error ->
-            StoryTestingLogger.e("PKG", error) { "Apply package failed — $extractedDirectory" }
+            StoryTestingLogger.e(
+                "PKG",
+                error
+            ) { "Apply package failed — $extractedDirectory (error: ${error.message}" }
         }
     }
 

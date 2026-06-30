@@ -376,9 +376,6 @@ class GameEngineViewModel @Inject constructor(
                 setDataSource(audioUrl)
                 prepare()
                 setOnCompletionListener {
-                    // Identity check: only the currently active player may mutate shared state.
-                    // Prevents a stale listener from a previously released player from nuking
-                    // the reference to a newly started player.
                     if (vocalPlayer === this) {
                         release()
                         vocalPlayer = null
