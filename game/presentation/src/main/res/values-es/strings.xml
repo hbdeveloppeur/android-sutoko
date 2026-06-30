@@ -120,6 +120,11 @@
     <string name="message_vocal_play_description">Reproducir</string>
     <string name="message_story_finished">¡Historia terminada!</string>
 
+    <!-- Live update indicator -->
+    <string name="live_update_connected">Actualización en vivo conectada</string>
+    <string name="live_update_disconnected">Actualización en vivo desconectada</string>
+    <string name="live_update_loading">Cargando cambios…</string>
+
     <!-- Choices box -->
     <string name="game_choices_title">Tu elección:</string>
     <string name="game_choices_make_a_choice">Haz una elección</string>

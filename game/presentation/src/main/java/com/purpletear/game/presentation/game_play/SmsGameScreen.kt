@@ -11,8 +11,10 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -20,7 +22,10 @@ import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.CircularProgressIndicator
+import androidx.compose.material.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
@@ -29,17 +34,21 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.purpletear.game.presentation.R
 import com.purpletear.game.presentation.game_play.components.choices_box.ChoicesBox
 import com.purpletear.game.presentation.game_play.components.choices_box.MakeAChoiceButton
 import com.purpletear.game.presentation.game_play.components.image_viewer.ImageViewerOverlay
 import com.purpletear.game.presentation.game_play.mapper.Message
 import com.purpletear.game.presentation.game_play.mapper.characterId
 import com.purpletear.game.presentation.game_play.state.GameUiState
+import com.purpletear.game.presentation.game_play.state.LiveUpdateStatus
 import com.purpletear.sutoko.game.engine.HandlerEffect
 import kotlinx.coroutines.launch
 
@@ -107,6 +116,10 @@ internal fun SmsGameScreen(
                 .statusBarsPadding()
                 .navigationBarsPadding()
         ) {
+            state.liveUpdateStatus?.let { status ->
+                LiveUpdateLabel(status = status)
+            }
+
             LazyColumn(
                 state = listState,
                 reverseLayout = true,
@@ -181,7 +194,7 @@ internal fun SmsGameScreen(
                 modifier = Modifier
                     .fillMaxSize()
                     .background(Color.Black.copy(alpha = 0.2f)),
-                contentAlignment = androidx.compose.ui.Alignment.Center
+                contentAlignment = Alignment.Center
             ) {
                 CircularProgressIndicator(
                     modifier = Modifier.size(22.dp),
@@ -198,5 +211,56 @@ private const val CHOICE_FADE_DURATION_MS = 320
 private fun Screen(content: @Composable BoxScope.() -> Unit) {
     Box(modifier = Modifier.fillMaxSize()) {
         content()
+    }
+}
+
+
+@Composable
+private fun LiveUpdateLabel(status: LiveUpdateStatus) {
+    val backgroundColor = Color.Black.copy(alpha = 0.6f)
+    val (indicatorColor, text) = when (status) {
+        LiveUpdateStatus.Connected -> Color(0xFF4CAF50) to stringResource(R.string.live_update_connected)
+        LiveUpdateStatus.Disconnected -> Color(0xFFFF9800) to stringResource(R.string.live_update_disconnected)
+        LiveUpdateStatus.Loading -> Color.White to stringResource(R.string.live_update_loading)
+    }
+
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(top = 8.dp),
+        contentAlignment = Alignment.TopCenter
+    ) {
+        Box(
+            modifier = Modifier
+                .height(28.dp)
+                .background(backgroundColor, RoundedCornerShape(14.dp))
+                .padding(horizontal = 12.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                when (status) {
+                    LiveUpdateStatus.Loading -> CircularProgressIndicator(
+                        modifier = Modifier.size(12.dp),
+                        color = Color.White,
+                        strokeWidth = 2.dp
+                    )
+
+                    else -> Box(
+                        modifier = Modifier
+                            .size(8.dp)
+                            .background(indicatorColor, RoundedCornerShape(4.dp))
+                    )
+                }
+
+                Text(
+                    text = text,
+                    color = Color.White,
+                    style = MaterialTheme.typography.caption
+                )
+            }
+        }
     }
 }

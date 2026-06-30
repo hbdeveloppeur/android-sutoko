@@ -65,7 +65,12 @@ class StoryTestingCoordinator @Inject constructor(
         val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
         coordinatorScope = scope
 
-        _state.value = StoryTestingState(isActive = true, isLoading = false, error = null)
+        _state.value = StoryTestingState(
+            isActive = true,
+            isLoading = true,
+            connectionState = StoryTestingConnectionState.CONNECTING,
+            error = null
+        )
         StoryTestingLogger.i("SESS") { "Starting test session — gameId=$gameId, storyId=$storyId" }
 
         scope.launch {
@@ -75,6 +80,7 @@ class StoryTestingCoordinator @Inject constructor(
                 StoryTestingLogger.e("SESS", error) { "Failed to join test session" }
                 _state.value = _state.value.copy(
                     isLoading = false,
+                    connectionState = StoryTestingConnectionState.DISCONNECTED,
                     error = "Failed to join test session: ${error.message}"
                 )
             }
@@ -111,9 +117,9 @@ class StoryTestingCoordinator @Inject constructor(
         sessionId = session.sessionId
         StoryTestingLogger.i("SESS") { "Joined session ${session.sessionId} — seeds=${session.chapterSeeds}" }
 
-        val cachedAssets = assetCacheManager.listCachedAssets(gameId)
-        inventoryToken = registerAssetInventory(session.sessionId, cachedAssets).getOrThrow()
-        StoryTestingLogger.d("SYNC") { "Registered inventory — ${cachedAssets.size} cached assets" }
+        val availableAssets = assetCacheManager.listAvailableAssets(gameId)
+        inventoryToken = registerAssetInventory(session.sessionId, availableAssets).getOrThrow()
+        StoryTestingLogger.d("SYNC") { "Registered inventory — ${availableAssets.size} available assets" }
 
         gameMemory.setNamespace("test-session-${session.sessionId}")
         StoryTestingLogger.d("MEM") { "Memory namespace set to test-session-${session.sessionId}" }
@@ -131,6 +137,7 @@ class StoryTestingCoordinator @Inject constructor(
                     StoryTestingLogger.e("NET", error) { "SSE error" }
                     _state.value = _state.value.copy(
                         isLoading = false,
+                        connectionState = StoryTestingConnectionState.DISCONNECTED,
                         error = "SSE error: ${error.message}"
                     )
                 }
@@ -152,8 +159,14 @@ class StoryTestingCoordinator @Inject constructor(
             is TestEvent.PlayFromNode -> handlePlayFromNode(event)
             is TestEvent.Error -> {
                 StoryTestingLogger.e("ERR") { "Server error [${event.code}]: ${event.message}" }
+                val isTerminal = event.code == "connection_error" || event.code == "setup_error"
                 _state.value = _state.value.copy(
                     isLoading = false,
+                    connectionState = if (isTerminal) {
+                        StoryTestingConnectionState.DISCONNECTED
+                    } else {
+                        _state.value.connectionState
+                    },
                     error = "Server error [${event.code}]: ${event.message}"
                 )
             }
@@ -175,7 +188,10 @@ class StoryTestingCoordinator @Inject constructor(
             }
         }
 
-        _state.value = _state.value.copy(error = null)
+        _state.value = _state.value.copy(
+            connectionState = StoryTestingConnectionState.CONNECTED,
+            error = null
+        )
         updateLoadingState()
     }
 
@@ -326,9 +342,9 @@ class StoryTestingCoordinator @Inject constructor(
         val sessionId = sessionId ?: return
 
         scope.launch {
-            val cachedAssets = assetCacheManager.listCachedAssets(gameId)
-            StoryTestingLogger.d("SYNC") { "Refreshing inventory token — ${cachedAssets.size} assets" }
-            registerAssetInventory(sessionId, cachedAssets)
+            val availableAssets = assetCacheManager.listAvailableAssets(gameId)
+            StoryTestingLogger.d("SYNC") { "Refreshing inventory token — ${availableAssets.size} assets" }
+            registerAssetInventory(sessionId, availableAssets)
                 .onSuccess { token ->
                     inventoryToken = token
                     StoryTestingLogger.d("SYNC") { "Inventory token refreshed" }

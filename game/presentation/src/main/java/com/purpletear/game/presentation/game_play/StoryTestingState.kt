@@ -4,10 +4,22 @@ import androidx.annotation.Keep
 import com.purpletear.sutoko.game.model.chapter.ChapterGraph
 
 /**
+ * Transport-level state of the SSE channel managed by [StoryTestingCoordinator].
+ */
+@Keep
+enum class StoryTestingConnectionState {
+    IDLE,
+    CONNECTING,
+    CONNECTED,
+    DISCONNECTED,
+}
+
+/**
  * State exposed by [StoryTestingCoordinator] to the UI and [GameEngineViewModel].
  *
  * @property isActive True while a test session is running.
  * @property isLoading True while connecting, downloading, or applying a package.
+ * @property connectionState Transport state of the SSE channel.
  * @property error Fatal error message; the UI should stop testing when set.
  * @property currentGraph Latest loaded chapter graph; null until a package is applied.
  * @property targetNodeId Node the author asked to play from; null until PLAY_FROM_NODE.
@@ -20,6 +32,7 @@ import com.purpletear.sutoko.game.model.chapter.ChapterGraph
 data class StoryTestingState(
     val isActive: Boolean = false,
     val isLoading: Boolean = false,
+    val connectionState: StoryTestingConnectionState = StoryTestingConnectionState.IDLE,
     val error: String? = null,
     val currentGraph: ChapterGraph? = null,
     val targetNodeId: String? = null,

@@ -120,6 +120,11 @@
     <string name="message_vocal_play_description">Abspielen</string>
     <string name="message_story_finished">Geschichte beendet!</string>
 
+    <!-- Live update indicator -->
+    <string name="live_update_connected">Live-Update verbunden</string>
+    <string name="live_update_disconnected">Live-Update getrennt</string>
+    <string name="live_update_loading">Änderungen werden geladen…</string>
+
     <!-- Choices box -->
     <string name="game_choices_title">Deine Wahl:</string>
     <string name="game_choices_make_a_choice">Wählen</string>

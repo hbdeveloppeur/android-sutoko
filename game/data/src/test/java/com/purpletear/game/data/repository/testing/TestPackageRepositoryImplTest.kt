@@ -5,6 +5,7 @@ import com.purpletear.game.data.file.testing.TestAssetCacheManager
 import com.purpletear.game.data.file.testing.TestPackageExtractor
 import com.purpletear.game.data.provider.AndroidGamePathProvider
 import com.purpletear.game.data.remote.testing.dto.TestPackageManifestDto
+import com.purpletear.game.data.remote.testing.dto.parseManifest
 import kotlinx.coroutines.runBlocking
 import okhttp3.Interceptor
 import okhttp3.MediaType.Companion.toMediaType
@@ -163,6 +164,157 @@ class TestPackageRepositoryImplTest {
             "https://canvas.sutoko.com/api/test-package/chapter-1/1.zip",
             capturedUrls.first()
         )
+    }
+
+    @Test
+    fun `downloadPackage returns cached directory without HTTP call when manifest matches`() = runBlocking {
+        val gameDir = pathProvider.getGameDirectory("game1", null)
+        val extractDir = File(gameDir, "test-session/chapter-1/27")
+        val manifest = TestPackageManifestDto(
+            seed = 27,
+            chapterId = "chapter-1",
+            storyId = "story-1",
+            updatedAt = "2024-01-01T00:00:00Z",
+            nodes = emptyList(),
+            edges = emptyList(),
+            assetInventory = emptyList()
+        )
+        extractDir.mkdirs()
+        File(extractDir, "manifest.json").writeText(gson.toJson(manifest))
+        File(extractDir, "assets/image.png").apply { parentFile?.mkdirs(); writeText("cached") }
+
+        val throwingClient = OkHttpClient.Builder()
+            .addInterceptor { throw AssertionError("HTTP call should not happen on cache hit") }
+            .build()
+        val repository = createRepository(throwingClient)
+
+        val result = repository.downloadPackage(
+            packageUrl = "/test-package/chapter-1/27.zip",
+            gameId = "game1",
+            chapterId = "chapter-1",
+            seed = 27
+        )
+
+        assertTrue(result.isSuccess)
+        assertEquals(extractDir.absolutePath, result.getOrThrow())
+        assertTrue(File(extractDir, "assets/image.png").exists())
+    }
+
+    @Test
+    fun `downloadPackage re-downloads when cached manifest has different seed`() = runBlocking {
+        val gameDir = pathProvider.getGameDirectory("game1", null)
+        val extractDir = File(gameDir, "test-session/chapter-1/27")
+        val staleManifest = TestPackageManifestDto(
+            seed = 26,
+            chapterId = "chapter-1",
+            storyId = "story-1",
+            updatedAt = "2024-01-01T00:00:00Z",
+            nodes = emptyList(),
+            edges = emptyList(),
+            assetInventory = emptyList()
+        )
+        extractDir.mkdirs()
+        File(extractDir, "manifest.json").writeText(gson.toJson(staleManifest))
+        File(extractDir, "assets/stale.png").apply { parentFile?.mkdirs(); writeText("stale") }
+
+        val freshManifest = TestPackageManifestDto(
+            seed = 27,
+            chapterId = "chapter-1",
+            storyId = "story-1",
+            updatedAt = "2024-01-01T00:00:00Z",
+            nodes = emptyList(),
+            edges = emptyList(),
+            assetInventory = emptyList()
+        )
+        val zipBytes = createZip(
+            "manifest.json" to gson.toJson(freshManifest).toByteArray(),
+            "assets/image.png" to "fake-image".toByteArray()
+        )
+        val repository = createRepository(fakeOkHttpClient(zipBytes))
+
+        val result = repository.downloadPackage(
+            packageUrl = "/test-package/chapter-1/27.zip",
+            gameId = "game1",
+            chapterId = "chapter-1",
+            seed = 27
+        )
+
+        assertTrue(result.isSuccess)
+        val newExtractDir = File(result.getOrThrow())
+        assertTrue(File(newExtractDir, "assets/image.png").exists())
+        assertFalse(File(newExtractDir, "assets/stale.png").exists())
+    }
+
+    @Test
+    fun `downloadPackage re-downloads when cached manifest has different chapterId`() = runBlocking {
+        val gameDir = pathProvider.getGameDirectory("game1", null)
+        val extractDir = File(gameDir, "test-session/chapter-1/27")
+        val staleManifest = TestPackageManifestDto(
+            seed = 27,
+            chapterId = "chapter-other",
+            storyId = "story-1",
+            updatedAt = "2024-01-01T00:00:00Z",
+            nodes = emptyList(),
+            edges = emptyList(),
+            assetInventory = emptyList()
+        )
+        extractDir.mkdirs()
+        File(extractDir, "manifest.json").writeText(gson.toJson(staleManifest))
+
+        val freshManifest = TestPackageManifestDto(
+            seed = 27,
+            chapterId = "chapter-1",
+            storyId = "story-1",
+            updatedAt = "2024-01-01T00:00:00Z",
+            nodes = emptyList(),
+            edges = emptyList(),
+            assetInventory = emptyList()
+        )
+        val zipBytes = createZip(
+            "manifest.json" to gson.toJson(freshManifest).toByteArray()
+        )
+        val repository = createRepository(fakeOkHttpClient(zipBytes))
+
+        val result = repository.downloadPackage(
+            packageUrl = "/test-package/chapter-1/27.zip",
+            gameId = "game1",
+            chapterId = "chapter-1",
+            seed = 27
+        )
+
+        assertTrue(result.isSuccess)
+        assertEquals(extractDir.absolutePath, result.getOrThrow())
+        val manifest = gson.parseManifest(File(extractDir, "manifest.json").readText())
+        assertEquals("chapter-1", manifest.chapterId)
+    }
+
+    @Test
+    fun `downloadPackage cleans up temp extract directory after successful download`() = runBlocking {
+        val manifest = TestPackageManifestDto(
+            seed = 27,
+            chapterId = "chapter-1",
+            storyId = "story-1",
+            updatedAt = "2024-01-01T00:00:00Z",
+            nodes = emptyList(),
+            edges = emptyList(),
+            assetInventory = emptyList()
+        )
+        val zipBytes = createZip(
+            "manifest.json" to gson.toJson(manifest).toByteArray(),
+            "assets/image.png" to "fake-image".toByteArray()
+        )
+        val repository = createRepository(fakeOkHttpClient(zipBytes))
+
+        repository.downloadPackage(
+            packageUrl = "/test-package/chapter-1/27.zip",
+            gameId = "game1",
+            chapterId = "chapter-1",
+            seed = 27
+        )
+
+        val gameDir = pathProvider.getGameDirectory("game1", null)
+        val tempExtractDir = File(gameDir, "test-session/chapter-1/27.tmp")
+        assertFalse("Temp extract directory should be cleaned up", tempExtractDir.exists())
     }
 
     private fun createRepository(client: OkHttpClient): TestPackageRepositoryImpl {

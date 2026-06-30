@@ -11,6 +11,7 @@ import com.purpletear.core.presentation.services.MakeToastService
 import com.purpletear.game.presentation.R
 import com.purpletear.game.presentation.debug.debugStartNodeFor
 import com.purpletear.game.presentation.game_play.state.GameUiState
+import com.purpletear.game.presentation.game_play.state.LiveUpdateStatus
 import com.purpletear.sutoko.game.engine.GameEngine
 import com.purpletear.sutoko.game.engine.GameEngineState
 import com.purpletear.sutoko.game.engine.GameMessage
@@ -31,8 +32,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
@@ -206,18 +205,18 @@ class GameEngineViewModel @Inject constructor(
         StoryTestingLogger.i("NAV") { "GameEngineViewModel entering test mode — gameId=$gameId" }
 
         viewModelScope.launch {
-            storyTestingCoordinator.state
-                .map { it.isLoading }
-                .distinctUntilChanged()
-                .collectLatest { isLoading ->
-                    updateState { it.copy(isLoadingStoryUpdates = isLoading) }
-                }
-        }
-
-        viewModelScope.launch {
             var lastLoggedError: String? = null
             var lastPlayRequestCount = 0
             storyTestingCoordinator.state.collect { testingState ->
+                val status = when {
+                    !testingState.isActive -> null
+                    testingState.isLoading -> LiveUpdateStatus.Loading
+                    testingState.connectionState == StoryTestingConnectionState.CONNECTED -> LiveUpdateStatus.Connected
+                    testingState.connectionState == StoryTestingConnectionState.DISCONNECTED -> LiveUpdateStatus.Disconnected
+                    else -> null
+                }
+                updateState { it.copy(liveUpdateStatus = status) }
+
                 testingState.error?.let { error ->
                     if (error != lastLoggedError) {
                         lastLoggedError = error

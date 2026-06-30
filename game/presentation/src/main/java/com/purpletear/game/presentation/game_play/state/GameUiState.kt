@@ -7,6 +7,21 @@ import com.purpletear.sutoko.game.model.scene.Scene
 import androidx.annotation.Keep
 
 /**
+ * UI state for the live-update indicator shown during real-time story testing.
+ */
+@Keep
+sealed class LiveUpdateStatus {
+    @Keep
+    data object Loading : LiveUpdateStatus()
+
+    @Keep
+    data object Connected : LiveUpdateStatus()
+
+    @Keep
+    data object Disconnected : LiveUpdateStatus()
+}
+
+/**
  * UI state for the game play screen.
  * Represents the current state of the game session including messages, choices, and input status.
  */
@@ -24,4 +39,5 @@ data class GameUiState(
     val isVocalPlaying: Boolean = false,
     val vocalProgress: Float = 0f,
     val isLoadingStoryUpdates: Boolean = false,
+    val liveUpdateStatus: LiveUpdateStatus? = null,
 )

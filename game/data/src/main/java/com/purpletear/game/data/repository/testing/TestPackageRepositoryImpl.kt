@@ -46,6 +46,12 @@ class TestPackageRepositoryImpl @Inject constructor(
                 "Failed to create game directory: $gameDir"
             }
 
+            val extractDir = File(gameDir, "test-session/$chapterId/$seed")
+            if (isExtractedPackageValid(extractDir, chapterId, seed)) {
+                StoryTestingLogger.i("PKG") { "Package cache hit — $chapterId seed $seed" }
+                return@runCatching extractDir.absolutePath
+            }
+
             val downloadId = System.currentTimeMillis().toString()
             val tempDir = File(gameDir, "test-session/.tmp/$chapterId/$seed/$downloadId")
             require(tempDir.mkdirs()) {
@@ -53,20 +59,26 @@ class TestPackageRepositoryImpl @Inject constructor(
             }
 
             val archiveFile = File(tempDir, "package.zip")
-            val extractDir = File(gameDir, "test-session/$chapterId/$seed")
+            val tempExtractDir = File(gameDir, "test-session/$chapterId/$seed.tmp")
             val resolvedUrl = resolvePackageUrl(packageUrl)
 
             try {
                 downloadToFile(resolvedUrl, archiveFile)
 
-                extractDir.mkdirs()
-                extractor.extract(archiveFile, extractDir)
+                tempExtractDir.deleteRecursively()
+                extractor.extract(archiveFile, tempExtractDir)
+
+                extractDir.deleteRecursively()
+                check(tempExtractDir.renameTo(extractDir)) {
+                    "Failed to move extracted package to $extractDir"
+                }
 
                 StoryTestingLogger.d("PKG") { "Package extracted — $extractDir" }
                 extractDir.absolutePath
             } finally {
                 archiveFile.delete()
                 tempDir.deleteRecursively()
+                tempExtractDir.deleteRecursively()
             }
         }.onFailure { error ->
             StoryTestingLogger.e(
@@ -140,6 +152,19 @@ class TestPackageRepositoryImpl @Inject constructor(
             total += read
         }
         return total
+    }
+
+    private fun isExtractedPackageValid(extractDir: File, chapterId: String, seed: Int): Boolean {
+        val manifestFile = File(extractDir, MANIFEST_FILE)
+        if (!manifestFile.exists()) return false
+
+        return try {
+            val dto = gson.parseManifest(manifestFile.readText())
+            dto.chapterId == chapterId && dto.seed == seed
+        } catch (e: Exception) {
+            StoryTestingLogger.d("PKG") { "Cached manifest invalid — ${e.message}" }
+            false
+        }
     }
 
     private fun resolvePackageUrl(packageUrl: String): String {

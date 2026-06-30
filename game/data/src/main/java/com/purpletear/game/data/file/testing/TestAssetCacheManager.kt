@@ -57,17 +57,43 @@ class TestAssetCacheManager @Inject constructor(
      */
     fun listCachedAssets(gameId: String): List<String> {
         val cacheDir = getCacheDirectory(gameId)
-        if (!cacheDir.exists()) {
+        return listRelativeFiles(cacheDir)
+    }
+
+    /**
+     * Lists all assets available for testing for [gameId].
+     *
+     * This is the union of the test asset cache and the installed story assets.
+     * The cache takes precedence, so a test-specific override shadows an official
+     * asset with the same relative path.
+     */
+    fun listAvailableAssets(gameId: String): List<String> {
+        val cached = listCachedAssets(gameId).toSet()
+        val original = listOriginalAssets(gameId)
+        return cached.toList() + original.filter { it !in cached }
+    }
+
+    private fun listOriginalAssets(gameId: String): List<String> {
+        val originalAssetsDir = File(
+            pathProvider.getGameDirectory(gameId, legacyId = null),
+            ORIGINAL_ASSETS_DIR
+        )
+        return listRelativeFiles(originalAssetsDir)
+    }
+
+    private fun listRelativeFiles(root: File): List<String> {
+        if (!root.exists()) {
             return emptyList()
         }
 
-        return cacheDir.walkTopDown()
+        return root.walkTopDown()
             .filter { it.isFile }
-            .map { it.relativeTo(cacheDir).path }
+            .map { it.relativeTo(root).path }
             .toList()
     }
 
     private companion object {
         const val TEST_ASSETS_DIR = "test-assets"
+        const val ORIGINAL_ASSETS_DIR = "assets"
     }
 }
