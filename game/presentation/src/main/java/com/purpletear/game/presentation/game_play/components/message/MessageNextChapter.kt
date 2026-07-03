@@ -42,6 +42,7 @@ internal fun MessageNextChapter(
     modifier: Modifier = Modifier,
     title: String = stringResource(R.string.message_next_chapter_title),
     buttonText: String = stringResource(R.string.message_next_chapter_button),
+    showButton: Boolean = true,
     onClick: () -> Unit = {},
 ) {
     Column(
@@ -56,12 +57,14 @@ internal fun MessageNextChapter(
             color = Color.White,
             fontFamily = CrimsonTextFontFamily
         )
-        SimpleButton(
-            text = buttonText,
-            fontSize = 11.sp,
-            onClick = onClick,
-            horizontalPadding = 14.dp,
-            verticalPadding = 6.dp,
-        )
+        if (showButton) {
+            SimpleButton(
+                text = buttonText,
+                fontSize = 11.sp,
+                onClick = onClick,
+                horizontalPadding = 14.dp,
+                verticalPadding = 6.dp,
+            )
+        }
     }
 }

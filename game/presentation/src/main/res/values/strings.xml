@@ -116,6 +116,7 @@
     <string name="message_manga_prompt">A manga page is waiting for you</string>
     <string name="message_manga_open">Open</string>
     <string name="message_next_chapter_title">End of chapter</string>
+    <string name="message_next_chapter_test_mode_title">End of chapter. Continue testing from the authoring tool.</string>
     <string name="message_next_chapter_button">Next chapter</string>
     <string name="message_vocal_play_description">Play</string>
     <string name="message_story_finished">Story finished!</string>

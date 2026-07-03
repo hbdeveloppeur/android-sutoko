@@ -153,6 +153,8 @@ internal fun SmsGameScreen(
                             viewerState = ImageViewerState(url, bounds, true)
                         },
                         onNextChapterClick = handleNextChapterClick,
+                        showNextChapterButton = state.showNextChapterButton,
+                        nextChapterTitleRes = state.nextChapterTitleRes,
                         onVocalClick = onVocalClick,
                     )
                 }

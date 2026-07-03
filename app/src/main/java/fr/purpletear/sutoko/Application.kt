@@ -180,7 +180,8 @@ class Application : MultiDexApplication(), DefaultLifecycleObserver {
         return startsWith("com.oplus.") ||
             startsWith("com.coloros.") ||
             startsWith("com.heytap.") ||
-            startsWith("com.oneplus.")
+            startsWith("com.oneplus.") ||
+            startsWith("com.mediatek.")
     }
 
     private fun createNotificationChannel() {

@@ -5,6 +5,7 @@ import com.purpletear.game.data.remote.testing.dto.JoinTestSessionRequest
 import com.purpletear.game.data.remote.testing.dto.RegisterInventoryRequest
 import com.purpletear.sutoko.domain.repository.UserRepository
 import com.purpletear.sutoko.game.model.testing.TestSession
+import com.purpletear.sutoko.game.repository.testing.DeviceIdProvider
 import com.purpletear.sutoko.game.repository.testing.TestSessionRepository
 import com.purpletear.sutoko.game.testing.StoryTestingLogger
 import kotlinx.coroutines.flow.firstOrNull
@@ -15,15 +16,18 @@ import javax.inject.Singleton
 class TestSessionRepositoryImpl @Inject constructor(
     private val api: TestSessionApi,
     private val userRepository: UserRepository,
+    private val deviceIdProvider: DeviceIdProvider,
 ) : TestSessionRepository {
 
     override suspend fun join(storyId: String, deviceInfo: String): Result<TestSession> {
         StoryTestingLogger.d("SESS") { "Requesting join — storyId=$storyId" }
         return runCatching {
             val token = requireToken()
+            val deviceId = deviceIdProvider.get()
+            require(deviceId.isNotBlank()) { "Device id must not be blank" }
             val response = api.join(
                 authorization = bearer(token),
-                request = JoinTestSessionRequest(storyId, deviceInfo)
+                request = JoinTestSessionRequest(storyId, deviceInfo, deviceId)
             )
             val body = response.body()
                 ?: throw TestSessionException(

@@ -82,6 +82,13 @@ class GameEngineViewModel @Inject constructor(
 
     init {
         Trace.beginSection("GameEngineViewModel.init")
+        updateState {
+            it.copy(
+                isTestMode = isTestMode,
+                showNextChapterButton = !isTestMode,
+                nextChapterTitleRes = if (isTestMode) R.string.message_next_chapter_test_mode_title else null
+            )
+        }
         viewModelScope.launch {
             try {
                 gameEngine.reset()

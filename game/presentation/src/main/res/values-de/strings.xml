@@ -116,6 +116,7 @@
     <string name="message_manga_prompt">Eine Manga-Seite wartet auf dich</string>
     <string name="message_manga_open">Öffnen</string>
     <string name="message_next_chapter_title">Kapitelende</string>
+    <string name="message_next_chapter_test_mode_title">Kapitelende. Setzen Sie das Testen im Authoring-Tool fort.</string>
     <string name="message_next_chapter_button">Nächstes Kapitel</string>
     <string name="message_vocal_play_description">Abspielen</string>
     <string name="message_story_finished">Geschichte beendet!</string>

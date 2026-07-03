@@ -116,6 +116,7 @@
     <string name="message_manga_prompt">Te espera una página de manga</string>
     <string name="message_manga_open">Abrir</string>
     <string name="message_next_chapter_title">Fin del capítulo</string>
+    <string name="message_next_chapter_test_mode_title">Fin del capítulo. Continúa probando desde la herramienta de autor.</string>
     <string name="message_next_chapter_button">Próximo capítulo</string>
     <string name="message_vocal_play_description">Reproducir</string>
     <string name="message_story_finished">¡Historia terminada!</string>

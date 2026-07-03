@@ -407,4 +407,10 @@ abstract class RepositoryModule {
     abstract fun bindLastTestedChapterRepository(
         impl: DataStoreLastTestedChapterRepository
     ): LastTestedChapterRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindDeviceIdProvider(
+        impl: com.purpletear.game.data.repository.testing.DataStoreDeviceIdProvider
+    ): com.purpletear.sutoko.game.repository.testing.DeviceIdProvider
 }

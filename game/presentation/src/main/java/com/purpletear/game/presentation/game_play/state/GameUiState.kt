@@ -1,10 +1,11 @@
 package com.purpletear.game.presentation.game_play.state
 
+import androidx.annotation.Keep
+import androidx.annotation.StringRes
 import com.purpletear.sutoko.game.engine.GameMessage
 import com.purpletear.sutoko.game.engine.HandlerEffect
 import com.purpletear.sutoko.game.model.character.Character
 import com.purpletear.sutoko.game.model.scene.Scene
-import androidx.annotation.Keep
 
 /**
  * UI state for the live-update indicator shown during real-time story testing.
@@ -41,4 +42,7 @@ data class GameUiState(
     val isLoadingStoryUpdates: Boolean = false,
     val liveUpdateStatus: LiveUpdateStatus? = null,
     val hasPendingStoryUpdate: Boolean = false,
+    val isTestMode: Boolean = false,
+    val showNextChapterButton: Boolean = true,
+    @StringRes val nextChapterTitleRes: Int? = null,
 )

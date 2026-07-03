@@ -5,6 +5,7 @@ import com.purpletear.game.data.di.TestingOkHttpClient
 import com.purpletear.game.data.repository.testing.TestSessionException
 import com.purpletear.sutoko.domain.repository.UserRepository
 import com.purpletear.sutoko.game.model.testing.TestEvent
+import com.purpletear.sutoko.game.repository.testing.DeviceIdProvider
 import com.purpletear.sutoko.game.repository.testing.TestEventDataSource
 import com.purpletear.sutoko.game.testing.StoryTestingLogger
 import kotlinx.coroutines.CancellationException
@@ -31,6 +32,7 @@ import kotlin.jvm.Volatile
 class TestEventDataSourceImpl @Inject constructor(
     @TestingOkHttpClient private val client: OkHttpClient,
     private val userRepository: UserRepository,
+    private val deviceIdProvider: DeviceIdProvider,
     @TestingBaseUrl private val baseUrl: String,
 ) : TestEventDataSource {
 
@@ -117,8 +119,12 @@ class TestEventDataSourceImpl @Inject constructor(
             return null
         }
 
+        val deviceId = deviceIdProvider.get()
+        require(deviceId.isNotBlank()) { "Device id must not be blank" }
+
         val url = "${baseUrl}test-session/$sessionId/events".toHttpUrl().newBuilder()
             .addQueryParameter("clientType", "phone")
+            .addQueryParameter("deviceId", deviceId)
             .apply {
                 inventoryToken?.let { addQueryParameter("assetInventoryToken", it) }
             }

@@ -31,6 +31,8 @@ internal fun Message(
     vocalProgress: Float = 0f,
     onImageClick: (imageUrl: String, bounds: Rect) -> Unit = { _, _ -> },
     onNextChapterClick: () -> Unit = {},
+    showNextChapterButton: Boolean = true,
+    nextChapterTitleRes: Int? = null,
     onVocalClick: (String) -> Unit = {},
 ) {
     when (message.type) {
@@ -51,7 +53,14 @@ internal fun Message(
         }
 
         GameMessageType.ChapterEnd -> {
-            MessageNextChapter(modifier = modifier, onClick = onNextChapterClick)
+            val title = nextChapterTitleRes?.let { stringResource(it) }
+                ?: stringResource(R.string.message_next_chapter_title)
+            MessageNextChapter(
+                modifier = modifier,
+                title = title,
+                showButton = showNextChapterButton,
+                onClick = onNextChapterClick
+            )
         }
 
         GameMessageType.Info -> {

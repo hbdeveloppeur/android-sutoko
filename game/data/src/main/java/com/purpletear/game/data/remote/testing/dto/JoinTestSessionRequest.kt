@@ -6,4 +6,5 @@ import androidx.annotation.Keep
 data class JoinTestSessionRequest(
     val storyId: String,
     val deviceInfo: String,
+    val deviceId: String,
 )
