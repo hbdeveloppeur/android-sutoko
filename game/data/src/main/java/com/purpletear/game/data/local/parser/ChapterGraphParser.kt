@@ -186,26 +186,24 @@ object ChapterGraphParser {
 
             "memory", "memory-save-node" -> {
                 val id = dto.id
-                val key = data?.memoryKey ?: data?.key
-                val value = data?.memoryValue ?: data?.value
-                require(id.isNotBlank()) { "memory node missing id" }
-                require(!key.isNullOrBlank()) { "memory node $id missing key" }
-                require(!value.isNullOrBlank()) { "memory node $id missing value" }
+                require(data?.memory != null) { "memory node missing key memory" }
+                val memory = data.memory
                 Node.Memory(
                     id = id,
-                    key = key,
-                    value = value
+                    key = memory.key,
+                    value = memory.value
                 )
             }
 
             "memory-condition-node" -> {
-                val key = data?.memoryKey ?: data?.key
-                require(!key.isNullOrBlank()) { "memory-condition-node ${dto.id} missing key" }
+                require(data?.memory != null) { "memory-condition-node ${dto.id} memory is null" }
+                val memory = data.memory
+
                 val expectedValue =
-                    requireNotNull(data?.expectedValue) { "memory-condition-node ${dto.id} missing expectedValue" }
+                    requireNotNull(data.expectedValue) { "memory-condition-node ${dto.id} missing expectedValue" }
                 Node.Condition(
                     id = dto.id,
-                    expression = "$key == $expectedValue",
+                    expression = "${memory.value} == $expectedValue",
                     trueTargetId = requireNotNull(data.trueTargetId) { "memory-condition-node ${dto.id} missing trueTargetId" },
                     falseTargetId = requireNotNull(data.falseTargetId) { "memory-condition-node ${dto.id} missing falseTargetId" }
                 )

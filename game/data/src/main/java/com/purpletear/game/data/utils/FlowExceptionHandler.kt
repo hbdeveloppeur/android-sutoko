@@ -17,7 +17,7 @@ fun Throwable.isCancellation(): Boolean = this is CancellationException
  * Usage:
  * ```
  * } catch (e: Exception) {
- *     e.ifNotCancellation { ntfy.exception(it) }
+ *     e.ifNotCancellation { crashReporter.report(it) }
  *     emit(Result.failure(e))
  * }
  * ```

@@ -3,17 +3,16 @@ package com.purpletear.game.data.graph.testing
 import com.google.gson.Gson
 import com.purpletear.game.data.file.testing.TestAssetCacheManager
 import com.purpletear.game.data.local.dto.EdgeDto
-import com.purpletear.game.data.provider.AndroidGamePathProvider
 import com.purpletear.game.data.local.dto.NodeDataDto
 import com.purpletear.game.data.local.dto.NodeDto
-import com.purpletear.game.data.remote.testing.dto.TestPackageManifestDto
+import com.purpletear.game.data.provider.AndroidGamePathProvider
 import com.purpletear.game.data.remote.testing.dto.parseManifest
 import com.purpletear.sutoko.game.model.chapter.ChapterGraph
-import com.purpletear.sutoko.game.testing.StoryTestingLogger
 import com.purpletear.sutoko.game.model.chapter.Edge
 import com.purpletear.sutoko.game.model.chapter.EdgeData
 import com.purpletear.sutoko.game.model.chapter.EdgeType
 import com.purpletear.sutoko.game.model.chapter.Node
+import com.purpletear.sutoko.game.testing.StoryTestingLogger
 import java.io.File
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -41,7 +40,8 @@ class TestChapterGraphLoader @Inject constructor(
         val manifest = gson.parseManifest(manifestFile.readText())
         StoryTestingLogger.d("GRPH") { "Loading graph — ${manifest.chapterId} seed ${manifest.seed}, ${manifest.nodes.size} raw nodes" }
 
-        val assetLookup = buildAssetLookup(gameId, manifest.assetInventory.map { it.uniqueFileName })
+        val assetLookup =
+            buildAssetLookup(gameId, manifest.assetInventory.map { it.uniqueFileName })
 
         val (compactedNodes, compactedEdges) = compactIgnoreNodes(manifest.nodes, manifest.edges)
         val nodes = compactedNodes
@@ -65,7 +65,10 @@ class TestChapterGraphLoader @Inject constructor(
         )
     }
 
-    private fun buildAssetLookup(gameId: String, assetInventory: List<String>): Map<String, String> {
+    private fun buildAssetLookup(
+        gameId: String,
+        assetInventory: List<String>
+    ): Map<String, String> {
         val cacheDir = assetCacheManager.getCacheDirectory(gameId)
         val cachedAssets = assetCacheManager.listCachedAssets(gameId)
         val originalAssetsDir = File(
@@ -164,15 +167,15 @@ class TestChapterGraphLoader @Inject constructor(
             )
 
             "memory", "memory-save-node" -> {
-                val key = data.memoryKey ?: data.key
-                val value = data.memoryValue ?: data.value
+                val key = data.memory?.key ?: data.key
+                val value = data.memory?.value ?: data.value
                 require(!key.isNullOrBlank()) { "memory node ${dto.id} missing key" }
                 require(!value.isNullOrBlank()) { "memory node ${dto.id} missing value" }
                 Node.Memory(id = dto.id, key = key, value = value)
             }
 
             "memory-condition-node" -> {
-                val key = data.memoryKey ?: data.key
+                val key = data.memory?.key ?: data.key
                 require(!key.isNullOrBlank()) { "memory-condition-node ${dto.id} missing key" }
                 Node.Condition(
                     id = dto.id,
@@ -201,7 +204,8 @@ class TestChapterGraphLoader @Inject constructor(
             "end" -> Node.End(id = dto.id)
 
             "sound" -> {
-                val storagePath = requireNotNull(data.storagePath) { "sound node ${dto.id} missing storagePath" }
+                val storagePath =
+                    requireNotNull(data.storagePath) { "sound node ${dto.id} missing storagePath" }
                 Node.Sound(
                     id = dto.id,
                     soundUrl = resolveAssetPath(storagePath, assetLookup),
@@ -210,8 +214,10 @@ class TestChapterGraphLoader @Inject constructor(
             }
 
             "message-vocal" -> {
-                val storagePath = requireNotNull(data.storagePath) { "message-vocal node ${dto.id} missing storagePath" }
-                val characterId = requireNotNull(data.characterId) { "message-vocal node ${dto.id} missing characterId" }
+                val storagePath =
+                    requireNotNull(data.storagePath) { "message-vocal node ${dto.id} missing storagePath" }
+                val characterId =
+                    requireNotNull(data.characterId) { "message-vocal node ${dto.id} missing characterId" }
                 Node.MessageVocal(
                     id = dto.id,
                     audioUrl = resolveAssetPath(storagePath, assetLookup),

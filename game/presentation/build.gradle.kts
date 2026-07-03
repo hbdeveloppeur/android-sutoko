@@ -57,7 +57,6 @@ dependencies {
     implementation(project(":core:domain"))
     implementation(project(":core:presentation"))
     implementation(project(":shared-elements"))
-    implementation(project(":ntfy"))
 
     implementation(libs.androidx.ktx)
     implementation(libs.androidx.appcompat)

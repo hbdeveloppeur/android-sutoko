@@ -11,12 +11,13 @@ import com.purpletear.game.presentation.game_preview.events.GamePreviewEvent
 import com.purpletear.game.presentation.model.GameItem
 import com.purpletear.game.presentation.model.GameUiError
 import com.purpletear.sutoko.core.domain.helper.AppVersionProvider
-import com.purpletear.sutoko.domain.repository.UserRepository
 import com.purpletear.sutoko.game.model.Chapter
 import com.purpletear.sutoko.game.repository.ChapterRepository
 import com.purpletear.sutoko.game.repository.game.GameInstallRepository
 import com.purpletear.sutoko.game.repository.game.GameRepository
 import com.purpletear.sutoko.game.service.MediaUrlResolver
+import com.purpletear.sutoko.core.domain.logger.Logger
+import com.purpletear.sutoko.core.domain.logger.exception
 import com.purpletear.sutoko.game.usecase.DownloadGameUseCase
 import com.purpletear.sutoko.game.usecase.GetChaptersUseCase
 import com.purpletear.sutoko.game.usecase.RestartGameUseCase
@@ -29,7 +30,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
@@ -62,8 +62,8 @@ class GamePreviewViewModel @Inject constructor(
     private val getChaptersUseCase: GetChaptersUseCase,
     private val downloadGameUseCase: DownloadGameUseCase,
     private val restartGameUseCase: RestartGameUseCase,
-    private val userRepository: UserRepository,
     private val makeToastService: MakeToastService,
+    private val logger: Logger,
     appVersionProvider: AppVersionProvider,
 ) : ViewModel() {
 
@@ -182,14 +182,9 @@ class GamePreviewViewModel @Inject constructor(
 
     private fun startDownload() {
         viewModelScope.launch {
-            val user = userRepository.observeUser().firstOrNull()
-            downloadGameUseCase(
-                gameId = gameId,
-                userId = user?.id,
-                userToken = user?.token,
-            )
+            downloadGameUseCase(gameId = gameId)
                 .catch { error ->
-                    Log.e(TAG, "Download failed for gameId=$gameId", error)
+                    logger.exception(error) { "Download failed for gameId=$gameId" }
                     sendEvent(GamePreviewEvent.ShowError(GameUiError.Download))
                 }
                 .collect { progress ->

@@ -1,5 +1,6 @@
 package com.purpletear.sutoko.game.usecase
 
+import com.purpletear.sutoko.domain.repository.UserRepository
 import com.purpletear.sutoko.game.repository.game.GameInstallRepository
 import com.purpletear.sutoko.game.repository.game.GameRepository
 import kotlinx.coroutines.flow.Flow
@@ -14,25 +15,23 @@ import javax.inject.Inject
 class DownloadGameUseCase @Inject constructor(
     private val gameRepository: GameRepository,
     private val gameInstallRepository: GameInstallRepository,
+    private val userRepository: UserRepository,
 ) {
 
     suspend operator fun invoke(
         gameId: String,
-        userId: String?,
-        userToken: String?,
     ): Flow<Float> {
         assert(gameId.isNotBlank(), { "gameId must not be blank" })
-        assert(userId == null || userId.isNotBlank(), { "userId must not be blank" })
-        assert(userToken == null || userToken.isNotBlank(), { "userToken must not be blank" })
 
+        val user = userRepository.observeUser().firstOrNull()
 
         val game = gameRepository.observeGame(gameId).firstOrNull()
             ?: throw IllegalArgumentException("Game not found: $gameId")
 
         val downloadUrl = gameRepository.getDownloadLink(
             gameId = gameId,
-            userId = userId,
-            userToken = userToken,
+            userId = user?.id,
+            userToken = user?.token,
         ).getOrThrow()
 
         return gameInstallRepository.download(

@@ -148,9 +148,9 @@ dependencies {
     implementation project(':game:presentation')
     implementation project(':core:presentation')
     implementation project(':core:android')
-    implementation project(':ntfy')
     implementation project(':auth')
     implementation project(':shop')
+    implementation project(':logger:data')
 
     // DESUGARING
     coreLibraryDesugaring "com.android.tools:desugar_jdk_libs:$desugar_jdk_libs_version"

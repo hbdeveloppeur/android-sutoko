@@ -24,6 +24,8 @@ import com.purpletear.sutoko.game.repository.SceneRepository
 import com.purpletear.sutoko.game.testing.StoryTestingLogger
 import com.purpletear.sutoko.game.usecase.GetSceneUseCase
 import com.purpletear.sutoko.game.usecase.LoadChapterGraphUseCase
+import com.purpletear.sutoko.core.domain.logger.Logger
+import com.purpletear.sutoko.core.domain.logger.exception
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Job
@@ -53,6 +55,7 @@ class GameEngineViewModel @Inject constructor(
     private val getSceneUseCase: GetSceneUseCase,
     private val makeToastService: MakeToastService,
     private val storyLiveUpdateCoordinator: StoryLiveUpdateCoordinator,
+    private val logger: Logger,
     savedStateHandle: SavedStateHandle,
     @ApplicationContext private val context: Context,
 ) : ViewModel() {
@@ -134,7 +137,7 @@ class GameEngineViewModel @Inject constructor(
                         startGame(gameId, graph)
                     },
                     onFailure = { error ->
-                        Log.e("GameEngine", "Failed to load chapter $chapterCode: ${error.message}")
+                        logger.exception(error) { "Failed to load chapter $chapterCode" }
                         makeToastService(R.string.error_load_game)
                     }
                 )

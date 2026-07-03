@@ -57,7 +57,6 @@ dependencies {
     implementation(project(":game:domain"))
     implementation(project(":core:domain"))
     implementation(project(":core:data"))
-    implementation(project(":ntfy"))
     implementation(project(":tools"))
     implementation(project(":purchase"))
     implementation(project(":auth"))

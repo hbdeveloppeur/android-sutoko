@@ -2,17 +2,28 @@ plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.jetbrains.kotlin.android)
     alias(libs.plugins.ksp)
+    id("dagger.hilt.android.plugin")
 }
 
 android {
-    namespace = "com.purpletear.sutoko.game"
+    namespace = "com.purpletear.sutoko.logger.data"
     compileSdk = 35
 
     defaultConfig {
         minSdk = 24
 
+        val exceptionChannel = project.findProperty("LOGGER_EXCEPTION_CHANNEL") as? String ?: ""
+        val logChannel = project.findProperty("LOGGER_LOG_CHANNEL") as? String ?: ""
+
+        buildConfigField("String", "LOGGER_EXCEPTION_CHANNEL", "\"$exceptionChannel\"")
+        buildConfigField("String", "LOGGER_LOG_CHANNEL", "\"$logChannel\"")
+
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles("consumer-rules.pro")
+    }
+
+    buildFeatures {
+        buildConfig = true
     }
 
     buildTypes {
@@ -23,9 +34,6 @@ android {
                 "proguard-rules.pro"
             )
         }
-    }
-    buildFeatures {
-        buildConfig = true
     }
 
     compileOptions {
@@ -46,19 +54,16 @@ android {
 }
 
 dependencies {
+    implementation(project(":core:domain"))
 
     implementation(libs.androidx.ktx)
-    implementation(libs.androidx.appcompat)
-    implementation(libs.android.material)
-    implementation(project(":core:domain"))
-    implementation(project(":auth"))
-    testImplementation(libs.junit)
-    androidTestImplementation(libs.androidx.junit)
-    androidTestImplementation(libs.androidx.espresso.core)
+    implementation(libs.okhttp3)
+    implementation(libs.kotlinx.coroutines.android)
 
     implementation(libs.dagger.hilt)
     ksp(libs.dagger.hilt.compiler)
-    ksp(libs.androidx.hilt.compiler)
-    implementation(libs.androidx.hilt.work)
-    implementation(libs.androidx.runtime)
+
+    testImplementation(libs.junit)
+    androidTestImplementation(libs.androidx.junit)
+    androidTestImplementation(libs.androidx.espresso.core)
 }

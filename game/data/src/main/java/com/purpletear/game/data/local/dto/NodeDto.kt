@@ -45,10 +45,17 @@ data class NodeDataDto(
     val assetId: Int? = null,
     @SerializedName("assetName")
     val assetName: String? = null,
-    val memoryKey: String? = null,
-    val memoryValue: String? = null,
+    val memory: MemoryDto? = null,
     @SerializedName("expectedValue")
     val expectedValue: String? = null,
     @SerializedName("isLooping")
     val isLooping: Boolean? = null,
+)
+
+@Keep
+data class MemoryDto(
+    @SerializedName("name")
+    val key: String,
+    val value: String,
+    val chapterId: String,
 )
