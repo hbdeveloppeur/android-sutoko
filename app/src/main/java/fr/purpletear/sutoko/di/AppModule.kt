@@ -2,7 +2,6 @@ package fr.purpletear.sutoko.di
 
 import android.app.Application
 import android.content.Context
-import android.os.Trace
 import androidx.room.Room
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.firestore.FirebaseFirestore
@@ -13,12 +12,12 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
+import fr.purpletear.sutoko.symbols.DefaultSymbolsRepository
+import fr.purpletear.sutoko.symbols.SymbolsRepository
 import purpletear.fr.purpleteartools.DelayHandler
 import purpletear.fr.purpleteartools.TableOfPlayersV2
 import purpletear.fr.purpleteartools.TableOfSymbols
 import purpletear.fr.purpleteartools.symbols.SymbolsRoomStorage
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.runBlocking
 import purpletear.fr.purpleteartools.symbols.SymbolsStorage
 import purpletear.fr.purpleteartools.symbols.data.SymbolsDatabase
 import java.io.File
@@ -86,13 +85,8 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideTableOfSymbols(storage: SymbolsStorage): TableOfSymbols {
-        Trace.beginSection("AppModule.loadTableOfSymbols")
-        val table = runBlocking(Dispatchers.IO) {
-            storage.load()
-        } ?: TableOfSymbols(-1)
-        Trace.endSection()
-        return table
+    fun provideSymbolsRepository(repository: DefaultSymbolsRepository): SymbolsRepository {
+        return repository
     }
 
     @Provides

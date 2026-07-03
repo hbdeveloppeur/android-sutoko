@@ -126,9 +126,6 @@ class MainActivity @Inject constructor(
     @Inject
     lateinit var setCurrentScreenUseCase: SetCurrentScreenUseCase
 
-    @Inject
-    lateinit var symbols: TableOfSymbols
-
 
     private fun observeAuthEvents() {
         lifecycleScope.launch {

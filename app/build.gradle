@@ -76,6 +76,14 @@ android {
             buildConfigField("String", "VERSION_NAME", "\"${defaultConfig.versionName}\"")
             buildConfigField("int", "VERSION_CODE", "${defaultConfig.versionCode}")
         }
+
+        benchmark {
+            initWith debug
+            debuggable false
+            profileable true
+            signingConfig signingConfigs.debug
+            matchingFallbacks = ['release']
+        }
     }
 
     compileOptions {

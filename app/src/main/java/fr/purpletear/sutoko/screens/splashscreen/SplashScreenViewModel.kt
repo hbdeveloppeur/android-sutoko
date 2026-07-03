@@ -3,6 +3,7 @@ package fr.purpletear.sutoko.screens.splashscreen
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import fr.purpletear.sutoko.symbols.SymbolsRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -13,10 +14,12 @@ import javax.inject.Inject
 
 /**
  * ViewModel for the splash screen.
- * Tracks the completion status of splash screen animations and data loading.
+ * Tracks the completion status of splash screen animations and the asynchronous load of the
+ * symbols table. Navigation to the main screen is gated on both being ready.
  */
 @HiltViewModel
 class SplashScreenViewModel @Inject constructor(
+    symbolsRepository: SymbolsRepository
 ) : ViewModel() {
 
     // Flag to track if animations are finished (they take 5 seconds to complete)
@@ -26,8 +29,9 @@ class SplashScreenViewModel @Inject constructor(
     // Combined state to check if both animations are finished and data is loaded
     val isReadyToNavigate: StateFlow<Boolean> = combine(
         areAnimationsFinished,
-    ) { animationsFinished ->
-        animationsFinished.all { it }
+        symbolsRepository.symbols,
+    ) { animationsFinished, symbols ->
+        animationsFinished && symbols != null
     }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(4500),

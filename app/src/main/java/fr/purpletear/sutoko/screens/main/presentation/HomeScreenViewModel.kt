@@ -31,6 +31,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import fr.purpletear.sutoko.R
 import fr.purpletear.sutoko.objects.CalendarEvent
 import fr.purpletear.sutoko.screens.main.domain.popup.util.MainMenuCategory
+import fr.purpletear.sutoko.symbols.SymbolsRepository
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -47,7 +48,7 @@ class HomeScreenViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private var firebaseAnalytics: FirebaseAnalytics,
     private val screenUseCase: SetCurrentScreenUseCase,
-    private val symbols: TableOfSymbols,
+    private val symbolsRepository: SymbolsRepository,
     private val observeNewsUseCase: ObserveNewsUseCase,
     private val observeOfficialGamesUseCase: ObserveOfficialGamesUseCase,
     private val openDiscordOrBrowser: OpenDiscordOrBrowserService,
@@ -146,9 +147,15 @@ class HomeScreenViewModel @Inject constructor(
         // Update initial state with saved state handle values
         _state.value = _state.value.copy(
             events = events,
-            notificationsOn = symbols.isFirebaseNotificationEnabled
+            notificationsOn = true
         )
 
+        viewModelScope.launch {
+            val symbols = symbolsRepository.load()
+            _state.value = _state.value.copy(
+                notificationsOn = symbols.isFirebaseNotificationEnabled
+            )
+        }
 
         // Derive square/full stories and main state from the observed games
         viewModelScope.launch {
@@ -181,9 +188,13 @@ class HomeScreenViewModel @Inject constructor(
      * @param value a Boolean representing if the user wants to receive notifications or not.
      */
     private fun setNotifications(value: Boolean) {
-        this.symbols.setFirebaseNotification(value)
-        firebaseAnalytics.setUserProperty("want_to_get_notified", if (value) "yes" else "no")
-        this.saveSymbols.value = this.symbols
+        viewModelScope.launch {
+            val symbols = symbolsRepository.load()
+            symbols.setFirebaseNotification(value)
+            firebaseAnalytics.setUserProperty("want_to_get_notified", if (value) "yes" else "no")
+            saveSymbols.value = symbols
+            _state.value = _state.value.copy(notificationsOn = symbols.isFirebaseNotificationEnabled)
+        }
     }
 
     private fun getSortedCards(cards: Set<GameCatalog>): List<GameCatalog> {
@@ -290,8 +301,6 @@ class HomeScreenViewModel @Inject constructor(
 
             is MainEvents.ToggleNotifications -> {
                 this.setNotifications(event.notificationsOn)
-                this._state.value =
-                    this._state.value.copy(notificationsOn = this.symbols.isFirebaseNotificationEnabled)
             }
 
             is MainEvents.TapShop -> {

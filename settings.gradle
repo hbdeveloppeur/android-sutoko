@@ -61,6 +61,7 @@ include ':version:domain'
 include ':version:infrastructure'
 include ':ntfy'
 include ':shop'
+include ':benchmark'
 
 project(":platform:play").projectDir = new File(rootDir, "platform/play")
 project(":purchase").projectDir = new File(rootDir, "purchase")

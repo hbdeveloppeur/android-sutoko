@@ -22,6 +22,7 @@ import com.purpletear.sutoko.core.android.di.DefaultActivityProvider
 import dagger.hilt.android.HiltAndroidApp
 import dalvik.system.ZipPathValidator
 import fr.purpletear.sutoko.presentation.util.DeleteCoilCache
+import fr.purpletear.sutoko.symbols.SymbolsRepository
 import fr.purpletear.sutoko.sync.balance.BalanceSyncCoordinator
 import fr.purpletear.sutoko.sync.catalog.CatalogSyncCoordinator
 import fr.purpletear.sutoko.sync.news.NewsSyncCoordinator
@@ -62,6 +63,9 @@ class Application : MultiDexApplication(), DefaultLifecycleObserver {
     @Inject
     lateinit var purchaseBackendRegistrationCoordinator: PurchaseBackendRegistrationCoordinator
 
+    @Inject
+    lateinit var symbolsRepository: SymbolsRepository
+
     private val appSyncScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
     override fun attachBaseContext(base: Context) {
@@ -101,6 +105,10 @@ class Application : MultiDexApplication(), DefaultLifecycleObserver {
         )
         purchaseBackendRegistrationCoordinator.start(appSyncScope)
 
+        appSyncScope.launch {
+            symbolsRepository.load()
+        }
+
         processLifecycleOwner.lifecycle.addObserver(
             object : DefaultLifecycleObserver {
                 override fun onDestroy(owner: LifecycleOwner) {
@@ -117,7 +125,9 @@ class Application : MultiDexApplication(), DefaultLifecycleObserver {
 
         FirebaseCrashlytics.getInstance().isCrashlyticsCollectionEnabled = !BuildConfig.DEBUG
 
-        createNotificationChannel()
+        appSyncScope.launch {
+            createNotificationChannel()
+        }
 
         appSyncScope.launch {
             val settings = FirebaseFirestoreSettings.Builder()
@@ -126,13 +136,17 @@ class Application : MultiDexApplication(), DefaultLifecycleObserver {
             FirebaseFirestore.getInstance().firestoreSettings = settings
         }
 
-        val config: PRDownloaderConfig = PRDownloaderConfig.newBuilder()
-            .setReadTimeout(30000)
-            .setConnectTimeout(30000)
-            .build()
-        PRDownloader.initialize(applicationContext, config)
+        appSyncScope.launch {
+            val config: PRDownloaderConfig = PRDownloaderConfig.newBuilder()
+                .setReadTimeout(30000)
+                .setConnectTimeout(30000)
+                .build()
+            PRDownloader.initialize(applicationContext, config)
+        }
 
-        DeleteCoilCache.clearCache(applicationContext)
+        appSyncScope.launch {
+            DeleteCoilCache.clearCache(applicationContext)
+        }
     }
 
     private fun Context.clearGlideCache() {
