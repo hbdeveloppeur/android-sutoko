@@ -20,6 +20,7 @@ import com.purpletear.game.presentation.debug.SmsGameDevViewModel
 import com.purpletear.game.presentation.debug.debugPage
 import com.purpletear.game.presentation.game_chapter_introduction.descriptionScreen
 import com.purpletear.game.presentation.game_chapter_selection.chapterSelectionScreen
+import com.purpletear.game.presentation.game_play.liveupdate.StoryLiveUpdateCoordinator
 import com.purpletear.game.presentation.game_play.navigation.gameScreen
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.delay
@@ -32,9 +33,9 @@ class SmsGameActivity : ComponentActivity() {
     private val viewModel: GameSessionViewModel by viewModels()
     private val devViewModel: SmsGameDevViewModel by viewModels()
     @Inject
-    lateinit var storyTestingCoordinator: StoryTestingCoordinator
+    lateinit var storyLiveUpdateCoordinator: StoryLiveUpdateCoordinator
 
-    private var isTestMode: Boolean = false
+    private var isLiveUpdateMode: Boolean = false
     private var storyId: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -43,11 +44,11 @@ class SmsGameActivity : ComponentActivity() {
 
         val args = extractArgs()
         val gameId = args.gameId
-        isTestMode = args.isTestMode
+        isLiveUpdateMode = args.isLiveUpdateMode
         storyId = args.storyId
 
-        if (isTestMode) {
-            storyId?.let { storyTestingCoordinator.startTesting(gameId, it) }
+        if (isLiveUpdateMode) {
+            storyId?.let { storyLiveUpdateCoordinator.startLiveUpdate(gameId, it) }
         }
 
         enableEdgeToEdge()
@@ -69,8 +70,8 @@ class SmsGameActivity : ComponentActivity() {
                     }
                 }
 
-                val startDestination = if (isTestMode) {
-                    SmsGameRoutes.game("test", isTestMode = true)
+                val startDestination = if (isLiveUpdateMode) {
+                    SmsGameRoutes.game("test", isLiveUpdateMode = true)
                 } else {
                     SmsGameRoutes.DESCRIPTION
                 }
@@ -116,7 +117,7 @@ class SmsGameActivity : ComponentActivity() {
                         viewModel = viewModel,
                         onContinue = { chapterCode ->
                             fadeThenRun {
-                                navController.navigate(SmsGameRoutes.game(chapterCode, isTestMode))
+                                navController.navigate(SmsGameRoutes.game(chapterCode, isLiveUpdateMode))
                             }
                         },
                         onSelectChapter = {
@@ -145,7 +146,7 @@ class SmsGameActivity : ComponentActivity() {
                         gameId = gameId,
                         onNavigateToChapter = { chapterCode ->
                             fadeThenRun {
-                                navController.navigate(SmsGameRoutes.game(chapterCode, isTestMode)) {
+                                navController.navigate(SmsGameRoutes.game(chapterCode, isLiveUpdateMode)) {
                                     popUpTo(SmsGameRoutes.GAME) { inclusive = true }
                                 }
                             }
@@ -162,8 +163,8 @@ class SmsGameActivity : ComponentActivity() {
     override fun onDestroy() {
         Trace.beginSection("SmsGameActivity.onDestroy")
         super.onDestroy()
-        if (isTestMode) {
-            storyTestingCoordinator.stopTesting()
+        if (isLiveUpdateMode) {
+            storyLiveUpdateCoordinator.stopLiveUpdate()
         }
         Trace.endSection()
     }

@@ -10,6 +10,8 @@ import androidx.lifecycle.viewModelScope
 import com.purpletear.core.presentation.services.MakeToastService
 import com.purpletear.game.presentation.R
 import com.purpletear.game.presentation.debug.debugStartNodeFor
+import com.purpletear.game.presentation.game_play.liveupdate.StoryLiveUpdateConnectionState
+import com.purpletear.game.presentation.game_play.liveupdate.StoryLiveUpdateCoordinator
 import com.purpletear.game.presentation.game_play.state.GameUiState
 import com.purpletear.game.presentation.game_play.state.LiveUpdateStatus
 import com.purpletear.sutoko.game.engine.GameEngine
@@ -50,7 +52,7 @@ class GameEngineViewModel @Inject constructor(
     private val characterRepository: CharacterRepository,
     private val getSceneUseCase: GetSceneUseCase,
     private val makeToastService: MakeToastService,
-    private val storyTestingCoordinator: StoryTestingCoordinator,
+    private val storyLiveUpdateCoordinator: StoryLiveUpdateCoordinator,
     savedStateHandle: SavedStateHandle,
     @ApplicationContext private val context: Context,
 ) : ViewModel() {
@@ -66,7 +68,7 @@ class GameEngineViewModel @Inject constructor(
     private val chapterCode: String = checkNotNull(savedStateHandle["chapterCode"]) {
         "chapterCode is required"
     }
-    private val isTestMode: Boolean = savedStateHandle.get<Boolean>("isTestMode") ?: false
+    private val isLiveUpdateMode: Boolean = savedStateHandle.get<Boolean>(SmsGameRoutes.IS_LIVE_UPDATE_MODE_ARG) ?: false
 
     private val _navigateToNextChapter = Channel<String>(Channel.BUFFERED)
     val navigateToNextChapter: Flow<String> = _navigateToNextChapter.receiveAsFlow()
@@ -84,9 +86,9 @@ class GameEngineViewModel @Inject constructor(
         Trace.beginSection("GameEngineViewModel.init")
         updateState {
             it.copy(
-                isTestMode = isTestMode,
-                showNextChapterButton = !isTestMode,
-                nextChapterTitleRes = if (isTestMode) R.string.message_next_chapter_test_mode_title else null
+                isLiveUpdateMode = isLiveUpdateMode,
+                showNextChapterButton = !isLiveUpdateMode,
+                nextChapterTitleRes = if (isLiveUpdateMode) R.string.message_next_chapter_test_mode_title else null
             )
         }
         viewModelScope.launch {
@@ -104,8 +106,8 @@ class GameEngineViewModel @Inject constructor(
                 launch { gameEngine.messages.collect { updateMessages(it) } }
                 launch { gameEngine.effects.collect { handleEffect(it) } }
 
-                if (isTestMode) {
-                    observeStoryTestingState()
+                if (isLiveUpdateMode) {
+                    observeStoryLiveUpdateState()
                 } else {
                     loadChapterGraphAndStartGame(gameId, chapterCode)
                 }
@@ -214,17 +216,17 @@ class GameEngineViewModel @Inject constructor(
         }
     }
 
-    private fun observeStoryTestingState() {
+    private fun observeStoryLiveUpdateState() {
         StoryTestingLogger.i("NAV") { "GameEngineViewModel entering test mode — gameId=$gameId" }
 
         viewModelScope.launch {
             var lastLoggedError: String? = null
-            storyTestingCoordinator.state.collect { testingState ->
+            storyLiveUpdateCoordinator.state.collect { testingState ->
                 val status = when {
                     !testingState.isActive -> null
                     testingState.isLoading -> LiveUpdateStatus.Loading
-                    testingState.connectionState == StoryTestingConnectionState.CONNECTED -> LiveUpdateStatus.Connected
-                    testingState.connectionState == StoryTestingConnectionState.DISCONNECTED -> LiveUpdateStatus.Disconnected
+                    testingState.connectionState == StoryLiveUpdateConnectionState.CONNECTED -> LiveUpdateStatus.Connected
+                    testingState.connectionState == StoryLiveUpdateConnectionState.DISCONNECTED -> LiveUpdateStatus.Disconnected
                     else -> null
                 }
                 updateState { it.copy(liveUpdateStatus = status) }
@@ -522,7 +524,7 @@ class GameEngineViewModel @Inject constructor(
     fun onReloadStoryUpdates() {
         if (!_uiState.value.hasPendingStoryUpdate) return
 
-        val graph = storyTestingCoordinator.state.value.currentGraph ?: return
+        val graph = storyLiveUpdateCoordinator.state.value.currentGraph ?: return
         val resumeNodeId = graph.startNodeId
 
         StoryTestingLogger.i("NAV") { "Test mode reloading — ${graph.chapterCode} → $resumeNodeId" }

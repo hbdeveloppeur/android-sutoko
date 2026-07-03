@@ -1,11 +1,11 @@
-package com.purpletear.game.presentation.game_play
+package com.purpletear.game.presentation.game_play.liveupdate
 
 import com.purpletear.sutoko.game.model.chapter.ChapterGraph
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
-class StoryTestingPlayFromNodeResolverTest {
+class StoryLiveUpdatePlayFromNodeResolverTest {
 
     @Test
     fun `returns Ready when current graph matches requested chapter`() {
@@ -18,7 +18,7 @@ class StoryTestingPlayFromNodeResolverTest {
             startNodeId = "start"
         )
 
-        val result = StoryTestingPlayFromNodeResolver.resolve(
+        val result = StoryLiveUpdatePlayFromNodeResolver.resolve(
             chapterId = "chapter-1",
             currentGraph = graph,
             extractedDirectories = emptyMap()
@@ -39,7 +39,7 @@ class StoryTestingPlayFromNodeResolverTest {
         )
         val extractedDirectories = mapOf("chapter-1" to "/extracted/chapter-1")
 
-        val result = StoryTestingPlayFromNodeResolver.resolve(
+        val result = StoryLiveUpdatePlayFromNodeResolver.resolve(
             chapterId = "chapter-1",
             currentGraph = graph,
             extractedDirectories = extractedDirectories
@@ -53,7 +53,7 @@ class StoryTestingPlayFromNodeResolverTest {
     fun `returns Cached when no graph is loaded and extracted directory exists`() {
         val extractedDirectories = mapOf("chapter-1" to "/extracted/chapter-1")
 
-        val result = StoryTestingPlayFromNodeResolver.resolve(
+        val result = StoryLiveUpdatePlayFromNodeResolver.resolve(
             chapterId = "chapter-1",
             currentGraph = null,
             extractedDirectories = extractedDirectories
@@ -74,7 +74,7 @@ class StoryTestingPlayFromNodeResolverTest {
             startNodeId = "start"
         )
 
-        val result = StoryTestingPlayFromNodeResolver.resolve(
+        val result = StoryLiveUpdatePlayFromNodeResolver.resolve(
             chapterId = "chapter-1",
             currentGraph = graph,
             extractedDirectories = emptyMap()
@@ -85,7 +85,7 @@ class StoryTestingPlayFromNodeResolverTest {
 
     @Test
     fun `returns Missing when no graph and no extracted directory exists`() {
-        val result = StoryTestingPlayFromNodeResolver.resolve(
+        val result = StoryLiveUpdatePlayFromNodeResolver.resolve(
             chapterId = "chapter-1",
             currentGraph = null,
             extractedDirectories = emptyMap()

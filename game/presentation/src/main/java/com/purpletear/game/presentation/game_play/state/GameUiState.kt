@@ -42,7 +42,7 @@ data class GameUiState(
     val isLoadingStoryUpdates: Boolean = false,
     val liveUpdateStatus: LiveUpdateStatus? = null,
     val hasPendingStoryUpdate: Boolean = false,
-    val isTestMode: Boolean = false,
+    val isLiveUpdateMode: Boolean = false,
     val showNextChapterButton: Boolean = true,
     @StringRes val nextChapterTitleRes: Int? = null,
 )

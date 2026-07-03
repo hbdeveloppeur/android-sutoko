@@ -1,4 +1,4 @@
-package com.purpletear.game.presentation.game_play
+package com.purpletear.game.presentation.game_play.liveupdate
 
 import com.purpletear.sutoko.game.testing.StoryTestingLogger
 
@@ -8,7 +8,7 @@ import com.purpletear.sutoko.game.testing.StoryTestingLogger
  * The resolution is deterministic and logged so developers can audit why a session started
  * from a particular chapter.
  */
-internal object StoryTestingInitialChapterResolver {
+internal object StoryLiveUpdateInitialChapterResolver {
 
     /**
      * Returns the chapter UUID the test session should start from.

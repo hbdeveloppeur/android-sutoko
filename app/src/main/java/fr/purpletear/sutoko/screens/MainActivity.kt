@@ -287,7 +287,7 @@ class MainActivity @Inject constructor(
                                 onOptionsPressed = ::onOptionsPressed,
                                 onDiamondsPressed = ::onDiamondPressed,
                                 onCoinsPressed = ::onCoinsPressed,
-                                onGamePressed = { gameId, isTestMode -> startSmsGameActivity(gameId, isTestMode) },
+                                onGamePressed = { gameId, isLiveUpdateMode -> startSmsGameActivity(gameId, isLiveUpdateMode) },
                                 onCreateStoryPressed = {
                                     navController.navigate(MainScreenPages.CreateStory.route)
                                 },
@@ -514,11 +514,11 @@ class MainActivity @Inject constructor(
         startActivity(intent)
     }
 
-    private fun startSmsGameActivity(gameId: String, isTestMode: Boolean = false) {
+    private fun startSmsGameActivity(gameId: String, isLiveUpdateMode: Boolean = false) {
         val args = SmsGameActivityArgs(
             gameId = gameId,
-            storyId = if (isTestMode) gameId else null,
-            isTestMode = isTestMode
+            storyId = if (isLiveUpdateMode) gameId else null,
+            isLiveUpdateMode = isLiveUpdateMode
         )
         val intent = SmsGameActivity.intent(this, args)
         startActivity(intent)

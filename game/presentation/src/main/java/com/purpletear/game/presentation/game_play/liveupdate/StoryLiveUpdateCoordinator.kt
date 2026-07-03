@@ -1,4 +1,4 @@
-package com.purpletear.game.presentation.game_play
+package com.purpletear.game.presentation.game_play.liveupdate
 
 import android.os.Build
 import com.purpletear.game.data.file.testing.TestAssetCacheManager
@@ -26,7 +26,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class StoryTestingCoordinator @Inject constructor(
+class StoryLiveUpdateCoordinator @Inject constructor(
     private val joinTestSession: JoinTestSessionUseCase,
     private val registerAssetInventory: RegisterAssetInventoryUseCase,
     private val observeTestEvents: ObserveTestEventsUseCase,
@@ -38,8 +38,8 @@ class StoryTestingCoordinator @Inject constructor(
     private val lastTestedChapterRepository: LastTestedChapterRepository,
 ) {
 
-    private val _state = MutableStateFlow(StoryTestingState())
-    val state: StateFlow<StoryTestingState> = _state.asStateFlow()
+    private val _state = MutableStateFlow(StoryLiveUpdateState())
+    val state: StateFlow<StoryLiveUpdateState> = _state.asStateFlow()
 
     private var coordinatorScope: CoroutineScope? = null
     private var currentGameId: String? = null
@@ -58,13 +58,13 @@ class StoryTestingCoordinator @Inject constructor(
      * Starts a test session for [gameId] / [storyId].
      * Safe to call again; previous sessions are stopped first.
      */
-    fun startTesting(gameId: String, storyId: String) {
+    fun startLiveUpdate(gameId: String, storyId: String) {
         if (currentGameId == gameId && currentStoryId == storyId && _state.value.isActive) {
-            StoryTestingLogger.d("SESS") { "startTesting ignored — already active for $gameId / $storyId" }
+            StoryTestingLogger.d("SESS") { "startLiveUpdate ignored — already active for $gameId / $storyId" }
             return
         }
 
-        stopTesting()
+        stopLiveUpdate()
         currentGameId = gameId
         currentStoryId = storyId
 
@@ -75,10 +75,10 @@ class StoryTestingCoordinator @Inject constructor(
         initialGraphPublished = false
         extractedDirectories.clear()
 
-        _state.value = StoryTestingState(
+        _state.value = StoryLiveUpdateState(
             isActive = true,
             isLoading = true,
-            connectionState = StoryTestingConnectionState.CONNECTING,
+            connectionState = StoryLiveUpdateConnectionState.CONNECTING,
             error = null
         )
         StoryTestingLogger.i("SESS") { "Starting test session — gameId=$gameId, storyId=$storyId" }
@@ -90,7 +90,7 @@ class StoryTestingCoordinator @Inject constructor(
                 StoryTestingLogger.e("SESS", error) { "Failed to join test session" }
                 _state.value = _state.value.copy(
                     isLoading = false,
-                    connectionState = StoryTestingConnectionState.DISCONNECTED,
+                    connectionState = StoryLiveUpdateConnectionState.DISCONNECTED,
                     error = "Failed to join test session: ${error.message}"
                 )
             }
@@ -100,7 +100,7 @@ class StoryTestingCoordinator @Inject constructor(
     /**
      * Stops the active test session and cleans up resources.
      */
-    fun stopTesting() {
+    fun stopLiveUpdate() {
         StoryTestingLogger.i("SESS") { "Stopping test session" }
         activeDownloads.values.forEach { it.cancel() }
         activeDownloads.clear()
@@ -119,7 +119,7 @@ class StoryTestingCoordinator @Inject constructor(
         initialChapterId = null
         initialGraphPublished = false
 
-        _state.value = StoryTestingState()
+        _state.value = StoryLiveUpdateState()
     }
 
     private suspend fun joinAndSync(gameId: String, storyId: String) {
@@ -161,7 +161,7 @@ class StoryTestingCoordinator @Inject constructor(
                     StoryTestingLogger.e("NET", error) { "SSE error" }
                     _state.value = _state.value.copy(
                         isLoading = false,
-                        connectionState = StoryTestingConnectionState.DISCONNECTED,
+                        connectionState = StoryLiveUpdateConnectionState.DISCONNECTED,
                         error = "SSE error: ${error.message}"
                     )
                 }
@@ -187,7 +187,7 @@ class StoryTestingCoordinator @Inject constructor(
                 _state.value = _state.value.copy(
                     isLoading = false,
                     connectionState = if (isTerminal) {
-                        StoryTestingConnectionState.DISCONNECTED
+                        StoryLiveUpdateConnectionState.DISCONNECTED
                     } else {
                         _state.value.connectionState
                     },
@@ -207,7 +207,7 @@ class StoryTestingCoordinator @Inject constructor(
         syncChaptersFromSeeds(gameId, event.chapterSeeds)
 
         _state.value = _state.value.copy(
-            connectionState = StoryTestingConnectionState.CONNECTED,
+            connectionState = StoryLiveUpdateConnectionState.CONNECTED,
             error = null
         )
     }
@@ -219,7 +219,7 @@ class StoryTestingCoordinator @Inject constructor(
             return
         }
 
-        val resolvedInitialChapterId = StoryTestingInitialChapterResolver.resolve(
+        val resolvedInitialChapterId = StoryLiveUpdateInitialChapterResolver.resolve(
             chapterSeeds,
             _state.value.lastWorkedOnChapterId
         )
@@ -319,7 +319,7 @@ class StoryTestingCoordinator @Inject constructor(
         }
 
         when (
-            val graphState = StoryTestingPlayFromNodeResolver.resolve(
+            val graphState = StoryLiveUpdatePlayFromNodeResolver.resolve(
                 chapterId,
                 _state.value.currentGraph,
                 extractedDirectories

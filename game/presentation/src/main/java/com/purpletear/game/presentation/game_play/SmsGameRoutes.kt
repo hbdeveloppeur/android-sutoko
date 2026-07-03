@@ -4,10 +4,11 @@ internal object SmsGameRoutes {
     const val DEBUG = "debug/{gameId}"
     const val DESCRIPTION = "game/description"
     const val CHAPTER_SELECTION = "game/chapter-selection?currentChapterCode={currentChapterCode}"
-    const val GAME = "game/play/{chapterCode}?isTestMode={isTestMode}"
+    const val IS_LIVE_UPDATE_MODE_ARG = "isLiveUpdateMode"
+    const val GAME = "game/play/{chapterCode}?$IS_LIVE_UPDATE_MODE_ARG={$IS_LIVE_UPDATE_MODE_ARG}"
 
-    fun game(chapterCode: String, isTestMode: Boolean = false): String =
-        "game/play/$chapterCode?isTestMode=$isTestMode"
+    fun game(chapterCode: String, isLiveUpdateMode: Boolean = false): String =
+        "game/play/$chapterCode?$IS_LIVE_UPDATE_MODE_ARG=$isLiveUpdateMode"
 
     fun debug(gameId: String): String = "debug/$gameId"
 

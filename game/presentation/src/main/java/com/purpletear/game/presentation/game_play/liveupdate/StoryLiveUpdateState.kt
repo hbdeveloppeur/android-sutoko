@@ -1,13 +1,13 @@
-package com.purpletear.game.presentation.game_play
+package com.purpletear.game.presentation.game_play.liveupdate
 
 import androidx.annotation.Keep
 import com.purpletear.sutoko.game.model.chapter.ChapterGraph
 
 /**
- * Transport-level state of the SSE channel managed by [StoryTestingCoordinator].
+ * Transport-level state of the SSE channel managed by [StoryLiveUpdateCoordinator].
  */
 @Keep
-enum class StoryTestingConnectionState {
+enum class StoryLiveUpdateConnectionState {
     IDLE,
     CONNECTING,
     CONNECTED,
@@ -15,7 +15,7 @@ enum class StoryTestingConnectionState {
 }
 
 /**
- * State exposed by [StoryTestingCoordinator] to the UI and [GameEngineViewModel].
+ * State exposed by [StoryLiveUpdateCoordinator] to the UI and [GameEngineViewModel].
  *
  * @property isActive True while a test session is running.
  * @property isLoading True while connecting, downloading, or applying a package.
@@ -33,10 +33,10 @@ enum class StoryTestingConnectionState {
  * @property initialChapterId Chapter UUID the coordinator decided to start this session from.
  */
 @Keep
-data class StoryTestingState(
+data class StoryLiveUpdateState(
     val isActive: Boolean = false,
     val isLoading: Boolean = false,
-    val connectionState: StoryTestingConnectionState = StoryTestingConnectionState.IDLE,
+    val connectionState: StoryLiveUpdateConnectionState = StoryLiveUpdateConnectionState.IDLE,
     val error: String? = null,
     val currentGraph: ChapterGraph? = null,
     val targetNodeId: String? = null,

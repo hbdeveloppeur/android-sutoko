@@ -1,4 +1,4 @@
-package com.purpletear.game.presentation.game_play
+package com.purpletear.game.presentation.game_play.liveupdate
 
 import com.purpletear.sutoko.game.model.chapter.ChapterGraph
 
@@ -18,7 +18,7 @@ internal sealed class PlayFromNodeGraphState {
  * The result is deterministic and side-effect free so it can be unit tested without mocking the
  * coordinator's dependencies.
  */
-internal object StoryTestingPlayFromNodeResolver {
+internal object StoryLiveUpdatePlayFromNodeResolver {
 
     fun resolve(
         chapterId: String,

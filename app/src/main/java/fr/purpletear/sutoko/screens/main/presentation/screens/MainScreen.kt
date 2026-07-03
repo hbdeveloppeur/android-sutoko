@@ -122,8 +122,8 @@ fun MainScreen(
                         onCoinsPressed = onCoinsPressed,
                         onDiamondsPressed = onDiamondsPressed,
                         onCreateStoryPressed = onCreateStoryPressed,
-                        openGame = { game, isTestMode ->
-                            onGamePressed(game.id, isTestMode)
+                        openGame = { game, isLiveUpdateMode ->
+                            onGamePressed(game.id, isLiveUpdateMode)
                         }
                     )
                 }

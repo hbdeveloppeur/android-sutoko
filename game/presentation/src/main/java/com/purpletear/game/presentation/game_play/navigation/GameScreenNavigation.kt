@@ -33,7 +33,7 @@ internal fun NavGraphBuilder.gameScreen(
         navArgument("chapterCode") {
             type = NavType.StringType
         },
-        navArgument("isTestMode") {
+        navArgument(SmsGameRoutes.IS_LIVE_UPDATE_MODE_ARG) {
             type = NavType.BoolType
             defaultValue = false
         },
