@@ -6,6 +6,7 @@ import com.purpletear.sutoko.game.engine.message.GameMessageNextChapter
 import com.purpletear.sutoko.game.engine.processing.TextProcessor
 import com.purpletear.sutoko.game.engine.timing.TimingScheduler
 import com.purpletear.sutoko.game.model.chapter.ChapterGraph
+import com.purpletear.sutoko.game.repository.CharacterRepository
 import com.purpletear.sutoko.game.model.chapter.GameMemory
 import com.purpletear.sutoko.game.model.chapter.Node
 import kotlinx.coroutines.flow.Flow
@@ -24,6 +25,7 @@ class GameEngine @Inject constructor(
     private val memory: GameMemory,
     private val timingScheduler: TimingScheduler,
     private val textProcessor: TextProcessor,
+    private val characterRepository: CharacterRepository,
 ) {
 
     private val _state = MutableStateFlow<GameEngineState>(GameEngineState.Idle)
@@ -44,6 +46,7 @@ class GameEngine @Inject constructor(
     private var isPaused = false
     private var awaitingInput = false
     private var availableChoices: List<HandlerEffect.ShowChoices.Choice> = emptyList()
+    private var previousNode: Node? = null
 
     /**
      * Resets the engine to a clean state.
@@ -55,6 +58,7 @@ class GameEngine @Inject constructor(
         availableChoices = emptyList()
         currentGraph = null
         currentGameId = null
+        previousNode = null
         _state.value = GameEngineState.Idle
         _messages.value = emptyList()
         GameEngineLogger.d("GAME") { "Engine reset" }
@@ -87,6 +91,13 @@ class GameEngine @Inject constructor(
         memory.setCurrentChapter(graph.chapterCode)
         memory.load(gameId, graph.chapterNumber)
 
+        characterRepository.preload(gameId)
+        val mainCharacters = characterRepository.getAll().filter { it.isMainCharacter }
+        check(mainCharacters.size == 1) {
+            "Expected exactly one main character for game $gameId, found ${mainCharacters.size}"
+        }
+        memory.setMainCharacterId(mainCharacters.first().id)
+
         _state.value = GameEngineState.Ready(
             chapterCode = graph.chapterCode,
             currentNodeId = graph.startNodeId
@@ -117,6 +128,7 @@ class GameEngine @Inject constructor(
         _messages.value = emptyList()
         awaitingInput = false
         availableChoices = emptyList()
+        previousNode = null
 
         GameEngineLogger.d("GAME") { "Starting chapter ${graph.chapterCode} at node $currentNodeId" }
         executeNode(currentNodeId)
@@ -147,6 +159,7 @@ class GameEngine @Inject constructor(
         awaitingInput = false
         availableChoices = emptyList()
         _messages.value = emptyList()
+        previousNode = null
 
         _state.value = GameEngineState.Playing(
             chapterCode = graph.chapterCode,
@@ -189,6 +202,8 @@ class GameEngine @Inject constructor(
 
         val script = buildScript(context) ?: return
 
+        previousNode = context.node
+
         GameEngineLogger.d("HAND") {
             "${context.handler::class.simpleName} → ${script.commands.size} commands, nextNodeId=${script.nextNodeId}"
         }
@@ -229,10 +244,14 @@ class GameEngine @Inject constructor(
     private fun buildScript(context: ExecutionContext): HandlerScript? {
         return try {
             val handler = context.handler
-            if (handler is GraphAwareNodeHandler) {
-                handler.buildScript(context.node, memory, context.graph)
-            } else {
-                handler.buildScript(context.node, memory)
+            check(!(handler is GraphAwareNodeHandler && handler is PreviousNodeAwareNodeHandler)) {
+                "${handler::class.simpleName} cannot implement both GraphAwareNodeHandler and " +
+                    "PreviousNodeAwareNodeHandler. Introduce a combined interface if both contexts are needed."
+            }
+            when {
+                handler is GraphAwareNodeHandler -> handler.buildScript(context.node, memory, context.graph)
+                handler is PreviousNodeAwareNodeHandler -> handler.buildScript(context.node, memory, previousNode)
+                else -> handler.buildScript(context.node, memory)
             }
         } catch (e: IllegalStateException) {
             GameEngineLogger.e(

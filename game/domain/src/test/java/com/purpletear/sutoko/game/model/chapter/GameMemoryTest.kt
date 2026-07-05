@@ -2,6 +2,8 @@ package com.purpletear.sutoko.game.model.chapter
 
 import com.purpletear.sutoko.game.engine.handlers.createFakeGameMemory
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class GameMemoryTest {
@@ -96,5 +98,37 @@ class GameMemoryTest {
         memory.set(GameMemory.TYPING_ANIMATION_KEY, "TRUE")
 
         assertEquals(ConversationMode.SMS, memory.conversationMode)
+    }
+
+    @Test
+    fun `isMainCharacter returns true when character id matches main character`() {
+        val memory = createFakeGameMemory()
+
+        memory.setMainCharacterId(1)
+
+        assertTrue(memory.isMainCharacter(1))
+    }
+
+    @Test
+    fun `isMainCharacter returns false when character id does not match`() {
+        val memory = createFakeGameMemory()
+
+        memory.setMainCharacterId(1)
+
+        assertFalse(memory.isMainCharacter(2))
+    }
+
+    @Test
+    fun `isMainCharacter returns false when no main character is set`() {
+        val memory = createFakeGameMemory()
+
+        assertFalse(memory.isMainCharacter(1))
+    }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun `setMainCharacterId rejects non-positive id`() {
+        val memory = createFakeGameMemory()
+
+        memory.setMainCharacterId(0)
     }
 }

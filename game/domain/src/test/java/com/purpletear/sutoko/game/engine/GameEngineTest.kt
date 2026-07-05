@@ -16,6 +16,7 @@ import com.purpletear.sutoko.game.engine.handlers.StartNodeHandler
 import com.purpletear.sutoko.game.engine.handlers.TrophyNodeHandler
 import com.purpletear.sutoko.game.engine.handlers.createFakeGameMemory
 import com.purpletear.sutoko.game.engine.message.GameMessageInfo
+import com.purpletear.sutoko.game.repository.FakeCharacterRepository
 import com.purpletear.sutoko.game.engine.message.GameMessageNextChapter
 import com.purpletear.sutoko.game.engine.message.GameMessageText
 import com.purpletear.sutoko.game.engine.processing.TextProcessorImpl
@@ -37,6 +38,7 @@ class GameEngineTest {
     private val fakeTimingScheduler = FakeTimingScheduler()
     private val nodeResolver = NodeResolver()
     private val textProcessor = TextProcessorImpl()
+    private val fakeCharacterRepository = FakeCharacterRepository()
 
     @Test
     fun `start node with multiple message targets - should emit ShowChoices and await input`() = runBlocking {
@@ -292,7 +294,8 @@ class GameEngineTest {
             nodeResolver = nodeResolver,
             memory = memory,
             timingScheduler = fakeTimingScheduler,
-            textProcessor = textProcessor
+            textProcessor = textProcessor,
+            characterRepository = fakeCharacterRepository
         )
     }
 }

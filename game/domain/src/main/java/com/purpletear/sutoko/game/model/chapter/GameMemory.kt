@@ -37,6 +37,7 @@ class GameMemory @Inject constructor(
     private var currentChapterCode: String? = null
     private var currentChapterNumber: Int? = null
     private var namespace: String? = null
+    private var mainCharacterId: Int? = null
 
     /**
      * Sets an optional namespace for persistence.
@@ -119,6 +120,7 @@ class GameMemory @Inject constructor(
         memory.clear()
         currentChapterCode = null
         currentChapterNumber = null
+        mainCharacterId = null
         _state.value = emptyMap()
         GameEngineLogger.d("MEM") { "Cleared" }
     }
@@ -177,6 +179,23 @@ class GameMemory @Inject constructor(
      * Returns a read-only copy of current memory state.
      */
     fun snapshot(): Map<String, String> = memory.mapValues { it.value.value }
+
+    /**
+     * Sets the id of the main character for the current session.
+     * This is transient session state; it is not persisted.
+     */
+    fun setMainCharacterId(id: Int) {
+        require(id > 0) { "Main character id must be positive, was $id" }
+        mainCharacterId = id
+        GameEngineLogger.d("MEM") { "Main character id set to $id" }
+    }
+
+    /**
+     * Returns true if the given character id is the main character.
+     * Always returns false if no main character id has been set.
+     */
+    fun isMainCharacter(characterId: Int): Boolean =
+        characterId == mainCharacterId
 
     companion object {
         /**

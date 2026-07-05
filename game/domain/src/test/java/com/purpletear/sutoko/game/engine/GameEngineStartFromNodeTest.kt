@@ -16,6 +16,7 @@ import com.purpletear.sutoko.game.engine.handlers.StartNodeHandler
 import com.purpletear.sutoko.game.engine.handlers.TrophyNodeHandler
 import com.purpletear.sutoko.game.engine.handlers.createFakeGameMemory
 import com.purpletear.sutoko.game.engine.message.GameMessageText
+import com.purpletear.sutoko.game.repository.FakeCharacterRepository
 import com.purpletear.sutoko.game.engine.processing.TextProcessorImpl
 import com.purpletear.sutoko.game.engine.timing.FakeTimingScheduler
 import com.purpletear.sutoko.game.model.chapter.ChapterGraph
@@ -32,6 +33,7 @@ class GameEngineStartFromNodeTest {
     private val fakeTimingScheduler = FakeTimingScheduler()
     private val nodeResolver = NodeResolver()
     private val textProcessor = TextProcessorImpl()
+    private val fakeCharacterRepository = FakeCharacterRepository()
 
     @Test
     fun `startFromNode - should execute target node`() = runBlocking {
@@ -126,7 +128,8 @@ class GameEngineStartFromNodeTest {
             nodeResolver = nodeResolver,
             memory = memory,
             timingScheduler = fakeTimingScheduler,
-            textProcessor = textProcessor
+            textProcessor = textProcessor,
+            characterRepository = fakeCharacterRepository
         )
     }
 }

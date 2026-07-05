@@ -4,7 +4,7 @@ import com.purpletear.sutoko.game.engine.GameEngineLogger
 import com.purpletear.sutoko.game.engine.HandlerCommand
 import com.purpletear.sutoko.game.engine.HandlerEffect
 import com.purpletear.sutoko.game.engine.HandlerScript
-import com.purpletear.sutoko.game.engine.NodeHandler
+import com.purpletear.sutoko.game.engine.PreviousNodeAwareNodeHandler
 import com.purpletear.sutoko.game.engine.message.GameMessageText
 import com.purpletear.sutoko.game.engine.message.GameMessageTyping
 import com.purpletear.sutoko.game.engine.processing.TextProcessor
@@ -14,33 +14,34 @@ import com.purpletear.sutoko.game.model.chapter.Node
 import java.util.UUID
 import javax.inject.Inject
 import kotlin.random.Random
-import androidx.annotation.Keep
 
 /**
  * Handler for message nodes.
  *
- * Handles the full message execution sequence with timing:
- * 1. seenMs delay - wait before showing typing
- * 2. Add message with TYPING status (shows typing indicator)
- * 3. waitMs delay - typing duration
- * 4. Update message status to SENT (shows message, hides typing)
+ * Builds the execution script for a message, with behavior depending on the current
+ * [ConversationMode]:
+ * - SMS mode: typing indicator, optional hesitation, and delays.
+ * - IRL mode: immediate display with optional timing delay.
  *
- * Also handles special commands embedded in messages:
- * - [BACKGROUND_<url>] - Change background image
- * - [<command>] - Skip/ignore commands
+ * Text variables (e.g. [prenom]) are resolved using [TextProcessor] before the
+ * message is emitted. Bracketed text that remains after substitution is treated as
+ * a skip command and produces no message.
  *
- * Respects conversation mode from [GameMemory.conversationMode]:
- * - SMS mode: Shows typing indicators with delays
- * - IRL mode: No typing, messages display immediately
- * See [GameMemory] for the priority between [typingAnimation] and [conversation_mode].
+ * The handler is [PreviousNodeAwareNodeHandler] because the first message from the
+ * main character must not have an initial seen delay.
  */
 class MessageNodeHandler @Inject constructor(
     private val textProcessor: TextProcessor,
-) : NodeHandler {
+) : PreviousNodeAwareNodeHandler {
+
+    override fun buildScript(node: Node, memory: GameMemory): HandlerScript {
+        return buildScript(node, memory, previousNode = null)
+    }
 
     override fun buildScript(
         node: Node,
-        memory: GameMemory
+        memory: GameMemory,
+        previousNode: Node?
     ): HandlerScript {
         val messageNode = node as? Node.Message ?: return HandlerScript()
 
@@ -53,169 +54,206 @@ class MessageNodeHandler @Inject constructor(
         }
 
         return when (command) {
-            is Command.ChangeBackground -> {
-                GameEngineLogger.d("HAND") { "Change background: ${command.imageUrl}" }
-                HandlerScript(
-                    commands = listOf(
-                        HandlerCommand.Emit(HandlerEffect.ChangeBackground(command.imageUrl))
-                    )
-                )
-            }
-
             is Command.Skip -> {
                 GameEngineLogger.d("HAND") { "Skip command: $processedText" }
                 HandlerScript()
             }
 
-            is Command.Message -> {
-                if (processedText.isBlank()) {
-                    GameEngineLogger.d("MSG") {
-                        "Skipping blank message ${messageNode.id} from character ${messageNode.characterId}"
-                    }
-                    HandlerScript()
-                } else {
-                    GameEngineLogger.d("MSG") {
-                        "MessageText from character ${messageNode.characterId}: \"$processedText\""
-                    }
-                    HandlerScript(
-                        commands = buildMessageCommands(
-                            messageNode,
-                            processedText,
-                            memory.conversationMode
-                        )
-                    )
-                }
-            }
+            is Command.Message -> buildMessageScript(
+                messageNode,
+                processedText,
+                memory.conversationMode,
+                previousNode,
+                memory,
+            )
         }
     }
 
-    /**
-     * Builds the command sequence for a message.
-     *
-     * SMS mode:
-     * 1. Delay(seenMs) - wait before showing typing
-     * 2. Emit(AddMessage) - show typing indicator
-     * 3. Delay(waitMs) - typing duration
-     *
-     * IRL mode:
-     * 1. Emit(AddMessage) - immediate display, no typing delays
-     *
-     * Each effect is applied immediately by the engine.
-     */
-    private fun buildMessageCommands(
+    private fun buildMessageScript(
         node: Node.Message,
         processedText: String,
-        mode: ConversationMode
+        mode: ConversationMode,
+        previousNode: Node?,
+        memory: GameMemory,
+    ): HandlerScript {
+        if (processedText.isBlank()) {
+            GameEngineLogger.d("MSG") {
+                "Skipping blank message ${node.id} from character ${node.characterId}"
+            }
+            return HandlerScript()
+        }
+
+        GameEngineLogger.d("MSG") {
+            "MessageText from character ${node.characterId}: \"$processedText\""
+        }
+
+        val messageId = UUID.randomUUID().toString()
+        val commands = when (mode) {
+            ConversationMode.SMS -> buildSmsScript(
+                node,
+                processedText,
+                messageId,
+                previousNode,
+                memory
+            )
+
+            ConversationMode.IRL -> buildIrlScript(
+                node,
+                processedText,
+                messageId,
+                previousNode,
+                memory
+            )
+        }
+
+        return HandlerScript(commands = commands)
+    }
+
+    private fun buildSmsScript(
+        node: Node.Message,
+        text: String,
+        messageId: String,
+        previousNode: Node?,
+        memory: GameMemory,
     ): List<HandlerCommand> {
         val commands = mutableListOf<HandlerCommand>()
-        val messageId = UUID.randomUUID().toString()
 
-        when (mode) {
-            ConversationMode.SMS -> {
-
-                commands.add(HandlerCommand.Delay(node.seenMs.coerceAtLeast(520)))
-
-                if (node.isHesitating) {
-                    commands.add(
-                        HandlerCommand.Emit(
-                            HandlerEffect.AddMessage(
-                                GameMessageTyping(
-                                    id = messageId,
-                                    characterId = node.characterId,
-                                )
-                            )
-                        )
-                    )
-                    commands.add(HandlerCommand.Emit(HandlerEffect.PlayTypingSound))
-                    commands.add(HandlerCommand.Delay(Random.nextLong(1000, 3001)))
-                    commands.add(
-                        HandlerCommand.Emit(HandlerEffect.DeleteMessage(messageId = messageId))
-                    )
-                    commands.add(HandlerCommand.Delay(Random.nextLong(1000, 3001)))
-                }
-
-                commands.add(HandlerCommand.Emit(HandlerEffect.PlayTypingSound))
-                commands.add(
-                    HandlerCommand.Emit(
-                        HandlerEffect.AddMessage(
-                            GameMessageTyping(
-                                id = messageId,
-                                characterId = node.characterId,
-                            )
-                        )
-                    )
-                )
-
-                val typingDelayMs = determineTypingDuration(node, processedText)
-                commands.add(HandlerCommand.Delay(typingDelayMs))
-
-                commands.add(
-                    HandlerCommand.Emit(HandlerEffect.DeleteMessage(messageId = messageId))
-                )
-
-                commands.add(HandlerCommand.Delay(node.seenMs.coerceAtLeast(280)))
-
-                commands.add(
-                    HandlerCommand.Emit(
-                        HandlerEffect.AddMessage(
-                            GameMessageText(
-                                id = messageId,
-                                text = processedText,
-                                characterId = node.characterId,
-                            )
-                        )
-                    )
-                )
-            }
-
-            ConversationMode.IRL -> {
-                if (node.seenMs > 0) {
-                    commands.add(HandlerCommand.Delay(node.seenMs))
-                }
-
-                commands.add(
-                    HandlerCommand.Emit(
-                        HandlerEffect.AddMessage(
-                            GameMessageText(
-                                id = messageId,
-                                text = processedText,
-                                characterId = node.characterId,
-                            )
-                        )
-                    )
-                )
-            }
+        if (node.isHesitating) {
+            addHesitationScript(commands, messageId, node.characterId)
         }
+
+        commands.add(HandlerCommand.Emit(HandlerEffect.PlayTypingSound))
+        commands.add(emitAddTyping(messageId, node.characterId))
+
+        val typingDelayMs = determineTypingDuration(node, text)
+        commands.add(HandlerCommand.Delay(typingDelayMs))
+
+        commands.add(HandlerCommand.Emit(HandlerEffect.DeleteMessage(messageId = messageId)))
+        commands.add(HandlerCommand.Delay(node.seenMs.coerceAtLeast(MIN_POST_TYPING_DELAY_MS)))
+        commands.add(emitAddText(text, messageId, node.characterId))
 
         return commands
     }
 
+    private fun buildIrlScript(
+        node: Node.Message,
+        text: String,
+        messageId: String,
+        previousNode: Node?,
+        memory: GameMemory,
+    ): List<HandlerCommand> {
+        val commands = mutableListOf<HandlerCommand>()
+
+        if (!memory.isMainCharacter(node.characterId)) {
+            when {
+                node.isAutoTiming -> {
+                    val text = if (previousNode is Node.Message) {
+                        previousNode.text
+                    } else if (previousNode is Node.Info) {
+                        previousNode.text
+                    } else {
+                        null
+                    }
+                    text?.let {
+                        commands.add(HandlerCommand.Delay(determineReadingDuration(it)))
+                    } ?: {
+                        commands.add(HandlerCommand.Delay(IRL_AUTO_TIMING_DELAY_MS))
+                    }
+                }
+
+                node.seenMs > 0 -> commands.add(HandlerCommand.Delay(node.seenMs))
+            }
+        }
+
+
+        commands.add(emitAddText(text, messageId, node.characterId))
+
+        return commands
+    }
+
+    private fun addHesitationScript(
+        commands: MutableList<HandlerCommand>,
+        messageId: String,
+        characterId: Int
+    ) {
+        commands.add(emitAddTyping(messageId, characterId))
+        commands.add(HandlerCommand.Emit(HandlerEffect.PlayTypingSound))
+        commands.add(
+            HandlerCommand.Delay(
+                Random.nextLong(
+                    HESITATION_DELAY_MIN_MS,
+                    HESITATION_DELAY_MAX_EXCLUSIVE_MS
+                )
+            )
+        )
+        commands.add(HandlerCommand.Emit(HandlerEffect.DeleteMessage(messageId = messageId)))
+        commands.add(
+            HandlerCommand.Delay(
+                Random.nextLong(
+                    HESITATION_DELAY_MIN_MS,
+                    HESITATION_DELAY_MAX_EXCLUSIVE_MS
+                )
+            )
+        )
+    }
+
+    private fun emitAddTyping(messageId: String, characterId: Int): HandlerCommand =
+        HandlerCommand.Emit(
+            HandlerEffect.AddMessage(
+                GameMessageTyping(
+                    id = messageId,
+                    characterId = characterId,
+                )
+            )
+        )
+
+    private fun emitAddText(text: String, messageId: String, characterId: Int): HandlerCommand =
+        HandlerCommand.Emit(
+            HandlerEffect.AddMessage(
+                GameMessageText(
+                    id = messageId,
+                    text = text,
+                    characterId = characterId,
+                )
+            )
+        )
+
     private fun determineTypingDuration(node: Node.Message, text: String): Long {
-        return if (node.waitMs.toInt() == 0) {
-            val baseDuration = text.length * 100L
-            baseDuration.coerceIn(1500L, 5000L)
+        return if (node.waitMs == 0L) {
+            val baseDuration = text.length * TYPING_CHAR_DELAY_MS
+            baseDuration.coerceIn(MIN_TYPING_DURATION_MS, MAX_TYPING_DURATION_MS)
         } else {
             node.waitMs
         }
     }
 
+
+    private fun determineReadingDuration(text: String): Long {
+        val baseDuration = text.length * READING_CHAR_DELAY_MS
+        return baseDuration.coerceIn(MIN_TYPING_DURATION_MS, MAX_TYPING_DURATION_MS)
+    }
+
     private fun parseCommand(text: String): Command {
         return when {
-            text.startsWith("[BACKGROUND_") && text.endsWith("]") -> {
-                Command.ChangeBackground(
-                    text.removePrefix("[BACKGROUND_").removeSuffix("]")
-                )
-            }
-
             text.startsWith("[") && text.endsWith("]") -> Command.Skip
             else -> Command.Message
         }
     }
 
     private sealed class Command {
-        @Keep
-        data class ChangeBackground(val imageUrl: String) : Command()
         data object Skip : Command()
         data object Message : Command()
+    }
+
+    private companion object {
+        private const val MIN_SEEN_DELAY_MS = 520L
+        private const val MIN_POST_TYPING_DELAY_MS = 280L
+        private const val IRL_AUTO_TIMING_DELAY_MS = 2000L
+        private const val HESITATION_DELAY_MIN_MS = 1000L
+        private const val HESITATION_DELAY_MAX_EXCLUSIVE_MS = 3001L
+        private const val TYPING_CHAR_DELAY_MS = 100L
+        private const val READING_CHAR_DELAY_MS = 250L
+        private const val MIN_TYPING_DURATION_MS = 1500L
+        private const val MAX_TYPING_DURATION_MS = 5000L
     }
 }

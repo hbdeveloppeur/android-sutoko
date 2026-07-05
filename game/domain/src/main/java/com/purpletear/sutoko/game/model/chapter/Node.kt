@@ -27,6 +27,7 @@ sealed class Node {
         val waitMs: Long = 0,
         val seenMs: Long = 0,
         val isHesitating: Boolean = false,
+        val isAutoTiming: Boolean = true,
     ) : Node()
 
     @Keep
@@ -44,7 +45,6 @@ sealed class Node {
     data class Info(
         override val id: String,
         val text: String,
-        val seenMs: Long = 0,
     ) : Node()
 
     @Keep

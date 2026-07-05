@@ -197,7 +197,7 @@ object ChapterGraphParser {
                 require(id.isNotBlank()) { "narration node missing id" }
                 require(!text.isNullOrBlank()) { "narration node $id missing text" }
                 Node.Info(
-                    id = id, text = text,
+                    id = id, text = text
                 )
             }
 

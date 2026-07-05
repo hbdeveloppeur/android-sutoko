@@ -50,7 +50,7 @@ class InfoNodeHandler @Inject constructor(
         val commands = mutableListOf<HandlerCommand>()
         val messageId = UUID.randomUUID().toString()
 
-        commands.add(HandlerCommand.Delay(node.seenMs.coerceAtLeast(280)))
+        commands.add(HandlerCommand.Delay(2000))
 
         commands.add(
             HandlerCommand.Emit(
