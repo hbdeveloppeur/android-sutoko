@@ -228,7 +228,12 @@ class GameEngine @Inject constructor(
      */
     private fun buildScript(context: ExecutionContext): HandlerScript? {
         return try {
-            context.handler.buildScript(context.node, memory)
+            val handler = context.handler
+            if (handler is GraphAwareNodeHandler) {
+                handler.buildScript(context.node, memory, context.graph)
+            } else {
+                handler.buildScript(context.node, memory)
+            }
         } catch (e: IllegalStateException) {
             GameEngineLogger.e(
                 "ERR",

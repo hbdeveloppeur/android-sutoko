@@ -17,7 +17,6 @@ import java.io.File
 
 object ChapterGraphParser {
     private val gson = Gson()
-    private const val DEFAULT_EDGE_TYPE = "futuristic"
     private val AUDIO_EXTENSIONS = listOf("mp3", "ogg", "wav")
 
     private fun JsonElement?.toNodeData(): NodeDataDto? {
@@ -37,37 +36,24 @@ object ChapterGraphParser {
         legacyId: Int?,
         pathProvider: GamePathProvider
     ): ChapterGraph {
-        val (compactedNodeDtos, compactedEdgeDtos, ignoreBypassTargets) =
+        val (compactedNodeDtos, compactedEdgeDtos) =
             compactIgnoreNodes(nodeDtos, edgeDtos)
 
         val nodes = compactedNodeDtos
             .mapNotNull { parseNode(it, gameId, legacyId, pathProvider) }
             .associateBy { it.id }
-            .mapValues { (_, node) -> rewriteConditionTargets(node, ignoreBypassTargets) }
         val edges = compactedEdgeDtos.map { parseEdge(it) }
-        val resolvedNodes = resolveConditionTargets(nodes, edges)
-        val startNodeId = resolvedNodes.values.filterIsInstance<Node.Start>().firstOrNull()?.id
-            ?: resolvedNodes.keys.firstOrNull()
+        val startNodeId = nodes.values.filterIsInstance<Node.Start>().firstOrNull()?.id
+            ?: nodes.keys.firstOrNull()
             ?: throw IllegalArgumentException("No start node found")
 
         return ChapterGraph(
             chapterCode = chapterCode.uppercase(),
             chapterNumber = chapterNumber,
             title = metadata.title,
-            nodes = resolvedNodes,
+            nodes = nodes,
             edges = edges,
             startNodeId = startNodeId
-        )
-    }
-
-    private fun rewriteConditionTargets(
-        node: Node,
-        ignoreBypassTargets: Map<String, String?>
-    ): Node {
-        if (node !is Node.Condition) return node
-        return node.copy(
-            trueTargetId = ignoreBypassTargets[node.trueTargetId] ?: node.trueTargetId,
-            falseTargetId = ignoreBypassTargets[node.falseTargetId] ?: node.falseTargetId
         )
     }
 
@@ -87,14 +73,14 @@ object ChapterGraphParser {
     private fun compactIgnoreNodes(
         nodeDtos: List<NodeDto>,
         edgeDtos: List<EdgeDto>
-    ): Triple<List<NodeDto>, List<EdgeDto>, Map<String, String?>> {
+    ): Pair<List<NodeDto>, List<EdgeDto>> {
         val ignoreNodeIds = nodeDtos
             .filter { it.type == "ignore" }
             .map { it.id }
             .toSet()
 
         if (ignoreNodeIds.isEmpty()) {
-            return Triple(nodeDtos, edgeDtos, emptyMap())
+            return nodeDtos to edgeDtos
         }
 
         val ignoreBypassTargets = ignoreNodeIds.associateWith { ignoreId ->
@@ -111,7 +97,7 @@ object ChapterGraphParser {
                 edge.target in ignoreNodeIds -> {
                     val bypassTarget = ignoreBypassTargets[edge.target]
                     if (bypassTarget != null) {
-                        edge.copy(target = bypassTarget, type = edge.type ?: DEFAULT_EDGE_TYPE)
+                        edge.copy(target = bypassTarget, type = edge.type)
                     } else {
                         null
                     }
@@ -123,7 +109,7 @@ object ChapterGraphParser {
 
         val compactedNodes = nodeDtos.filter { it.type != "ignore" }
 
-        return Triple(compactedNodes, compactedEdges, ignoreBypassTargets)
+        return compactedNodes to compactedEdges
     }
 
     private fun parseNode(
@@ -179,9 +165,7 @@ object ChapterGraphParser {
 
             "condition" -> Node.Condition(
                 id = dto.id,
-                expression = requireNotNull(data?.expression) { "condition node ${dto.id} missing expression" },
-                trueTargetId = requireNotNull(data?.trueTargetId) { "condition node ${dto.id} missing trueTargetId" },
-                falseTargetId = requireNotNull(data?.falseTargetId) { "condition node ${dto.id} missing falseTargetId" }
+                expression = requireNotNull(data?.expression) { "condition node ${dto.id} missing expression" }
             )
 
             "memory", "memory-save-node" -> {
@@ -203,9 +187,7 @@ object ChapterGraphParser {
                     requireNotNull(data.expectedValue) { "memory-condition-node ${dto.id} missing expectedValue" }
                 Node.Condition(
                     id = dto.id,
-                    expression = "${memory.value} == $expectedValue",
-                    trueTargetId = requireNotNull(data.trueTargetId) { "memory-condition-node ${dto.id} missing trueTargetId" },
-                    falseTargetId = requireNotNull(data.falseTargetId) { "memory-condition-node ${dto.id} missing falseTargetId" }
+                    expression = "${memory.value} == $expectedValue"
                 )
             }
 
@@ -323,41 +305,4 @@ object ChapterGraphParser {
         }
     }
 
-    /**
-     * Resolves true/false target IDs for condition nodes from edges.
-     * Condition nodes store their branching logic in outgoing edges with
-     * edgeType "ConditionTrue" or "ConditionFalse".
-     */
-    private fun resolveConditionTargets(
-        nodes: Map<String, Node>,
-        edges: List<Edge>
-    ): Map<String, Node> {
-        // Build lookup: sourceNodeId -> (isTrueTarget -> targetNodeId)
-        val conditionTargets = edges
-            .filter { it.type == EdgeType.CONDITIONAL }
-            .groupBy { it.source }
-            .mapValues { (_, outgoingEdges) ->
-                val targets = mutableMapOf<Boolean, String>()
-                outgoingEdges.forEach { edge ->
-                    when (edge.data?.edgeType?.uppercase()) {
-                        "CONDITIONTRUE" -> targets[true] = edge.target
-                        "CONDITIONFALSE" -> targets[false] = edge.target
-                    }
-                }
-                targets
-            }
-
-        // Update condition nodes with resolved targets
-        return nodes.mapValues { (nodeId, node) ->
-            if (node is Node.Condition) {
-                val targets = conditionTargets[nodeId]
-                node.copy(
-                    trueTargetId = targets?.get(true) ?: node.trueTargetId,
-                    falseTargetId = targets?.get(false) ?: node.falseTargetId
-                )
-            } else {
-                node
-            }
-        }
-    }
 }

@@ -21,10 +21,6 @@ data class NodeDataDto(
     @SerializedName("chapterCode")
     val chapterCode: String? = null,
     val expression: String? = null,
-    @SerializedName("trueTargetId")
-    val trueTargetId: String? = null,
-    @SerializedName("falseTargetId")
-    val falseTargetId: String? = null,
     val key: String? = null,
     val value: String? = null,
     @SerializedName("trophyId")

@@ -57,8 +57,6 @@ sealed class Node {
     data class Condition(
         override val id: String,
         val expression: String,
-        val trueTargetId: String,
-        val falseTargetId: String
     ) : Node()
 
     @Keep

@@ -149,17 +149,17 @@ class ChapterGraphParserTest {
     }
 
     @Test
-    fun `condition node target pointing to ignore node is rewritten`() {
+    fun `condition node branches are preserved as conditional edges`() {
         val nodes = listOf(
             node("start-0", "start"),
-            node("condition-1", "condition", expression = "x == 1", trueTargetId = "ignore-2", falseTargetId = "msg-b"),
-            node("ignore-2", "ignore", data = JsonArray()),
+            node("condition-1", "condition", expression = "x == 1"),
             node("msg-a", "message", text = "A", characterId = 1),
             node("msg-b", "message", text = "B", characterId = 1)
         )
         val edges = listOf(
             edge("start-0", "condition-1"),
-            edge("ignore-2", "msg-a")
+            edge("condition-1", "msg-a", edgeType = "ConditionTrue"),
+            edge("condition-1", "msg-b", edgeType = "ConditionFalse")
         )
 
         val graph = ChapterGraphParser.parse(
@@ -172,9 +172,49 @@ class ChapterGraphParserTest {
             pathProvider = pathProvider
         )
 
-        val condition = graph.getNode("condition-1") as Node.Condition
-        assertEquals("msg-a", condition.trueTargetId)
-        assertEquals("msg-b", condition.falseTargetId)
+        val conditionEdges = graph.getNextEdges("condition-1")
+        assertEquals(2, conditionEdges.size)
+        assertEquals(
+            mapOf(true to "msg-a", false to "msg-b"),
+            conditionEdges.associate {
+                (it.data?.edgeType == "ConditionTrue") to it.target
+            }
+        )
+    }
+
+    @Test
+    fun `conditional edge pointing to ignore node is retargeted`() {
+        val nodes = listOf(
+            node("start-0", "start"),
+            node("condition-1", "condition", expression = "x == 1"),
+            node("ignore-2", "ignore", data = JsonArray()),
+            node("msg-a", "message", text = "A", characterId = 1),
+            node("msg-b", "message", text = "B", characterId = 1)
+        )
+        val edges = listOf(
+            edge("start-0", "condition-1"),
+            edge("condition-1", "ignore-2", edgeType = "ConditionTrue"),
+            edge("ignore-2", "msg-a"),
+            edge("condition-1", "msg-b", edgeType = "ConditionFalse")
+        )
+
+        val graph = ChapterGraphParser.parse(
+            chapterCode = "2a",
+            metadata = ChapterMetadataDto(title = "Chapter 2A"),
+            nodeDtos = nodes,
+            edgeDtos = edges,
+            gameId = "game1",
+            legacyId = null,
+            pathProvider = pathProvider
+        )
+
+        assertNull(graph.getNode("ignore-2"))
+        val conditionEdges = graph.getNextEdges("condition-1")
+        assertEquals(2, conditionEdges.size)
+        assertEquals(
+            setOf("msg-a", "msg-b"),
+            conditionEdges.map { it.target }.toSet()
+        )
     }
 
     @Test
@@ -236,24 +276,26 @@ class ChapterGraphParserTest {
         text: String? = null,
         characterId: Int? = null,
         expression: String? = null,
-        trueTargetId: String? = null,
-        falseTargetId: String? = null,
         data: JsonElement? = null
     ): NodeDto {
         val dataObject = data as? JsonObject ?: JsonObject().apply {
             text?.let { addProperty("text", it) }
             characterId?.let { addProperty("characterId", it) }
             expression?.let { addProperty("expression", it) }
-            trueTargetId?.let { addProperty("trueTargetId", it) }
-            falseTargetId?.let { addProperty("falseTargetId", it) }
         }
         return NodeDto(id = id, type = type, data = dataObject)
     }
 
-    private fun edge(source: String, target: String, type: String? = "futuristic"): EdgeDto {
+    private fun edge(
+        source: String,
+        target: String,
+        type: String? = "futuristic",
+        edgeType: String? = null
+    ): EdgeDto {
         val json = buildString {
             append("{\"source\":\"$source\",\"target\":\"$target\"")
             if (type != null) append(",\"type\":\"$type\"")
+            if (edgeType != null) append(",\"data\":{\"edgeType\":\"$edgeType\"}")
             append("}")
         }
         return gson.fromJson(json, EdgeDto::class.java)

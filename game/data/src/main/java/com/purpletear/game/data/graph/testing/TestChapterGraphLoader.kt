@@ -48,18 +48,17 @@ class TestChapterGraphLoader @Inject constructor(
             .mapNotNull { parseNode(it, assetLookup) }
             .associateBy { it.id }
         val edges = compactedEdges.map { parseEdge(it) }
-        val resolvedNodes = resolveConditionTargets(nodes, edges)
 
-        val startNodeId = resolvedNodes.values.filterIsInstance<Node.Start>().firstOrNull()?.id
-            ?: resolvedNodes.keys.firstOrNull()
+        val startNodeId = nodes.values.filterIsInstance<Node.Start>().firstOrNull()?.id
+            ?: nodes.keys.firstOrNull()
             ?: throw IllegalArgumentException("No start node found")
 
-        StoryTestingLogger.d("GRPH") { "Graph ready — ${manifest.chapterId}: ${resolvedNodes.size} nodes, ${edges.size} edges, start=$startNodeId" }
+        StoryTestingLogger.d("GRPH") { "Graph ready — ${manifest.chapterId}: ${nodes.size} nodes, ${edges.size} edges, start=$startNodeId" }
         return ChapterGraph(
             chapterCode = manifest.chapterId,
             chapterNumber = 1,
             title = "",
-            nodes = resolvedNodes,
+            nodes = nodes,
             edges = edges,
             startNodeId = startNodeId,
         )
@@ -162,8 +161,6 @@ class TestChapterGraphLoader @Inject constructor(
             "condition" -> Node.Condition(
                 id = dto.id,
                 expression = requireNotNull(data.expression) { "condition node ${dto.id} missing expression" },
-                trueTargetId = requireNotNull(data.trueTargetId) { "condition node ${dto.id} missing trueTargetId" },
-                falseTargetId = requireNotNull(data.falseTargetId) { "condition node ${dto.id} missing falseTargetId" }
             )
 
             "memory", "memory-save-node" -> {
@@ -180,8 +177,6 @@ class TestChapterGraphLoader @Inject constructor(
                 Node.Condition(
                     id = dto.id,
                     expression = "$key == ${data.expectedValue}",
-                    trueTargetId = requireNotNull(data.trueTargetId) { "memory-condition-node ${dto.id} missing trueTargetId" },
-                    falseTargetId = requireNotNull(data.falseTargetId) { "memory-condition-node ${dto.id} missing falseTargetId" }
                 )
             }
 
@@ -252,37 +247,6 @@ class TestChapterGraphLoader @Inject constructor(
             "CONDITIONAL", "CONDITIONTRUE", "CONDITIONFALSE" -> EdgeType.CONDITIONAL
             "CHOICE" -> EdgeType.CHOICE
             else -> EdgeType.NORMAL
-        }
-    }
-
-    private fun resolveConditionTargets(
-        nodes: Map<String, Node>,
-        edges: List<Edge>
-    ): Map<String, Node> {
-        val conditionTargets = edges
-            .filter { it.type == EdgeType.CONDITIONAL }
-            .groupBy { it.source }
-            .mapValues { (_, outgoingEdges) ->
-                val targets = mutableMapOf<Boolean, String>()
-                outgoingEdges.forEach { edge ->
-                    when (edge.data?.edgeType?.uppercase()) {
-                        "CONDITIONTRUE" -> targets[true] = edge.target
-                        "CONDITIONFALSE" -> targets[false] = edge.target
-                    }
-                }
-                targets
-            }
-
-        return nodes.mapValues { (_, node) ->
-            if (node is Node.Condition) {
-                val targets = conditionTargets[node.id]
-                node.copy(
-                    trueTargetId = targets?.get(true) ?: node.trueTargetId,
-                    falseTargetId = targets?.get(false) ?: node.falseTargetId
-                )
-            } else {
-                node
-            }
         }
     }
 
