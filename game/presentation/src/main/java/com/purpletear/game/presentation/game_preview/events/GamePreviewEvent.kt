@@ -17,6 +17,7 @@ sealed interface GamePreviewEvent {
     data class OnBuyGameClicked(val gameCatalog: GameCatalog) : GamePreviewEvent
     data object OpenShop : GamePreviewEvent
     data object OpenAppStore : GamePreviewEvent
+    data object RequestNickName : GamePreviewEvent
     data object ShowRestartDialog : GamePreviewEvent
     @Keep
     data class ShowError(val error: GameUiError) : GamePreviewEvent

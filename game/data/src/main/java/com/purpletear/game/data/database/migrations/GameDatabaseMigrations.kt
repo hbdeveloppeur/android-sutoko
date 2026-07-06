@@ -69,8 +69,22 @@ object GameDatabaseMigrations {
         }
     }
 
+    /**
+     * Migration from version 11 to 12:
+     * - Adds userNickNameRequired flag to games catalog.
+     * - Existing games default to false (0).
+     */
+    val MIGRATION_11_12 = object : Migration(11, 12) {
+        override fun migrate(db: SupportSQLiteDatabase) {
+            db.execSQL(
+                "ALTER TABLE games ADD COLUMN userNickNameRequired INTEGER NOT NULL DEFAULT 0"
+            )
+        }
+    }
+
     val ALL: Array<Migration> = arrayOf(
         MIGRATION_6_7,
-        MIGRATION_10_11
+        MIGRATION_10_11,
+        MIGRATION_11_12,
     )
 }

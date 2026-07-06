@@ -40,6 +40,7 @@ import com.purpletear.game.presentation.game_preview.components.GamePreviewUnloc
 import com.purpletear.game.presentation.game_preview.components.PremiumActiveLabelGradient
 import com.purpletear.game.presentation.game_preview.components.PremiumLabelGradient
 import com.purpletear.game.presentation.game_preview.components.UnlockedLabelGradient
+import com.purpletear.game.presentation.common.components.NickNameInputDialog
 import com.purpletear.game.presentation.game_preview.events.GamePreviewEvent
 import com.purpletear.game.presentation.model.GameItem
 import com.purpletear.game.presentation.model.toGameActionState
@@ -106,6 +107,7 @@ fun GamePreview(
             val animationDuration = 5250L
             var unlockAnimationIsVisible by remember { mutableStateOf(false) }
             var showRestartDialog by remember { mutableStateOf(false) }
+            var showNickNameDialog by remember { mutableStateOf(false) }
             val context = LocalContext.current
             val haptic = LocalHapticFeedback.current
 
@@ -141,6 +143,10 @@ fun GamePreview(
                             onNavigateToGame(event.gameId, event.legacyId, event.isPurchased)
                         }
 
+                        GamePreviewEvent.RequestNickName -> {
+                            showNickNameDialog = true
+                        }
+
                         GamePreviewEvent.ShowRestartDialog -> {
                             showRestartDialog = true
                         }
@@ -155,6 +161,16 @@ fun GamePreview(
             }
 
             GamePreviewUnlockAnimation(isVisible = unlockAnimationIsVisible)
+
+            if (showNickNameDialog) {
+                NickNameInputDialog(
+                    onConfirm = {
+                        showNickNameDialog = false
+                        viewModel.onNickNameConfirmed(it)
+                    },
+                    onDismiss = { showNickNameDialog = false },
+                )
+            }
 
             if (showRestartDialog) {
                 SimpleAlertDialog(

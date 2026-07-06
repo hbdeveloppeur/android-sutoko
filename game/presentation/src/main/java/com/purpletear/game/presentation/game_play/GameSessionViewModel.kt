@@ -6,9 +6,12 @@ import androidx.lifecycle.viewModelScope
 import com.purpletear.core.presentation.services.MakeToastService
 import com.purpletear.game.presentation.R
 import com.purpletear.sutoko.game.model.GameSessionState
+import com.purpletear.sutoko.game.repository.UserGameProgressRepository
+import com.purpletear.sutoko.game.repository.game.GameRepository
 import com.purpletear.sutoko.game.usecase.ObserveGameSessionUseCase
 import com.purpletear.sutoko.game.usecase.ObserveMemoriesUseCase
 import com.purpletear.sutoko.game.usecase.RestartGameUseCase
+import com.purpletear.sutoko.game.usecase.SaveUserNickNameUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
@@ -29,6 +32,9 @@ class GameSessionViewModel @Inject constructor(
     private val observeGameSession: ObserveGameSessionUseCase,
     private val observeMemories: ObserveMemoriesUseCase,
     private val restartGameUseCase: RestartGameUseCase,
+    private val saveUserNickNameUseCase: SaveUserNickNameUseCase,
+    private val gameRepository: GameRepository,
+    private val userGameProgressRepository: UserGameProgressRepository,
     private val makeToastService: MakeToastService,
 ) : ViewModel() {
 
@@ -41,9 +47,17 @@ class GameSessionViewModel @Inject constructor(
     private val _memories = MutableStateFlow<Map<String, String>>(emptyMap())
     val memories: StateFlow<Map<String, String>> = _memories.asStateFlow()
 
+    private val _userNickNameRequired = MutableStateFlow(false)
+    val userNickNameRequired: StateFlow<Boolean> = _userNickNameRequired.asStateFlow()
+
+    private val _heroName = MutableStateFlow("")
+    val heroName: StateFlow<String> = _heroName.asStateFlow()
+
     private var currentGameId: String? = null
     private var sessionJob: Job? = null
     private var memoriesJob: Job? = null
+    private var catalogJob: Job? = null
+    private var heroNameJob: Job? = null
 
     fun initialize(gameId: String) {
         if (currentGameId == gameId) return
@@ -51,6 +65,8 @@ class GameSessionViewModel @Inject constructor(
 
         sessionJob?.cancel()
         memoriesJob?.cancel()
+        catalogJob?.cancel()
+        heroNameJob?.cancel()
 
         sessionJob = observeGameSession(gameId)
             .onEach { _sessionState.value = it }
@@ -59,6 +75,23 @@ class GameSessionViewModel @Inject constructor(
         memoriesJob = observeMemories(gameId)
             .onEach { _memories.value = it }
             .launchIn(viewModelScope)
+
+        catalogJob = gameRepository.observeGame(gameId)
+            .onEach { catalog ->
+                _userNickNameRequired.value = catalog?.userNickNameRequired ?: false
+            }
+            .launchIn(viewModelScope)
+
+        heroNameJob = userGameProgressRepository.observe(gameId)
+            .onEach { _heroName.value = it.heroName }
+            .launchIn(viewModelScope)
+    }
+
+    fun saveNickName(name: String) {
+        val gameId = currentGameId ?: return
+        viewModelScope.launch {
+            saveUserNickNameUseCase(gameId, name)
+        }
     }
 
     fun onRestartPressed() {
@@ -93,6 +126,10 @@ class GameSessionViewModel @Inject constructor(
         sessionJob = null
         memoriesJob?.cancel()
         memoriesJob = null
+        catalogJob?.cancel()
+        catalogJob = null
+        heroNameJob?.cancel()
+        heroNameJob = null
         super.onCleared()
     }
 }

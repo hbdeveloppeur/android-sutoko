@@ -13,9 +13,11 @@ import com.purpletear.game.presentation.model.GameUiError
 import com.purpletear.sutoko.core.domain.helper.AppVersionProvider
 import com.purpletear.sutoko.game.model.Chapter
 import com.purpletear.sutoko.game.repository.ChapterRepository
+import com.purpletear.sutoko.game.repository.UserGameProgressRepository
 import com.purpletear.sutoko.game.repository.game.GameInstallRepository
 import com.purpletear.sutoko.game.repository.game.GameRepository
 import com.purpletear.sutoko.game.service.MediaUrlResolver
+import com.purpletear.sutoko.game.usecase.SaveUserNickNameUseCase
 import com.purpletear.sutoko.core.domain.logger.Logger
 import com.purpletear.sutoko.core.domain.logger.exception
 import com.purpletear.sutoko.game.usecase.DownloadGameUseCase
@@ -62,6 +64,8 @@ class GamePreviewViewModel @Inject constructor(
     private val getChaptersUseCase: GetChaptersUseCase,
     private val downloadGameUseCase: DownloadGameUseCase,
     private val restartGameUseCase: RestartGameUseCase,
+    private val saveUserNickNameUseCase: SaveUserNickNameUseCase,
+    private val userGameProgressRepository: UserGameProgressRepository,
     private val makeToastService: MakeToastService,
     private val logger: Logger,
     appVersionProvider: AppVersionProvider,
@@ -217,14 +221,31 @@ class GamePreviewViewModel @Inject constructor(
     }
 
     private fun navigateToPlay() {
-        val data = game.value as? GamePreviewUiState.Data
-        sendEvent(
-            GamePreviewEvent.PlayGame(
-                gameId = gameId,
-                legacyId = data?.gameCatalog?.legacyId,
-                isPurchased = data?.item?.isPurchased ?: false,
-            )
-        )
+        val data = game.value as? GamePreviewUiState.Data ?: return
+        viewModelScope.launch {
+            val needsNickName = data.gameCatalog.userNickNameRequired &&
+                    currentChapter.value?.number == 1 &&
+                    userGameProgressRepository.get(gameId).heroName.isBlank()
+
+            if (needsNickName) {
+                sendEvent(GamePreviewEvent.RequestNickName)
+            } else {
+                sendEvent(
+                    GamePreviewEvent.PlayGame(
+                        gameId = gameId,
+                        legacyId = data.gameCatalog.legacyId,
+                        isPurchased = data.item.isPurchased,
+                    )
+                )
+            }
+        }
+    }
+
+    fun onNickNameConfirmed(name: String) {
+        viewModelScope.launch {
+            saveUserNickNameUseCase(gameId, name)
+            navigateToPlay()
+        }
     }
 
     private fun resetPurchaseState() {

@@ -69,6 +69,12 @@ class GameMemory @Inject constructor(
         currentChapterNumber = chapterNumber
         memory.clear()
         memory.putAll(repository.load(namespacedGameId(gameId), chapterNumber))
+
+        val heroName = progressRepository.get(namespacedGameId(gameId)).heroName
+        if (!heroName.isNullOrBlank()) {
+            memory[HERO_NAME_KEY] = MemoryEntry(heroName, chapterNumber)
+        }
+
         _state.value = memory.mapValues { it.value.value }
         GameEngineLogger.d("MEM") { "Loaded for gameId=$gameId up to chapter $chapterNumber — ${memory.size} entries" }
     }
@@ -83,11 +89,14 @@ class GameMemory @Inject constructor(
             repository.save(namespacedId, memory.toMap())
             GameEngineLogger.d("MEM") { "Saved for gameId=$gameId — ${memory.size} entries" }
             currentChapterCode?.let { chapter ->
+                val heroName = memory[HERO_NAME_KEY]?.value
+                    ?: progressRepository.get(namespacedId).heroName
                 progressRepository.save(
                     UserGameProgress(
                         gameId = namespacedId,
                         currentChapterCode = chapter,
-                        normalizedChapterCode = chapter.lowercase()
+                        normalizedChapterCode = chapter.lowercase(),
+                        heroName = heroName,
                     )
                 )
             }
@@ -210,6 +219,11 @@ class GameMemory @Inject constructor(
          * Used by [ConversationModeChangeNodeHandler] and read by [MessageNodeHandler].
          */
         const val CONVERSATION_MODE_KEY = "conversation_mode"
+
+        /**
+         * Memory key used to resolve the [prenom] variable.
+         */
+        const val HERO_NAME_KEY = "heroName"
     }
 }
 

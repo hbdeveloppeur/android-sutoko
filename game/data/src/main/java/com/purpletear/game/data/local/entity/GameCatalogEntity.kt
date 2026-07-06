@@ -26,6 +26,7 @@ data class GameCatalogEntity(
     val author: Author? = null,
     val legacyId: Int? = null,
     val isOfficial: Boolean = false,
+    val userNickNameRequired: Boolean = false,
     val minAppBuild: Int = 1,
 )
 
@@ -45,5 +46,6 @@ fun GameCatalogEntity.toDomain(): GameCatalog = GameCatalog(
     author = author,
     legacyId = legacyId,
     isOfficial = isOfficial,
+    userNickNameRequired = userNickNameRequired,
     minAppBuild = minAppBuild,
 )

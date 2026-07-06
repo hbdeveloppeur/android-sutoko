@@ -167,6 +167,7 @@ class GameRepositoryImplSearchStoriesTest {
                         ),
                         legacyId = null,
                         official = false,
+                        userNickNameRequired = false,
                         minAppBuild = 1
                     )
                 )
@@ -368,6 +369,7 @@ class GameRepositoryImplSearchStoriesTest {
         ),
         legacyId = null,
         official = false,
+        userNickNameRequired = false,
         minAppBuild = 1
     )
 

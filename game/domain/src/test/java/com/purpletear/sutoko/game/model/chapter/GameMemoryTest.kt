@@ -1,6 +1,12 @@
 package com.purpletear.sutoko.game.model.chapter
 
 import com.purpletear.sutoko.game.engine.handlers.createFakeGameMemory
+import com.purpletear.sutoko.game.model.UserGameProgress
+import com.purpletear.sutoko.game.repository.MemoryRepository
+import com.purpletear.sutoko.game.repository.UserGameProgressRepository
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
@@ -130,5 +136,66 @@ class GameMemoryTest {
         val memory = createFakeGameMemory()
 
         memory.setMainCharacterId(0)
+    }
+
+    @Test
+    fun `load seeds heroName from user progress`() = runTest {
+        val progressRepository = object : UserGameProgressRepository {
+            override fun observe(gameId: String): Flow<UserGameProgress> =
+                flowOf(UserGameProgress(gameId = gameId, heroName = "Léa"))
+            override suspend fun get(gameId: String): UserGameProgress =
+                UserGameProgress(gameId = gameId, heroName = "Léa")
+            override suspend fun save(progress: UserGameProgress) {}
+            override suspend fun delete(gameId: String) {}
+        }
+        val memoryRepository = object : MemoryRepository {
+            override suspend fun load(gameId: String, upToChapterNumber: Int): Map<String, MemoryEntry> =
+                emptyMap()
+            override suspend fun save(gameId: String, memories: Map<String, MemoryEntry>) {}
+            override suspend fun clear(gameId: String) {}
+            override suspend fun delete(gameId: String) {}
+            override fun observe(gameId: String): Flow<Map<String, String>> = flowOf(emptyMap())
+            override suspend fun upsert(gameId: String, key: String, value: String, chapterNumber: Int) {}
+        }
+        val memory = GameMemory(memoryRepository, progressRepository)
+        memory.setCurrentChapterNumber(1)
+
+        memory.load("game-1", 1)
+
+        assertEquals("Léa", memory.get(GameMemory.HERO_NAME_KEY))
+        assertEquals("Léa", memory.state.value[GameMemory.HERO_NAME_KEY])
+    }
+
+    @Test
+    fun `save writes heroName to user progress`() = runTest {
+        var savedProgress: UserGameProgress? = null
+        val progressRepository = object : UserGameProgressRepository {
+            override fun observe(gameId: String): Flow<UserGameProgress> =
+                flowOf(UserGameProgress(gameId = gameId))
+            override suspend fun get(gameId: String): UserGameProgress =
+                UserGameProgress(gameId = gameId)
+            override suspend fun save(progress: UserGameProgress) {
+                savedProgress = progress
+            }
+            override suspend fun delete(gameId: String) {}
+        }
+        val memoryRepository = object : MemoryRepository {
+            override suspend fun load(gameId: String, upToChapterNumber: Int): Map<String, MemoryEntry> =
+                emptyMap()
+            override suspend fun save(gameId: String, memories: Map<String, MemoryEntry>) {}
+            override suspend fun clear(gameId: String) {}
+            override suspend fun delete(gameId: String) {}
+            override fun observe(gameId: String): Flow<Map<String, String>> = flowOf(emptyMap())
+            override suspend fun upsert(gameId: String, key: String, value: String, chapterNumber: Int) {}
+        }
+        val memory = GameMemory(memoryRepository, progressRepository)
+        memory.setCurrentChapterNumber(1)
+        memory.setCurrentChapter("1A")
+
+        memory.load("game-1", 1)
+        memory.set(GameMemory.HERO_NAME_KEY, "Pierre")
+        memory.save()
+
+        assertEquals("Pierre", savedProgress?.heroName)
     }
 }

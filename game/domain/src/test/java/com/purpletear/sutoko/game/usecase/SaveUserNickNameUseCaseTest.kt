@@ -1,0 +1,84 @@
+package com.purpletear.sutoko.game.usecase
+
+import com.purpletear.sutoko.game.model.UserGameProgress
+import com.purpletear.sutoko.game.repository.UserGameProgressRepository
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.test.runTest
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
+import org.junit.Test
+
+class SaveUserNickNameUseCaseTest {
+
+    private class FakeUserGameProgressRepository : UserGameProgressRepository {
+        private val storage = mutableMapOf<String, UserGameProgress>()
+
+        override fun observe(gameId: String): Flow<UserGameProgress> {
+            return flowOf(storage[gameId] ?: UserGameProgress(gameId = gameId))
+        }
+
+        override suspend fun get(gameId: String): UserGameProgress {
+            return storage[gameId] ?: UserGameProgress(gameId = gameId)
+        }
+
+        override suspend fun save(progress: UserGameProgress) {
+            storage[progress.gameId] = progress
+        }
+
+        override suspend fun delete(gameId: String) {
+            storage.remove(gameId)
+        }
+    }
+
+    @Test
+    fun `sanitizer accepts valid names`() {
+        assertEquals("Léa", UserNickNameSanitizer.sanitize("Léa"))
+        assertEquals("Pierre-Louis", UserNickNameSanitizer.sanitize("Pierre-Louis"))
+        assertEquals("Marie Anne", UserNickNameSanitizer.sanitize("Marie  Anne"))
+    }
+
+    @Test
+    fun `sanitizer removes invalid characters`() {
+        assertEquals("Nick", UserNickNameSanitizer.sanitize("N_i_ck"))
+        assertEquals("Hello", UserNickNameSanitizer.sanitize("He😀llo"))
+        assertEquals("Jhn", UserNickNameSanitizer.sanitize("J0hn"))
+    }
+
+    @Test
+    fun `sanitizer rejects blank names`() {
+        assertEquals(null, UserNickNameSanitizer.sanitize(""))
+        assertEquals(null, UserNickNameSanitizer.sanitize("   "))
+    }
+
+    @Test
+    fun `sanitizer rejects names shorter than 3 characters`() {
+        assertEquals(null, UserNickNameSanitizer.sanitize("Ab"))
+    }
+
+    @Test
+    fun `sanitizer rejects names longer than 15 characters`() {
+        assertEquals(null, UserNickNameSanitizer.sanitize("Averylongnameindeed"))
+    }
+
+    @Test
+    fun `use case saves sanitized hero name`() = runTest {
+        val repository = FakeUserGameProgressRepository()
+        val useCase = SaveUserNickNameUseCase(repository)
+
+        val result = useCase("game-1", "  Pierre-Louis  ")
+
+        assertTrue(result.isSuccess)
+        assertEquals("Pierre-Louis", repository.get("game-1").heroName)
+    }
+
+    @Test
+    fun `use case returns failure for invalid name`() = runTest {
+        val repository = FakeUserGameProgressRepository()
+        val useCase = SaveUserNickNameUseCase(repository)
+
+        val result = useCase("game-1", "AB")
+
+        assertTrue(result.isFailure)
+    }
+}

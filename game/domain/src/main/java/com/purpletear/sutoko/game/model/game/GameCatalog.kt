@@ -20,6 +20,7 @@ data class GameCatalog(
     val author: Author? = null,
     val legacyId: Int? = null,
     val isOfficial: Boolean = false,
+    val userNickNameRequired: Boolean = false,
     val minAppBuild: Int,
 )
 

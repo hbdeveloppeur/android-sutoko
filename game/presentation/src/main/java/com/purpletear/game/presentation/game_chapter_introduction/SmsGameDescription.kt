@@ -17,6 +17,9 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -35,6 +38,7 @@ import coil.compose.AsyncImage
 import com.example.sharedelements.theme.Poppins
 import com.purpletear.game.presentation.BuildConfig
 import com.purpletear.game.presentation.R
+import com.purpletear.game.presentation.common.components.NickNameInputDialog
 import com.purpletear.game.presentation.common.components.SimpleButton
 import com.purpletear.game.presentation.common.extensions.toUiString
 import com.purpletear.game.presentation.game_play.GameSessionViewModel
@@ -54,6 +58,7 @@ internal fun NavGraphBuilder.descriptionScreen(
     val showRestartDialog by viewModel.showRestartDialog.collectAsStateWithLifecycle()
 
     ChapterDescriptionRoute(
+        viewModel = viewModel,
         state = state,
         onContinue = onContinue,
         onSelectChapter = onSelectChapter,
@@ -66,6 +71,7 @@ internal fun NavGraphBuilder.descriptionScreen(
 
 @Composable
 private fun ChapterDescriptionRoute(
+    viewModel: GameSessionViewModel,
     state: GameSessionState,
     onContinue: (String) -> Unit,
     onSelectChapter: () -> Unit,
@@ -74,16 +80,43 @@ private fun ChapterDescriptionRoute(
     onRestartDialogConfirm: () -> Unit,
     onRestartDialogDismiss: () -> Unit,
 ) {
+    val userNickNameRequired by viewModel.userNickNameRequired.collectAsStateWithLifecycle()
+    val heroName by viewModel.heroName.collectAsStateWithLifecycle()
+    var showNickNameDialog by remember { mutableStateOf(false) }
+
     when (state) {
-        is GameSessionState.Ready -> ChapterDescriptionContent(
-            chapter = state.chapter,
-            onContinue = { onContinue(state.chapter.normalizedCode) },
-            onSelectChapter = onSelectChapter,
-            onRestart = onRestart,
-            showRestartDialog = showRestartDialog,
-            onRestartDialogConfirm = onRestartDialogConfirm,
-            onRestartDialogDismiss = onRestartDialogDismiss,
-        )
+        is GameSessionState.Ready -> {
+            val chapter = state.chapter
+            val needsNickName = userNickNameRequired && chapter.number == 1 && heroName.isBlank()
+            val onContinueToGame = { onContinue(chapter.normalizedCode) }
+
+            ChapterDescriptionContent(
+                chapter = chapter,
+                onContinue = {
+                    if (needsNickName) {
+                        showNickNameDialog = true
+                    } else {
+                        onContinueToGame()
+                    }
+                },
+                onSelectChapter = onSelectChapter,
+                onRestart = onRestart,
+                showRestartDialog = showRestartDialog,
+                onRestartDialogConfirm = onRestartDialogConfirm,
+                onRestartDialogDismiss = onRestartDialogDismiss,
+            )
+
+            if (showNickNameDialog) {
+                NickNameInputDialog(
+                    onConfirm = { name ->
+                        showNickNameDialog = false
+                        viewModel.saveNickName(name)
+                        onContinueToGame()
+                    },
+                    onDismiss = { showNickNameDialog = false },
+                )
+            }
+        }
 
         is GameSessionState.Error -> Box(
             Modifier

@@ -27,6 +27,7 @@ data class GameDto(
     @SerializedName("author") val author: AuthorDto?,
     @SerializedName("legacyId") val legacyId: Int?,
     @SerializedName("official") val official: Boolean?,
+    @SerializedName("userNickNameRequired") val userNickNameRequired: Boolean?,
     @SerializedName("minAppBuildAndroid") val minAppBuild: Int,
 )
 
@@ -49,6 +50,7 @@ fun GameDto.toDomain(): GameCatalogEntity {
         author = author?.toDomain(),
         legacyId = legacyId,
         isOfficial = official ?: false,
+        userNickNameRequired = userNickNameRequired ?: false,
         minAppBuild = minAppBuild,
     )
 }

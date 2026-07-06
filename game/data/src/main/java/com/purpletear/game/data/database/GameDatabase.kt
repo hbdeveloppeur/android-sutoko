@@ -22,7 +22,7 @@ import com.purpletear.game.data.local.entity.UserGameProgressEntity
         GameInstallEntity::class,
         MemoryEntity::class,
     ],
-    version = 11,
+    version = 12,
     exportSchema = false,
 )
 @TypeConverters(GameTypeConverters::class)
