@@ -1,6 +1,7 @@
 package com.purpletear.game.presentation.common.extensions
 
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.lerp
 import androidx.core.graphics.toColorInt
 import com.purpletear.sutoko.game.model.character.CharacterColor
 
@@ -41,3 +42,10 @@ fun Color.Companion.parse(colorCode: String): Color {
  * Invalid hex strings are parsed to [Color.Black] by [Color.parse].
  */
 fun CharacterColor.toComposeColor(): Color = Color.parse(endingColor)
+
+/**
+ * Returns the [endingColor] as a Compose [Color], blended toward [Color.White]
+ * by [fraction]. 0.0 returns the original color; 1.0 returns white.
+ */
+fun CharacterColor.toWhitenedComposeColor(fraction: Float = 0.5f): Color =
+    lerp(toComposeColor(), Color.White, fraction.coerceIn(0f, 1f))

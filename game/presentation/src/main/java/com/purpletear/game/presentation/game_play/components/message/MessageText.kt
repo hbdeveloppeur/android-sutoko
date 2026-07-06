@@ -31,6 +31,7 @@ import androidx.compose.ui.unit.sp
 import com.example.sharedelements.theme.MontserratFontFamily
 import com.purpletear.game.debug.PreviewCharacter
 import com.purpletear.game.presentation.common.extensions.toComposeColor
+import com.purpletear.game.presentation.common.extensions.toWhitenedComposeColor
 import com.purpletear.game.presentation.game_play.components.Avatar
 import com.purpletear.sutoko.game.model.character.Character
 import com.purpletear.sutoko.game.model.character.CharacterColor
@@ -122,18 +123,16 @@ private fun MessageDest(
             }
         }
 
-
-
         MessageBubble(modifier = modifier, shape = shape) {
             Text(
                 modifier = Modifier
                     .padding(vertical = 6.dp)
                     .padding(horizontal = 8.dp),
                 text = text,
-                color = Color.White,
+                color = character?.color?.toWhitenedComposeColor(fraction = 0.5f) ?: Color.White,
                 fontFamily = MontserratFontFamily,
                 fontWeight = FontWeight.Medium,
-                fontSize = 11.7.sp,
+                fontSize = 13.sp,
                 lineHeight = 16.sp,
             )
         }
@@ -179,10 +178,10 @@ private fun MessageMainCharacter(
                     .padding(vertical = 6.dp)
                     .padding(horizontal = 8.dp),
                 text = text,
-                color = Color.White,
+                color = character?.color?.toWhitenedComposeColor(fraction = 0.5f) ?: Color.White,
                 fontFamily = MontserratFontFamily,
                 fontWeight = FontWeight.Medium,
-                fontSize = 11.7.sp,
+                fontSize = 13.sp,
                 lineHeight = 16.sp,
             )
         }

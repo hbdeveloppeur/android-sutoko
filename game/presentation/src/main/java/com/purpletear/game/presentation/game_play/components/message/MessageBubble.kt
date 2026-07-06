@@ -25,7 +25,7 @@ internal fun MessageBubble(
         Modifier
             .widthIn(max = 200.dp)
             .clip(shape)
-            .background(Color(0x11FFFFFF))
+            .background(Color(0x22FFFFFF))
             .padding(horizontal = 10.dp, vertical = 8.dp)
             .then(modifier),
         verticalAlignment = Alignment.CenterVertically,

@@ -44,7 +44,7 @@ internal fun MessageNarration(text: String) {
             color = Color.White,
             fontFamily = CrimsonTextFontFamily,
             fontWeight = FontWeight.Medium,
-            fontSize = 13.sp,
+            fontSize = 14.sp,
             textAlign = TextAlign.Center,
         )
     }
