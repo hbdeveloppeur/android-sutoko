@@ -187,13 +187,17 @@ class GameEngine @Inject constructor(
      * Orchestrates: preparation -> script building -> execution -> navigation.
      *
      * @param nodeId The node ID to execute
+     * @param arrivalContext Transient information about how this node was reached
      */
-    private suspend fun executeNode(nodeId: String) {
+    private suspend fun executeNode(
+        nodeId: String,
+        arrivalContext: ArrivalContext = ArrivalContext(),
+    ) {
         assert(nodeId.isNotBlank())
 
         if (isPaused) return
 
-        val context = prepareExecutionContext(nodeId) ?: return
+        val context = prepareExecutionContext(nodeId, arrivalContext) ?: return
         updateCurrentNodeId(nodeId)
 
         GameEngineLogger.d("NODE") {
@@ -218,7 +222,10 @@ class GameEngine @Inject constructor(
      * Prepares the execution context by resolving graph, node, and handler.
      * Returns null if preparation fails (error state already set).
      */
-    private fun prepareExecutionContext(nodeId: String): ExecutionContext? {
+    private fun prepareExecutionContext(
+        nodeId: String,
+        arrivalContext: ArrivalContext = ArrivalContext(),
+    ): ExecutionContext? {
         assert(nodeId.isNotBlank())
 
         val graph = currentGraph ?: run {
@@ -234,7 +241,7 @@ class GameEngine @Inject constructor(
         }
 
         val handler = getHandler(node)
-        return ExecutionContext(graph, node, nodeId, handler)
+        return ExecutionContext(graph, node, nodeId, handler, arrivalContext)
     }
 
     /**
@@ -250,7 +257,12 @@ class GameEngine @Inject constructor(
             }
             when {
                 handler is GraphAwareNodeHandler -> handler.buildScript(context.node, memory, context.graph)
-                handler is PreviousNodeAwareNodeHandler -> handler.buildScript(context.node, memory, previousNode)
+                handler is PreviousNodeAwareNodeHandler -> handler.buildScript(
+                    context.node,
+                    memory,
+                    previousNode,
+                    context.arrivalContext,
+                )
                 else -> handler.buildScript(context.node, memory)
             }
         } catch (e: IllegalStateException) {
@@ -384,7 +396,7 @@ class GameEngine @Inject constructor(
 
             awaitingInput = false
             availableChoices = emptyList()
-            executeNode(nextNodeId)
+            executeNode(nextNodeId, ArrivalContext(selectedChoiceNodeId = nextNodeId))
         }
     }
 

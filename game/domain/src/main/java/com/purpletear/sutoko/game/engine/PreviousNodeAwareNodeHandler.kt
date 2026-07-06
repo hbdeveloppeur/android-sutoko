@@ -22,10 +22,12 @@ interface PreviousNodeAwareNodeHandler : NodeHandler {
      * @param memory The game memory for read-only state inspection
      * @param previousNode The node executed immediately before this one, or null
      *                     if this is the first node of the session/chapter
+     * @param arrivalContext Transient information about how the node was reached
      */
     fun buildScript(
         node: Node,
         memory: GameMemory,
-        previousNode: Node?
+        previousNode: Node?,
+        arrivalContext: ArrivalContext = ArrivalContext(),
     ): HandlerScript
 }

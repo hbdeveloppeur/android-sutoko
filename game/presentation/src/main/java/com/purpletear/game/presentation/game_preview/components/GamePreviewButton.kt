@@ -21,6 +21,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
@@ -54,9 +56,18 @@ internal fun GamePreviewButton(
     iconAlignment: Alignment = Alignment.CenterEnd,
 ) {
 
+    val haptic = LocalHapticFeedback.current
+
     Box(
         modifier = modifier
-            .clickable(onClick = onClick)
+            .clickable(
+                onClick = {
+                    if (isEnabled && !isLoading) {
+                        haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                        onClick()
+                    }
+                }
+            )
             .clip(RoundedCornerShape(5.dp))
             .height(50.dp)
             .background(brush = background.toBrush()),

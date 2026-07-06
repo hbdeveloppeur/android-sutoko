@@ -210,8 +210,9 @@ internal fun SmsGameScreen(
                 contentAlignment = Alignment.Center
             ) {
                 CircularProgressIndicator(
-                    modifier = Modifier.size(22.dp),
-                    color = Color.White
+                    modifier = Modifier.size(16.dp),
+                    color = Color.White,
+                    strokeWidth = 1.dp
                 )
             }
         }

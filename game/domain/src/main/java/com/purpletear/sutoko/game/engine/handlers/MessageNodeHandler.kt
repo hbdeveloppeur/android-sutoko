@@ -1,5 +1,6 @@
 package com.purpletear.sutoko.game.engine.handlers
 
+import com.purpletear.sutoko.game.engine.ArrivalContext
 import com.purpletear.sutoko.game.engine.GameEngineLogger
 import com.purpletear.sutoko.game.engine.HandlerCommand
 import com.purpletear.sutoko.game.engine.HandlerEffect
@@ -35,13 +36,14 @@ class MessageNodeHandler @Inject constructor(
 ) : PreviousNodeAwareNodeHandler {
 
     override fun buildScript(node: Node, memory: GameMemory): HandlerScript {
-        return buildScript(node, memory, previousNode = null)
+        return buildScript(node, memory, previousNode = null, arrivalContext = ArrivalContext())
     }
 
     override fun buildScript(
         node: Node,
         memory: GameMemory,
-        previousNode: Node?
+        previousNode: Node?,
+        arrivalContext: ArrivalContext,
     ): HandlerScript {
         val messageNode = node as? Node.Message ?: return HandlerScript()
 
@@ -64,7 +66,7 @@ class MessageNodeHandler @Inject constructor(
                 processedText,
                 memory.conversationMode,
                 previousNode,
-                memory,
+                arrivalContext,
             )
         }
     }
@@ -74,8 +76,9 @@ class MessageNodeHandler @Inject constructor(
         processedText: String,
         mode: ConversationMode,
         previousNode: Node?,
-        memory: GameMemory,
+        arrivalContext: ArrivalContext,
     ): HandlerScript {
+        val isUserChoice = node.id == arrivalContext.selectedChoiceNodeId
         if (processedText.isBlank()) {
             GameEngineLogger.d("MSG") {
                 "Skipping blank message ${node.id} from character ${node.characterId}"
@@ -93,8 +96,7 @@ class MessageNodeHandler @Inject constructor(
                 node,
                 processedText,
                 messageId,
-                previousNode,
-                memory
+                isUserChoice,
             )
 
             ConversationMode.IRL -> buildIrlScript(
@@ -102,7 +104,7 @@ class MessageNodeHandler @Inject constructor(
                 processedText,
                 messageId,
                 previousNode,
-                memory
+                isUserChoice,
             )
         }
 
@@ -113,9 +115,13 @@ class MessageNodeHandler @Inject constructor(
         node: Node.Message,
         text: String,
         messageId: String,
-        previousNode: Node?,
-        memory: GameMemory,
+        isUserChoice: Boolean,
     ): List<HandlerCommand> {
+        if (isUserChoice) {
+            GameEngineLogger.d("MSG") { "User choice → skipping SMS delays for ${node.id}" }
+            return listOf(emitAddText(text, messageId, node.characterId))
+        }
+
         val commands = mutableListOf<HandlerCommand>()
 
         if (node.isHesitating) {
@@ -140,29 +146,30 @@ class MessageNodeHandler @Inject constructor(
         text: String,
         messageId: String,
         previousNode: Node?,
-        memory: GameMemory,
+        isUserChoice: Boolean,
     ): List<HandlerCommand> {
+        if (isUserChoice) {
+            GameEngineLogger.d("MSG") { "User choice → skipping IRL delays for ${node.id}" }
+            return listOf(emitAddText(text, messageId, node.characterId))
+        }
+
         val commands = mutableListOf<HandlerCommand>()
 
-        if (!memory.isMainCharacter(node.characterId)) {
-            when {
-                node.isAutoTiming -> {
-                    val text = if (previousNode is Node.Message) {
-                        previousNode.text
-                    } else if (previousNode is Node.Info) {
-                        previousNode.text
-                    } else {
-                        null
-                    }
-                    text?.let {
-                        commands.add(HandlerCommand.Delay(determineReadingDuration(it)))
-                    } ?: {
-                        commands.add(HandlerCommand.Delay(IRL_AUTO_TIMING_DELAY_MS))
-                    }
+        when {
+            node.isAutoTiming -> {
+                val text = if (previousNode is Node.Message) {
+                    previousNode.text
+                } else if (previousNode is Node.Info) {
+                    previousNode.text
+                } else {
+                    null
                 }
-
-                node.seenMs > 0 -> commands.add(HandlerCommand.Delay(node.seenMs))
+                text?.let {
+                    commands.add(HandlerCommand.Delay(determineReadingDuration(it)))
+                } ?: commands.add(HandlerCommand.Delay(IRL_AUTO_TIMING_DELAY_MS))
             }
+
+            node.seenMs > 0 -> commands.add(HandlerCommand.Delay(node.seenMs))
         }
 
 

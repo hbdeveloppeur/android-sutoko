@@ -1,5 +1,6 @@
 package com.purpletear.sutoko.game.engine.handlers
 
+import com.purpletear.sutoko.game.engine.ArrivalContext
 import com.purpletear.sutoko.game.engine.HandlerCommand
 import com.purpletear.sutoko.game.engine.HandlerEffect
 import com.purpletear.sutoko.game.engine.HandlerScript
@@ -63,10 +64,10 @@ class MessageNodeHandlerTest {
             isAutoTiming = true
         )
 
-        val script = handler.buildScript(node, memory, previousMessage())
+        val script = handler.buildScript(node, memory, previousMessage(), ArrivalContext())
 
         assertEquals(2, script.commands.size)
-        assertEquals(2000L, script.commands[0].delayMillis())
+        assertEquals(1000L, script.commands[0].delayMillis())
         assertEquals("Hello", script.commands[1].textMessage())
     }
 
@@ -81,7 +82,7 @@ class MessageNodeHandlerTest {
             seenMs = 750L
         )
 
-        val script = handler.buildScript(node, memory, previousMessage())
+        val script = handler.buildScript(node, memory, previousMessage(), ArrivalContext())
 
         assertEquals(2, script.commands.size)
         assertEquals(750L, script.commands[0].delayMillis())
@@ -99,7 +100,7 @@ class MessageNodeHandlerTest {
             seenMs = 0L
         )
 
-        val script = handler.buildScript(node, memory, previousMessage())
+        val script = handler.buildScript(node, memory, previousMessage(), ArrivalContext())
 
         assertEquals(1, script.commands.size)
         assertEquals("Hello", script.commands[0].textMessage())
@@ -110,10 +111,14 @@ class MessageNodeHandlerTest {
         setConversationMode(ConversationMode.SMS)
         val node = Node.Message(id = "msg1", text = "Hello", characterId = 1)
 
-        val script = handler.buildScript(node, memory, previousMessage())
+        val script = handler.buildScript(node, memory, previousMessage(), ArrivalContext())
 
         assertTrue(script.commands.isNotEmpty())
-        assertTrue(script.commands.first().isDelay())
+        val firstCommand = script.commands.first()
+        assertTrue(
+            "First command should emit PlayTypingSound, not a delay",
+            firstCommand is HandlerCommand.Emit && firstCommand.effect == HandlerEffect.PlayTypingSound
+        )
         assertTrue(script.commands.last().isTextMessage())
 
         val typingAdds = script.commands.addedTypingMessages()
@@ -138,7 +143,7 @@ class MessageNodeHandlerTest {
             isHesitating = true
         )
 
-        val script = handler.buildScript(node, memory, previousMessage())
+        val script = handler.buildScript(node, memory, previousMessage(), ArrivalContext())
 
         val typingAdds = script.commands.addedTypingMessages()
         val deleteMessages = script.commands.deleteMessages()
@@ -155,13 +160,13 @@ class MessageNodeHandlerTest {
         val shortNode = Node.Message(id = "short", text = "Hi", characterId = 1)
         val longNode = Node.Message(id = "long", text = "A".repeat(100), characterId = 1)
 
-        val shortScript = handler.buildScript(shortNode, memory, previousMessage())
-        val longScript = handler.buildScript(longNode, memory, previousMessage())
+        val shortScript = handler.buildScript(shortNode, memory, previousMessage(), ArrivalContext())
+        val longScript = handler.buildScript(longNode, memory, previousMessage(), ArrivalContext())
 
         val shortDuration = shortScript.commands.filterIsInstance<HandlerCommand.Delay>().maxOf { it.millis }
         val longDuration = longScript.commands.filterIsInstance<HandlerCommand.Delay>().maxOf { it.millis }
 
-        assertEquals(1500L, shortDuration)
+        assertEquals(1000L, shortDuration)
         assertEquals(5000L, longDuration)
         assertTrue(longDuration > shortDuration)
     }
@@ -176,7 +181,7 @@ class MessageNodeHandlerTest {
             waitMs = 1234L
         )
 
-        val script = handler.buildScript(node, memory, previousMessage())
+        val script = handler.buildScript(node, memory, previousMessage(), ArrivalContext())
         val delays = script.commands.filterIsInstance<HandlerCommand.Delay>().map { it.millis }
 
         assertTrue(delays.contains(1234L))
@@ -187,7 +192,7 @@ class MessageNodeHandlerTest {
         setConversationMode(ConversationMode.SMS)
         val node = Node.Message(id = "msg1", text = "Hello", characterId = 1)
 
-        val script = handler.buildScript(node, memory, previousNode = null)
+        val script = handler.buildScript(node, memory, previousNode = null, ArrivalContext())
 
         val firstCommand = script.commands.first()
         assertTrue(
@@ -206,31 +211,102 @@ class MessageNodeHandlerTest {
             isAutoTiming = true
         )
 
-        val script = handler.buildScript(node, memory, previousNode = null)
+        val script = handler.buildScript(node, memory, previousNode = null, ArrivalContext())
 
         assertEquals(1, script.commands.size)
         assertEquals("Hello", script.commands[0].textMessage())
     }
 
     @Test
-    fun `subsequent main character message - should keep initial delay`() {
+    fun `subsequent main character message - should start with typing sound`() {
         setConversationMode(ConversationMode.SMS)
         val node = Node.Message(id = "msg1", text = "Hello", characterId = 1)
         val previous = Node.Message(id = "prev", text = "Prev", characterId = 1)
 
-        val script = handler.buildScript(node, memory, previous)
+        val script = handler.buildScript(node, memory, previous, ArrivalContext())
 
-        assertTrue(script.commands.first().isDelay())
+        val firstCommand = script.commands.first()
+        assertTrue(
+            "First command should emit PlayTypingSound, not a delay",
+            firstCommand is HandlerCommand.Emit && firstCommand.effect == HandlerEffect.PlayTypingSound
+        )
     }
 
     @Test
-    fun `first message from non-main character - should keep initial delay`() {
+    fun `first message from non-main character - should start with typing sound`() {
         setConversationMode(ConversationMode.SMS)
         val node = Node.Message(id = "msg1", text = "Hello", characterId = 2)
 
-        val script = handler.buildScript(node, memory, previousNode = null)
+        val script = handler.buildScript(node, memory, previousNode = null, ArrivalContext())
 
-        assertTrue(script.commands.first().isDelay())
+        val firstCommand = script.commands.first()
+        assertTrue(
+            "First command should emit PlayTypingSound, not a delay",
+            firstCommand is HandlerCommand.Emit && firstCommand.effect == HandlerEffect.PlayTypingSound
+        )
+    }
+
+    @Test
+    fun `SMS mode user choice - should emit text immediately without delays or typing`() {
+        setConversationMode(ConversationMode.SMS)
+        val node = Node.Message(id = "user-choice", text = "My answer", characterId = 1)
+
+        val script = handler.buildScript(
+            node,
+            memory,
+            previousMessage(),
+            arrivalContext = ArrivalContext(selectedChoiceNodeId = node.id),
+        )
+
+        assertEquals(1, script.commands.size)
+        assertEquals("My answer", script.commands[0].textMessage())
+        assertTrue(script.commands.none { it is HandlerCommand.Delay })
+        assertTrue(script.commands.none { it.addsTypingMessage() })
+    }
+
+    @Test
+    fun `IRL mode user choice - should emit text immediately without delay`() {
+        setConversationMode(ConversationMode.IRL)
+        val node = Node.Message(
+            id = "user-choice",
+            text = "My answer",
+            characterId = 1,
+            isAutoTiming = true,
+        )
+
+        val script = handler.buildScript(
+            node,
+            memory,
+            previousMessage(),
+            arrivalContext = ArrivalContext(selectedChoiceNodeId = node.id),
+        )
+
+        assertEquals(1, script.commands.size)
+        assertEquals("My answer", script.commands[0].textMessage())
+        assertTrue(script.commands.none { it is HandlerCommand.Delay })
+    }
+
+    @Test
+    fun `SMS mode hesitating user choice - should skip hesitation and typing`() {
+        setConversationMode(ConversationMode.SMS)
+        val node = Node.Message(
+            id = "user-choice",
+            text = "My answer",
+            characterId = 1,
+            isHesitating = true,
+        )
+
+        val script = handler.buildScript(
+            node,
+            memory,
+            previousMessage(),
+            arrivalContext = ArrivalContext(selectedChoiceNodeId = node.id),
+        )
+
+        assertEquals(1, script.commands.size)
+        assertEquals("My answer", script.commands[0].textMessage())
+        assertTrue(script.commands.none { it is HandlerCommand.Delay })
+        assertTrue(script.commands.none { it.addsTypingMessage() })
     }
 
     @Test
@@ -239,7 +315,7 @@ class MessageNodeHandlerTest {
         val node = Node.Message(id = "msg1", text = "Hello", characterId = 1)
         val previous = Node.Message(id = "prev", text = "Prev", characterId = 2)
 
-        val script = handler.buildScript(node, memory, previous)
+        val script = handler.buildScript(node, memory, previous, ArrivalContext())
 
         val firstCommand = script.commands.first()
         assertTrue(
@@ -295,4 +371,9 @@ class MessageNodeHandlerTest {
         count { command ->
             (command as? HandlerCommand.Emit)?.effect == HandlerEffect.PlayTypingSound
         }
+
+    private fun HandlerCommand.addsTypingMessage(): Boolean {
+        val effect = (this as? HandlerCommand.Emit)?.effect as? HandlerEffect.AddMessage ?: return false
+        return effect.message is GameMessageTyping
+    }
 }

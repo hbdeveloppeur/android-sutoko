@@ -11,5 +11,6 @@ internal data class ExecutionContext(
     val graph: ChapterGraph,
     val node: Node,
     val nodeId: String,
-    val handler: NodeHandler
+    val handler: NodeHandler,
+    val arrivalContext: ArrivalContext = ArrivalContext(),
 )

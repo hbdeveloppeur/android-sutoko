@@ -85,6 +85,6 @@ internal object GameEngineLogger {
         val color = forcedColor ?: CATEGORY_COLORS[category.uppercase()] ?: ""
         val paddedCategory = category.uppercase().padEnd(CATEGORY_WIDTH)
         // Keep a plain-text "SutokoGameEngine" prefix so logcat/terminal filtering is trivial.
-        return "GameEngine $color[$paddedCategory]$RESET $message"
+        return "SutokoGameEngine $color[$paddedCategory]$RESET $message"
     }
 }

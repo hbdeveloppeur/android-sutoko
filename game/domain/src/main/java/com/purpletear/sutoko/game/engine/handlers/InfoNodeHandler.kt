@@ -3,8 +3,9 @@ package com.purpletear.sutoko.game.engine.handlers
 import com.purpletear.sutoko.game.engine.GameEngineLogger
 import com.purpletear.sutoko.game.engine.HandlerCommand
 import com.purpletear.sutoko.game.engine.HandlerEffect
+import com.purpletear.sutoko.game.engine.ArrivalContext
 import com.purpletear.sutoko.game.engine.HandlerScript
-import com.purpletear.sutoko.game.engine.NodeHandler
+import com.purpletear.sutoko.game.engine.PreviousNodeAwareNodeHandler
 import com.purpletear.sutoko.game.engine.message.GameMessageInfo
 import com.purpletear.sutoko.game.engine.processing.TextProcessor
 import com.purpletear.sutoko.game.model.chapter.GameMemory
@@ -21,10 +22,17 @@ import javax.inject.Inject
  */
 class InfoNodeHandler @Inject constructor(
     private val textProcessor: TextProcessor,
-) : NodeHandler {
+) : PreviousNodeAwareNodeHandler {
+
+    override fun buildScript(node: Node, memory: GameMemory): HandlerScript {
+        return buildScript(node, memory, previousNode = null, arrivalContext = ArrivalContext())
+    }
+
     override fun buildScript(
         node: Node,
-        memory: GameMemory
+        memory: GameMemory,
+        previousNode: Node?,
+        arrivalContext: ArrivalContext,
     ): HandlerScript {
         val messageNode = node as? Node.Info ?: return HandlerScript()
 
@@ -39,6 +47,7 @@ class InfoNodeHandler @Inject constructor(
             commands = buildMessageCommands(
                 node = messageNode,
                 processedText = processedText,
+                previousNode = previousNode,
             )
         )
     }
@@ -46,11 +55,14 @@ class InfoNodeHandler @Inject constructor(
     private fun buildMessageCommands(
         node: Node.Info,
         processedText: String,
+        previousNode: Node?,
     ): List<HandlerCommand> {
         val commands = mutableListOf<HandlerCommand>()
         val messageId = UUID.randomUUID().toString()
 
-        commands.add(HandlerCommand.Delay(2000))
+        val isFirstNode = previousNode == null || previousNode is Node.Start
+        val initialDelayMs = if (isFirstNode) FIRST_INFO_DELAY_MS else INFO_DELAY_MS
+        commands.add(HandlerCommand.Delay(initialDelayMs))
 
         commands.add(
             HandlerCommand.Emit(
@@ -64,5 +76,10 @@ class InfoNodeHandler @Inject constructor(
         )
 
         return commands
+    }
+
+    private companion object {
+        private const val FIRST_INFO_DELAY_MS = 280L
+        private const val INFO_DELAY_MS = 2000L
     }
 }

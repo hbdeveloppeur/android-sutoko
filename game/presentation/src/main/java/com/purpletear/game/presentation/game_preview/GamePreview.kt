@@ -20,8 +20,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -105,6 +107,18 @@ fun GamePreview(
             var unlockAnimationIsVisible by remember { mutableStateOf(false) }
             var showRestartDialog by remember { mutableStateOf(false) }
             val context = LocalContext.current
+            val haptic = LocalHapticFeedback.current
+
+            var wasDownloading by remember { mutableStateOf(false) }
+            val downloadProgress = gameItem?.downloadProgress
+            LaunchedEffect(downloadProgress) {
+                if (downloadProgress != null) {
+                    wasDownloading = true
+                } else if (wasDownloading) {
+                    haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                    wasDownloading = false
+                }
+            }
 
             LaunchedEffect(Unit) {
                 viewModel.events.collect { event ->

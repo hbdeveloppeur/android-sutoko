@@ -187,7 +187,7 @@ object ChapterGraphParser {
                     requireNotNull(data.expectedValue) { "memory-condition-node ${dto.id} missing expectedValue" }
                 Node.Condition(
                     id = dto.id,
-                    expression = "${memory.value} == $expectedValue"
+                    expression = "${memory.key} == $expectedValue"
                 )
             }
 

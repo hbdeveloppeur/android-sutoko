@@ -21,7 +21,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -114,7 +116,7 @@ private fun ChapterDescriptionRoute(
                     .align(Alignment.Center)
                     .alpha(1f),
                 color = Color.LightGray,
-                strokeWidth = 2.dp
+                strokeWidth = 1.dp
             )
         }
     }
@@ -130,6 +132,8 @@ internal fun ChapterDescriptionContent(
     onRestartDialogConfirm: () -> Unit = {},
     onRestartDialogDismiss: () -> Unit = {},
 ) {
+    val haptic = LocalHapticFeedback.current
+
     Box(
         Modifier
             .fillMaxSize()
@@ -163,6 +167,7 @@ internal fun ChapterDescriptionContent(
                     backgroundColor = Color(0xFFFF007A),
                     textColor = Color.White,
                     onClick = {
+                        haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
                         onContinue()
                     }
                 )
