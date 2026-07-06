@@ -41,6 +41,11 @@ val WorkSansFontFamily = FontFamily(
     Font(R.font.font_worksans_semibold, FontWeight.SemiBold)
 )
 
+// Define Roboto font family
+val RobotoFontFamily = FontFamily(
+    Font(R.font.font_roboto_regular, FontWeight.Normal)
+)
+
 // Set of Material typography styles to start with
 val Typography = Typography(
     body1 = TextStyle(
