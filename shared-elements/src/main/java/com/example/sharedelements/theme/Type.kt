@@ -34,6 +34,13 @@ val PlusJakartaSansFontFamily = FontFamily(
     Font(R.font.plus_jakarta_sans, FontWeight.Normal)
 )
 
+// Define WorkSans font family
+val WorkSansFontFamily = FontFamily(
+    Font(R.font.font_worksans_regular, FontWeight.Normal),
+    Font(R.font.font_worksans_medium, FontWeight.Medium),
+    Font(R.font.font_worksans_semibold, FontWeight.SemiBold)
+)
+
 // Set of Material typography styles to start with
 val Typography = Typography(
     body1 = TextStyle(

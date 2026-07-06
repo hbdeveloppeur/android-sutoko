@@ -28,7 +28,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.sharedelements.theme.MontserratFontFamily
+import com.example.sharedelements.theme.WorkSansFontFamily
 import com.purpletear.game.debug.PreviewCharacter
 import com.purpletear.game.presentation.common.extensions.toComposeColor
 import com.purpletear.game.presentation.common.extensions.toWhitenedComposeColor
@@ -130,8 +130,8 @@ private fun MessageDest(
                     .padding(horizontal = 8.dp),
                 text = text,
                 color = character?.color?.toWhitenedComposeColor(fraction = 0.5f) ?: Color.White,
-                fontFamily = MontserratFontFamily,
-                fontWeight = FontWeight.Medium,
+                fontFamily = WorkSansFontFamily,
+                fontWeight = FontWeight.Normal,
                 fontSize = 13.sp,
                 lineHeight = 16.sp,
             )
@@ -179,8 +179,8 @@ private fun MessageMainCharacter(
                     .padding(horizontal = 8.dp),
                 text = text,
                 color = character?.color?.toWhitenedComposeColor(fraction = 0.5f) ?: Color.White,
-                fontFamily = MontserratFontFamily,
-                fontWeight = FontWeight.Medium,
+                fontFamily = WorkSansFontFamily,
+                fontWeight = FontWeight.Normal,
                 fontSize = 13.sp,
                 lineHeight = 16.sp,
             )
@@ -193,7 +193,7 @@ private fun Name(name: String, color: Color) {
     Text(
         text = name,
         color = color,
-        fontFamily = MontserratFontFamily,
+        fontFamily = WorkSansFontFamily,
         fontWeight = FontWeight.SemiBold,
         fontSize = 14.sp,
     )
