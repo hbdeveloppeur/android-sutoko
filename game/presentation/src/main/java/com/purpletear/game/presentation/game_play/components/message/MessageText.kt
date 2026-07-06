@@ -129,7 +129,7 @@ private fun MessageDest(
                     .padding(vertical = 6.dp)
                     .padding(horizontal = 8.dp),
                 text = text,
-                color = character?.color?.toWhitenedComposeColor(fraction = 0.65f) ?: Color.White,
+                color = character?.color?.toWhitenedComposeColor(fraction = 0.7f) ?: Color.White,
                 fontFamily = WorkSansFontFamily,
                 fontWeight = FontWeight.Normal,
                 fontSize = 13.sp,
@@ -178,7 +178,7 @@ private fun MessageMainCharacter(
                     .padding(vertical = 6.dp)
                     .padding(horizontal = 8.dp),
                 text = text,
-                color = character?.color?.toWhitenedComposeColor(fraction = 0.65f) ?: Color.White,
+                color = character?.color?.toWhitenedComposeColor(fraction = 0.7f) ?: Color.White,
                 fontFamily = WorkSansFontFamily,
                 fontWeight = FontWeight.Normal,
                 fontSize = 13.sp,

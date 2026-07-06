@@ -35,6 +35,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -52,7 +53,9 @@ import com.purpletear.game.presentation.game_play.mapper.characterId
 import com.purpletear.game.presentation.game_play.state.GameUiState
 import com.purpletear.game.presentation.game_play.state.LiveUpdateStatus
 import com.purpletear.sutoko.game.engine.HandlerEffect
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withTimeoutOrNull
 
 private data class ImageViewerState(
     val imageModel: Any? = null,
@@ -105,10 +108,26 @@ internal fun SmsGameScreen(
             previousNewestMessageId = newestMessageId
         }
 
+        var wasScrollable by rememberSaveable { mutableStateOf(false) }
+
         LaunchedEffect(messages.firstOrNull()?.id) {
-            if (messages.isNotEmpty() && !listState.isScrollInProgress) {
+            if (messages.isEmpty() || listState.isScrollInProgress) return@LaunchedEffect
+
+            // Wait until the newest item (index 0 because reverseLayout = true) is laid out
+            // with a real size. On the first message that overflows the viewport, scrolling
+            // before measurement causes the scroll animation to fight the initial layout.
+            withTimeoutOrNull(200) {
+                snapshotFlow { listState.layoutInfo.visibleItemsInfo }
+                    .first { infos -> infos.any { it.index == 0 && it.size > 0 } }
+            }
+
+            val isScrollable = listState.canScrollBackward || listState.canScrollForward
+            if (!wasScrollable && isScrollable) {
+                listState.scrollToItem(0)
+            } else {
                 listState.animateScrollToItem(0)
             }
+            wasScrollable = isScrollable
         }
 
         Column(
