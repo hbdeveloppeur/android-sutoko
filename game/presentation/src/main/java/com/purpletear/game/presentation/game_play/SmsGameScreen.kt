@@ -46,6 +46,7 @@ import com.purpletear.game.presentation.R
 import com.purpletear.game.presentation.game_play.components.choices_box.ChoicesBox
 import com.purpletear.game.presentation.game_play.components.choices_box.MakeAChoiceButton
 import com.purpletear.game.presentation.game_play.components.image_viewer.ImageViewerOverlay
+import com.purpletear.game.presentation.game_play.components.image_viewer.SwipeToDismissDirection
 import com.purpletear.game.presentation.game_play.mapper.Message
 import com.purpletear.game.presentation.game_play.mapper.characterId
 import com.purpletear.game.presentation.game_play.state.GameUiState
@@ -54,9 +55,10 @@ import com.purpletear.sutoko.game.engine.HandlerEffect
 import kotlinx.coroutines.launch
 
 private data class ImageViewerState(
-    val url: String = "",
+    val imageModel: Any? = null,
     val bounds: Rect? = null,
     val isExpanded: Boolean = false,
+    val swipeToDismissDirection: SwipeToDismissDirection = SwipeToDismissDirection.ANY,
 )
 
 @Composable
@@ -150,7 +152,10 @@ internal fun SmsGameScreen(
                         isVocalPlaying = state.isVocalPlaying,
                         vocalProgress = state.vocalProgress,
                         onImageClick = { url, bounds ->
-                            viewerState = ImageViewerState(url, bounds, true)
+                            viewerState = ImageViewerState(url, bounds, true, SwipeToDismissDirection.ANY)
+                        },
+                        onAvatarClick = { imageModel, bounds ->
+                            viewerState = ImageViewerState(imageModel, bounds, true, SwipeToDismissDirection.LEFT)
                         },
                         onNextChapterClick = handleNextChapterClick,
                         showNextChapterButton = state.showNextChapterButton,
@@ -177,10 +182,11 @@ internal fun SmsGameScreen(
         )
 
         ImageViewerOverlay(
-            imageUrl = viewerState.url,
+            imageModel = viewerState.imageModel,
             sourceBounds = viewerState.bounds,
             isVisible = viewerState.isExpanded,
-            onDismiss = { viewerState = viewerState.copy(isExpanded = false) }
+            onDismiss = { viewerState = viewerState.copy(isExpanded = false) },
+            swipeToDismissDirection = viewerState.swipeToDismissDirection,
         )
 
         if (overlayAlpha.value > 0f) {

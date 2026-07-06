@@ -1,6 +1,8 @@
 package com.purpletear.game.presentation.game_play.components.message
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -9,9 +11,16 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.boundsInWindow
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -44,6 +53,7 @@ internal fun MessageText(
     text: String,
     character: Character,
     showHeader: Boolean = true,
+    onAvatarClick: (imageModel: Any?, bounds: Rect) -> Unit = { _, _ -> },
 ) {
     val alignment = if (character.isMainCharacter) Alignment.CenterEnd else Alignment.CenterStart
     Box(Modifier.fillMaxWidth(), contentAlignment = alignment) {
@@ -53,6 +63,7 @@ internal fun MessageText(
                 text = text,
                 character = character,
                 showHeader = showHeader,
+                onAvatarClick = onAvatarClick,
             )
         } else {
             MessageDest(
@@ -60,6 +71,7 @@ internal fun MessageText(
                 text = text,
                 character = character,
                 showHeader = showHeader,
+                onAvatarClick = onAvatarClick,
             )
         }
     }
@@ -71,6 +83,7 @@ private fun MessageDest(
     text: String,
     character: Character? = null,
     showHeader: Boolean = true,
+    onAvatarClick: (imageModel: Any?, bounds: Rect) -> Unit = { _, _ -> },
 ) {
     Column(
         verticalArrangement = Arrangement.spacedBy(4.dp),
@@ -82,11 +95,9 @@ private fun MessageDest(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(6.dp)
             ) {
-                Avatar(
-                    modifier = Modifier.background(it.avatarColor()),
-                    size = 22.dp,
-                    borderWidth = 1.4.dp,
-                    imageModel = it.avatar
+                ClickableAvatar(
+                    character = it,
+                    onAvatarClick = onAvatarClick,
                 )
                 Name(it.name)
             }
@@ -116,6 +127,7 @@ private fun MessageMainCharacter(
     text: String,
     character: Character? = null,
     showHeader: Boolean = true,
+    onAvatarClick: (imageModel: Any?, bounds: Rect) -> Unit = { _, _ -> },
 ) {
     Column(
         verticalArrangement = Arrangement.spacedBy(4.dp),
@@ -128,11 +140,9 @@ private fun MessageMainCharacter(
                 horizontalArrangement = Arrangement.spacedBy(6.dp)
             ) {
                 Name(it.name)
-                Avatar(
-                    modifier = Modifier.background(it.avatarColor()),
-                    size = 22.dp,
-                    borderWidth = 1.4.dp,
-                    imageModel = it.avatar
+                ClickableAvatar(
+                    character = it,
+                    onAvatarClick = onAvatarClick,
                 )
             }
         }
@@ -164,6 +174,35 @@ private fun Name(name: String) {
         fontWeight = FontWeight.SemiBold,
         fontSize = 12.sp,
     )
+}
+
+@Composable
+private fun ClickableAvatar(
+    character: Character,
+    onAvatarClick: (imageModel: Any?, bounds: Rect) -> Unit,
+) {
+    var bounds by remember { mutableStateOf(Rect.Zero) }
+    val avatarModel = character.avatar
+    val clickableModifier = if (avatarModel != null) {
+        Modifier
+            .onGloballyPositioned { bounds = it.boundsInWindow() }
+            .clickable(
+                interactionSource = remember { MutableInteractionSource() },
+                indication = null,
+                onClick = { onAvatarClick(avatarModel, bounds) }
+            )
+    } else {
+        Modifier
+    }
+
+    Box(clickableModifier) {
+        Avatar(
+            modifier = Modifier.background(character.avatarColor()),
+            size = 22.dp,
+            borderWidth = 1.4.dp,
+            imageModel = avatarModel
+        )
+    }
 }
 
 private fun Character.avatarColor(): Color {

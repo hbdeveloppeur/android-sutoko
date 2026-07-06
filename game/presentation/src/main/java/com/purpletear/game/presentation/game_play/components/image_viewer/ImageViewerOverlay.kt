@@ -1,10 +1,10 @@
 package com.purpletear.game.presentation.game_play.components.image_viewer
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
-import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -47,12 +47,18 @@ private const val DISMISS_DRAG_THRESHOLD_DP = 150f
 private const val CORNER_RADIUS_EXPANDED_DP = 16f
 private const val ZOOM_DISMISS_TOLERANCE = 1.01f
 
+internal enum class SwipeToDismissDirection {
+    ANY,
+    LEFT,
+}
+
 @Composable
 internal fun ImageViewerOverlay(
-    imageUrl: String,
+    imageModel: Any?,
     sourceBounds: Rect?,
     isVisible: Boolean,
     onDismiss: () -> Unit,
+    swipeToDismissDirection: SwipeToDismissDirection = SwipeToDismissDirection.ANY,
 ) {
     if (sourceBounds == null) return
 
@@ -77,7 +83,7 @@ internal fun ImageViewerOverlay(
     val animScaleY = remember { Animatable(sourceBounds.height / targetHeight) }
     val radius = remember { Animatable(CORNER_RADIUS_EXPANDED_DP) }
 
-    LaunchedEffect(imageUrl, isVisible) {
+    LaunchedEffect(imageModel, isVisible) {
         if (isVisible) {
             zoomState.reset()
             offsetX.snapTo(sourceBounds.left)
@@ -105,6 +111,26 @@ internal fun ImageViewerOverlay(
 
     BackHandler(enabled = isVisible) {
         onDismiss()
+    }
+
+    val snapBack: suspend () -> Unit = {
+        offsetX.animateTo(0f, tween(SNAP_BACK_DURATION_MS))
+        offsetY.animateTo(targetTop, tween(SNAP_BACK_DURATION_MS))
+    }
+
+    val shouldDismissAfterDrag: () -> Boolean = {
+        when (swipeToDismissDirection) {
+            SwipeToDismissDirection.ANY -> {
+                val dragDist = hypot(
+                    offsetX.value - 0f,
+                    offsetY.value - targetTop
+                )
+                dragDist > DISMISS_DRAG_THRESHOLD_DP
+            }
+            SwipeToDismissDirection.LEFT -> {
+                offsetX.value < -DISMISS_DRAG_THRESHOLD_DP
+            }
+        }
     }
 
     Box(
@@ -141,20 +167,13 @@ internal fun ImageViewerOverlay(
                 .clip(RoundedCornerShape(radius.value.dp))
                 .then(
                     if (isZoomedOut) {
-                        Modifier.pointerInput(Unit) {
+                        Modifier.pointerInput(swipeToDismissDirection) {
                             detectDragGestures(
                                 onDragEnd = {
-                                    val dragDist = hypot(
-                                        offsetX.value - 0f,
-                                        offsetY.value - targetTop
-                                    )
-                                    if (dragDist > DISMISS_DRAG_THRESHOLD_DP) {
+                                    if (shouldDismissAfterDrag()) {
                                         onDismiss()
                                     } else {
-                                        scope.launch {
-                                            offsetX.animateTo(0f, tween(SNAP_BACK_DURATION_MS))
-                                            offsetY.animateTo(targetTop, tween(SNAP_BACK_DURATION_MS))
-                                        }
+                                        scope.launch { snapBack() }
                                     }
                                 }
                             ) { _, dragAmount ->
@@ -172,7 +191,7 @@ internal fun ImageViewerOverlay(
             AsyncImage(
                 modifier = Modifier.fillMaxSize(),
                 model = ImageRequest.Builder(LocalContext.current)
-                    .data(imageUrl)
+                    .data(imageModel)
                     .crossfade(false)
                     .build(),
                 contentDescription = null,

@@ -31,6 +31,7 @@ internal fun Message(
     isVocalPlaying: Boolean = false,
     vocalProgress: Float = 0f,
     onImageClick: (imageUrl: String, bounds: Rect) -> Unit = { _, _ -> },
+    onAvatarClick: (imageModel: Any?, bounds: Rect) -> Unit = { _, _ -> },
     onNextChapterClick: () -> Unit = {},
     showNextChapterButton: Boolean = true,
     nextChapterTitleRes: Int? = null,
@@ -45,6 +46,7 @@ internal fun Message(
                     text = message.text,
                     character = character!!,
                     showHeader = !message.hasSameCharacter(previousMessage),
+                    onAvatarClick = onAvatarClick,
                 )
             }
 
