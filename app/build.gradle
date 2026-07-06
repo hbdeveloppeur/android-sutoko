@@ -62,6 +62,7 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules-dependencies.pro', 'proguard-rules-app.pro'
             buildConfigField("int", "VERSION_CODE", "${defaultConfig.versionCode}")
             buildConfigField("String", "VERSION_NAME", "\"${defaultConfig.versionName}\"")
+            buildConfigField("boolean", "ENABLE_ANR_WATCHDOG", "true")
             ndk {
                 debugSymbolLevel 'FULL'
             }
@@ -75,6 +76,7 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules-dependencies.pro', 'proguard-rules-app.pro'
             buildConfigField("String", "VERSION_NAME", "\"${defaultConfig.versionName}\"")
             buildConfigField("int", "VERSION_CODE", "${defaultConfig.versionCode}")
+            buildConfigField("boolean", "ENABLE_ANR_WATCHDOG", "false")
         }
 
         benchmark {
@@ -83,6 +85,7 @@ android {
             profileable true
             signingConfig signingConfigs.debug
             matchingFallbacks = ['release']
+            buildConfigField("boolean", "ENABLE_ANR_WATCHDOG", "false")
         }
     }
 
@@ -243,6 +246,8 @@ dependencies {
 
     // WorkManager - Required for Android S+ (API 31+) PendingIntent FLAG_IMMUTABLE fix
     implementation libs.androidx.work.runtime
+
+    implementation libs.anrwatchdog
 
     implementation libs.conscrypt.android
 

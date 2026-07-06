@@ -1,4 +1,5 @@
 [versions]
+anrwatchdog = "1.4.0"
 agp = "8.5.2"
 kotlin = "2.0.21"
 accompanistInsets = "0.30.1"
@@ -196,6 +197,7 @@ androidx-macro-benchmark = { module = "androidx.benchmark:benchmark-macro-junit4
 androidx-uiautomator = { module = "androidx.test.uiautomator:uiautomator", version.ref = "uiautomator" }
 
 javax-inject = { group = "javax.inject", name = "javax.inject", version.ref = "javax-inject" }
+anrwatchdog = { module = "com.github.anrwatchdog:anrwatchdog", version.ref = "anrwatchdog" }
 
 [plugins]
 jetbrains-kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }

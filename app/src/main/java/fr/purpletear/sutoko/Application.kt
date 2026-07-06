@@ -15,6 +15,7 @@ import androidx.multidex.MultiDexApplication
 import com.bumptech.glide.Glide
 import com.downloader.PRDownloader
 import com.downloader.PRDownloaderConfig
+import com.github.anrwatchdog.ANRWatchDog
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.FirebaseFirestoreSettings
@@ -133,6 +134,8 @@ class Application : MultiDexApplication(), DefaultLifecycleObserver {
 
         FirebaseCrashlytics.getInstance().isCrashlyticsCollectionEnabled = !BuildConfig.DEBUG
 
+        initializeAnrWatchdog()
+
         appSyncScope.launch {
             createNotificationChannel()
         }
@@ -155,6 +158,20 @@ class Application : MultiDexApplication(), DefaultLifecycleObserver {
         appSyncScope.launch {
             DeleteCoilCache.clearCache(applicationContext)
         }
+    }
+
+    private fun initializeAnrWatchdog() {
+        if (!BuildConfig.ENABLE_ANR_WATCHDOG) return
+
+        ANRWatchDog()
+            .setANRListener { error ->
+                runCatching {
+                    FirebaseCrashlytics.getInstance().recordException(error)
+                }.onFailure {
+                    Log.e("ANRWatchdog", "Failed to record ANR", it)
+                }
+            }
+            .start()
     }
 
     private fun Context.clearGlideCache() {
