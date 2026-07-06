@@ -130,7 +130,7 @@ class MessageNodeHandler @Inject constructor(
 
         commands.add(HandlerCommand.Emit(HandlerEffect.DeleteMessage(messageId = messageId)))
         commands.add(HandlerCommand.Delay(node.seenMs.coerceAtLeast(MIN_POST_TYPING_DELAY_MS)))
-        commands.add(emitAddText(text, messageId, node.characterId))
+        commands.add(emitAddText(text, UUID.randomUUID().toString(), node.characterId))
 
         return commands
     }
@@ -230,7 +230,7 @@ class MessageNodeHandler @Inject constructor(
 
     private fun determineReadingDuration(text: String): Long {
         val baseDuration = text.length * READING_CHAR_DELAY_MS
-        return baseDuration.coerceIn(MIN_TYPING_DURATION_MS, MAX_TYPING_DURATION_MS)
+        return baseDuration.coerceIn(1000L, 3000L)
     }
 
     private fun parseCommand(text: String): Command {
@@ -252,7 +252,7 @@ class MessageNodeHandler @Inject constructor(
         private const val HESITATION_DELAY_MAX_EXCLUSIVE_MS = 3001L
         private const val TYPING_CHAR_DELAY_MS = 100L
         private const val READING_CHAR_DELAY_MS = 120L
-        private const val MIN_TYPING_DURATION_MS = 1500L
+        private const val MIN_TYPING_DURATION_MS = 1000L
         private const val MAX_TYPING_DURATION_MS = 5000L
     }
 }

@@ -29,6 +29,7 @@ internal fun Message(
     nextMessage: GameMessage?,
     message: GameMessage,
     character: Character? = null,
+    isNewlyAdded: Boolean = false,
     currentVocalUrl: String? = null,
     isVocalPlaying: Boolean = false,
     vocalProgress: Float = 0f,
@@ -39,7 +40,7 @@ internal fun Message(
     nextChapterTitleRes: Int? = null,
     onVocalClick: (String) -> Unit = {},
 ) {
-    FadeInMessageContainer(modifier = modifier) {
+    FadeInMessageContainer(animate = isNewlyAdded, modifier = modifier) {
         when (message.type) {
             GameMessageType.Text -> {
                 assert(character != null)

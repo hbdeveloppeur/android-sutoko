@@ -22,7 +22,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.MaterialTheme
@@ -94,9 +95,9 @@ internal fun SmsGameScreen(
             scene = state.currentScene,
         )
 
-        val listState = rememberLazyListState()
+        val listState = rememberSaveable(saver = LazyListState.Saver) { LazyListState() }
 
-        val messages = state.messages.asReversed()
+        val messages = remember(state.messages) { state.messages.asReversed() }
 
         val isAtBottom by remember {
             derivedStateOf {
@@ -105,12 +106,15 @@ internal fun SmsGameScreen(
             }
         }
 
-        // Capture before the new item is laid out; otherwise firstVisibleItemIndex
-        // would already have shifted to 1 and we would skip the scroll.
-        val shouldAutoScroll = isAtBottom
+        val newestMessageId = messages.firstOrNull()?.id
+        var previousNewestMessageId by remember { mutableStateOf<String?>(null) }
+        LaunchedEffect(newestMessageId) {
+            previousNewestMessageId = newestMessageId
+        }
+
         LaunchedEffect(messages.firstOrNull()?.id) {
-            if (messages.isNotEmpty() && shouldAutoScroll) {
-                listState.animateScrollToItem(0)
+            if (messages.isNotEmpty() && isAtBottom && !listState.isScrollInProgress) {
+                listState.scrollToItem(0)
             }
         }
 
@@ -148,7 +152,7 @@ internal fun SmsGameScreen(
                         previousMessage = messages.getOrNull(index + 1),
                         nextMessage = messages.getOrNull(index - 1),
                         character = characterId?.let { state.characters[it] },
-                        modifier = Modifier.animateItem(),
+                        isNewlyAdded = message.id == newestMessageId && message.id != previousNewestMessageId,
                         currentVocalUrl = state.currentVocalUrl,
                         isVocalPlaying = state.isVocalPlaying,
                         vocalProgress = state.vocalProgress,

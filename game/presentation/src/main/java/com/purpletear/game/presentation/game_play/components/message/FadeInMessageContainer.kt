@@ -17,11 +17,14 @@ private const val FADE_OUT_DURATION_MS = 200
 
 @Composable
 internal fun FadeInMessageContainer(
+    animate: Boolean,
     modifier: Modifier = Modifier,
     content: @Composable () -> Unit
 ) {
-    var visible by remember { mutableStateOf(false) }
-    LaunchedEffect(Unit) { visible = true }
+    var visible by remember { mutableStateOf(!animate) }
+    LaunchedEffect(animate) {
+        if (animate) visible = true
+    }
 
     AnimatedVisibility(
         visible = visible,
