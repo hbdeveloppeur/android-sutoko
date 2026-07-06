@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -29,6 +30,7 @@ import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.purpletear.game.debug.PreviewCharacter
+import com.purpletear.game.presentation.common.extensions.toComposeColor
 import com.purpletear.game.presentation.game_play.components.Avatar
 import com.purpletear.sutoko.game.model.character.Character
 
@@ -90,24 +92,18 @@ internal fun MessageImage(
                 contentScale = ContentScale.Crop,
             )
         }
+        val avatarColor = character.color.toComposeColor()
         Avatar(
             modifier = Modifier
-                .background(character.avatarColor())
+                .background(avatarColor, CircleShape)
                 .align(alignment),
             size = 26.dp,
             borderWidth = 1.4.dp,
+            borderColor = avatarColor,
             imageModel = character.avatar
         )
     }
 }
 
-private fun Character.avatarColor(): Color {
-    return color.startingColor.toComposeColor() ?: Color.Blue
-}
 
-private fun String.toComposeColor(): Color? = try {
-    Color(android.graphics.Color.parseColor(this))
-} catch (_: IllegalArgumentException) {
-    null
-}
 

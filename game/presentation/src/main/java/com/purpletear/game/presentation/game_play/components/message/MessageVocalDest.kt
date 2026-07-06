@@ -26,6 +26,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.purpletear.game.presentation.R
+import com.purpletear.game.presentation.common.extensions.toComposeColor
 import com.purpletear.game.presentation.game_play.components.Avatar
 import com.purpletear.sutoko.game.model.character.Character
 
@@ -33,11 +34,13 @@ import com.purpletear.sutoko.game.model.character.Character
 internal fun MessageVocalDest(
     character: Character, isPlaying: Boolean, percent: Float, onClick: () -> Unit = {}
 ) {
+    val avatarColor = character.color.toComposeColor()
     MessageBubble(Modifier.padding(end = 4.dp)) {
         Avatar(
-            modifier = Modifier.background(Color.Blue),
+            modifier = Modifier.background(avatarColor, CircleShape),
             size = 22.dp,
             borderWidth = 1.4.dp,
+            borderColor = avatarColor,
             imageModel = character.avatar
         )
         Progress(percent)

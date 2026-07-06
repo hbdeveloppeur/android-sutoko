@@ -2,6 +2,7 @@ package com.purpletear.game.presentation.common.extensions
 
 import androidx.compose.ui.graphics.Color
 import androidx.core.graphics.toColorInt
+import com.purpletear.sutoko.game.model.character.CharacterColor
 
 /**
  * Parses a hex color string into a Compose Color.
@@ -34,3 +35,9 @@ fun Color.Companion.parse(colorCode: String): Color {
         Color.Black
     }
 }
+
+/**
+ * Returns the [endingColor] as a Compose [Color].
+ * Invalid hex strings are parsed to [Color.Black] by [Color.parse].
+ */
+fun CharacterColor.toComposeColor(): Color = Color.parse(endingColor)

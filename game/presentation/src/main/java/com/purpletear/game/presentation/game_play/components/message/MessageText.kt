@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -29,21 +30,29 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.sharedelements.theme.MontserratFontFamily
 import com.purpletear.game.debug.PreviewCharacter
+import com.purpletear.game.presentation.common.extensions.toComposeColor
 import com.purpletear.game.presentation.game_play.components.Avatar
 import com.purpletear.sutoko.game.model.character.Character
+import com.purpletear.sutoko.game.model.character.CharacterColor
 
 @Preview(name = "GameMessageText")
 @Composable
 private fun Preview() {
+    val gradientCharacter = PreviewCharacter.copy(
+        color = CharacterColor(
+            startingColor = "#8E2DE2",
+            endingColor = "#4A00E0",
+        )
+    )
     Box(Modifier.padding(12.dp)) {
         Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
             MessageText(
                 text = "Super c'est le chapitre 2",
-                character = PreviewCharacter,
+                character = gradientCharacter,
             )
             MessageText(
                 text = "Super c'est le chapitre 2, et alors qu'en est-il du chapitre 20?",
-                character = PreviewCharacter,
+                character = gradientCharacter,
             )
         }
     }
@@ -109,7 +118,7 @@ private fun MessageDest(
                     character = it,
                     onAvatarClick = onAvatarClick,
                 )
-                Name(it.name)
+                Name(it.name, color = it.color.toComposeColor())
             }
         }
 
@@ -154,7 +163,7 @@ private fun MessageMainCharacter(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(6.dp)
             ) {
-                Name(it.name)
+                Name(it.name, color = it.color.toComposeColor())
                 ClickableAvatar(
                     character = it,
                     onAvatarClick = onAvatarClick,
@@ -181,13 +190,13 @@ private fun MessageMainCharacter(
 }
 
 @Composable
-private fun Name(name: String) {
+private fun Name(name: String, color: Color) {
     Text(
         text = name,
-        color = Color.White,
+        color = color,
         fontFamily = MontserratFontFamily,
         fontWeight = FontWeight.SemiBold,
-        fontSize = 12.sp,
+        fontSize = 14.sp,
     )
 }
 
@@ -210,11 +219,14 @@ private fun ClickableAvatar(
         Modifier
     }
 
+    val avatarColor = character.color.toComposeColor()
     Box(clickableModifier) {
         Avatar(
-            modifier = Modifier.background(character.avatarColor()),
+            modifier = Modifier
+                .background(avatarColor, CircleShape),
             size = 22.dp,
             borderWidth = 1.4.dp,
+            borderColor = avatarColor,
             imageModel = avatarModel
         )
     }
@@ -234,31 +246,55 @@ private fun messageBubbleShape(
         when (positionInGroup) {
             MessagePositionInGroup.SINGLE -> RoundedCornerShape(large)
             MessagePositionInGroup.TOP -> if (isMainCharacter) {
-                RoundedCornerShape(topStart = large, topEnd = large, bottomStart = large, bottomEnd = small)
+                RoundedCornerShape(
+                    topStart = large,
+                    topEnd = large,
+                    bottomStart = large,
+                    bottomEnd = small
+                )
             } else {
-                RoundedCornerShape(topStart = large, topEnd = large, bottomStart = small, bottomEnd = large)
+                RoundedCornerShape(
+                    topStart = large,
+                    topEnd = large,
+                    bottomStart = small,
+                    bottomEnd = large
+                )
             }
+
             MessagePositionInGroup.MIDDLE -> if (isMainCharacter) {
-                RoundedCornerShape(topStart = large, topEnd = small, bottomStart = large, bottomEnd = small)
+                RoundedCornerShape(
+                    topStart = large,
+                    topEnd = small,
+                    bottomStart = large,
+                    bottomEnd = small
+                )
             } else {
-                RoundedCornerShape(topStart = small, topEnd = large, bottomStart = small, bottomEnd = large)
+                RoundedCornerShape(
+                    topStart = small,
+                    topEnd = large,
+                    bottomStart = small,
+                    bottomEnd = large
+                )
             }
+
             MessagePositionInGroup.BOTTOM -> if (isMainCharacter) {
-                RoundedCornerShape(topStart = large, topEnd = small, bottomStart = large, bottomEnd = large)
+                RoundedCornerShape(
+                    topStart = large,
+                    topEnd = small,
+                    bottomStart = large,
+                    bottomEnd = large
+                )
             } else {
-                RoundedCornerShape(topStart = small, topEnd = large, bottomStart = large, bottomEnd = large)
+                RoundedCornerShape(
+                    topStart = small,
+                    topEnd = large,
+                    bottomStart = large,
+                    bottomEnd = large
+                )
             }
         }
     }
 }
 
-private fun Character.avatarColor(): Color {
-    return color.startingColor.toComposeColor() ?: Color.Blue
-}
 
-private fun String.toComposeColor(): Color? = try {
-    Color(android.graphics.Color.parseColor(this))
-} catch (_: IllegalArgumentException) {
-    null
-}
 
