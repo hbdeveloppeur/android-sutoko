@@ -169,17 +169,12 @@ internal fun SmsGameScreen(
             )
         }
 
-        AnimatedVisibility(
+        AnimatedChoicesBox(
+            choices = state.choices,
             visible = state.isChoicesRevealed && state.choices.isNotEmpty(),
-            enter = fadeIn(animationSpec = tween(durationMillis = CHOICE_FADE_DURATION_MS)),
-            exit = fadeOut(animationSpec = tween(durationMillis = CHOICE_FADE_DURATION_MS))
-        ) {
-            ChoicesBox(
-                choices = state.choices,
-                onClickChoice = onChoiceSelected,
-                onClickClose = onHideChoicesClicked
-            )
-        }
+            onClickChoice = onChoiceSelected,
+            onClickClose = onHideChoicesClicked
+        )
 
         ImageViewerOverlay(
             imageUrl = viewerState.url,
@@ -214,6 +209,35 @@ internal fun SmsGameScreen(
 }
 
 private const val CHOICE_FADE_DURATION_MS = 320
+
+@Composable
+private fun AnimatedChoicesBox(
+    choices: List<HandlerEffect.ShowChoices.Choice>,
+    visible: Boolean,
+    onClickChoice: (HandlerEffect.ShowChoices.Choice) -> Unit,
+    onClickClose: () -> Unit,
+) {
+    AnimatedVisibility(
+        visible = visible,
+        enter = fadeIn(animationSpec = tween(durationMillis = CHOICE_FADE_DURATION_MS)),
+        exit = fadeOut(animationSpec = tween(durationMillis = CHOICE_FADE_DURATION_MS))
+    ) {
+        // Capture the choices at entry so the list survives the fade-out even when
+        // the ViewModel clears state.choices immediately after a selection.
+        var displayedChoices by remember { mutableStateOf(choices) }
+        LaunchedEffect(choices) {
+            if (choices.isNotEmpty()) {
+                displayedChoices = choices
+            }
+        }
+
+        ChoicesBox(
+            choices = displayedChoices,
+            onClickChoice = onClickChoice,
+            onClickClose = onClickClose
+        )
+    }
+}
 
 @Composable
 private fun Screen(content: @Composable BoxScope.() -> Unit) {
