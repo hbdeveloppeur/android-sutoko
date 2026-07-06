@@ -18,6 +18,8 @@ import com.downloader.PRDownloaderConfig
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.FirebaseFirestoreSettings
+import coil.Coil
+import coil.ImageLoader
 import com.purpletear.sutoko.core.android.di.DefaultActivityProvider
 import dagger.hilt.android.HiltAndroidApp
 import dalvik.system.ZipPathValidator
@@ -79,6 +81,12 @@ class Application : MultiDexApplication(), DefaultLifecycleObserver {
         if (BuildConfig.DEBUG) {
             enableStrictMode()
         }
+
+        Coil.setImageLoader(
+            ImageLoader.Builder(this)
+                .addLastModifiedToFileCacheKey(false)
+                .build()
+        )
 
         registerActivityLifecycleCallbacks(currentActivityProvider)
 

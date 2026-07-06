@@ -252,7 +252,7 @@ class MessageNodeHandler @Inject constructor(
         private const val HESITATION_DELAY_MIN_MS = 1000L
         private const val HESITATION_DELAY_MAX_EXCLUSIVE_MS = 3001L
         private const val TYPING_CHAR_DELAY_MS = 100L
-        private const val READING_CHAR_DELAY_MS = 250L
+        private const val READING_CHAR_DELAY_MS = 170L
         private const val MIN_TYPING_DURATION_MS = 1500L
         private const val MAX_TYPING_DURATION_MS = 5000L
     }
