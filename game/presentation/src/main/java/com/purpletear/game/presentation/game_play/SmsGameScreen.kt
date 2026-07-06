@@ -21,20 +21,19 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.LazyListState
-import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -99,12 +98,6 @@ internal fun SmsGameScreen(
 
         val messages = remember(state.messages) { state.messages.asReversed() }
 
-        val isAtBottom by remember {
-            derivedStateOf {
-                listState.firstVisibleItemIndex == 0 &&
-                        listState.firstVisibleItemScrollOffset <= 10
-            }
-        }
 
         val newestMessageId = messages.firstOrNull()?.id
         var previousNewestMessageId by remember { mutableStateOf<String?>(null) }
@@ -113,7 +106,7 @@ internal fun SmsGameScreen(
         }
 
         LaunchedEffect(messages.firstOrNull()?.id) {
-            if (messages.isNotEmpty() && isAtBottom && !listState.isScrollInProgress) {
+            if (messages.isNotEmpty() && !listState.isScrollInProgress) {
                 listState.animateScrollToItem(0)
             }
         }
@@ -157,10 +150,16 @@ internal fun SmsGameScreen(
                         isVocalPlaying = state.isVocalPlaying,
                         vocalProgress = state.vocalProgress,
                         onImageClick = { url, bounds ->
-                            viewerState = ImageViewerState(url, bounds, true, SwipeToDismissDirection.ANY)
+                            viewerState =
+                                ImageViewerState(url, bounds, true, SwipeToDismissDirection.ANY)
                         },
                         onAvatarClick = { imageModel, bounds ->
-                            viewerState = ImageViewerState(imageModel, bounds, true, SwipeToDismissDirection.LEFT)
+                            viewerState = ImageViewerState(
+                                imageModel,
+                                bounds,
+                                true,
+                                SwipeToDismissDirection.LEFT
+                            )
                         },
                         onNextChapterClick = handleNextChapterClick,
                         showNextChapterButton = state.showNextChapterButton,

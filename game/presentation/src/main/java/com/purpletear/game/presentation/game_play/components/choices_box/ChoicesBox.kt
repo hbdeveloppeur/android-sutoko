@@ -144,7 +144,7 @@ fun MakeAChoiceButton(
             modifier = Modifier
                 .padding(top = 12.dp)
                 .size(40.dp)
-                .alpha(0.6f),
+                .alpha(0.7f),
             tint = Color.Unspecified
         )
     }
