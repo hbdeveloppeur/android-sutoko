@@ -4,6 +4,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.res.stringResource
+import com.purpletear.game.presentation.R
+import com.purpletear.game.presentation.game_play.components.message.FadeInMessageContainer
 import com.purpletear.game.presentation.game_play.components.message.MessageImage
 import com.purpletear.game.presentation.game_play.components.message.MessageNarration
 import com.purpletear.game.presentation.game_play.components.message.MessageNextChapter
@@ -17,7 +19,6 @@ import com.purpletear.sutoko.game.engine.message.GameMessageInfo
 import com.purpletear.sutoko.game.engine.message.GameMessageText
 import com.purpletear.sutoko.game.engine.message.GameMessageTyping
 import com.purpletear.sutoko.game.engine.message.GameMessageVocal
-import com.purpletear.game.presentation.R
 import com.purpletear.sutoko.game.model.character.Character
 
 @Composable
@@ -35,65 +36,65 @@ internal fun Message(
     nextChapterTitleRes: Int? = null,
     onVocalClick: (String) -> Unit = {},
 ) {
-    when (message.type) {
-        GameMessageType.Text -> {
-            assert(character != null)
-            message as GameMessageText
-            MessageText(
-                modifier = modifier,
-                text = message.text,
-                character = character!!,
-                showHeader = !message.hasSameCharacter(previousMessage),
-            )
-        }
-
-        GameMessageType.Typing -> {
-            message as GameMessageTyping
-            MessageTyping(character = character, modifier = modifier)
-        }
-
-        GameMessageType.ChapterEnd -> {
-            val title = nextChapterTitleRes?.let { stringResource(it) }
-                ?: stringResource(R.string.message_next_chapter_title)
-            MessageNextChapter(
-                modifier = modifier,
-                title = title,
-                showButton = showNextChapterButton,
-                onClick = onNextChapterClick
-            )
-        }
-
-        GameMessageType.Info -> {
-            message as GameMessageInfo
-            val text = if (message.id == "end_story") {
-                stringResource(R.string.message_story_finished)
-            } else {
-                message.text
+    FadeInMessageContainer(modifier = modifier) {
+        when (message.type) {
+            GameMessageType.Text -> {
+                assert(character != null)
+                message as GameMessageText
+                MessageText(
+                    text = message.text,
+                    character = character!!,
+                    showHeader = !message.hasSameCharacter(previousMessage),
+                )
             }
-            MessageNarration(text = text)
-        }
 
-        GameMessageType.Image -> {
-            assert(character != null)
-            message as GameMessageImage
-            MessageImage(
-                path = message.imageUrl,
-                character = character!!,
-                onClick = { bounds -> onImageClick(message.imageUrl, bounds) }
-            )
-        }
+            GameMessageType.Typing -> {
+                message as GameMessageTyping
+                MessageTyping(character = character)
+            }
 
-        GameMessageType.Vocal -> {
-            assert(character != null)
-            message as GameMessageVocal
-            val isThisPlaying = message.audioUrl == currentVocalUrl && isVocalPlaying
-            val percent = if (message.audioUrl == currentVocalUrl) vocalProgress else 0f
-            MessageVocalDest(
-                isPlaying = isThisPlaying,
-                character = character!!,
-                percent = percent,
-                onClick = { onVocalClick(message.audioUrl) }
-            )
+            GameMessageType.ChapterEnd -> {
+                val title = nextChapterTitleRes?.let { stringResource(it) }
+                    ?: stringResource(R.string.message_next_chapter_title)
+                MessageNextChapter(
+                    title = title,
+                    showButton = showNextChapterButton,
+                    onClick = onNextChapterClick
+                )
+            }
+
+            GameMessageType.Info -> {
+                message as GameMessageInfo
+                val text = if (message.id == "end_story") {
+                    stringResource(R.string.message_story_finished)
+                } else {
+                    message.text
+                }
+                MessageNarration(text = text)
+            }
+
+            GameMessageType.Image -> {
+                assert(character != null)
+                message as GameMessageImage
+                MessageImage(
+                    path = message.imageUrl,
+                    character = character!!,
+                    onClick = { bounds -> onImageClick(message.imageUrl, bounds) }
+                )
+            }
+
+            GameMessageType.Vocal -> {
+                assert(character != null)
+                message as GameMessageVocal
+                val isThisPlaying = message.audioUrl == currentVocalUrl && isVocalPlaying
+                val percent = if (message.audioUrl == currentVocalUrl) vocalProgress else 0f
+                MessageVocalDest(
+                    isPlaying = isThisPlaying,
+                    character = character!!,
+                    percent = percent,
+                    onClick = { onVocalClick(message.audioUrl) }
+                )
+            }
         }
     }
 }

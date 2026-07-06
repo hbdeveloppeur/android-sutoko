@@ -246,7 +246,6 @@ class MessageNodeHandler @Inject constructor(
     }
 
     private companion object {
-        private const val MIN_SEEN_DELAY_MS = 520L
         private const val MIN_POST_TYPING_DELAY_MS = 280L
         private const val IRL_AUTO_TIMING_DELAY_MS = 2000L
         private const val HESITATION_DELAY_MIN_MS = 1000L
