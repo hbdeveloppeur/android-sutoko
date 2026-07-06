@@ -114,7 +114,7 @@ internal fun SmsGameScreen(
 
         LaunchedEffect(messages.firstOrNull()?.id) {
             if (messages.isNotEmpty() && isAtBottom && !listState.isScrollInProgress) {
-                listState.scrollToItem(0)
+                listState.animateScrollToItem(0)
             }
         }
 
