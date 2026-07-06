@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -19,6 +20,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.layout.boundsInWindow
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.text.font.FontWeight
@@ -53,6 +55,7 @@ internal fun MessageText(
     text: String,
     character: Character,
     showHeader: Boolean = true,
+    positionInGroup: MessagePositionInGroup = MessagePositionInGroup.SINGLE,
     onAvatarClick: (imageModel: Any?, bounds: Rect) -> Unit = { _, _ -> },
 ) {
     val alignment = if (character.isMainCharacter) Alignment.CenterEnd else Alignment.CenterStart
@@ -63,6 +66,7 @@ internal fun MessageText(
                 text = text,
                 character = character,
                 showHeader = showHeader,
+                positionInGroup = positionInGroup,
                 onAvatarClick = onAvatarClick,
             )
         } else {
@@ -71,6 +75,7 @@ internal fun MessageText(
                 text = text,
                 character = character,
                 showHeader = showHeader,
+                positionInGroup = positionInGroup,
                 onAvatarClick = onAvatarClick,
             )
         }
@@ -83,8 +88,13 @@ private fun MessageDest(
     text: String,
     character: Character? = null,
     showHeader: Boolean = true,
+    positionInGroup: MessagePositionInGroup = MessagePositionInGroup.SINGLE,
     onAvatarClick: (imageModel: Any?, bounds: Rect) -> Unit = { _, _ -> },
 ) {
+    val shape = messageBubbleShape(
+        isMainCharacter = false,
+        positionInGroup = positionInGroup,
+    )
     Column(
         verticalArrangement = Arrangement.spacedBy(4.dp),
         horizontalAlignment = Alignment.Start,
@@ -105,7 +115,7 @@ private fun MessageDest(
 
 
 
-        MessageBubble(modifier = modifier) {
+        MessageBubble(modifier = modifier, shape = shape) {
             Text(
                 modifier = Modifier
                     .padding(vertical = 6.dp)
@@ -127,8 +137,13 @@ private fun MessageMainCharacter(
     text: String,
     character: Character? = null,
     showHeader: Boolean = true,
+    positionInGroup: MessagePositionInGroup = MessagePositionInGroup.SINGLE,
     onAvatarClick: (imageModel: Any?, bounds: Rect) -> Unit = { _, _ -> },
 ) {
+    val shape = messageBubbleShape(
+        isMainCharacter = true,
+        positionInGroup = positionInGroup,
+    )
     Column(
         verticalArrangement = Arrangement.spacedBy(4.dp),
         horizontalAlignment = Alignment.End,
@@ -149,7 +164,7 @@ private fun MessageMainCharacter(
 
 
 
-        MessageBubble(modifier = modifier) {
+        MessageBubble(modifier = modifier, shape = shape) {
             Text(
                 modifier = Modifier
                     .padding(vertical = 6.dp)
@@ -202,6 +217,38 @@ private fun ClickableAvatar(
             borderWidth = 1.4.dp,
             imageModel = avatarModel
         )
+    }
+}
+
+private const val BUBBLE_CORNER_LARGE_DP = 22f
+private const val BUBBLE_CORNER_SMALL_DP = 12f
+
+@Composable
+private fun messageBubbleShape(
+    isMainCharacter: Boolean,
+    positionInGroup: MessagePositionInGroup,
+): Shape {
+    val large = BUBBLE_CORNER_LARGE_DP.dp
+    val small = BUBBLE_CORNER_SMALL_DP.dp
+    return remember(isMainCharacter, positionInGroup) {
+        when (positionInGroup) {
+            MessagePositionInGroup.SINGLE -> RoundedCornerShape(large)
+            MessagePositionInGroup.TOP -> if (isMainCharacter) {
+                RoundedCornerShape(topStart = large, topEnd = large, bottomStart = large, bottomEnd = small)
+            } else {
+                RoundedCornerShape(topStart = large, topEnd = large, bottomStart = small, bottomEnd = large)
+            }
+            MessagePositionInGroup.MIDDLE -> if (isMainCharacter) {
+                RoundedCornerShape(topStart = large, topEnd = small, bottomStart = large, bottomEnd = small)
+            } else {
+                RoundedCornerShape(topStart = small, topEnd = large, bottomStart = small, bottomEnd = large)
+            }
+            MessagePositionInGroup.BOTTOM -> if (isMainCharacter) {
+                RoundedCornerShape(topStart = large, topEnd = small, bottomStart = large, bottomEnd = large)
+            } else {
+                RoundedCornerShape(topStart = small, topEnd = large, bottomStart = large, bottomEnd = large)
+            }
+        }
     }
 }
 

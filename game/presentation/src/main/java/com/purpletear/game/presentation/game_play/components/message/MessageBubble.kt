@@ -12,14 +12,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.unit.dp
 
 @Composable
 internal fun MessageBubble(
     modifier: Modifier = Modifier,
+    shape: Shape = RoundedCornerShape(22.dp),
     content: @Composable RowScope.() -> Unit
 ) {
-    val shape = RoundedCornerShape(22.dp)
     Row(
         Modifier
             .widthIn(max = 200.dp)

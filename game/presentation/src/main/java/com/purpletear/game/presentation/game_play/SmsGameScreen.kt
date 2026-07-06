@@ -146,6 +146,7 @@ internal fun SmsGameScreen(
                     Message(
                         message = message,
                         previousMessage = messages.getOrNull(index + 1),
+                        nextMessage = messages.getOrNull(index - 1),
                         character = characterId?.let { state.characters[it] },
                         modifier = Modifier.animateItem(),
                         currentVocalUrl = state.currentVocalUrl,

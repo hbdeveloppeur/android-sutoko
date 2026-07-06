@@ -9,6 +9,7 @@ import com.purpletear.game.presentation.game_play.components.message.FadeInMessa
 import com.purpletear.game.presentation.game_play.components.message.MessageImage
 import com.purpletear.game.presentation.game_play.components.message.MessageNarration
 import com.purpletear.game.presentation.game_play.components.message.MessageNextChapter
+import com.purpletear.game.presentation.game_play.components.message.MessagePositionInGroup
 import com.purpletear.game.presentation.game_play.components.message.MessageText
 import com.purpletear.game.presentation.game_play.components.message.MessageTyping
 import com.purpletear.game.presentation.game_play.components.message.MessageVocalDest
@@ -25,6 +26,7 @@ import com.purpletear.sutoko.game.model.character.Character
 internal fun Message(
     modifier: Modifier = Modifier,
     previousMessage: GameMessage?,
+    nextMessage: GameMessage?,
     message: GameMessage,
     character: Character? = null,
     currentVocalUrl: String? = null,
@@ -42,10 +44,12 @@ internal fun Message(
             GameMessageType.Text -> {
                 assert(character != null)
                 message as GameMessageText
+                val positionInGroup = message.positionInGroup(previousMessage, nextMessage)
                 MessageText(
                     text = message.text,
                     character = character!!,
-                    showHeader = !message.hasSameCharacter(previousMessage),
+                    showHeader = positionInGroup != MessagePositionInGroup.MIDDLE && positionInGroup != MessagePositionInGroup.BOTTOM,
+                    positionInGroup = positionInGroup,
                     onAvatarClick = onAvatarClick,
                 )
             }
