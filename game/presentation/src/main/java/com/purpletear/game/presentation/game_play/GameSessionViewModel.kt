@@ -87,7 +87,7 @@ class GameSessionViewModel @Inject constructor(
             .launchIn(viewModelScope)
     }
 
-    fun saveNickName(name: String) {
+    fun saveNickName(name: String?) {
         val gameId = currentGameId ?: return
         viewModelScope.launch {
             saveUserNickNameUseCase(gameId, name)

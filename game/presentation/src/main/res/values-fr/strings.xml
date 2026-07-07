@@ -74,8 +74,9 @@
     <string name="game_redownload_error">Échec du re-téléchargement du jeu</string>
 
     <!-- First name prompt -->
-    <string name="first_name_prompt_title">Entrez le prénom de votre personnage</string>
+    <string name="first_name_prompt_title">Votre prénom</string>
     <string name="first_name_prompt_placeholder">Nick</string>
+    <string name="first_name_prompt_error">Veuillez entrer un prénom entre %1$d et %2$d lettres.</string>
 
     <!-- Chapter selection screen -->
     <string name="game_chapter_selection_title">Sélectionner un chapitre</string>

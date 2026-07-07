@@ -81,4 +81,15 @@ class SaveUserNickNameUseCaseTest {
 
         assertTrue(result.isFailure)
     }
+
+    @Test
+    fun `use case saves default hero name when nickname is null`() = runTest {
+        val repository = FakeUserGameProgressRepository()
+        val useCase = SaveUserNickNameUseCase(repository)
+
+        val result = useCase("game-1", null)
+
+        assertTrue(result.isSuccess)
+        assertEquals(SaveUserNickNameUseCase.DEFAULT_HERO_NAME, repository.get("game-1").heroName)
+    }
 }

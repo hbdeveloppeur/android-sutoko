@@ -11,18 +11,18 @@ import com.purpletear.game.presentation.game_preview.events.GamePreviewEvent
 import com.purpletear.game.presentation.model.GameItem
 import com.purpletear.game.presentation.model.GameUiError
 import com.purpletear.sutoko.core.domain.helper.AppVersionProvider
+import com.purpletear.sutoko.core.domain.logger.Logger
+import com.purpletear.sutoko.core.domain.logger.exception
 import com.purpletear.sutoko.game.model.Chapter
 import com.purpletear.sutoko.game.repository.ChapterRepository
 import com.purpletear.sutoko.game.repository.UserGameProgressRepository
 import com.purpletear.sutoko.game.repository.game.GameInstallRepository
 import com.purpletear.sutoko.game.repository.game.GameRepository
 import com.purpletear.sutoko.game.service.MediaUrlResolver
-import com.purpletear.sutoko.game.usecase.SaveUserNickNameUseCase
-import com.purpletear.sutoko.core.domain.logger.Logger
-import com.purpletear.sutoko.core.domain.logger.exception
 import com.purpletear.sutoko.game.usecase.DownloadGameUseCase
 import com.purpletear.sutoko.game.usecase.GetChaptersUseCase
 import com.purpletear.sutoko.game.usecase.RestartGameUseCase
+import com.purpletear.sutoko.game.usecase.SaveUserNickNameUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import fr.sutoko.inapppurchase.application.domain.repository.PurchaseRepository
 import kotlinx.coroutines.channels.Channel
@@ -152,7 +152,7 @@ class GamePreviewViewModel @Inject constructor(
             GamePreviewAction.OnDownload -> startDownload()
             GamePreviewAction.OnUpdateGame -> startDownload()
             GamePreviewAction.OnUpdateApp -> sendEvent(GamePreviewEvent.OpenAppStore)
-            GamePreviewAction.OnPlay -> navigateToPlay()
+            GamePreviewAction.OnPlay -> navigateToPlay(true)
             GamePreviewAction.OnRestart -> sendEvent(GamePreviewEvent.ShowRestartDialog)
             GamePreviewAction.OnRestartConfirm -> restartGame()
             GamePreviewAction.OnDelete -> deleteGame()
@@ -220,12 +220,11 @@ class GamePreviewViewModel @Inject constructor(
         }
     }
 
-    private fun navigateToPlay() {
+    private fun navigateToPlay(requestNickName: Boolean) {
         val data = game.value as? GamePreviewUiState.Data ?: return
         viewModelScope.launch {
             val needsNickName = data.gameCatalog.userNickNameRequired &&
-                    currentChapter.value?.number == 1 &&
-                    userGameProgressRepository.get(gameId).heroName.isBlank()
+                    currentChapter.value?.number == 1 && requestNickName
 
             if (needsNickName) {
                 sendEvent(GamePreviewEvent.RequestNickName)
@@ -241,10 +240,10 @@ class GamePreviewViewModel @Inject constructor(
         }
     }
 
-    fun onNickNameConfirmed(name: String) {
+    fun onNickNameConfirmed(name: String?) {
         viewModelScope.launch {
             saveUserNickNameUseCase(gameId, name)
-            navigateToPlay()
+            navigateToPlay(false)
         }
     }
 

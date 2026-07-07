@@ -76,6 +76,7 @@
     <!-- First name prompt -->
     <string name="first_name_prompt_title">Gib den Vornamen deines Charakters ein</string>
     <string name="first_name_prompt_placeholder">Nick</string>
+    <string name="first_name_prompt_error">Gib einen Vornamen mit %1$d bis %2$d Buchstaben ein.</string>
 
     <!-- Chapter selection screen -->
     <string name="game_chapter_selection_title">Kapitel auswählen</string>
