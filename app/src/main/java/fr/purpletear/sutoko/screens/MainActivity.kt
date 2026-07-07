@@ -260,7 +260,11 @@ class MainActivity @Inject constructor(
                                         startFriendzoned(friendzonedId, isGranted)
                                         return@onNavigateToGame
                                     }
-                                    startSmsGameActivity(gameId)
+                                    startSmsGameActivity(
+                                        gameId = gameId,
+                                        showDescription = false,
+                                        chapterCode = viewModel.currentChapter.value?.normalizedCode,
+                                    )
                                 },
                                 onBuyGame = { game ->
                                     // TODO : delete this useless callback
@@ -511,11 +515,18 @@ class MainActivity @Inject constructor(
         startActivity(intent)
     }
 
-    private fun startSmsGameActivity(gameId: String, isLiveUpdateMode: Boolean = false) {
+    private fun startSmsGameActivity(
+        gameId: String,
+        isLiveUpdateMode: Boolean = false,
+        showDescription: Boolean = true,
+        chapterCode: String? = null,
+    ) {
         val args = SmsGameActivityArgs(
             gameId = gameId,
             storyId = if (isLiveUpdateMode) gameId else null,
-            isLiveUpdateMode = isLiveUpdateMode
+            isLiveUpdateMode = isLiveUpdateMode,
+            showDescription = showDescription,
+            chapterCode = chapterCode,
         )
         val intent = SmsGameActivity.intent(this, args)
         startActivity(intent)

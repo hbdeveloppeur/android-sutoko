@@ -46,6 +46,8 @@ class SmsGameActivity : ComponentActivity() {
         val gameId = args.gameId
         isLiveUpdateMode = args.isLiveUpdateMode
         storyId = args.storyId
+        val showDescription = args.showDescription
+        val chapterCode = args.chapterCode
 
         if (isLiveUpdateMode) {
             storyId?.let { storyLiveUpdateCoordinator.startLiveUpdate(gameId, it) }
@@ -70,10 +72,13 @@ class SmsGameActivity : ComponentActivity() {
                     }
                 }
 
-                val startDestination = if (isLiveUpdateMode) {
-                    SmsGameRoutes.game("test", isLiveUpdateMode = true)
-                } else {
-                    SmsGameRoutes.DESCRIPTION
+                val startDestination = when {
+                    isLiveUpdateMode -> SmsGameRoutes.game("test", isLiveUpdateMode = true)
+                    !showDescription && chapterCode != null -> SmsGameRoutes.game(
+                        chapterCode,
+                        isLiveUpdateMode = false
+                    )
+                    else -> SmsGameRoutes.DESCRIPTION
                 }
 
                 SmsGameNavHost(
