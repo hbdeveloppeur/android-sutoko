@@ -2,7 +2,6 @@ package com.purpletear.game.presentation.game_play
 
 internal object SmsGameRoutes {
     const val DEBUG = "debug/{gameId}"
-    const val DESCRIPTION = "game/description"
     const val CHAPTER_SELECTION = "game/chapter-selection?currentChapterCode={currentChapterCode}"
     const val IS_LIVE_UPDATE_MODE_ARG = "isLiveUpdateMode"
     const val GAME = "game/play/{chapterCode}?$IS_LIVE_UPDATE_MODE_ARG={$IS_LIVE_UPDATE_MODE_ARG}"

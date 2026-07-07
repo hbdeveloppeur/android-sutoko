@@ -9,11 +9,12 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.purpletear.core.presentation.services.MakeToastService
 import com.purpletear.game.presentation.R
-import com.purpletear.game.presentation.debug.debugStartNodeFor
 import com.purpletear.game.presentation.game_play.liveupdate.StoryLiveUpdateConnectionState
 import com.purpletear.game.presentation.game_play.liveupdate.StoryLiveUpdateCoordinator
 import com.purpletear.game.presentation.game_play.state.GameUiState
 import com.purpletear.game.presentation.game_play.state.LiveUpdateStatus
+import com.purpletear.sutoko.core.domain.logger.Logger
+import com.purpletear.sutoko.core.domain.logger.exception
 import com.purpletear.sutoko.game.engine.GameEngine
 import com.purpletear.sutoko.game.engine.GameEngineState
 import com.purpletear.sutoko.game.engine.GameMessage
@@ -24,8 +25,6 @@ import com.purpletear.sutoko.game.repository.SceneRepository
 import com.purpletear.sutoko.game.testing.StoryTestingLogger
 import com.purpletear.sutoko.game.usecase.GetSceneUseCase
 import com.purpletear.sutoko.game.usecase.LoadChapterGraphUseCase
-import com.purpletear.sutoko.core.domain.logger.Logger
-import com.purpletear.sutoko.core.domain.logger.exception
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Job
@@ -71,7 +70,8 @@ class GameEngineViewModel @Inject constructor(
     private val chapterCode: String = checkNotNull(savedStateHandle["chapterCode"]) {
         "chapterCode is required"
     }
-    private val isLiveUpdateMode: Boolean = savedStateHandle.get<Boolean>(SmsGameRoutes.IS_LIVE_UPDATE_MODE_ARG) ?: false
+    private val isLiveUpdateMode: Boolean =
+        savedStateHandle.get<Boolean>(SmsGameRoutes.IS_LIVE_UPDATE_MODE_ARG) ?: false
 
     private val _navigateToNextChapter = Channel<String>(Channel.BUFFERED)
     val navigateToNextChapter: Flow<String> = _navigateToNextChapter.receiveAsFlow()
@@ -203,17 +203,8 @@ class GameEngineViewModel @Inject constructor(
 
             gameEngine.initialize(gameId, graph)
 
-            val debugStartNode = debugStartNodeFor(graph.chapterCode)
             when {
                 startNodeId != null -> gameEngine.startFromNode(startNodeId)
-                debugStartNode != null -> {
-                    Log.d(
-                        "GameEngine",
-                        "Debug override — chapter ${graph.chapterCode} starts at $debugStartNode"
-                    )
-                    gameEngine.jumpToNode(debugStartNode)
-                }
-
                 else -> gameEngine.start()
             }
         }

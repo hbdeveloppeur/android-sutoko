@@ -13,11 +13,7 @@ import kotlinx.parcelize.Parcelize
  * @property gameId The unique identifier of the game to be played
  * @property storyId Optional story identifier for real-time author testing mode.
  * @property isLiveUpdateMode When true, the activity connects to a backend test session.
- * @property showDescription When false, the activity starts directly on the game screen.
- *                          Intended for GamePreview, where the description is already shown.
- * @property chapterCode Required when [showDescription] is false; ignored otherwise.
- *                       If null while [showDescription] is false, the activity falls back
- *                       to the description screen to avoid launching without a chapter.
+ * @property chapterCode The chapter to start playing. Required unless [isLiveUpdateMode] is true.
  */
 @Keep
 @Parcelize
@@ -25,7 +21,6 @@ data class SmsGameActivityArgs(
     val gameId: String,
     val storyId: String? = null,
     val isLiveUpdateMode: Boolean = false,
-    val showDescription: Boolean = true,
     val chapterCode: String? = null,
 ) : Parcelable {
     companion object {

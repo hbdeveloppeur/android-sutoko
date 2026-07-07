@@ -24,8 +24,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.CircularProgressIndicator
-import androidx.compose.material.MaterialTheme
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -320,7 +319,6 @@ private fun LiveUpdateLabel(status: LiveUpdateStatus) {
                 Text(
                     text = text,
                     color = Color.White,
-                    style = MaterialTheme.typography.caption
                 )
             }
         }
@@ -347,7 +345,6 @@ private fun StoryUpdateBanner(onClick: () -> Unit) {
             Text(
                 text = stringResource(R.string.live_update_reload),
                 color = Color.White,
-                style = MaterialTheme.typography.caption
             )
         }
     }

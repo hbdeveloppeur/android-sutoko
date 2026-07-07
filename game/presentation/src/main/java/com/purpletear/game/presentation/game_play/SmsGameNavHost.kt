@@ -7,31 +7,23 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.unit.dp
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.currentBackStackEntryAsState
-import com.purpletear.game.presentation.BuildConfig
-import com.purpletear.game.presentation.debug.SmsGameDevAction
-import com.purpletear.game.presentation.debug.SmsGameDevCommandLine
-import com.purpletear.game.presentation.debug.SmsGameDevPanel
 
 @Composable
 internal fun SmsGameNavHost(
     navController: NavHostController,
     startDestination: String,
     overlayAlpha: Float,
-    onDebugAction: (SmsGameDevAction) -> Unit,
     builder: NavGraphBuilder.() -> Unit,
 ) {
     Box(Modifier.fillMaxSize()) {
@@ -56,22 +48,6 @@ internal fun SmsGameNavHost(
                     .alpha(overlayAlpha)
                     .background(Color.Black)
             )
-        }
-
-
-        if (BuildConfig.DEBUG && false) {
-            Column(Modifier.padding(top = 32.dp)) {
-                SmsGameDevPanel(onAction = onDebugAction)
-                SmsGameDevCommandLine(
-                    onCommand = { command ->
-                        when (command) {
-                            "restart" -> onDebugAction(SmsGameDevAction.Restart)
-                            "update" -> onDebugAction(SmsGameDevAction.Update)
-                            "delete" -> onDebugAction(SmsGameDevAction.Delete)
-                        }
-                    }
-                )
-            }
         }
     }
 }

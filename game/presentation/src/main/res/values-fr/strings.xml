@@ -102,12 +102,6 @@
     <string name="game_chapter_return">Revenir à ce chapitre</string>
     <string name="game_chapter_current">Actuel</string>
 
-    <!-- Chapter introduction -->
-    <string name="game_description_chapter_title">Chapitre %1$d</string>
-    <string name="game_description_restart">Recommencer</string>
-    <string name="game_description_continue">Continuer</string>
-    <string name="game_description_error">Erreur : %1$s</string>
-
     <!-- Game play / chat -->
     <string name="chat_header_back_button_description">Bouton retour</string>
     <string name="chat_header_character_name">Eva Belle</string>

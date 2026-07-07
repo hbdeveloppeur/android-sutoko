@@ -262,7 +262,6 @@ class MainActivity @Inject constructor(
                                     }
                                     startSmsGameActivity(
                                         gameId = gameId,
-                                        showDescription = false,
                                         chapterCode = viewModel.currentChapter.value?.normalizedCode,
                                     )
                                 },
@@ -288,7 +287,13 @@ class MainActivity @Inject constructor(
                                 onOptionsPressed = ::onOptionsPressed,
                                 onDiamondsPressed = ::onDiamondPressed,
                                 onCoinsPressed = ::onCoinsPressed,
-                                onGamePressed = { gameId, isLiveUpdateMode -> startSmsGameActivity(gameId, isLiveUpdateMode) },
+                                onGamePressed = { gameId, isLiveUpdateMode ->
+                                    if (isLiveUpdateMode) {
+                                        startSmsGameActivity(gameId, isLiveUpdateMode = true)
+                                    } else {
+                                        navController.navigate(MainScreenPages.GamePreview.createRoute(gameId))
+                                    }
+                                },
                                 onCreateStoryPressed = {
                                     navController.navigate(MainScreenPages.CreateStory.route)
                                 },
@@ -518,14 +523,12 @@ class MainActivity @Inject constructor(
     private fun startSmsGameActivity(
         gameId: String,
         isLiveUpdateMode: Boolean = false,
-        showDescription: Boolean = true,
         chapterCode: String? = null,
     ) {
         val args = SmsGameActivityArgs(
             gameId = gameId,
             storyId = if (isLiveUpdateMode) gameId else null,
             isLiveUpdateMode = isLiveUpdateMode,
-            showDescription = showDescription,
             chapterCode = chapterCode,
         )
         val intent = SmsGameActivity.intent(this, args)
