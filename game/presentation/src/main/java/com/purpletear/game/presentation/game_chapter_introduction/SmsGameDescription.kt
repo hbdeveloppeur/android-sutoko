@@ -7,7 +7,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
@@ -17,16 +16,11 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -38,7 +32,6 @@ import coil.compose.AsyncImage
 import com.example.sharedelements.theme.Poppins
 import com.purpletear.game.presentation.BuildConfig
 import com.purpletear.game.presentation.R
-import com.purpletear.game.presentation.common.components.NickNameInputDialog
 import com.purpletear.game.presentation.common.components.SimpleButton
 import com.purpletear.game.presentation.common.extensions.toUiString
 import com.purpletear.game.presentation.game_play.GameSessionViewModel
@@ -58,11 +51,9 @@ internal fun NavGraphBuilder.descriptionScreen(
     val showRestartDialog by viewModel.showRestartDialog.collectAsStateWithLifecycle()
 
     ChapterDescriptionRoute(
-        viewModel = viewModel,
         state = state,
         onContinue = onContinue,
         onSelectChapter = onSelectChapter,
-        onRestart = viewModel::onRestartPressed,
         showRestartDialog = showRestartDialog,
         onRestartDialogConfirm = viewModel::onRestartDialogConfirm,
         onRestartDialogDismiss = viewModel::onRestartDialogDismiss,
@@ -71,51 +62,26 @@ internal fun NavGraphBuilder.descriptionScreen(
 
 @Composable
 private fun ChapterDescriptionRoute(
-    viewModel: GameSessionViewModel,
     state: GameSessionState,
     onContinue: (String) -> Unit,
     onSelectChapter: () -> Unit,
-    onRestart: () -> Unit,
     showRestartDialog: Boolean,
     onRestartDialogConfirm: () -> Unit,
     onRestartDialogDismiss: () -> Unit,
 ) {
-    val userNickNameRequired by viewModel.userNickNameRequired.collectAsStateWithLifecycle()
-    val heroName by viewModel.heroName.collectAsStateWithLifecycle()
-    var showNickNameDialog by remember { mutableStateOf(false) }
 
     when (state) {
         is GameSessionState.Ready -> {
             val chapter = state.chapter
-            val needsNickName = userNickNameRequired && chapter.number == 1 && heroName.isBlank()
             val onContinueToGame = { onContinue(chapter.normalizedCode) }
 
             ChapterDescriptionContent(
                 chapter = chapter,
-                onContinue = {
-                    if (needsNickName) {
-                        showNickNameDialog = true
-                    } else {
-                        onContinueToGame()
-                    }
-                },
                 onSelectChapter = onSelectChapter,
-                onRestart = onRestart,
                 showRestartDialog = showRestartDialog,
                 onRestartDialogConfirm = onRestartDialogConfirm,
                 onRestartDialogDismiss = onRestartDialogDismiss,
             )
-
-            if (showNickNameDialog) {
-                NickNameInputDialog(
-                    onConfirm = { name ->
-                        showNickNameDialog = false
-                        viewModel.saveNickName(name)
-                        onContinueToGame()
-                    },
-                    onDismiss = { showNickNameDialog = false },
-                )
-            }
         }
 
         is GameSessionState.Error -> Box(
@@ -158,14 +124,11 @@ private fun ChapterDescriptionRoute(
 @Composable
 internal fun ChapterDescriptionContent(
     chapter: Chapter,
-    onContinue: () -> Unit,
     onSelectChapter: () -> Unit,
-    onRestart: () -> Unit,
     showRestartDialog: Boolean = false,
     onRestartDialogConfirm: () -> Unit = {},
     onRestartDialogDismiss: () -> Unit = {},
 ) {
-    val haptic = LocalHapticFeedback.current
 
     Box(
         Modifier
@@ -185,26 +148,8 @@ internal fun ChapterDescriptionContent(
             Subtitle(text = chapter.title)
             Description(text = chapter.description)
             Spacer(modifier = Modifier.size(4.dp))
-            Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                SimpleButton(
-                    text = stringResource(R.string.game_description_restart),
-                    imageVector = null,
-                    backgroundColor = Color(0xFF1B1D22),
-                    textColor = Color.White,
-                    onClick = {
-                        onRestart()
-                    }
-                )
-                SimpleButton(
-                    text = stringResource(R.string.game_description_continue),
-                    backgroundColor = Color(0xFFFF007A),
-                    textColor = Color.White,
-                    onClick = {
-                        haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
-                        onContinue()
-                    }
-                )
-            }
+
+
 
             if (BuildConfig.DEBUG) {
                 SimpleButton(
