@@ -7,7 +7,6 @@ import com.google.gson.JsonObject
 import com.purpletear.game.data.local.dto.ChapterMetadataDto
 import com.purpletear.game.data.local.dto.EdgeDto
 import com.purpletear.game.data.local.dto.NodeDto
-import com.purpletear.sutoko.game.model.chapter.Node
 import com.purpletear.sutoko.game.provider.GamePathProvider
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
@@ -289,7 +288,7 @@ class ChapterGraphParserTest {
     private fun edge(
         source: String,
         target: String,
-        type: String? = "futuristic",
+        type: String? = null,
         edgeType: String? = null
     ): EdgeDto {
         val json = buildString {

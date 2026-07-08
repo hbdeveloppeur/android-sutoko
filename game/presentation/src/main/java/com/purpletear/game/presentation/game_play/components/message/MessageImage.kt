@@ -30,7 +30,7 @@ import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.purpletear.game.debug.PreviewCharacter
-import com.purpletear.game.presentation.common.extensions.toComposeColor
+import com.purpletear.game.presentation.common.extensions.toWhitenedComposeColor
 import com.purpletear.game.presentation.game_play.components.Avatar
 import com.purpletear.sutoko.game.model.character.Character
 
@@ -92,7 +92,7 @@ internal fun MessageImage(
                 contentScale = ContentScale.Crop,
             )
         }
-        val avatarColor = character.color.toComposeColor()
+        val avatarColor = character.color.toWhitenedComposeColor(fraction = 0.7f)
         Avatar(
             modifier = Modifier
                 .background(avatarColor, CircleShape)

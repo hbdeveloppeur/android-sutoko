@@ -237,7 +237,7 @@ internal fun SmsGameScreen(
     }
 }
 
-private const val CHOICE_FADE_DURATION_MS = 320
+private const val CHOICE_FADE_DURATION_MS = 180
 
 @Composable
 private fun AnimatedChoicesBox(

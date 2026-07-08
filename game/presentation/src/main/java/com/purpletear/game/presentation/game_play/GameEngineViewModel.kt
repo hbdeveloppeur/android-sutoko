@@ -8,6 +8,8 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.purpletear.core.presentation.services.MakeToastService
+import com.purpletear.game.debug.SmsGameDebugNodeJumps
+import com.purpletear.game.presentation.BuildConfig
 import com.purpletear.game.presentation.R
 import com.purpletear.game.presentation.game_play.liveupdate.StoryLiveUpdateConnectionState
 import com.purpletear.game.presentation.game_play.liveupdate.StoryLiveUpdateCoordinator
@@ -134,7 +136,17 @@ class GameEngineViewModel @Inject constructor(
             .collectLatest { result ->
                 result.fold(
                     onSuccess = { graph ->
-                        startGame(gameId, graph)
+                        val debugJumpNodeId = if (BuildConfig.DEBUG) {
+                            SmsGameDebugNodeJumps.getNodeId(graph.chapterCode)
+                        } else {
+                            null
+                        }
+
+                        if (debugJumpNodeId != null) {
+                            startGameWithDebugJump(gameId, graph, debugJumpNodeId)
+                        } else {
+                            startGame(gameId, graph)
+                        }
                     },
                     onFailure = { error ->
                         logger.exception(error) { "Failed to load chapter $chapterCode" }
@@ -207,6 +219,34 @@ class GameEngineViewModel @Inject constructor(
                 startNodeId != null -> gameEngine.startFromNode(startNodeId)
                 else -> gameEngine.start()
             }
+        }
+    }
+
+    private fun startGameWithDebugJump(
+        gameId: String,
+        graph: ChapterGraph,
+        nodeId: String,
+    ) {
+        resetForNewPlay()
+
+        updateState {
+            it.copy(
+                gameId = gameId,
+                chapterCode = graph.chapterCode,
+                messages = emptyList(),
+                choices = emptyList(),
+                isChoicesRevealed = false,
+                isAwaitingInput = false,
+                isLoadingStoryUpdates = false
+            )
+        }
+
+        viewModelScope.launch {
+            checkNotNull(graph.getNode(nodeId)) {
+                "Debug jump target not found in chapter ${graph.chapterCode}: $nodeId"
+            }
+            gameEngine.initialize(gameId, graph)
+            gameEngine.jumpToNode(nodeId)
         }
     }
 

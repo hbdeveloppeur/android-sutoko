@@ -12,6 +12,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -45,6 +47,12 @@ internal fun MessageNextChapter(
     showButton: Boolean = true,
     onClick: () -> Unit = {},
 ) {
+    val haptic = LocalHapticFeedback.current
+    val hapticClick = {
+        haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+        onClick()
+    }
+
     Column(
         modifier = modifier
             .padding(vertical = 24.dp)
@@ -61,7 +69,7 @@ internal fun MessageNextChapter(
             SimpleButton(
                 text = buttonText,
                 fontSize = 11.sp,
-                onClick = onClick,
+                onClick = hapticClick,
                 horizontalPadding = 14.dp,
                 verticalPadding = 6.dp,
             )

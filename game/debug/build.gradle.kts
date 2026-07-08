@@ -38,6 +38,7 @@ android {
 
 dependencies {
     implementation(project(":game:domain"))
+    testImplementation(libs.junit)
 
     val composeBom = platform(libs.compose.bom)
     implementation(composeBom)

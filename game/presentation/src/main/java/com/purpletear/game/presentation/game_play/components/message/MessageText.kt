@@ -218,7 +218,7 @@ private fun ClickableAvatar(
         Modifier
     }
 
-    val avatarColor = character.color.toComposeColor()
+    val avatarColor = character.color.toWhitenedComposeColor(fraction = 0.7f)
     Box(clickableModifier) {
         Avatar(
             modifier = Modifier
