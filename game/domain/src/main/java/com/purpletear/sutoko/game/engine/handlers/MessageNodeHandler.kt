@@ -148,7 +148,7 @@ class MessageNodeHandler @Inject constructor(
         previousNode: Node?,
         isUserChoice: Boolean,
     ): List<HandlerCommand> {
-        if (isUserChoice) {
+        if (isUserChoice || previousNode is Node.Start) {
             GameEngineLogger.d("MSG") { "User choice → skipping IRL delays for ${node.id}" }
             return listOf(emitAddText(text, messageId, node.characterId))
         }

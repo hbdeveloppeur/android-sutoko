@@ -20,6 +20,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
@@ -29,6 +30,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.purpletear.core.presentation.util.openAppInStore
 import com.purpletear.game.presentation.R
+import com.purpletear.game.presentation.common.components.NickNameInputDialog
 import com.purpletear.game.presentation.game_preview.components.GamePreviewAnimatedGameTitle
 import com.purpletear.game.presentation.game_preview.components.GamePreviewCategories
 import com.purpletear.game.presentation.game_preview.components.GamePreviewChapterTitle
@@ -40,12 +42,10 @@ import com.purpletear.game.presentation.game_preview.components.GamePreviewUnloc
 import com.purpletear.game.presentation.game_preview.components.PremiumActiveLabelGradient
 import com.purpletear.game.presentation.game_preview.components.PremiumLabelGradient
 import com.purpletear.game.presentation.game_preview.components.UnlockedLabelGradient
-import com.purpletear.game.presentation.common.components.NickNameInputDialog
 import com.purpletear.game.presentation.game_preview.events.GamePreviewEvent
 import com.purpletear.game.presentation.model.GameItem
 import com.purpletear.game.presentation.model.toGameActionState
 import com.purpletear.sutoko.alert.presentation.SimpleAlertDialog
-import com.purpletear.sutoko.game.model.game.GameCatalog
 import kotlinx.coroutines.delay
 
 /**
@@ -55,9 +55,8 @@ import kotlinx.coroutines.delay
 fun GamePreview(
     modifier: Modifier = Modifier,
     viewModel: GamePreviewViewModel,
+    fallbackBackgroundPainter: Painter? = null,
     onNavigateToGame: (String, Int?, Boolean) -> Unit = { _, _, _ -> },
-    onBuyGame: (GameCatalog) -> Unit = {},
-    onOpenShop: () -> Unit = {},
 ) {
     // Get the game from the ViewModel
     val state by viewModel.game.collectAsStateWithLifecycle()
@@ -84,8 +83,9 @@ fun GamePreview(
             when (val currentState = state) {
                 is GamePreviewUiState.Data -> {
                     GameBackgroundPreviewMedia(
-                        imageUrl = currentState.item.menuBackgroundUrl,
-                        videoUrl = currentState.item.videoUrl.takeIf { showVideo },
+                        imageUrl = currentState.item.menuBackgroundUrl?.takeIf { it.isNotBlank() },
+                        videoUrl = currentState.item.videoUrl.takeIf { showVideo && it?.isNotBlank() == true },
+                        fallbackPainter = fallbackBackgroundPainter.takeIf { currentState.item.videoUrl.isNullOrBlank() },
                         modifier = Modifier.fillMaxSize()
                     )
                 }
@@ -123,16 +123,16 @@ fun GamePreview(
             }
 
             LaunchedEffect(Unit) {
+                viewModel.start()
+            }
+
+            LaunchedEffect(Unit) {
                 viewModel.events.collect { event ->
                     when (event) {
                         GamePreviewEvent.PurchaseSuccess -> {
                             unlockAnimationIsVisible = true
                             delay(animationDuration)
                             unlockAnimationIsVisible = false
-                        }
-
-                        GamePreviewEvent.OpenShop -> {
-                            onOpenShop()
                         }
 
                         GamePreviewEvent.OpenAppStore -> {
@@ -149,10 +149,6 @@ fun GamePreview(
 
                         GamePreviewEvent.ShowRestartDialog -> {
                             showRestartDialog = true
-                        }
-
-                        is GamePreviewEvent.OnBuyGameClicked -> {
-                            onBuyGame(event.gameCatalog)
                         }
 
                         is GamePreviewEvent.ShowError -> Unit
@@ -216,9 +212,8 @@ fun GamePreview(
                                 chapter.title
                             )
                         )
-                    } ?: run {
-                        GamePreviewChapterTitle(text = stringResource(R.string.game_preview_loading_chapter))
                     }
+                        ?: GamePreviewChapterTitle(text = stringResource(R.string.game_preview_loading_chapter))
 
                     val unavailableChapter = currentChapter?.takeIf { !it.isAvailable }
                     if (unavailableChapter != null) {
@@ -277,4 +272,3 @@ fun GamePreview(
         }
     }
 }
-

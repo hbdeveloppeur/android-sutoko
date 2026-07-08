@@ -20,6 +20,7 @@ import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -252,6 +253,7 @@ class MainActivity @Inject constructor(
                             val viewModel: GamePreviewViewModel = hiltViewModel()
                             GamePreview(
                                 viewModel = viewModel,
+                                fallbackBackgroundPainter = painterResource(R.drawable.book_details_background),
                                 onNavigateToGame = onNavigateToGame@{ gameId, legacyId, isGranted ->
                                     val friendzonedId = legacyId?.takeIf {
                                         FriendzonedGameRouter.loaderClassFor(it) != null
@@ -264,12 +266,6 @@ class MainActivity @Inject constructor(
                                         gameId = gameId,
                                         chapterCode = viewModel.currentChapter.value?.normalizedCode,
                                     )
-                                },
-                                onBuyGame = { game ->
-                                    // TODO : delete this useless callback
-                                },
-                                onOpenShop = {
-                                    startShop()
                                 },
                             )
                         }

@@ -2,6 +2,7 @@ package com.purpletear.game.presentation.game_preview
 
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -12,6 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.ColorPainter
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -29,15 +31,18 @@ import com.purpletear.game.presentation.R
  * @param videoUrl Optional URL of the background video.
  * @param modifier The modifier to be applied to the root container.
  * @param overlayAlpha Alpha of the black scrim drawn on top of everything. Default is 0.1f.
+ * @param fallbackPainter Optional painter shown when neither an image nor a video is available.
  */
 @Composable
 internal fun GameBackgroundPreviewMedia(
     imageUrl: String?,
     videoUrl: String?,
     modifier: Modifier = Modifier,
-    overlayAlpha: Float = 0.1f
+    overlayAlpha: Float = 0.1f,
+    fallbackPainter: Painter? = null,
 ) {
-    val hasVideo = videoUrl != null
+    val effectiveImageUrl = imageUrl?.takeIf { it.isNotBlank() }
+    val hasVideo = !videoUrl.isNullOrBlank()
 
     val imageAlpha by animateFloatAsState(
         targetValue = if (hasVideo) 0f else 1f,
@@ -49,14 +54,14 @@ internal fun GameBackgroundPreviewMedia(
     val errorPainter = remember { ColorPainter(Color.DarkGray) }
 
     Box(modifier = modifier.fillMaxSize()) {
-        videoUrl?.let { url ->
+        if (hasVideo) {
             BackgroundMedia(
-                videoUrl = url,
+                videoUrl = videoUrl!!,
                 modifier = Modifier.fillMaxSize()
             )
         }
 
-        imageUrl?.let { url ->
+        effectiveImageUrl?.let { url ->
             AsyncImage(
                 model = ImageRequest.Builder(context)
                     .data(url)
@@ -69,6 +74,17 @@ internal fun GameBackgroundPreviewMedia(
                     .fillMaxSize()
                     .alpha(imageAlpha)
             )
+        }
+
+        if (effectiveImageUrl == null && !hasVideo) {
+            fallbackPainter?.let { painter ->
+                Image(
+                    painter = painter,
+                    contentDescription = stringResource(R.string.game_preview_background_description),
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier.fillMaxSize()
+                )
+            }
         }
 
         Box(

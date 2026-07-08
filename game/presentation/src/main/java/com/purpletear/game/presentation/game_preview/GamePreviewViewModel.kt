@@ -1,15 +1,18 @@
 package com.purpletear.game.presentation.game_preview
 
-import android.util.Log
 import androidx.lifecycle.SavedStateHandle
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.purpletear.core.presentation.services.MakeToastService
+import com.purpletear.core.presentation.services.ToastService
 import com.purpletear.game.presentation.R
 import com.purpletear.game.presentation.game_preview.events.GamePreviewEvent
+import com.purpletear.game.presentation.game_preview.handlers.GamePreviewPurchaseHandler
+import com.purpletear.game.presentation.model.GameItem
 import com.purpletear.game.presentation.model.GameUiError
 import com.purpletear.sutoko.core.domain.helper.AppVersionProvider
 import com.purpletear.sutoko.core.domain.logger.Logger
 import com.purpletear.sutoko.core.domain.logger.exception
+import com.purpletear.sutoko.game.model.Chapter
 import com.purpletear.sutoko.game.repository.ChapterRepository
 import com.purpletear.sutoko.game.repository.game.GameInstallRepository
 import com.purpletear.sutoko.game.repository.game.GameRepository
@@ -20,44 +23,99 @@ import com.purpletear.sutoko.game.usecase.RestartGameUseCase
 import com.purpletear.sutoko.game.usecase.SaveUserNickNameUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import fr.sutoko.inapppurchase.application.domain.repository.PurchaseRepository
-import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class GamePreviewViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
-    gameRepository: GameRepository,
-    chapterRepository: ChapterRepository,
-    gamePurchaseRepository: PurchaseRepository,
-    gameInstallRepository: GameInstallRepository,
-    mediaUrlResolver: MediaUrlResolver,
+    private val gameRepository: GameRepository,
+    private val chapterRepository: ChapterRepository,
+    private val gameInstallRepository: GameInstallRepository,
+    private val gamePurchaseRepository: PurchaseRepository,
+    private val mediaUrlResolver: MediaUrlResolver,
     private val getChaptersUseCase: GetChaptersUseCase,
     private val saveUserNickNameUseCase: SaveUserNickNameUseCase,
-    private val makeToastService: MakeToastService,
-    restartGameUseCase: RestartGameUseCase,
-    downloadGameUseCase: DownloadGameUseCase,
+    private val toastService: ToastService,
+    private val restartGameUseCase: RestartGameUseCase,
+    private val downloadGameUseCase: DownloadGameUseCase,
+    private val purchaseHandler: GamePreviewPurchaseHandler,
     private val logger: Logger,
     appVersionProvider: AppVersionProvider,
-) : BaseGameViewModel(
-    savedStateHandle = savedStateHandle,
-    gameRepository = gameRepository,
-    chapterRepository = chapterRepository,
-    gameInstallRepository = gameInstallRepository,
-    gamePurchaseRepository = gamePurchaseRepository,
-    mediaUrlResolver = mediaUrlResolver,
-    restartGameUseCase = restartGameUseCase,
-    downloadGameUseCase = downloadGameUseCase,
-) {
+) : ViewModel() {
+
+    private val gameId: String =
+        checkNotNull(savedStateHandle["gameId"]) { "gameId required in SavedStateHandle" }
 
     val appBuildNumber: Int = appVersionProvider.getVersionCode()
 
-    private val _events = Channel<GamePreviewEvent>(Channel.CONFLATED)
-    val events = _events.receiveAsFlow()
+    val currentChapter: StateFlow<Chapter?> = chapterRepository.observeCurrentChapter(gameId)
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(7000),
+            initialValue = null,
+        )
 
-    init {
+    val game: StateFlow<GamePreviewUiState> = combine(
+        gameRepository.observeGame(id = gameId),
+        gameInstallRepository.observeInstall(gameId = gameId),
+        gamePurchaseRepository.observePurchasedSkus(),
+        gameInstallRepository.observeDownloadProgress(gameId)
+    ) { catalog, install, purchasedSkus, downloadProgress ->
+        when {
+            catalog != null -> GamePreviewUiState.Data(
+                item = GameItem(
+                    catalog,
+                    install,
+                    isPurchased = catalog.skus.any { it in purchasedSkus },
+                    bannerUrl = mediaUrlResolver.resolveBannerUrl(catalog.banner?.storagePath),
+                    logoUrl = mediaUrlResolver.resolveBannerUrl(catalog.logo?.storagePath),
+                    menuBackgroundUrl = mediaUrlResolver.resolveBannerUrl(catalog.menuBackground?.storagePath),
+                    downloadProgress,
+                ),
+                gameCatalog = catalog,
+            )
+
+            else -> GamePreviewUiState.NotFound
+        }
+    }.catch { error ->
+        logger.exception(error) { "Failed to observe game state for gameId=$gameId" }
+        emit(GamePreviewUiState.Error(GameUiError.Load))
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(7000),
+        initialValue = GamePreviewUiState.Loading,
+    )
+
+    val isPurchasing: StateFlow<Boolean> = purchaseHandler.isPurchasing
+    val isPurchaseLoading: StateFlow<Boolean> = purchaseHandler.isPurchaseLoading
+
+    val isUserPremium: StateFlow<Boolean> = gamePurchaseRepository.observeHasGlobalPremium()
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(7000),
+            initialValue = false,
+        )
+
+    private val currentGameItem: GameItem?
+        get() = (game.value as? GamePreviewUiState.Data)?.item
+
+    private val _events = MutableSharedFlow<GamePreviewEvent>(extraBufferCapacity = 1)
+    val events = _events.asSharedFlow()
+
+    /**
+     * Triggers the initial data load. Must be called by the UI once the screen
+     * is attached. [loadChapters] is idempotent, so calling this again after a
+     * configuration change is safe.
+     */
+    fun start() {
         viewModelScope.launch {
             loadChapters()
         }
@@ -65,16 +123,23 @@ class GamePreviewViewModel @Inject constructor(
 
     fun onAction(action: GamePreviewAction) {
         when (action) {
-            GamePreviewAction.OnBuy -> _isPurchasing.value = true
-            GamePreviewAction.OnAbortBuy -> resetPurchaseState()
+            GamePreviewAction.OnBuy -> purchaseHandler.startPurchaseFlow()
+            GamePreviewAction.OnAbortBuy -> purchaseHandler.abortPurchaseFlow()
             GamePreviewAction.OnBuyConfirm -> onPurchase()
             GamePreviewAction.OnDownload -> onStartDownload()
             GamePreviewAction.OnUpdateGame -> onStartDownload()
             GamePreviewAction.OnUpdateApp -> sendEvent(GamePreviewEvent.OpenAppStore)
-            GamePreviewAction.OnPlay -> navigateToPlay(true)
+            GamePreviewAction.OnPlay -> navigateToPlay(requestNickName = true)
             GamePreviewAction.OnRestart -> sendEvent(GamePreviewEvent.ShowRestartDialog)
             GamePreviewAction.OnRestartConfirm -> onRestartGame()
             GamePreviewAction.OnDelete -> onDeleteGame()
+        }
+    }
+
+    fun onNickNameConfirmed(name: String?) {
+        viewModelScope.launch {
+            saveUserNickNameUseCase(gameId, name)
+            navigateToPlay(requestNickName = false)
         }
     }
 
@@ -98,24 +163,15 @@ class GamePreviewViewModel @Inject constructor(
         }
     }
 
-    fun onNickNameConfirmed(name: String?) {
-        viewModelScope.launch {
-            saveUserNickNameUseCase(gameId, name)
-            navigateToPlay(false)
-        }
-    }
-
     private fun sendEvent(event: GamePreviewEvent) {
-        viewModelScope.launch {
-            _events.send(event)
-        }
+        _events.tryEmit(event)
     }
 
     private suspend fun loadChapters() {
         getChaptersUseCase(gameId)
             .collect { result ->
                 result.onFailure { error ->
-                    Log.e(TAG, "Failed to load chapters for gameId=$gameId", error)
+                    logger.exception(error) { "Failed to load chapters for gameId=$gameId" }
                     sendEvent(GamePreviewEvent.ShowError(GameUiError.Load))
                 }
             }
@@ -123,22 +179,20 @@ class GamePreviewViewModel @Inject constructor(
 
     private fun onStartDownload() {
         viewModelScope.launch {
-            super.startDownload()
+            downloadGameUseCase(gameId = gameId)
                 .catch { error ->
                     logger.exception(error) { "Download failed for gameId=$gameId" }
                     sendEvent(GamePreviewEvent.ShowError(GameUiError.Download))
                 }
-                .collect { progress ->
-                    Log.d(TAG, "Download progress for gameId=$gameId: $progress")
-                }
+                .collect { /* Progress is observed through gameInstallRepository.observeDownloadProgress */ }
         }
     }
 
     private fun onDeleteGame() {
         viewModelScope.launch {
-            super.deleteGame()
+            gameInstallRepository.deleteGame(gameId)
                 .onFailure { error ->
-                    Log.e(TAG, "Delete failed for gameId=$gameId", error)
+                    logger.exception(error) { "Delete failed for gameId=$gameId" }
                     sendEvent(GamePreviewEvent.ShowError(GameUiError.Delete))
                 }
         }
@@ -147,17 +201,17 @@ class GamePreviewViewModel @Inject constructor(
     private fun onPurchase() {
         val sku = currentGameItem?.skuIdentifiers?.firstOrNull()
         if (sku == null) {
-            Log.w(TAG, "No SKU available for purchase for gameId=$gameId")
-            resetPurchaseState()
+            logger.warning("No SKU available for purchase for gameId=$gameId")
+            purchaseHandler.abortPurchaseFlow()
             sendEvent(GamePreviewEvent.ShowError(GameUiError.Purchase))
             return
         }
 
         viewModelScope.launch {
-            purchaseWithState(sku)
+            purchaseHandler.confirmPurchase(sku)
                 .onSuccess { sendEvent(GamePreviewEvent.PurchaseSuccess) }
                 .onFailure { error ->
-                    Log.e(TAG, "Purchase failed for sku=$sku", error)
+                    logger.exception(error) { "Purchase failed for sku=$sku" }
                     sendEvent(GamePreviewEvent.ShowError(GameUiError.Purchase))
                 }
         }
@@ -165,18 +219,14 @@ class GamePreviewViewModel @Inject constructor(
 
     private fun onRestartGame() {
         viewModelScope.launch {
-            super.restartGame()
+            restartGameUseCase(gameId)
                 .onSuccess {
-                    makeToastService(R.string.game_restart_success)
+                    toastService(R.string.game_restart_success)
                 }
                 .onFailure { error ->
-                    Log.e(TAG, "Restart failed for gameId=$gameId", error)
+                    logger.exception(error) { "Restart failed for gameId=$gameId" }
                     sendEvent(GamePreviewEvent.ShowError(GameUiError.Restart))
                 }
         }
-    }
-
-    companion object {
-        private const val TAG = "GamePreviewViewModel"
     }
 }

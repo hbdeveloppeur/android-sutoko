@@ -69,6 +69,8 @@ dependencies {
     implementation(project(":alert:alert_presentation"))
     implementation(project(":tools"))
     testImplementation(libs.junit)
+    testImplementation(libs.kotlinx.coroutines.test)
+    testImplementation("app.cash.turbine:turbine:1.1.0")
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
 
