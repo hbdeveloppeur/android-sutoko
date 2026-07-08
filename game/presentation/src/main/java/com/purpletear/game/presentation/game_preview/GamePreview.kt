@@ -9,8 +9,11 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -25,9 +28,16 @@ import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.example.sharedelements.theme.PlusJakartaSansFontFamily
 import com.purpletear.core.presentation.util.openAppInStore
 import com.purpletear.game.presentation.R
 import com.purpletear.game.presentation.common.components.NickNameInputDialog
@@ -201,7 +211,9 @@ fun GamePreview(
                 // Push remaining space
                 Spacer(modifier = Modifier.weight(1f))
 
-                Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                Column(
+                    verticalArrangement = Arrangement.spacedBy(6.dp),
+                ) {
 
                     // Display the current chapter title if available, otherwise show a default
                     currentChapter?.let { chapter ->
@@ -217,9 +229,27 @@ fun GamePreview(
 
                     val unavailableChapter = currentChapter?.takeIf { !it.isAvailable }
                     if (unavailableChapter != null) {
-                        GamePreviewUnavailable(chapter = unavailableChapter)
+                        GamePreviewUnavailable(
+                            chapter = unavailableChapter
+                        )
                     } else if (gameItem != null) {
-                        GamePreviewCategories()
+                        GamePreviewCategories(
+                            categories = stringResource(R.string.game_card_genre_fallback)
+                        )
+                    }
+                }
+
+                if (gameItem != null && !gameItem.isOfficial) {
+                    gameItem.author?.let { author ->
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(4.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            AuthorName(author.displayName)
+                            if (!author.isCertified) {
+                                CertifiedIcon(Color(0xFF2799D7))
+                            }
+                        }
                     }
                 }
 
@@ -250,6 +280,12 @@ fun GamePreview(
                             borderColor = Background.Gradient(colors = UnlockedLabelGradient)
                         )
                     }
+
+                    if (gameItem?.isOfficial == false) {
+                        GamePreviewLabel(
+                            text = stringResource(R.string.game_preview_community)
+                        )
+                    }
                 }
 
                 GamePreviewDescription(
@@ -271,4 +307,33 @@ fun GamePreview(
             }
         }
     }
+}
+
+
+@Composable
+private fun AuthorName(authorName: String) {
+    Text(
+        text = buildAnnotatedString {
+            withStyle(style = SpanStyle(color = Color.White.copy(alpha = 0.6f))) {
+                append(stringResource(R.string.game_preview_written_by))
+                append(" ")
+            }
+            withStyle(style = SpanStyle(fontWeight = FontWeight.Bold, color = Color.White)) {
+                append(authorName)
+            }
+        },
+        fontSize = 12.sp,
+        fontFamily = PlusJakartaSansFontFamily,
+    )
+}
+
+
+@Composable
+private fun CertifiedIcon(color: Color) {
+    Icon(
+        painter = painterResource(id = R.drawable.author_ic_certified),
+        contentDescription = stringResource(R.string.game_preview_certified_author),
+        modifier = Modifier.size(16.dp),
+        tint = color,
+    )
 }

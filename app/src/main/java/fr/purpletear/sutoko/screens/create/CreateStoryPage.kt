@@ -221,15 +221,12 @@ private fun ComputerAnimation(modifier: Modifier = Modifier) {
 
 @Composable
 private fun UrlCard() {
-    val transition = rememberInfiniteTransition(label = "card_pulse")
-
     Box(
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(20.dp))
             .padding(1.dp)
             .clip(RoundedCornerShape(19.dp))
-            .background(CardSurface)
             .padding(vertical = 14.dp, horizontal = 12.dp),
         contentAlignment = Alignment.Center
     ) {

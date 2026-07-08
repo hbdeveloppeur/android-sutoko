@@ -15,6 +15,7 @@ import com.example.sharedelements.theme.PlusJakartaSansFontFamily
 @Composable
 internal fun GamePreviewCategories(
     modifier: Modifier = Modifier,
+    categories: String,
 ) {
     Row(
         modifier = modifier,
@@ -22,7 +23,7 @@ internal fun GamePreviewCategories(
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(
-            text = "",
+            text = categories,
             fontFamily = PlusJakartaSansFontFamily,
             color = Color.White,
             fontSize = 12.sp,

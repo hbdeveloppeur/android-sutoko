@@ -21,6 +21,7 @@ data class GameItem(
     val logoUrl: String? = null,
     val description: String? = null,
     val isFree: Boolean = true,
+    val isOfficial: Boolean = false,
     val minAppBuild: Int,
     val author: Author? = null,
 ) {
@@ -46,6 +47,7 @@ data class GameItem(
         logoUrl = logoUrl,
         description = catalog.metadata.description,
         isFree = catalog.price == 0,
+        isOfficial = catalog.isOfficial,
         minAppBuild = catalog.minAppBuild,
         author = catalog.author,
     )

@@ -30,6 +30,9 @@
     <string name="game_preview_calendar_icon">Calendar Icon</string>
     <string name="game_preview_next_chapter">Next chapter - %1$s</string>
     <string name="game_preview_free">Free</string>
+    <string name="game_preview_community">Community story</string>
+    <string name="game_preview_written_by">Written by</string>
+    <string name="game_preview_certified_author">Certified author</string>
     <string name="game_preview_background_description">Background</string>
     <string name="game_preview_avatar_description">Avatar</string>
 

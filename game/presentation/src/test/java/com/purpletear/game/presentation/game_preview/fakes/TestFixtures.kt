@@ -17,6 +17,7 @@ object TestFixtures {
         skus: List<String> = emptyList(),
         userNickNameRequired: Boolean = false,
         minAppBuild: Int = 1,
+        isOfficial: Boolean = true,
     ): GameCatalog = GameCatalog(
         id = id,
         version = version,
@@ -26,6 +27,7 @@ object TestFixtures {
         legacyId = LEGACY_ID,
         userNickNameRequired = userNickNameRequired,
         minAppBuild = minAppBuild,
+        isOfficial = isOfficial,
         banner = asset(storagePath = "banner/$id"),
         logo = asset(storagePath = "logo/$id"),
         menuBackground = asset(storagePath = "background/$id"),
