@@ -71,7 +71,7 @@ class GameMemory @Inject constructor(
         memory.putAll(repository.load(namespacedGameId(gameId), chapterNumber))
 
         val heroName = progressRepository.get(namespacedGameId(gameId)).heroName
-        if (!heroName.isNullOrBlank()) {
+        if (heroName.isNotBlank()) {
             memory[HERO_NAME_KEY] = MemoryEntry(heroName, chapterNumber)
         }
 

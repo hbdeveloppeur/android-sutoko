@@ -131,6 +131,7 @@
 
     <!-- Game UI errors -->
     <string name="error_load_game">Failed to load the game</string>
+    <string name="error_play_from_node_missing">Couldn\'t find that part of the story, starting from the beginning</string>
     <string name="error_purchase">Purchase failed</string>
     <string name="error_download">Download failed</string>
     <string name="error_update">Update failed</string>

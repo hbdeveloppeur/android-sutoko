@@ -131,6 +131,7 @@
 
     <!-- Game UI errors -->
     <string name="error_load_game">Impossible de charger le jeu</string>
+    <string name="error_play_from_node_missing">Passage introuvable, retour au début</string>
     <string name="error_purchase">Échec de l\'achat</string>
     <string name="error_download">Échec du téléchargement</string>
     <string name="error_update">Échec de la mise à jour</string>

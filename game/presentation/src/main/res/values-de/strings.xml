@@ -131,6 +131,7 @@
 
     <!-- Game UI errors -->
     <string name="error_load_game">Spiel konnte nicht geladen werden</string>
+    <string name="error_play_from_node_missing">Abschnitt nicht gefunden, beginne von vorne</string>
     <string name="error_purchase">Kauf fehlgeschlagen</string>
     <string name="error_download">Download fehlgeschlagen</string>
     <string name="error_update">Update fehlgeschlagen</string>

@@ -29,6 +29,7 @@ import com.purpletear.sutoko.game.usecase.GetSceneUseCase
 import com.purpletear.sutoko.game.usecase.LoadChapterGraphUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
@@ -186,6 +187,11 @@ class GameEngineViewModel @Inject constructor(
         }
     }
 
+    /**
+     * Initializes the engine and starts playback. If [startNodeId] is provided but does not
+     * exist in [graph] (e.g. a stale PLAY_FROM_NODE request), it is ignored and playback falls
+     * back to the chapter start node instead of crashing.
+     */
     private fun startGame(
         gameId: String,
         graph: ChapterGraph,
@@ -207,17 +213,34 @@ class GameEngineViewModel @Inject constructor(
         }
 
         viewModelScope.launch {
-            if (showLoadingOverlay) {
-                delay(1000)
-                updateState { it.copy(isLoadingStoryUpdates = false) }
-                delay(280)
-            }
+            try {
+                if (showLoadingOverlay) {
+                    delay(1000)
+                    updateState { it.copy(isLoadingStoryUpdates = false) }
+                    delay(280)
+                }
 
-            gameEngine.initialize(gameId, graph)
+                gameEngine.initialize(gameId, graph)
 
-            when {
-                startNodeId != null -> gameEngine.startFromNode(startNodeId)
-                else -> gameEngine.start()
+                // Tolerate an untrusted/unknown node (e.g. PLAY_FROM_NODE): never crash.
+                val safeStartNodeId = resolveStartNodeId(graph, startNodeId)
+                if (startNodeId != null && safeStartNodeId == null) {
+                    logger.exception(IllegalArgumentException(startNodeId)) {
+                        "PLAY_FROM_NODE target missing in ${graph.chapterCode}: $startNodeId - fallback to start"
+                    }
+                    makeToastService(R.string.error_play_from_node_missing)
+                }
+
+                when {
+                    safeStartNodeId != null -> gameEngine.startFromNode(safeStartNodeId)
+                    else -> gameEngine.start()
+                }
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                logger.exception(e) { "startGame failed for ${graph.chapterCode}" }
+                if (BuildConfig.DEBUG) throw e
+                makeToastService(R.string.error_load_game)
             }
         }
     }
@@ -242,11 +265,19 @@ class GameEngineViewModel @Inject constructor(
         }
 
         viewModelScope.launch {
-            checkNotNull(graph.getNode(nodeId)) {
-                "Debug jump target not found in chapter ${graph.chapterCode}: $nodeId"
+            try {
+                checkNotNull(graph.getNode(nodeId)) {
+                    "Debug jump target not found in chapter ${graph.chapterCode}: $nodeId"
+                }
+                gameEngine.initialize(gameId, graph)
+                gameEngine.jumpToNode(nodeId)
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                logger.exception(e) { "startGameWithDebugJump failed for ${graph.chapterCode}" }
+                if (BuildConfig.DEBUG) throw e
+                makeToastService(R.string.error_load_game)
             }
-            gameEngine.initialize(gameId, graph)
-            gameEngine.jumpToNode(nodeId)
         }
     }
 
@@ -570,5 +601,13 @@ class GameEngineViewModel @Inject constructor(
         _uiState.value = transform(_uiState.value)
     }
 }
+
+/**
+ * Returns [requestedNodeId] when it exists in [graph], or `null` when it is null/unknown so the
+ * caller can fall back to the chapter start node. Pure policy that keeps the engine's strict
+ * precondition from being reached with untrusted node ids (e.g. PLAY_FROM_NODE).
+ */
+internal fun resolveStartNodeId(graph: ChapterGraph, requestedNodeId: String?): String? =
+    requestedNodeId?.takeIf { graph.getNode(it) != null }
 
 

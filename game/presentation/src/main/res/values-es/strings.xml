@@ -131,6 +131,7 @@
 
     <!-- Game UI errors -->
     <string name="error_load_game">No se pudo cargar el juego</string>
+    <string name="error_play_from_node_missing">No se encontró esa parte, empezando desde el principio</string>
     <string name="error_purchase">Error en la compra</string>
     <string name="error_download">Error en la descarga</string>
     <string name="error_update">Error en la actualización</string>

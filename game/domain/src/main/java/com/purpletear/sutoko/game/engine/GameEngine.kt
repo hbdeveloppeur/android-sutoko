@@ -6,9 +6,9 @@ import com.purpletear.sutoko.game.engine.message.GameMessageNextChapter
 import com.purpletear.sutoko.game.engine.processing.TextProcessor
 import com.purpletear.sutoko.game.engine.timing.TimingScheduler
 import com.purpletear.sutoko.game.model.chapter.ChapterGraph
-import com.purpletear.sutoko.game.repository.CharacterRepository
 import com.purpletear.sutoko.game.model.chapter.GameMemory
 import com.purpletear.sutoko.game.model.chapter.Node
+import com.purpletear.sutoko.game.repository.CharacterRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -83,10 +83,6 @@ class GameEngine @Inject constructor(
         currentGameId = gameId
         currentGraph = graph
 
-        // Tag new memories written during this session with the current chapter,
-        // then load only state from earlier or the same chapter. Memories saved
-        // in this chapter or any later chapter are deleted first to prevent
-        // overlap when replaying.
         memory.setCurrentChapterNumber(graph.chapterNumber)
         memory.setCurrentChapter(graph.chapterCode)
         memory.load(gameId, graph.chapterNumber)
@@ -145,6 +141,9 @@ class GameEngine @Inject constructor(
      * Precondition: [nodeId] must exist in the current graph.
      *
      * @throws IllegalStateException if preconditions are violated.
+     *
+     * Strict by contract: callers must validate untrusted node ids (e.g. from real-time testing)
+     * before invoking; this method does not tolerate a missing node.
      */
     suspend fun startFromNode(nodeId: String) {
         assert(nodeId.isNotBlank())
@@ -253,16 +252,22 @@ class GameEngine @Inject constructor(
             val handler = context.handler
             check(!(handler is GraphAwareNodeHandler && handler is PreviousNodeAwareNodeHandler)) {
                 "${handler::class.simpleName} cannot implement both GraphAwareNodeHandler and " +
-                    "PreviousNodeAwareNodeHandler. Introduce a combined interface if both contexts are needed."
+                        "PreviousNodeAwareNodeHandler. Introduce a combined interface if both contexts are needed."
             }
             when {
-                handler is GraphAwareNodeHandler -> handler.buildScript(context.node, memory, context.graph)
+                handler is GraphAwareNodeHandler -> handler.buildScript(
+                    context.node,
+                    memory,
+                    context.graph
+                )
+
                 handler is PreviousNodeAwareNodeHandler -> handler.buildScript(
                     context.node,
                     memory,
                     previousNode,
                     context.arrivalContext,
                 )
+
                 else -> handler.buildScript(context.node, memory)
             }
         } catch (e: IllegalStateException) {
