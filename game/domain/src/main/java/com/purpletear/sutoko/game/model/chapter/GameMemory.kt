@@ -68,7 +68,8 @@ class GameMemory @Inject constructor(
         currentGameId = gameId
         currentChapterNumber = chapterNumber
         memory.clear()
-        memory.putAll(repository.load(namespacedGameId(gameId), chapterNumber))
+        val memories = repository.load(namespacedGameId(gameId), chapterNumber)
+        memory.putAll(memories)
 
         val heroName = progressRepository.get(namespacedGameId(gameId)).heroName
         if (heroName.isNotBlank()) {
