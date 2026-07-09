@@ -7,6 +7,7 @@ import androidx.datastore.preferences.core.emptyPreferences
 import androidx.datastore.preferences.core.stringPreferencesKey
 import com.purpletear.sutoko.game.repository.testing.LastTestedChapterRepository
 import com.purpletear.sutoko.game.testing.StoryTestingLogger
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
@@ -26,7 +27,7 @@ class DataStoreLastTestedChapterRepository @Inject constructor(
 ) : LastTestedChapterRepository {
 
     override suspend fun get(storyId: String): String? {
-        return runCatching {
+        return try {
             dataStore.data
                 .catch { error ->
                     if (error is IOException) {
@@ -40,20 +41,24 @@ class DataStoreLastTestedChapterRepository @Inject constructor(
                     preferences[stringPreferencesKey(keyFor(storyId))]
                 }
                 .first()
-        }.getOrElse { error ->
-            StoryTestingLogger.e("PREFS", error) { "Unexpected error reading last-tested chapter for $storyId" }
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            StoryTestingLogger.e("PREFS", e) { "Unexpected error reading last-tested chapter for $storyId" }
             null
         }
     }
 
     override suspend fun set(storyId: String, chapterId: String) {
-        runCatching {
+        try {
             dataStore.edit { preferences ->
                 preferences[stringPreferencesKey(keyFor(storyId))] = chapterId
             }
             StoryTestingLogger.d("PREFS") { "Last-tested chapter saved — story=$storyId, chapter=$chapterId" }
-        }.onFailure { error ->
-            StoryTestingLogger.e("PREFS", error) { "Failed to save last-tested chapter for $storyId" }
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            StoryTestingLogger.e("PREFS", e) { "Failed to save last-tested chapter for $storyId" }
         }
     }
 

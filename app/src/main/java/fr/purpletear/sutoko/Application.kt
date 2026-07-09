@@ -32,6 +32,7 @@ import fr.purpletear.sutoko.sync.news.NewsSyncCoordinator
 import fr.purpletear.sutoko.sync.purchase.PurchaseSyncCoordinator
 import fr.purpletear.sutoko.sync.usergames.UserGamesSyncCoordinator
 import fr.sutoko.inapppurchase.application.domain.coordinator.PurchaseBackendRegistrationCoordinator
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -180,6 +181,8 @@ class Application : MultiDexApplication(), DefaultLifecycleObserver {
                 Glide.get(this@clearGlideCache).apply {
                     clearDiskCache()
                 }
+            } catch (e: CancellationException) {
+                throw e
             } catch (e: Exception) {
                 e.printStackTrace()
             }

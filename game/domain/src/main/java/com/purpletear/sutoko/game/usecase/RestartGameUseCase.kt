@@ -2,6 +2,7 @@ package com.purpletear.sutoko.game.usecase
 
 import com.purpletear.sutoko.game.repository.MemoryRepository
 import com.purpletear.sutoko.game.repository.UserGameProgressRepository
+import kotlinx.coroutines.CancellationException
 import javax.inject.Inject
 
 class RestartGameUseCase @Inject constructor(
@@ -20,6 +21,8 @@ class RestartGameUseCase @Inject constructor(
             memoryRepository.delete(gameId = gameId)
 
             Result.success(Unit)
+        } catch (e: CancellationException) {
+            throw e
         } catch (e: Exception) {
             Result.failure(e)
         }

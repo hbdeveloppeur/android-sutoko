@@ -7,6 +7,7 @@ import androidx.datastore.preferences.core.emptyPreferences
 import androidx.datastore.preferences.core.stringPreferencesKey
 import com.purpletear.sutoko.game.repository.testing.DeviceIdProvider
 import com.purpletear.sutoko.game.testing.StoryTestingLogger
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
@@ -51,7 +52,7 @@ class DataStoreDeviceIdProvider @Inject constructor(
     }
 
     private suspend fun readDeviceId(): String? {
-        return runCatching {
+        return try {
             dataStore.data
                 .catch { error ->
                     if (error is IOException) {
@@ -63,20 +64,24 @@ class DataStoreDeviceIdProvider @Inject constructor(
                 }
                 .map { preferences -> preferences[DEVICE_ID_KEY] }
                 .first()
-        }.getOrElse { error ->
-            StoryTestingLogger.e("PREFS", error) { "Unexpected error reading device id" }
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            StoryTestingLogger.e("PREFS", e) { "Unexpected error reading device id" }
             null
         }
     }
 
     private suspend fun writeDeviceId(deviceId: String) {
-        runCatching {
+        try {
             dataStore.edit { preferences ->
                 preferences[DEVICE_ID_KEY] = deviceId
             }
             StoryTestingLogger.d("PREFS") { "Device id saved" }
-        }.onFailure { error ->
-            StoryTestingLogger.e("PREFS", error) { "Failed to save device id" }
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            StoryTestingLogger.e("PREFS", e) { "Failed to save device id" }
         }
     }
 

@@ -3,6 +3,7 @@ package com.purpletear.sutoko.game.usecase
 import com.purpletear.sutoko.game.model.UserGameProgress
 import com.purpletear.sutoko.game.repository.MemoryRepository
 import com.purpletear.sutoko.game.repository.UserGameProgressRepository
+import kotlinx.coroutines.CancellationException
 import javax.inject.Inject
 
 /**
@@ -15,7 +16,7 @@ class SelectChapterUseCase @Inject constructor(
     private val userGameProgressRepository: UserGameProgressRepository,
     private val memoryRepository: MemoryRepository,
 ) {
-    suspend operator fun invoke(gameId: String, chapterCode: String): Result<Unit> = runCatching {
+    suspend operator fun invoke(gameId: String, chapterCode: String): Result<Unit> = try {
         val currentProgress = userGameProgressRepository.get(gameId)
         userGameProgressRepository.save(
             UserGameProgress(
@@ -26,5 +27,10 @@ class SelectChapterUseCase @Inject constructor(
             )
         )
         memoryRepository.delete(gameId)
+        Result.success(Unit)
+    } catch (e: CancellationException) {
+        throw e
+    } catch (e: Exception) {
+        Result.failure(e)
     }
 }

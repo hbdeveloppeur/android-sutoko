@@ -12,6 +12,7 @@ import com.purpletear.aiconversation.domain.model.messages.entities.Message
 import com.purpletear.aiconversation.domain.model.messages.entities.MessageStoryChoice
 import com.purpletear.aiconversation.domain.model.messages.entities.MessageStoryChoiceGroup
 import com.purpletear.aiconversation.domain.repository.ConversationRepository
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -105,6 +106,8 @@ class ConversationRepositoryImpl(private val api: MessageApi) : ConversationRepo
                 val exception = ApiFailureResponseHandler.handler(apiResponse.errorBody())
                 exception.printStackTrace()
             }
+        } catch (e: CancellationException) {
+            throw e
         } catch (e: Exception) {
             e.printStackTrace()
         }

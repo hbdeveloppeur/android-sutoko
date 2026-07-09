@@ -9,6 +9,7 @@ import com.purpletear.game.data.provider.AndroidGamePathProvider
 import com.purpletear.sutoko.game.model.scene.Scene
 import com.purpletear.sutoko.game.repository.SceneRepository
 import com.purpletear.sutoko.game.repository.game.GameRepository
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.sync.Mutex
@@ -69,6 +70,8 @@ class SceneRepositoryImpl @Inject constructor(
                     currentGameId = gameId
 
                     Log.d(TAG, "Loaded ${sceneCache.size} scenes for game $gameId")
+                } catch (e: CancellationException) {
+                    throw e
                 } catch (e: Exception) {
                     Log.e(TAG, "Failed to load scenes for game $gameId", e)
                     clearInternal()

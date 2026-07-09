@@ -6,6 +6,7 @@ import com.purpletear.sutoko.data.remote.utils.ApiFailureResponseHandler
 import com.purpletear.sutoko.data.remote.UserConfigApi
 import com.purpletear.sutoko.domain.repository.UserConfigRepository
 import com.purpletear.sutoko.domain.repository.UserRepository
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
@@ -25,6 +26,8 @@ class UserConfigRepositoryImpl(
 
         val token = try {
             FirebaseMessaging.getInstance().token.await()
+        } catch (e: CancellationException) {
+            throw e
         } catch (e: Exception) {
             emit(Result.failure(e))
             return@flow
@@ -47,6 +50,8 @@ class UserConfigRepositoryImpl(
                 val exception = ApiFailureResponseHandler.handler(apiResponse.errorBody())
                 emit(Result.failure(exception))
             }
+        } catch (e: CancellationException) {
+            throw e
         } catch (e: Exception) {
             emit(Result.failure(e))
         }

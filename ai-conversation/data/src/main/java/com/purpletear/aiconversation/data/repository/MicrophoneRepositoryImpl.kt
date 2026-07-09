@@ -7,6 +7,7 @@ import android.media.MediaRecorder
 import android.os.Build
 import com.purpletear.aiconversation.domain.repository.FileManagerRepository
 import com.purpletear.aiconversation.domain.repository.MicrophoneRepository
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File
@@ -89,6 +90,8 @@ class MicrophoneRepositoryImpl(
             }
             recorder = null
             Result.success(Unit)
+        } catch (e: CancellationException) {
+            throw e
         } catch (e: Exception) {
             Result.failure(e)
         }

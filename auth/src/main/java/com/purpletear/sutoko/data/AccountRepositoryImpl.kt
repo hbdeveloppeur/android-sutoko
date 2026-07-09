@@ -3,6 +3,7 @@ package com.purpletear.sutoko.data
 import com.purpletear.sutoko.data.remote.AccountApi
 import com.purpletear.sutoko.data.remote.utils.ApiFailureResponseHandler
 import com.purpletear.sutoko.domain.repository.AccountRepository
+import kotlinx.coroutines.CancellationException
 import javax.inject.Inject
 
 class AccountRepositoryImpl @Inject constructor(
@@ -17,6 +18,8 @@ class AccountRepositoryImpl @Inject constructor(
             } else {
                 Result.failure(ApiFailureResponseHandler.handler(response.errorBody()))
             }
+        } catch (e: CancellationException) {
+            throw e
         } catch (e: Exception) {
             Result.failure(e)
         }

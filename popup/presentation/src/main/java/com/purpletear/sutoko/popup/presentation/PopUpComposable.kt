@@ -67,6 +67,7 @@ import fr.purpletear.sutoko.popup.domain.PopUpIconUrl
 import fr.purpletear.sutoko.popup.domain.PopUpUserInteraction
 import fr.purpletear.sutoko.popup.domain.RegularPopUp
 import fr.purpletear.sutoko.popup.domain.SutokoPopUp
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.delay
 
 @Composable
@@ -241,6 +242,8 @@ private fun RegularPopUpComposable(
         try {
             delay(280)
             focusRequester.requestFocus()
+        } catch (e: CancellationException) {
+            throw e
         } catch (e: Exception) {
             e.printStackTrace()
         }

@@ -37,6 +37,24 @@ You are a team of 5 persons:
 - Explicit dependencies only; implicit couplings are bugs waiting to happen.
 - When algorithms interact, their invariants must be compatible or explicitly reconciled.
 
+# Coroutines & structured concurrency
+
+- Never swallow `kotlinx.coroutines.CancellationException`.
+- In `suspend`/coroutine code, every `catch (Exception)` / `catch (Throwable)` must first
+  rethrow it:
+  ```kotlin
+  } catch (e: CancellationException) {
+      throw e
+  } catch (e: Exception) {
+      // handle / wrap
+  }
+  ```
+- Inside `flow { }` builders, use `if (e is CancellationException) throw e` before wrapping.
+- A `suspend fun ... : Result<T>` returns errors as `Result.failure`; cancellation always
+  propagates and is never represented as a `Result` value.
+- stdlib `runCatching { }` and `Flow.catch { }` already rethrow `CancellationException`
+  (Kotlin 2.0+); no extra guard needed there.
+
 ## Fixing issues
 
 - Create and run temporary executable code to validate changes when useful.

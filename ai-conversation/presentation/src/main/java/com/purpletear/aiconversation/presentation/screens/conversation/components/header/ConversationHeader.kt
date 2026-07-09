@@ -70,6 +70,7 @@ import com.purpletear.aiconversation.presentation.component.options_button.Optio
 import com.purpletear.aiconversation.presentation.screens.conversation.viewmodels.ConversationViewModel
 import com.purpletear.aiconversation.presentation.theme.AiConversationTheme
 import com.purpletear.core.presentation.services.performVibration
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.delay
 
 
@@ -167,6 +168,8 @@ internal fun ConversationHeader(
             LaunchedEffect(Unit) {
                 userIsModerator.value = try {
                     viewModel.userIsModerator()
+                } catch (e: CancellationException) {
+                    throw e
                 } catch (_: Exception) {
                     false
                 }

@@ -15,6 +15,7 @@ import com.purpletear.aiconversation.domain.model.Media
 import com.purpletear.aiconversation.domain.model.hasNext
 import com.purpletear.aiconversation.domain.model.hasPrevious
 import com.purpletear.aiconversation.domain.repository.ImageGenerationRepository
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -292,6 +293,8 @@ class ImageGenerationRepositoryImpl(
                     val exception = ApiFailureResponseHandler.handler(apiResponse.errorBody())
                     emit(Result.failure(exception))
                 }
+            } catch (e: CancellationException) {
+                throw e
             } catch (e: Exception) {
                 emit(Result.failure(e))
             }
@@ -315,6 +318,8 @@ class ImageGenerationRepositoryImpl(
                 val exception = ApiFailureResponseHandler.handler(apiResponse.errorBody())
                 emit(Result.failure(exception))
             }
+        } catch (e: CancellationException) {
+            throw e
         } catch (e: Exception) {
             emit(Result.failure(e))
         }

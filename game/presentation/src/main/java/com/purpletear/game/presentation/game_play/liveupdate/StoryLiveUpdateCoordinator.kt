@@ -12,6 +12,7 @@ import com.purpletear.sutoko.game.usecase.testing.LoadTestChapterGraphUseCase
 import com.purpletear.sutoko.game.usecase.testing.ObserveTestEventsUseCase
 import com.purpletear.sutoko.game.usecase.testing.RegisterAssetInventoryUseCase
 import com.purpletear.sutoko.game.repository.testing.LastTestedChapterRepository
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -84,14 +85,16 @@ class StoryLiveUpdateCoordinator @Inject constructor(
         StoryTestingLogger.i("SESS") { "Starting test session — gameId=$gameId, storyId=$storyId" }
 
         scope.launch {
-            runCatching {
+            try {
                 joinAndSync(gameId, storyId)
-            }.onFailure { error ->
-                StoryTestingLogger.e("SESS", error) { "Failed to join test session" }
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                StoryTestingLogger.e("SESS", e) { "Failed to join test session" }
                 _state.value = _state.value.copy(
                     isLoading = false,
                     connectionState = StoryLiveUpdateConnectionState.DISCONNECTED,
-                    error = "Failed to join test session: ${error.message}"
+                    error = "Failed to join test session: ${e.message}"
                 )
             }
         }
@@ -137,10 +140,12 @@ class StoryLiveUpdateCoordinator @Inject constructor(
         gameMemory.setNamespace("test-session-${session.sessionId}")
         StoryTestingLogger.d("MEM") { "Memory namespace set to test-session-${session.sessionId}" }
 
-        val lastWorkedOnChapterId = runCatching {
+        val lastWorkedOnChapterId = try {
             lastTestedChapterRepository.get(storyId)
-        }.getOrElse { error ->
-            StoryTestingLogger.e("PREFS", error) { "Failed to read last-tested chapter for $storyId" }
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            StoryTestingLogger.e("PREFS", e) { "Failed to read last-tested chapter for $storyId" }
             null
         }
         StoryTestingLogger.i("SESS") { "Last-tested chapter — story=$storyId, chapter=$lastWorkedOnChapterId" }
@@ -360,21 +365,24 @@ class StoryLiveUpdateCoordinator @Inject constructor(
 
         activeDownloads[chapterId] = scope.launch {
             try {
-                runCatching {
-                    val extractedDir =
-                        downloadTestPackage(packageUrl, gameId, chapterId, seed).getOrThrow()
-                    applyTestPackage(extractedDir, gameId).getOrThrow()
+                val extractedDir = try {
+                    val dir = downloadTestPackage(packageUrl, gameId, chapterId, seed).getOrThrow()
+                    applyTestPackage(dir, gameId).getOrThrow()
                     localSeeds[chapterId] = seed
-                    extractedDir
-                }.onSuccess { extractedDir ->
-                    StoryTestingLogger.i("PKG") { "Package applied — $chapterId seed $seed" }
-                    onPackageApplied(extractedDir, gameId, chapterId)
-                }.onFailure { error ->
-                    StoryTestingLogger.e("PKG", error) { "Package failed — $chapterId seed $seed" }
+                    dir
+                } catch (e: CancellationException) {
+                    throw e
+                } catch (e: Exception) {
+                    StoryTestingLogger.e("PKG", e) { "Package failed — $chapterId seed $seed" }
                     _state.value = _state.value.copy(
                         isLoading = false,
-                        error = "Package download failed: ${error.message}"
+                        error = "Package download failed: ${e.message}"
                     )
+                    null
+                }
+                if (extractedDir != null) {
+                    StoryTestingLogger.i("PKG") { "Package applied — $chapterId seed $seed" }
+                    onPackageApplied(extractedDir, gameId, chapterId)
                 }
             } finally {
                 activeDownloads.remove(chapterId)

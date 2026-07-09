@@ -6,6 +6,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import fr.purpletear.sutoko.BuildConfig
 import fr.sutoko.inapppurchase.application.domain.repository.PurchaseRepository
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.first
@@ -67,9 +68,13 @@ class PurchaseSyncCoordinator @Inject constructor(
             .onSuccess {
                 if (BuildConfig.DEBUG && !startupLogDone) {
                     startupLogDone = true
-                    runCatching {
+                    try {
                         val skus = purchaseRepository.observePurchasedSkus().first()
                         Log.d("BoughtSkus", "User bought SKUs: $skus")
+                    } catch (e: CancellationException) {
+                        throw e
+                    } catch (e: Exception) {
+                        Log.w("BoughtSkus", "Failed to log bought SKUs", e)
                     }
                 }
             }

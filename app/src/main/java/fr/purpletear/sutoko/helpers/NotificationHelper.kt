@@ -13,6 +13,7 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.request.FutureTarget
 import com.purpletear.sutoko.notification.model.Notification
 import fr.purpletear.sutoko.screens.MainActivity
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -42,6 +43,8 @@ class NotificationHelper @Inject constructor() {
 
             try {
                 futureTarget.get() // Blocking call, must be run on the IO dispatcher
+            } catch (e: CancellationException) {
+                throw e
             } catch (e: Exception) {
                 // Handle error
                 null

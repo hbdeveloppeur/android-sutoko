@@ -6,6 +6,7 @@ import android.content.Context
 import android.provider.MediaStore
 import com.purpletear.aiconversation.data.exception.FailedToCreateConversationDirsException
 import com.purpletear.aiconversation.domain.repository.FileManagerRepository
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File
@@ -25,6 +26,8 @@ class FileManagerRepositoryImpl(private val contentResolver: ContentResolver, co
             if (!recordingsDir.exists()) {
                 try {
                     recordingsDir.mkdirs()
+                } catch (e: CancellationException) {
+                    throw e
                 } catch (e: Exception) {
                     return@withContext Result.failure(
                         FailedToCreateConversationDirsException(
@@ -40,6 +43,8 @@ class FileManagerRepositoryImpl(private val contentResolver: ContentResolver, co
             if (!file.exists()) {
                 try {
                     file.createNewFile()
+                } catch (e: CancellationException) {
+                    throw e
                 } catch (e: Exception) {
                     return@withContext Result.failure(
                         FailedToCreateConversationDirsException(
@@ -71,6 +76,8 @@ class FileManagerRepositoryImpl(private val contentResolver: ContentResolver, co
                 if (it.lastModified() < System.currentTimeMillis() - 1000 * 60 * 60 * 24 * 7) {
                     try {
                         it.delete()
+                    } catch (e: CancellationException) {
+                        throw e
                     } catch (e: Exception) {
                         return@withContext Result.failure(e)
                     }
@@ -87,6 +94,8 @@ class FileManagerRepositoryImpl(private val contentResolver: ContentResolver, co
         } catch (e: FileAlreadyExistsException) {
             val file = File(recordingsDir, name)
             Result.success(file)
+        } catch (e: CancellationException) {
+            throw e
         } catch (e: Exception) {
             Result.failure(e)
         }
@@ -98,6 +107,8 @@ class FileManagerRepositoryImpl(private val contentResolver: ContentResolver, co
                 it.delete()
             }
             Result.success(Unit)
+        } catch (e: CancellationException) {
+            throw e
         } catch (e: Exception) {
             Result.failure(e)
         }

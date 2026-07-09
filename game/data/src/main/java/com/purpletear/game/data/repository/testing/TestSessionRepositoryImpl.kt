@@ -8,6 +8,7 @@ import com.purpletear.sutoko.game.model.testing.TestSession
 import com.purpletear.sutoko.game.repository.testing.DeviceIdProvider
 import com.purpletear.sutoko.game.repository.testing.TestSessionRepository
 import com.purpletear.sutoko.game.testing.StoryTestingLogger
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.firstOrNull
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -21,7 +22,7 @@ class TestSessionRepositoryImpl @Inject constructor(
 
     override suspend fun join(storyId: String, deviceInfo: String): Result<TestSession> {
         StoryTestingLogger.d("SESS") { "Requesting join — storyId=$storyId" }
-        return runCatching {
+        return try {
             val token = requireToken()
             val deviceId = deviceIdProvider.get()
             require(deviceId.isNotBlank()) { "Device id must not be blank" }
@@ -34,12 +35,17 @@ class TestSessionRepositoryImpl @Inject constructor(
                     "Join failed: HTTP ${response.code()} ${response.errorBody()?.string()}"
                 )
             StoryTestingLogger.d("SESS") { "Join response — sessionId=${body.sessionId}" }
-            TestSession(
-                sessionId = body.sessionId,
-                chapterSeeds = body.chapterSeeds
+            Result.success(
+                TestSession(
+                    sessionId = body.sessionId,
+                    chapterSeeds = body.chapterSeeds
+                )
             )
-        }.onFailure { error ->
-            StoryTestingLogger.e("SESS", error) { "Join request failed" }
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            StoryTestingLogger.e("SESS", e) { "Join request failed" }
+            Result.failure(e)
         }
     }
 
@@ -48,19 +54,23 @@ class TestSessionRepositoryImpl @Inject constructor(
         assets: List<String>
     ): Result<String> {
         StoryTestingLogger.d("SYNC") { "Registering inventory — sessionId=$sessionId, assets=${assets.size}" }
-        return runCatching {
+        return try {
             val token = requireToken()
             val response = api.registerInventory(
                 authorization = bearer(token),
                 sessionId = sessionId,
                 request = RegisterInventoryRequest(assets)
             )
-            response.body()?.inventoryToken
+            val inventoryToken = response.body()?.inventoryToken
                 ?: throw TestSessionException(
                     "Inventory registration failed: HTTP ${response.code()} ${response.errorBody()?.string()}"
                 )
-        }.onFailure { error ->
-            StoryTestingLogger.e("SYNC", error) { "Inventory registration failed" }
+            Result.success(inventoryToken)
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            StoryTestingLogger.e("SYNC", e) { "Inventory registration failed" }
+            Result.failure(e)
         }
     }
 

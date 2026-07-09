@@ -5,6 +5,7 @@ import com.purpletear.news.data.remote.dto.toDomain
 import com.purpletear.sutoko.core.domain.helper.AppVersionProvider
 import com.purpletear.sutoko.news.model.News
 import com.purpletear.sutoko.news.repository.NewsRepository
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flow
@@ -52,6 +53,8 @@ class NewsRepositoryImpl @Inject constructor(
                     Exception("API call failed with code ${response.code()}: $errorBody")
                 emit(Result.failure(exception))
             }
+        } catch (e: CancellationException) {
+            throw e
         } catch (e: Exception) {
             emit(Result.failure(e))
         }
@@ -77,6 +80,8 @@ class NewsRepositoryImpl @Inject constructor(
                     Exception("API call failed with code ${response.code()}: $errorBody")
                 Result.failure(exception)
             }
+        } catch (e: CancellationException) {
+            throw e
         } catch (e: Exception) {
             Result.failure(e)
         }

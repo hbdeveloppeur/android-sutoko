@@ -8,6 +8,7 @@ import com.purpletear.aiconversation.domain.messaging.ImageGenerationRequestMess
 import com.purpletear.aiconversation.domain.messaging.NewCharacterMessageHandler
 import com.purpletear.sutoko.domain.repository.UserConfigRepository
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -55,16 +56,14 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
     override fun onNewToken(token: String) {
         super.onNewToken(token)
         serviceScope.launch {
-            runCatching {
-                userConfigRepository.updateDeviceToken().first()
-            }.fold(
-                onSuccess = { result ->
-                    Log.d(TAG, "onNewToken: $result")
-                },
-                onFailure = { error ->
-                    Log.e(TAG, "onNewToken failed", error)
-                }
-            )
+            try {
+                val result = userConfigRepository.updateDeviceToken().first()
+                Log.d(TAG, "onNewToken: $result")
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                Log.e(TAG, "onNewToken failed", e)
+            }
         }
     }
 

@@ -2,6 +2,7 @@ package com.purpletear.sutoko.game.usecase
 
 import com.purpletear.sutoko.game.model.UserGameProgress
 import com.purpletear.sutoko.game.repository.UserGameProgressRepository
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
@@ -91,5 +92,33 @@ class SaveUserNickNameUseCaseTest {
 
         assertTrue(result.isSuccess)
         assertEquals(SaveUserNickNameUseCase.DEFAULT_HERO_NAME, repository.get("game-1").heroName)
+    }
+
+    @Test
+    fun `use case rethrows CancellationException instead of returning failure`() = runTest {
+        val repository = object : UserGameProgressRepository {
+            override fun observe(gameId: String): Flow<UserGameProgress> =
+                flowOf(UserGameProgress(gameId = gameId))
+
+            override suspend fun get(gameId: String): UserGameProgress =
+                throw CancellationException("cancelled")
+
+            override suspend fun save(progress: UserGameProgress) = Unit
+
+            override suspend fun delete(gameId: String) = Unit
+        }
+        val useCase = SaveUserNickNameUseCase(repository)
+
+        var thrown: Throwable? = null
+        try {
+            useCase("game-1", "Valid")
+        } catch (t: Throwable) {
+            thrown = t
+        }
+
+        assertTrue(
+            "CancellationException must escape, not be boxed into Result.failure",
+            thrown is CancellationException,
+        )
     }
 }

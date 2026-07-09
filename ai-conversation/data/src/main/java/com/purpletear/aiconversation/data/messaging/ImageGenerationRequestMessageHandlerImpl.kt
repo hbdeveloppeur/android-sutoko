@@ -13,6 +13,7 @@ import com.purpletear.aiconversation.domain.messaging.ImageGenerationRequestMess
 import com.purpletear.aiconversation.domain.model.Media
 import com.purpletear.aiconversation.domain.repository.ImageGenerationRepository
 import com.purpletear.aiconversation.domain.repository.MediaRepository
+import kotlinx.coroutines.CancellationException
 
 class ImageGenerationRequestMessageHandlerImpl(
     private val repository: ImageGenerationRepository,
@@ -44,6 +45,8 @@ class ImageGenerationRequestMessageHandlerImpl(
             )
         } catch (e: MalformedResponseException) {
             Log.e("ImageGenerationRequestMessageHandlerImpl", e.message.toString())
+        } catch (e: CancellationException) {
+            throw e
         } catch (e: Exception) {
             Log.e("ImageGenerationRequestMessageHandlerImpl", e.message.toString())
         }
@@ -84,6 +87,8 @@ class ImageGenerationRequestMessageHandlerImpl(
             )
         } catch (e: MalformedResponseException) {
             Log.e("ImageGenerationRequestMessageHandlerImpl", e.message.toString())
+        } catch (e: CancellationException) {
+            throw e
         } catch (e: Exception) {
             Log.e("ImageGenerationRequestMessageHandlerImpl", e.message.toString())
         }

@@ -1,6 +1,7 @@
 package com.purpletear.sutoko.game.usecase
 
 import com.purpletear.sutoko.game.repository.UserGameProgressRepository
+import kotlinx.coroutines.CancellationException
 import javax.inject.Inject
 
 /**
@@ -47,7 +48,7 @@ class SaveUserNickNameUseCase @Inject constructor(
      * @return [Result.success] if the name was saved, [Result.failure] if the name
      * is invalid or the repository failed.
      */
-    suspend operator fun invoke(gameId: String, nickName: String?): Result<Unit> = runCatching {
+    suspend operator fun invoke(gameId: String, nickName: String?): Result<Unit> = try {
         val sanitized = nickName?.let { UserNickNameSanitizer.sanitize(it) }
 
         if (nickName != null && sanitized == null) {
@@ -61,6 +62,11 @@ class SaveUserNickNameUseCase @Inject constructor(
                 heroName = sanitized ?: DEFAULT_HERO_NAME,
             )
         )
+        Result.success(Unit)
+    } catch (e: CancellationException) {
+        throw e
+    } catch (e: Exception) {
+        Result.failure(e)
     }
 
     companion object {

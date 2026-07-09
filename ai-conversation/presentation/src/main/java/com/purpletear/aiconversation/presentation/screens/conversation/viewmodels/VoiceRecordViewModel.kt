@@ -31,6 +31,7 @@ import fr.purpletear.sutoko.popup.domain.EditTextPopUp
 import fr.purpletear.sutoko.popup.domain.PopUpUserInteraction
 import fr.purpletear.sutoko.popup.domain.usecase.GetPopUpInteractionUseCase
 import fr.purpletear.sutoko.popup.domain.usecase.ShowPopUpUseCase
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -238,6 +239,8 @@ class VoiceRecordViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 microphoneRepository.startRecording()
+            } catch (e: CancellationException) {
+                throw e
             } catch (e: Exception) {
                 _isRecording.value = false
                 Log.e("AudioRecord", "Error starting recording", e)

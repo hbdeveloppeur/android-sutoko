@@ -5,6 +5,7 @@ import com.purpletear.aiconversation.data.exception.ApiException
 import com.purpletear.aiconversation.data.remote.MessageApi
 import com.purpletear.aiconversation.data.remote.utils.ApiFailureResponseHandler
 import com.purpletear.aiconversation.domain.repository.MessageRepository
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flow
@@ -106,6 +107,8 @@ class MessageRepositoryImpl(
             emit(Result.failure(e))
         } catch (e: HttpException) {
             emit(Result.failure(e))
+        } catch (e: CancellationException) {
+            throw e
         } catch (e: Exception) {
             emit(Result.failure(Exception("Error sending message", e)))
         }

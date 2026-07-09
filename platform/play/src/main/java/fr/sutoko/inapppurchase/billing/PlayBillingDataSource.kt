@@ -189,6 +189,8 @@ internal class PlayBillingDataSource @Inject constructor(
 
         val productDetailsParams = try {
             buildProductDetailsParams(product, productDetails)
+        } catch (e: CancellationException) {
+            throw e
         } catch (e: Throwable) {
             return@withContext PurchaseResult.Failed(
                 sku = product.sku,

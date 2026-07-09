@@ -10,6 +10,7 @@ import android.os.Environment
 import android.provider.MediaStore
 import coil.imageLoader
 import coil.request.ImageRequest
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import java.io.IOException
@@ -22,6 +23,8 @@ class ImageDownloaderImpl(private val context: Context) : ImageDownloader {
             val bitmap = loadBitmapFromUrl(url)
             saveImageToGallery(bitmap, generateUniqueFilename("jpg"))
             emit(Result.success(Unit))
+        } catch (e: CancellationException) {
+            throw e
         } catch (e: Exception) {
             emit(Result.failure(e))
         }

@@ -37,6 +37,7 @@ import fr.purpletear.sutoko.screens.main.presentation.screens.TopNavigation
 import fr.purpletear.sutoko.screens.main.presentation.screens.home.components.AiConversationCard
 import fr.purpletear.sutoko.screens.main.presentation.screens.home.components.HeaderPager
 import fr.purpletear.sutoko.screens.main.presentation.screens.home.components.Menu
+import kotlinx.coroutines.CancellationException
 
 /**
  * Home screen composable that displays the main content of the application.
@@ -65,6 +66,8 @@ fun HomeScreen(
         navEvent?.let { route ->
             try {
                 mainNavController.navigate(route)
+            } catch (e: CancellationException) {
+                throw e
             } catch (e: Exception) {
                 Log.e("HomeScreen", "Error navigating to route: $route", e)
             }

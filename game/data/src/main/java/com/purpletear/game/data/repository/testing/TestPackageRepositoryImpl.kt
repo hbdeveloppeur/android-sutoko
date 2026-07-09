@@ -10,6 +10,7 @@ import com.purpletear.game.data.remote.testing.dto.parseManifest
 import com.purpletear.sutoko.game.model.testing.TestPackageManifest
 import com.purpletear.sutoko.game.repository.testing.TestPackageRepository
 import com.purpletear.sutoko.game.testing.StoryTestingLogger
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.ensureActive
@@ -40,7 +41,7 @@ class TestPackageRepositoryImpl @Inject constructor(
         seed: Int,
     ): Result<String> = withContext(Dispatchers.IO) {
         StoryTestingLogger.d("PKG") { "Download package — $chapterId seed $seed from $packageUrl" }
-        runCatching {
+        try {
             val gameDir = pathProvider.getGameDirectory(gameId = gameId, legacyId = null)
             require(gameDir.exists() || gameDir.mkdirs()) {
                 "Failed to create game directory: $gameDir"
@@ -49,7 +50,7 @@ class TestPackageRepositoryImpl @Inject constructor(
             val extractDir = File(gameDir, "test-session/$chapterId/$seed")
             if (isExtractedPackageValid(extractDir, chapterId, seed)) {
                 StoryTestingLogger.i("PKG") { "Package cache hit — $chapterId seed $seed" }
-                return@runCatching extractDir.absolutePath
+                return@withContext Result.success(extractDir.absolutePath)
             }
 
             val downloadId = System.currentTimeMillis().toString()
@@ -62,7 +63,7 @@ class TestPackageRepositoryImpl @Inject constructor(
             val tempExtractDir = File(gameDir, "test-session/$chapterId/$seed.tmp")
             val resolvedUrl = resolvePackageUrl(packageUrl)
 
-            try {
+            val resultPath = try {
                 downloadToFile(resolvedUrl, archiveFile)
 
                 tempExtractDir.deleteRecursively()
@@ -80,11 +81,12 @@ class TestPackageRepositoryImpl @Inject constructor(
                 tempDir.deleteRecursively()
                 tempExtractDir.deleteRecursively()
             }
-        }.onFailure { error ->
-            StoryTestingLogger.e(
-                "PKG",
-                error
-            ) { "Package download/extract failed — $chapterId seed $seed" }
+            Result.success(resultPath)
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            StoryTestingLogger.e("PKG", e) { "Package download/extract failed — $chapterId seed $seed" }
+            Result.failure(e)
         }
     }
 

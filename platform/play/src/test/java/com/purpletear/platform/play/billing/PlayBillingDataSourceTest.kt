@@ -13,6 +13,7 @@ import fr.sutoko.inapppurchase.billing.ProductKind
 import fr.sutoko.inapppurchase.billing.PurchaseResult
 import fr.sutoko.inapppurchase.billing.VerificationResult
 import fr.sutoko.inapppurchase.billing.exception.BillingException
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -604,6 +605,24 @@ internal class PlayBillingDataSourceTest {
 
             assertTrue(result is PurchaseResult.Failed)
             assertEquals("unknown", (result as PurchaseResult.Failed).sku)
+        }
+
+    @Test
+    fun `purchase propagates CancellationException instead of returning Failed`() =
+        runTest(dispatcher) {
+            catalog.getProductError = CancellationException("cancelled")
+
+            var thrown: Throwable? = null
+            try {
+                dataSource.purchase("gems")
+            } catch (t: Throwable) {
+                thrown = t
+            }
+
+            assertTrue(
+                "CancellationException must escape, not be boxed into PurchaseResult.Failed",
+                thrown is CancellationException,
+            )
         }
 
     private fun okResult(): BillingResult =
