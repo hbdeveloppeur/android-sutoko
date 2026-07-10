@@ -44,6 +44,7 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import java.io.File
+import java.util.Locale
 import javax.inject.Inject
 
 /**
@@ -140,8 +141,7 @@ class GameEngineViewModel @Inject constructor(
     }
 
     private suspend fun loadChapterGraphAndStartGame(gameId: String, chapterCode: String) {
-        // TODO: language
-        loadChapterGraphUseCase(gameId, chapterCode, "fr-FR")
+        loadChapterGraphUseCase(gameId, chapterCode, Locale.getDefault().toLanguageTag())
             .collectLatest { result ->
                 result.fold(
                     onSuccess = { graph ->

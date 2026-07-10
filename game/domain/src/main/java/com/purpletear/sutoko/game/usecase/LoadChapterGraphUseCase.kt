@@ -8,7 +8,11 @@ import javax.inject.Inject
 class LoadChapterGraphUseCase @Inject constructor(
     private val repository: ChapterGraphRepository
 ) {
-    operator fun invoke(gameId: String, chapterCode: String, language: String = "fr-FR"): Flow<Result<ChapterGraph>> {
+    operator fun invoke(
+        gameId: String,
+        chapterCode: String,
+        language: String
+    ): Flow<Result<ChapterGraph>> {
         return repository.loadChapterGraph(gameId, chapterCode, language)
     }
 }
