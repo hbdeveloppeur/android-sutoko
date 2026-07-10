@@ -388,6 +388,62 @@ class ChapterGraphParserTest {
         }
     }
 
+    @Test
+    fun `message-theme node parses background and foreground colors`() {
+        val data = JsonObject().apply {
+            addProperty("backgroundColor", "#FF2200")
+            addProperty("foregroundColor", "#00FF00")
+        }
+        val nodes = listOf(
+            node("start-0", "start"),
+            node("theme-1", "message-theme", data = data)
+        )
+        val edges = listOf(edge("start-0", "theme-1"))
+
+        val graph = ChapterGraphParser.parse(
+            chapterCode = "2a",
+            metadata = ChapterMetadataDto(title = "Chapter 2A"),
+            nodeDtos = nodes,
+            edgeDtos = edges,
+            gameId = "game1",
+            legacyId = null,
+            pathProvider = pathProvider
+        )
+
+        val theme = graph.getNode("theme-1") as? Node.MessageTheme
+        assertNotNull(theme)
+        assertEquals("#FF2200", theme!!.backgroundColor)
+        assertEquals("#00FF00", theme.foregroundColor)
+    }
+
+    @Test
+    fun `message-theme node normalizes blank colors to null`() {
+        val data = JsonObject().apply {
+            addProperty("backgroundColor", "   ")
+            addProperty("foregroundColor", "")
+        }
+        val nodes = listOf(
+            node("start-0", "start"),
+            node("theme-1", "message-theme", data = data)
+        )
+        val edges = listOf(edge("start-0", "theme-1"))
+
+        val graph = ChapterGraphParser.parse(
+            chapterCode = "2a",
+            metadata = ChapterMetadataDto(title = "Chapter 2A"),
+            nodeDtos = nodes,
+            edgeDtos = edges,
+            gameId = "game1",
+            legacyId = null,
+            pathProvider = pathProvider
+        )
+
+        val theme = graph.getNode("theme-1") as? Node.MessageTheme
+        assertNotNull(theme)
+        assertNull(theme!!.backgroundColor)
+        assertNull(theme.foregroundColor)
+    }
+
     private fun node(
         id: String,
         type: String,

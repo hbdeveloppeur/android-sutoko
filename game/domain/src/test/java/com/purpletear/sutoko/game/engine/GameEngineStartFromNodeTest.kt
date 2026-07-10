@@ -9,6 +9,7 @@ import com.purpletear.sutoko.game.engine.handlers.InfoNodeHandler
 import com.purpletear.sutoko.game.engine.handlers.MemoryNodeHandler
 import com.purpletear.sutoko.game.engine.handlers.MessageImageNodeHandler
 import com.purpletear.sutoko.game.engine.handlers.MessageNodeHandler
+import com.purpletear.sutoko.game.engine.handlers.MessageThemeNodeHandler
 import com.purpletear.sutoko.game.engine.handlers.MessageVocalNodeHandler
 import com.purpletear.sutoko.game.engine.handlers.CodeNodeHandler
 import com.purpletear.sutoko.game.engine.handlers.IntroSentenceNodeHandler
@@ -114,6 +115,7 @@ class GameEngineStartFromNodeTest {
             handlerFactory = NodeHandlerFactory(
                 startHandler = StartNodeHandler(),
                 messageHandler = MessageNodeHandler(textProcessor),
+                messageThemeHandler = MessageThemeNodeHandler(),
                 messageImageHandler = MessageImageNodeHandler(),
                 chapterChangeHandler = ChapterChangeNodeHandler(),
                 conditionHandler = ConditionNodeHandler(),

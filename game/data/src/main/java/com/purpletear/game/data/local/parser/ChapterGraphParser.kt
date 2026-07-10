@@ -136,6 +136,12 @@ object ChapterGraphParser {
                 isHesitating = data?.isHesitating ?: false
             )
 
+            "message-theme" -> Node.MessageTheme(
+                id = dto.id,
+                backgroundColor = data?.backgroundColor?.trim()?.takeIf { it.isNotEmpty() },
+                foregroundColor = data?.foregroundColor?.trim()?.takeIf { it.isNotEmpty() }
+            )
+
             "message-image" -> {
                 val imagePath = data?.storagePath ?: data?.image
                 require(imagePath != null) { "message-image node ${dto.id} missing storagePath or image" }

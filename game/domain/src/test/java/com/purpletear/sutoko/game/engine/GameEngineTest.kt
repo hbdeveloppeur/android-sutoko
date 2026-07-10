@@ -9,6 +9,7 @@ import com.purpletear.sutoko.game.engine.handlers.InfoNodeHandler
 import com.purpletear.sutoko.game.engine.handlers.MemoryNodeHandler
 import com.purpletear.sutoko.game.engine.handlers.MessageImageNodeHandler
 import com.purpletear.sutoko.game.engine.handlers.MessageNodeHandler
+import com.purpletear.sutoko.game.engine.handlers.MessageThemeNodeHandler
 import com.purpletear.sutoko.game.engine.handlers.MessageVocalNodeHandler
 import com.purpletear.sutoko.game.engine.handlers.CodeNodeHandler
 import com.purpletear.sutoko.game.engine.handlers.IntroSentenceNodeHandler
@@ -275,11 +276,43 @@ class GameEngineTest {
         assertTrue(engine.messages.value.any { it is GameMessageNextChapter })
     }
 
+    @Test
+    fun `message-theme then message - should stamp colors onto the emitted text message`() = runBlocking {
+        val engine = createEngine()
+        val graph = ChapterGraph(
+            chapterCode = "1A",
+            title = "Test",
+            nodes = mapOf(
+                "start" to Node.Start(id = "start"),
+                "theme" to Node.MessageTheme(
+                    id = "theme",
+                    backgroundColor = "#FF2200",
+                    foregroundColor = "#00FF00"
+                ),
+                "msg" to Node.Message(id = "msg", text = "Colored", characterId = 1)
+            ),
+            edges = listOf(
+                Edge(source = "start", target = "theme", type = EdgeType.NORMAL),
+                Edge(source = "theme", target = "msg", type = EdgeType.NORMAL)
+            ),
+            startNodeId = "start"
+        )
+
+        engine.initialize("game-1", graph)
+        engine.start()
+
+        val textMessages = engine.messages.value.filterIsInstance<GameMessageText>()
+        assertEquals(1, textMessages.size)
+        assertEquals("#FF2200", textMessages.first().backgroundColor)
+        assertEquals("#00FF00", textMessages.first().foregroundColor)
+    }
+
     private fun createEngine(memory: GameMemory = createFakeGameMemory()): GameEngine {
         return GameEngine(
             handlerFactory = NodeHandlerFactory(
                 startHandler = StartNodeHandler(),
                 messageHandler = MessageNodeHandler(textProcessor),
+                messageThemeHandler = MessageThemeNodeHandler(),
                 messageImageHandler = MessageImageNodeHandler(),
                 chapterChangeHandler = ChapterChangeNodeHandler(),
                 conditionHandler = ConditionNodeHandler(),

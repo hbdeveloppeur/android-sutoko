@@ -30,6 +30,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.sharedelements.theme.WorkSansFontFamily
 import com.purpletear.game.debug.PreviewCharacter
+import com.purpletear.game.presentation.common.extensions.parseOrNull
 import com.purpletear.game.presentation.common.extensions.toComposeColor
 import com.purpletear.game.presentation.common.extensions.toWhitenedComposeColor
 import com.purpletear.game.presentation.game_play.components.Avatar
@@ -59,6 +60,8 @@ private fun Preview() {
     }
 }
 
+private val DefaultBubbleColor = Color(0x22FFFFFF)
+
 @Composable
 internal fun MessageText(
     modifier: Modifier = Modifier,
@@ -66,8 +69,12 @@ internal fun MessageText(
     character: Character,
     showHeader: Boolean = true,
     positionInGroup: MessagePositionInGroup = MessagePositionInGroup.SINGLE,
+    bubbleColorHex: String? = null,
+    textColorHex: String? = null,
     onAvatarClick: (imageModel: Any?, bounds: Rect) -> Unit = { _, _ -> },
 ) {
+    val bubbleColor = remember(bubbleColorHex) { Color.parseOrNull(bubbleColorHex) }
+    val textColor = remember(textColorHex) { Color.parseOrNull(textColorHex) }
     val alignment = if (character.isMainCharacter) Alignment.CenterEnd else Alignment.CenterStart
     Box(Modifier.fillMaxWidth(), contentAlignment = alignment) {
         if (character.isMainCharacter) {
@@ -77,6 +84,8 @@ internal fun MessageText(
                 character = character,
                 showHeader = showHeader,
                 positionInGroup = positionInGroup,
+                bubbleColor = bubbleColor,
+                textColor = textColor,
                 onAvatarClick = onAvatarClick,
             )
         } else {
@@ -86,6 +95,8 @@ internal fun MessageText(
                 character = character,
                 showHeader = showHeader,
                 positionInGroup = positionInGroup,
+                bubbleColor = bubbleColor,
+                textColor = textColor,
                 onAvatarClick = onAvatarClick,
             )
         }
@@ -99,6 +110,8 @@ private fun MessageDest(
     character: Character? = null,
     showHeader: Boolean = true,
     positionInGroup: MessagePositionInGroup = MessagePositionInGroup.SINGLE,
+    bubbleColor: Color? = null,
+    textColor: Color? = null,
     onAvatarClick: (imageModel: Any?, bounds: Rect) -> Unit = { _, _ -> },
 ) {
     val shape = messageBubbleShape(
@@ -123,13 +136,13 @@ private fun MessageDest(
             }
         }
 
-        MessageBubble(modifier = modifier, shape = shape) {
+        MessageBubble(modifier = modifier, shape = shape, backgroundColor = bubbleColor ?: DefaultBubbleColor) {
             Text(
                 modifier = Modifier
                     .padding(vertical = 6.dp)
                     .padding(horizontal = 8.dp),
                 text = text,
-                color = character?.color?.toWhitenedComposeColor(fraction = 0.7f) ?: Color.White,
+                color = textColor ?: (character?.color?.toWhitenedComposeColor(fraction = 0.7f) ?: Color.White),
                 fontFamily = WorkSansFontFamily,
                 fontWeight = FontWeight.Normal,
                 fontSize = 13.sp,
@@ -146,6 +159,8 @@ private fun MessageMainCharacter(
     character: Character? = null,
     showHeader: Boolean = true,
     positionInGroup: MessagePositionInGroup = MessagePositionInGroup.SINGLE,
+    bubbleColor: Color? = null,
+    textColor: Color? = null,
     onAvatarClick: (imageModel: Any?, bounds: Rect) -> Unit = { _, _ -> },
 ) {
     val shape = messageBubbleShape(
@@ -172,13 +187,13 @@ private fun MessageMainCharacter(
 
 
 
-        MessageBubble(modifier = modifier, shape = shape) {
+        MessageBubble(modifier = modifier, shape = shape, backgroundColor = bubbleColor ?: DefaultBubbleColor) {
             Text(
                 modifier = Modifier
                     .padding(vertical = 6.dp)
                     .padding(horizontal = 8.dp),
                 text = text,
-                color = character?.color?.toWhitenedComposeColor(fraction = 0.7f) ?: Color.White,
+                color = textColor ?: (character?.color?.toWhitenedComposeColor(fraction = 0.7f) ?: Color.White),
                 fontFamily = WorkSansFontFamily,
                 fontWeight = FontWeight.Normal,
                 fontSize = 13.sp,

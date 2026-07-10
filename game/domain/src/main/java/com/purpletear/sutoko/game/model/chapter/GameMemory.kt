@@ -222,6 +222,19 @@ class GameMemory @Inject constructor(
         const val CONVERSATION_MODE_KEY = "conversation_mode"
 
         /**
+         * Memory key holding the active message bubble background color (hex, e.g. "#FF2200").
+         * Written by [MessageThemeNodeHandler] and read by [MessageNodeHandler] to stamp the
+         * color onto each emitted [com.purpletear.sutoko.game.engine.message.GameMessageText].
+         */
+        const val MESSAGE_THEME_BG_KEY = "message_theme_bg"
+
+        /**
+         * Memory key holding the active message text foreground color (hex, e.g. "#FF2200").
+         * Written by [MessageThemeNodeHandler] and read by [MessageNodeHandler].
+         */
+        const val MESSAGE_THEME_FG_KEY = "message_theme_fg"
+
+        /**
          * Memory key used to resolve the [prenom] variable.
          */
         const val HERO_NAME_KEY = "heroName"

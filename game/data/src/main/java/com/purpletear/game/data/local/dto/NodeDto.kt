@@ -49,6 +49,10 @@ data class NodeDataDto(
     val alignment: String? = null,
     val delay: Long? = null,
     val duration: Long? = null,
+    @SerializedName("backgroundColor")
+    val backgroundColor: String? = null,
+    @SerializedName("foregroundColor")
+    val foregroundColor: String? = null,
 )
 
 @Keep

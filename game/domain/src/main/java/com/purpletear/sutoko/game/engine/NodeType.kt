@@ -6,6 +6,7 @@ package com.purpletear.sutoko.game.engine
 enum class NodeType {
     START,
     MESSAGE,
+    MESSAGE_THEME,
     MESSAGE_IMAGE,
     CHAPTER_CHANGE,
     CONDITION,

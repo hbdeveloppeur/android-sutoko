@@ -19,13 +19,14 @@ import androidx.compose.ui.unit.dp
 internal fun MessageBubble(
     modifier: Modifier = Modifier,
     shape: Shape = RoundedCornerShape(22.dp),
+    backgroundColor: Color = Color(0x22FFFFFF),
     content: @Composable RowScope.() -> Unit
 ) {
     Row(
         Modifier
             .widthIn(max = 200.dp)
             .clip(shape)
-            .background(Color(0x22FFFFFF))
+            .background(backgroundColor)
             .padding(horizontal = 10.dp, vertical = 8.dp)
             .then(modifier),
         verticalAlignment = Alignment.CenterVertically,

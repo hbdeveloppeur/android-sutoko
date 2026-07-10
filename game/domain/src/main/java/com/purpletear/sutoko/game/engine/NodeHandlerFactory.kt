@@ -11,6 +11,7 @@ import com.purpletear.sutoko.game.engine.handlers.IntroSentenceNodeHandler
 import com.purpletear.sutoko.game.engine.handlers.MemoryNodeHandler
 import com.purpletear.sutoko.game.engine.handlers.MessageImageNodeHandler
 import com.purpletear.sutoko.game.engine.handlers.MessageNodeHandler
+import com.purpletear.sutoko.game.engine.handlers.MessageThemeNodeHandler
 import com.purpletear.sutoko.game.engine.handlers.MessageVocalNodeHandler
 import com.purpletear.sutoko.game.engine.handlers.SceneNodeHandler
 import com.purpletear.sutoko.game.engine.handlers.SoundNodeHandler
@@ -31,6 +32,7 @@ import javax.inject.Singleton
 class NodeHandlerFactory @Inject constructor(
     private val startHandler: StartNodeHandler,
     private val messageHandler: MessageNodeHandler,
+    private val messageThemeHandler: MessageThemeNodeHandler,
     private val messageImageHandler: MessageImageNodeHandler,
     private val chapterChangeHandler: ChapterChangeNodeHandler,
     private val codeHandler: CodeNodeHandler,
@@ -53,6 +55,7 @@ class NodeHandlerFactory @Inject constructor(
     fun getHandler(type: NodeType): NodeHandler = when (type) {
         NodeType.START -> startHandler
         NodeType.MESSAGE -> messageHandler
+        NodeType.MESSAGE_THEME -> messageThemeHandler
         NodeType.MESSAGE_IMAGE -> messageImageHandler
         NodeType.CHAPTER_CHANGE -> chapterChangeHandler
         NodeType.CONDITION -> conditionHandler

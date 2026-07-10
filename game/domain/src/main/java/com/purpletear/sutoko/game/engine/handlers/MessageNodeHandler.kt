@@ -67,6 +67,7 @@ class MessageNodeHandler @Inject constructor(
                 memory.conversationMode,
                 previousNode,
                 arrivalContext,
+                memory,
             )
         }
     }
@@ -77,6 +78,7 @@ class MessageNodeHandler @Inject constructor(
         mode: ConversationMode,
         previousNode: Node?,
         arrivalContext: ArrivalContext,
+        memory: GameMemory,
     ): HandlerScript {
         val isUserChoice = node.id == arrivalContext.selectedChoiceNodeId
         if (processedText.isBlank()) {
@@ -97,6 +99,7 @@ class MessageNodeHandler @Inject constructor(
                 processedText,
                 messageId,
                 isUserChoice,
+                memory,
             )
 
             ConversationMode.IRL -> buildIrlScript(
@@ -105,6 +108,7 @@ class MessageNodeHandler @Inject constructor(
                 messageId,
                 previousNode,
                 isUserChoice,
+                memory,
             )
         }
 
@@ -116,10 +120,11 @@ class MessageNodeHandler @Inject constructor(
         text: String,
         messageId: String,
         isUserChoice: Boolean,
+        memory: GameMemory,
     ): List<HandlerCommand> {
         if (isUserChoice) {
             GameEngineLogger.d("MSG") { "User choice → skipping SMS delays for ${node.id}" }
-            return listOf(emitAddText(text, messageId, node.characterId))
+            return listOf(emitAddText(text, messageId, node.characterId, memory))
         }
 
         val commands = mutableListOf<HandlerCommand>()
@@ -136,7 +141,7 @@ class MessageNodeHandler @Inject constructor(
 
         commands.add(HandlerCommand.Emit(HandlerEffect.DeleteMessage(messageId = messageId)))
         commands.add(HandlerCommand.Delay(node.seenMs.coerceAtLeast(MIN_POST_TYPING_DELAY_MS)))
-        commands.add(emitAddText(text, UUID.randomUUID().toString(), node.characterId))
+        commands.add(emitAddText(text, UUID.randomUUID().toString(), node.characterId, memory))
 
         return commands
     }
@@ -147,10 +152,11 @@ class MessageNodeHandler @Inject constructor(
         messageId: String,
         previousNode: Node?,
         isUserChoice: Boolean,
+        memory: GameMemory,
     ): List<HandlerCommand> {
         if (isUserChoice || previousNode is Node.Start) {
             GameEngineLogger.d("MSG") { "User choice → skipping IRL delays for ${node.id}" }
-            return listOf(emitAddText(text, messageId, node.characterId))
+            return listOf(emitAddText(text, messageId, node.characterId, memory))
         }
 
         val commands = mutableListOf<HandlerCommand>()
@@ -173,7 +179,7 @@ class MessageNodeHandler @Inject constructor(
         }
 
 
-        commands.add(emitAddText(text, messageId, node.characterId))
+        commands.add(emitAddText(text, messageId, node.characterId, memory))
 
         return commands
     }
@@ -214,13 +220,20 @@ class MessageNodeHandler @Inject constructor(
             )
         )
 
-    private fun emitAddText(text: String, messageId: String, characterId: Int): HandlerCommand =
+    private fun emitAddText(
+        text: String,
+        messageId: String,
+        characterId: Int,
+        memory: GameMemory,
+    ): HandlerCommand =
         HandlerCommand.Emit(
             HandlerEffect.AddMessage(
                 GameMessageText(
                     id = messageId,
                     text = text,
                     characterId = characterId,
+                    backgroundColor = memory.get(GameMemory.MESSAGE_THEME_BG_KEY),
+                    foregroundColor = memory.get(GameMemory.MESSAGE_THEME_FG_KEY),
                 )
             )
         )

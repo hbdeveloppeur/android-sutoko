@@ -7,6 +7,8 @@ class GameMessageText(
     id: String,
     val text: String,
     val characterId: Int,
+    val backgroundColor: String? = null,
+    val foregroundColor: String? = null,
 ) : GameMessage(
     id = id,
     type = GameMessageType.Text,

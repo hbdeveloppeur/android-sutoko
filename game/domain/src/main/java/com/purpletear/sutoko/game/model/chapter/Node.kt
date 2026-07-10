@@ -30,6 +30,18 @@ sealed class Node {
         val isAutoTiming: Boolean = true,
     ) : Node()
 
+    /**
+     * Styling directive: updates the bubble background and text foreground colors of
+     * subsequent [Message] nodes until the next [MessageTheme] node. Either color may be
+     * null to leave that channel unchanged. Hex format (e.g. "#FF2200").
+     */
+    @Keep
+    data class MessageTheme(
+        override val id: String,
+        val backgroundColor: String?,
+        val foregroundColor: String?,
+    ) : Node()
+
     @Keep
     data class MessageImage(
         override val id: String,

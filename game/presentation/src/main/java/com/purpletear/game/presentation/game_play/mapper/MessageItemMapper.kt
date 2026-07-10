@@ -51,6 +51,8 @@ internal fun Message(
                     character = character!!,
                     showHeader = positionInGroup != MessagePositionInGroup.MIDDLE && positionInGroup != MessagePositionInGroup.BOTTOM,
                     positionInGroup = positionInGroup,
+                    bubbleColorHex = message.backgroundColor,
+                    textColorHex = message.foregroundColor,
                     onAvatarClick = onAvatarClick,
                 )
             }

@@ -136,6 +136,12 @@ class TestChapterGraphLoader @Inject constructor(
                 isHesitating = data.isHesitating ?: false
             )
 
+            "message-theme" -> Node.MessageTheme(
+                id = dto.id,
+                backgroundColor = data.backgroundColor?.trim()?.takeIf { it.isNotEmpty() },
+                foregroundColor = data.foregroundColor?.trim()?.takeIf { it.isNotEmpty() }
+            )
+
             "message-image" -> {
                 val storagePath = data.storagePath ?: data.image
                 require(storagePath != null) { "message-image node ${dto.id} missing storagePath or image" }

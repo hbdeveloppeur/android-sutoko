@@ -538,6 +538,7 @@ class GameEngine @Inject constructor(
     private fun getHandler(node: Node): NodeHandler = when (node) {
         is Node.Start -> handlerFactory.getHandler(NodeType.START)
         is Node.Message -> handlerFactory.getHandler(NodeType.MESSAGE)
+        is Node.MessageTheme -> handlerFactory.getHandler(NodeType.MESSAGE_THEME)
         is Node.MessageImage -> handlerFactory.getHandler(NodeType.MESSAGE_IMAGE)
         is Node.ChapterChange -> handlerFactory.getHandler(NodeType.CHAPTER_CHANGE)
         is Node.Condition -> handlerFactory.getHandler(NodeType.CONDITION)
