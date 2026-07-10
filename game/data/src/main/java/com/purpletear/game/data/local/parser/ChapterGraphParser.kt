@@ -11,6 +11,7 @@ import com.purpletear.sutoko.game.model.chapter.ChapterGraph
 import com.purpletear.sutoko.game.model.chapter.Edge
 import com.purpletear.sutoko.game.model.chapter.EdgeData
 import com.purpletear.sutoko.game.model.chapter.EdgeType
+import com.purpletear.sutoko.game.model.chapter.IntroAlignment
 import com.purpletear.sutoko.game.model.chapter.Node
 import com.purpletear.sutoko.game.provider.GamePathProvider
 import java.io.File
@@ -240,7 +241,37 @@ object ChapterGraphParser {
                 )
             }
 
+            "code-message" -> Node.Code(
+                id = dto.id,
+                sentence = data?.text?.trim().orEmpty()
+            )
+
+            "intro-sentence" -> Node.IntroSentence(
+                id = dto.id,
+                text = requireNotNull(data?.text?.takeIf { it.isNotBlank() }) {
+                    "intro-sentence node ${dto.id} missing text"
+                },
+                alignment = parseIntroAlignment(data?.alignment, dto.id),
+                delayMs = data?.delay ?: 0,
+                durationMs = data?.duration ?: 0
+            )
+
             else -> null
+        }
+    }
+
+    private fun parseIntroAlignment(raw: String?, nodeId: String): IntroAlignment {
+        if (raw.isNullOrBlank()) return IntroAlignment.CENTER
+        return when (raw.trim().lowercase()) {
+            "start" -> IntroAlignment.START
+            "end" -> IntroAlignment.END
+            "top" -> IntroAlignment.TOP
+            "bottom" -> IntroAlignment.BOTTOM
+            "center" -> IntroAlignment.CENTER
+            else -> throw IllegalArgumentException(
+                "intro-sentence node $nodeId has unknown alignment '$raw' " +
+                        "(expected start|end|top|bottom|center)"
+            )
         }
     }
 

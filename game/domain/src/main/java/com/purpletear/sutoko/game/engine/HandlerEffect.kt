@@ -152,6 +152,17 @@ sealed class HandlerEffect {
     ) : HandlerEffect()
 
     /**
+     * A cinematic was triggered at `[intro=start]`. The presentation layer extracts the linear
+     * body between [startNodeId] and [endNodeId] and plays it; the engine parks until it is resumed
+     * at the successor of the end marker.
+     */
+    @Keep
+    data class EnterCinematic(
+        val startNodeId: String,
+        val endNodeId: String
+    ) : HandlerEffect()
+
+    /**
      * Signals the end of the story/game.
      */
     data object StoryFinished : HandlerEffect()

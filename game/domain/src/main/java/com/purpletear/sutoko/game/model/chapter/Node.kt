@@ -103,4 +103,31 @@ sealed class Node {
         val audioUrl: String,
         val characterId: Int,
     ) : Node()
+
+    @Keep
+    data class Code(
+        override val id: String,
+        val sentence: String,
+    ) : Node() {
+        val isIntroStart: Boolean get() = sentence.trim() == "[intro=start]"
+        val isIntroEnd: Boolean get() = sentence.trim() == "[intro=end]"
+    }
+
+    @Keep
+    data class IntroSentence(
+        override val id: String,
+        val text: String,
+        val alignment: IntroAlignment,
+        val delayMs: Long = 0,
+        val durationMs: Long = 0,
+    ) : Node()
+}
+
+@Keep
+enum class IntroAlignment {
+    START,
+    END,
+    TOP,
+    BOTTOM,
+    CENTER,
 }

@@ -22,6 +22,8 @@ import com.purpletear.sutoko.game.engine.GameEngineState
 import com.purpletear.sutoko.game.engine.GameMessage
 import com.purpletear.sutoko.game.engine.HandlerEffect
 import com.purpletear.sutoko.game.model.chapter.ChapterGraph
+import com.purpletear.sutoko.game.model.chapter.Node
+import com.purpletear.sutoko.game.model.chapter.extractCinematicBody
 import com.purpletear.sutoko.game.repository.CharacterRepository
 import com.purpletear.sutoko.game.repository.SceneRepository
 import com.purpletear.sutoko.game.testing.StoryTestingLogger
@@ -79,7 +81,13 @@ class GameEngineViewModel @Inject constructor(
     private val _navigateToNextChapter = Channel<String>(Channel.BUFFERED)
     val navigateToNextChapter: Flow<String> = _navigateToNextChapter.receiveAsFlow()
 
+    private val _navigateToCinematic = Channel<Unit>(Channel.BUFFERED)
+    val navigateToCinematic: Flow<Unit> = _navigateToCinematic.receiveAsFlow()
+
+    private var cinematicResumeNodeId: String? = null
+
     private var pendingChapterCode: String? = null
+    private var currentGraph: ChapterGraph? = null
 
     private var lastPlayRequestCount = 0
     private var lastGraphVersion = 0
@@ -199,6 +207,7 @@ class GameEngineViewModel @Inject constructor(
         showLoadingOverlay: Boolean = true,
     ) {
         resetForNewPlay()
+        currentGraph = graph
 
         updateState {
             it.copy(
@@ -251,6 +260,7 @@ class GameEngineViewModel @Inject constructor(
         nodeId: String,
     ) {
         resetForNewPlay()
+        currentGraph = graph
 
         updateState {
             it.copy(
@@ -311,9 +321,14 @@ class GameEngineViewModel @Inject constructor(
 
                 // Explicit author request: always restart from the requested node.
                 if (graph != null && targetNodeId != null && testingState.playRequestCount != lastPlayRequestCount) {
-                    StoryTestingLogger.i("NAV") { "Test mode explicit play — ${graph.chapterCode} → $targetNodeId" }
                     lastPlayRequestCount = testingState.playRequestCount
                     lastGraphVersion = testingState.graphVersion
+                    if (_uiState.value.isCinematicActive) {
+                        StoryTestingLogger.i("NAV") { "Test mode explicit play deferred — cinematic active" }
+                        updateState { it.copy(hasPendingStoryUpdate = true) }
+                        return@collect
+                    }
+                    StoryTestingLogger.i("NAV") { "Test mode explicit play — ${graph.chapterCode} → $targetNodeId" }
                     updateState { it.copy(hasPendingStoryUpdate = false) }
                     hasStartedGame = true
                     startGame(gameId, graph, targetNodeId, showLoadingOverlay = false)
@@ -418,6 +433,8 @@ class GameEngineViewModel @Inject constructor(
                     )
                 }
             }
+
+            is HandlerEffect.EnterCinematic -> enterCinematic(effect)
 
             else -> {
                 // TODO: Implement effect handling when needed
@@ -582,12 +599,109 @@ class GameEngineViewModel @Inject constructor(
     }
 
     /**
+     * Loads a scene for the cinematic player. Delegates to the same use case the SMS engine uses,
+     * so `scene-node` frames render identically via `SceneComposable`.
+     */
+    suspend fun loadScene(sceneId: Int) = getSceneUseCase(sceneId)
+
+    /**
+     * Called by `CinematicScreen` when the cinematic body is exhausted (or cancelled). Resumes the
+     * SMS engine at the node after `[intro=end]` and clears the cinematic slice.
+     */
+    fun onCinematicFinished() = resumeFromCinematic()
+
+    private fun resumeFromCinematic() {
+        val resumeNodeId = cinematicResumeNodeId
+        cinematicResumeNodeId = null
+        updateState { it.copy(cinematicBody = emptyList(), isCinematicActive = false) }
+
+        gameEngine.resume()
+
+        val pendingGraph = if (_uiState.value.hasPendingStoryUpdate) {
+            storyLiveUpdateCoordinator.state.value.currentGraph
+        } else {
+            null
+        }
+
+        when (val action = decideCinematicResume(resumeNodeId, pendingGraph)) {
+            is CinematicResumeAction.ApplyPendingGraph -> {
+                updateState { it.copy(hasPendingStoryUpdate = false) }
+                StoryTestingLogger.i("NAV") {
+                    "Cinematic done — applying deferred story update, resume=${action.safeResumeNodeId}"
+                }
+                startGame(gameId, action.graph, action.safeResumeNodeId, showLoadingOverlay = false)
+            }
+
+            is CinematicResumeAction.ResumeOldGraph -> {
+                viewModelScope.launch { gameEngine.startFromNode(action.nodeId) }
+            }
+
+            CinematicResumeAction.None -> Unit
+        }
+    }
+
+    /**
+     * Reacts to the engine's [HandlerEffect.EnterCinematic]: extracts the linear body, publishes it
+     * for `CinematicScreen`, and requests navigation. On an invalid cinematic, logs and best-effort
+     * resumes normal traversal from the start marker's successor.
+     */
+    private fun enterCinematic(effect: HandlerEffect.EnterCinematic) {
+        val graph = currentGraph
+        if (graph == null) {
+            logger.exception(IllegalStateException("EnterCinematic with no currentGraph")) {
+                "Cannot enter cinematic: no graph loaded"
+            }
+            return
+        }
+
+        extractCinematicBody(graph, effect.startNodeId, effect.endNodeId).fold(
+            onSuccess = { body ->
+                val resumeNodeId = graph.singleSuccessor(effect.endNodeId)
+                assert(resumeNodeId == null || graph.getNode(resumeNodeId) != null) {
+                    "Cinematic resume node $resumeNodeId not found in ${graph.chapterCode}"
+                }
+                cinematicResumeNodeId = resumeNodeId
+                if (body.isEmpty()) {
+                    StoryTestingLogger.d("CINE") { "Empty cinematic — resume at $cinematicResumeNodeId" }
+                    resumeFromCinematic()
+                } else {
+                    updateState { it.copy(cinematicBody = body, isCinematicActive = true) }
+                    _navigateToCinematic.trySend(Unit)
+                    StoryTestingLogger.d("CINE") {
+                        "Enter cinematic — ${body.size} nodes, resume=$cinematicResumeNodeId"
+                    }
+                }
+            },
+            onFailure = { error ->
+                logger.exception(error) {
+                    "Invalid cinematic from ${effect.startNodeId}; skipping"
+                }
+                val fallback = graph.singleSuccessor(effect.startNodeId)
+                cinematicResumeNodeId = null
+                updateState { it.copy(cinematicBody = emptyList(), isCinematicActive = false) }
+                if (fallback != null) {
+                    viewModelScope.launch {
+                        gameEngine.resume()
+                        gameEngine.startFromNode(fallback)
+                    }
+                } else {
+                    gameEngine.resume()
+                }
+            }
+        )
+    }
+
+    /**
      * Applies a graph update that arrived while the engine was already running.
      * Playback resets and resumes from the last known node if it still exists in the new graph,
      * otherwise from the chapter start node.
      */
     fun onReloadStoryUpdates() {
         if (!_uiState.value.hasPendingStoryUpdate) return
+        if (_uiState.value.isCinematicActive) {
+            StoryTestingLogger.d("NAV") { "Test mode reload deferred — cinematic active" }
+            return
+        }
 
         val graph = storyLiveUpdateCoordinator.state.value.currentGraph ?: return
         val resumeNodeId = graph.startNodeId

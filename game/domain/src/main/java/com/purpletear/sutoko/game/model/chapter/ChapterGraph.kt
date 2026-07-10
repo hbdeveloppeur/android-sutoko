@@ -15,6 +15,9 @@ data class ChapterGraph(
 
     fun getNextEdges(nodeId: String): List<Edge> = edges.filter { it.source == nodeId }
 
+    /** The single successor of [nodeId], or null when it does not have exactly one outgoing edge. */
+    fun singleSuccessor(nodeId: String): String? = getNextEdges(nodeId).singleOrNull()?.target
+
     fun getNextNode(currentNodeId: String, choiceIndex: Int = 0): String? {
         val nextEdges = getNextEdges(currentNodeId)
         return when {

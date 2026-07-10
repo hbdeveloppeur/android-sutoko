@@ -43,6 +43,7 @@ class GameEngine @Inject constructor(
     private var currentGraph: ChapterGraph? = null
     private var currentGameId: String? = null
     private val inputMutex = Mutex()
+    @Volatile
     private var isPaused = false
     private var awaitingInput = false
     private var availableChoices: List<HandlerEffect.ShowChoices.Choice> = emptyList()
@@ -62,6 +63,25 @@ class GameEngine @Inject constructor(
         _state.value = GameEngineState.Idle
         _messages.value = emptyList()
         GameEngineLogger.d("GAME") { "Engine reset" }
+    }
+
+    /**
+     * Parks the engine so it does not execute any further node until [resume] is called.
+     * Idempotent. The engine also parks itself automatically when it emits
+     * [HandlerEffect.EnterCinematic], so callers usually only need [resume].
+     */
+    fun pause() {
+        isPaused = true
+        GameEngineLogger.d("GAME") { "Engine paused" }
+    }
+
+    /**
+     * Releases a previous [pause]. Idempotent. Call before [startFromNode] to resume execution
+     * after the engine parked (e.g. at the end of a cinematic).
+     */
+    fun resume() {
+        isPaused = false
+        GameEngineLogger.d("GAME") { "Engine resumed" }
     }
 
     /**
@@ -308,6 +328,10 @@ class GameEngine @Inject constructor(
 
             val shouldContinue = executeCommand(command, script, context)
             if (!shouldContinue) return false
+
+            // A command may have parked the engine (e.g. EnterCinematic). Honor it before the next
+            // command and before navigation so the cinematic body is never traversed as SMS.
+            if (isPaused) return false
         }
         return true
     }
@@ -438,6 +462,15 @@ class GameEngine @Inject constructor(
                 _messages.value += GameMessageInfo("end_story", "Story finished!")
             }
 
+            is HandlerEffect.EnterCinematic -> {
+                GameEngineLogger.d("FX") { "EnterCinematic ${effect.startNodeId} → ${effect.endNodeId}; parking engine" }
+                val emitted = _effects.tryEmit(effect)
+                if (!emitted) {
+                    GameEngineLogger.w("FX") { "Effect dropped (buffer full): $effect" }
+                }
+                isPaused = true
+            }
+
             else -> {
                 val emitted = _effects.tryEmit(effect)
                 if (!emitted) {
@@ -517,5 +550,7 @@ class GameEngine @Inject constructor(
         is Node.End -> handlerFactory.getHandler(NodeType.END)
         is Node.Sound -> handlerFactory.getHandler(NodeType.SOUND)
         is Node.MessageVocal -> handlerFactory.getHandler(NodeType.MESSAGE_VOCAL)
+        is Node.Code -> handlerFactory.getHandler(NodeType.CODE)
+        is Node.IntroSentence -> handlerFactory.getHandler(NodeType.INTRO_SENTENCE)
     }
 }

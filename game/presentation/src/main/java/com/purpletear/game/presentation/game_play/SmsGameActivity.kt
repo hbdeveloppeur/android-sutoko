@@ -16,6 +16,7 @@ import com.example.sharedelements.theme.SutokoTheme
 import com.purpletear.game.presentation.BuildConfig
 import com.purpletear.game.presentation.game_chapter_selection.chapterSelectionScreen
 import com.purpletear.game.presentation.game_play.liveupdate.StoryLiveUpdateCoordinator
+import com.purpletear.game.presentation.game_play.navigation.cinematicScreen
 import com.purpletear.game.presentation.game_play.navigation.gameScreen
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.delay
@@ -96,6 +97,20 @@ class SmsGameActivity : ComponentActivity() {
                                 ) {
                                     popUpTo(SmsGameRoutes.GAME) { inclusive = true }
                                 }
+                            }
+                        },
+                        onNavigateToCinematic = {
+                            fadeThenRun {
+                                navController.navigate(SmsGameRoutes.cinematic())
+                            }
+                        },
+                    )
+
+                    cinematicScreen(
+                        navController = navController,
+                        onExit = {
+                            fadeThenRun {
+                                navController.popBackStack()
                             }
                         },
                     )

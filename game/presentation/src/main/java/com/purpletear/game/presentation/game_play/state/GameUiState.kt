@@ -4,6 +4,7 @@ import androidx.annotation.Keep
 import androidx.annotation.StringRes
 import com.purpletear.sutoko.game.engine.GameMessage
 import com.purpletear.sutoko.game.engine.HandlerEffect
+import com.purpletear.sutoko.game.model.chapter.Node
 import com.purpletear.sutoko.game.model.character.Character
 import com.purpletear.sutoko.game.model.scene.Scene
 
@@ -45,4 +46,6 @@ data class GameUiState(
     val isLiveUpdateMode: Boolean = false,
     val showNextChapterButton: Boolean = true,
     @StringRes val nextChapterTitleRes: Int? = null,
+    val cinematicBody: List<Node> = emptyList(),
+    val isCinematicActive: Boolean = false,
 )

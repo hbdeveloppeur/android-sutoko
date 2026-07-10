@@ -19,6 +19,7 @@ import com.purpletear.game.presentation.game_play.SmsGameScreen
 internal fun NavGraphBuilder.gameScreen(
     gameId: String,
     onNavigateToChapter: (String) -> Unit,
+    onNavigateToCinematic: () -> Unit,
 ) = composable(
     route = SmsGameRoutes.GAME,
     enterTransition = { fadeIn(tween(500, easing = FastOutSlowInEasing)) },
@@ -45,6 +46,12 @@ internal fun NavGraphBuilder.gameScreen(
     LaunchedEffect(viewModel) {
         viewModel.navigateToNextChapter.collect { chapterCode ->
             onNavigateToChapter(chapterCode)
+        }
+    }
+
+    LaunchedEffect(viewModel) {
+        viewModel.navigateToCinematic.collect {
+            onNavigateToCinematic()
         }
     }
 

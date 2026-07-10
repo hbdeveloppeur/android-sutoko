@@ -17,5 +17,7 @@ enum class NodeType {
     CONVERSATION_MODE_CHANGE,
     END,
     SOUND,
-    MESSAGE_VOCAL
+    MESSAGE_VOCAL,
+    CODE,
+    INTRO_SENTENCE
 }

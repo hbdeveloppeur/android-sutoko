@@ -2,10 +2,12 @@ package com.purpletear.sutoko.game.engine
 
 import com.purpletear.sutoko.game.engine.handlers.BackgroundNodeHandler
 import com.purpletear.sutoko.game.engine.handlers.ChapterChangeNodeHandler
+import com.purpletear.sutoko.game.engine.handlers.CodeNodeHandler
 import com.purpletear.sutoko.game.engine.handlers.ConditionNodeHandler
 import com.purpletear.sutoko.game.engine.handlers.ConversationModeChangeNodeHandler
 import com.purpletear.sutoko.game.engine.handlers.EndNodeHandler
 import com.purpletear.sutoko.game.engine.handlers.InfoNodeHandler
+import com.purpletear.sutoko.game.engine.handlers.IntroSentenceNodeHandler
 import com.purpletear.sutoko.game.engine.handlers.MemoryNodeHandler
 import com.purpletear.sutoko.game.engine.handlers.MessageImageNodeHandler
 import com.purpletear.sutoko.game.engine.handlers.MessageNodeHandler
@@ -31,6 +33,7 @@ class NodeHandlerFactory @Inject constructor(
     private val messageHandler: MessageNodeHandler,
     private val messageImageHandler: MessageImageNodeHandler,
     private val chapterChangeHandler: ChapterChangeNodeHandler,
+    private val codeHandler: CodeNodeHandler,
     private val conditionHandler: ConditionNodeHandler,
     private val memoryHandler: MemoryNodeHandler,
     private val infoHandler: InfoNodeHandler,
@@ -41,6 +44,7 @@ class NodeHandlerFactory @Inject constructor(
     private val endHandler: EndNodeHandler,
     private val soundHandler: SoundNodeHandler,
     private val messageVocalHandler: MessageVocalNodeHandler,
+    private val introSentenceHandler: IntroSentenceNodeHandler,
 ) {
     /**
      * Returns the handler for the given node type.
@@ -61,5 +65,7 @@ class NodeHandlerFactory @Inject constructor(
         NodeType.END -> endHandler
         NodeType.SOUND -> soundHandler
         NodeType.MESSAGE_VOCAL -> messageVocalHandler
+        NodeType.CODE -> codeHandler
+        NodeType.INTRO_SENTENCE -> introSentenceHandler
     }
 }

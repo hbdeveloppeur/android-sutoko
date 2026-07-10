@@ -7,10 +7,13 @@ import com.google.gson.JsonObject
 import com.purpletear.game.data.local.dto.ChapterMetadataDto
 import com.purpletear.game.data.local.dto.EdgeDto
 import com.purpletear.game.data.local.dto.NodeDto
+import com.purpletear.sutoko.game.model.chapter.IntroAlignment
+import com.purpletear.sutoko.game.model.chapter.Node
 import com.purpletear.sutoko.game.provider.GamePathProvider
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
+import org.junit.Assert.assertThrows
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
@@ -267,6 +270,122 @@ class ChapterGraphParserTest {
 
         assertNull(graph.getNode("ignore-2"))
         assertEquals("message-3", graph.getNextEdges("narration-1").first().target)
+    }
+
+    @Test
+    fun `code node parses to Node Code and recognises intro markers`() {
+        val nodes = listOf(
+            node("start-0", "start"),
+            node("code-start", "code", text = "[intro=start]"),
+            node("msg-1", "message", text = "Hello", characterId = 1),
+            node("code-end", "code", text = "[intro=end]")
+        )
+        val edges = listOf(
+            edge("start-0", "code-start"),
+            edge("code-start", "msg-1"),
+            edge("msg-1", "code-end")
+        )
+
+        val graph = ChapterGraphParser.parse(
+            chapterCode = "2a",
+            metadata = ChapterMetadataDto(title = "Chapter 2A"),
+            nodeDtos = nodes,
+            edgeDtos = edges,
+            gameId = "game1",
+            legacyId = null,
+            pathProvider = pathProvider
+        )
+
+        val start = graph.getNode("code-start") as? Node.Code
+        assertNotNull(start)
+        assertTrue(start!!.isIntroStart)
+        assertEquals("[intro=start]", start.sentence)
+
+        val end = graph.getNode("code-end") as? Node.Code
+        assertNotNull(end)
+        assertTrue(end!!.isIntroEnd)
+    }
+
+    @Test
+    fun `intro-sentence node parses text alignment delay and duration`() {
+        val data = JsonObject().apply {
+            addProperty("text", "Once upon a time")
+            addProperty("alignment", "top")
+            addProperty("delay", 200)
+            addProperty("duration", 1500)
+        }
+        val nodes = listOf(
+            node("start-0", "start"),
+            node("line-1", "intro-sentence", data = data)
+        )
+        val edges = listOf(edge("start-0", "line-1"))
+
+        val graph = ChapterGraphParser.parse(
+            chapterCode = "2a",
+            metadata = ChapterMetadataDto(title = "Chapter 2A"),
+            nodeDtos = nodes,
+            edgeDtos = edges,
+            gameId = "game1",
+            legacyId = null,
+            pathProvider = pathProvider
+        )
+
+        val sentence = graph.getNode("line-1") as? Node.IntroSentence
+        assertNotNull(sentence)
+        assertEquals("Once upon a time", sentence!!.text)
+        assertEquals(IntroAlignment.TOP, sentence.alignment)
+        assertEquals(200, sentence.delayMs)
+        assertEquals(1500, sentence.durationMs)
+    }
+
+    @Test
+    fun `intro-sentence defaults alignment to center and timings to zero`() {
+        val data = JsonObject().apply { addProperty("text", "Hi") }
+        val nodes = listOf(
+            node("start-0", "start"),
+            node("line-1", "intro-sentence", data = data)
+        )
+        val edges = listOf(edge("start-0", "line-1"))
+
+        val graph = ChapterGraphParser.parse(
+            chapterCode = "2a",
+            metadata = ChapterMetadataDto(title = "Chapter 2A"),
+            nodeDtos = nodes,
+            edgeDtos = edges,
+            gameId = "game1",
+            legacyId = null,
+            pathProvider = pathProvider
+        )
+
+        val sentence = graph.getNode("line-1") as Node.IntroSentence
+        assertEquals(IntroAlignment.CENTER, sentence.alignment)
+        assertEquals(0, sentence.delayMs)
+        assertEquals(0, sentence.durationMs)
+    }
+
+    @Test
+    fun `intro-sentence with unknown alignment fails fast`() {
+        val data = JsonObject().apply {
+            addProperty("text", "Hi")
+            addProperty("alignment", "diagonal")
+        }
+        val nodes = listOf(
+            node("start-0", "start"),
+            node("line-1", "intro-sentence", data = data)
+        )
+        val edges = listOf(edge("start-0", "line-1"))
+
+        assertThrows(IllegalArgumentException::class.java) {
+            ChapterGraphParser.parse(
+                chapterCode = "2a",
+                metadata = ChapterMetadataDto(title = "Chapter 2A"),
+                nodeDtos = nodes,
+                edgeDtos = edges,
+                gameId = "game1",
+                legacyId = null,
+                pathProvider = pathProvider
+            )
+        }
     }
 
     private fun node(
