@@ -41,6 +41,7 @@ class SmsGameActivity : ComponentActivity() {
         isLiveUpdateMode = args.isLiveUpdateMode
         storyId = args.storyId
         val chapterCode = args.chapterCode
+        val isTrial = args.isTrial
 
         if (isLiveUpdateMode) {
             storyId?.let { storyLiveUpdateCoordinator.startLiveUpdate(gameId, it) }
@@ -67,7 +68,11 @@ class SmsGameActivity : ComponentActivity() {
 
                 val startDestination = when {
                     isLiveUpdateMode -> SmsGameRoutes.game("test", isLiveUpdateMode = true)
-                    chapterCode != null -> SmsGameRoutes.game(chapterCode, isLiveUpdateMode = false)
+                    chapterCode != null -> SmsGameRoutes.game(
+                        chapterCode = chapterCode,
+                        isLiveUpdateMode = false,
+                        isTrial = isTrial,
+                    )
                     else -> error("SmsGameActivity requires a chapterCode or live-update mode")
                 }
 
@@ -103,6 +108,12 @@ class SmsGameActivity : ComponentActivity() {
                             fadeThenRun {
                                 navController.navigate(SmsGameRoutes.cinematic())
                             }
+                        },
+                        onNavigateToBuy = {
+                            fadeThenRun { finish() }
+                        },
+                        onNavigateToExit = {
+                            fadeThenRun { finish() }
                         },
                     )
 

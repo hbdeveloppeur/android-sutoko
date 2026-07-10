@@ -17,12 +17,15 @@ import com.purpletear.game.presentation.game_preview.fakes.FakeUserRepository
 import com.purpletear.game.presentation.game_preview.fakes.TestFixtures
 import com.purpletear.game.presentation.game_preview.handlers.GamePreviewPurchaseHandler
 import com.purpletear.game.presentation.model.GameUiError
+import com.purpletear.sutoko.game.model.Chapter
 import com.purpletear.sutoko.game.usecase.DownloadGameUseCase
 import com.purpletear.sutoko.game.usecase.GetChaptersUseCase
 import com.purpletear.sutoko.game.usecase.RestartGameUseCase
 import com.purpletear.sutoko.game.usecase.SaveUserNickNameUseCase
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
@@ -168,5 +171,118 @@ class GamePreviewViewModelTest {
             assertEquals(GamePreviewEvent.ShowError(GameUiError.Load), awaitItem())
         }
         assertTrue(logger.exceptions.any { it.throwable.message == "chapters failed" })
+    }
+
+    @Test
+    fun `onAction OnTry emits PlayGame with isTrial and chapter code`() = runTest {
+        val viewModel = createViewModel()
+        gameRepository.setGame(TestFixtures.GAME_ID, TestFixtures.gameCatalog(price = 100, skus = listOf("sku-1")))
+        chapterRepository.setCurrentChapter(TestFixtures.GAME_ID, Chapter(number = 1, code = "1A"))
+        // Keep currentChapter active so its StateFlow value is populated (as in the real screen).
+        backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { viewModel.currentChapter.collect { } }
+        advanceUntilIdle()
+
+        viewModel.game.test {
+            skipItems(1) // Loading
+            assertTrue(awaitItem() is GamePreviewUiState.Data) // game.value is now Data
+
+            viewModel.events.test {
+                viewModel.onAction(GamePreviewAction.OnTry)
+                advanceUntilIdle()
+
+                val event = awaitItem()
+                assertTrue(event is GamePreviewEvent.PlayGame)
+                event as GamePreviewEvent.PlayGame
+                assertTrue(event.isTrial)
+                assertEquals("1a", event.chapterCode)
+            }
+        }
+    }
+
+    @Test
+    fun `onAction OnTry with nickname required keeps isTrial after confirm`() = runTest {
+        val viewModel = createViewModel()
+        gameRepository.setGame(
+            TestFixtures.GAME_ID,
+            TestFixtures.gameCatalog(
+                price = 100,
+                skus = listOf("sku-1"),
+                userNickNameRequired = true,
+            ),
+        )
+        chapterRepository.setCurrentChapter(TestFixtures.GAME_ID, Chapter(number = 1, code = "1A"))
+        backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { viewModel.currentChapter.collect { } }
+        advanceUntilIdle()
+
+        viewModel.game.test {
+            skipItems(1) // Loading
+            assertTrue(awaitItem() is GamePreviewUiState.Data)
+
+            viewModel.events.test {
+                viewModel.onAction(GamePreviewAction.OnTry)
+                advanceUntilIdle()
+                val request = awaitItem()
+                assertTrue(request is GamePreviewEvent.RequestNickName)
+                request as GamePreviewEvent.RequestNickName
+                assertTrue(request.isTrial)
+
+                viewModel.onNickNameConfirmed("Alex", isTrial = request.isTrial)
+                advanceUntilIdle()
+
+                val event = awaitItem()
+                assertTrue(event is GamePreviewEvent.PlayGame)
+                event as GamePreviewEvent.PlayGame
+                assertTrue(event.isTrial)
+                assertEquals("1a", event.chapterCode)
+            }
+        }
+    }
+
+    @Test
+    fun `onAction OnPlay emits PlayGame with isTrial false`() = runTest {
+        val viewModel = createViewModel()
+        gameRepository.setGame(TestFixtures.GAME_ID, TestFixtures.gameCatalog())
+        chapterRepository.setCurrentChapter(TestFixtures.GAME_ID, Chapter(number = 1, code = "1A"))
+
+        viewModel.game.test {
+            skipItems(1) // Loading
+            assertTrue(awaitItem() is GamePreviewUiState.Data)
+
+            viewModel.events.test {
+                viewModel.onAction(GamePreviewAction.OnPlay)
+                advanceUntilIdle()
+
+                val event = awaitItem()
+                assertTrue(event is GamePreviewEvent.PlayGame)
+                assertFalse((event as GamePreviewEvent.PlayGame).isTrial)
+            }
+        }
+    }
+
+    @Test
+    fun `global premium makes a paid game owned`() = runTest {
+        purchaseRepository.setHasGlobalPremium(true)
+        gameRepository.setGame(TestFixtures.GAME_ID, TestFixtures.gameCatalog(price = 100, skus = listOf("sku-1")))
+        val viewModel = createViewModel()
+
+        viewModel.game.test {
+            skipItems(1) // Loading
+            val data = awaitItem()
+            assertTrue(data is GamePreviewUiState.Data)
+            assertTrue((data as GamePreviewUiState.Data).item.isPurchased)
+        }
+    }
+
+    @Test
+    fun `paid game without sku and without premium is not owned`() = runTest {
+        gameRepository.setGame(TestFixtures.GAME_ID, TestFixtures.gameCatalog(price = 100, skus = listOf("sku-1")))
+        val viewModel = createViewModel()
+
+        viewModel.game.test {
+            skipItems(1) // Loading
+            val data = awaitItem()
+            assertTrue(data is GamePreviewUiState.Data)
+            assertFalse((data as GamePreviewUiState.Data).item.isPurchased)
+        }
     }
 }

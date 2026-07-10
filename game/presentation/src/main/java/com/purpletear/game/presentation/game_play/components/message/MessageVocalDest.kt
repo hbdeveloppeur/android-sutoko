@@ -28,6 +28,7 @@ import androidx.compose.ui.unit.dp
 import com.purpletear.game.presentation.R
 import com.purpletear.game.presentation.common.extensions.toWhitenedComposeColor
 import com.purpletear.game.presentation.game_play.components.Avatar
+import com.purpletear.game.presentation.game_play.mapper.ITEMS_HORIZONTAL_PADDING
 import com.purpletear.sutoko.game.model.character.Character
 
 @Composable
@@ -55,7 +56,9 @@ private fun Progress(percent: Float) {
     val scaledProgress = clampedPercent * heights.size
 
     Row(
-        modifier = Modifier.height(32.dp),
+        modifier = Modifier
+            .height(32.dp)
+            .padding(horizontal = ITEMS_HORIZONTAL_PADDING),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(5.dp)
     ) {

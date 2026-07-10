@@ -130,12 +130,18 @@ internal fun GameActionState?.toButtonsState(
     )
 
     is GameActionState.Purchase -> GameButtonsState(
-        left = restartLeftButton(1, onAction),
+        left = if (showTry) {
+            // Try + Buy share the row equally (1:1) when both are shown.
+            tryFirstChapterLeftButton(onAction, weight = 1f)
+        } else {
+            restartLeftButton(chapterNumber, onAction)
+        },
         right = primaryRightButton(
             onAction = onAction,
             title = StringResource(R.string.game_menu_buy),
             subtitle = StringResource(R.string.game_menu_buy_to_continue),
             action = GamePreviewAction.OnBuy,
+            weight = if (showTry) 1f else RIGHT_BUTTON_WEIGHT,
         ),
     )
 
@@ -170,6 +176,17 @@ private fun restartLeftButton(
         onClick = { onAction(GamePreviewAction.OnRestart) },
     )
 }
+
+private fun tryFirstChapterLeftButton(
+    onAction: (GamePreviewAction) -> Unit,
+    weight: Float = LEFT_BUTTON_WEIGHT,
+): ButtonUiState = ButtonUiState(
+    title = StringResource(R.string.game_menu_try_first_chapter),
+    subtitle = StringResource(R.string.game_menu_try_first_chapter_subtitle),
+    weight = weight,
+    backgroundColor = LeftButtonBackground,
+    onClick = { onAction(GamePreviewAction.OnTry) },
+)
 
 private fun hiddenButton(): ButtonUiState = ButtonUiState(
     weight = HIDDEN_WEIGHT,

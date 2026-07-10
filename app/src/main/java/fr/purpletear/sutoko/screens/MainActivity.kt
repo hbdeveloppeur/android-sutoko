@@ -254,17 +254,20 @@ class MainActivity @Inject constructor(
                             GamePreview(
                                 viewModel = viewModel,
                                 fallbackBackgroundPainter = painterResource(R.drawable.book_details_background),
-                                onNavigateToGame = onNavigateToGame@{ gameId, legacyId, isGranted ->
+                                onNavigateToGame = onNavigateToGame@{ gameId, legacyId, isGranted, chapterCode, isTrial ->
                                     val friendzonedId = legacyId?.takeIf {
                                         FriendzonedGameRouter.loaderClassFor(it) != null
                                     }
                                     if (friendzonedId != null) {
+                                        // Legacy/friendzoned games have no trial support: launch as-is.
                                         startFriendzoned(friendzonedId, isGranted)
                                         return@onNavigateToGame
                                     }
                                     startSmsGameActivity(
                                         gameId = gameId,
-                                        chapterCode = viewModel.currentChapter.value?.normalizedCode,
+                                        chapterCode = chapterCode
+                                            ?: viewModel.currentChapter.value?.normalizedCode,
+                                        isTrial = isTrial,
                                     )
                                 },
                             )
@@ -520,12 +523,14 @@ class MainActivity @Inject constructor(
         gameId: String,
         isLiveUpdateMode: Boolean = false,
         chapterCode: String? = null,
+        isTrial: Boolean = false,
     ) {
         val args = SmsGameActivityArgs(
             gameId = gameId,
             storyId = if (isLiveUpdateMode) gameId else null,
             isLiveUpdateMode = isLiveUpdateMode,
             chapterCode = chapterCode,
+            isTrial = isTrial,
         )
         val intent = SmsGameActivity.intent(this, args)
         startActivity(intent)

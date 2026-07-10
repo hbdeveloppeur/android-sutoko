@@ -26,8 +26,16 @@ import androidx.compose.ui.unit.sp
 import com.example.sharedelements.theme.Poppins
 
 /**
- * A simple button with text and arrow icon.
+ * Position of the optional icon relative to the text in [SimpleButton].
+ * RTL-aware: [Start] is the leading side (left in LTR), [End] the trailing side.
+ */
+enum class SimpleButtonIconSide { Start, End }
+
+/**
+ * A simple button with text and an optional icon.
  * Used for primary actions in game screens.
+ *
+ * @param iconSide Side of the text on which the icon is drawn. Defaults to [SimpleButtonIconSide.End].
  */
 @Composable
 fun SimpleButton(
@@ -39,10 +47,21 @@ fun SimpleButton(
     textColor: Color = Color.Black,
     backgroundColor: Color = Color(0xFFF8F8F8),
     imageVector: ImageVector? = Icons.AutoMirrored.Filled.KeyboardArrowRight,
+    iconSide: SimpleButtonIconSide = SimpleButtonIconSide.End,
     onClick: () -> Unit
 ) {
     val iconSize = with(LocalDensity.current) { fontSize.toDp() }
     val shape = RoundedCornerShape(7.dp)
+    val icon: (@Composable () -> Unit)? = imageVector?.let { vector ->
+        {
+            Icon(
+                imageVector = vector,
+                contentDescription = null,
+                tint = textColor,
+                modifier = Modifier.size(iconSize)
+            )
+        }
+    }
     Row(
         modifier = modifier
             .clip(shape)
@@ -52,6 +71,7 @@ fun SimpleButton(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(2.dp),
     ) {
+        if (iconSide == SimpleButtonIconSide.Start) icon?.invoke()
         Text(
             text = text,
             color = textColor,
@@ -59,13 +79,6 @@ fun SimpleButton(
             fontWeight = FontWeight.SemiBold,
             fontFamily = Poppins
         )
-        imageVector?.let {
-            Icon(
-                imageVector = imageVector,
-                contentDescription = null,
-                tint = textColor,
-                modifier = Modifier.size(iconSize)
-            )
-        }
+        if (iconSide == SimpleButtonIconSide.End) icon?.invoke()
     }
 }

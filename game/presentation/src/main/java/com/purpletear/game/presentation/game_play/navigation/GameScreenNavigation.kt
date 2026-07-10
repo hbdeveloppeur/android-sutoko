@@ -20,6 +20,8 @@ internal fun NavGraphBuilder.gameScreen(
     gameId: String,
     onNavigateToChapter: (String) -> Unit,
     onNavigateToCinematic: () -> Unit,
+    onNavigateToBuy: () -> Unit,
+    onNavigateToExit: () -> Unit,
 ) = composable(
     route = SmsGameRoutes.GAME,
     enterTransition = { fadeIn(tween(500, easing = FastOutSlowInEasing)) },
@@ -35,6 +37,10 @@ internal fun NavGraphBuilder.gameScreen(
             type = NavType.StringType
         },
         navArgument(SmsGameRoutes.IS_LIVE_UPDATE_MODE_ARG) {
+            type = NavType.BoolType
+            defaultValue = false
+        },
+        navArgument(SmsGameRoutes.IS_TRIAL_ARG) {
             type = NavType.BoolType
             defaultValue = false
         },
@@ -55,9 +61,23 @@ internal fun NavGraphBuilder.gameScreen(
         }
     }
 
+    LaunchedEffect(viewModel) {
+        viewModel.navigateToBuy.collect {
+            onNavigateToBuy()
+        }
+    }
+
+    LaunchedEffect(viewModel) {
+        viewModel.navigateToExit.collect {
+            onNavigateToExit()
+        }
+    }
+
     SmsGameScreen(
         state = state,
         onNextChapterClick = viewModel::onNextChapterClicked,
+        onTrialBuyClick = viewModel::onTrialBuyClicked,
+        onBackClick = viewModel::onBackClicked,
         onVocalClick = viewModel::onVocalClicked,
         onChoiceSelected = viewModel::onChoiceSelected,
         onRevealChoicesClicked = viewModel::onRevealChoicesClicked,

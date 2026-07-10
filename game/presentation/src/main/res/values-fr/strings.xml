@@ -54,6 +54,8 @@
     <string name="game_menu_reload_game">Recharger le jeu</string>
     <string name="game_menu_buy">Acheter</string>
     <string name="game_menu_buy_to_continue">Achetez le jeu pour continuer</string>
+    <string name="game_menu_try_first_chapter">Essayer</string>
+    <string name="game_menu_try_first_chapter_subtitle">Chapitre 1</string>
     <string name="game_menu_pending">En attente</string>
     <string name="game_menu_pending_subtitle">En attente de validation</string>
     <string name="game_menu_delete">Supprimer</string>
@@ -116,6 +118,13 @@
     <string name="message_next_chapter_title">Fin du chapitre</string>
     <string name="message_next_chapter_test_mode_title">Fin du chapitre. Poursuivez le test depuis l\'outil d\'auteur.</string>
     <string name="message_next_chapter_button">Chapitre suivant</string>
+    <string name="message_trial_finished_title">Essai terminé</string>
+    <string name="message_trial_finished_button">Acheter l\'histoire</string>
+    <string name="message_chapter_trial_finished_title">Votre essai est terminé</string>
+    <string name="message_chapter_trial_finished_title_highlight">essai</string>
+    <string name="message_chapter_trial_finished_subtitle">Achetez le jeu\npour continuer l\'aventure</string>
+    <string name="message_chapter_trial_finished_subtitle_highlight">Achetez le jeu</string>
+    <string name="message_chapter_trial_finished_back_button">Retour au menu</string>
     <string name="message_vocal_play_description">Lecture</string>
     <string name="message_story_finished">Histoire terminée !</string>
 

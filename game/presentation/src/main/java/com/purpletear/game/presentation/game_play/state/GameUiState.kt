@@ -44,6 +44,8 @@ data class GameUiState(
     val liveUpdateStatus: LiveUpdateStatus? = null,
     val hasPendingStoryUpdate: Boolean = false,
     val isLiveUpdateMode: Boolean = false,
+    val isTrial: Boolean = false,
+    val gameLogoUrl: String? = null,
     val showNextChapterButton: Boolean = true,
     @StringRes val nextChapterTitleRes: Int? = null,
     val cinematicBody: List<Node> = emptyList(),

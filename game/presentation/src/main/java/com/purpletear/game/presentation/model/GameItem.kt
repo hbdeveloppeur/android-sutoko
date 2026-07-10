@@ -24,6 +24,7 @@ data class GameItem(
     val isOfficial: Boolean = false,
     val minAppBuild: Int,
     val author: Author? = null,
+    val legacyId: Int? = null,
 ) {
     constructor(
         catalog: GameCatalog,
@@ -50,5 +51,6 @@ data class GameItem(
         isOfficial = catalog.isOfficial,
         minAppBuild = catalog.minAppBuild,
         author = catalog.author,
+        legacyId = catalog.legacyId,
     )
 }

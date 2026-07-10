@@ -32,6 +32,7 @@ import coil.request.ImageRequest
 import com.purpletear.game.debug.PreviewCharacter
 import com.purpletear.game.presentation.common.extensions.toWhitenedComposeColor
 import com.purpletear.game.presentation.game_play.components.Avatar
+import com.purpletear.game.presentation.game_play.mapper.ITEMS_HORIZONTAL_PADDING
 import com.purpletear.sutoko.game.model.character.Character
 
 @Preview(name = "MessageImage")
@@ -66,7 +67,8 @@ internal fun MessageImage(
 
     val alignment =
         if (character.isMainCharacter) Alignment.BottomEnd else Alignment.BottomStart
-    Box(Modifier.fillMaxWidth(), contentAlignment = alignment) {
+    Box(Modifier.fillMaxWidth()
+        .padding(horizontal = ITEMS_HORIZONTAL_PADDING), contentAlignment = alignment) {
         Box(
             modifier = Modifier
                 .height(196.dp)

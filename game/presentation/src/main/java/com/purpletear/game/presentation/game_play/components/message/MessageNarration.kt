@@ -15,6 +15,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.sharedelements.theme.CrimsonTextFontFamily
+import com.purpletear.game.presentation.game_play.mapper.ITEMS_HORIZONTAL_PADDING
 
 @Preview(name = "GameMessageText")
 @Composable
@@ -34,7 +35,8 @@ internal fun MessageNarration(text: String) {
     Box(
         Modifier
             .fillMaxWidth()
-            .padding(vertical = 6.dp),
+            .padding(vertical = 6.dp)
+            .padding(horizontal = ITEMS_HORIZONTAL_PADDING),
         contentAlignment = Alignment.Center
     ) {
         Text(

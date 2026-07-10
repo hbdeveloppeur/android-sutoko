@@ -67,14 +67,16 @@ class GamePreviewViewModel @Inject constructor(
         gameRepository.observeGame(id = gameId),
         gameInstallRepository.observeInstall(gameId = gameId),
         gamePurchaseRepository.observePurchasedSkus(),
+        gamePurchaseRepository.observeHasGlobalPremium(),
         gameInstallRepository.observeDownloadProgress(gameId)
-    ) { catalog, install, purchasedSkus, downloadProgress ->
+    ) { catalog, install, purchasedSkus, hasGlobalPremium, downloadProgress ->
         when {
             catalog != null -> GamePreviewUiState.Data(
                 item = GameItem(
                     catalog,
                     install,
-                    isPurchased = catalog.skus.any { it in purchasedSkus },
+                    // Full access = owns a game SKU OR has an active global premium.
+                    isPurchased = catalog.skus.any { it in purchasedSkus } || hasGlobalPremium,
                     bannerUrl = mediaUrlResolver.resolveBannerUrl(catalog.banner?.storagePath),
                     logoUrl = mediaUrlResolver.resolveBannerUrl(catalog.logo?.storagePath),
                     menuBackgroundUrl = mediaUrlResolver.resolveBannerUrl(catalog.menuBackground?.storagePath),
@@ -130,33 +132,36 @@ class GamePreviewViewModel @Inject constructor(
             GamePreviewAction.OnUpdateGame -> onStartDownload()
             GamePreviewAction.OnUpdateApp -> sendEvent(GamePreviewEvent.OpenAppStore)
             GamePreviewAction.OnPlay -> navigateToPlay(requestNickName = true)
+            GamePreviewAction.OnTry -> navigateToPlay(requestNickName = true, isTrial = true)
             GamePreviewAction.OnRestart -> sendEvent(GamePreviewEvent.ShowRestartDialog)
             GamePreviewAction.OnRestartConfirm -> onRestartGame()
             GamePreviewAction.OnDelete -> onDeleteGame()
         }
     }
 
-    fun onNickNameConfirmed(name: String?) {
+    fun onNickNameConfirmed(name: String?, isTrial: Boolean) {
         viewModelScope.launch {
             saveUserNickNameUseCase(gameId, name)
-            navigateToPlay(requestNickName = false)
+            navigateToPlay(requestNickName = false, isTrial = isTrial)
         }
     }
 
-    private fun navigateToPlay(requestNickName: Boolean) {
+    private fun navigateToPlay(requestNickName: Boolean, isTrial: Boolean = false) {
         val data = game.value as? GamePreviewUiState.Data ?: return
         viewModelScope.launch {
             val needsNickName = data.gameCatalog.userNickNameRequired &&
                     currentChapter.value?.number == 1 && requestNickName
 
             if (needsNickName) {
-                sendEvent(GamePreviewEvent.RequestNickName)
+                sendEvent(GamePreviewEvent.RequestNickName(isTrial = isTrial))
             } else {
                 sendEvent(
                     GamePreviewEvent.PlayGame(
                         gameId = gameId,
                         legacyId = data.gameCatalog.legacyId,
                         isPurchased = data.item.isPurchased,
+                        chapterCode = currentChapter.value?.normalizedCode,
+                        isTrial = isTrial,
                     )
                 )
             }

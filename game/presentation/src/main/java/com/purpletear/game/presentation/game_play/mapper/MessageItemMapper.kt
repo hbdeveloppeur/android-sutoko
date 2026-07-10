@@ -4,8 +4,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
 import com.purpletear.game.presentation.R
 import com.purpletear.game.presentation.game_play.components.message.FadeInMessageContainer
+import com.purpletear.game.presentation.game_play.components.message.MessageChapterTrialFinished
 import com.purpletear.game.presentation.game_play.components.message.MessageImage
 import com.purpletear.game.presentation.game_play.components.message.MessageManga
 import com.purpletear.game.presentation.game_play.components.message.MessageNarration
@@ -24,6 +26,8 @@ import com.purpletear.sutoko.game.engine.message.GameMessageTyping
 import com.purpletear.sutoko.game.engine.message.GameMessageVocal
 import com.purpletear.sutoko.game.model.character.Character
 
+internal val ITEMS_HORIZONTAL_PADDING = 16.dp
+
 @Composable
 internal fun Message(
     modifier: Modifier = Modifier,
@@ -41,6 +45,9 @@ internal fun Message(
     onNextChapterClick: () -> Unit = {},
     showNextChapterButton: Boolean = true,
     nextChapterTitleRes: Int? = null,
+    isTrial: Boolean = false,
+    gameLogoUrl: String? = null,
+    onBackClick: () -> Unit = {},
     onVocalClick: (String) -> Unit = {},
 ) {
     FadeInMessageContainer(animate = isNewlyAdded, modifier = modifier) {
@@ -66,13 +73,20 @@ internal fun Message(
             }
 
             GameMessageType.ChapterEnd -> {
-                val title = nextChapterTitleRes?.let { stringResource(it) }
-                    ?: stringResource(R.string.message_next_chapter_title)
-                MessageNextChapter(
-                    title = title,
-                    showButton = showNextChapterButton,
-                    onClick = onNextChapterClick
-                )
+                if (isTrial) {
+                    MessageChapterTrialFinished(
+                        gameLogoUrl = gameLogoUrl.orEmpty(),
+                        onClick = onBackClick,
+                    )
+                } else {
+                    val title = nextChapterTitleRes?.let { stringResource(it) }
+                        ?: stringResource(R.string.message_next_chapter_title)
+                    MessageNextChapter(
+                        title = title,
+                        showButton = showNextChapterButton,
+                        onClick = onNextChapterClick
+                    )
+                }
             }
 
             GameMessageType.Info -> {

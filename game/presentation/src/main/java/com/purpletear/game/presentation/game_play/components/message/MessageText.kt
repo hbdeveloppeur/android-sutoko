@@ -34,6 +34,7 @@ import com.purpletear.game.presentation.common.extensions.parseOrNull
 import com.purpletear.game.presentation.common.extensions.toComposeColor
 import com.purpletear.game.presentation.common.extensions.toWhitenedComposeColor
 import com.purpletear.game.presentation.game_play.components.Avatar
+import com.purpletear.game.presentation.game_play.mapper.ITEMS_HORIZONTAL_PADDING
 import com.purpletear.sutoko.game.model.character.Character
 import com.purpletear.sutoko.game.model.character.CharacterColor
 
@@ -76,7 +77,12 @@ internal fun MessageText(
     val bubbleColor = remember(bubbleColorHex) { Color.parseOrNull(bubbleColorHex) }
     val textColor = remember(textColorHex) { Color.parseOrNull(textColorHex) }
     val alignment = if (character.isMainCharacter) Alignment.CenterEnd else Alignment.CenterStart
-    Box(Modifier.fillMaxWidth(), contentAlignment = alignment) {
+    Box(
+        Modifier
+            .fillMaxWidth()
+            .padding(horizontal = ITEMS_HORIZONTAL_PADDING),
+        contentAlignment = alignment
+    ) {
         if (character.isMainCharacter) {
             MessageMainCharacter(
                 modifier = modifier,
@@ -136,13 +142,18 @@ private fun MessageDest(
             }
         }
 
-        MessageBubble(modifier = modifier, shape = shape, backgroundColor = bubbleColor ?: DefaultBubbleColor) {
+        MessageBubble(
+            modifier = modifier,
+            shape = shape,
+            backgroundColor = bubbleColor ?: DefaultBubbleColor
+        ) {
             Text(
                 modifier = Modifier
                     .padding(vertical = 6.dp)
                     .padding(horizontal = 8.dp),
                 text = text,
-                color = textColor ?: (character?.color?.toWhitenedComposeColor(fraction = 0.7f) ?: Color.White),
+                color = textColor ?: (character?.color?.toWhitenedComposeColor(fraction = 0.7f)
+                    ?: Color.White),
                 fontFamily = WorkSansFontFamily,
                 fontWeight = FontWeight.Normal,
                 fontSize = 13.sp,
@@ -187,13 +198,18 @@ private fun MessageMainCharacter(
 
 
 
-        MessageBubble(modifier = modifier, shape = shape, backgroundColor = bubbleColor ?: DefaultBubbleColor) {
+        MessageBubble(
+            modifier = modifier,
+            shape = shape,
+            backgroundColor = bubbleColor ?: DefaultBubbleColor
+        ) {
             Text(
                 modifier = Modifier
                     .padding(vertical = 6.dp)
                     .padding(horizontal = 8.dp),
                 text = text,
-                color = textColor ?: (character?.color?.toWhitenedComposeColor(fraction = 0.7f) ?: Color.White),
+                color = textColor ?: (character?.color?.toWhitenedComposeColor(fraction = 0.7f)
+                    ?: Color.White),
                 fontFamily = WorkSansFontFamily,
                 fontWeight = FontWeight.Normal,
                 fontSize = 13.sp,

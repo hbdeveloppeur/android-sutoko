@@ -75,6 +75,8 @@ private data class MangaViewerState(
 internal fun SmsGameScreen(
     state: GameUiState,
     onNextChapterClick: () -> Unit = {},
+    onTrialBuyClick: () -> Unit = {},
+    onBackClick: () -> Unit = {},
     onVocalClick: (String) -> Unit = {},
     onChoiceSelected: (HandlerEffect.ShowChoices.Choice) -> Unit = {},
     onRevealChoicesClicked: () -> Unit = {},
@@ -95,6 +97,16 @@ internal fun SmsGameScreen(
             scope.launch {
                 overlayAlpha.animateTo(1f, tween(600))
                 onNextChapterClick()
+            }
+            Unit
+        }
+    }
+
+    val handleBackClick = remember(onBackClick) {
+        {
+            scope.launch {
+                overlayAlpha.animateTo(1f, tween(600))
+                onBackClick()
             }
             Unit
         }
@@ -157,8 +169,7 @@ internal fun SmsGameScreen(
                 reverseLayout = true,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .weight(1f)
-                    .padding(horizontal = 16.dp),
+                    .weight(1f),
                 verticalArrangement = Arrangement.spacedBy(8.dp),
                 contentPadding = PaddingValues(vertical = 16.dp),
             ) {
@@ -194,6 +205,9 @@ internal fun SmsGameScreen(
                         onNextChapterClick = handleNextChapterClick,
                         showNextChapterButton = state.showNextChapterButton,
                         nextChapterTitleRes = state.nextChapterTitleRes,
+                        isTrial = state.isTrial,
+                        gameLogoUrl = state.gameLogoUrl,
+                        onBackClick = handleBackClick,
                         onVocalClick = onVocalClick,
                     )
                 }

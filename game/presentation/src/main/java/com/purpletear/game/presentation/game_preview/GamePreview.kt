@@ -66,7 +66,7 @@ fun GamePreview(
     modifier: Modifier = Modifier,
     viewModel: GamePreviewViewModel,
     fallbackBackgroundPainter: Painter? = null,
-    onNavigateToGame: (String, Int?, Boolean) -> Unit = { _, _, _ -> },
+    onNavigateToGame: (String, Int?, Boolean, String?, Boolean) -> Unit = { _, _, _, _, _ -> },
 ) {
     // Get the game from the ViewModel
     val state by viewModel.game.collectAsStateWithLifecycle()
@@ -117,7 +117,9 @@ fun GamePreview(
             val animationDuration = 5250L
             var unlockAnimationIsVisible by remember { mutableStateOf(false) }
             var showRestartDialog by remember { mutableStateOf(false) }
-            var showNickNameDialog by remember { mutableStateOf(false) }
+            // Non-null => the nickname dialog is visible; the Boolean carries the trial
+            // intent (OnTry vs OnPlay) so it is echoed back to the VM on confirm.
+            var nickNameDialogIsTrial by remember { mutableStateOf<Boolean?>(null) }
             val context = LocalContext.current
             val haptic = LocalHapticFeedback.current
 
@@ -150,11 +152,17 @@ fun GamePreview(
                         }
 
                         is GamePreviewEvent.PlayGame -> {
-                            onNavigateToGame(event.gameId, event.legacyId, event.isPurchased)
+                            onNavigateToGame(
+                                event.gameId,
+                                event.legacyId,
+                                event.isPurchased,
+                                event.chapterCode,
+                                event.isTrial,
+                            )
                         }
 
-                        GamePreviewEvent.RequestNickName -> {
-                            showNickNameDialog = true
+                        is GamePreviewEvent.RequestNickName -> {
+                            nickNameDialogIsTrial = event.isTrial
                         }
 
                         GamePreviewEvent.ShowRestartDialog -> {
@@ -168,13 +176,13 @@ fun GamePreview(
 
             GamePreviewUnlockAnimation(isVisible = unlockAnimationIsVisible)
 
-            if (showNickNameDialog) {
+            nickNameDialogIsTrial?.let { isTrial ->
                 NickNameInputDialog(
                     onConfirm = {
-                        showNickNameDialog = false
-                        viewModel.onNickNameConfirmed(it)
+                        nickNameDialogIsTrial = null
+                        viewModel.onNickNameConfirmed(it, isTrial)
                     },
-                    onDismiss = { showNickNameDialog = false },
+                    onDismiss = { nickNameDialogIsTrial = null },
                 )
             }
 

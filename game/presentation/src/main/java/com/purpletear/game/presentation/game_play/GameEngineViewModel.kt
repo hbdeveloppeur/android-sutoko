@@ -26,7 +26,9 @@ import com.purpletear.sutoko.game.model.chapter.Node
 import com.purpletear.sutoko.game.model.chapter.extractCinematicBody
 import com.purpletear.sutoko.game.repository.CharacterRepository
 import com.purpletear.sutoko.game.repository.SceneRepository
+import com.purpletear.sutoko.game.repository.game.GameRepository
 import com.purpletear.sutoko.game.testing.StoryTestingLogger
+import com.purpletear.sutoko.game.service.MediaUrlResolver
 import com.purpletear.sutoko.game.usecase.GetSceneUseCase
 import com.purpletear.sutoko.game.usecase.LoadChapterGraphUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -39,6 +41,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.isActive
@@ -57,7 +60,9 @@ class GameEngineViewModel @Inject constructor(
     private val gameEngine: GameEngine,
     private val sceneRepository: SceneRepository,
     private val characterRepository: CharacterRepository,
+    private val gameRepository: GameRepository,
     private val getSceneUseCase: GetSceneUseCase,
+    private val mediaUrlResolver: MediaUrlResolver,
     private val makeToastService: MakeToastService,
     private val storyLiveUpdateCoordinator: StoryLiveUpdateCoordinator,
     private val logger: Logger,
@@ -78,12 +83,20 @@ class GameEngineViewModel @Inject constructor(
     }
     private val isLiveUpdateMode: Boolean =
         savedStateHandle.get<Boolean>(SmsGameRoutes.IS_LIVE_UPDATE_MODE_ARG) ?: false
+    private val isTrial: Boolean =
+        savedStateHandle.get<Boolean>(SmsGameRoutes.IS_TRIAL_ARG) ?: false
 
     private val _navigateToNextChapter = Channel<String>(Channel.BUFFERED)
     val navigateToNextChapter: Flow<String> = _navigateToNextChapter.receiveAsFlow()
 
     private val _navigateToCinematic = Channel<Unit>(Channel.BUFFERED)
     val navigateToCinematic: Flow<Unit> = _navigateToCinematic.receiveAsFlow()
+
+    private val _navigateToBuy = Channel<Unit>(Channel.BUFFERED)
+    val navigateToBuy: Flow<Unit> = _navigateToBuy.receiveAsFlow()
+
+    private val _navigateToExit = Channel<Unit>(Channel.BUFFERED)
+    val navigateToExit: Flow<Unit> = _navigateToExit.receiveAsFlow()
 
     private var cinematicResumeNodeId: String? = null
 
@@ -102,6 +115,7 @@ class GameEngineViewModel @Inject constructor(
         updateState {
             it.copy(
                 isLiveUpdateMode = isLiveUpdateMode,
+                isTrial = isTrial,
                 showNextChapterButton = !isLiveUpdateMode,
                 nextChapterTitleRes = if (isLiveUpdateMode) R.string.message_next_chapter_test_mode_title else null
             )
@@ -120,6 +134,17 @@ class GameEngineViewModel @Inject constructor(
                 launch { gameEngine.state.collect { updateUiStateFromEngine(it) } }
                 launch { gameEngine.messages.collect { updateMessages(it) } }
                 launch { gameEngine.effects.collect { handleEffect(it) } }
+                launch {
+                    gameRepository.observeGame(gameId)
+                        .catch { e -> logger.exception(e) { "observeGame logo failed" } }
+                        .collect { catalog ->
+                            updateState {
+                                it.copy(
+                                    gameLogoUrl = mediaUrlResolver.resolveBannerUrl(catalog?.logo?.storagePath)
+                                )
+                            }
+                        }
+                }
 
                 if (isLiveUpdateMode) {
                     observeStoryLiveUpdateState()
@@ -581,6 +606,14 @@ class GameEngineViewModel @Inject constructor(
 
     fun onNextChapterClicked() {
         pendingChapterCode?.let { _navigateToNextChapter.trySend(it) }
+    }
+
+    fun onTrialBuyClicked() {
+        _navigateToBuy.trySend(Unit)
+    }
+
+    fun onBackClicked() {
+        _navigateToExit.trySend(Unit)
     }
 
     fun onChoiceSelected(choice: HandlerEffect.ShowChoices.Choice) {

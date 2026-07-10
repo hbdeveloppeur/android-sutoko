@@ -7,6 +7,7 @@ sealed class GamePreviewAction {
     data object OnUpdateGame : GamePreviewAction()
     data object OnUpdateApp : GamePreviewAction()
     data object OnAbortBuy : GamePreviewAction()
+    data object OnTry : GamePreviewAction()
     data object OnRestart : GamePreviewAction()
     data object OnRestartConfirm : GamePreviewAction()
     data object OnPlay : GamePreviewAction()

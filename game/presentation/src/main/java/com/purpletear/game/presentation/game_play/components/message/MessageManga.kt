@@ -48,13 +48,13 @@ internal fun MessageManga(
     Column(
         Modifier
             .fillMaxWidth()
-            .padding(vertical = 12.dp)
-            .background(Color.Black.copy(alpha = 0.2f)),
-        verticalArrangement = Arrangement.spacedBy(12.dp),
+            .background(Color.Black.copy(alpha = 0.2f))
+            .padding(vertical = 12.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Avatar(
-            size = 44.dp,
+            size = 56.dp,
             imageModel = R.drawable.page_manga_preview,
         )
         Text(

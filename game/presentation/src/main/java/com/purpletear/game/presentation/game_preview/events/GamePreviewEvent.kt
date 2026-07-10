@@ -11,11 +11,13 @@ sealed interface GamePreviewEvent {
         val gameId: String,
         val legacyId: Int?,
         val isPurchased: Boolean,
+        val chapterCode: String? = null,
+        val isTrial: Boolean = false,
     ) : GamePreviewEvent
 
     data object OpenAppStore : GamePreviewEvent
 
-    data object RequestNickName : GamePreviewEvent
+    data class RequestNickName(val isTrial: Boolean = false) : GamePreviewEvent
 
     data object ShowRestartDialog : GamePreviewEvent
 

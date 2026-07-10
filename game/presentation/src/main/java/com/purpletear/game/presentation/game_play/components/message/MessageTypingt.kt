@@ -29,6 +29,7 @@ import androidx.compose.ui.unit.dp
 import com.purpletear.game.debug.PreviewCharacter
 import com.purpletear.game.debug.PreviewOverlayWrapper
 import com.purpletear.game.presentation.R
+import com.purpletear.game.presentation.game_play.mapper.ITEMS_HORIZONTAL_PADDING
 import com.purpletear.sutoko.game.model.character.Character
 
 @Preview(name = "GameMessageTyping")
@@ -63,7 +64,8 @@ internal fun MessageTyping(
 
     Box(
         modifier
-            .fillMaxWidth(),
+            .fillMaxWidth()
+            .padding(horizontal = ITEMS_HORIZONTAL_PADDING),
         contentAlignment = alignment,
     ) {
         MessageBubble {

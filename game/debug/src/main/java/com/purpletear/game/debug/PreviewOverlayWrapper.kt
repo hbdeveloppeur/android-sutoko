@@ -2,7 +2,6 @@ package com.purpletear.game.debug
 
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
@@ -56,7 +55,7 @@ fun PreviewOverlayWrapper(
     val rulerState = rememberRulerState()
 
     Grid {
-        Column { // test
+        Column {
             AsyncImage(
                 modifier = imageModifier,
                 model = drawable,
@@ -64,24 +63,6 @@ fun PreviewOverlayWrapper(
                 contentScale = ContentScale.Crop,
             )
             content()
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.End
-            ) {
-                Row(
-                    Modifier
-                        .rotateLayout(90)
-                ) {
-                    AsyncImage(
-                        modifier = imageModifier,
-                        model = drawable,
-                        contentDescription = null,
-                        contentScale = ContentScale.Crop,
-                    )
-                    content()
-                }
-            }
         }
 
         // Ruler overlay with controls
