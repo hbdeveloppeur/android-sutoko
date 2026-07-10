@@ -8,6 +8,7 @@ import com.purpletear.sutoko.game.engine.handlers.ConversationModeChangeNodeHand
 import com.purpletear.sutoko.game.engine.handlers.EndNodeHandler
 import com.purpletear.sutoko.game.engine.handlers.InfoNodeHandler
 import com.purpletear.sutoko.game.engine.handlers.IntroSentenceNodeHandler
+import com.purpletear.sutoko.game.engine.handlers.MangaPageNodeHandler
 import com.purpletear.sutoko.game.engine.handlers.MemoryNodeHandler
 import com.purpletear.sutoko.game.engine.handlers.MessageImageNodeHandler
 import com.purpletear.sutoko.game.engine.handlers.MessageNodeHandler
@@ -34,6 +35,7 @@ class NodeHandlerFactory @Inject constructor(
     private val messageHandler: MessageNodeHandler,
     private val messageThemeHandler: MessageThemeNodeHandler,
     private val messageImageHandler: MessageImageNodeHandler,
+    private val mangaPageHandler: MangaPageNodeHandler,
     private val chapterChangeHandler: ChapterChangeNodeHandler,
     private val codeHandler: CodeNodeHandler,
     private val conditionHandler: ConditionNodeHandler,
@@ -57,6 +59,7 @@ class NodeHandlerFactory @Inject constructor(
         NodeType.MESSAGE -> messageHandler
         NodeType.MESSAGE_THEME -> messageThemeHandler
         NodeType.MESSAGE_IMAGE -> messageImageHandler
+        NodeType.MANGA_PAGE -> mangaPageHandler
         NodeType.CHAPTER_CHANGE -> chapterChangeHandler
         NodeType.CONDITION -> conditionHandler
         NodeType.MEMORY -> memoryHandler

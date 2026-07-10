@@ -540,6 +540,7 @@ class GameEngine @Inject constructor(
         is Node.Message -> handlerFactory.getHandler(NodeType.MESSAGE)
         is Node.MessageTheme -> handlerFactory.getHandler(NodeType.MESSAGE_THEME)
         is Node.MessageImage -> handlerFactory.getHandler(NodeType.MESSAGE_IMAGE)
+        is Node.MangaPage -> handlerFactory.getHandler(NodeType.MANGA_PAGE)
         is Node.ChapterChange -> handlerFactory.getHandler(NodeType.CHAPTER_CHANGE)
         is Node.Condition -> handlerFactory.getHandler(NodeType.CONDITION)
         is Node.Memory -> handlerFactory.getHandler(NodeType.MEMORY)

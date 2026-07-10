@@ -1,5 +1,6 @@
 package com.purpletear.game.presentation.game_play.components.message
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -45,6 +46,10 @@ internal fun MessageManga(
     onClick: () -> Unit = {}
 ) {
     Column(
+        Modifier
+            .fillMaxWidth()
+            .padding(vertical = 12.dp)
+            .background(Color.Black.copy(alpha = 0.2f)),
         verticalArrangement = Arrangement.spacedBy(12.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {

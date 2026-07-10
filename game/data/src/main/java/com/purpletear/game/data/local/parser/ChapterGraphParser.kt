@@ -5,6 +5,7 @@ import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import com.purpletear.game.data.local.dto.ChapterMetadataDto
 import com.purpletear.game.data.local.dto.EdgeDto
+import com.purpletear.game.data.local.dto.MangaMessageDto
 import com.purpletear.game.data.local.dto.NodeDataDto
 import com.purpletear.game.data.local.dto.NodeDto
 import com.purpletear.sutoko.game.model.chapter.ChapterGraph
@@ -19,6 +20,14 @@ import java.io.File
 object ChapterGraphParser {
     private val gson = Gson()
     private val AUDIO_EXTENSIONS = listOf("mp3", "ogg", "wav")
+
+    // Manga page: bounds and legacy-compatible defaults (see legacy MangaHelper.parseMessage).
+    private const val MAX_MANGA_MESSAGES = 32
+    private const val MAX_MANGA_SENTENCE_LEN = 500
+    private const val DEFAULT_MANGA_SIZE = 30f
+    private const val DEFAULT_MANGA_X = 1f
+    private const val DEFAULT_MANGA_Y = 1f
+    private const val DEFAULT_MANGA_W = 10f
 
     private fun JsonElement?.toNodeData(): NodeDataDto? {
         return when (this) {
@@ -262,6 +271,8 @@ object ChapterGraphParser {
                 durationMs = data?.duration ?: 0
             )
 
+            "manga-page" -> parseMangaPage(dto, data, gameId, legacyId, pathProvider)
+
             else -> null
         }
     }
@@ -322,6 +333,48 @@ object ChapterGraphParser {
 
         return (candidates + extensionCandidates).firstOrNull { File(it).exists() }
             ?: primary
+    }
+
+    private fun parseMangaPage(
+        dto: NodeDto,
+        data: NodeDataDto?,
+        gameId: String,
+        legacyId: Int?,
+        pathProvider: GamePathProvider
+    ): Node? {
+        val id = dto.id
+        val fileName =
+            data?.storagePath?.trim()?.takeIf { it.isNotEmpty() }?.substringAfterLast("/")
+        require(fileName != null) { "manga-page node $id missing assetFileName" }
+
+        // Bound parsing work and drop malformed entries rather than crashing.
+        val messages = data.messages.orEmpty()
+            .take(MAX_MANGA_MESSAGES)
+            .mapNotNull { it.toMangaMessage() }
+        if (messages.isEmpty()) return null
+
+        return Node.MangaPage(
+            id = id,
+            imageUrl = resolveImagePath(fileName, gameId, legacyId, pathProvider),
+            assetId = data.assetId,
+            messages = messages,
+            waitMs = data.duration ?: 0,
+            seenMs = data.delay ?: 0,
+        )
+    }
+
+    private fun MangaMessageDto.toMangaMessage(): Node.MangaPage.MangaMessage? {
+        val text = sentence?.trim()
+            ?.take(MAX_MANGA_SENTENCE_LEN)
+            ?.takeIf { it.isNotEmpty() }
+            ?: return null
+        return Node.MangaPage.MangaMessage(
+            text = text,
+            size = size ?: DEFAULT_MANGA_SIZE,
+            x = x ?: DEFAULT_MANGA_X,
+            y = y ?: DEFAULT_MANGA_Y,
+            w = w ?: DEFAULT_MANGA_W,
+        )
     }
 
     private fun parseEdge(dto: EdgeDto): Edge {

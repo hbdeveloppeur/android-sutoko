@@ -52,6 +52,31 @@ sealed class Node {
         val seenMs: Long = 0,
     ) : Node()
 
+    /**
+     * A full-screen manga page: displays [imageUrl] with [messages] drawn on top as
+     * speech-bubble text. [waitMs] is the post-typing delay and [seenMs] the pre-show
+     * delay (mapped from authored `duration`/`delay`). Coordinates are percentages of
+     * the image (x/y = text center, w = constrained text width); size is in image pixels.
+     */
+    @Keep
+    data class MangaPage(
+        override val id: String,
+        val imageUrl: String,
+        val assetId: Int? = null,
+        val messages: List<MangaMessage>,
+        val waitMs: Long = 0,
+        val seenMs: Long = 0,
+    ) : Node() {
+        @Keep
+        data class MangaMessage(
+            val text: String,
+            val size: Float,
+            val x: Float,
+            val y: Float,
+            val w: Float,
+        )
+    }
+
 
     @Keep
     data class Info(

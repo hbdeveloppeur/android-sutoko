@@ -7,6 +7,7 @@ import androidx.compose.ui.res.stringResource
 import com.purpletear.game.presentation.R
 import com.purpletear.game.presentation.game_play.components.message.FadeInMessageContainer
 import com.purpletear.game.presentation.game_play.components.message.MessageImage
+import com.purpletear.game.presentation.game_play.components.message.MessageManga
 import com.purpletear.game.presentation.game_play.components.message.MessageNarration
 import com.purpletear.game.presentation.game_play.components.message.MessageNextChapter
 import com.purpletear.game.presentation.game_play.components.message.MessagePositionInGroup
@@ -17,6 +18,7 @@ import com.purpletear.sutoko.game.engine.GameMessage
 import com.purpletear.sutoko.game.engine.GameMessageType
 import com.purpletear.sutoko.game.engine.message.GameMessageImage
 import com.purpletear.sutoko.game.engine.message.GameMessageInfo
+import com.purpletear.sutoko.game.engine.message.GameMessageMangaPage
 import com.purpletear.sutoko.game.engine.message.GameMessageText
 import com.purpletear.sutoko.game.engine.message.GameMessageTyping
 import com.purpletear.sutoko.game.engine.message.GameMessageVocal
@@ -35,6 +37,7 @@ internal fun Message(
     vocalProgress: Float = 0f,
     onImageClick: (imageUrl: String, bounds: Rect) -> Unit = { _, _ -> },
     onAvatarClick: (imageModel: Any?, bounds: Rect) -> Unit = { _, _ -> },
+    onMangaClick: (imageUrl: String, overlays: List<GameMessageMangaPage.TextOverlay>) -> Unit = { _, _ -> },
     onNextChapterClick: () -> Unit = {},
     showNextChapterButton: Boolean = true,
     nextChapterTitleRes: Int? = null,
@@ -90,6 +93,11 @@ internal fun Message(
                     character = character!!,
                     onClick = { bounds -> onImageClick(message.imageUrl, bounds) }
                 )
+            }
+
+            GameMessageType.MangaPage -> {
+                message as GameMessageMangaPage
+                MessageManga(onClick = { onMangaClick(message.imageUrl, message.overlays) })
             }
 
             GameMessageType.Vocal -> {

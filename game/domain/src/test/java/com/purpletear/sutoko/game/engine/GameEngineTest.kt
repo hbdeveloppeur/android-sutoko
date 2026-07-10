@@ -13,6 +13,7 @@ import com.purpletear.sutoko.game.engine.handlers.MessageThemeNodeHandler
 import com.purpletear.sutoko.game.engine.handlers.MessageVocalNodeHandler
 import com.purpletear.sutoko.game.engine.handlers.CodeNodeHandler
 import com.purpletear.sutoko.game.engine.handlers.IntroSentenceNodeHandler
+import com.purpletear.sutoko.game.engine.handlers.MangaPageNodeHandler
 import com.purpletear.sutoko.game.engine.handlers.SceneNodeHandler
 import com.purpletear.sutoko.game.engine.handlers.SoundNodeHandler
 import com.purpletear.sutoko.game.engine.handlers.StartNodeHandler
@@ -314,6 +315,7 @@ class GameEngineTest {
                 messageHandler = MessageNodeHandler(textProcessor),
                 messageThemeHandler = MessageThemeNodeHandler(),
                 messageImageHandler = MessageImageNodeHandler(),
+                mangaPageHandler = MangaPageNodeHandler(textProcessor),
                 chapterChangeHandler = ChapterChangeNodeHandler(),
                 conditionHandler = ConditionNodeHandler(),
                 memoryHandler = MemoryNodeHandler(),

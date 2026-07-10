@@ -8,6 +8,7 @@ enum class NodeType {
     MESSAGE,
     MESSAGE_THEME,
     MESSAGE_IMAGE,
+    MANGA_PAGE,
     CHAPTER_CHANGE,
     CONDITION,
     SCENE,

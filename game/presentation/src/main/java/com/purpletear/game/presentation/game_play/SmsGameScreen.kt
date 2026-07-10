@@ -47,11 +47,13 @@ import com.purpletear.game.presentation.game_play.components.choices_box.Choices
 import com.purpletear.game.presentation.game_play.components.choices_box.MakeAChoiceButton
 import com.purpletear.game.presentation.game_play.components.image_viewer.ImageViewerOverlay
 import com.purpletear.game.presentation.game_play.components.image_viewer.SwipeToDismissDirection
+import com.purpletear.game.presentation.game_play.components.manga.MangaPageScreen
 import com.purpletear.game.presentation.game_play.mapper.Message
 import com.purpletear.game.presentation.game_play.mapper.characterId
 import com.purpletear.game.presentation.game_play.state.GameUiState
 import com.purpletear.game.presentation.game_play.state.LiveUpdateStatus
 import com.purpletear.sutoko.game.engine.HandlerEffect
+import com.purpletear.sutoko.game.engine.message.GameMessageMangaPage
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withTimeoutOrNull
@@ -61,6 +63,12 @@ private data class ImageViewerState(
     val bounds: Rect? = null,
     val isExpanded: Boolean = false,
     val swipeToDismissDirection: SwipeToDismissDirection = SwipeToDismissDirection.ANY,
+)
+
+private data class MangaViewerState(
+    val imageUrl: String? = null,
+    val overlays: List<GameMessageMangaPage.TextOverlay> = emptyList(),
+    val isVisible: Boolean = false,
 )
 
 @Composable
@@ -74,6 +82,7 @@ internal fun SmsGameScreen(
     onReloadStoryUpdates: () -> Unit = {},
 ) {
     var viewerState by remember { mutableStateOf(ImageViewerState()) }
+    var mangaState by remember { mutableStateOf(MangaViewerState()) }
     val scope = rememberCoroutineScope()
     val overlayAlpha = remember { Animatable(1f) }
 
@@ -179,6 +188,9 @@ internal fun SmsGameScreen(
                                 SwipeToDismissDirection.LEFT
                             )
                         },
+                        onMangaClick = { url, overlays ->
+                            mangaState = MangaViewerState(url, overlays, true)
+                        },
                         onNextChapterClick = handleNextChapterClick,
                         showNextChapterButton = state.showNextChapterButton,
                         nextChapterTitleRes = state.nextChapterTitleRes,
@@ -209,6 +221,13 @@ internal fun SmsGameScreen(
             isVisible = viewerState.isExpanded,
             onDismiss = { viewerState = viewerState.copy(isExpanded = false) },
             swipeToDismissDirection = viewerState.swipeToDismissDirection,
+        )
+
+        MangaPageScreen(
+            imageUrl = mangaState.imageUrl,
+            overlays = mangaState.overlays,
+            isVisible = mangaState.isVisible,
+            onDismiss = { mangaState = mangaState.copy(isVisible = false) },
         )
 
         if (overlayAlpha.value > 0f) {

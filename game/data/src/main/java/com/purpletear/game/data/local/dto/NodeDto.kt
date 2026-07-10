@@ -41,6 +41,8 @@ data class NodeDataDto(
     val assetId: Int? = null,
     @SerializedName("assetName")
     val assetName: String? = null,
+    val name: String? = null,
+    val messages: List<MangaMessageDto>? = null,
     val memory: MemoryDto? = null,
     @SerializedName("expectedValue")
     val expectedValue: String? = null,
@@ -53,6 +55,15 @@ data class NodeDataDto(
     val backgroundColor: String? = null,
     @SerializedName("foregroundColor")
     val foregroundColor: String? = null,
+)
+
+@Keep
+data class MangaMessageDto(
+    val sentence: String? = null,
+    val size: Float? = null,
+    val x: Float? = null,
+    val y: Float? = null,
+    val w: Float? = null,
 )
 
 @Keep
