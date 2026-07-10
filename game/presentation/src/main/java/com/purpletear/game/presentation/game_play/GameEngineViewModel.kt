@@ -353,6 +353,11 @@ class GameEngineViewModel @Inject constructor(
                         updateState { it.copy(hasPendingStoryUpdate = true) }
                         return@collect
                     }
+                    if (_uiState.value.isMangaActive) {
+                        StoryTestingLogger.i("NAV") { "Test mode explicit play deferred — manga page active" }
+                        updateState { it.copy(hasPendingStoryUpdate = true) }
+                        return@collect
+                    }
                     StoryTestingLogger.i("NAV") { "Test mode explicit play — ${graph.chapterCode} → $targetNodeId" }
                     updateState { it.copy(hasPendingStoryUpdate = false) }
                     hasStartedGame = true
@@ -388,12 +393,17 @@ class GameEngineViewModel @Inject constructor(
                 updateState { it.copy(isAwaitingInput = true) }
             }
 
+            is GameEngineState.AwaitingMangaDismissal -> {
+                updateState { it.copy(isMangaActive = true) }
+            }
+
             is GameEngineState.Playing -> {
                 updateState {
                     it.copy(
                         isAwaitingInput = false,
                         choices = emptyList(),
-                        isChoicesRevealed = false
+                        isChoicesRevealed = false,
+                        isMangaActive = false
                     )
                 }
             }
@@ -403,7 +413,8 @@ class GameEngineViewModel @Inject constructor(
                     it.copy(
                         isAwaitingInput = false,
                         choices = emptyList(),
-                        isChoicesRevealed = false
+                        isChoicesRevealed = false,
+                        isMangaActive = false
                     )
                 }
             }
@@ -415,7 +426,8 @@ class GameEngineViewModel @Inject constructor(
                     it.copy(
                         isAwaitingInput = false,
                         choices = emptyList(),
-                        isChoicesRevealed = false
+                        isChoicesRevealed = false,
+                        isMangaActive = false
                     )
                 }
             }
@@ -623,6 +635,17 @@ class GameEngineViewModel @Inject constructor(
         }
     }
 
+    /**
+     * Called when the player dismisses the manga page (Close / back / tap-outside). Resumes the
+     * engine so the next node is resolved. Safe to call for any page dismiss: the engine no-ops
+     * when it is not parked on a manga page (e.g. re-opening a historical page).
+     */
+    fun onMangaPageDismissed() {
+        viewModelScope.launch {
+            gameEngine.resumeFromMangaPage()
+        }
+    }
+
     fun onRevealChoicesClicked() {
         updateState { it.copy(isChoicesRevealed = true) }
     }
@@ -733,6 +756,10 @@ class GameEngineViewModel @Inject constructor(
         if (!_uiState.value.hasPendingStoryUpdate) return
         if (_uiState.value.isCinematicActive) {
             StoryTestingLogger.d("NAV") { "Test mode reload deferred — cinematic active" }
+            return
+        }
+        if (_uiState.value.isMangaActive) {
+            StoryTestingLogger.d("NAV") { "Test mode reload deferred — manga page active" }
             return
         }
 

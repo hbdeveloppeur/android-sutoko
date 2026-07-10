@@ -32,7 +32,7 @@ class MangaPageNodeHandlerTest {
 
         val script = handler.buildScript(node, memory)
 
-        assertEquals(2, script.commands.size)
+        assertEquals(3, script.commands.size)
         val delay = script.commands[0] as HandlerCommand.Delay
         assertEquals(520L, delay.millis) // seenMs 0 coerced to the minimum pre-show delay
         val emit = script.commands[1] as HandlerCommand.Emit
@@ -43,6 +43,7 @@ class MangaPageNodeHandlerTest {
             "Au revoir Léa, sache que tu ne seras jamais seul",
             added.overlays[0].text
         )
+        assertEquals(HandlerCommand.AwaitMangaDismissal, script.commands[2])
     }
 
     @Test

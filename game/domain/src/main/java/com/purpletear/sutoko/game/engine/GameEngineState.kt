@@ -30,6 +30,17 @@ sealed class GameEngineState {
         val currentNodeId: String
     ) : GameEngineState()
 
+    /**
+     * Engine is parked on a manga page until the player opens and dismisses it.
+     * Distinct from [AwaitingInput] so the choice UI is not shown. The next node is
+     * resolved only when [GameEngine.resumeFromMangaPage] is called.
+     */
+    @Keep
+    data class AwaitingMangaDismissal(
+        val chapterCode: String,
+        val currentNodeId: String
+    ) : GameEngineState()
+
     @Keep
     data class ChapterFinished(
         val chapterCode: String

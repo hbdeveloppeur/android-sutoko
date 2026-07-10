@@ -47,8 +47,10 @@ Authors can place a node of type `manga-page` in a chapter graph. At runtime it:
 
 ```
 authored JSON -> ChapterGraphParser -> Node.MangaPage ->
-MangaPageNodeHandler (substitutes [prenom]) -> GameMessageMangaPage ->
-MessageItemMapper -> MessageManga (list item) -> Open -> MangaPageScreen overlay
+MangaPageNodeHandler (substitutes [prenom]) -> GameMessageMangaPage + AwaitMangaDismissal
+-> GameEngine parks (AwaitingMangaDismissal) -> MessageItemMapper -> MessageManga
+(list item) -> Open -> MangaPageScreen overlay -> onDismiss ->
+GameEngine.resumeFromMangaPage() -> next node
 ```
 
 ---
@@ -73,6 +75,10 @@ Fall back to Pattern B only if a future requirement needs deep-linking or proces
 death restoration of an open page (out of scope now). The composable is named
 `MangaPageScreen` but is KDoc'd explicitly as an in-screen overlay (not a route)
 so future readers aren't misled.
+
+**Gating.** Although it is an in-screen overlay, a manga page is *not* fire-and-
+forget: the engine parks when the node fires and the next node is resolved only
+after the player dismisses the page. See §6.
 
 ---
 
@@ -241,12 +247,23 @@ identically to `message-image`.
 
 ## 6. Timing semantics
 
-Mirror `MessageImageNodeHandler`: `Delay(seenMs.coerceAtLeast(520))` then emit the
-message. Map authored fields as `delay → seenMs`, `duration → waitMs`.
-`isAutoTiming`/`isHesitating` are parsed for authoring compatibility but, like
-`message-image`, are not interpreted by the handler (no typing-bubble lead-in for
-a page). This keeps control flow identical to the image path and avoids a second
-timing policy to maintain.
+Pre-show timing mirrors `MessageImageNodeHandler` (`Delay(seenMs.coerceAtLeast(520))`).
+Map authored fields as `delay → seenMs`, `duration → waitMs`. `isAutoTiming`/
+`isHesitating` are parsed for authoring compatibility but, like `message-image`, are
+not interpreted by the handler (no typing-bubble lead-in for a page).
+
+**Pause / resume.** Unlike `message-image`, after the message is emitted the
+handler appends `HandlerCommand.AwaitMangaDismissal` (must be last). The engine
+halts the script, parks (`isPaused = true`) and transitions to
+`GameEngineState.AwaitingMangaDismissal`; `navigateToNext` is *not* called, so the
+next node stays hidden. When the player dismisses the page (Close / back /
+tap-outside), `SmsGameScreen` calls `GameEngineViewModel.onMangaPageDismissed()` ->
+`GameEngine.resumeFromMangaPage()`, which rebuilds the execution context and runs
+the normal `navigateToNext`/`NodeResolver` path (single edge, choice, chapter end,
+or error) **without clearing the message history**. Dismiss is UI-safe:
+`resumeFromMangaPage()` no-ops when the engine is not parked (e.g. re-opening a
+historical page). Real-time story testing reloads are deferred while a page is
+active, mirroring the cinematic guard.
 
 ---
 
@@ -258,6 +275,9 @@ timing policy to maintain.
   `Node.MangaPage` (defensive cast, consistent with other handlers).
 - UI: `onMangaClick` default is a no-op, so forgetting to wire it compiles and
   fails soft.
+- Gating: `AwaitMangaDismissal` is enforced as the last command; resume is
+  mutex-guarded and validates the parked state before mutating, so a double/
+  historical dismiss cannot advance the engine twice or resume when not parked.
 - Rendering: missing font → `Typeface.DEFAULT`; zero-size/empty image → show
   nothing rather than throw.
 - Coroutines: any `catch` in the page loader must rethrow

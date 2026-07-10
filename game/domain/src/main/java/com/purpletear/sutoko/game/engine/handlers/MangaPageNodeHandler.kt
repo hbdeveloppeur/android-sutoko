@@ -19,10 +19,15 @@ import javax.inject.Inject
  * emitted. Text variables (e.g. `[prenom]`) are resolved via [TextProcessor] before
  * the message is emitted, so the presentation layer receives final text.
  *
+ * The page is a gating interaction: after the message is emitted, a
+ * [HandlerCommand.AwaitMangaDismissal] parks the engine so the next node is not shown
+ * until the player dismisses the page (see GameEngine.resumeFromMangaPage).
+ *
  * Precondition: [node] is a [Node.MangaPage] with a non-blank image and at least one
- * message (enforced by the parser). Postcondition: exactly one [HandlerCommand.Delay]
- * followed by one [HandlerEffect.AddMessage] carrying a [GameMessageMangaPage]. Returns
- * an empty script if [node] is not a [Node.MangaPage] or is degenerate.
+ * message (enforced by the parser). Postcondition: one [HandlerCommand.Delay], one
+ * [HandlerEffect.AddMessage] carrying a [GameMessageMangaPage], then one
+ * [HandlerCommand.AwaitMangaDismissal]. Returns an empty script if [node] is not a
+ * [Node.MangaPage] or is degenerate.
  */
 class MangaPageNodeHandler @Inject constructor(
     private val textProcessor: TextProcessor,
@@ -58,7 +63,8 @@ class MangaPageNodeHandler @Inject constructor(
                             overlays = overlays,
                         )
                     )
-                )
+                ),
+                HandlerCommand.AwaitMangaDismissal,
             )
         )
     }

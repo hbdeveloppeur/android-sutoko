@@ -82,6 +82,7 @@ internal fun SmsGameScreen(
     onRevealChoicesClicked: () -> Unit = {},
     onHideChoicesClicked: () -> Unit = {},
     onReloadStoryUpdates: () -> Unit = {},
+    onMangaPageDismissed: () -> Unit = {},
 ) {
     var viewerState by remember { mutableStateOf(ImageViewerState()) }
     var mangaState by remember { mutableStateOf(MangaViewerState()) }
@@ -241,7 +242,10 @@ internal fun SmsGameScreen(
             imageUrl = mangaState.imageUrl,
             overlays = mangaState.overlays,
             isVisible = mangaState.isVisible,
-            onDismiss = { mangaState = mangaState.copy(isVisible = false) },
+            onDismiss = {
+                mangaState = mangaState.copy(isVisible = false)
+                onMangaPageDismissed()
+            },
         )
 
         if (overlayAlpha.value > 0f) {

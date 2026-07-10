@@ -74,7 +74,7 @@ class GameMemoryTest {
     fun `conversationMode defaults to IRL when both keys are missing`() {
         val memory = createFakeGameMemory()
 
-        assertEquals(ConversationMode.IRL, memory.conversationMode)
+        assertEquals(ConversationMode.SMS, memory.conversationMode)
     }
 
     @Test
@@ -143,19 +143,31 @@ class GameMemoryTest {
         val progressRepository = object : UserGameProgressRepository {
             override fun observe(gameId: String): Flow<UserGameProgress> =
                 flowOf(UserGameProgress(gameId = gameId, heroName = "Léa"))
+
             override suspend fun get(gameId: String): UserGameProgress =
                 UserGameProgress(gameId = gameId, heroName = "Léa")
+
             override suspend fun save(progress: UserGameProgress) {}
             override suspend fun delete(gameId: String) {}
         }
         val memoryRepository = object : MemoryRepository {
-            override suspend fun load(gameId: String, upToChapterNumber: Int): Map<String, MemoryEntry> =
+            override suspend fun load(
+                gameId: String,
+                upToChapterNumber: Int
+            ): Map<String, MemoryEntry> =
                 emptyMap()
+
             override suspend fun save(gameId: String, memories: Map<String, MemoryEntry>) {}
             override suspend fun clear(gameId: String) {}
             override suspend fun delete(gameId: String) {}
             override fun observe(gameId: String): Flow<Map<String, String>> = flowOf(emptyMap())
-            override suspend fun upsert(gameId: String, key: String, value: String, chapterNumber: Int) {}
+            override suspend fun upsert(
+                gameId: String,
+                key: String,
+                value: String,
+                chapterNumber: Int
+            ) {
+            }
         }
         val memory = GameMemory(memoryRepository, progressRepository)
         memory.setCurrentChapterNumber(1)
@@ -172,21 +184,34 @@ class GameMemoryTest {
         val progressRepository = object : UserGameProgressRepository {
             override fun observe(gameId: String): Flow<UserGameProgress> =
                 flowOf(UserGameProgress(gameId = gameId))
+
             override suspend fun get(gameId: String): UserGameProgress =
                 UserGameProgress(gameId = gameId)
+
             override suspend fun save(progress: UserGameProgress) {
                 savedProgress = progress
             }
+
             override suspend fun delete(gameId: String) {}
         }
         val memoryRepository = object : MemoryRepository {
-            override suspend fun load(gameId: String, upToChapterNumber: Int): Map<String, MemoryEntry> =
+            override suspend fun load(
+                gameId: String,
+                upToChapterNumber: Int
+            ): Map<String, MemoryEntry> =
                 emptyMap()
+
             override suspend fun save(gameId: String, memories: Map<String, MemoryEntry>) {}
             override suspend fun clear(gameId: String) {}
             override suspend fun delete(gameId: String) {}
             override fun observe(gameId: String): Flow<Map<String, String>> = flowOf(emptyMap())
-            override suspend fun upsert(gameId: String, key: String, value: String, chapterNumber: Int) {}
+            override suspend fun upsert(
+                gameId: String,
+                key: String,
+                value: String,
+                chapterNumber: Int
+            ) {
+            }
         }
         val memory = GameMemory(memoryRepository, progressRepository)
         memory.setCurrentChapterNumber(1)

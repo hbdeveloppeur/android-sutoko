@@ -50,4 +50,5 @@ data class GameUiState(
     @StringRes val nextChapterTitleRes: Int? = null,
     val cinematicBody: List<Node> = emptyList(),
     val isCinematicActive: Boolean = false,
+    val isMangaActive: Boolean = false,
 )

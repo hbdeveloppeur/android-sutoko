@@ -48,6 +48,7 @@ class GameEngine @Inject constructor(
     private var awaitingInput = false
     private var availableChoices: List<HandlerEffect.ShowChoices.Choice> = emptyList()
     private var previousNode: Node? = null
+    private var parkedMangaNodeId: String? = null
 
     /**
      * Resets the engine to a clean state.
@@ -60,6 +61,7 @@ class GameEngine @Inject constructor(
         currentGraph = null
         currentGameId = null
         previousNode = null
+        parkedMangaNodeId = null
         _state.value = GameEngineState.Idle
         _messages.value = emptyList()
         GameEngineLogger.d("GAME") { "Engine reset" }
@@ -145,6 +147,7 @@ class GameEngine @Inject constructor(
         awaitingInput = false
         availableChoices = emptyList()
         previousNode = null
+        parkedMangaNodeId = null
 
         GameEngineLogger.d("GAME") { "Starting chapter ${graph.chapterCode} at node $currentNodeId" }
         executeNode(currentNodeId)
@@ -179,6 +182,7 @@ class GameEngine @Inject constructor(
         availableChoices = emptyList()
         _messages.value = emptyList()
         previousNode = null
+        parkedMangaNodeId = null
 
         _state.value = GameEngineState.Playing(
             chapterCode = graph.chapterCode,
@@ -364,6 +368,12 @@ class GameEngine @Inject constructor(
                 awaitPlayerInput(command, script, context)
                 false
             }
+
+            is HandlerCommand.AwaitMangaDismissal -> {
+                GameEngineLogger.d("CMD") { "AwaitMangaDismissal at ${context.nodeId}" }
+                awaitMangaDismissal(command, script, context)
+                false
+            }
         }
     }
 
@@ -383,6 +393,70 @@ class GameEngine @Inject constructor(
         }
 
         enterAwaitingInput(context, command.choices)
+    }
+
+    /**
+     * Handles the AwaitMangaDismissal command: validates position, parks the engine, and
+     * records the node so [resumeFromMangaPage] can resolve the next node later.
+     * The manga message has already been emitted by a preceding AddMessage, so the bubble
+     * is visible while the engine is parked; the next node is intentionally NOT resolved here.
+     */
+    private fun awaitMangaDismissal(
+        command: HandlerCommand.AwaitMangaDismissal,
+        script: HandlerScript,
+        context: ExecutionContext
+    ) {
+        val commandIndex = script.commands.indexOf(command)
+
+        check(commandIndex == script.commands.lastIndex) {
+            "Invariant violation: AwaitMangaDismissal must be the last command. " +
+                    "Found ${script.commands.size - commandIndex - 1} orphaned commands."
+        }
+
+        isPaused = true
+        parkedMangaNodeId = context.nodeId
+        _state.value = GameEngineState.AwaitingMangaDismissal(
+            chapterCode = context.graph.chapterCode,
+            currentNodeId = context.nodeId
+        )
+
+        GameEngineLogger.d("INPT") {
+            "Parking for manga page at ${context.nodeId} — next node deferred until dismiss"
+        }
+    }
+
+    /**
+     * Resumes execution after the player dismissed the manga page.
+     *
+     * Resolves the next node via the normal navigation path (single edge, choice, chapter end,
+     * or error) without clearing the message history. No-op when the engine is not parked on a
+     * manga page (e.g. dismissing a re-opened historical page), so the UI can call it on every
+     * page dismiss without tracking which page is gating.
+     */
+    suspend fun resumeFromMangaPage() {
+        inputMutex.withLock {
+            val nodeId = parkedMangaNodeId
+            if (nodeId == null || state.value !is GameEngineState.AwaitingMangaDismissal) {
+                GameEngineLogger.d("INPT") { "resumeFromMangaPage ignored — engine not parked on a manga page" }
+                return@withLock
+            }
+
+            val graph = checkNotNull(currentGraph) {
+                "Precondition violation: currentGraph is null while resuming from manga page"
+            }
+
+            GameEngineLogger.d("INPT") { "Manga page dismissed — resuming from $nodeId" }
+
+            parkedMangaNodeId = null
+            isPaused = false
+            _state.value = GameEngineState.Playing(
+                chapterCode = graph.chapterCode,
+                currentNodeId = nodeId
+            )
+
+            val ctx = prepareExecutionContext(nodeId) ?: return@withLock
+            navigateToNext(ctx, null)
+        }
     }
 
     private fun enterAwaitingInput(
