@@ -173,7 +173,7 @@ class GameMemory @Inject constructor(
 
             val modeString = get(CONVERSATION_MODE_KEY)
             return try {
-                modeString?.let { ConversationMode.valueOf(it) } ?: ConversationMode.IRL
+                modeString?.let { ConversationMode.valueOf(it) } ?: ConversationMode.SMS
             } catch (_: IllegalArgumentException) {
                 ConversationMode.IRL
             }
