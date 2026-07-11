@@ -1,5 +1,7 @@
 package com.purpletear.game.presentation.game_play.mapper
 
+import androidx.compose.animation.Crossfade
+import androidx.compose.animation.core.tween
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Rect
@@ -28,6 +30,8 @@ import com.purpletear.sutoko.game.model.character.Character
 
 internal val ITEMS_HORIZONTAL_PADDING = 16.dp
 
+private const val MESSAGE_CROSSFADE_DURATION_MS = 180
+
 @Composable
 internal fun Message(
     modifier: Modifier = Modifier,
@@ -51,80 +55,86 @@ internal fun Message(
     onVocalClick: (String) -> Unit = {},
 ) {
     FadeInMessageContainer(animate = isNewlyAdded, modifier = modifier) {
-        when (message.type) {
-            GameMessageType.Text -> {
-                assert(character != null)
-                message as GameMessageText
-                val positionInGroup = message.positionInGroup(previousMessage, nextMessage)
-                MessageText(
-                    text = message.text,
-                    character = character!!,
-                    showHeader = positionInGroup != MessagePositionInGroup.MIDDLE && positionInGroup != MessagePositionInGroup.BOTTOM,
-                    positionInGroup = positionInGroup,
-                    bubbleColorHex = message.backgroundColor,
-                    textColorHex = message.foregroundColor,
-                    onAvatarClick = onAvatarClick,
-                )
-            }
-
-            GameMessageType.Typing -> {
-                message as GameMessageTyping
-                MessageTyping(character = character)
-            }
-
-            GameMessageType.ChapterEnd -> {
-                if (isTrial) {
-                    MessageChapterTrialFinished(
-                        gameLogoUrl = gameLogoUrl.orEmpty(),
-                        onClick = onBackClick,
-                    )
-                } else {
-                    val title = nextChapterTitleRes?.let { stringResource(it) }
-                        ?: stringResource(R.string.message_next_chapter_title)
-                    MessageNextChapter(
-                        title = title,
-                        showButton = showNextChapterButton,
-                        onClick = onNextChapterClick
+        Crossfade(
+            targetState = message,
+            animationSpec = tween(MESSAGE_CROSSFADE_DURATION_MS),
+            label = "message",
+        ) { msg ->
+            when (msg.type) {
+                GameMessageType.Text -> {
+                    assert(character != null)
+                    msg as GameMessageText
+                    val positionInGroup = msg.positionInGroup(previousMessage, nextMessage)
+                    MessageText(
+                        text = msg.text,
+                        character = character!!,
+                        showHeader = positionInGroup != MessagePositionInGroup.MIDDLE && positionInGroup != MessagePositionInGroup.BOTTOM,
+                        positionInGroup = positionInGroup,
+                        bubbleColorHex = msg.backgroundColor,
+                        textColorHex = msg.foregroundColor,
+                        onAvatarClick = onAvatarClick,
                     )
                 }
-            }
 
-            GameMessageType.Info -> {
-                message as GameMessageInfo
-                val text = if (message.id == "end_story") {
-                    stringResource(R.string.message_story_finished)
-                } else {
-                    message.text
+                GameMessageType.Typing -> {
+                    msg as GameMessageTyping
+                    MessageTyping(character = character)
                 }
-                MessageNarration(text = text)
-            }
 
-            GameMessageType.Image -> {
-                assert(character != null)
-                message as GameMessageImage
-                MessageImage(
-                    path = message.imageUrl,
-                    character = character!!,
-                    onClick = { bounds -> onImageClick(message.imageUrl, bounds) }
-                )
-            }
+                GameMessageType.ChapterEnd -> {
+                    if (isTrial) {
+                        MessageChapterTrialFinished(
+                            gameLogoUrl = gameLogoUrl.orEmpty(),
+                            onClick = onBackClick,
+                        )
+                    } else {
+                        val title = nextChapterTitleRes?.let { stringResource(it) }
+                            ?: stringResource(R.string.message_next_chapter_title)
+                        MessageNextChapter(
+                            title = title,
+                            showButton = showNextChapterButton,
+                            onClick = onNextChapterClick
+                        )
+                    }
+                }
 
-            GameMessageType.MangaPage -> {
-                message as GameMessageMangaPage
-                MessageManga(onClick = { onMangaClick(message.imageUrl, message.overlays) })
-            }
+                GameMessageType.Info -> {
+                    msg as GameMessageInfo
+                    val text = if (msg.id == "end_story") {
+                        stringResource(R.string.message_story_finished)
+                    } else {
+                        msg.text
+                    }
+                    MessageNarration(text = text)
+                }
 
-            GameMessageType.Vocal -> {
-                assert(character != null)
-                message as GameMessageVocal
-                val isThisPlaying = message.audioUrl == currentVocalUrl && isVocalPlaying
-                val percent = if (message.audioUrl == currentVocalUrl) vocalProgress else 0f
-                MessageVocalDest(
-                    isPlaying = isThisPlaying,
-                    character = character!!,
-                    percent = percent,
-                    onClick = { onVocalClick(message.audioUrl) }
-                )
+                GameMessageType.Image -> {
+                    assert(character != null)
+                    msg as GameMessageImage
+                    MessageImage(
+                        path = msg.imageUrl,
+                        character = character!!,
+                        onClick = { bounds -> onImageClick(msg.imageUrl, bounds) }
+                    )
+                }
+
+                GameMessageType.MangaPage -> {
+                    msg as GameMessageMangaPage
+                    MessageManga(onClick = { onMangaClick(msg.imageUrl, msg.overlays) })
+                }
+
+                GameMessageType.Vocal -> {
+                    assert(character != null)
+                    msg as GameMessageVocal
+                    val isThisPlaying = msg.audioUrl == currentVocalUrl && isVocalPlaying
+                    val percent = if (msg.audioUrl == currentVocalUrl) vocalProgress else 0f
+                    MessageVocalDest(
+                        isPlaying = isThisPlaying,
+                        character = character!!,
+                        percent = percent,
+                        onClick = { onVocalClick(msg.audioUrl) }
+                    )
+                }
             }
         }
     }

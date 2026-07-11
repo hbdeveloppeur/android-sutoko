@@ -22,10 +22,19 @@ sealed class HandlerEffect {
     data class AddMessage(val message: GameMessage) : HandlerEffect()
 
     /**
-     * Add a message to the conversation.
+     * Remove a message from the conversation by id.
      */
     @Keep
     data class DeleteMessage(val messageId: String) : HandlerEffect()
+
+    /**
+     * Replace an existing message in place, preserving its position in the conversation.
+     * Used to transition a message's state (e.g. typing indicator -> final text) while keeping
+     * a stable identity so the UI can cross-fade instead of remove+add.
+     * No-op when [messageId] is not present.
+     */
+    @Keep
+    data class ReplaceMessage(val messageId: String, val message: GameMessage) : HandlerEffect()
 
     /**
      * Change the background image.

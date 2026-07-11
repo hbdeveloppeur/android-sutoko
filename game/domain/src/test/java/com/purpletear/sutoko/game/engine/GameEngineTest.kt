@@ -23,6 +23,7 @@ import com.purpletear.sutoko.game.engine.message.GameMessageInfo
 import com.purpletear.sutoko.game.repository.FakeCharacterRepository
 import com.purpletear.sutoko.game.engine.message.GameMessageNextChapter
 import com.purpletear.sutoko.game.engine.message.GameMessageText
+import com.purpletear.sutoko.game.engine.message.GameMessageTyping
 import com.purpletear.sutoko.game.engine.processing.TextProcessorImpl
 import com.purpletear.sutoko.game.engine.timing.FakeTimingScheduler
 import com.purpletear.sutoko.game.model.chapter.ChapterGraph
@@ -306,6 +307,60 @@ class GameEngineTest {
         assertEquals(1, textMessages.size)
         assertEquals("#FF2200", textMessages.first().backgroundColor)
         assertEquals("#00FF00", textMessages.first().foregroundColor)
+    }
+
+    @Test
+    fun `sms message typing indicator is replaced in place by the final text`() = runBlocking {
+        val engine = createEngine()
+        val graph = ChapterGraph(
+            chapterCode = "1A",
+            title = "Test",
+            nodes = mapOf(
+                "start" to Node.Start(id = "start"),
+                "msg" to Node.Message(id = "msg", text = "Hello", characterId = 1),
+                "end" to Node.End(id = "end")
+            ),
+            edges = listOf(
+                Edge(source = "start", target = "msg", type = EdgeType.NORMAL),
+                Edge(source = "msg", target = "end", type = EdgeType.NORMAL)
+            ),
+            startNodeId = "start"
+        )
+
+        engine.initialize("game-1", graph)
+        engine.start()
+
+        val typing = engine.messages.value.filterIsInstance<GameMessageTyping>()
+        val texts = engine.messages.value.filterIsInstance<GameMessageText>()
+        assertTrue("typing indicator must be replaced, never left behind", typing.isEmpty())
+        assertTrue("final text must still be present after typing", texts.any { it.text == "Hello" })
+    }
+
+    @Test
+    fun `sms hesitating message still resolves to the final text`() = runBlocking {
+        val engine = createEngine()
+        val graph = ChapterGraph(
+            chapterCode = "1A",
+            title = "Test",
+            nodes = mapOf(
+                "start" to Node.Start(id = "start"),
+                "msg" to Node.Message(id = "msg", text = "Hmm", characterId = 1, isHesitating = true),
+                "end" to Node.End(id = "end")
+            ),
+            edges = listOf(
+                Edge(source = "start", target = "msg", type = EdgeType.NORMAL),
+                Edge(source = "msg", target = "end", type = EdgeType.NORMAL)
+            ),
+            startNodeId = "start"
+        )
+
+        engine.initialize("game-1", graph)
+        engine.start()
+
+        val typing = engine.messages.value.filterIsInstance<GameMessageTyping>()
+        val texts = engine.messages.value.filterIsInstance<GameMessageText>()
+        assertTrue(typing.isEmpty())
+        assertTrue(texts.any { it.text == "Hmm" })
     }
 
     private fun createEngine(memory: GameMemory = createFakeGameMemory()): GameEngine {

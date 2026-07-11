@@ -153,9 +153,10 @@ class MessageNodeHandler @Inject constructor(
         val typingDelayMs = determineTypingDuration(node, text)
         commands.add(HandlerCommand.Delay(typingDelayMs))
 
-        commands.add(HandlerCommand.Emit(HandlerEffect.DeleteMessage(messageId = messageId)))
-        commands.add(HandlerCommand.Delay(node.seenMs.coerceAtLeast(MIN_POST_TYPING_DELAY_MS)))
-        commands.add(emitAddText(text, UUID.randomUUID().toString(), node.characterId, memory))
+        if (node.seenMs > 0) {
+            commands.add(HandlerCommand.Delay(node.seenMs))
+        }
+        commands.add(emitReplaceTypingWithText(text, messageId, node.characterId, memory))
 
         return commands
     }
@@ -252,6 +253,25 @@ class MessageNodeHandler @Inject constructor(
             )
         )
 
+    private fun emitReplaceTypingWithText(
+        text: String,
+        messageId: String,
+        characterId: Int,
+        memory: GameMemory,
+    ): HandlerCommand =
+        HandlerCommand.Emit(
+            HandlerEffect.ReplaceMessage(
+                messageId = messageId,
+                message = GameMessageText(
+                    id = messageId,
+                    text = text,
+                    characterId = characterId,
+                    backgroundColor = memory.get(GameMemory.MESSAGE_THEME_BG_KEY),
+                    foregroundColor = memory.get(GameMemory.MESSAGE_THEME_FG_KEY),
+                )
+            )
+        )
+
     private fun determineTypingDuration(node: Node.Message, text: String): Long {
         return if (node.waitMs == 0L) {
             val baseDuration = text.length * TYPING_CHAR_DELAY_MS
@@ -280,7 +300,6 @@ class MessageNodeHandler @Inject constructor(
     }
 
     private companion object {
-        private const val MIN_POST_TYPING_DELAY_MS = 280L
         private const val IRL_AUTO_TIMING_DELAY_MS = 2000L
         private const val HESITATION_DELAY_MIN_MS = 1000L
         private const val HESITATION_DELAY_MAX_EXCLUSIVE_MS = 3001L

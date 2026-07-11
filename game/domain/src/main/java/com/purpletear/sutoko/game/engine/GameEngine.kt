@@ -515,6 +515,13 @@ class GameEngine @Inject constructor(
                 _messages.value = _messages.value.filter { it.id != effect.messageId }
             }
 
+            is HandlerEffect.ReplaceMessage -> {
+                GameEngineLogger.d("FX") { "Replace message ${effect.messageId} -> ${effect.message::class.simpleName}" }
+                _messages.value = _messages.value.map {
+                    if (it.id == effect.messageId) effect.message else it
+                }
+            }
+
             is HandlerEffect.UpdateMemory -> {
                 GameEngineLogger.d("FX") { "Update memory: ${effect.key}=${effect.value}" }
                 memory.set(effect.key, effect.value)
