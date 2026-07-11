@@ -117,7 +117,8 @@ class GameEngineViewModel @Inject constructor(
                 isLiveUpdateMode = isLiveUpdateMode,
                 isTrial = isTrial,
                 showNextChapterButton = !isLiveUpdateMode,
-                nextChapterTitleRes = if (isLiveUpdateMode) R.string.message_next_chapter_test_mode_title else null
+                nextChapterTitleRes = if (isLiveUpdateMode) R.string.message_next_chapter_test_mode_title else null,
+                isChoicesDarkMode = readChoicesDarkMode()
             )
         }
         viewModelScope.launch {
@@ -654,6 +655,23 @@ class GameEngineViewModel @Inject constructor(
         updateState { it.copy(isChoicesRevealed = false) }
     }
 
+    fun onToggleChoicesDarkMode() {
+        val next = !_uiState.value.isChoicesDarkMode
+        updateState { it.copy(isChoicesDarkMode = next) }
+        writeChoicesDarkMode(next)
+    }
+
+    private fun readChoicesDarkMode(): Boolean =
+        context.getSharedPreferences(CHOICES_PREFS_FILE, Context.MODE_PRIVATE)
+            .getBoolean(CHOICES_DARK_MODE_KEY, true)
+
+    private fun writeChoicesDarkMode(isDarkMode: Boolean) {
+        context.getSharedPreferences(CHOICES_PREFS_FILE, Context.MODE_PRIVATE)
+            .edit()
+            .putBoolean(CHOICES_DARK_MODE_KEY, isDarkMode)
+            .apply()
+    }
+
     /**
      * Loads a scene for the cinematic player. Delegates to the same use case the SMS engine uses,
      * so `scene-node` frames render identically via `SceneComposable`.
@@ -773,6 +791,11 @@ class GameEngineViewModel @Inject constructor(
 
     private fun updateState(transform: (GameUiState) -> GameUiState) {
         _uiState.value = transform(_uiState.value)
+    }
+
+    private companion object {
+        const val CHOICES_PREFS_FILE = "SUTOKO_CHOICES_DARK_MODE"
+        const val CHOICES_DARK_MODE_KEY = "enabled"
     }
 }
 

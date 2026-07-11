@@ -51,4 +51,5 @@ data class GameUiState(
     val cinematicBody: List<Node> = emptyList(),
     val isCinematicActive: Boolean = false,
     val isMangaActive: Boolean = false,
+    val isChoicesDarkMode: Boolean = true,
 )

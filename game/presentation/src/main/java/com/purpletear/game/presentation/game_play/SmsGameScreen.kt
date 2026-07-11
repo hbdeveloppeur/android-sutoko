@@ -83,6 +83,7 @@ internal fun SmsGameScreen(
     onHideChoicesClicked: () -> Unit = {},
     onReloadStoryUpdates: () -> Unit = {},
     onMangaPageDismissed: () -> Unit = {},
+    onToggleChoicesDarkMode: () -> Unit = {},
 ) {
     var viewerState by remember { mutableStateOf(ImageViewerState()) }
     var mangaState by remember { mutableStateOf(MangaViewerState()) }
@@ -226,8 +227,10 @@ internal fun SmsGameScreen(
         AnimatedChoicesBox(
             choices = state.choices,
             visible = state.isChoicesRevealed && state.choices.isNotEmpty(),
+            isDarkMode = state.isChoicesDarkMode,
             onClickChoice = onChoiceSelected,
-            onClickClose = onHideChoicesClicked
+            onClickClose = onHideChoicesClicked,
+            onToggleDarkMode = onToggleChoicesDarkMode
         )
 
         ImageViewerOverlay(
@@ -280,8 +283,10 @@ private const val CHOICE_FADE_DURATION_MS = 180
 private fun AnimatedChoicesBox(
     choices: List<HandlerEffect.ShowChoices.Choice>,
     visible: Boolean,
+    isDarkMode: Boolean,
     onClickChoice: (HandlerEffect.ShowChoices.Choice) -> Unit,
     onClickClose: () -> Unit,
+    onToggleDarkMode: () -> Unit,
 ) {
     AnimatedVisibility(
         visible = visible,
@@ -299,8 +304,10 @@ private fun AnimatedChoicesBox(
 
         ChoicesBox(
             choices = displayedChoices,
+            isDarkMode = isDarkMode,
             onClickChoice = onClickChoice,
-            onClickClose = onClickClose
+            onClickClose = onClickClose,
+            onToggleDarkMode = onToggleDarkMode
         )
     }
 }
