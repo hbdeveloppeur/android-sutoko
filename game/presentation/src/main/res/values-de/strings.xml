@@ -139,6 +139,9 @@
     <string name="game_choices_make_a_choice">Wählen</string>
     <string name="game_choices_toggle_dark_mode">Dunkelmodus umschalten</string>
 
+    <!-- Cinematic -->
+    <string name="cinematic_skip">Überspringen &gt;&gt;</string>
+
     <!-- Game UI errors -->
     <string name="error_load_game">Spiel konnte nicht geladen werden</string>
     <string name="error_play_from_node_missing">Abschnitt nicht gefunden, beginne von vorne</string>

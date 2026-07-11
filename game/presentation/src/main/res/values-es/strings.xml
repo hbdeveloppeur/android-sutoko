@@ -139,6 +139,9 @@
     <string name="game_choices_make_a_choice">Haz una elección</string>
     <string name="game_choices_toggle_dark_mode">Alternar modo oscuro</string>
 
+    <!-- Cinematic -->
+    <string name="cinematic_skip">Saltar &gt;&gt;</string>
+
     <!-- Game UI errors -->
     <string name="error_load_game">No se pudo cargar el juego</string>
     <string name="error_play_from_node_missing">No se encontró esa parte, empezando desde el principio</string>

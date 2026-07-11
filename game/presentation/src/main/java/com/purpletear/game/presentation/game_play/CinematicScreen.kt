@@ -9,6 +9,8 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -24,9 +26,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.purpletear.game.presentation.R
 import com.purpletear.sutoko.game.model.chapter.IntroAlignment
 import com.purpletear.sutoko.game.model.chapter.Node
 import com.purpletear.sutoko.game.model.scene.Scene
@@ -55,6 +59,7 @@ internal fun CinematicScreen(
     var index by remember(body) { mutableIntStateOf(0) }
     var currentScene by remember { mutableStateOf<Scene?>(null) }
     var finished by remember(body) { mutableStateOf(false) }
+    val skipInteractionSource = remember { MutableInteractionSource() }
 
     val soundPlayer = remember { mutableStateOf<MediaPlayer?>(null) }
     DisposableEffect(Unit) {
@@ -104,6 +109,22 @@ internal fun CinematicScreen(
             )
 
             else -> Unit
+        }
+
+        if (!finished) {
+            Text(
+                text = stringResource(R.string.cinematic_skip),
+                color = Color.White.copy(alpha = 0.5f),
+                fontSize = 14.sp,
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .clickable(
+                        interactionSource = skipInteractionSource,
+                        indication = null,
+                        onClick = { finishOnce() },
+                    )
+                    .padding(horizontal = 32.dp, vertical = 36.dp),
+            )
         }
     }
 
