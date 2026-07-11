@@ -123,7 +123,7 @@ internal fun CinematicScreen(
                         indication = null,
                         onClick = { finishOnce() },
                     )
-                    .padding(horizontal = 32.dp, vertical = 36.dp),
+                    .padding(horizontal = 32.dp, vertical = 42.dp),
             )
         }
     }
