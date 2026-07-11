@@ -54,6 +54,7 @@ import com.purpletear.game.presentation.game_preview.components.PremiumLabelGrad
 import com.purpletear.game.presentation.game_preview.components.UnlockedLabelGradient
 import com.purpletear.game.presentation.game_preview.events.GamePreviewEvent
 import com.purpletear.game.presentation.model.GameItem
+import com.purpletear.game.presentation.model.formatNarrativeThemes
 import com.purpletear.game.presentation.model.toGameActionState
 import com.purpletear.sutoko.alert.presentation.SimpleAlertDialog
 import kotlinx.coroutines.delay
@@ -242,7 +243,10 @@ fun GamePreview(
                         )
                     } else if (gameItem != null) {
                         GamePreviewCategories(
-                            categories = stringResource(R.string.game_card_genre_fallback)
+                            categories = formatNarrativeThemes(
+                                gameItem.narrativeThemes,
+                                stringResource(R.string.game_card_genre_fallback)
+                            )
                         )
                     }
                 }

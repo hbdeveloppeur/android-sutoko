@@ -6,6 +6,7 @@ import com.google.gson.reflect.TypeToken
 import com.purpletear.sutoko.game.model.Asset
 import com.purpletear.sutoko.game.model.Author
 import com.purpletear.sutoko.game.model.game.GameMetadata
+import com.purpletear.sutoko.game.model.game.NarrativeTheme
 
 class GameTypeConverters {
     private val gson = Gson()
@@ -18,6 +19,17 @@ class GameTypeConverters {
     @TypeConverter
     fun toStringList(value: String): List<String> {
         val type = object : TypeToken<List<String>>() {}.type
+        return gson.fromJson(value, type) ?: emptyList()
+    }
+
+    @TypeConverter
+    fun fromNarrativeThemeList(value: List<NarrativeTheme>): String {
+        return gson.toJson(value)
+    }
+
+    @TypeConverter
+    fun toNarrativeThemeList(value: String): List<NarrativeTheme> {
+        val type = object : TypeToken<List<NarrativeTheme>>() {}.type
         return gson.fromJson(value, type) ?: emptyList()
     }
 

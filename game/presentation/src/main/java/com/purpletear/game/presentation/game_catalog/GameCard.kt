@@ -30,6 +30,7 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.example.sharedelements.theme.SutokoTypography
 import com.purpletear.game.presentation.R
+import com.purpletear.game.presentation.model.formatNarrativeThemes
 import com.purpletear.sutoko.game.model.game.GameCatalog
 import com.purpletear.sutoko.game.model.game.isPremium
 
@@ -96,7 +97,10 @@ fun GameCard(
             Row {
                 Text(
                     modifier = Modifier,
-                    text = stringResource(R.string.game_card_genre_fallback),
+                    text = formatNarrativeThemes(
+                        gameCatalog.narrativeThemes,
+                        stringResource(R.string.game_card_genre_fallback)
+                    ),
                     color = Color.White.copy(0.8f),
                     fontSize = 12.sp,
                     style = SutokoTypography.h3.copy(

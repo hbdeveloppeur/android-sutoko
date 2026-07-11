@@ -7,6 +7,7 @@ import com.purpletear.sutoko.game.model.Asset
 import com.purpletear.sutoko.game.model.Author
 import com.purpletear.sutoko.game.model.game.GameCatalog
 import com.purpletear.sutoko.game.model.game.GameMetadata
+import com.purpletear.sutoko.game.model.game.NarrativeTheme
 
 @Keep
 @Entity(tableName = "games")
@@ -28,6 +29,7 @@ data class GameCatalogEntity(
     val isOfficial: Boolean = false,
     val userNickNameRequired: Boolean = false,
     val minAppBuild: Int = 1,
+    val narrativeThemes: List<NarrativeTheme> = emptyList(),
 )
 
 
@@ -48,4 +50,5 @@ fun GameCatalogEntity.toDomain(): GameCatalog = GameCatalog(
     isOfficial = isOfficial,
     userNickNameRequired = userNickNameRequired,
     minAppBuild = minAppBuild,
+    narrativeThemes = narrativeThemes,
 )

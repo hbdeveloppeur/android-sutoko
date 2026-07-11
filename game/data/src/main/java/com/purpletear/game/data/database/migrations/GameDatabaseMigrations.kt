@@ -82,9 +82,25 @@ object GameDatabaseMigrations {
         }
     }
 
+    /**
+     * Migration from version 12 to 13:
+     * - Adds narrativeThemes (JSON-encoded List<String>) to the games catalog so cards and
+     *   previews can display server-localized genres.
+     * - Existing games default to an empty list ("[]"), which the UI maps to the localized
+     *   genre fallback string.
+     */
+    val MIGRATION_12_13 = object : Migration(12, 13) {
+        override fun migrate(db: SupportSQLiteDatabase) {
+            db.execSQL(
+                "ALTER TABLE games ADD COLUMN narrativeThemes TEXT NOT NULL DEFAULT '[]'"
+            )
+        }
+    }
+
     val ALL: Array<Migration> = arrayOf(
         MIGRATION_6_7,
         MIGRATION_10_11,
         MIGRATION_11_12,
+        MIGRATION_12_13,
     )
 }

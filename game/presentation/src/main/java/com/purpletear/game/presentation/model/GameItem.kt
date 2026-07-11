@@ -3,6 +3,7 @@ package com.purpletear.game.presentation.model
 import androidx.annotation.Keep
 import com.purpletear.sutoko.game.model.Author
 import com.purpletear.sutoko.game.model.game.GameCatalog
+import com.purpletear.sutoko.game.model.game.NarrativeTheme
 import com.purpletear.sutoko.game.model.game.GameInstall
 
 @Keep
@@ -25,6 +26,7 @@ data class GameItem(
     val minAppBuild: Int,
     val author: Author? = null,
     val legacyId: Int? = null,
+    val narrativeThemes: List<NarrativeTheme> = emptyList(),
 ) {
     constructor(
         catalog: GameCatalog,
@@ -52,5 +54,6 @@ data class GameItem(
         minAppBuild = catalog.minAppBuild,
         author = catalog.author,
         legacyId = catalog.legacyId,
+        narrativeThemes = catalog.narrativeThemes,
     )
 }
