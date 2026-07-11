@@ -99,6 +99,7 @@ class MessageNodeHandler @Inject constructor(
                 processedText,
                 messageId,
                 isUserChoice,
+                previousNode,
                 memory,
             )
 
@@ -120,21 +121,34 @@ class MessageNodeHandler @Inject constructor(
         text: String,
         messageId: String,
         isUserChoice: Boolean,
+        previousNode: Node?,
         memory: GameMemory,
     ): List<HandlerCommand> {
+        val previousNodeText = if (previousNode is Node.Message) {
+            previousNode.text
+        } else if (previousNode is Node.Info) {
+            previousNode.text
+        } else {
+            null
+        }
         if (isUserChoice) {
             GameEngineLogger.d("MSG") { "User choice → skipping SMS delays for ${node.id}" }
             return listOf(emitAddText(text, messageId, node.characterId, memory))
         }
 
         val commands = mutableListOf<HandlerCommand>()
-
-        if (node.isHesitating) {
-            addHesitationScript(commands, messageId, node.characterId)
+        previousNodeText?.let {
+            commands.add(HandlerCommand.Delay(determineReadingDuration(it)))
         }
 
-        commands.add(HandlerCommand.Emit(HandlerEffect.PlayTypingSound))
+        if (node.isHesitating) {
+
+            addHesitationScript(commands, messageId, node.characterId)
+            commands.add(HandlerCommand.Delay(Random.nextLong(280, 2000)))
+        }
+
         commands.add(emitAddTyping(messageId, node.characterId))
+        commands.add(HandlerCommand.Emit(HandlerEffect.PlayTypingSound))
 
         val typingDelayMs = determineTypingDuration(node, text)
         commands.add(HandlerCommand.Delay(typingDelayMs))
