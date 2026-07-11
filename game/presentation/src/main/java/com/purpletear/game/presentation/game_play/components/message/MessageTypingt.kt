@@ -19,6 +19,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -29,6 +30,7 @@ import androidx.compose.ui.unit.dp
 import com.purpletear.game.debug.PreviewCharacter
 import com.purpletear.game.debug.PreviewOverlayWrapper
 import com.purpletear.game.presentation.R
+import com.purpletear.game.presentation.common.extensions.parseOrNull
 import com.purpletear.game.presentation.game_play.mapper.ITEMS_HORIZONTAL_PADDING
 import com.purpletear.sutoko.game.model.character.Character
 
@@ -56,9 +58,13 @@ private const val DOT_DELAY = ANIMATION_DURATION / DOT_COUNT
 @Composable
 internal fun MessageTyping(
     character: Character? = null,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    bubbleColorHex: String? = null,
+    textColorHex: String? = null,
 ) {
     val infiniteTransition = rememberInfiniteTransition(label = "typing_dots")
+    val bubbleColor = remember(bubbleColorHex) { Color.parseOrNull(bubbleColorHex) }
+    val dotColor = remember(textColorHex) { Color.parseOrNull(textColorHex) }
     val isMainCharacter = character?.isMainCharacter ?: false
     val alignment = if (isMainCharacter) Alignment.CenterEnd else Alignment.CenterStart
 
@@ -68,7 +74,9 @@ internal fun MessageTyping(
             .padding(horizontal = ITEMS_HORIZONTAL_PADDING),
         contentAlignment = alignment,
     ) {
-        MessageBubble {
+        MessageBubble(
+            backgroundColor = bubbleColor ?: Color(0x22FFFFFF),
+        ) {
             Row(
                 modifier = Modifier.padding(5.dp),
                 horizontalArrangement = Arrangement.spacedBy(5.dp),
@@ -77,7 +85,7 @@ internal fun MessageTyping(
                     val alpha = infiniteTransition.dotAlphaAnimation(
                         delayMillis = index * DOT_DELAY
                     )
-                    Dot(alpha = alpha.value)
+                    Dot(alpha = alpha.value, color = dotColor ?: Color.White)
                 }
             }
         }
@@ -104,12 +112,12 @@ private fun InfiniteTransition.dotAlphaAnimation(
 )
 
 @Composable
-internal fun Dot(alpha: Float) {
+internal fun Dot(alpha: Float, color: Color = Color.White) {
     Box(
         Modifier
             .size(8.dp)
             .clip(CircleShape)
             .alpha(alpha)
-            .background(Color.White)
+            .background(color)
     )
 }

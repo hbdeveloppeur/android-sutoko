@@ -78,7 +78,11 @@ internal fun Message(
 
                 GameMessageType.Typing -> {
                     msg as GameMessageTyping
-                    MessageTyping(character = character)
+                    MessageTyping(
+                        character = character,
+                        bubbleColorHex = msg.backgroundColor,
+                        textColorHex = msg.foregroundColor,
+                    )
                 }
 
                 GameMessageType.ChapterEnd -> {

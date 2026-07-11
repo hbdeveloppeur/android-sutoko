@@ -143,11 +143,11 @@ class MessageNodeHandler @Inject constructor(
 
         if (node.isHesitating) {
 
-            addHesitationScript(commands, messageId, node.characterId)
+            addHesitationScript(commands, messageId, node.characterId, memory)
             commands.add(HandlerCommand.Delay(Random.nextLong(280, 2000)))
         }
 
-        commands.add(emitAddTyping(messageId, node.characterId))
+        commands.add(emitAddTyping(messageId, node.characterId, memory))
         commands.add(HandlerCommand.Emit(HandlerEffect.PlayTypingSound))
 
         val typingDelayMs = determineTypingDuration(node, text)
@@ -202,9 +202,10 @@ class MessageNodeHandler @Inject constructor(
     private fun addHesitationScript(
         commands: MutableList<HandlerCommand>,
         messageId: String,
-        characterId: Int
+        characterId: Int,
+        memory: GameMemory,
     ) {
-        commands.add(emitAddTyping(messageId, characterId))
+        commands.add(emitAddTyping(messageId, characterId, memory))
         commands.add(HandlerCommand.Emit(HandlerEffect.PlayTypingSound))
         commands.add(
             HandlerCommand.Delay(
@@ -225,12 +226,18 @@ class MessageNodeHandler @Inject constructor(
         )
     }
 
-    private fun emitAddTyping(messageId: String, characterId: Int): HandlerCommand =
+    private fun emitAddTyping(
+        messageId: String,
+        characterId: Int,
+        memory: GameMemory,
+    ): HandlerCommand =
         HandlerCommand.Emit(
             HandlerEffect.AddMessage(
                 GameMessageTyping(
                     id = messageId,
                     characterId = characterId,
+                    backgroundColor = memory.get(GameMemory.MESSAGE_THEME_BG_KEY),
+                    foregroundColor = memory.get(GameMemory.MESSAGE_THEME_FG_KEY),
                 )
             )
         )
