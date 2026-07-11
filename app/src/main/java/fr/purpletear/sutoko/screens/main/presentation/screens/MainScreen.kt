@@ -45,6 +45,7 @@ fun MainScreen(
     viewModel: HomeScreenViewModel,
     mainNavController: NavController,
     onAccountPressed: () -> Unit,
+    onSignInPressed: () -> Unit,
     onOptionsPressed: () -> Unit,
     onCoinsPressed: () -> Unit,
     onDiamondsPressed: () -> Unit,
@@ -102,6 +103,7 @@ fun MainScreen(
                     HomeScreen(
                         mainNavController = mainNavController,
                         onAccountPressed = onAccountPressed,
+                        onSignInPressed = onSignInPressed,
                         onOptionsPressed = onOptionsPressed,
                         onCoinsPressed = onCoinsPressed,
                         onDiamondsPressed = onDiamondsPressed,
@@ -118,6 +120,7 @@ fun MainScreen(
                 ) {
                     CreatePageComposable(
                         onAccountPressed = onAccountPressed,
+                        onSignInPressed = onSignInPressed,
                         onOptionsPressed = onOptionsPressed,
                         onCoinsPressed = onCoinsPressed,
                         onDiamondsPressed = onDiamondsPressed,

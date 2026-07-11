@@ -50,6 +50,7 @@ import kotlinx.coroutines.CancellationException
 fun HomeScreen(
     mainNavController: NavController,
     onAccountPressed: () -> Unit,
+    onSignInPressed: () -> Unit,
     onOptionsPressed: () -> Unit,
     onCoinsPressed: () -> Unit,
     onDiamondsPressed: () -> Unit,
@@ -80,6 +81,7 @@ fun HomeScreen(
     }
 
     val balance = viewModel.balance.collectAsStateWithLifecycle()
+    val isConnected = viewModel.isConnected.collectAsStateWithLifecycle()
 
     HomeContent(
         scrollState = scrollState,
@@ -89,9 +91,11 @@ fun HomeScreen(
         squareIcons = viewModel.squareIcons.value,
         categoryState = viewModel.categoryState.value,
         coinsBalance = balance.value,
+        isConnected = isConnected.value,
         aiConversationMessageCount = viewModel.aiConversationMessageCount.value,
         displayAiConversationCard = viewModel.displayAiConversationCard.value,
         onAccountButtonPressed = onAccountPressed,
+        onSignInButtonPressed = onSignInPressed,
         onCoinsButtonPressed = onCoinsPressed,
         onDiamondsButtonPressed = onDiamondsPressed,
         onOptionsButtonPressed = onOptionsPressed,
@@ -130,9 +134,11 @@ private fun HomeContent(
     squareIcons: Map<Int, Int?>,
     categoryState: MainMenuCategory,
     coinsBalance: Resource<Balance>,
+    isConnected: Boolean,
     aiConversationMessageCount: Int?,
     displayAiConversationCard: Boolean,
     onAccountButtonPressed: () -> Unit,
+    onSignInButtonPressed: () -> Unit,
     onCoinsButtonPressed: () -> Unit,
     onDiamondsButtonPressed: () -> Unit,
     onOptionsButtonPressed: () -> Unit,
@@ -150,7 +156,9 @@ private fun HomeContent(
     ) {
         topNavigationSection(
             balance = coinsBalance,
+            isConnected = isConnected,
             onAccountButtonPressed = onAccountButtonPressed,
+            onSignInButtonPressed = onSignInButtonPressed,
             onCoinsButtonPressed = onCoinsButtonPressed,
             onDiamondsButtonPressed = onDiamondsButtonPressed,
             onOptionsButtonPressed = onOptionsButtonPressed
@@ -197,7 +205,9 @@ private fun HomeContent(
 
 private fun LazyListScope.topNavigationSection(
     balance: Resource<Balance>,
+    isConnected: Boolean,
     onAccountButtonPressed: () -> Unit,
+    onSignInButtonPressed: () -> Unit,
     onCoinsButtonPressed: () -> Unit,
     onDiamondsButtonPressed: () -> Unit,
     onOptionsButtonPressed: () -> Unit
@@ -210,7 +220,9 @@ private fun LazyListScope.topNavigationSection(
                 .padding(bottom = 8.dp)
                 .padding(start = 8.dp),
             balance = balance,
+            isConnected = isConnected,
             onAccountButtonPressed = onAccountButtonPressed,
+            onSignInButtonPressed = onSignInButtonPressed,
             onCoinsButtonPressed = onCoinsButtonPressed,
             onDiamondsButtonPressed = onDiamondsButtonPressed,
             onOptionsButtonPressed = onOptionsButtonPressed

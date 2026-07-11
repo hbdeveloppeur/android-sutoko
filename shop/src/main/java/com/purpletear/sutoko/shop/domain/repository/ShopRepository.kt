@@ -18,5 +18,17 @@ interface ShopRepository {
         userToken: String
     ): Flow<Result<Unit>>
 
+    /**
+     * Resets the cached balance to the unloaded sentinel (`Balance(-1, -1)`).
+     *
+     * Postconditions:
+     * - `observeBalance()` emits `Balance(coins = -1, diamonds = -1)`.
+     * - `Balance.isLoaded()` returns `false`.
+     *
+     * Used when there is no authenticated user so the balance never reflects a
+     * previous account. Implementations must perform the reset atomically.
+     */
+    fun resetBalance()
+
     suspend fun getPacks(): Result<List<ShopPack>>
 }

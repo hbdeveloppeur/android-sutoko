@@ -24,6 +24,10 @@ class InMemoryShopRepository @Inject constructor(
 
     override fun observeBalance(): Flow<Balance> = _balance.asStateFlow()
 
+    override fun resetBalance() {
+        _balance.value = Balance(coins = -1, diamonds = -1)
+    }
+
     override fun loadBalance(userId: String, userToken: String): Flow<Result<Unit>> = flow {
         try {
             val request = GetBalanceRequestDto(

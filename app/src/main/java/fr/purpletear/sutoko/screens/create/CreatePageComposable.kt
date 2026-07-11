@@ -44,6 +44,7 @@ internal fun CreatePageComposable(
     modifier: Modifier = Modifier,
     viewModel: CreateViewModel = hiltViewModel(),
     onAccountPressed: () -> Unit = {},
+    onSignInPressed: () -> Unit = {},
     onOptionsPressed: () -> Unit = {},
     onCoinsPressed: () -> Unit = {},
     onDiamondsPressed: () -> Unit = {},
@@ -90,7 +91,9 @@ internal fun CreatePageComposable(
                             .padding(horizontal = 16.dp)
                             .padding(start = 8.dp),
                         balance = balance.value,
+                        isConnected = isConnected.value,
                         onAccountButtonPressed = onAccountPressed,
+                        onSignInButtonPressed = onSignInPressed,
                         onCoinsButtonPressed = onCoinsPressed,
                         onDiamondsButtonPressed = onDiamondsPressed,
                         onOptionsButtonPressed = onOptionsPressed,

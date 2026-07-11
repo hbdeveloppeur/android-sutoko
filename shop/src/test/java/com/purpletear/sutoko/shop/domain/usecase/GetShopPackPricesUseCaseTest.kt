@@ -101,6 +101,8 @@ class GetShopPackPricesUseCaseTest {
         override fun observeBalance(): Flow<Balance> = flowOf()
         override fun loadBalance(userId: String, userToken: String): Flow<Result<Unit>> = flowOf()
 
+        override fun resetBalance() { /* no-op: balance is not exercised in these tests */ }
+
         override suspend fun getPacks(): Result<List<ShopPack>> {
             return packsResult ?: Result.success(packs)
         }

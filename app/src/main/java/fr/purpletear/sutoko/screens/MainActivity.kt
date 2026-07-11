@@ -283,6 +283,7 @@ class MainActivity @Inject constructor(
                                 viewModel = viewModel,
                                 size = widthSizeClass,
                                 onAccountPressed = ::onAccountPressed,
+                                onSignInPressed = ::openConnectionPage,
                                 onOptionsPressed = ::onOptionsPressed,
                                 onDiamondsPressed = ::onDiamondPressed,
                                 onCoinsPressed = ::onCoinsPressed,

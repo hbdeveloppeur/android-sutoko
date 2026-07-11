@@ -18,6 +18,7 @@ import com.purpletear.core.presentation.extensions.Resource
 import com.purpletear.framework.services.OpenDiscordOrBrowserService
 import com.purpletear.sutoko.core.domain.appaction.ActionName
 import com.purpletear.sutoko.core.domain.appaction.AppAction
+import com.purpletear.sutoko.domain.repository.UserRepository
 import com.purpletear.sutoko.game.model.game.GameCatalog
 import com.purpletear.sutoko.game.model.game.isPremium
 import com.purpletear.sutoko.game.usecase.ObserveOfficialGamesUseCase
@@ -53,6 +54,7 @@ class HomeScreenViewModel @Inject constructor(
     private val observeOfficialGamesUseCase: ObserveOfficialGamesUseCase,
     private val openDiscordOrBrowser: OpenDiscordOrBrowserService,
     private val shopRepository: ShopRepository,
+    private val userRepository: UserRepository,
 ) : ViewModel(), LifecycleObserver {
 
     val balance: StateFlow<Resource<Balance>> = shopRepository.observeBalance()
@@ -61,6 +63,13 @@ class HomeScreenViewModel @Inject constructor(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(7000),
             initialValue = Resource.Loading(),
+        )
+
+    val isConnected: StateFlow<Boolean> = userRepository.observeIsConnected()
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(7000),
+            initialValue = false,
         )
 
     // Observe official games from the repository cache; sync is handled by CatalogSyncCoordinator
