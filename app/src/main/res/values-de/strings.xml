@@ -19,6 +19,7 @@
     <string name="sutoko_confirm_game_reset">Sie werden Ihre Fortschritte verlieren</string>
     <string name="restart">Erneut spielen</string>
     <string name="sutoko_app_name">Sutoko</string>
+    <string name="sutoko_logo_content_description">Sutoko your turn</string>
     <string name="sutoko_main_title_long_stories">Lange Geschichten</string>
     <string name="sutoko_main_title_short_stories">Kurze Geschichten</string>
     <string name="story_creation_text">Sie möchten Ihre eigenen Geschichten schreiben? Lassen Sie uns anfangen!</string>

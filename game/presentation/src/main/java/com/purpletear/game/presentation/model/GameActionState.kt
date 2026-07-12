@@ -20,9 +20,14 @@ sealed class GameActionState {
     data class Purchase(
         val chapterNumber: Int,
         val showTry: Boolean,
+        val price: Int,
+        val isUserConnected: Boolean,
     ) : GameActionState()
 
-    data class ConfirmPurchase(val isLoading: Boolean = false) : GameActionState()
+    data class ConfirmPurchase(
+        val isLoading: Boolean = false,
+        val price: Int = 0,
+    ) : GameActionState()
     data object GameFinished : GameActionState()
     data object Pending : GameActionState()
     data class Play(
@@ -42,13 +47,19 @@ fun GameItem.toGameActionState(
     currentChapter: Chapter?,
     appBuildNumber: Int,
     isGameFinished: Boolean = false,
+    isUserConnected: Boolean = false,
 ): GameActionState = when {
-    isPurchasing -> GameActionState.ConfirmPurchase(isLoading = isPurchaseLoading)
+    isPurchasing -> GameActionState.ConfirmPurchase(
+        isLoading = isPurchaseLoading,
+        price = price,
+    )
     isPending -> GameActionState.Pending
     downloadProgress != null -> GameActionState.Downloading(downloadProgress)
     !isFree && !isPurchased -> GameActionState.Purchase(
         chapterNumber = currentChapter?.number ?: 1,
         showTry = legacyId !in FRIENDZONED_LEGACY_IDS && (currentChapter?.number ?: 1) <= 1,
+        price = price,
+        isUserConnected = isUserConnected,
     )
 
     localVersion == null -> GameActionState.Download

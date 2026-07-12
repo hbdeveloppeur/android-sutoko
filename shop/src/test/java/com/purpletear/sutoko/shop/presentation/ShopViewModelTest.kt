@@ -153,6 +153,7 @@ class ShopViewModelTest {
             flowOf(Result.success(Unit))
 
         override fun resetBalance() { /* no-op: balance is constant in this fake */ }
+        override fun updateBalance(balance: Balance) { /* no-op */ }
 
         override suspend fun getPacks(): Result<List<ShopPack>> = Result.success(packs)
     }

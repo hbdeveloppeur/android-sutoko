@@ -54,6 +54,7 @@
     <string name="game_menu_reload_game">Recharger le jeu</string>
     <string name="game_menu_buy">Acheter</string>
     <string name="game_menu_buy_to_continue">Achetez le jeu pour continuer</string>
+    <string name="game_menu_connect_to_buy">Connectez-vous pour acheter</string>
     <string name="game_menu_try_first_chapter">Essayer</string>
     <string name="game_menu_try_first_chapter_subtitle">Chapitre 1</string>
     <string name="game_menu_pending">En attente</string>

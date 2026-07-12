@@ -270,6 +270,7 @@ class MainActivity @Inject constructor(
                                         isTrial = isTrial,
                                     )
                                 },
+                                onOpenAccountConnection = ::openConnectionPage,
                             )
                         }
 

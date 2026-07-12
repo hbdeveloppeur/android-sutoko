@@ -63,6 +63,7 @@ dependencies {
     implementation(libs.android.material)
     implementation(project(":purchase"))
     implementation(project(":auth"))
+    implementation(project(":shop"))
     implementation(project(":popup:domain"))
     implementation(project(":popup:data"))
     implementation(project(":popup:presentation"))

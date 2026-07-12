@@ -7,9 +7,12 @@ import com.purpletear.game.presentation.game_preview.fakes.FakeAppVersionProvide
 import com.purpletear.game.presentation.game_preview.fakes.FakeChapterRepository
 import com.purpletear.game.presentation.game_preview.fakes.FakeGameInstallRepository
 import com.purpletear.game.presentation.game_preview.fakes.FakeGameRepository
+import com.purpletear.game.presentation.game_preview.fakes.FakeBuyStoryWithCoinsUseCase
+import com.purpletear.game.presentation.game_preview.fakes.FakeIsStoryGrantedUseCase
 import com.purpletear.game.presentation.game_preview.fakes.FakeLogger
 import com.purpletear.game.presentation.game_preview.fakes.FakeMediaUrlResolver
 import com.purpletear.game.presentation.game_preview.fakes.FakeMemoryRepository
+import com.purpletear.game.presentation.game_preview.fakes.FakeObserveCoinPurchasedSkusUseCase
 import com.purpletear.game.presentation.game_preview.fakes.FakePurchaseRepository
 import com.purpletear.game.presentation.game_preview.fakes.FakeToastService
 import com.purpletear.game.presentation.game_preview.fakes.FakeUserGameProgressRepository
@@ -17,6 +20,7 @@ import com.purpletear.game.presentation.game_preview.fakes.FakeUserRepository
 import com.purpletear.game.presentation.game_preview.fakes.TestFixtures
 import com.purpletear.game.presentation.game_preview.handlers.GamePreviewPurchaseHandler
 import com.purpletear.game.presentation.model.GameUiError
+import com.purpletear.sutoko.domain.model.User
 import com.purpletear.sutoko.game.model.Chapter
 import com.purpletear.sutoko.game.usecase.DownloadGameUseCase
 import com.purpletear.sutoko.game.usecase.GetChaptersUseCase
@@ -25,6 +29,8 @@ import com.purpletear.sutoko.game.usecase.SaveUserNickNameUseCase
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.test.TestCoroutineScheduler
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
@@ -48,7 +54,10 @@ class GamePreviewViewModelTest {
     private val logger = FakeLogger()
     private val appVersionProvider = FakeAppVersionProvider(TestFixtures.APP_BUILD_NUMBER)
     private val toastService = FakeToastService()
-    private val purchaseHandler = GamePreviewPurchaseHandler(purchaseRepository)
+    private val buyStoryWithCoinsUseCase = FakeBuyStoryWithCoinsUseCase()
+    private val purchaseHandler = GamePreviewPurchaseHandler(buyStoryWithCoinsUseCase)
+    private val observeCoinPurchasedSkusUseCase = FakeObserveCoinPurchasedSkusUseCase()
+    private val isStoryGrantedUseCase = FakeIsStoryGrantedUseCase()
 
     private val getChaptersUseCase = GetChaptersUseCase(chapterRepository)
     private val saveUserNickNameUseCase = SaveUserNickNameUseCase(userGameProgressRepository)
@@ -60,7 +69,21 @@ class GamePreviewViewModelTest {
         chapterRepository.setChapters(TestFixtures.GAME_ID, Result.success(emptyList()))
     }
 
-    private fun createViewModel(gameId: String = TestFixtures.GAME_ID): GamePreviewViewModel {
+    private fun activateStateFlows(
+        scope: CoroutineScope,
+        viewModel: GamePreviewViewModel,
+    ) {
+        scope.launch { viewModel.isUserConnected.collect { } }
+        scope.launch { viewModel.game.collect { } }
+    }
+
+    private fun createViewModel(
+        gameId: String = TestFixtures.GAME_ID,
+        connectedUser: Boolean = false,
+    ): GamePreviewViewModel {
+        if (connectedUser) {
+            userRepository.setUser(User(id = "user-1", token = "token-1"))
+        }
         return GamePreviewViewModel(
             savedStateHandle = SavedStateHandle(mapOf("gameId" to gameId)),
             gameRepository = gameRepository,
@@ -74,6 +97,9 @@ class GamePreviewViewModelTest {
             restartGameUseCase = restartGameUseCase,
             downloadGameUseCase = downloadGameUseCase,
             purchaseHandler = purchaseHandler,
+            userRepository = userRepository,
+            observeCoinPurchasedSkusUseCase = observeCoinPurchasedSkusUseCase,
+            isStoryGrantedUseCase = isStoryGrantedUseCase,
             logger = logger,
             appVersionProvider = appVersionProvider,
         )
@@ -103,8 +129,23 @@ class GamePreviewViewModelTest {
     }
 
     @Test
-    fun `onAction OnBuy sets isPurchasing`() = runTest {
+    fun `onAction OnBuy when not connected emits OpenAccountConnection`() = runTest {
         val viewModel = createViewModel()
+
+        viewModel.events.test {
+            viewModel.onAction(GamePreviewAction.OnBuy)
+            advanceUntilIdle()
+
+            assertEquals(GamePreviewEvent.OpenAccountConnection, awaitItem())
+        }
+        assertFalse(viewModel.isPurchasing.value)
+    }
+
+    @Test
+    fun `onAction OnBuy when connected sets isPurchasing`() = runTest {
+        val viewModel = createViewModel(connectedUser = true)
+        activateStateFlows(backgroundScope, viewModel)
+        advanceUntilIdle()
 
         viewModel.onAction(GamePreviewAction.OnBuy)
         advanceUntilIdle()
@@ -116,7 +157,9 @@ class GamePreviewViewModelTest {
     @Test
     fun `onAction OnBuyConfirm emits ShowError when no SKU`() = runTest {
         gameRepository.setGame(TestFixtures.GAME_ID, TestFixtures.gameCatalog())
-        val viewModel = createViewModel()
+        val viewModel = createViewModel(connectedUser = true)
+        activateStateFlows(backgroundScope, viewModel)
+        advanceUntilIdle()
 
         viewModel.events.test {
             viewModel.onAction(GamePreviewAction.OnBuy)
@@ -284,5 +327,82 @@ class GamePreviewViewModelTest {
             assertTrue(data is GamePreviewUiState.Data)
             assertFalse((data as GamePreviewUiState.Data).item.isPurchased)
         }
+    }
+
+    @Test
+    fun `coin purchased sku makes a paid game owned`() = runTest {
+        gameRepository.setGame(TestFixtures.GAME_ID, TestFixtures.gameCatalog(price = 100, skus = listOf("sku-1")))
+        observeCoinPurchasedSkusUseCase.setSkus(setOf("sku-1"))
+        val viewModel = createViewModel()
+
+        viewModel.game.test {
+            skipItems(1) // Loading
+            val data = awaitItem()
+            assertTrue(data is GamePreviewUiState.Data)
+            assertTrue((data as GamePreviewUiState.Data).item.isPurchased)
+        }
+    }
+
+    @Test
+    fun `successful coin purchase emits PurchaseSuccess`() = runTest {
+        gameRepository.setGame(TestFixtures.GAME_ID, TestFixtures.gameCatalog(price = 100, skus = listOf("sku-1")))
+        buyStoryWithCoinsUseCase.setResult("sku-1", Result.success(com.purpletear.sutoko.shop.domain.repository.model.Balance(coins = 900, diamonds = 0)))
+        val viewModel = createViewModel(connectedUser = true)
+        activateStateFlows(backgroundScope, viewModel)
+        advanceUntilIdle()
+
+        val emitted = mutableListOf<GamePreviewUiState?>()
+        launch { println("DEBUG game collector started"); viewModel.game.collect { emitted.add(it); println("DEBUG emission $it") } }
+        launch { println("DEBUG user collector started"); viewModel.isUserConnected.collect { println("DEBUG user emission $it") } }
+        advanceUntilIdle()
+        println("DEBUG emitted=$emitted current=${viewModel.game.value}")
+        val data = viewModel.game.value as? GamePreviewUiState.Data
+        println("DEBUG game=$data sku=${data?.item?.skuIdentifiers}")
+        println("DEBUG isUserConnected=${viewModel.isUserConnected.value}")
+
+        viewModel.events.test {
+            viewModel.onAction(GamePreviewAction.OnBuy)
+            viewModel.onAction(GamePreviewAction.OnBuyConfirm)
+            advanceUntilIdle()
+
+            assertEquals(GamePreviewEvent.PurchaseSuccess, awaitItem())
+        }
+        assertFalse(viewModel.isPurchasing.value)
+    }
+
+    @Test
+    fun `coin purchase already owned emits ShowAlreadyBoughtAlert`() = runTest {
+        gameRepository.setGame(TestFixtures.GAME_ID, TestFixtures.gameCatalog(price = 100, skus = listOf("sku-1")))
+        buyStoryWithCoinsUseCase.setResult("sku-1", Result.failure(com.purpletear.sutoko.shop.domain.error.BuyStoryError.AlreadyOwned()))
+        val viewModel = createViewModel(connectedUser = true)
+        activateStateFlows(backgroundScope, viewModel)
+        advanceUntilIdle()
+
+        viewModel.events.test {
+            viewModel.onAction(GamePreviewAction.OnBuy)
+            viewModel.onAction(GamePreviewAction.OnBuyConfirm)
+            advanceUntilIdle()
+
+            assertEquals(GamePreviewEvent.ShowAlreadyBoughtAlert, awaitItem())
+        }
+        assertFalse(viewModel.isPurchasing.value)
+    }
+
+    @Test
+    fun `coin purchase not purchasable emits ShowError`() = runTest {
+        gameRepository.setGame(TestFixtures.GAME_ID, TestFixtures.gameCatalog(price = 100, skus = listOf("sku-1")))
+        buyStoryWithCoinsUseCase.setResult("sku-1", Result.failure(com.purpletear.sutoko.shop.domain.error.BuyStoryError.NotPurchasable()))
+        val viewModel = createViewModel(connectedUser = true)
+        activateStateFlows(backgroundScope, viewModel)
+        advanceUntilIdle()
+
+        viewModel.events.test {
+            viewModel.onAction(GamePreviewAction.OnBuy)
+            viewModel.onAction(GamePreviewAction.OnBuyConfirm)
+            advanceUntilIdle()
+
+            assertEquals(GamePreviewEvent.ShowError(GameUiError.Purchase), awaitItem())
+        }
+        assertFalse(viewModel.isPurchasing.value)
     }
 }

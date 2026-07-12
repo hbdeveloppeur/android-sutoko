@@ -21,6 +21,10 @@ sealed interface GamePreviewEvent {
 
     data object ShowRestartDialog : GamePreviewEvent
 
+    data object OpenAccountConnection : GamePreviewEvent
+
+    data object ShowAlreadyBoughtAlert : GamePreviewEvent
+
     @Keep
     data class ShowError(val error: GameUiError) : GamePreviewEvent
 }

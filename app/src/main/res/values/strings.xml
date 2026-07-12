@@ -19,6 +19,7 @@
     <string name="sutoko_confirm_game_reset">You will lose your progress</string>
     <string name="restart">Replay</string>
     <string name="sutoko_app_name">Sutoko</string>
+    <string name="sutoko_logo_content_description">Sutoko your turn</string>
     <string name="sutoko_main_title_long_stories">Long Stories</string>
     <string name="sutoko_main_title_short_stories">Short Stories</string>
     <string name="story_creation_text">You want to write your own text stories? Let\'s get started!</string>

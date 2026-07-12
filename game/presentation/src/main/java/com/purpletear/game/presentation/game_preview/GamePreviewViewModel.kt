@@ -12,6 +12,7 @@ import com.purpletear.game.presentation.model.GameUiError
 import com.purpletear.sutoko.core.domain.helper.AppVersionProvider
 import com.purpletear.sutoko.core.domain.logger.Logger
 import com.purpletear.sutoko.core.domain.logger.exception
+import com.purpletear.sutoko.domain.repository.UserRepository
 import com.purpletear.sutoko.game.model.Chapter
 import com.purpletear.sutoko.game.repository.ChapterRepository
 import com.purpletear.sutoko.game.repository.game.GameInstallRepository
@@ -21,6 +22,9 @@ import com.purpletear.sutoko.game.usecase.DownloadGameUseCase
 import com.purpletear.sutoko.game.usecase.GetChaptersUseCase
 import com.purpletear.sutoko.game.usecase.RestartGameUseCase
 import com.purpletear.sutoko.game.usecase.SaveUserNickNameUseCase
+import com.purpletear.sutoko.shop.domain.error.BuyStoryError
+import com.purpletear.sutoko.shop.domain.usecase.IsStoryGrantedUseCase
+import com.purpletear.sutoko.shop.domain.usecase.ObserveCoinPurchasedSkusUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import fr.sutoko.inapppurchase.application.domain.repository.PurchaseRepository
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -47,6 +51,9 @@ class GamePreviewViewModel @Inject constructor(
     private val restartGameUseCase: RestartGameUseCase,
     private val downloadGameUseCase: DownloadGameUseCase,
     private val purchaseHandler: GamePreviewPurchaseHandler,
+    private val userRepository: UserRepository,
+    private val observeCoinPurchasedSkusUseCase: ObserveCoinPurchasedSkusUseCase,
+    private val isStoryGrantedUseCase: IsStoryGrantedUseCase,
     private val logger: Logger,
     appVersionProvider: AppVersionProvider,
 ) : ViewModel() {
@@ -63,26 +70,52 @@ class GamePreviewViewModel @Inject constructor(
             initialValue = null,
         )
 
+    val isUserConnected: StateFlow<Boolean> = userRepository.observeIsConnected()
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(7000),
+            initialValue = userRepository.isConnected().getOrDefault(false),
+        )
+
+    private data class GameObservation(
+        val catalog: com.purpletear.sutoko.game.model.game.GameCatalog?,
+        val install: com.purpletear.sutoko.game.model.game.GameInstall?,
+        val purchasedSkus: Set<String>,
+        val hasGlobalPremium: Boolean,
+        val downloadProgress: Float?,
+    )
+
     val game: StateFlow<GamePreviewUiState> = combine(
-        gameRepository.observeGame(id = gameId),
-        gameInstallRepository.observeInstall(gameId = gameId),
-        gamePurchaseRepository.observePurchasedSkus(),
-        gamePurchaseRepository.observeHasGlobalPremium(),
-        gameInstallRepository.observeDownloadProgress(gameId)
-    ) { catalog, install, purchasedSkus, hasGlobalPremium, downloadProgress ->
+        combine(
+            gameRepository.observeGame(id = gameId),
+            gameInstallRepository.observeInstall(gameId = gameId),
+            gamePurchaseRepository.observePurchasedSkus(),
+            gamePurchaseRepository.observeHasGlobalPremium(),
+            gameInstallRepository.observeDownloadProgress(gameId),
+        ) { catalog, install, purchasedSkus, hasGlobalPremium, downloadProgress ->
+            GameObservation(
+                catalog = catalog,
+                install = install,
+                purchasedSkus = purchasedSkus,
+                hasGlobalPremium = hasGlobalPremium,
+                downloadProgress = downloadProgress,
+            )
+        },
+        observeCoinPurchasedSkusUseCase(),
+    ) { observation, coinPurchasedSkus ->
         when {
-            catalog != null -> GamePreviewUiState.Data(
+            observation.catalog != null -> GamePreviewUiState.Data(
                 item = GameItem(
-                    catalog,
-                    install,
+                    observation.catalog,
+                    observation.install,
                     // Full access = owns a game SKU OR has an active global premium.
-                    isPurchased = catalog.skus.any { it in purchasedSkus } || hasGlobalPremium,
-                    bannerUrl = mediaUrlResolver.resolveBannerUrl(catalog.banner?.storagePath),
-                    logoUrl = mediaUrlResolver.resolveBannerUrl(catalog.logo?.storagePath),
-                    menuBackgroundUrl = mediaUrlResolver.resolveBannerUrl(catalog.menuBackground?.storagePath),
-                    downloadProgress,
+                    isPurchased = observation.catalog.skus.any { it in observation.purchasedSkus || it in coinPurchasedSkus } || observation.hasGlobalPremium,
+                    bannerUrl = mediaUrlResolver.resolveBannerUrl(observation.catalog.banner?.storagePath),
+                    logoUrl = mediaUrlResolver.resolveBannerUrl(observation.catalog.logo?.storagePath),
+                    menuBackgroundUrl = mediaUrlResolver.resolveBannerUrl(observation.catalog.menuBackground?.storagePath),
+                    observation.downloadProgress,
                 ),
-                gameCatalog = catalog,
+                gameCatalog = observation.catalog,
             )
 
             else -> GamePreviewUiState.NotFound
@@ -109,6 +142,8 @@ class GamePreviewViewModel @Inject constructor(
     private val currentGameItem: GameItem?
         get() = (game.value as? GamePreviewUiState.Data)?.item
 
+    private var coinGrantCheckDone = false
+
     private val _events = MutableSharedFlow<GamePreviewEvent>(extraBufferCapacity = 1)
     val events = _events.asSharedFlow()
 
@@ -121,11 +156,14 @@ class GamePreviewViewModel @Inject constructor(
         viewModelScope.launch {
             loadChapters()
         }
+        viewModelScope.launch {
+            syncCoinPurchaseGrantOnDataLoad()
+        }
     }
 
     fun onAction(action: GamePreviewAction) {
         when (action) {
-            GamePreviewAction.OnBuy -> purchaseHandler.startPurchaseFlow()
+            GamePreviewAction.OnBuy -> onBuy()
             GamePreviewAction.OnAbortBuy -> purchaseHandler.abortPurchaseFlow()
             GamePreviewAction.OnBuyConfirm -> onPurchase()
             GamePreviewAction.OnDownload -> onStartDownload()
@@ -144,6 +182,14 @@ class GamePreviewViewModel @Inject constructor(
             saveUserNickNameUseCase(gameId, name)
             navigateToPlay(requestNickName = false, isTrial = isTrial)
         }
+    }
+
+    private fun onBuy() {
+        if (!isUserConnected.value) {
+            sendEvent(GamePreviewEvent.OpenAccountConnection)
+            return
+        }
+        purchaseHandler.startPurchaseFlow()
     }
 
     private fun navigateToPlay(requestNickName: Boolean, isTrial: Boolean = false) {
@@ -182,6 +228,21 @@ class GamePreviewViewModel @Inject constructor(
             }
     }
 
+    private suspend fun syncCoinPurchaseGrantOnDataLoad() {
+        game.collect { state ->
+            val data = state as? GamePreviewUiState.Data ?: return@collect
+            if (coinGrantCheckDone || !isUserConnected.value || data.item.isPurchased || data.gameCatalog.skus.isEmpty()) {
+                return@collect
+            }
+
+            coinGrantCheckDone = true
+            isStoryGrantedUseCase(data.gameCatalog.skus)
+                .onFailure { error ->
+                    logger.exception(error) { "Failed to sync coin purchase grant for gameId=$gameId" }
+                }
+        }
+    }
+
     private fun onStartDownload() {
         viewModelScope.launch {
             downloadGameUseCase(gameId = gameId)
@@ -217,7 +278,11 @@ class GamePreviewViewModel @Inject constructor(
                 .onSuccess { sendEvent(GamePreviewEvent.PurchaseSuccess) }
                 .onFailure { error ->
                     logger.exception(error) { "Purchase failed for sku=$sku" }
-                    sendEvent(GamePreviewEvent.ShowError(GameUiError.Purchase))
+                    when (error) {
+                        is BuyStoryError.AlreadyOwned -> sendEvent(GamePreviewEvent.ShowAlreadyBoughtAlert)
+                        is BuyStoryError.NotPurchasable -> sendEvent(GamePreviewEvent.ShowError(GameUiError.Purchase))
+                        else -> sendEvent(GamePreviewEvent.ShowError(GameUiError.Purchase))
+                    }
                 }
         }
     }

@@ -1,6 +1,6 @@
 package com.purpletear.game.presentation.game_preview.handlers
 
-import fr.sutoko.inapppurchase.application.domain.repository.PurchaseRepository
+import com.purpletear.sutoko.shop.domain.usecase.BuyStoryWithCoinsUseCase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -15,7 +15,7 @@ import javax.inject.Inject
  * overall preview UI state.
  */
 class GamePreviewPurchaseHandler @Inject constructor(
-    private val purchaseRepository: PurchaseRepository,
+    private val buyStoryWithCoinsUseCase: BuyStoryWithCoinsUseCase,
 ) {
     private val _isPurchasing = MutableStateFlow(false)
     val isPurchasing: StateFlow<Boolean> = _isPurchasing.asStateFlow()
@@ -33,7 +33,9 @@ class GamePreviewPurchaseHandler @Inject constructor(
 
     suspend fun confirmPurchase(sku: String): Result<Unit> {
         _isPurchaseLoading.value = true
-        return purchaseRepository.purchase(sku).also { reset() }
+        return buyStoryWithCoinsUseCase(sku)
+            .map { }
+            .also { reset() }
     }
 
     private fun reset() {

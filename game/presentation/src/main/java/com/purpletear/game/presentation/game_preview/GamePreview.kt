@@ -68,6 +68,7 @@ fun GamePreview(
     viewModel: GamePreviewViewModel,
     fallbackBackgroundPainter: Painter? = null,
     onNavigateToGame: (String, Int?, Boolean, String?, Boolean) -> Unit = { _, _, _, _, _ -> },
+    onOpenAccountConnection: () -> Unit = {},
 ) {
     // Get the game from the ViewModel
     val state by viewModel.game.collectAsStateWithLifecycle()
@@ -75,6 +76,7 @@ fun GamePreview(
 
     val currentChapter by viewModel.currentChapter.collectAsStateWithLifecycle()
     val isUserPremium by viewModel.isUserPremium.collectAsStateWithLifecycle()
+    val isUserConnected by viewModel.isUserConnected.collectAsStateWithLifecycle()
     val isPurchasing by viewModel.isPurchasing.collectAsStateWithLifecycle()
     val isPurchaseLoading by viewModel.isPurchaseLoading.collectAsStateWithLifecycle()
     val appBuildNumber = viewModel.appBuildNumber
@@ -118,6 +120,7 @@ fun GamePreview(
             val animationDuration = 5250L
             var unlockAnimationIsVisible by remember { mutableStateOf(false) }
             var showRestartDialog by remember { mutableStateOf(false) }
+            var showAlreadyBoughtDialog by remember { mutableStateOf(false) }
             // Non-null => the nickname dialog is visible; the Boolean carries the trial
             // intent (OnTry vs OnPlay) so it is echoed back to the VM on confirm.
             var nickNameDialogIsTrial by remember { mutableStateOf<Boolean?>(null) }
@@ -170,6 +173,14 @@ fun GamePreview(
                             showRestartDialog = true
                         }
 
+                        GamePreviewEvent.OpenAccountConnection -> {
+                            onOpenAccountConnection()
+                        }
+
+                        GamePreviewEvent.ShowAlreadyBoughtAlert -> {
+                            showAlreadyBoughtDialog = true
+                        }
+
                         is GamePreviewEvent.ShowError -> Unit
                     }
                 }
@@ -184,6 +195,16 @@ fun GamePreview(
                         viewModel.onNickNameConfirmed(it, isTrial)
                     },
                     onDismiss = { nickNameDialogIsTrial = null },
+                )
+            }
+
+            if (showAlreadyBoughtDialog) {
+                SimpleAlertDialog(
+                    onDismissRequest = { showAlreadyBoughtDialog = false },
+                    onConfirmation = { showAlreadyBoughtDialog = false },
+                    dialogTitle = stringResource(R.string.already_bought_alert_title),
+                    dialogText = stringResource(R.string.already_bought_alert_description),
+                    confirmButtonText = stringResource(R.string.already_bought_alert_button),
                 )
             }
 
@@ -312,6 +333,7 @@ fun GamePreview(
                         isPurchaseLoading = isPurchaseLoading,
                         currentChapter = currentChapter,
                         appBuildNumber = appBuildNumber,
+                        isUserConnected = isUserConnected,
                     ),
                     onAction = viewModel::onAction,
                     modifier = Modifier.padding(bottom = 12.dp),

@@ -3,10 +3,13 @@ package fr.purpletear.sutoko.screens.main.presentation.screens
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -19,6 +22,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -29,7 +33,6 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.sharedelements.theme.Pink
 import com.example.sharedelements.theme.SutokoTypography
 import com.purpletear.core.presentation.extensions.Resource
 import com.purpletear.sutoko.shop.domain.repository.model.Balance
@@ -61,19 +64,26 @@ fun TopNavigation(
     ) {
 
         Column(
-            // center
+            modifier = Modifier.padding(bottom = 8.dp),
+            verticalArrangement = Arrangement.spacedBy(2.dp)
         ) {
             Text(
                 text = "Sutoko",
-                color = Color.White,
+                color = Color.White.copy(alpha = 0.7f),
                 style = SutokoTypography.h1,
                 fontSize = 18.sp,
             )
-            Text(
-                text = "2026",
-                color = Pink,
-                style = SutokoTypography.h1,
-                fontSize = 22.sp,
+            val painter = painterResource(R.drawable.sutoko_your_turn_logo)
+            val intrinsicSize = painter.intrinsicSize
+            val ratio = intrinsicSize.width / intrinsicSize.height
+
+            Image(
+                painter = painter,
+                contentDescription = stringResource(R.string.sutoko_logo_content_description),
+                contentScale = ContentScale.Fit,
+                modifier = Modifier
+                    .height(16.dp)
+                    .aspectRatio(ratio)
             )
         }
         Spacer(Modifier.weight(1f))

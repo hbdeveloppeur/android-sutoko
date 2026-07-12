@@ -1,7 +1,11 @@
 package fr.purpletear.sutoko.screens.main.presentation.screens
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -19,6 +23,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -39,6 +46,7 @@ import fr.purpletear.sutoko.screens.main.presentation.HomeScreenViewModel
 import fr.purpletear.sutoko.screens.main.presentation.MainEvents
 import fr.purpletear.sutoko.screens.main.presentation.screens.components.navigation.BottomNavItem
 import fr.purpletear.sutoko.screens.main.presentation.screens.home.HomeScreen
+import kotlinx.coroutines.delay
 
 @Composable
 fun MainScreen(
@@ -141,6 +149,33 @@ fun MainScreen(
 
         }
 
+        Filter()
+    }
+}
+
+@Composable()
+private fun Filter() {
+
+    var visible by remember { mutableStateOf(true) }
+    LaunchedEffect(Unit) {
+        delay(300)
+        visible = false
+    }
+
+    AnimatedVisibility(
+        visible = visible,
+        exit = fadeOut(
+            animationSpec = tween(
+                durationMillis = 500,
+                easing = FastOutSlowInEasing
+            )
+        )
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color.Black)
+        )
     }
 }
 

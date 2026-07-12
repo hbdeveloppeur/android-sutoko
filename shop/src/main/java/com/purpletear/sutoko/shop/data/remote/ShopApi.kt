@@ -16,7 +16,7 @@ interface ShopApi {
     @POST("shop/buy")
     suspend fun buyCatalogProduct(
         @Body request: BuyCatalogProductRequestDto
-    ): Response<Unit>
+    ): Response<BuyCatalogProductResponseDto>
 
     /**
      * Check if a user has specific products
@@ -57,6 +57,16 @@ data class BuyCatalogProductRequestDto(
     val skuIdentifier: String,
     val userId: String,
     val type: String
+)
+
+@Keep
+data class BuyCatalogProductResponseDto(
+    val balance: CoinsBalanceDto
+)
+
+@Keep
+data class ShopErrorResponseDto(
+    val code: String?
 )
 
 @Keep

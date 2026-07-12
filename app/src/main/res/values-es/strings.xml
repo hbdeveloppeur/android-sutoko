@@ -19,6 +19,7 @@
     <string name="sutoko_confirm_game_reset">Perderá su progreso</string>
     <string name="restart">Repetir</string>
     <string name="sutoko_app_name">Sutoko</string>
+    <string name="sutoko_logo_content_description">Sutoko your turn</string>
     <string name="sutoko_main_title_long_stories">Historias largas</string>
     <string name="sutoko_main_title_short_stories">Historias cortas</string>
     <string name="story_creation_text">¿Quiere escribir sus propias historias SMS? ¡Empecemos!</string>

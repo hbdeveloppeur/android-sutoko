@@ -14,6 +14,8 @@ class GameActionStateTest {
         localVersion: Int? = null,
         version: Int = 1,
         downloadProgress: Float? = null,
+        price: Int = if (isFree) 0 else 100,
+        isUserConnected: Boolean = false,
     ): GameItem = GameItem(
         id = "game-1",
         title = "Test",
@@ -24,15 +26,18 @@ class GameActionStateTest {
         isFree = isFree,
         legacyId = legacyId,
         minAppBuild = 1,
+        price = price,
     )
 
     private fun state(
         item: GameItem,
         currentChapter: Chapter? = Chapter(number = 1, code = "1A"),
         appBuildNumber: Int = 100,
+        isUserConnected: Boolean = false,
     ): GameActionState = item.toGameActionState(
         currentChapter = currentChapter,
         appBuildNumber = appBuildNumber,
+        isUserConnected = isUserConnected,
     )
 
     @Test
@@ -59,7 +64,10 @@ class GameActionStateTest {
             item(isFree = false, isPurchased = false, legacyId = null),
             currentChapter = Chapter(number = 1, code = "1A"),
         )
-        assertEquals(GameActionState.Purchase(chapterNumber = 1, showTry = true), result)
+        assertEquals(
+            GameActionState.Purchase(chapterNumber = 1, showTry = true, price = 100, isUserConnected = false),
+            result
+        )
     }
 
     @Test
@@ -68,7 +76,10 @@ class GameActionStateTest {
             item(isFree = false, isPurchased = false, legacyId = null),
             currentChapter = Chapter(number = 2, code = "1B"),
         )
-        assertEquals(GameActionState.Purchase(chapterNumber = 2, showTry = false), result)
+        assertEquals(
+            GameActionState.Purchase(chapterNumber = 2, showTry = false, price = 100, isUserConnected = false),
+            result
+        )
     }
 
     @Test
@@ -77,7 +88,10 @@ class GameActionStateTest {
             item(isFree = false, isPurchased = false, legacyId = 159),
             currentChapter = Chapter(number = 1, code = "1A"),
         )
-        assertEquals(GameActionState.Purchase(chapterNumber = 1, showTry = false), result)
+        assertEquals(
+            GameActionState.Purchase(chapterNumber = 1, showTry = false, price = 100, isUserConnected = false),
+            result
+        )
     }
 
     @Test
@@ -87,7 +101,10 @@ class GameActionStateTest {
             item(isFree = false, isPurchased = false, legacyId = 999),
             currentChapter = Chapter(number = 1, code = "1A"),
         )
-        assertEquals(GameActionState.Purchase(chapterNumber = 1, showTry = true), result)
+        assertEquals(
+            GameActionState.Purchase(chapterNumber = 1, showTry = true, price = 100, isUserConnected = false),
+            result
+        )
     }
 
     @Test
@@ -96,6 +113,9 @@ class GameActionStateTest {
             item(isFree = false, isPurchased = false, legacyId = null),
             currentChapter = null,
         )
-        assertEquals(GameActionState.Purchase(chapterNumber = 1, showTry = true), result)
+        assertEquals(
+            GameActionState.Purchase(chapterNumber = 1, showTry = true, price = 100, isUserConnected = false),
+            result
+        )
     }
 }

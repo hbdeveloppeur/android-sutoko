@@ -56,6 +56,7 @@
     <string name="game_menu_try_first_chapter">Testen</string>
     <string name="game_menu_try_first_chapter_subtitle">Kapitel 1</string>
     <string name="game_menu_buy_to_continue">Kaufen Sie das Spiel, um fortzufahren</string>
+    <string name="game_menu_connect_to_buy">Verbinden zum Kaufen</string>
     <string name="game_menu_pending">Ausstehend</string>
     <string name="game_menu_pending_subtitle">Wartet auf Freigabe</string>
     <string name="game_menu_delete">Löschen</string>

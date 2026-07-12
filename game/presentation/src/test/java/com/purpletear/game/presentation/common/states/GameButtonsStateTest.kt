@@ -15,7 +15,7 @@ class GameButtonsStateTest {
     @Test
     fun `Purchase with try - left is Try, right is Buy`() {
         val actions = mutableListOf<GamePreviewAction>()
-        val buttons = buttonsFor(GameActionState.Purchase(chapterNumber = 1, showTry = true)) {
+        val buttons = buttonsFor(GameActionState.Purchase(chapterNumber = 1, showTry = true, price = 100, isUserConnected = true)) {
             actions += it
         }
 
@@ -32,7 +32,7 @@ class GameButtonsStateTest {
     @Test
     fun `Purchase past chapter 1 without try - left is Restart, right is Buy`() {
         val actions = mutableListOf<GamePreviewAction>()
-        val buttons = buttonsFor(GameActionState.Purchase(chapterNumber = 2, showTry = false)) {
+        val buttons = buttonsFor(GameActionState.Purchase(chapterNumber = 2, showTry = false, price = 100, isUserConnected = true)) {
             actions += it
         }
 
@@ -49,7 +49,7 @@ class GameButtonsStateTest {
     @Test
     fun `Purchase at chapter 1 without try - left hidden, right is Buy`() {
         val actions = mutableListOf<GamePreviewAction>()
-        val buttons = buttonsFor(GameActionState.Purchase(chapterNumber = 1, showTry = false)) {
+        val buttons = buttonsFor(GameActionState.Purchase(chapterNumber = 1, showTry = false, price = 100, isUserConnected = true)) {
             actions += it
         }
 

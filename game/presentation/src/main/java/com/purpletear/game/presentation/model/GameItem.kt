@@ -27,6 +27,7 @@ data class GameItem(
     val author: Author? = null,
     val legacyId: Int? = null,
     val narrativeThemes: List<NarrativeTheme> = emptyList(),
+    val price: Int = 0,
 ) {
     constructor(
         catalog: GameCatalog,
@@ -55,5 +56,6 @@ data class GameItem(
         author = catalog.author,
         legacyId = catalog.legacyId,
         narrativeThemes = catalog.narrativeThemes,
+        price = catalog.price,
     )
 }

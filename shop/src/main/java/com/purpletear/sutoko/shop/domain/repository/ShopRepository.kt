@@ -30,5 +30,12 @@ interface ShopRepository {
      */
     fun resetBalance()
 
+    /**
+     * Updates the cached balance.
+     *
+     * Postcondition: `observeBalance()` emits the given [balance].
+     */
+    fun updateBalance(balance: Balance)
+
     suspend fun getPacks(): Result<List<ShopPack>>
 }

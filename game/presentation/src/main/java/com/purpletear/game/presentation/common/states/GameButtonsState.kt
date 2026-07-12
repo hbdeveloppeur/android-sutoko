@@ -104,7 +104,7 @@ internal fun GameActionState?.toButtonsState(
         right = ButtonUiState(
             weight = 8f,
             title = StringResource(R.string.game_menu_confirm_order),
-            subtitle = StringResource(R.string.game_menu_coins, 960),
+            subtitle = StringResource(R.string.game_menu_coins, this.price),
             backgroundColor = InfoBlue,
             isLoading = isLoading,
             onClick = { onAction(GamePreviewAction.OnBuyConfirm) },
@@ -139,7 +139,11 @@ internal fun GameActionState?.toButtonsState(
         right = primaryRightButton(
             onAction = onAction,
             title = StringResource(R.string.game_menu_buy),
-            subtitle = StringResource(R.string.game_menu_buy_to_continue),
+            subtitle = if (isUserConnected) {
+                StringResource(R.string.game_menu_coins, price)
+            } else {
+                StringResource(R.string.game_menu_connect_to_buy)
+            },
             action = GamePreviewAction.OnBuy,
             weight = if (showTry) 1f else RIGHT_BUTTON_WEIGHT,
         ),
