@@ -22,13 +22,12 @@ import com.purpletear.sutoko.game.engine.GameEngineState
 import com.purpletear.sutoko.game.engine.GameMessage
 import com.purpletear.sutoko.game.engine.HandlerEffect
 import com.purpletear.sutoko.game.model.chapter.ChapterGraph
-import com.purpletear.sutoko.game.model.chapter.Node
 import com.purpletear.sutoko.game.model.chapter.extractCinematicBody
 import com.purpletear.sutoko.game.repository.CharacterRepository
 import com.purpletear.sutoko.game.repository.SceneRepository
 import com.purpletear.sutoko.game.repository.game.GameRepository
-import com.purpletear.sutoko.game.testing.StoryTestingLogger
 import com.purpletear.sutoko.game.service.MediaUrlResolver
+import com.purpletear.sutoko.game.testing.StoryTestingLogger
 import com.purpletear.sutoko.game.usecase.GetSceneUseCase
 import com.purpletear.sutoko.game.usecase.LoadChapterGraphUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -619,10 +618,6 @@ class GameEngineViewModel @Inject constructor(
 
     fun onNextChapterClicked() {
         pendingChapterCode?.let { _navigateToNextChapter.trySend(it) }
-    }
-
-    fun onTrialBuyClicked() {
-        _navigateToBuy.trySend(Unit)
     }
 
     fun onBackClicked() {

@@ -76,7 +76,6 @@ internal fun NavGraphBuilder.gameScreen(
     SmsGameScreen(
         state = state,
         onNextChapterClick = viewModel::onNextChapterClicked,
-        onTrialBuyClick = viewModel::onTrialBuyClicked,
         onBackClick = viewModel::onBackClicked,
         onVocalClick = viewModel::onVocalClicked,
         onChoiceSelected = viewModel::onChoiceSelected,

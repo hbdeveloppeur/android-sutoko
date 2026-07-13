@@ -8,7 +8,9 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.tween
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.navigation.compose.rememberNavController
@@ -52,8 +54,18 @@ class SmsGameActivity : ComponentActivity() {
             SutokoTheme {
 
                 val navController = rememberNavController()
-                val overlayAlpha = remember { Animatable(0f) }
+                val overlayAlpha = remember { Animatable(1f) }
                 val scope = rememberCoroutineScope()
+
+                LaunchedEffect(Unit) {
+                    overlayAlpha.animateTo(
+                        targetValue = 0f,
+                        animationSpec = tween(
+                            durationMillis = 500,
+                            easing = FastOutSlowInEasing,
+                        ),
+                    )
+                }
 
                 val fadeThenRun = remember(scope) {
                     { block: () -> Unit ->

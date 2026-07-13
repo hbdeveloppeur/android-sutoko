@@ -7,6 +7,8 @@ import android.os.Parcelable;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.sharedelements.utils.ActivityTransitionHelper;
+
 import org.jetbrains.annotations.NotNull;
 
 import fr.purpletear.friendzone4.R;
@@ -150,8 +152,8 @@ public class Load extends AppCompatActivity {
         i.putExtra("params", (Parcelable) model.getParams());
         i.putExtra("symbols", (Parcelable) model.getSymbols());
         i.putExtra("chapter", ChapterDetailsHandler.getChapter(this, model.getSymbols(), model.getParams().getChapterCode()));
-        startActivityForResult(i.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION), model.getNavigationHandler().getRequestCode());
-        overridePendingTransition(0, 0);
+        startActivityForResult(i, model.getNavigationHandler().getRequestCode());
+        ActivityTransitionHelper.overrideOpenTransition(this, com.example.sharedelements.R.anim.game_launch_fade_in, com.example.sharedelements.R.anim.game_launch_fade_out);
     }
 
 }

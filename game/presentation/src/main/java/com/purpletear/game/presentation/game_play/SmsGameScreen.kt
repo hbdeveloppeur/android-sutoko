@@ -1,7 +1,6 @@
 package com.purpletear.game.presentation.game_play
 
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -31,7 +30,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
@@ -55,7 +53,6 @@ import com.purpletear.game.presentation.game_play.state.LiveUpdateStatus
 import com.purpletear.sutoko.game.engine.HandlerEffect
 import com.purpletear.sutoko.game.engine.message.GameMessageMangaPage
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.withTimeoutOrNull
 
 private data class ImageViewerState(
@@ -75,7 +72,6 @@ private data class MangaViewerState(
 internal fun SmsGameScreen(
     state: GameUiState,
     onNextChapterClick: () -> Unit = {},
-    onTrialBuyClick: () -> Unit = {},
     onBackClick: () -> Unit = {},
     onVocalClick: (String) -> Unit = {},
     onChoiceSelected: (HandlerEffect.ShowChoices.Choice) -> Unit = {},
@@ -87,32 +83,6 @@ internal fun SmsGameScreen(
 ) {
     var viewerState by remember { mutableStateOf(ImageViewerState()) }
     var mangaState by remember { mutableStateOf(MangaViewerState()) }
-    val scope = rememberCoroutineScope()
-    val overlayAlpha = remember { Animatable(1f) }
-
-    LaunchedEffect(Unit) {
-        overlayAlpha.animateTo(0f, tween(1000))
-    }
-
-    val handleNextChapterClick = remember(onNextChapterClick) {
-        {
-            scope.launch {
-                overlayAlpha.animateTo(1f, tween(600))
-                onNextChapterClick()
-            }
-            Unit
-        }
-    }
-
-    val handleBackClick = remember(onBackClick) {
-        {
-            scope.launch {
-                overlayAlpha.animateTo(1f, tween(600))
-                onBackClick()
-            }
-            Unit
-        }
-    }
 
     Screen {
         SceneComposable(
@@ -135,9 +105,6 @@ internal fun SmsGameScreen(
         LaunchedEffect(messages.firstOrNull()?.id) {
             if (messages.isEmpty() || listState.isScrollInProgress) return@LaunchedEffect
 
-            // Wait until the newest item (index 0 because reverseLayout = true) is laid out
-            // with a real size. On the first message that overflows the viewport, scrolling
-            // before measurement causes the scroll animation to fight the initial layout.
             withTimeoutOrNull(200) {
                 snapshotFlow { listState.layoutInfo.visibleItemsInfo }
                     .first { infos -> infos.any { it.index == 0 && it.size > 0 } }
@@ -204,12 +171,12 @@ internal fun SmsGameScreen(
                         onMangaClick = { url, overlays ->
                             mangaState = MangaViewerState(url, overlays, true)
                         },
-                        onNextChapterClick = handleNextChapterClick,
+                        onNextChapterClick = onNextChapterClick,
                         showNextChapterButton = state.showNextChapterButton,
                         nextChapterTitleRes = state.nextChapterTitleRes,
                         isTrial = state.isTrial,
                         gameLogoUrl = state.gameLogoUrl,
-                        onBackClick = handleBackClick,
+                        onBackClick = onBackClick,
                         onVocalClick = onVocalClick,
                     )
                 }
@@ -251,16 +218,11 @@ internal fun SmsGameScreen(
             },
         )
 
-        if (overlayAlpha.value > 0f) {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .alpha(overlayAlpha.value)
-                    .background(Color.Black)
-            )
-        }
-
-        if (state.isLoadingStoryUpdates) {
+        AnimatedVisibility(
+            visible = state.isLoadingStoryUpdates,
+            enter = fadeIn(animationSpec = tween(durationMillis = LOADING_FADE_DURATION_MS)),
+            exit = fadeOut(animationSpec = tween(durationMillis = LOADING_FADE_DURATION_MS))
+        ) {
             Box(
                 modifier = Modifier
                     .fillMaxSize()
@@ -277,7 +239,8 @@ internal fun SmsGameScreen(
     }
 }
 
-private const val CHOICE_FADE_DURATION_MS = 180
+private const val LOADING_FADE_DURATION_MS = 280
+private const val CHOICE_FADE_DURATION_MS = 280
 
 @Composable
 private fun AnimatedChoicesBox(

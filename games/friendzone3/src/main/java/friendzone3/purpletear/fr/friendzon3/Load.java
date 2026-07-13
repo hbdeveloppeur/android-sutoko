@@ -11,6 +11,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.sharedelements.SutokoSharedElementsData;
+import com.example.sharedelements.utils.ActivityTransitionHelper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -168,10 +169,11 @@ public class Load extends AppCompatActivity {
             }
         }
 
-        Intent i = navigator.getIntent(Load.this).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+        Intent i = navigator.getIntent(Load.this);
         i.putExtra("symbols", (Parcelable) symbols);
 
         startActivityForResult(i, navigator.getDestination().ordinal());
+        ActivityTransitionHelper.overrideOpenTransition(this, com.example.sharedelements.R.anim.game_launch_fade_in, com.example.sharedelements.R.anim.game_launch_fade_out);
     }
 
 }

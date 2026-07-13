@@ -13,6 +13,7 @@ import android.os.Bundle
 import android.os.Parcelable
 import androidx.appcompat.app.AppCompatActivity
 import com.example.sharedelements.SutokoSharedElementsData
+import com.example.sharedelements.utils.ActivityTransitionHelper
 import fr.purpletear.friendzone.R
 import fr.purpletear.friendzone.config.ChapterDetailsHandler
 import purpletear.fr.purpleteartools.GlobalData
@@ -106,9 +107,13 @@ class Load : AppCompatActivity() {
         i.putExtra("chapter", ChapterDetailsHandler.getChapter(this, model.symbols.chapterCode))
 
         startActivityForResult(
-            i.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION),
+            i,
             model.navigationHandler.requestCode
         )
-        overridePendingTransition(0, 0)
+        ActivityTransitionHelper.overrideOpenTransition(
+            this,
+            com.example.sharedelements.R.anim.game_launch_fade_in,
+            com.example.sharedelements.R.anim.game_launch_fade_out,
+        )
     }
 }

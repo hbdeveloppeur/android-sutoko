@@ -40,6 +40,7 @@ import androidx.navigation.navArgument
 import com.example.sharedelements.Data
 import com.example.sharedelements.SutokoAppParams
 import com.example.sharedelements.theme.SutokoTheme
+import com.example.sharedelements.utils.ActivityTransitionHelper
 import com.example.sharedelements.utils.UiText
 import com.purpletear.aiconversation.presentation.common.utils.executeFlowUseCase
 import com.purpletear.aiconversation.presentation.navigation.AiConversationRouteDestination
@@ -519,6 +520,7 @@ class MainActivity @Inject constructor(
         intent.putExtra("granted", isGranted)
 
         startActivity(intent)
+        ActivityTransitionHelper.overrideOpenTransition(this, 0, 0)
     }
 
     private fun startSmsGameActivity(
@@ -536,6 +538,7 @@ class MainActivity @Inject constructor(
         )
         val intent = SmsGameActivity.intent(this, args)
         startActivity(intent)
+        ActivityTransitionHelper.overrideOpenTransition(this, 0, 0)
     }
 
     private fun registerLoginLauncher() {
