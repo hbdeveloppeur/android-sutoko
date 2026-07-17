@@ -12,6 +12,8 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.bumptech.glide.Glide
 import com.bumptech.glide.RequestManager
+import com.purpletear.sutoko.auth.presentation.AccountConnectionActivity
+import com.purpletear.sutoko.auth.presentation.AccountConnectionActivityModel
 import com.purpletear.sutoko.shop.R
 import com.purpletear.sutoko.shop.databinding.ActivityShopFixedBinding
 import com.purpletear.sutoko.shop.domain.repository.model.CoinsPackType
@@ -75,16 +77,10 @@ class ShopActivity : AppCompatActivity() {
 
         setListeners()
 
-        ShopActivityGraphics.setCoinsAndDiamondsShopInfoLoading(binding, true)
-
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.balance.collect { balance ->
-                    ShopActivityGraphics.setDiamondsAndCoins(
-                        binding,
-                        balance.diamonds,
-                        balance.coins
-                    )
+                viewModel.headerState.collect { state ->
+                    ShopActivityGraphics.setHeaderState(binding, state)
                 }
             }
         }
@@ -97,8 +93,6 @@ class ShopActivity : AppCompatActivity() {
                 }
             }
         }
-
-        ShopActivityGraphics.setCoinsAndDiamondsShopInfoLoading(binding, false)
 
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -152,6 +146,10 @@ class ShopActivity : AppCompatActivity() {
             this.onBackPressed()
         }
 
+        FingerV2.register(this.binding.sutokoShopSignInButton, null) {
+            this.openConnectionPage()
+        }
+
         FingerV2.register(this.binding.sutokoShopCard1.root, null) {
             this.onCoinsPackPressed(CoinsPackType.Low)
         }
@@ -164,6 +162,15 @@ class ShopActivity : AppCompatActivity() {
         FingerV2.register(this.binding.buyValidation.buttonContinue, null) {
             ShopActivityGraphics.setUnlockItemPageVisibility(this, binding, false)
         }
+    }
+
+    private fun openConnectionPage() {
+        startActivity(
+            AccountConnectionActivity.require(
+                this@ShopActivity,
+                AccountConnectionActivityModel.Page.SIGNIN
+            )
+        )
     }
 
     private fun onCoinsPackPressed(packType: CoinsPackType) {

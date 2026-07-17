@@ -67,9 +67,9 @@ fun BottomNavigation(
             modifier = Modifier
                 .fillMaxWidth()
                 .background(Color(0xFF110D11))
+                .navigationBarsPadding()
                 .height(height)
                 .align(Alignment.BottomCenter)
-                .navigationBarsPadding()
         ) {
             Row(
                 modifier = Modifier

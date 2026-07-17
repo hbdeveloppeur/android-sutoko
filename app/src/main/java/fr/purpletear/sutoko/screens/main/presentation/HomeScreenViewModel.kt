@@ -31,7 +31,6 @@ import com.purpletear.sutoko.shop.domain.repository.model.Balance
 import dagger.hilt.android.lifecycle.HiltViewModel
 import fr.purpletear.sutoko.R
 import fr.purpletear.sutoko.objects.CalendarEvent
-import fr.purpletear.sutoko.screens.main.domain.popup.util.MainMenuCategory
 import fr.purpletear.sutoko.symbols.SymbolsRepository
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.SharingStarted
@@ -89,12 +88,6 @@ class HomeScreenViewModel @Inject constructor(
     val state: State<MainState>
         get() {
             return _state
-        }
-
-    private val _categoryState = mutableStateOf<MainMenuCategory>(MainMenuCategory.All)
-    val categoryState: State<MainMenuCategory>
-        get() {
-            return _categoryState
         }
 
     private val _navEvents = Channel<String>(Channel.BUFFERED)
@@ -202,7 +195,8 @@ class HomeScreenViewModel @Inject constructor(
             symbols.setFirebaseNotification(value)
             firebaseAnalytics.setUserProperty("want_to_get_notified", if (value) "yes" else "no")
             saveSymbols.value = symbols
-            _state.value = _state.value.copy(notificationsOn = symbols.isFirebaseNotificationEnabled)
+            _state.value =
+                _state.value.copy(notificationsOn = symbols.isFirebaseNotificationEnabled)
         }
     }
 
@@ -210,27 +204,6 @@ class HomeScreenViewModel @Inject constructor(
         val cardsWithIndex = cards.mapIndexed { index, card -> Pair(index, card) }
 
         return cardsWithIndex.sortedBy { it.second.isPremium() }.map { it.second }
-    }
-
-
-    private fun getFormattedStories(
-        category: MainMenuCategory,
-        stories: List<GameCatalog>
-    ): List<GameCatalog> {
-        return when (category) {
-            MainMenuCategory.All -> {
-                stories
-            }
-
-            MainMenuCategory.Free -> {
-                stories.filter { !it.isPremium() }
-            }
-
-            MainMenuCategory.New -> {
-                stories.filter { it.isPremium() }
-            }
-
-        }
     }
 
 
@@ -282,30 +255,6 @@ class HomeScreenViewModel @Inject constructor(
 
             is MainEvents.OnFlavorModalDismissed -> {
                 // this._displayUserFlavorsSettings.value = false
-            }
-
-            is MainEvents.OnAppear -> {
-
-            }
-
-            is MainEvents.StartScroll -> {
-            }
-
-            is MainEvents.EndScroll -> {
-            }
-
-            is MainEvents.TapMenu -> {
-                _categoryState.value = event.category
-                viewModelScope.launch {
-                    val stories = getFormattedStories(event.category, _state.value.initialStories)
-                    _squareStories.value = getSquareStories(stories) ?: emptyList()
-                    _fullStories.value = getFullWidthStories(stories)
-                }
-
-            }
-
-            is MainEvents.Open -> {
-
             }
 
             is MainEvents.ToggleNotifications -> {

@@ -37,5 +37,6 @@
     <string name="sutoko_premium_presentation_3">No more ads</string>
     <string name="sutoko_premium_presentation_subtitle">100%% Sutoko with no interruptions</string>
     <string name="sutoko_premium_presentation_title">Premium pass unlocked</string>
+    <string name="sutoko_sign_in">Login</string>
 
 </resources>

@@ -119,6 +119,76 @@ class ShopViewModelTest {
         assertTrue(events.first() is ShopPurchaseEvent.Failed)
     }
 
+    @Test
+    fun `isUserConnected initial value reflects repository`() = runTest(testDispatcher) {
+        fakeUserRepository.isConnectedFlow.value = true
+
+        val viewModel = createViewModel()
+        advanceUntilIdle()
+
+        assertEquals(true, viewModel.isUserConnected.value)
+    }
+
+    @Test
+    fun `header state is Disconnected when user is not connected`() = runTest(testDispatcher) {
+        fakeUserRepository.isConnectedFlow.value = false
+        fakeShopRepository.balanceFlow.value = Balance(coins = 100, diamonds = 50)
+
+        val viewModel = createViewModel()
+        val states = mutableListOf<ShopHeaderState>()
+        backgroundScope.launch { viewModel.headerState.collect { states.add(it) } }
+        advanceUntilIdle()
+
+        assertEquals(ShopHeaderState.Disconnected, states.last())
+    }
+
+    @Test
+    fun `header state is Loading when connected but balance not loaded`() = runTest(testDispatcher) {
+        fakeUserRepository.isConnectedFlow.value = true
+        fakeShopRepository.balanceFlow.value = Balance(coins = -1, diamonds = -1)
+
+        val viewModel = createViewModel()
+        val states = mutableListOf<ShopHeaderState>()
+        backgroundScope.launch { viewModel.headerState.collect { states.add(it) } }
+        advanceUntilIdle()
+
+        assertEquals(ShopHeaderState.Loading, states.last())
+    }
+
+    @Test
+    fun `header state is Loaded when connected and balance loaded`() = runTest(testDispatcher) {
+        val balance = Balance(coins = 100, diamonds = 50)
+        fakeUserRepository.isConnectedFlow.value = true
+        fakeShopRepository.balanceFlow.value = balance
+
+        val viewModel = createViewModel()
+        val states = mutableListOf<ShopHeaderState>()
+        backgroundScope.launch { viewModel.headerState.collect { states.add(it) } }
+        advanceUntilIdle()
+
+        assertEquals(ShopHeaderState.Loaded(balance), states.last())
+    }
+
+    @Test
+    fun `header state resets to Disconnected on logout`() = runTest(testDispatcher) {
+        val balance = Balance(coins = 100, diamonds = 50)
+        fakeUserRepository.isConnectedFlow.value = true
+        fakeShopRepository.balanceFlow.value = balance
+
+        val viewModel = createViewModel()
+        val states = mutableListOf<ShopHeaderState>()
+        backgroundScope.launch { viewModel.headerState.collect { states.add(it) } }
+        advanceUntilIdle()
+
+        assertEquals(ShopHeaderState.Loaded(balance), states.last())
+
+        fakeUserRepository.isConnectedFlow.value = false
+        fakeShopRepository.balanceFlow.value = Balance(coins = -1, diamonds = -1)
+        advanceUntilIdle()
+
+        assertEquals(ShopHeaderState.Disconnected, states.last())
+    }
+
     private fun createViewModel() = ShopViewModel(
         userRepository = fakeUserRepository,
         observeShopBalanceUseCase = observeShopBalanceUseCase,
@@ -138,22 +208,30 @@ class ShopViewModelTest {
     )
 
     private class FakeUserRepository : UserRepository {
+        val isConnectedFlow = MutableStateFlow(false)
+
         override fun observeUser(): Flow<User?> = flowOf(null)
-        override fun observeIsConnected(): Flow<Boolean> = flowOf(false)
-        override fun isConnected(): Result<Boolean> = Result.success(false)
+        override fun observeIsConnected(): Flow<Boolean> = isConnectedFlow
+        override fun isConnected(): Result<Boolean> = Result.success(isConnectedFlow.value)
         override suspend fun connect(id: String, token: String): Result<Unit> = Result.success(Unit)
         override suspend fun disconnect(): Result<Unit> = Result.success(Unit)
     }
 
     private class FakeShopRepository : ShopRepository {
         var packs: List<ShopPack> = emptyList()
+        val balanceFlow = MutableStateFlow(Balance(coins = 0, diamonds = 0))
 
-        override fun observeBalance(): Flow<Balance> = flowOf(Balance(coins = 0, diamonds = 0))
+        override fun observeBalance(): Flow<Balance> = balanceFlow
         override fun loadBalance(userId: String, userToken: String): Flow<Result<Unit>> =
             flowOf(Result.success(Unit))
 
-        override fun resetBalance() { /* no-op: balance is constant in this fake */ }
-        override fun updateBalance(balance: Balance) { /* no-op */ }
+        override fun resetBalance() {
+            balanceFlow.value = Balance(coins = -1, diamonds = -1)
+        }
+
+        override fun updateBalance(balance: Balance) {
+            balanceFlow.value = balance
+        }
 
         override suspend fun getPacks(): Result<List<ShopPack>> = Result.success(packs)
     }

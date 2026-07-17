@@ -66,6 +66,26 @@ object ShopActivityGraphics {
         binding.sutokoDiamonds.text = diamonds.toString()
     }
 
+    fun setHeaderState(binding: ActivityShopFixedBinding, state: ShopHeaderState) {
+        when (state) {
+            ShopHeaderState.Disconnected -> {
+                binding.sutokoShopSignInButton.visibility = View.VISIBLE
+                binding.sutokoCoinsInformation.visibility = View.GONE
+            }
+
+            ShopHeaderState.Loading -> {
+                binding.sutokoShopSignInButton.visibility = View.GONE
+                binding.sutokoCoinsInformation.visibility = View.VISIBLE
+            }
+
+            is ShopHeaderState.Loaded -> {
+                binding.sutokoShopSignInButton.visibility = View.GONE
+                binding.sutokoCoinsInformation.visibility = View.VISIBLE
+                setDiamondsAndCoins(binding, state.balance.diamonds, state.balance.coins)
+            }
+        }
+    }
+
     fun setUnlockItemPageVisibility(
         activity: Activity,
         binding: ActivityShopFixedBinding,
@@ -246,12 +266,6 @@ object ShopActivityGraphics {
         }
     }
 
-
-    fun setCoinsAndDiamondsShopInfoLoading(binding: ActivityShopFixedBinding, isLoading: Boolean) {
-        binding.sutokoCoinsInformationProgressbar.visibility =
-            if (isLoading) View.VISIBLE else View.INVISIBLE
-        binding.sutokoCoinsInformation.alpha = if (isLoading) 0.3f else 1f
-    }
 
     fun setStatusBar(activity: Activity) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {

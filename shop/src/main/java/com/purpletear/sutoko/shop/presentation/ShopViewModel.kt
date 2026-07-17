@@ -19,6 +19,7 @@ import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.stateIn
@@ -45,8 +46,23 @@ class ShopViewModel @Inject constructor(
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5000),
-            initialValue = false,
+            initialValue = userRepository.isConnected().getOrDefault(false),
         )
+
+    val headerState: StateFlow<ShopHeaderState> = combine(
+        isUserConnected,
+        balance,
+    ) { connected, balance ->
+        when {
+            !connected -> ShopHeaderState.Disconnected
+            !balance.isLoaded() -> ShopHeaderState.Loading
+            else -> ShopHeaderState.Loaded(balance)
+        }
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5000),
+        initialValue = ShopHeaderState.Loading,
+    )
 
     private val _packs = MutableStateFlow<List<PackItem>>(emptyList())
     val packs: StateFlow<List<PackItem>> = _packs.asStateFlow()

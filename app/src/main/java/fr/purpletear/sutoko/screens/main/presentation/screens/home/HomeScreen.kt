@@ -29,14 +29,12 @@ import com.purpletear.sutoko.game.model.game.GameCatalog
 import com.purpletear.sutoko.news.model.News
 import com.purpletear.sutoko.shop.domain.repository.model.Balance
 import fr.purpletear.sutoko.BuildConfig
-import fr.purpletear.sutoko.screens.main.domain.popup.util.MainMenuCategory
 import fr.purpletear.sutoko.screens.main.presentation.HomeScreenViewModel
 import fr.purpletear.sutoko.screens.main.presentation.MainEvents
 import fr.purpletear.sutoko.screens.main.presentation.MainScreenPages
 import fr.purpletear.sutoko.screens.main.presentation.screens.TopNavigation
 import fr.purpletear.sutoko.screens.main.presentation.screens.home.components.AiConversationCard
 import fr.purpletear.sutoko.screens.main.presentation.screens.home.components.HeaderPager
-import fr.purpletear.sutoko.screens.main.presentation.screens.home.components.Menu
 import kotlinx.coroutines.CancellationException
 
 /**
@@ -89,7 +87,6 @@ fun HomeScreen(
         squareStories = viewModel.squareStories.value,
         fullStories = viewModel.fullStories.value,
         squareIcons = viewModel.squareIcons.value,
-        categoryState = viewModel.categoryState.value,
         coinsBalance = balance.value,
         isConnected = isConnected.value,
         aiConversationMessageCount = viewModel.aiConversationMessageCount.value,
@@ -100,15 +97,10 @@ fun HomeScreen(
         onDiamondsButtonPressed = onDiamondsPressed,
         onOptionsButtonPressed = onOptionsPressed,
         onNewsPressed = { action -> viewModel.handleAppAction(action = action) },
-        onCategorySelected = { category ->
-            viewModel.onEvent(MainEvents.TapMenu(category))
-        },
         onSquareStoryTap = { card ->
-            viewModel.onEvent(MainEvents.Open(card))
             mainNavController.navigate(MainScreenPages.GamePreview.createRoute(card.id))
         },
         onFullStoryTap = { card ->
-            viewModel.onEvent(MainEvents.Open(card))
             mainNavController.navigate(MainScreenPages.GamePreview.createRoute(card.id))
         },
         onAiConversationTap = {
@@ -132,7 +124,6 @@ private fun HomeContent(
     squareStories: List<GameCatalog>,
     fullStories: List<GameCatalog>,
     squareIcons: Map<Int, Int?>,
-    categoryState: MainMenuCategory,
     coinsBalance: Resource<Balance>,
     isConnected: Boolean,
     aiConversationMessageCount: Int?,
@@ -143,7 +134,6 @@ private fun HomeContent(
     onDiamondsButtonPressed: () -> Unit,
     onOptionsButtonPressed: () -> Unit,
     onNewsPressed: (com.purpletear.sutoko.core.domain.appaction.AppAction) -> Unit,
-    onCategorySelected: (MainMenuCategory) -> Unit,
     onSquareStoryTap: (GameCatalog) -> Unit,
     onFullStoryTap: (GameCatalog) -> Unit,
     onAiConversationTap: () -> Unit,
@@ -169,11 +159,6 @@ private fun HomeContent(
             onNewsPressed = onNewsPressed
         )
 
-        categoryMenuSection(
-            currentCategory = categoryState,
-            onCategorySelected = onCategorySelected
-        )
-
         squareStoriesSection(
             squareStories = squareStories,
             fullStories = fullStories,
@@ -188,7 +173,6 @@ private fun HomeContent(
         )
 
         aiConversationSection(
-            categoryState = categoryState,
             aiConversationMessageCount = aiConversationMessageCount,
             displayAiConversationCard = displayAiConversationCard,
             onAiConversationTap = onAiConversationTap
@@ -248,18 +232,6 @@ private fun LazyListScope.newsSection(
     }
 }
 
-private fun LazyListScope.categoryMenuSection(
-    currentCategory: MainMenuCategory,
-    onCategorySelected: (MainMenuCategory) -> Unit
-) {
-    item(key = "category_menu") {
-        Menu(
-            currentCategory = currentCategory,
-            onTap = onCategorySelected
-        )
-    }
-}
-
 @OptIn(ExperimentalFoundationApi::class)
 private fun LazyListScope.squareStoriesSection(
     squareStories: List<GameCatalog>,
@@ -299,13 +271,10 @@ private fun LazyListScope.squareStoriesAsCardsSection(
 }
 
 private fun LazyListScope.aiConversationSection(
-    categoryState: MainMenuCategory,
     aiConversationMessageCount: Int?,
     displayAiConversationCard: Boolean,
     onAiConversationTap: () -> Unit
 ) {
-    if (categoryState !== MainMenuCategory.All) return
-
     item(key = "ai_conversation") {
         AiConversationCard(
             messagesCount = aiConversationMessageCount,

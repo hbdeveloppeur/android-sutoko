@@ -31,7 +31,6 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import kotlinx.coroutines.Dispatchers
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -69,8 +68,10 @@ import com.purpletear.sutoko.notification.usecase.SetCurrentScreenUseCase
 import com.purpletear.sutoko.permission.domain.repository.PermissionRepository
 import com.purpletear.sutoko.permission.domain.sealed.Permission
 import com.purpletear.sutoko.popup.presentation.PopUpComposable
+import com.purpletear.sutoko.shop.presentation.ShopActivity
 import dagger.hilt.android.AndroidEntryPoint
 import fr.purpletear.sutoko.R
+import fr.purpletear.sutoko.friendzoned.FriendzonedGameRouter
 import fr.purpletear.sutoko.helpers.NotificationHelper
 import fr.purpletear.sutoko.popup.domain.PopUpIconUrl
 import fr.purpletear.sutoko.popup.domain.PopUpUserInteraction
@@ -78,22 +79,20 @@ import fr.purpletear.sutoko.popup.domain.SutokoPopUp
 import fr.purpletear.sutoko.popup.domain.usecase.GetPopUpInteractionUseCase
 import fr.purpletear.sutoko.popup.domain.usecase.ShowPopUpUseCase
 import fr.purpletear.sutoko.screens.account.AccountActivity
-import fr.purpletear.sutoko.screens.main.presentation.HomeScreenViewModel
-import fr.purpletear.sutoko.screens.main.presentation.MainEvents
 import fr.purpletear.sutoko.screens.create.CreateStoryPage
+import fr.purpletear.sutoko.screens.main.presentation.HomeScreenViewModel
 import fr.purpletear.sutoko.screens.main.presentation.MainScreenPages
 import fr.purpletear.sutoko.screens.main.presentation.screens.MainScreen
 import fr.purpletear.sutoko.screens.params.SutokoParamsActivity
 import fr.purpletear.sutoko.screens.splashscreen.SplashScreen
 import fr.purpletear.sutoko.screens.web.WebActivity
-import com.purpletear.sutoko.shop.presentation.ShopActivity
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import purpletear.fr.purpleteartools.TableOfSymbols
 import javax.inject.Inject
 import com.purpletear.aiconversation.presentation.R as AiConversationR
-import fr.purpletear.sutoko.friendzoned.FriendzonedGameRouter
 
 @AndroidEntryPoint
 class MainActivity @Inject constructor(
@@ -293,7 +292,11 @@ class MainActivity @Inject constructor(
                                     if (isLiveUpdateMode) {
                                         startSmsGameActivity(gameId, isLiveUpdateMode = true)
                                     } else {
-                                        navController.navigate(MainScreenPages.GamePreview.createRoute(gameId))
+                                        navController.navigate(
+                                            MainScreenPages.GamePreview.createRoute(
+                                                gameId
+                                            )
+                                        )
                                     }
                                 },
                                 onCreateStoryPressed = {
@@ -389,7 +392,6 @@ class MainActivity @Inject constructor(
 
     override fun onResume() {
         super.onResume()
-        viewModel.onEvent(MainEvents.OnAppear)
     }
 
     /**
