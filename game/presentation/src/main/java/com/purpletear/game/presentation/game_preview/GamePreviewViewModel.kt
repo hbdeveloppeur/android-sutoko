@@ -27,14 +27,18 @@ import com.purpletear.sutoko.shop.domain.usecase.IsStoryGrantedUseCase
 import com.purpletear.sutoko.shop.domain.usecase.ObserveCoinPurchasedSkusUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import fr.sutoko.inapppurchase.application.domain.repository.PurchaseRepository
+import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import java.util.Locale
 import javax.inject.Inject
 
 @HiltViewModel
@@ -142,6 +146,9 @@ class GamePreviewViewModel @Inject constructor(
     private val currentGameItem: GameItem?
         get() = (game.value as? GamePreviewUiState.Data)?.item
 
+    private val _isRefreshing = MutableStateFlow(false)
+    val isRefreshing: StateFlow<Boolean> = _isRefreshing.asStateFlow()
+
     private var coinGrantCheckDone = false
 
     private val _events = MutableSharedFlow<GamePreviewEvent>(extraBufferCapacity = 1)
@@ -174,6 +181,28 @@ class GamePreviewViewModel @Inject constructor(
             GamePreviewAction.OnRestart -> sendEvent(GamePreviewEvent.ShowRestartDialog)
             GamePreviewAction.OnRestartConfirm -> onRestartGame()
             GamePreviewAction.OnDelete -> onDeleteGame()
+        }
+    }
+
+    /**
+     * Re-fetches the catalog and the chapters from the network. The Room
+     * observation flows update the UI automatically when fresh data lands.
+     */
+    fun refresh() {
+        if (_isRefreshing.value) return
+        viewModelScope.launch {
+            _isRefreshing.value = true
+            try {
+                val catalogSynced = async { syncCatalog() }
+                val chaptersLoaded = async { loadChapters() }
+                val catalogOk = catalogSynced.await()
+                val chaptersOk = chaptersLoaded.await()
+                if (!catalogOk || !chaptersOk) {
+                    toastService(R.string.error_load_game)
+                }
+            } finally {
+                _isRefreshing.value = false
+            }
         }
     }
 
@@ -218,14 +247,26 @@ class GamePreviewViewModel @Inject constructor(
         _events.tryEmit(event)
     }
 
-    private suspend fun loadChapters() {
+    private suspend fun syncCatalog(): Boolean {
+        return gameRepository.syncOfficialGames(Locale.getDefault().toLanguageTag())
+            .onFailure { error ->
+                logger.exception(error) { "Catalog sync failed during refresh for gameId=$gameId" }
+            }
+            .isSuccess
+    }
+
+    /** @return false when the chapters load reports a failure. */
+    private suspend fun loadChapters(): Boolean {
+        var success = true
         getChaptersUseCase(gameId)
             .collect { result ->
                 result.onFailure { error ->
+                    success = false
                     logger.exception(error) { "Failed to load chapters for gameId=$gameId" }
                     sendEvent(GamePreviewEvent.ShowError(GameUiError.Load))
                 }
             }
+        return success
     }
 
     private suspend fun syncCoinPurchaseGrantOnDataLoad() {

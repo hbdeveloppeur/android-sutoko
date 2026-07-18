@@ -6,17 +6,24 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -69,6 +76,7 @@ import kotlinx.coroutines.delay
 /**
  * A preview screen that displays detailed game information
  */
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun GamePreview(
     modifier: Modifier = Modifier,
@@ -86,6 +94,7 @@ fun GamePreview(
     val isUserConnected by viewModel.isUserConnected.collectAsStateWithLifecycle()
     val isPurchasing by viewModel.isPurchasing.collectAsStateWithLifecycle()
     val isPurchaseLoading by viewModel.isPurchaseLoading.collectAsStateWithLifecycle()
+    val isRefreshing by viewModel.isRefreshing.collectAsStateWithLifecycle()
     val appBuildNumber = viewModel.appBuildNumber
 
     val showVideo = rememberShowVideoAfterNavigation()
@@ -106,6 +115,11 @@ fun GamePreview(
         modifier = modifier
             .fillMaxSize(),
     ) {
+        PullToRefreshBox(
+            isRefreshing = isRefreshing,
+            onRefresh = viewModel::refresh,
+            modifier = Modifier.fillMaxSize(),
+        ) {
         Box(
             modifier = Modifier
                 .fillMaxSize()
@@ -249,122 +263,136 @@ fun GamePreview(
                 )
             }
 
-            Column(
-                Modifier
-                    .navigationBarsPadding()
-                    .statusBarsPadding()
-                    .padding(vertical = 30.dp, horizontal = 16.dp),
-                verticalArrangement = Arrangement.spacedBy(26.dp)
-
-            ) {
-                gameItem?.let { game ->
-                    GamePreviewAnimatedGameTitle(
-                        modifier = Modifier
-                            .align(Alignment.CenterHorizontally),
-                        title = game.title,
-                    )
-                }
-
-                // Push remaining space
-                Spacer(modifier = Modifier.weight(1f))
-
+            // PullToRefreshBox detects the pull gesture only through nested scroll
+            // deltas produced by a scrollable child. The inner column keeps a minimum
+            // height of the viewport so Spacer(weight) behaves exactly as before when
+            // the content fits the screen.
+            BoxWithConstraints(Modifier.fillMaxSize()) {
+                val viewportHeight = maxHeight
                 Column(
-                    verticalArrangement = Arrangement.spacedBy(6.dp),
+                    Modifier
+                        .fillMaxSize()
+                        .verticalScroll(rememberScrollState())
                 ) {
-
-                    // Display the current chapter title if available, otherwise show a default
-                    currentChapter?.let { chapter ->
-                        GamePreviewChapterTitle(
-                            text = stringResource(
-                                R.string.game_preview_chapter_title,
-                                chapter.number,
-                                chapter.title
+                    Column(
+                        Modifier
+                            .fillMaxWidth()
+                            .heightIn(min = viewportHeight)
+                            .navigationBarsPadding()
+                            .statusBarsPadding()
+                            .padding(vertical = 30.dp, horizontal = 16.dp),
+                        verticalArrangement = Arrangement.spacedBy(26.dp)
+                    ) {
+                        gameItem?.let { game ->
+                            GamePreviewAnimatedGameTitle(
+                                modifier = Modifier
+                                    .align(Alignment.CenterHorizontally),
+                                title = game.title,
                             )
-                        )
-                    }
-                        ?: GamePreviewChapterTitle(text = stringResource(R.string.game_preview_loading_chapter))
+                        }
 
-                    val unavailableChapter = currentChapter?.takeIf { !it.isAvailable }
-                    if (unavailableChapter != null) {
-                        GamePreviewUnavailable(
-                            chapter = unavailableChapter
-                        )
-                    } else if (gameItem != null) {
-                        GamePreviewCategories(
-                            categories = formatNarrativeThemes(
-                                gameItem.narrativeThemes,
-                                stringResource(R.string.game_card_genre_fallback)
-                            )
-                        )
-                    }
-                }
+                        // Push remaining space
+                        Spacer(modifier = Modifier.weight(1f))
 
-                if (gameItem != null && !gameItem.isOfficial) {
-                    gameItem.author?.let { author ->
-                        Row(
-                            horizontalArrangement = Arrangement.spacedBy(4.dp),
-                            verticalAlignment = Alignment.CenterVertically,
+                        Column(
+                            verticalArrangement = Arrangement.spacedBy(6.dp),
                         ) {
-                            AuthorName(author.displayName)
-                            if (!author.isCertified) {
-                                CertifiedIcon(Color(0xFF2799D7))
+
+                            // Display the current chapter title if available, otherwise show a default
+                            currentChapter?.let { chapter ->
+                                GamePreviewChapterTitle(
+                                    text = stringResource(
+                                        R.string.game_preview_chapter_title,
+                                        chapter.number,
+                                        chapter.title
+                                    )
+                                )
+                            }
+                                ?: GamePreviewChapterTitle(text = stringResource(R.string.game_preview_loading_chapter))
+
+                            val unavailableChapter = currentChapter?.takeIf { !it.isAvailable }
+                            if (unavailableChapter != null) {
+                                GamePreviewUnavailable(
+                                    chapter = unavailableChapter
+                                )
+                            } else if (gameItem != null) {
+                                GamePreviewCategories(
+                                    categories = formatNarrativeThemes(
+                                        gameItem.narrativeThemes,
+                                        stringResource(R.string.game_card_genre_fallback)
+                                    )
+                                )
                             }
                         }
-                    }
-                }
 
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                ) {
+                        if (gameItem != null && !gameItem.isOfficial) {
+                            gameItem.author?.let { author ->
+                                Row(
+                                    horizontalArrangement = Arrangement.spacedBy(4.dp),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                ) {
+                                    AuthorName(author.displayName)
+                                    if (!author.isCertified) {
+                                        CertifiedIcon(Color(0xFF2799D7))
+                                    }
+                                }
+                            }
+                        }
 
-                    if (gameItem != null) {
-                        GamePreviewLabel(
-                            text = stringResource(
-                                if (gameItem.isFree) R.string.game_preview_free else R.string.game_preview_premium
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        ) {
+
+                            if (gameItem != null) {
+                                GamePreviewLabel(
+                                    text = stringResource(
+                                        if (gameItem.isFree) R.string.game_preview_free else R.string.game_preview_premium
+                                    ),
+                                    borderColor = Background.Gradient(colors = PremiumLabelGradient)
+                                )
+                            }
+
+                            if (isUserPremium) {
+                                GamePreviewLabel(
+                                    text = stringResource(R.string.game_preview_premium_active),
+                                    borderColor = Background.Gradient(colors = PremiumActiveLabelGradient)
+                                )
+                            }
+
+                            if (gameItem?.isPurchased == true) {
+                                GamePreviewLabel(
+                                    text = stringResource(R.string.game_preview_unlocked),
+                                    textColor = Color(0xFFADFFA1),
+                                    borderColor = Background.Gradient(colors = UnlockedLabelGradient)
+                                )
+                            }
+
+                            if (gameItem?.isOfficial == false) {
+                                GamePreviewLabel(
+                                    text = stringResource(R.string.game_preview_community)
+                                )
+                            }
+                        }
+
+                        GamePreviewDescription(
+                            avatarUrl = gameItem?.logoUrl ?: "",
+                            description = gameItem?.description ?: "",
+                        )
+
+
+                        GameActionButtons(
+                            gameActionState = gameItem?.toGameActionState(
+                                isPurchasing = isPurchasing,
+                                isPurchaseLoading = isPurchaseLoading,
+                                currentChapter = currentChapter,
+                                appBuildNumber = appBuildNumber,
+                                isUserConnected = isUserConnected,
                             ),
-                            borderColor = Background.Gradient(colors = PremiumLabelGradient)
-                        )
-                    }
-
-                    if (isUserPremium) {
-                        GamePreviewLabel(
-                            text = stringResource(R.string.game_preview_premium_active),
-                            borderColor = Background.Gradient(colors = PremiumActiveLabelGradient)
-                        )
-                    }
-
-                    if (gameItem?.isPurchased == true) {
-                        GamePreviewLabel(
-                            text = stringResource(R.string.game_preview_unlocked),
-                            textColor = Color(0xFFADFFA1),
-                            borderColor = Background.Gradient(colors = UnlockedLabelGradient)
-                        )
-                    }
-
-                    if (gameItem?.isOfficial == false) {
-                        GamePreviewLabel(
-                            text = stringResource(R.string.game_preview_community)
+                            onAction = viewModel::onAction,
+                            modifier = Modifier.padding(bottom = 12.dp),
                         )
                     }
                 }
-
-                GamePreviewDescription(
-                    avatarUrl = gameItem?.logoUrl ?: "",
-                    description = gameItem?.description ?: "",
-                )
-
-
-                GameActionButtons(
-                    gameActionState = gameItem?.toGameActionState(
-                        isPurchasing = isPurchasing,
-                        isPurchaseLoading = isPurchaseLoading,
-                        currentChapter = currentChapter,
-                        appBuildNumber = appBuildNumber,
-                        isUserConnected = isUserConnected,
-                    ),
-                    onAction = viewModel::onAction,
-                    modifier = Modifier.padding(bottom = 12.dp),
-                )
             }
 
             if (isFadingToGame || transitionAlpha.value > 0f) {
@@ -375,6 +403,7 @@ fun GamePreview(
                         .background(Color.Black)
                 )
             }
+        }
         }
     }
 }

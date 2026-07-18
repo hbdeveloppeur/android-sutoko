@@ -41,9 +41,16 @@ class FakeGameRepository : GameRepository {
         return downloadLinks[gameId] ?: Result.failure(IllegalStateException("No download link set for $gameId"))
     }
 
+    var syncOfficialGamesResult: Result<Unit> = Result.success(Unit)
+    var syncOfficialGamesCalls = 0
+        private set
+
     override fun observeOfficialGames(): Flow<List<GameCatalog>> = emptyFlow()
     override fun observeUserGames(): Flow<List<GameCatalog>> = emptyFlow()
-    override suspend fun syncOfficialGames(languageTag: String): Result<Unit> = Result.success(Unit)
+    override suspend fun syncOfficialGames(languageTag: String): Result<Unit> {
+        syncOfficialGamesCalls++
+        return syncOfficialGamesResult
+    }
     override suspend fun syncUserGames(languageTag: String): Result<Unit> = Result.success(Unit)
     override suspend fun loadMoreUserGames(languageTag: String): Result<Boolean> = Result.success(false)
     override suspend fun searchStories(

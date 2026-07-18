@@ -2,6 +2,7 @@ package com.purpletear.game.presentation.game_preview.fakes
 
 import com.purpletear.sutoko.game.model.Chapter
 import com.purpletear.sutoko.game.repository.ChapterRepository
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -12,6 +13,12 @@ class FakeChapterRepository : ChapterRepository {
     private val chapters = mutableMapOf<String, MutableStateFlow<Result<List<Chapter>>>>()
     private val currentChapters = mutableMapOf<String, MutableStateFlow<Chapter?>>()
 
+    var getChaptersCalls = 0
+        private set
+
+    /** When non-null, getChapters suspends after the first emission until this gate completes. */
+    var getChaptersGate: CompletableDeferred<Unit>? = null
+
     fun setChapters(storyId: String, result: Result<List<Chapter>>) {
         chapters.getOrPut(storyId) { MutableStateFlow(result) }.value = result
     }
@@ -21,7 +28,14 @@ class FakeChapterRepository : ChapterRepository {
     }
 
     override fun getChapters(storyId: String): Flow<Result<List<Chapter>>> {
-        return chapters.getOrPut(storyId) { MutableStateFlow(Result.success(emptyList())) }.asStateFlow()
+        val source = chapters.getOrPut(storyId) { MutableStateFlow(Result.success(emptyList())) }
+        val gate = getChaptersGate
+        // Mirrors the real implementation contract: a finite flow.
+        return flow {
+            getChaptersCalls++
+            emit(source.value)
+            gate?.await()
+        }
     }
 
     override fun getChapter(id: Int): Flow<Result<Chapter>> {

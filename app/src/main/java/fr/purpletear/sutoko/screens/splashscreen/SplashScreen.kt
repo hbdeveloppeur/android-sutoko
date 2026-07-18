@@ -83,8 +83,8 @@ fun SplashScreen(
         ) {
             VideoSplashScreen(
                 modifier = Modifier
-                    .fillMaxWidth(0.6f)
-                    .widthIn(max = 220.dp),
+                    .fillMaxWidth(0.65f)
+                    .widthIn(max = 360.dp),
                 onAnimationFinished = {
                     viewModel.setAnimationsFinished()
                 }

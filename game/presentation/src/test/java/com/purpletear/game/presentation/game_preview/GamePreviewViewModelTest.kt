@@ -2,6 +2,7 @@ package com.purpletear.game.presentation.game_preview
 
 import androidx.lifecycle.SavedStateHandle
 import app.cash.turbine.test
+import com.purpletear.game.presentation.R
 import com.purpletear.game.presentation.game_preview.events.GamePreviewEvent
 import com.purpletear.game.presentation.game_preview.fakes.FakeAppVersionProvider
 import com.purpletear.game.presentation.game_preview.fakes.FakeChapterRepository
@@ -26,14 +27,20 @@ import com.purpletear.sutoko.game.usecase.DownloadGameUseCase
 import com.purpletear.sutoko.game.usecase.GetChaptersUseCase
 import com.purpletear.sutoko.game.usecase.RestartGameUseCase
 import com.purpletear.sutoko.game.usecase.SaveUserNickNameUseCase
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestCoroutineScheduler
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
+import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.test.setMain
+import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
@@ -64,9 +71,20 @@ class GamePreviewViewModelTest {
     private val restartGameUseCase = RestartGameUseCase(userGameProgressRepository, memoryRepository)
     private val downloadGameUseCase = DownloadGameUseCase(gameRepository, gameInstallRepository, userRepository)
 
+    private val testDispatcher = StandardTestDispatcher()
+
     @Before
     fun setUp() {
+        // viewModelScope falls back to EmptyCoroutineContext when Dispatchers.Main is unset
+        // (see lifecycle createViewModelScope), which would run VM coroutines on real threads
+        // and make advanceUntilIdle()-based assertions race.
+        Dispatchers.setMain(testDispatcher)
         chapterRepository.setChapters(TestFixtures.GAME_ID, Result.success(emptyList()))
+    }
+
+    @After
+    fun tearDown() {
+        Dispatchers.resetMain()
     }
 
     private fun activateStateFlows(
@@ -217,6 +235,50 @@ class GamePreviewViewModelTest {
     }
 
     @Test
+    fun `refresh syncs catalog and chapters and resets isRefreshing`() = runTest {
+        val viewModel = createViewModel()
+
+        viewModel.refresh()
+        advanceUntilIdle()
+
+        assertEquals(1, gameRepository.syncOfficialGamesCalls)
+        assertEquals(1, chapterRepository.getChaptersCalls)
+        assertFalse(viewModel.isRefreshing.value)
+        assertTrue(toastService.shownMessages.isEmpty())
+    }
+
+    @Test
+    fun `refresh shows toast and resets isRefreshing on failure`() = runTest {
+        chapterRepository.setChapters(TestFixtures.GAME_ID, Result.failure(RuntimeException("chapters failed")))
+        val viewModel = createViewModel()
+
+        viewModel.refresh()
+        advanceUntilIdle()
+
+        assertTrue(toastService.shownMessages.contains(R.string.error_load_game))
+        assertFalse(viewModel.isRefreshing.value)
+    }
+
+    @Test
+    fun `refresh while already refreshing is ignored`() = runTest {
+        val gate = CompletableDeferred<Unit>()
+        chapterRepository.getChaptersGate = gate
+        val viewModel = createViewModel()
+
+        viewModel.refresh()
+        advanceUntilIdle()
+        assertTrue(viewModel.isRefreshing.value)
+
+        viewModel.refresh()
+        advanceUntilIdle()
+        assertEquals(1, gameRepository.syncOfficialGamesCalls)
+
+        gate.complete(Unit)
+        advanceUntilIdle()
+        assertFalse(viewModel.isRefreshing.value)
+    }
+
+    @Test
     fun `onAction OnTry emits PlayGame with isTrial and chapter code`() = runTest {
         val viewModel = createViewModel()
         gameRepository.setGame(TestFixtures.GAME_ID, TestFixtures.gameCatalog(price = 100, skus = listOf("sku-1")))
@@ -350,15 +412,6 @@ class GamePreviewViewModelTest {
         val viewModel = createViewModel(connectedUser = true)
         activateStateFlows(backgroundScope, viewModel)
         advanceUntilIdle()
-
-        val emitted = mutableListOf<GamePreviewUiState?>()
-        launch { println("DEBUG game collector started"); viewModel.game.collect { emitted.add(it); println("DEBUG emission $it") } }
-        launch { println("DEBUG user collector started"); viewModel.isUserConnected.collect { println("DEBUG user emission $it") } }
-        advanceUntilIdle()
-        println("DEBUG emitted=$emitted current=${viewModel.game.value}")
-        val data = viewModel.game.value as? GamePreviewUiState.Data
-        println("DEBUG game=$data sku=${data?.item?.skuIdentifiers}")
-        println("DEBUG isUserConnected=${viewModel.isUserConnected.value}")
 
         viewModel.events.test {
             viewModel.onAction(GamePreviewAction.OnBuy)
