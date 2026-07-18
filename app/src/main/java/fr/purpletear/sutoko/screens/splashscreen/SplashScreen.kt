@@ -83,8 +83,8 @@ fun SplashScreen(
         ) {
             VideoSplashScreen(
                 modifier = Modifier
-                    .fillMaxWidth(0.8f)
-                    .widthIn(max = 400.dp),
+                    .fillMaxWidth(0.6f)
+                    .widthIn(max = 220.dp),
                 onAnimationFinished = {
                     viewModel.setAnimationsFinished()
                 }
@@ -144,29 +144,32 @@ private fun VideoSplashScreen(
         }
     }
 
-    AndroidView(
-        factory = {
-            PlayerView(it).apply {
-                // Set controller properties before assigning the player
-                useController = false
+    Box(
+        modifier = modifier.aspectRatio(16f / 9f),
+        contentAlignment = Alignment.Center
+    ) {
+        AndroidView(
+            factory = {
+                PlayerView(it).apply {
+                    // Set controller properties before assigning the player
+                    useController = false
 
-                // Set controller visibility to GONE explicitly
-                findViewById<android.view.View>(androidx.media3.ui.R.id.exo_controller).visibility =
-                    android.view.View.GONE
+                    // Set controller visibility to GONE explicitly
+                    findViewById<android.view.View>(androidx.media3.ui.R.id.exo_controller).visibility =
+                        android.view.View.GONE
 
-                // Set player after controller settings
-                player = exoPlayer
+                    // Set player after controller settings
+                    player = exoPlayer
 
-                layoutParams = android.view.ViewGroup.LayoutParams(
-                    android.view.ViewGroup.LayoutParams.MATCH_PARENT,
-                    android.view.ViewGroup.LayoutParams.MATCH_PARENT
-                )
-            }
-        },
-        modifier = Modifier
-            .aspectRatio(16f / 9f)
-            .then(modifier)
-    )
+                    layoutParams = android.view.ViewGroup.LayoutParams(
+                        android.view.ViewGroup.LayoutParams.MATCH_PARENT,
+                        android.view.ViewGroup.LayoutParams.MATCH_PARENT
+                    )
+                }
+            },
+            modifier = Modifier.fillMaxSize()
+        )
+    }
 }
 
 /**
