@@ -117,7 +117,9 @@ class GamePreviewViewModel @Inject constructor(
                     bannerUrl = mediaUrlResolver.resolveBannerUrl(observation.catalog.banner?.storagePath),
                     logoUrl = mediaUrlResolver.resolveBannerUrl(observation.catalog.logo?.storagePath),
                     menuBackgroundUrl = mediaUrlResolver.resolveBannerUrl(observation.catalog.menuBackground?.storagePath),
-                    observation.downloadProgress,
+                    authorAvatarUrl = mediaUrlResolver.resolveBannerUrl(observation.catalog.author?.avatarUrl),
+                    titleUrl = mediaUrlResolver.resolveBannerUrl(observation.catalog.title?.storagePath),
+                    downloadProgress = observation.downloadProgress,
                 ),
                 gameCatalog = observation.catalog,
             )
@@ -321,7 +323,12 @@ class GamePreviewViewModel @Inject constructor(
                     logger.exception(error) { "Purchase failed for sku=$sku" }
                     when (error) {
                         is BuyStoryError.AlreadyOwned -> sendEvent(GamePreviewEvent.ShowAlreadyBoughtAlert)
-                        is BuyStoryError.NotPurchasable -> sendEvent(GamePreviewEvent.ShowError(GameUiError.Purchase))
+                        is BuyStoryError.NotPurchasable -> sendEvent(
+                            GamePreviewEvent.ShowError(
+                                GameUiError.Purchase
+                            )
+                        )
+
                         else -> sendEvent(GamePreviewEvent.ShowError(GameUiError.Purchase))
                     }
                 }

@@ -16,6 +16,7 @@ data class GameCatalog(
     val chaptersCount: Int = 0,
     val banner: Asset? = null,
     val logo: Asset? = null,
+    val title: Asset? = null,
     val metadata: GameMetadata,
     val author: Author? = null,
     val legacyId: Int? = null,

@@ -33,6 +33,7 @@
     <string name="game_preview_community">Histoire communautaire</string>
     <string name="game_preview_written_by">Écrit par</string>
     <string name="game_preview_certified_author">Auteur certifié</string>
+    <string name="game_preview_author_avatar">Avatar de l\'auteur, appuyez pour agrandir</string>
     <string name="game_preview_background_description">Arrière-plan</string>
     <string name="game_preview_avatar_description">Avatar</string>
 

@@ -31,7 +31,6 @@ import androidx.compose.ui.unit.sp
 import com.example.sharedelements.theme.WorkSansFontFamily
 import com.purpletear.game.debug.PreviewCharacter
 import com.purpletear.game.presentation.common.extensions.parseOrNull
-import com.purpletear.game.presentation.common.extensions.toComposeColor
 import com.purpletear.game.presentation.common.extensions.toWhitenedComposeColor
 import com.purpletear.game.presentation.game_play.components.Avatar
 import com.purpletear.game.presentation.game_play.mapper.ITEMS_HORIZONTAL_PADDING
@@ -138,7 +137,7 @@ private fun MessageDest(
                     character = it,
                     onAvatarClick = onAvatarClick,
                 )
-                Name(it.name, color = it.color.toComposeColor())
+                Name(it.name, color = it.color.toWhitenedComposeColor(fraction = 0.6f))
             }
         }
 
@@ -188,7 +187,7 @@ private fun MessageMainCharacter(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(6.dp)
             ) {
-                Name(it.name, color = it.color.toComposeColor())
+                Name(it.name, color = it.color.toWhitenedComposeColor(fraction = 0.6f))
                 ClickableAvatar(
                     character = it,
                     onAvatarClick = onAvatarClick,
@@ -208,7 +207,7 @@ private fun MessageMainCharacter(
                     .padding(vertical = 6.dp)
                     .padding(horizontal = 8.dp),
                 text = text,
-                color = textColor ?: (character?.color?.toWhitenedComposeColor(fraction = 0.7f)
+                color = textColor ?: (character?.color?.toWhitenedComposeColor(fraction = 0.8f)
                     ?: Color.White),
                 fontFamily = WorkSansFontFamily,
                 fontWeight = FontWeight.Normal,

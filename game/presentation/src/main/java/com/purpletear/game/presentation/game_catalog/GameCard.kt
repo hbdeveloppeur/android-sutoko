@@ -16,6 +16,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.Placeable
+import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
@@ -45,7 +46,7 @@ fun GameCard(
     val themes = remember(gameCatalog.narrativeThemes) {
         gameCatalog.narrativeThemes.map { it.name }
     }
-    // The title is baked into the image, so TalkBack needs it explicitly.
+    // The title comes from the logo asset, so TalkBack needs it explicitly.
     val description = remember(gameCatalog.metadata.title, themes) {
         buildString {
             append(gameCatalog.metadata.title)
@@ -71,11 +72,42 @@ fun GameCard(
             modifier = Modifier.fillMaxSize(),
             model = gameCatalog.bannerImageRequest(context)
                 ?: ImageRequest.Builder(context).build(),
-            // The game title is baked into the image: never crop it.
             contentScale = ContentScale.Fit,
             contentDescription = null,
         )
+        Logo(gameCatalog = gameCatalog)
         Themes(themes = themes)
+    }
+}
+
+
+/**
+ * Overlays the game's logo (logoAsset) inside the title rectangle of the banner,
+ * scaled to fit without distortion. Nothing is drawn when the game has no logo.
+ * Fades in once when the card is first composed.
+ */
+@Composable
+private fun Logo(gameCatalog: GameCatalog) {
+    val context = LocalContext.current
+    val request = remember(gameCatalog.title) { gameCatalog.logoImageRequest(context) } ?: return
+    AsyncImage(
+        modifier = Modifier
+            .titleRect(),
+        model = request,
+        contentScale = ContentScale.Fit,
+        contentDescription = null,
+    )
+}
+
+/** Places the content inside the title rectangle, as fractions of the card size. */
+private fun Modifier.titleRect(): Modifier = layout { measurable, constraints ->
+    val width = (constraints.maxWidth * TITLE_RECT_WIDTH_FRACTION).roundToInt()
+    val height = (constraints.maxHeight * TITLE_RECT_HEIGHT_FRACTION).roundToInt()
+    val placeable = measurable.measure(Constraints.fixed(width, height))
+    val x = (constraints.maxWidth * TITLE_RECT_LEFT_FRACTION).roundToInt()
+    val y = (constraints.maxHeight * TITLE_RECT_TOP_FRACTION).roundToInt()
+    layout(constraints.maxWidth, constraints.maxHeight) {
+        placeable.place(x, y)
     }
 }
 
