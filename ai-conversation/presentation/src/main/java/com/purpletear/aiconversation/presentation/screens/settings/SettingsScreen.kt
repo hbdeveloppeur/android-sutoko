@@ -228,7 +228,7 @@ private fun VersionHeaderComposable(currentVersion: Version?, nextVersion: Versi
             nextVersion?.releaseDate?.let { timeStamp ->
                 val days = DateUtils.daysBetween(
                     timestamp1 = System.currentTimeMillis(),
-                    timestamp2 = timeStamp
+                    timestamp2 = timeStamp * 1000 // server timestamps are in seconds
                 )
                 if (days > 0) {
                     Text(

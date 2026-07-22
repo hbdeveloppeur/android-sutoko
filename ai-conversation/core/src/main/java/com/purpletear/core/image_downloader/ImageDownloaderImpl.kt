@@ -1,11 +1,10 @@
 package com.purpletear.core.image_downloader
 
-import android.annotation.SuppressLint
 import android.content.ContentValues
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.drawable.BitmapDrawable
-import android.net.Uri
+import android.os.Build
 import android.os.Environment
 import android.provider.MediaStore
 import coil.imageLoader
@@ -41,8 +40,14 @@ class ImageDownloaderImpl(private val context: Context) : ImageDownloader {
         return drawable.bitmap
     }
 
-    @SuppressLint("InlinedApi")
     private fun saveImageToGallery(bitmap: Bitmap, fileName: String) {
+        // Scoped storage (RELATIVE_PATH, no permission required) only exists on API 29+.
+        // Below that, inserting into MediaStore requires WRITE_EXTERNAL_STORAGE,
+        // which the app does not request.
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
+            throw IOException("Saving to the gallery requires Android 10 or newer.")
+        }
+
         val contentValues = ContentValues().apply {
             put(MediaStore.Images.Media.DISPLAY_NAME, fileName)
             put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg")
@@ -52,17 +57,22 @@ class ImageDownloaderImpl(private val context: Context) : ImageDownloader {
             ) // Save in Pictures/MyAppGallery
         }
 
-        val uri: Uri? = context.contentResolver.insert(
+        val uri = context.contentResolver.insert(
             MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
             contentValues
-        )
-        uri?.let {
-            context.contentResolver.openOutputStream(it)?.use { outputStream ->
+        ) ?: throw IOException("Failed to create new MediaStore record.")
+
+        try {
+            context.contentResolver.openOutputStream(uri)?.use { outputStream ->
                 if (!bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream)) {
                     throw IOException("Failed to save bitmap.")
                 }
             } ?: throw IOException("Failed to get output stream.")
-        } ?: throw IOException("Failed to create new MediaStore record.")
+        } catch (e: Exception) {
+            // Do not leave a broken 0-byte entry behind in the user's gallery.
+            context.contentResolver.delete(uri, null, null)
+            throw e
+        }
     }
 
     private fun generateUniqueFilename(extension: String): String {

@@ -6,11 +6,14 @@ import java.util.Locale
 
 
 object DateUtils {
+
+    /** @param timestampSeconds server timestamp, in **seconds** since epoch. */
     fun formatTimestampToDate(timestampSeconds: Long, format: String = "dd/MM/yyyy"): String {
         val sdf = SimpleDateFormat(format, Locale.getDefault())
         return sdf.format(Date(timestampSeconds * 1000))
     }
 
+    /** Both timestamps are in **milliseconds** since epoch. */
     fun daysBetween(timestamp1: Long, timestamp2: Long): Long {
         val diff = timestamp2 - timestamp1
         return diff / (24 * 60 * 60 * 1000)
