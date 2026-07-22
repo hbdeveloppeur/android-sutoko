@@ -29,6 +29,7 @@ import com.purpletear.sutoko.notification.usecase.SetCurrentScreenUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.stateIn
@@ -98,8 +99,9 @@ class AiConversationHomeViewModel @Inject constructor(
     }
 
     private fun observeMessageCoinsDialogVisibility() {
+        // drop(1): skip the StateFlow's initial value, only react to close transitions.
         executeFlowUseCase({
-            observeMessageCoinsDialogVisibilityUseCase()
+            observeMessageCoinsDialogVisibilityUseCase().drop(1)
         }, onStream = { isVisible ->
             if (!isVisible) {
                 onResume()

@@ -111,5 +111,13 @@ commit, dead actions removed rather than shipped (Norman's gate).
 Validation: `:ai-conversation:presentation:assembleDebug`, `:ai-conversation:data:assembleDebug`,
 `:app:assembleDebug` (Hilt aggregation) - all green, `--no-build-cache`.
 
-- Task 3 (optional, low priority): make coordinator visibility level-triggered
-  (`MutableStateFlow`) to eliminate the dropped-event race.
+### Task 3 - Status: DONE - Coordinator visibility is now level-triggered
+
+`AiConversationCoordinator.events` (`MutableSharedFlow(replay=0, buffer=1, DROP_OLDEST)` +
+non-suspending `tryEmit`) is replaced by `isMessageCoinsDialogVisible: StateFlow<Boolean>`.
+Open events can no longer be silently dropped when the collector is not ready, and the
+visibility is correctly restored for any new observer. `AiConversationEvent` removed (single
+consumer). `AiConversationHomeViewModel` keeps its previous edge-triggered behavior with
+`drop(1)` so the StateFlow's initial value does not trigger a duplicate data load.
+
+Validation: `:app:assembleDebug --no-build-cache` green.

@@ -1,14 +1,9 @@
 package com.purpletear.core.coordinator
 
-import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.StateFlow
 
 interface AiConversationCoordinator {
-    val events: Flow<AiConversationEvent>
+    val isMessageCoinsDialogVisible: StateFlow<Boolean>
     fun openMessageCoinsDialog()
     fun closeMessageCoinsDialog()
-}
-
-sealed interface AiConversationEvent {
-    object OpenMessageCoinsDialog : AiConversationEvent
-    object CloseMessageCoinsDialog : AiConversationEvent
 }
