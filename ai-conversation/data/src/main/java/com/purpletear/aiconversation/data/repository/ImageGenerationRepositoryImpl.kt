@@ -21,6 +21,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.update
 
 class ImageGenerationRepositoryImpl(
     private val api: ImageGenerationApi,
@@ -78,14 +79,17 @@ class ImageGenerationRepositoryImpl(
     }
 
     private fun updateDocuments() {
-        _documents.value = _documents.value.map { document ->
-            if (_selectedDocument.value != null && document.serial == _selectedDocument.value?.serial) {
-                _selectedDocument.value!!
-            } else {
-                document
+        val selected = _selectedDocument.value
+        _documents.update { docs ->
+            docs.map { document ->
+                if (selected != null && document.serial == selected.serial) {
+                    selected
+                } else {
+                    document
+                }
+            }.filter {
+                it.requests.isNotEmpty()
             }
-        }.filter {
-            it.requests.isNotEmpty()
         }
     }
 
@@ -125,8 +129,7 @@ class ImageGenerationRepositoryImpl(
 
     override fun createNewDocument(request: ImageGenerationRequest?): Document {
         val d = Document(requests = if (request != null) listOf(request) else listOf())
-        _documents.value += d
-        _documents.value.sortedByDescending { it.createdAt }
+        _documents.update { (it + d).sortedByDescending { doc -> doc.createdAt } }
         return d
     }
 
@@ -154,26 +157,36 @@ class ImageGenerationRepositoryImpl(
         val request = ImageGenerationRequest(status = ProcessStatus.PROCESSING.code)
         insertRequest(request = request)
 
-        val apiResponse = api.sendImageGenerationRequest(
-            userId = userId,
-            token = userToken,
-            prompt = prompt,
+        val apiResponse = try {
+            api.sendImageGenerationRequest(
+                userId = userId,
+                token = userToken,
+                prompt = prompt,
 
-            // TODO
-            modelName = "Supra HD",
-            appVersion = BuildConfig.VERSION_NAME,
-            imageRequestSerialId = _selectedDocument.value!!.requests[_selectedDocument.value!!.cursor].serial,
-            documentSerialId = _selectedDocument.value!!.serial
-        )
+                // TODO
+                modelName = "Supra HD",
+                appVersion = BuildConfig.VERSION_NAME,
+                imageRequestSerialId = _selectedDocument.value!!.requests[_selectedDocument.value!!.cursor].serial,
+                documentSerialId = _selectedDocument.value!!.serial
+            )
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            onGenerationError(request.serial)
+            emit(Result.failure(e))
+            return@flow
+        }
 
         if (apiResponse.isSuccessful) {
             apiResponse.body()?.let { response ->
                 emit(Result.success(Unit))
             } ?: run {
+                onGenerationError(request.serial)
                 emit(Result.failure(NoResponseException()))
                 return@flow
             }
         } else {
+            onGenerationError(request.serial)
             val exception = ApiFailureResponseHandler.handler(apiResponse.errorBody())
             emit(Result.failure(exception))
         }
@@ -186,58 +199,66 @@ class ImageGenerationRepositoryImpl(
         banner: Media,
         imageGenerationSerialId: String
     ) {
-        _documents.value = _documents.value.map {
-            it.copy(requests = it.requests.map { request ->
-                if (request.serial == imageGenerationSerialId) {
-                    request.copy(
-                        status = ProcessStatus.COMPLETED.code,
-                        url = banner.url
-                    )
-                } else {
-                    request
-                }
-            })
+        _documents.update { docs ->
+            docs.map {
+                it.copy(requests = it.requests.map { request ->
+                    if (request.serial == imageGenerationSerialId) {
+                        request.copy(
+                            status = ProcessStatus.COMPLETED.code,
+                            url = banner.url
+                        )
+                    } else {
+                        request
+                    }
+                })
+            }
         }
 
-        _selectedDocument.value = _selectedDocument.value?.copy(
-            requests = _selectedDocument.value?.requests?.map { request ->
-                if (request.serial == imageGenerationSerialId) {
-                    request.copy(
-                        status = ProcessStatus.COMPLETED.code,
-                        url = banner.url
-                    )
-                } else {
-                    request
+        _selectedDocument.update { selected ->
+            selected?.copy(
+                requests = selected.requests.map { request ->
+                    if (request.serial == imageGenerationSerialId) {
+                        request.copy(
+                            status = ProcessStatus.COMPLETED.code,
+                            url = banner.url
+                        )
+                    } else {
+                        request
+                    }
                 }
-            } ?: listOf()
-        )
+            )
+        }
         setCurrentImageRequest()
     }
 
     override fun onGenerationError(imageGenerationSerialId: String) {
-        _documents.value = _documents.value.map {
-            it.copy(requests = it.requests.map { request ->
-                if (request.serial == imageGenerationSerialId) {
-                    request.copy(
-                        status = ProcessStatus.FAILED.code,
-                    )
-                } else {
-                    request
-                }
-            })
+        _documents.update { docs ->
+            docs.map {
+                it.copy(requests = it.requests.map { request ->
+                    if (request.serial == imageGenerationSerialId) {
+                        request.copy(
+                            status = ProcessStatus.FAILED.code,
+                        )
+                    } else {
+                        request
+                    }
+                })
+            }
         }
 
-        _selectedDocument.value = _selectedDocument.value?.copy(
-            requests = _selectedDocument.value?.requests?.map { request ->
-                if (request.serial == imageGenerationSerialId) {
-                    request.copy(
-                        status = ProcessStatus.FAILED.code,
-                    )
-                } else {
-                    request
+        _selectedDocument.update { selected ->
+            selected?.copy(
+                requests = selected.requests.map { request ->
+                    if (request.serial == imageGenerationSerialId) {
+                        request.copy(
+                            status = ProcessStatus.FAILED.code,
+                        )
+                    } else {
+                        request
+                    }
                 }
-            } ?: listOf()
-        )
+            )
+        }
         setCurrentImageRequest()
     }
 
@@ -275,9 +296,14 @@ class ImageGenerationRepositoryImpl(
     ): Flow<Result<Unit>> =
         flow {
             try {
-                val imageGenerationRequest: ImageGenerationRequest =
+                val imageGenerationRequest: ImageGenerationRequest? =
                     _selectedDocument.value?.requests?.get(_selectedDocument.value?.cursor ?: 0)
-                        ?: return@flow
+
+                if (imageGenerationRequest == null) {
+                    // Nothing selected: deleting is a no-op.
+                    emit(Result.success(Unit))
+                    return@flow
+                }
 
                 val apiResponse = api.deleteImageGenerationRequest(
                     userId = userId,

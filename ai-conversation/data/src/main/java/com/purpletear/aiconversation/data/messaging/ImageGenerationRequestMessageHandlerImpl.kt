@@ -72,9 +72,18 @@ class ImageGenerationRequestMessageHandlerImpl(
                 null
             }
 
+            if (dto.bannerId == null || dto.bannerUrl == null) {
+                Log.e(
+                    "ImageGenerationRequestMessageHandlerImpl",
+                    "Missing banner in generation_success payload"
+                )
+                repository.onGenerationError(dto.imageGenerationSerialId)
+                return
+            }
+
             val banner = Media(
-                id = dto.bannerId!!,
-                url = dto.bannerUrl!!,
+                id = dto.bannerId,
+                url = dto.bannerUrl,
                 typeCode = MediaType.Banner.code,
                 imageGenerationRequestSerialId = dto.imageGenerationSerialId
             )

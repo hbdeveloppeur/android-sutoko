@@ -1,6 +1,7 @@
 package com.purpletear.aiconversation.data.repository
 
 import com.purpletear.aiconversation.data.BuildConfig
+import com.purpletear.aiconversation.data.exception.NoResponseException
 import com.purpletear.aiconversation.data.remote.VersionApi
 import com.purpletear.aiconversation.data.remote.utils.ApiFailureResponseHandler
 import com.purpletear.aiconversation.domain.model.VersionResponse
@@ -20,10 +21,9 @@ class VersionRepositoryImpl(
         if (apiResponse.isSuccessful) {
             apiResponse.body()?.let { response ->
                 emit(Result.success(response))
-            }
+            } ?: emit(Result.failure(NoResponseException()))
         } else {
-            val exception = ApiFailureResponseHandler.handler(apiResponse.errorBody())
-            exception.printStackTrace()
+            emit(Result.failure(ApiFailureResponseHandler.handler(apiResponse.errorBody())))
         }
 
     }.catch {
