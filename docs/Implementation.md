@@ -50,7 +50,13 @@ breaks the Result-contract, see T6).
 
 ### Fix plan (task by task, one commit per task)
 
-- **Task 2 — URL & crash hotfixes (C6, C8, C9, C4).** Fix `replace("//","/")` (both call sites:
+Status: **tasks 2-12 DONE** (commits `4fe418a4`..`596892e2`, `:app:assembleDebug` verified).
+Remaining known MINORs (not fixed, low value/risk): `BounceClick` (unused), `BuyTokensDialog`
+WIP feature, artificial `delay()`s, `Message.copy()` open-class else-throw, DAO blocking writes,
+public `MutableState`s in some image-generator VMs, `isLastReceivedMessage` O(n) lookup,
+`SecondCounter` 60fps updates.
+
+- **Task 2 — URL & crash hotfixes (C6, C8, C9, C4).** ✅ Fix `replace("//","/")` (both call sites:
   join prefix/path safely instead). Guard `first{}` in home VM, replace throws in
   `ImageGeneratorViewModel` with graceful logged-out state. Wrap websocket `onMessage` parsing in
   try/catch so unknown messages never crash the OkHttp thread.
