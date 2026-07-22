@@ -138,7 +138,9 @@ public class Load extends AppCompatActivity {
         TableOfSymbols symbols = getIntent().getParcelableExtra("symbols");
         Params params = new Params();
         params.read(this);
-        params.setChapterCode(symbols.getChapterCode());
+        if (symbols.read(this)) {
+            params.setChapterCode(symbols.getChapterCode());
+        }
         model = new LoadModel(
                 params,
                 symbols);

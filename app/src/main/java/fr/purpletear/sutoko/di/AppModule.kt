@@ -68,6 +68,9 @@ object AppModule {
     @Singleton
     fun provideSymbolsDatabase(@ApplicationContext context: Context): SymbolsDatabase {
         return Room.databaseBuilder(context, SymbolsDatabase::class.java, "symbols.db")
+            // Legacy friendzone games call TableOfSymbols.read()/save() synchronously
+            // on the main thread; the symbols tables are tiny so this is safe.
+            .allowMainThreadQueries()
             .build()
     }
 

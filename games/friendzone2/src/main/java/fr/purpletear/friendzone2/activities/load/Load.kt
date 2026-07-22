@@ -86,6 +86,7 @@ class Load : AppCompatActivity() {
     private fun load() {
         val symbols =
             intent.getParcelableExtra("symbols") ?: TableOfSymbols(GlobalData.Game.FRIENDZONE2.id)
+        symbols.read()
 
         if (SutokoSharedElementsData.SHOULD_FORCE_CHAPTER) {
             symbols.chapterCode = SutokoSharedElementsData.FORCE_CHAPTER_CODE

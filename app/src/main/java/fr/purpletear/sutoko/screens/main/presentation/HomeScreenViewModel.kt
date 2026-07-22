@@ -32,6 +32,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import fr.purpletear.sutoko.R
 import fr.purpletear.sutoko.objects.CalendarEvent
 import fr.purpletear.sutoko.symbols.SymbolsRepository
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -39,6 +40,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import purpletear.fr.purpleteartools.TableOfSymbols
 import javax.inject.Inject
 
@@ -192,6 +194,9 @@ class HomeScreenViewModel @Inject constructor(
     private fun setNotifications(value: Boolean) {
         viewModelScope.launch {
             val symbols = symbolsRepository.load()
+            // Refresh first: saving below rewrites the whole snapshot, so it must
+            // not be based on stale data predating the user's latest game session.
+            withContext(Dispatchers.IO) { symbols.read() }
             symbols.setFirebaseNotification(value)
             firebaseAnalytics.setUserProperty("want_to_get_notified", if (value) "yes" else "no")
             saveSymbols.value = symbols
