@@ -1,5 +1,8 @@
 package com.purpletear.aiconversation.domain.enums
 
+import androidx.annotation.Keep
+
+@Keep
 enum class CharacterStatus(val code: String) {
     Online("Online"),
     Offline("Offline"),

@@ -1,5 +1,8 @@
 package com.purpletear.aiconversation.domain.enums
 
+import androidx.annotation.Keep
+
+@Keep
 sealed class MessageState(val code: String) {
     data object Idle : MessageState("idle")
     data object PreSending : MessageState("presending")

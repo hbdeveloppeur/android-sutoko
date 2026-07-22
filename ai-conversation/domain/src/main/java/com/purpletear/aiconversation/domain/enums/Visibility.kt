@@ -1,5 +1,8 @@
 package com.purpletear.aiconversation.domain.enums
 
+import androidx.annotation.Keep
+
+@Keep
 enum class Visibility(val value: String) {
     Private("private"),
     Public("public");

@@ -1,5 +1,8 @@
 package com.purpletear.aiconversation.domain.enums
 
+import androidx.annotation.Keep
+
+@Keep
 enum class WebSocketMessageType(val code: String) {
     AUTHENTICATION_SUCCESS("connected"),
     AUTHENTICATION_FAILURE("authenticate_failure"),

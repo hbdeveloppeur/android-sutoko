@@ -1,8 +1,11 @@
 package com.purpletear.sutoko.game.engine
 
+import androidx.annotation.Keep
+
 /**
  * Enumeration of all node types in the game engine.
  */
+@Keep
 enum class NodeType {
     START,
     MESSAGE,

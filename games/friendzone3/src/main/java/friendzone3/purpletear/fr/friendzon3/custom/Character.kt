@@ -10,11 +10,13 @@ package friendzone3.purpletear.fr.friendzon3.custom
 
 import android.app.Activity
 import android.content.Context
+import androidx.annotation.Keep
 import com.google.gson.annotations.SerializedName
 import friendzone3.purpletear.fr.friendzon3.R
 import friendzone3.purpletear.fr.friendzon3.config.Language
 import purpletear.fr.purpleteartools.Std
 
+@Keep
 class Character (
         /**
          * Contains the character's id

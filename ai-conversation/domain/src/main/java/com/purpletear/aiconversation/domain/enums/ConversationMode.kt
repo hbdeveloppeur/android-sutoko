@@ -1,5 +1,8 @@
 package com.purpletear.aiconversation.domain.enums
 
+import androidx.annotation.Keep
+
+@Keep
 enum class ConversationMode(val code: String) {
     Sms("sms"),
     Irl("irl");
