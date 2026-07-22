@@ -154,8 +154,9 @@ private fun VideoSplashScreen(
                     // Set controller properties before assigning the player
                     useController = false
 
-                    // Set controller visibility to GONE explicitly
-                    findViewById<android.view.View>(androidx.media3.ui.R.id.exo_controller).visibility =
+                    // Set controller visibility to GONE explicitly (null-safe: the
+                    // controller view may be absent when useController = false)
+                    findViewById<android.view.View>(androidx.media3.ui.R.id.exo_controller)?.visibility =
                         android.view.View.GONE
 
                     // Set player after controller settings

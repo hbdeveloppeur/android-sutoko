@@ -139,7 +139,9 @@ fun AddCharacterScreen(viewModel: AddCharacterViewModel, navController: NavHostC
         LaunchedEffect(listState) {
             snapshotFlow { listState.firstVisibleItemScrollOffset }
                 .collect { offset ->
-                    if (listState.layoutInfo.visibleItemsInfo[0].index == 0) {
+                    // visibleItemsInfo is empty until the first layout pass
+                    val firstVisibleItem = listState.layoutInfo.visibleItemsInfo.firstOrNull()
+                    if (firstVisibleItem != null && firstVisibleItem.index == 0) {
                         backgroundAlpha = 0.95f - (max - offset).coerceIn(0f, max) / max
 
                     }
