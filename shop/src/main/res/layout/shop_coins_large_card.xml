@@ -54,7 +54,7 @@
             app:layout_constraintTop_toTopOf="@id/sutoko_coins_card_large_item_image"
             app:lottie_autoPlay="true"
             app:lottie_loop="true"
-            app:lottie_rawRes="@raw/sutoko_effect_light"
+            app:lottie_rawRes="@raw/shop_sutoko_effect_light"
             app:lottie_speed="0.7" />
 
         <ImageView
@@ -138,7 +138,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="6dp"
-            android:background="@drawable/sutoko_shop_label_mega_pack"
+            android:background="@drawable/shop_sutoko_shop_label_mega_pack"
             android:elevation="12dp"
             android:paddingStart="10dp"
             android:paddingTop="6dp"
@@ -156,7 +156,7 @@
             android:layout_height="wrap_content"
             android:layout_marginEnd="16dp"
             android:layout_marginBottom="16dp"
-            android:background="@drawable/sutoko_shop_button_buy_cta"
+            android:background="@drawable/shop_sutoko_shop_button_buy_cta"
             android:elevation="16dp"
             android:gravity="center"
             android:includeFontPadding="false"

@@ -67,7 +67,7 @@ class NotificationHelper @Inject constructor() {
 
         // Create the notification content
         var builder = NotificationCompat.Builder(context, "sutoko_fcm")
-            .setSmallIcon(ShopR.drawable.sutoko_ic_diamond)
+            .setSmallIcon(ShopR.drawable.shop_sutoko_ic_diamond)
             .setContentTitle(notification.title)
             .setContentText(notification.message)
             .setContentIntent(pendingIntent)

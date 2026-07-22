@@ -6,7 +6,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="#9d3c4d"
-        app:layoutDescription="@xml/activity_shop_scene_fix">
+        app:layoutDescription="@xml/shop_activity_shop_scene_fix">
 
         <com.example.sharedelements.views.MediaBackgroundView
             android:id="@+id/sutoko_shop_background"
@@ -32,7 +32,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="28dp"
             android:alpha="1"
-            android:text="@string/sutoko_shop_title"
+            android:text="@string/shop_sutoko_shop_title"
             android:textAlignment="center"
             android:textAllCaps="true"
             android:textColor="#feffff"
@@ -48,7 +48,7 @@
             android:layout_marginTop="3dp"
             android:alpha="1"
             android:maxWidth="300dp"
-            android:text="@string/sutoko_shop_subtitle"
+            android:text="@string/shop_sutoko_shop_subtitle"
             android:textAlignment="center"
             android:textAllCaps="false"
             android:textColor="#f4f4f4"
@@ -63,7 +63,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
-            android:background="@drawable/sutoko_shop_rounded_background_black"
+            android:background="@drawable/shop_sutoko_shop_rounded_background_black"
             android:gravity="center"
             android:paddingStart="18dp"
             android:paddingTop="8dp"
@@ -88,7 +88,7 @@
                 android:adjustViewBounds="true"
                 android:rotation="45"
                 android:scaleType="centerCrop"
-                android:src="@drawable/sutoko_item_coin"
+                android:src="@drawable/shop_sutoko_item_coin"
                 tools:ignore="ContentDescription" />
 
             <com.example.sharedelements.fonts.PoppinsBoldAnimated
@@ -107,7 +107,7 @@
                 android:adjustViewBounds="true"
                 android:rotation="45"
                 android:scaleType="centerCrop"
-                android:src="@drawable/sutoko_ic_diamond"
+                android:src="@drawable/shop_sutoko_ic_diamond"
                 tools:ignore="ContentDescription" />
 
         </LinearLayout>
@@ -117,7 +117,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
-            android:background="@drawable/sutoko_shop_sign_in_button_background"
+            android:background="@drawable/shop_sutoko_shop_sign_in_button_background"
             android:clickable="true"
             android:focusable="true"
             android:letterSpacing="0.04"
@@ -125,7 +125,7 @@
             android:paddingTop="8dp"
             android:paddingEnd="16dp"
             android:paddingBottom="8dp"
-            android:text="@string/sutoko_sign_in"
+            android:text="@string/shop_sutoko_sign_in"
             android:textColor="#FFFFFF"
             android:textSize="12sp"
             android:visibility="gone"
@@ -172,8 +172,8 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        app:cardName="@{@string/sutoko_shop_pack_name_starter}"
-                        app:gradientBackground="@{@drawable/sutoko_shop_gradient_purple}" />
+                        app:cardName="@{@string/shop_sutoko_shop_pack_name_starter}"
+                        app:gradientBackground="@{@drawable/shop_sutoko_shop_gradient_purple}" />
 
                     <include
                         android:id="@+id/sutoko_shop_card_2"
@@ -181,8 +181,8 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        app:cardName="@{@string/sutoko_shop_pack_name_treasure}"
-                        app:gradientBackground="@{@drawable/sutoko_shop_gradient_green}" />
+                        app:cardName="@{@string/shop_sutoko_shop_pack_name_treasure}"
+                        app:gradientBackground="@{@drawable/shop_sutoko_shop_gradient_green}" />
                 </LinearLayout>
 
                 <include
@@ -226,7 +226,7 @@
 
         <include
             android:id="@+id/buyValidation"
-            layout="@layout/layout_shop_buy_validation"
+            layout="@layout/shop_layout_shop_buy_validation"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:visibility="invisible" />

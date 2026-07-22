@@ -35,7 +35,7 @@ internal fun CoinsDisplay(
     amount: Int,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
-    @DrawableRes iconResId: Int = ShopR.drawable.sutoko_item_coin,
+    @DrawableRes iconResId: Int = ShopR.drawable.shop_sutoko_item_coin,
     borderColor: Color = CoinGold,
     backgroundColor: Color = BackgroundDark,
 ) {

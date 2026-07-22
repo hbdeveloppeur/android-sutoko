@@ -41,9 +41,9 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:maxWidth="300dp"
-            android:text="@string/sutoko_congrats"
+            android:text="@string/shop_sutoko_congrats"
             android:textAlignment="center"
-            android:textColor="@color/darkModeWhite3"
+            android:textColor="@color/shop_darkModeWhite3"
             android:textSize="22sp" />
 
         <com.example.sharedelements.fonts.PoppinsBold
@@ -52,7 +52,7 @@
             android:layout_height="wrap_content"
             android:maxWidth="300dp"
             android:textAlignment="center"
-            android:textColor="@color/darkModeWhite"
+            android:textColor="@color/shop_darkModeWhite"
             android:textSize="28sp" />
 
         <FrameLayout
@@ -74,7 +74,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
-            android:background="@drawable/sutoko_shop_rounded_background_black"
+            android:background="@drawable/shop_sutoko_shop_rounded_background_black"
             android:gravity="center"
             android:paddingStart="18dp"
             android:paddingTop="8dp"
@@ -126,9 +126,9 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             android:maxWidth="300dp"
-            android:text="@string/sutoko_shop_unlock_item_connection_warning"
+            android:text="@string/shop_sutoko_shop_unlock_item_connection_warning"
             android:textAlignment="center"
-            android:textColor="@color/darkModeWhite3" />
+            android:textColor="@color/shop_darkModeWhite3" />
     </LinearLayout>
 
     <FrameLayout
@@ -143,7 +143,7 @@
         <View
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="@drawable/sutoko_button_rounded_pink" />
+            android:background="@drawable/shop_sutoko_button_rounded_pink" />
 
 
         <com.example.sharedelements.fonts.PoppinsBold
@@ -154,8 +154,8 @@
             android:focusable="false"
             android:focusableInTouchMode="false"
             android:gravity="center"
-            android:text="@string/sutoko_continue"
-            android:textColor="@color/white" />
+            android:text="@string/shop_sutoko_continue"
+            android:textColor="@color/shop_white" />
 
     </FrameLayout>
 

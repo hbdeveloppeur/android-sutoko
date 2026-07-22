@@ -51,7 +51,7 @@ class ShopActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         requestManager = Glide.with(this)
-        binding = DataBindingUtil.setContentView(this, R.layout.activity_shop_fixed)!!
+        binding = DataBindingUtil.setContentView(this, R.layout.shop_activity_shop_fixed)!!
         ShopActivityGraphics.setStatusBar(this)
 
         ShopActivityGraphics.setFakeStatusBarSize(this, binding)

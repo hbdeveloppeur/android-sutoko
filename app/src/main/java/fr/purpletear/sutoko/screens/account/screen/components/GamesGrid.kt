@@ -175,7 +175,7 @@ private fun CardView(
                         modifier = Modifier
                             .size(14.dp)
                             .padding(start = 4.dp),
-                        painter = painterResource(id = ShopR.drawable.sutoko_shop_item_coins),
+                        painter = painterResource(id = ShopR.drawable.shop_sutoko_shop_item_coins),
                         contentDescription = null
                     )
                 }

@@ -36,7 +36,7 @@ fun AccountScreen(viewModel: AccountViewModel) {
                     .heightIn(max = 400.dp)
             ) {
                 Image(
-                    painterResource(ShopR.drawable.sutoko_shop_card_item_premium_pass),
+                    painterResource(ShopR.drawable.shop_sutoko_shop_card_item_premium_pass),
                     contentDescription = null,
                     contentScale = ContentScale.FillBounds,
                     modifier = Modifier
