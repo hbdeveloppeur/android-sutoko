@@ -144,6 +144,72 @@ class GamePreviewViewModelTest {
             skipItems(1) // Loading
             assertEquals(GamePreviewUiState.NotFound, awaitItem())
         }
+        assertTrue(logger.warnings.isEmpty())
+    }
+
+    @Test
+    fun `game emits NotFound after start logs warning`() = runTest {
+        gameRepository.setGame(TestFixtures.GAME_ID, null)
+        val viewModel = createViewModel()
+
+        viewModel.game.test {
+            skipItems(1) // Loading
+            viewModel.start()
+            advanceUntilIdle()
+            assertEquals(GamePreviewUiState.NotFound, awaitItem())
+        }
+        assertTrue(logger.warnings.any { it.message.contains("not found locally") })
+    }
+
+    @Test
+    fun `NotFound then recovery success self-heals to Data`() = runTest {
+        gameRepository.setGame(TestFixtures.GAME_ID, null)
+        gameRepository.getGameCatalogResult = Result.success(TestFixtures.gameCatalog())
+        val viewModel = createViewModel()
+
+        viewModel.game.test {
+            skipItems(1) // Loading
+            viewModel.start()
+            advanceUntilIdle()
+            // NotFound may be conflated away by the StateFlow; the healed state must be Data.
+            assertTrue(expectMostRecentItem() is GamePreviewUiState.Data)
+        }
+        assertEquals(1, gameRepository.getGameCatalogCalls)
+    }
+
+    @Test
+    fun `NotFound recovery failure keeps NotFound and attempts repository once`() = runTest {
+        gameRepository.setGame(TestFixtures.GAME_ID, null)
+        gameRepository.getGameCatalogResult = Result.failure(RuntimeException("network"))
+        val viewModel = createViewModel()
+
+        viewModel.game.test {
+            skipItems(1) // Loading
+            viewModel.start()
+            advanceUntilIdle()
+            assertEquals(GamePreviewUiState.NotFound, awaitItem())
+            expectNoEvents()
+        }
+        assertEquals(1, gameRepository.getGameCatalogCalls)
+        assertTrue(logger.warnings.any { it.message.contains("remote recovery failed") })
+    }
+
+    @Test
+    fun `refresh on NotFound triggers one more recovery attempt`() = runTest {
+        gameRepository.setGame(TestFixtures.GAME_ID, null)
+        gameRepository.getGameCatalogResult = Result.failure(RuntimeException("network"))
+        val viewModel = createViewModel()
+        activateStateFlows(backgroundScope, viewModel)
+
+        viewModel.start()
+        advanceUntilIdle()
+        assertEquals(1, gameRepository.getGameCatalogCalls)
+
+        viewModel.refresh()
+        advanceUntilIdle()
+
+        assertEquals(2, gameRepository.getGameCatalogCalls)
+        assertFalse(viewModel.isRefreshing.value)
     }
 
     @Test
@@ -235,13 +301,27 @@ class GamePreviewViewModelTest {
     }
 
     @Test
-    fun `refresh syncs the game and chapters and resets isRefreshing`() = runTest {
+    fun `start loads empty chapters and logs warning`() = runTest {
+        val viewModel = createViewModel()
+
+        viewModel.events.test {
+            chapterRepository.setChapters(TestFixtures.GAME_ID, Result.success(emptyList()))
+
+            viewModel.start()
+            advanceUntilIdle()
+
+            expectNoEvents()
+        }
+        assertTrue(logger.warnings.any { it.message.contains("empty chapter list") })
+    }
+
+    @Test
+    fun `refresh reloads chapters and resets isRefreshing`() = runTest {
         val viewModel = createViewModel()
 
         viewModel.refresh()
         advanceUntilIdle()
 
-        assertEquals(listOf(TestFixtures.GAME_ID), gameRepository.syncGameCalls)
         assertEquals(0, gameRepository.syncOfficialGamesCalls)
         assertEquals(1, chapterRepository.getChaptersCalls)
         assertFalse(viewModel.isRefreshing.value)
@@ -258,6 +338,7 @@ class GamePreviewViewModelTest {
 
         assertTrue(toastService.shownMessages.contains(R.string.game_presentation_error_load_game))
         assertFalse(viewModel.isRefreshing.value)
+        assertTrue(logger.warnings.any { it.message.contains("refresh failed") })
     }
 
     @Test
@@ -272,7 +353,7 @@ class GamePreviewViewModelTest {
 
         viewModel.refresh()
         advanceUntilIdle()
-        assertEquals(1, gameRepository.syncGameCalls.size)
+        assertEquals(1, chapterRepository.getChaptersCalls)
 
         gate.complete(Unit)
         advanceUntilIdle()

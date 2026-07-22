@@ -41,6 +41,23 @@ interface GameApi {
     ): Response<List<GameDto>>
 
     /**
+     * Get a single story by id.
+     *
+     * @param gameId The story id
+     * @param languageCode The language code (e.g., "fr-FR", "en-US")
+     * @return A Response containing the GameDto for the requested story
+     *
+     * Error codes:
+     * - 404: Story not found or not public ({"code":"story_not_found"})
+     * - 500: Server error
+     */
+    @GET("portal/stories/{gameId}")
+    suspend fun getStory(
+        @Path("gameId") gameId: String,
+        @Query("languageCode") languageCode: String,
+    ): Response<GameDto>
+
+    /**
      * Get a list of all games.
      *
      * @param languageCode The language code for the games.
@@ -70,19 +87,6 @@ interface GameApi {
         @Query("page") page: Int,
         @Query("limit") limit: Int,
     ): Response<List<GameDto>>
-
-    /**
-     * Get a specific game by its ID.
-     *
-     * @param storyId The ID of the game to retrieve.
-     * @param langCode The language code (e.g., "fr-FR").
-     * @return A Response containing the requested GameDto.
-     */
-    @GET("api/story/{storyId}")
-    suspend fun getGame(
-        @Path("storyId") storyId: String,
-        @Query("langCode") langCode: String,
-    ): Response<GameDto>
 
     /**
      * Generate a download link for a game

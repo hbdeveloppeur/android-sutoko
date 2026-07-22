@@ -7,6 +7,8 @@ import com.purpletear.game.data.remote.dto.AssetDto
 import com.purpletear.game.data.remote.dto.AuthorDto
 import com.purpletear.game.data.remote.dto.GameDto
 import com.purpletear.game.data.remote.dto.GameMetadataDto
+import com.purpletear.game.data.remote.dto.toDomain
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
@@ -14,6 +16,7 @@ import okhttp3.ResponseBody.Companion.toResponseBody
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
+import org.junit.Assert.fail
 import org.junit.Test
 import retrofit2.Response
 import retrofit2.HttpException
@@ -24,7 +27,6 @@ class GameRepositoryImplSearchStoriesTest {
         override fun observeOfficialGames(): Flow<List<GameCatalogEntity>> = flowOf(emptyList())
         override fun observeUserGames(): Flow<List<GameCatalogEntity>> = flowOf(emptyList())
         override fun observeGame(id: String): Flow<GameCatalogEntity?> = flowOf(null)
-        override suspend fun getGame(id: String): GameCatalogEntity? = null
         override suspend fun deleteAllOfficial() {}
         override suspend fun deleteAllUserGames() {}
         override suspend fun upsertAll(entities: List<GameCatalogEntity>) {}
@@ -220,6 +222,132 @@ class GameRepositoryImplSearchStoriesTest {
     }
 
     @Test
+    fun `searchStories upserts results to dao on success`() = runTest {
+        val recordingDao = RecordingGameDao()
+        val api = object : FakeGameApi() {
+            override suspend fun searchStories(
+                query: String,
+                languageCode: String,
+                page: Int,
+                limit: Int
+            ): Response<List<GameDto>> = Response.success(listOf(stubGameDto("game-1")))
+        }
+        val repository = GameRepositoryImpl(api, recordingDao)
+
+        val result = repository.searchStories(query = "search", languageTag = "fr-FR")
+
+        assertTrue(result.isSuccess)
+        assertEquals(1, recordingDao.upsertAllCalls.size)
+        assertEquals("game-1", recordingDao.upsertAllCalls.first().first().id)
+    }
+
+    @Test
+    fun `searchStories upserts nothing on failure`() = runTest {
+        val recordingDao = RecordingGameDao()
+        val api = object : FakeGameApi() {
+            override suspend fun searchStories(
+                query: String,
+                languageCode: String,
+                page: Int,
+                limit: Int
+            ): Response<List<GameDto>> = Response.error(
+                500,
+                "Server error".toResponseBody(null)
+            )
+        }
+        val repository = GameRepositoryImpl(api, recordingDao)
+
+        val result = repository.searchStories(query = "search", languageTag = "fr-FR")
+
+        assertTrue(result.isFailure)
+        assertTrue(recordingDao.upsertAllCalls.isEmpty())
+    }
+
+    @Test
+    fun `getGameCatalog returns local catalog without api call`() = runTest {
+        val recordingDao = RecordingGameDao()
+        recordingDao.game = stubGameDto("game-1").toDomain()
+        val api = object : FakeGameApi() {
+            // getStory not overridden: any call fails the test via NotImplementedError
+        }
+        val repository = GameRepositoryImpl(api, recordingDao)
+
+        val result = repository.getGameCatalog("game-1", "fr-FR")
+
+        assertTrue("Expected success but got $result", result.isSuccess)
+        assertEquals("game-1", result.getOrThrow()?.id)
+        assertTrue(recordingDao.upsertAllCalls.isEmpty())
+    }
+
+    @Test
+    fun `getGameCatalog fetches remotely and persists on local miss`() = runTest {
+        val recordingDao = RecordingGameDao()
+        val api = object : FakeGameApi() {
+            override suspend fun getStory(gameId: String, languageCode: String): Response<GameDto> {
+                assertEquals("game-1", gameId)
+                assertEquals("fr-FR", languageCode)
+                return Response.success(stubGameDto("game-1"))
+            }
+        }
+        val repository = GameRepositoryImpl(api, recordingDao)
+
+        val result = repository.getGameCatalog("game-1", "fr-FR")
+
+        assertTrue("Expected success but got $result", result.isSuccess)
+        assertEquals("game-1", result.getOrThrow()?.id)
+        assertEquals(1, recordingDao.upsertAllCalls.size)
+        assertEquals("game-1", recordingDao.upsertAllCalls.first().first().id)
+    }
+
+    @Test
+    fun `getGameCatalog returns success null on 404`() = runTest {
+        val recordingDao = RecordingGameDao()
+        val api = object : FakeGameApi() {
+            override suspend fun getStory(gameId: String, languageCode: String): Response<GameDto> =
+                Response.error(404, "story_not_found".toResponseBody(null))
+        }
+        val repository = GameRepositoryImpl(api, recordingDao)
+
+        val result = repository.getGameCatalog("game-1", "fr-FR")
+
+        assertTrue("Expected success but got $result", result.isSuccess)
+        assertEquals(null, result.getOrThrow())
+        assertTrue(recordingDao.upsertAllCalls.isEmpty())
+    }
+
+    @Test
+    fun `getGameCatalog returns failure with HttpException on 500`() = runTest {
+        val recordingDao = RecordingGameDao()
+        val api = object : FakeGameApi() {
+            override suspend fun getStory(gameId: String, languageCode: String): Response<GameDto> =
+                Response.error(500, "Server error".toResponseBody(null))
+        }
+        val repository = GameRepositoryImpl(api, recordingDao)
+
+        val result = repository.getGameCatalog("game-1", "fr-FR")
+
+        assertTrue("Expected failure but got $result", result.isFailure)
+        assertTrue(result.exceptionOrNull() is HttpException)
+        assertTrue(recordingDao.upsertAllCalls.isEmpty())
+    }
+
+    @Test
+    fun `getGameCatalog rethrows CancellationException`() = runTest {
+        val api = object : FakeGameApi() {
+            override suspend fun getStory(gameId: String, languageCode: String): Response<GameDto> =
+                throw CancellationException("cancelled")
+        }
+        val repository = GameRepositoryImpl(api, stubGameDao)
+
+        try {
+            repository.getGameCatalog("game-1", "fr-FR")
+            fail("Expected CancellationException")
+        } catch (e: CancellationException) {
+            // expected
+        }
+    }
+
+    @Test
     fun `searchStories returns empty list when body is null`() = runTest {
         val api = object : FakeGameApi() {
             override suspend fun searchStories(
@@ -323,11 +451,11 @@ class GameRepositoryImplSearchStoriesTest {
     private class RecordingGameDao : GameDao {
         val replaceAllUserGamesCalls = mutableListOf<List<GameCatalogEntity>>()
         val upsertAllCalls = mutableListOf<List<GameCatalogEntity>>()
+        var game: GameCatalogEntity? = null
 
         override fun observeOfficialGames(): Flow<List<GameCatalogEntity>> = flowOf(emptyList())
         override fun observeUserGames(): Flow<List<GameCatalogEntity>> = flowOf(emptyList())
-        override fun observeGame(id: String): Flow<GameCatalogEntity?> = flowOf(null)
-        override suspend fun getGame(id: String): GameCatalogEntity? = null
+        override fun observeGame(id: String): Flow<GameCatalogEntity?> = flowOf(game)
         override suspend fun deleteAllOfficial() {}
         override suspend fun deleteAllUserGames() {}
 
@@ -393,9 +521,6 @@ class GameRepositoryImplSearchStoriesTest {
             limit: Int
         ): Response<List<GameDto>> = throw NotImplementedError()
 
-        override suspend fun getGame(storyId: String, langCode: String): Response<GameDto> =
-            throw NotImplementedError()
-
         override suspend fun getDownloadLink(
             gameId: String,
             userId: String?,
@@ -415,5 +540,8 @@ class GameRepositoryImplSearchStoriesTest {
             page: Int,
             limit: Int
         ): Response<List<GameDto>> = throw NotImplementedError()
+
+        override suspend fun getStory(gameId: String, languageCode: String): Response<GameDto> =
+            throw NotImplementedError()
     }
 }

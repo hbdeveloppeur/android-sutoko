@@ -30,6 +30,7 @@ import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Surface
@@ -58,6 +59,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.Lifecycle
@@ -150,7 +152,36 @@ fun GamePreview(
                         )
                     }
 
-                    else -> { /* Black background from parent Box */
+                    GamePreviewUiState.Loading -> {
+                        Box(
+                            modifier = Modifier.fillMaxSize(),
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            CircularProgressIndicator(
+                                modifier = Modifier.size(24.dp),
+                                color = Color.LightGray,
+                                strokeWidth = 2.dp,
+                            )
+                        }
+                    }
+
+                    GamePreviewUiState.NotFound -> {
+                        Box(
+                            modifier = Modifier.fillMaxSize(),
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            Text(
+                                text = stringResource(R.string.game_presentation_story_unavailable),
+                                color = Color.White,
+                                fontSize = 14.sp,
+                                fontFamily = PlusJakartaSansFontFamily,
+                                textAlign = TextAlign.Center,
+                                modifier = Modifier.padding(24.dp),
+                            )
+                        }
+                    }
+
+                    is GamePreviewUiState.Error -> { /* Black background from parent Box */
                     }
                 }
 

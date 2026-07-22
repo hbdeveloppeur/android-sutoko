@@ -41,6 +41,18 @@ class FakeGameRepository : GameRepository {
         return downloadLinks[gameId] ?: Result.failure(IllegalStateException("No download link set for $gameId"))
     }
 
+    var getGameCatalogResult: Result<GameCatalog?>? = null
+    var getGameCatalogCalls = 0
+        private set
+
+    override suspend fun getGameCatalog(id: String, languageTag: String): Result<GameCatalog?> {
+        getGameCatalogCalls++
+        val result = getGameCatalogResult ?: return Result.success(games[id]?.value)
+        // Mimic the real repository: a found catalog is persisted, so observeGame re-emits.
+        result.getOrNull()?.let { setGame(id, it) }
+        return result
+    }
+
     var syncOfficialGamesResult: Result<Unit> = Result.success(Unit)
     var syncOfficialGamesCalls = 0
         private set
@@ -52,13 +64,6 @@ class FakeGameRepository : GameRepository {
         return syncOfficialGamesResult
     }
 
-    var syncGameResult: Result<Unit> = Result.success(Unit)
-    val syncGameCalls = mutableListOf<String>()
-
-    override suspend fun syncGame(gameId: String, languageTag: String): Result<Unit> {
-        syncGameCalls.add(gameId)
-        return syncGameResult
-    }
     override suspend fun syncUserGames(languageTag: String): Result<Unit> = Result.success(Unit)
     override suspend fun loadMoreUserGames(languageTag: String): Result<Boolean> = Result.success(false)
     override suspend fun searchStories(

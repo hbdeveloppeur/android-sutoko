@@ -18,13 +18,12 @@ interface GameDao {
     @Query("SELECT * FROM games WHERE id = :id")
     fun observeGame(id: String): Flow<GameCatalogEntity?>
 
-    @Query("SELECT * FROM games WHERE id = :id")
-    suspend fun getGame(id: String): GameCatalogEntity?
-
-    @Query("DELETE FROM games WHERE isOfficial = 1")
+    // Never evict an installed game: the server listings are paginated and a
+    // locally installed story may be absent from the fetched page(s).
+    @Query("DELETE FROM games WHERE isOfficial = 1 AND id NOT IN (SELECT gameId FROM game_installs)")
     suspend fun deleteAllOfficial()
 
-    @Query("DELETE FROM games WHERE isOfficial = 0")
+    @Query("DELETE FROM games WHERE isOfficial = 0 AND id NOT IN (SELECT gameId FROM game_installs)")
     suspend fun deleteAllUserGames()
 
     @Upsert

@@ -10,6 +10,7 @@ import com.purpletear.sutoko.game.model.game.GameCatalog
 import com.purpletear.sutoko.game.repository.game.GameRepository
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import retrofit2.HttpException
 import retrofit2.Response
@@ -111,26 +112,6 @@ class GameRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun syncGame(gameId: String, languageTag: String): Result<Unit> {
-        return try {
-            val response = api.getGame(storyId = gameId, langCode = languageTag)
-            if (!response.isSuccessful) {
-                return Result.failure(HttpException(response))
-            }
-            val dto = response.body()
-                ?: return Result.failure(IllegalStateException("Empty body for gameId=$gameId"))
-            // Never re-categorize an existing row: the official/user partition is
-            // owned by the catalog syncs, not by this single-story endpoint.
-            val isOfficial = dao.getGame(gameId)?.isOfficial ?: (dto.official ?: false)
-            dao.upsertAll(listOf(dto.toDomain().copy(isOfficial = isOfficial)))
-            Result.success(Unit)
-        } catch (e: CancellationException) {
-            throw e
-        } catch (e: Exception) {
-            Result.failure(e)
-        }
-    }
-
     override suspend fun loadMoreUserGames(languageTag: String): Result<Boolean> {
         return try {
             val nextPage = userGamesPagination.currentPage + 1
@@ -168,10 +149,36 @@ class GameRepositoryImpl @Inject constructor(
                 return Result.failure(HttpException(response))
             }
 
-            val catalogs = response.body().orEmpty().map {
-                it.toDomain().toDomain()
+            val entities = response.body().orEmpty().map {
+                it.toDomain()
             }
-            Result.success(catalogs)
+            dao.upsertAll(entities)
+            Result.success(entities.map { it.toDomain() })
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    override suspend fun getGameCatalog(id: String, languageTag: String): Result<GameCatalog?> {
+        assert(id.isNotBlank())
+        return try {
+            dao.observeGame(id).first()?.let { entity ->
+                return Result.success(entity.toDomain())
+            }
+
+            val response = api.getStory(gameId = id, languageCode = languageTag)
+            if (response.code() == 404) {
+                return Result.success(null)
+            }
+            if (!response.isSuccessful) {
+                return Result.failure(HttpException(response))
+            }
+
+            val entity = response.body()?.toDomain() ?: return Result.success(null)
+            dao.upsertAll(listOf(entity))
+            Result.success(entity.toDomain())
         } catch (e: CancellationException) {
             throw e
         } catch (e: Exception) {

@@ -16,18 +16,19 @@ interface GameRepository {
     suspend fun syncUserGames(languageTag: String): Result<Unit>
 
     /**
-     * Re-fetch a single story from the network and upsert it locally, preserving
-     * its official/user categorization. Used to detect new versions of one story.
-     */
-    suspend fun syncGame(gameId: String, languageTag: String): Result<Unit>
-
-    /**
      * Load the next page of user-created games.
      *
      * @param languageTag The BCP-47 language tag to request games for.
      * @return A Result containing `true` if more pages remain, `false` if the loaded page was the last one.
      */
     suspend fun loadMoreUserGames(languageTag: String): Result<Boolean>
+
+    /**
+     * Returns the catalog row for [id]: local first, remote fetch + persist on miss.
+     * Success(null) = the story does not exist or is not public (404).
+     * Failure = network/server error. Cancellation always propagates.
+     */
+    suspend fun getGameCatalog(id: String, languageTag: String): Result<GameCatalog?>
 
     suspend fun searchStories(
         query: String,

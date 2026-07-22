@@ -146,6 +146,7 @@
 
     <!-- Game UI errors -->
     <string name="game_presentation_error_load_game">Impossible de charger le jeu</string>
+    <string name="game_presentation_story_unavailable">Cette histoire n\'est plus disponible</string>
     <string name="game_presentation_error_play_from_node_missing">Passage introuvable, retour au début</string>
     <string name="game_presentation_error_purchase">Échec de l\'achat</string>
     <string name="game_presentation_error_download">Échec du téléchargement</string>
