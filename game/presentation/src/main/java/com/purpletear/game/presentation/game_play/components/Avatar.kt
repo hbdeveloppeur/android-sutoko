@@ -31,7 +31,7 @@ private fun Preview() {
         imageModifier = Modifier
             .height(52.dp)
             .aspectRatio(564f / 166f),
-        drawable = DebugR.drawable.preview_messagedest,
+        drawable = DebugR.drawable.game_debug_preview_messagedest,
     ) {
         Box(Modifier.padding(start = 14.dp)) {
             Avatar(

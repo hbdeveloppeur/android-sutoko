@@ -34,7 +34,7 @@ private fun Preview() {
         imageModifier = Modifier
             .height(52.dp)
             .aspectRatio(564f / 166f),
-        drawable = R.drawable.preview_messagedest,
+        drawable = R.drawable.game_debug_preview_messagedest,
     ) {
         Box(
             Modifier

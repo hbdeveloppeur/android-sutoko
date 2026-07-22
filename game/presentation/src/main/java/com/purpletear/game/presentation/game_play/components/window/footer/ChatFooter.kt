@@ -47,7 +47,7 @@ private fun Preview() {
             .padding(2.dp)
             .height(52.dp)
             .aspectRatio(982f / 164f),
-        drawable = DebugR.drawable.preview_message_box,
+        drawable = DebugR.drawable.game_debug_preview_message_box,
     ) {
         Box(Modifier.padding(start = 8.dp, end = 34.dp)) {
             ChatFooter()
