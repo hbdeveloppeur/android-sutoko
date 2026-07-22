@@ -86,10 +86,8 @@ class MessageQueueImpl() : MessageQueue {
     override fun mark(state: MessageState) {
         _mutableQueue.update { messages ->
             messages.map { message ->
-                val index = _mutableQueue.value.indexOfFirst { it.id == message.id }
-                if (index != -1 && message.hiddenState !in setOf(MessageState.Sent)) {
+                if (message.hiddenState !in setOf(MessageState.Sent)) {
                     message.copy(hiddenState = state)
-                    message
                 } else {
                     message
                 }

@@ -16,7 +16,7 @@ data class MessageVocal constructor(
     override val timestamp: Long = System.currentTimeMillis(),
     val file: File? = null,
 ) : Message(
-    id = UUID.randomUUID().toString(),
+    id = id,
     state = state,
     hiddenState = hiddenState,
     role = role,

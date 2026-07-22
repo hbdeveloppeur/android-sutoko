@@ -73,7 +73,7 @@ open class Message(
                     role = role,
                     aiCharacterId = aiCharacterId,
                     timestamp = timestamp,
-                    description = description
+                    description = description ?: this.description
                 )
             }
 

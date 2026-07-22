@@ -1,5 +1,6 @@
 package com.purpletear.aiconversation.data.repository
 
+import android.util.Log
 import com.purpletear.aiconversation.data.BuildConfig
 import com.purpletear.aiconversation.data.exception.NoResponseException
 import com.purpletear.aiconversation.data.remote.MessageApi
@@ -104,12 +105,12 @@ class ConversationRepositoryImpl(private val api: MessageApi) : ConversationRepo
                 }
             } else {
                 val exception = ApiFailureResponseHandler.handler(apiResponse.errorBody())
-                exception.printStackTrace()
+                Log.e("ConversationRepository", "getMessagesStream failed", exception)
             }
         } catch (e: CancellationException) {
             throw e
         } catch (e: Exception) {
-            e.printStackTrace()
+            Log.e("ConversationRepository", "getMessagesStream failed", e)
         }
 
         return messagesFlow
@@ -132,7 +133,7 @@ class ConversationRepositoryImpl(private val api: MessageApi) : ConversationRepo
             }
         } else {
             val exception = ApiFailureResponseHandler.handler(apiResponse.errorBody())
-            exception.printStackTrace()
+            Log.e("ConversationRepository", "getSettings failed", exception)
         }
 
         return conversationSettings
@@ -173,9 +174,7 @@ class ConversationRepositoryImpl(private val api: MessageApi) : ConversationRepo
                 return@flow
             }
         } else {
-            val exception = ApiFailureResponseHandler.handler(apiResponse.errorBody())
-            exception.printStackTrace()
-            emit(Result.failure(NoResponseException()))
+            emit(Result.failure(ApiFailureResponseHandler.handler(apiResponse.errorBody())))
         }
     }.catch {
         emit(Result.failure(it))
@@ -193,17 +192,19 @@ class ConversationRepositoryImpl(private val api: MessageApi) : ConversationRepo
     }
 
     override fun addMessage(message: Message) {
-        val newMap = mutableMapOf(message.id to message)
-        val map = _messagesFlow.value.associateBy { it.id }.toMutableMap()
-        newMap.putAll(map)
-        _messagesFlow.value = newMap.values.toMutableList()
+        _messagesFlow.update { current ->
+            val map = current.associateBy { it.id }.toMutableMap()
+            map[message.id] = message
+            map.values.toList()
+        }
     }
 
     private fun addMessages(messages: List<Message>) {
-        val newMap = messages.associateBy { it.id }.toMutableMap()
-        val map = _messagesFlow.value.associateBy { it.id }.toMutableMap()
-        newMap.putAll(map)
-        _messagesFlow.value = newMap.values.toMutableList()
+        _messagesFlow.update { current ->
+            val map = current.associateBy { it.id }.toMutableMap()
+            map.putAll(messages.associateBy { it.id })
+            map.values.toList()
+        }
     }
 
     override fun mark(messages: List<Message>, state: MessageState) {
@@ -239,5 +240,6 @@ class ConversationRepositoryImpl(private val api: MessageApi) : ConversationRepo
             }
             updatedList
         }
+        emit(Result.success(Unit))
     }
 }
