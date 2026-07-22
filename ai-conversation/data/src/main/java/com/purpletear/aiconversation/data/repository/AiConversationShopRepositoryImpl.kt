@@ -168,6 +168,12 @@ class AiConversationShopRepositoryImpl(
                 val packs = apiResponse.body()?.data?.packs
                 if (packs != null) {
                     val messagePacks = packs.map { it.toDomain() }.sortedBy { it.tokensCount }
+                    sharedPreferences.edit {
+                        putStringSet(
+                            KEY_PACK_IDENTIFIERS,
+                            messagePacks.map { it.identifier }.toSet(),
+                        )
+                    }
                     Result.success(messagePacks)
                 } else {
                     Result.failure(NoResponseException("Empty AI messages packs response"))
@@ -183,8 +189,13 @@ class AiConversationShopRepositoryImpl(
         }
     }
 
+    override fun getCachedMessagePackIdentifiers(): Set<String> {
+        return sharedPreferences.getStringSet(KEY_PACK_IDENTIFIERS, emptySet()).orEmpty()
+    }
+
     private companion object {
         const val KEY_IS_TRIAL_AVAILABLE = "IS_TRIAL_AVAILABLE"
         const val KEY_CACHED_MESSAGE_COUNT = "CACHED_MESSAGE_COUNT_KEY"
+        const val KEY_PACK_IDENTIFIERS = "PACK_IDENTIFIERS"
     }
 }

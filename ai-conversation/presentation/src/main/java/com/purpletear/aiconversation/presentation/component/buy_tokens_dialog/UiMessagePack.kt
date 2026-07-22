@@ -9,12 +9,12 @@ data class UiMessagePack(
     val id: Int,
     val identifier: String,
     val tokensCount: Int,
-    val price: String,
+    val price: String?,
 ) {
-    constructor(pack: AiMessagePack, billingDetails: Product) : this(
+    constructor(pack: AiMessagePack, billingDetails: Product?) : this(
         id = pack.id,
         identifier = pack.identifier,
         tokensCount = pack.tokensCount,
-        price = billingDetails.formattedPrice,
+        price = billingDetails?.formattedPrice,
     )
 }

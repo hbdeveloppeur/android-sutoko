@@ -73,11 +73,43 @@ logic (load packs, observe balance, login gate, buy flow) was never implemented.
 - m4. `executeFlowUseCase` collects the infinite visibility flow on `Dispatchers.IO` and hops
   to Main per event (harmless here, but a `stateIn`/`collectLatest` on Main would be simpler).
 
-### Fix plan (proposed - awaiting approval, see conversation)
+### Task 2 - Status: DONE - Fix implementation
 
-- Task 2: implement `BuyTokensDialogViewModel` (login gate, load packs via
-  `GetAiMessagesPacksUseCase`, observe balance via `ObserveAiTokenStateUseCase`, buy/try/cancel
-  transitions), fix the sealed hierarchy and double source of truth, immutable `State<>`
-  exposures, wire `onClickLogin`, remove sentinels/TODOs.
+Amendments agreed with the panel: Liskov contract fixes first, coordinator fix in its own
+commit, dead actions removed rather than shipped (Norman's gate).
+
+- **Sealed hierarchy (C3)**: `Confirm` is now a real `BuyTokensDialogState` subtype;
+  `Error` is a sealed class with `Generic` + `NotEnoughCoins` subtypes (`is Error` now
+  matches both). `Confirm.Try` removed: the Try flow is owned by the home screen
+  (`AiConversationHomeViewModel.consumeTryPack`), the dialog's Try UI was dead code.
+- **Double source of truth (C2)**: `messagesPacks` deleted from the VM; the composable renders
+  `BuyTokensDialogState.Packs.packs` (single source). `UiMessagePack.price` is now nullable
+  (billing may be unavailable); title is derived from `state` in the composable instead of a
+  write-never `titleState` field.
+- **State machine (C1)**: VM now loads on dialog open - login gate (`Login` state),
+  `GetAiMessagesPacksUseCase` + batched `PurchaseRepository.queryProductDetails` for prices,
+  balance observed via `ObserveAiTokenStateUseCase` (`Loaded` coin count, no more `-1`
+  sentinel spinner). States reset on close so each open reloads fresh data.
+- **Buy flow**: pack -> `Confirm.Buy` -> `PurchaseRepository.purchase(sku)` -> `Success`.
+  Backend credit is delivered by the new `AiMessagePackPurchaseBackendRegistrar`
+  (`:ai-conversation:data`, `@IntoSet` multibinding, same pattern as
+  `GamePurchaseBackendRegistrar`): the purchase module's coordinator retries
+  `buyMessagePack` with backoff, and the credited balance reaches the dialog through
+  `observeAiTokenStateUseCase`. Pack identifiers are cached in SharedPreferences
+  (`getCachedMessagePackIdentifiers`) so `supports(sku)` needs no network call.
+  Cancelled/pending purchases return silently to the pack list; other failures show
+  `Error.Generic`.
+- **Dead actions (M1)**: all buttons wired (pack click, confirm buy, cancel, backdrop close).
+  `onClickLogin` closes the dialog then `OpenSignInPageUseCase`. The `NotEnoughCoins` shop CTA
+  composable was removed (unreachable state, dead button); `NotEnoughCoins` currently renders
+  as a generic error.
+- **Encapsulation (M3/M4)**: public VM properties are immutable `State<>`; the inner
+  `BuyTokensDialogComposable` receives the VM instance from `MessagesCoinsDialogComposable`
+  instead of a second `hiltViewModel()` (no more implicit store-owner coupling).
+- Unused `savedStateHandle` and empty `onResume()` removed from the VM.
+
+Validation: `:ai-conversation:presentation:assembleDebug`, `:ai-conversation:data:assembleDebug`,
+`:app:assembleDebug` (Hilt aggregation) - all green, `--no-build-cache`.
+
 - Task 3 (optional, low priority): make coordinator visibility level-triggered
   (`MutableStateFlow`) to eliminate the dropped-event race.

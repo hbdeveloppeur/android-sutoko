@@ -47,6 +47,7 @@ dependencies {
     implementation(project(":tools"))
     implementation(project(":ai-conversation:core"))
     implementation(project(":auth"))
+    implementation(project(":purchase"))
 
     implementation(libs.androidx.ktx)
     implementation(libs.androidx.appcompat)

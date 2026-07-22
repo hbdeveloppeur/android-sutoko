@@ -45,7 +45,6 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.airbnb.lottie.compose.LottieAnimation
 import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.animateLottieCompositionAsState
@@ -53,14 +52,19 @@ import com.airbnb.lottie.compose.rememberLottieComposition
 import com.purpletear.aiconversation.presentation.R
 import com.purpletear.aiconversation.presentation.component.buy_tokens_dialog.states.BuyTokensCoinsDialogState
 import com.purpletear.aiconversation.presentation.component.buy_tokens_dialog.states.BuyTokensDialogState
+import com.purpletear.aiconversation.presentation.component.buy_tokens_dialog.states.BuyTokensDialogTitleState
 import com.purpletear.aiconversation.presentation.component.buy_tokens_dialog.viewModels.BuyTokensDialogViewModel
 
 @Composable
 fun BuyTokensDialogComposable(
     modifier: Modifier = Modifier,
     onClickLogin: () -> Unit,
-    viewModel: BuyTokensDialogViewModel = hiltViewModel(),
+    viewModel: BuyTokensDialogViewModel,
 ) {
+    val titleState = when (viewModel.state.value) {
+        is BuyTokensDialogState.Confirm -> BuyTokensDialogTitleState.Confirm.Buy
+        else -> BuyTokensDialogTitleState.Buy
+    }
     BuyDialogContainer(modifier) {
         BuyDialogColumn(
             modifier = Modifier.animateContentSize(
@@ -68,10 +72,10 @@ fun BuyTokensDialogComposable(
             )
         ) {
             BuyDialogRow {
-                Title(text = stringResource(id = viewModel.titleState.value.title))
+                Title(text = stringResource(id = titleState.title))
                 CoinIcon()
             }
-            viewModel.titleState.value.message?.let {
+            titleState.message?.let {
                 BuyDialogRow {
                     SubTitle(text = stringResource(id = it))
                 }
@@ -82,10 +86,6 @@ fun BuyTokensDialogComposable(
             ) {
                 when (val coinsState = viewModel.coinsState.value) {
                     is BuyTokensCoinsDialogState.Loading -> {
-                        CoinAmount(
-                            amount = coinsState.messages,
-                            icon = R.drawable.ai_conversation_presentation_coin_message
-                        )
                         CircularProgressIndicator(
                             modifier = Modifier
                                 .size(16.dp),
@@ -123,7 +123,7 @@ fun BuyTokensDialogComposable(
 
                     is BuyTokensDialogState.Packs -> {
                         BuyDialogColumn(Modifier.padding(horizontal = 12.dp)) {
-                            viewModel.messagesPacks.value.forEachIndexed { index, aiMessagePack ->
+                            state.packs.forEachIndexed { index, pack ->
                                 val isFirst = index == 0
                                 val drawableId = listOf(
                                     R.drawable.ai_conversation_presentation_button_buy_token_low_pack,
@@ -134,13 +134,13 @@ fun BuyTokensDialogComposable(
                                 Button(
                                     title = stringResource(
                                         R.string.ai_conversation_cta_get_coins,
-                                        aiMessagePack.tokensCount
+                                        pack.tokensCount
                                     ),
-                                    subtitle = "TODO",
+                                    subtitle = pack.price.orEmpty(),
                                     modifier = Modifier.padding(top = if (isFirst) 16.dp else 8.dp),
                                     background = drawableId,
                                     onClick = {
-                                        // TODO
+                                        viewModel.onClickPack(pack)
                                     }
                                 )
                             }
@@ -148,20 +148,11 @@ fun BuyTokensDialogComposable(
                     }
 
                     is BuyTokensDialogState.Error -> {
-                        val error = state.message
-                        ErrorComposable(error.asString())
-                    }
-
-                    is BuyTokensDialogState.Error.NotEnoughCoins -> {
-                        val error = state.message
-                        NotEnoughCoinsErrorComposable(error.asString()) {
-                            // TODO
-                        }
+                        ErrorComposable(state.message.asString())
                     }
 
                     is BuyTokensDialogState.Success -> {
-                        val error = state.message
-                        SuccessComposable(error.asString())
+                        SuccessComposable(state.message.asString())
                     }
 
                     is BuyTokensDialogState.Confirm.Buy -> {
@@ -178,7 +169,7 @@ fun BuyTokensDialogComposable(
                                     title = stringResource(R.string.ai_conversation_cancel),
                                     subtitle = null,
                                     onClick = {
-                                        // TODO
+                                        viewModel.onCancelConfirm()
                                     },
                                 )
                                 CallToActionButtonComposable(
@@ -186,31 +177,10 @@ fun BuyTokensDialogComposable(
                                     subtitle = "${pack.tokensCount} messages",
                                     backgroundColor = Color(0xFFFF087F),
                                     onClick = {
-
+                                        viewModel.onConfirmBuy(pack)
                                     },
                                 )
                             }
-                        }
-                    }
-
-                    BuyTokensDialogState.Confirm.Try -> {
-                        BuyDialogRow {
-                            CallToActionButtonComposable(
-                                title = stringResource(R.string.ai_conversation_cancel),
-                                subtitle = null,
-                                onClick = {
-                                    // TODO
-                                },
-                            )
-
-                            CallToActionButtonComposable(
-                                title = stringResource(R.string.ai_conversation_start),
-                                subtitle = stringResource(R.string.ai_conversation_count_try),
-                                backgroundColor = Color(0xFFFF087F),
-                                onClick = {
-                                    // TODO
-                                },
-                            )
                         }
                     }
                 }
@@ -303,30 +273,6 @@ private fun ErrorComposable(message: String) {
         )
         SubTitle(
             text = message
-        )
-    }
-}
-
-@Composable
-private fun NotEnoughCoinsErrorComposable(message: String, onClick: () -> Unit) {
-    Column(
-        modifier = Modifier
-            .padding(horizontal = 16.dp)
-            .padding(bottom = 16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(8.dp)
-    ) {
-        ResultLottieAnimation(
-            size = 32.dp,
-            isSuccessful = false
-        )
-        SubTitle(
-            text = message
-        )
-        PillButton(
-            modifier = Modifier.padding(top = 8.dp),
-            text = stringResource(R.string.ai_conversation_presentation_open_shop),
-            onClick = onClick
         )
     }
 }

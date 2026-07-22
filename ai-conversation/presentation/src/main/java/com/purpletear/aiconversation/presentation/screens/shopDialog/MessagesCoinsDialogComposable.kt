@@ -38,9 +38,8 @@ fun MessagesCoinsDialogComposable(viewModel: BuyTokensDialogViewModel = hiltView
                 }) {
             BuyTokensDialogComposable(
                 modifier = Modifier.align(Alignment.BottomCenter),
-                onClickLogin = {
-
-                },
+                onClickLogin = viewModel::onClickLogin,
+                viewModel = viewModel,
             )
         }
     }

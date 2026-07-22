@@ -21,4 +21,12 @@ interface AiConversationShopRepository {
     fun observeAiTokenState(): StateFlow<AiTokensState>
     fun getAiTokenState(userId: String): Flow<Result<AiTokensState>>
     suspend fun getAiMessagesPacks(): Result<List<AiMessagePack>>
+
+    /**
+     * Identifiers (Play product ids) of the message packs returned by the last
+     * successful [getAiMessagesPacks] call, persisted locally. Empty when packs
+     * were never loaded. Used to recognize AI pack purchases without a network
+     * call.
+     */
+    fun getCachedMessagePackIdentifiers(): Set<String>
 }
