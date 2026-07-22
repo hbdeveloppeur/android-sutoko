@@ -257,9 +257,9 @@ fun GamePreview(
                     SimpleAlertDialog(
                         onDismissRequest = { showAlreadyBoughtDialog = false },
                         onConfirmation = { showAlreadyBoughtDialog = false },
-                        dialogTitle = stringResource(R.string.already_bought_alert_title),
-                        dialogText = stringResource(R.string.already_bought_alert_description),
-                        confirmButtonText = stringResource(R.string.already_bought_alert_button),
+                        dialogTitle = stringResource(R.string.game_presentation_already_bought_alert_title),
+                        dialogText = stringResource(R.string.game_presentation_already_bought_alert_description),
+                        confirmButtonText = stringResource(R.string.game_presentation_already_bought_alert_button),
                     )
                 }
 
@@ -270,9 +270,9 @@ fun GamePreview(
                             showRestartDialog = false
                             viewModel.onAction(GamePreviewAction.OnRestartConfirm)
                         },
-                        dialogTitle = stringResource(R.string.game_restart_confirm_title),
-                        dialogText = stringResource(R.string.game_restart_confirm_description),
-                        confirmButtonText = stringResource(R.string.game_restart_confirm_button),
+                        dialogTitle = stringResource(R.string.game_presentation_game_restart_confirm_title),
+                        dialogText = stringResource(R.string.game_presentation_game_restart_confirm_description),
+                        confirmButtonText = stringResource(R.string.game_presentation_game_restart_confirm_button),
                         dismissButtonText = stringResource(android.R.string.cancel),
                     )
                 }
@@ -315,13 +315,13 @@ fun GamePreview(
                                 currentChapter?.let { chapter ->
                                     GamePreviewChapterTitle(
                                         text = stringResource(
-                                            R.string.game_preview_chapter_title,
+                                            R.string.game_presentation_game_preview_chapter_title,
                                             chapter.number,
                                             chapter.title
                                         )
                                     )
                                 }
-                                    ?: GamePreviewChapterTitle(text = stringResource(R.string.game_preview_loading_chapter))
+                                    ?: GamePreviewChapterTitle(text = stringResource(R.string.game_presentation_game_preview_loading_chapter))
 
                                 val unavailableChapter = currentChapter?.takeIf { !it.isAvailable }
                                 if (unavailableChapter != null) {
@@ -332,7 +332,7 @@ fun GamePreview(
                                     GamePreviewCategories(
                                         categories = formatNarrativeThemes(
                                             gameItem.narrativeThemes,
-                                            stringResource(R.string.game_card_genre_fallback)
+                                            stringResource(R.string.game_presentation_game_card_genre_fallback)
                                         )
                                     )
                                 }
@@ -345,14 +345,14 @@ fun GamePreview(
                                         verticalAlignment = Alignment.CenterVertically,
                                     ) {
                                         Text(
-                                            text = stringResource(R.string.game_preview_written_by),
+                                            text = stringResource(R.string.game_presentation_game_preview_written_by),
                                             color = Color.White.copy(alpha = 0.6f),
                                             fontSize = 12.sp,
                                             fontFamily = PlusJakartaSansFontFamily,
                                         )
                                         gameItem.authorAvatarUrl?.let { avatarUrl ->
                                             val avatarDescription =
-                                                stringResource(R.string.game_preview_author_avatar)
+                                                stringResource(R.string.game_presentation_game_preview_author_avatar)
                                             Avatar(
                                                 modifier = Modifier
                                                     .background(Color.White, CircleShape)
@@ -387,7 +387,7 @@ fun GamePreview(
                                 if (gameItem != null) {
                                     GamePreviewLabel(
                                         text = stringResource(
-                                            if (gameItem.isFree) R.string.game_preview_free else R.string.game_preview_premium
+                                            if (gameItem.isFree) R.string.game_presentation_game_preview_free else R.string.game_presentation_game_preview_premium
                                         ),
                                         borderColor = Background.Gradient(colors = PremiumLabelGradient)
                                     )
@@ -395,14 +395,14 @@ fun GamePreview(
 
                                 if (isUserPremium) {
                                     GamePreviewLabel(
-                                        text = stringResource(R.string.game_preview_premium_active),
+                                        text = stringResource(R.string.game_presentation_game_preview_premium_active),
                                         borderColor = Background.Gradient(colors = PremiumActiveLabelGradient)
                                     )
                                 }
 
                                 if (gameItem?.isPurchased == true) {
                                     GamePreviewLabel(
-                                        text = stringResource(R.string.game_preview_unlocked),
+                                        text = stringResource(R.string.game_presentation_game_preview_unlocked),
                                         textColor = Color(0xFFADFFA1),
                                         borderColor = Background.Gradient(colors = UnlockedLabelGradient)
                                     )
@@ -410,7 +410,7 @@ fun GamePreview(
 
                                 if (gameItem?.isOfficial == false) {
                                     GamePreviewLabel(
-                                        text = stringResource(R.string.game_preview_community)
+                                        text = stringResource(R.string.game_presentation_game_preview_community)
                                     )
                                 }
                             }
@@ -521,8 +521,8 @@ private fun AuthorAvatarOverlay(
 @Composable
 private fun CertifiedIcon(color: Color) {
     Icon(
-        painter = painterResource(id = R.drawable.author_ic_certified),
-        contentDescription = stringResource(R.string.game_preview_certified_author),
+        painter = painterResource(id = R.drawable.game_presentation_author_ic_certified),
+        contentDescription = stringResource(R.string.game_presentation_game_preview_certified_author),
         modifier = Modifier.size(16.dp),
         tint = color,
     )

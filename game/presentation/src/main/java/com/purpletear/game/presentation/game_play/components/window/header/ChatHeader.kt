@@ -40,7 +40,7 @@ private fun Preview() {
             .padding(2.dp)
             .height(52.dp)
             .aspectRatio(291f / 80f),
-        drawable = R.drawable.ppreview_sms_game_header,
+        drawable = R.drawable.game_presentation_ppreview_sms_game_header,
     ) {
         ChatHeader()
     }
@@ -49,8 +49,8 @@ private fun Preview() {
 @Composable
 internal fun ChatHeader(
     modifier: Modifier = Modifier,
-    characterName: String = stringResource(R.string.chat_header_character_name),
-    status: String = stringResource(R.string.chat_header_status_away),
+    characterName: String = stringResource(R.string.game_presentation_chat_header_character_name),
+    status: String = stringResource(R.string.game_presentation_chat_header_status_away),
 ) {
     Row(
         Modifier.then(modifier),
@@ -58,7 +58,7 @@ internal fun ChatHeader(
         horizontalArrangement = Arrangement.spacedBy(1.dp)
     ) {
         BackButton()
-        Avatar(size = 44.dp, imageModel = R.drawable.tmp_avatar)
+        Avatar(size = 44.dp, imageModel = R.drawable.game_presentation_tmp_avatar)
         Info(characterName = characterName, status = status)
     }
 }
@@ -83,7 +83,7 @@ internal fun Info(
                 modifier = Modifier
                     .size(12.dp)
                     .alpha(0.4f),
-                model = R.drawable.ic_moon,
+                model = R.drawable.game_presentation_ic_moon,
                 contentDescription = null,
                 contentScale = ContentScale.Crop,
             )
@@ -126,8 +126,8 @@ private fun BackButton(modifier: Modifier = Modifier, onClick: () -> Unit = {}) 
         contentAlignment = Alignment.Center
     ) {
         Icon(
-            imageVector = ImageVector.vectorResource(id = R.drawable.ic_back_button),
-            contentDescription = stringResource(R.string.chat_header_back_button_description),
+            imageVector = ImageVector.vectorResource(id = R.drawable.game_presentation_ic_back_button),
+            contentDescription = stringResource(R.string.game_presentation_chat_header_back_button_description),
             modifier = Modifier
                 .size(14.dp)
                 .graphicsLayer {

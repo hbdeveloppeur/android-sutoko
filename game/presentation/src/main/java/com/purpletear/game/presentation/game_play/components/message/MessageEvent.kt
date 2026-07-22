@@ -30,7 +30,7 @@ private fun Preview() {
         imageModifier = Modifier
             .padding(2.dp)
             .aspectRatio(718f / 112f),
-        drawable = R.drawable.preview_message_event,
+        drawable = R.drawable.game_presentation_preview_message_event,
     ) {
         MessageEvent(
             title = "Message de Aïko",

@@ -127,7 +127,7 @@ private fun MainFilter(isVisible: Boolean) {
     {
 
         AsyncImage(
-            model = R.drawable.smsgame_background,
+            model = R.drawable.game_presentation_smsgame_background,
             contentDescription = null,
             contentScale = ContentScale.Crop,
             modifier = Modifier.fillMaxSize()

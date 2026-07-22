@@ -58,7 +58,7 @@ internal class SmsGameChapterSelectionViewModel @Inject constructor(
         viewModelScope.launch {
             selectChapter(gameId, chapter.code)
                 .onSuccess {
-                    makeToastService(R.string.game_chapter_selection_success)
+                    makeToastService(R.string.game_presentation_game_chapter_selection_success)
                     _events.send(ChapterSelectionEvent.NavigateBack)
                 }
                 .onFailure { error ->

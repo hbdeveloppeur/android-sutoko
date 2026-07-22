@@ -200,7 +200,7 @@ class GamePreviewViewModel @Inject constructor(
                 val catalogOk = gameSynced.await()
                 val chaptersOk = chaptersLoaded.await()
                 if (!catalogOk || !chaptersOk) {
-                    toastService(R.string.error_load_game)
+                    toastService(R.string.game_presentation_error_load_game)
                 }
             } finally {
                 _isRefreshing.value = false
@@ -339,7 +339,7 @@ class GamePreviewViewModel @Inject constructor(
         viewModelScope.launch {
             restartGameUseCase(gameId)
                 .onSuccess {
-                    toastService(R.string.game_restart_success)
+                    toastService(R.string.game_presentation_game_restart_success)
                 }
                 .onFailure { error ->
                     logger.exception(error) { "Restart failed for gameId=$gameId" }

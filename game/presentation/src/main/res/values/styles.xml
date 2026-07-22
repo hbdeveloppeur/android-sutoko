@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- SmsGame activity theme -->
-    <style name="SmsGame" parent="Theme.MaterialComponents.NoActionBar">
+    <style name="game_presentation_SmsGame" parent="Theme.MaterialComponents.NoActionBar">
         <item name="colorPrimaryDark">#000000</item>
         <item name="android:windowBackground">#141414</item>
         <item name="android:fitsSystemWindows">false</item>

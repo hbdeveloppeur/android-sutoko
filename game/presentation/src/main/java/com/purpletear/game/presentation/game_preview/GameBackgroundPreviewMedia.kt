@@ -67,7 +67,7 @@ internal fun GameBackgroundPreviewMedia(
                     .data(url)
                     .crossfade(true)
                     .build(),
-                contentDescription = stringResource(R.string.game_preview_background_description),
+                contentDescription = stringResource(R.string.game_presentation_game_preview_background_description),
                 contentScale = ContentScale.Crop,
                 error = errorPainter,
                 modifier = Modifier
@@ -80,7 +80,7 @@ internal fun GameBackgroundPreviewMedia(
             fallbackPainter?.let { painter ->
                 Image(
                     painter = painter,
-                    contentDescription = stringResource(R.string.game_preview_background_description),
+                    contentDescription = stringResource(R.string.game_presentation_game_preview_background_description),
                     contentScale = ContentScale.Crop,
                     modifier = Modifier.fillMaxSize()
                 )

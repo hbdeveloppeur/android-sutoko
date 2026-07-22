@@ -64,7 +64,7 @@ private fun Preview() {
     PreviewOverlayWrapper(
         imageModifier = Modifier
             .aspectRatio(538f / 395f),
-        drawable = R.drawable.preview_tmp_trial_finished,
+        drawable = R.drawable.game_presentation_preview_tmp_trial_finished,
     ) {
         Box(
             Modifier
@@ -90,11 +90,11 @@ internal fun MessageChapterTrialFinished(
     ) {
         Background()
         Content(
-            title = stringResource(R.string.message_chapter_trial_finished_title),
-            titleHighlight = stringResource(R.string.message_chapter_trial_finished_title_highlight),
-            subtitle = stringResource(R.string.message_chapter_trial_finished_subtitle),
-            subtitleHighlight = stringResource(R.string.message_chapter_trial_finished_subtitle_highlight),
-            backText = stringResource(R.string.message_chapter_trial_finished_back_button),
+            title = stringResource(R.string.game_presentation_message_chapter_trial_finished_title),
+            titleHighlight = stringResource(R.string.game_presentation_message_chapter_trial_finished_title_highlight),
+            subtitle = stringResource(R.string.game_presentation_message_chapter_trial_finished_subtitle),
+            subtitleHighlight = stringResource(R.string.game_presentation_message_chapter_trial_finished_subtitle_highlight),
+            backText = stringResource(R.string.game_presentation_message_chapter_trial_finished_back_button),
             gameLogoUrl = gameLogoUrl,
             onClickBackButton = onClick,
         )
@@ -140,7 +140,7 @@ private fun Background() {
     AsyncImage(
         modifier = Modifier
             .fillMaxSize(),
-        model = R.drawable.gradient_blue_circle_bottom,
+        model = R.drawable.game_presentation_gradient_blue_circle_bottom,
         contentDescription = null,
         contentScale = ContentScale.Crop,
     )
@@ -220,10 +220,10 @@ private const val MotifAlphaMin = 0.88f
 private const val MotifAlphaPhase = 2.1f
 
 private sealed class Motif(@DrawableRes val resId: Int) {
-    data object Heart : Motif(R.drawable.motif_heart)
-    data object Oct : Motif(R.drawable.motif_oct)
-    data object Send : Motif(R.drawable.motif_send)
-    data object Diamond : Motif(R.drawable.motif_diamond)
+    data object Heart : Motif(R.drawable.game_presentation_motif_heart)
+    data object Oct : Motif(R.drawable.game_presentation_motif_oct)
+    data object Send : Motif(R.drawable.game_presentation_motif_send)
+    data object Diamond : Motif(R.drawable.game_presentation_motif_diamond)
 }
 
 private data class MotifPlacement(

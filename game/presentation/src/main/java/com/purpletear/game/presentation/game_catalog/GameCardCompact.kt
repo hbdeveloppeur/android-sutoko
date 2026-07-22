@@ -86,7 +86,7 @@ fun GameCardCompact(
                         .build(),
                     contentDescription = null,
                     contentScale = ContentScale.Crop,
-                    fallback = painterResource(R.drawable.game_logo_fallback),
+                    fallback = painterResource(R.drawable.game_presentation_game_logo_fallback),
                     modifier = Modifier.fillMaxSize(),
                 )
             }
@@ -131,7 +131,7 @@ fun GameCardCompact(
                         )
                         if (author.isCertified) {
                             Image(
-                                painter = painterResource(id = R.drawable.icon_certified_blue),
+                                painter = painterResource(id = R.drawable.game_presentation_icon_certified_blue),
                                 contentDescription = null,
                                 modifier = Modifier.size(14.dp)
                             )
@@ -141,7 +141,7 @@ fun GameCardCompact(
             }
 
             OpenButton(
-                label = openButtonLabel ?: stringResource(R.string.game_button_open),
+                label = openButtonLabel ?: stringResource(R.string.game_presentation_game_button_open),
                 onClick = onOpenClick
             )
         }

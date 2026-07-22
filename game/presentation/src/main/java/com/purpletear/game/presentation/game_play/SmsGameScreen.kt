@@ -287,9 +287,9 @@ private fun Screen(content: @Composable BoxScope.() -> Unit) {
 private fun LiveUpdateLabel(status: LiveUpdateStatus) {
     val backgroundColor = Color.Black.copy(alpha = 0.6f)
     val (indicatorColor, text) = when (status) {
-        LiveUpdateStatus.Connected -> Color(0xFF4CAF50) to stringResource(R.string.live_update_connected)
-        LiveUpdateStatus.Disconnected -> Color(0xFFFF9800) to stringResource(R.string.live_update_disconnected)
-        LiveUpdateStatus.Loading -> Color.White to stringResource(R.string.live_update_loading)
+        LiveUpdateStatus.Connected -> Color(0xFF4CAF50) to stringResource(R.string.game_presentation_live_update_connected)
+        LiveUpdateStatus.Disconnected -> Color(0xFFFF9800) to stringResource(R.string.game_presentation_live_update_disconnected)
+        LiveUpdateStatus.Loading -> Color.White to stringResource(R.string.game_presentation_live_update_loading)
     }
 
     Box(
@@ -350,7 +350,7 @@ private fun StoryUpdateBanner(onClick: () -> Unit) {
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             Text(
-                text = stringResource(R.string.live_update_reload),
+                text = stringResource(R.string.game_presentation_live_update_reload),
                 color = Color.White,
             )
         }

@@ -2,177 +2,177 @@
 <resources>
 
     <!-- Game catalog -->
-    <string name="sutoko_index_chapter_plural">%1$d Capítulos</string>
-    <string name="game_card_genre_fallback">Policíaco • Romance • Drama</string>
+    <string name="game_presentation_sutoko_index_chapter_plural">%1$d Capítulos</string>
+    <string name="game_presentation_game_card_genre_fallback">Policíaco • Romance • Drama</string>
 
     <!-- Game card buttons -->
-    <string name="game_button_get">Obtener</string>
-    <string name="game_button_open">Abrir</string>
-    <string name="game_button_test">Probar</string>
-    <string name="game_button_retry">Reintentar</string>
+    <string name="game_presentation_game_button_get">Obtener</string>
+    <string name="game_presentation_game_button_open">Abrir</string>
+    <string name="game_presentation_game_button_test">Probar</string>
+    <string name="game_presentation_game_button_retry">Reintentar</string>
 
     <!-- Game announce card -->
-    <string name="game_announce_update_today">Actualiza tu aplicación hoy</string>
-    <string name="game_announce_soon_available">Próximamente disponible</string>
-    <string name="game_announce_title_create_stories">Crea tus propias historias</string>
-    <string name="game_announce_subtitle_features">Nuevas funciones próximamente</string>
-    <string name="game_announce_button_update">Actualizar</string>
-    <string name="game_announce_reminder_enabled">Recordatorio activado</string>
-    <string name="game_announce_button_remind_me">Recordarme</string>
-    <string name="game_announce_available">Disponible</string>
+    <string name="game_presentation_game_announce_update_today">Actualiza tu aplicación hoy</string>
+    <string name="game_presentation_game_announce_soon_available">Próximamente disponible</string>
+    <string name="game_presentation_game_announce_title_create_stories">Crea tus propias historias</string>
+    <string name="game_presentation_game_announce_subtitle_features">Nuevas funciones próximamente</string>
+    <string name="game_presentation_game_announce_button_update">Actualizar</string>
+    <string name="game_presentation_game_announce_reminder_enabled">Recordatorio activado</string>
+    <string name="game_presentation_game_announce_button_remind_me">Recordarme</string>
+    <string name="game_presentation_game_announce_available">Disponible</string>
 
     <!-- Game preview -->
-    <string name="game_preview_chapter_title">Capítulo %1$d: *%2$s*</string>
-    <string name="game_preview_loading_chapter">Cargando capítulo…</string>
-    <string name="game_preview_premium">Premium</string>
-    <string name="game_preview_premium_active">Premium Activo</string>
-    <string name="game_preview_unlocked">Desbloqueado</string>
-    <string name="game_preview_calendar_icon">Icono de calendario</string>
-    <string name="game_preview_next_chapter">Próximo capítulo - %1$s</string>
-    <string name="game_preview_free">Gratis</string>
-    <string name="game_preview_community">Historia de la comunidad</string>
-    <string name="game_preview_written_by">Escrito por</string>
-    <string name="game_preview_certified_author">Autor certificado</string>
-    <string name="game_preview_author_avatar">Avatar del autor, toca para ampliar</string>
-    <string name="game_preview_background_description">Fondo</string>
-    <string name="game_preview_avatar_description">Avatar</string>
+    <string name="game_presentation_game_preview_chapter_title">Capítulo %1$d: *%2$s*</string>
+    <string name="game_presentation_game_preview_loading_chapter">Cargando capítulo…</string>
+    <string name="game_presentation_game_preview_premium">Premium</string>
+    <string name="game_presentation_game_preview_premium_active">Premium Activo</string>
+    <string name="game_presentation_game_preview_unlocked">Desbloqueado</string>
+    <string name="game_presentation_game_preview_calendar_icon">Icono de calendario</string>
+    <string name="game_presentation_game_preview_next_chapter">Próximo capítulo - %1$s</string>
+    <string name="game_presentation_game_preview_free">Gratis</string>
+    <string name="game_presentation_game_preview_community">Historia de la comunidad</string>
+    <string name="game_presentation_game_preview_written_by">Escrito por</string>
+    <string name="game_presentation_game_preview_certified_author">Autor certificado</string>
+    <string name="game_presentation_game_preview_author_avatar">Avatar del autor, toca para ampliar</string>
+    <string name="game_presentation_game_preview_background_description">Fondo</string>
+    <string name="game_presentation_game_preview_avatar_description">Avatar</string>
 
     <!-- Game menu state -->
-    <string name="game_menu_play">Jugar</string>
-    <string name="game_menu_chapter_number">Capítulo %1$d</string>
-    <string name="game_menu_restart">Reiniciar</string>
-    <string name="game_menu_game_finished">Juego terminado</string>
-    <string name="game_menu_app_update_required">Actualización de la aplicación requerida</string>
-    <string name="game_menu_update_game">Actualizar Juego</string>
-    <string name="game_menu_game_update_required">Actualización del juego requerida</string>
-    <string name="game_menu_confirm_order">Confirmar pedido</string>
-    <string name="game_menu_coins">%1$d monedas</string>
-    <string name="game_menu_download_game">Descargar el juego</string>
-    <string name="game_menu_download_size">10 MB</string>
-    <string name="game_menu_downloading">Descargando…</string>
-    <string name="game_menu_download_progress">%.1f%%</string>
-    <string name="game_menu_download_progress_percent">%d%%</string>
-    <string name="game_menu_reload_game">Recargar el juego</string>
-    <string name="game_menu_buy">Comprar</string>
-    <string name="game_menu_try_first_chapter">Probar</string>
-    <string name="game_menu_try_first_chapter_subtitle">Capítulo 1</string>
-    <string name="game_menu_buy_to_continue">Compra el juego para continuar</string>
-    <string name="game_menu_connect_to_buy">Conéctate para comprar</string>
-    <string name="game_menu_pending">Pendiente</string>
-    <string name="game_menu_pending_subtitle">Esperando validación</string>
-    <string name="game_menu_delete">Eliminar</string>
+    <string name="game_presentation_game_menu_play">Jugar</string>
+    <string name="game_presentation_game_menu_chapter_number">Capítulo %1$d</string>
+    <string name="game_presentation_game_menu_restart">Reiniciar</string>
+    <string name="game_presentation_game_menu_game_finished">Juego terminado</string>
+    <string name="game_presentation_game_menu_app_update_required">Actualización de la aplicación requerida</string>
+    <string name="game_presentation_game_menu_update_game">Actualizar Juego</string>
+    <string name="game_presentation_game_menu_game_update_required">Actualización del juego requerida</string>
+    <string name="game_presentation_game_menu_confirm_order">Confirmar pedido</string>
+    <string name="game_presentation_game_menu_coins">%1$d monedas</string>
+    <string name="game_presentation_game_menu_download_game">Descargar el juego</string>
+    <string name="game_presentation_game_menu_download_size">10 MB</string>
+    <string name="game_presentation_game_menu_downloading">Descargando…</string>
+    <string name="game_presentation_game_menu_download_progress">%.1f%%</string>
+    <string name="game_presentation_game_menu_download_progress_percent">%d%%</string>
+    <string name="game_presentation_game_menu_reload_game">Recargar el juego</string>
+    <string name="game_presentation_game_menu_buy">Comprar</string>
+    <string name="game_presentation_game_menu_try_first_chapter">Probar</string>
+    <string name="game_presentation_game_menu_try_first_chapter_subtitle">Capítulo 1</string>
+    <string name="game_presentation_game_menu_buy_to_continue">Compra el juego para continuar</string>
+    <string name="game_presentation_game_menu_connect_to_buy">Conéctate para comprar</string>
+    <string name="game_presentation_game_menu_pending">Pendiente</string>
+    <string name="game_presentation_game_menu_pending_subtitle">Esperando validación</string>
+    <string name="game_presentation_game_menu_delete">Eliminar</string>
 
     <!-- Restart confirmation popup -->
-    <string name="game_restart_confirm_title">¿Reiniciar el juego?</string>
-    <string name="game_restart_confirm_description">Esto restablecerá tu progreso para el juego actual. No perderás el contenido comprado. ¿Deseas continuar?</string>
-    <string name="game_restart_confirm_button">Reiniciar</string>
+    <string name="game_presentation_game_restart_confirm_title">¿Reiniciar el juego?</string>
+    <string name="game_presentation_game_restart_confirm_description">Esto restablecerá tu progreso para el juego actual. No perderás el contenido comprado. ¿Deseas continuar?</string>
+    <string name="game_presentation_game_restart_confirm_button">Reiniciar</string>
 
     <!-- Delete game -->
-    <string name="game_delete_confirm_title">¿Eliminar el juego?</string>
-    <string name="game_delete_confirm_description">Esto eliminará los archivos del juego de tu dispositivo. No perderás tu progreso ni el contenido comprado.</string>
-    <string name="game_delete_confirm_description_short">Esto eliminará los archivos del juego de tu dispositivo.</string>
-    <string name="game_delete_confirm_button">Eliminar</string>
-    <string name="game_delete_success">Juego eliminado exitosamente</string>
-    <string name="game_delete_error">Error al eliminar el juego</string>
-    <string name="game_restart_success">Juego reiniciado</string>
-    <string name="game_restart_error">Error al reiniciar el juego</string>
-    <string name="game_redownload_started">Re-descarga del juego iniciada</string>
-    <string name="game_redownload_completed">Re-descarga del juego completada</string>
-    <string name="game_redownload_error">Error al re-descargar el juego</string>
+    <string name="game_presentation_game_delete_confirm_title">¿Eliminar el juego?</string>
+    <string name="game_presentation_game_delete_confirm_description">Esto eliminará los archivos del juego de tu dispositivo. No perderás tu progreso ni el contenido comprado.</string>
+    <string name="game_presentation_game_delete_confirm_description_short">Esto eliminará los archivos del juego de tu dispositivo.</string>
+    <string name="game_presentation_game_delete_confirm_button">Eliminar</string>
+    <string name="game_presentation_game_delete_success">Juego eliminado exitosamente</string>
+    <string name="game_presentation_game_delete_error">Error al eliminar el juego</string>
+    <string name="game_presentation_game_restart_success">Juego reiniciado</string>
+    <string name="game_presentation_game_restart_error">Error al reiniciar el juego</string>
+    <string name="game_presentation_game_redownload_started">Re-descarga del juego iniciada</string>
+    <string name="game_presentation_game_redownload_completed">Re-descarga del juego completada</string>
+    <string name="game_presentation_game_redownload_error">Error al re-descargar el juego</string>
 
     <!-- First name prompt -->
-    <string name="first_name_prompt_title">Ingresa el nombre de tu personaje</string>
-    <string name="first_name_prompt_placeholder">Nick</string>
-    <string name="first_name_prompt_error">Ingresa un nombre de %1$d a %2$d letras.</string>
+    <string name="game_presentation_first_name_prompt_title">Ingresa el nombre de tu personaje</string>
+    <string name="game_presentation_first_name_prompt_placeholder">Nick</string>
+    <string name="game_presentation_first_name_prompt_error">Ingresa un nombre de %1$d a %2$d letras.</string>
 
     <!-- Chapter selection screen -->
-    <string name="game_chapter_selection_title">Selecciona un capítulo</string>
-    <string name="game_chapter_selection_success">Capítulo seleccionado</string>
-    <string name="game_chapter_selection_current">Actual</string>
-    <string name="game_chapter_selection_locked">Bloqueado</string>
+    <string name="game_presentation_game_chapter_selection_title">Selecciona un capítulo</string>
+    <string name="game_presentation_game_chapter_selection_success">Capítulo seleccionado</string>
+    <string name="game_presentation_game_chapter_selection_current">Actual</string>
+    <string name="game_presentation_game_chapter_selection_locked">Bloqueado</string>
 
     <!-- Chapter selection popup -->
-    <string name="game_chapters_goto_title">Ir al capítulo %1$d</string>
-    <string name="game_chapters_goto_description">Perderás las elecciones hechas en la historia después de este capítulo. ¿Estás seguro de que quieres continuar?</string>
+    <string name="game_presentation_game_chapters_goto_title">Ir al capítulo %1$d</string>
+    <string name="game_presentation_game_chapters_goto_description">Perderás las elecciones hechas en la historia después de este capítulo. ¿Estás seguro de que quieres continuar?</string>
 
     <!-- Chapters screen -->
-    <string name="game_chapters_no_chapters_available">No hay capítulos disponibles</string>
-    <string name="game_chapters_back">Atrás</string>
-    <string name="game_chapters_title">Capítulos</string>
-    <string name="game_chapters_select">Selecciona un capítulo</string>
-    <string name="game_chapters_continue">Continuar</string>
+    <string name="game_presentation_game_chapters_no_chapters_available">No hay capítulos disponibles</string>
+    <string name="game_presentation_game_chapters_back">Atrás</string>
+    <string name="game_presentation_game_chapters_title">Capítulos</string>
+    <string name="game_presentation_game_chapters_select">Selecciona un capítulo</string>
+    <string name="game_presentation_game_chapters_continue">Continuar</string>
 
     <!-- Chapter item strings -->
-    <string name="game_chapter_locked">Bloqueado</string>
-    <string name="game_chapter_number">Capítulo %1$d</string>
-    <string name="game_chapter_number_title">%1$d - %2$s</string>
-    <string name="game_chapter_return">Volver a este capítulo</string>
-    <string name="game_chapter_current">Actual</string>
+    <string name="game_presentation_game_chapter_locked">Bloqueado</string>
+    <string name="game_presentation_game_chapter_number">Capítulo %1$d</string>
+    <string name="game_presentation_game_chapter_number_title">%1$d - %2$s</string>
+    <string name="game_presentation_game_chapter_return">Volver a este capítulo</string>
+    <string name="game_presentation_game_chapter_current">Actual</string>
 
     <!-- Game play / chat -->
-    <string name="chat_header_back_button_description">Botón atrás</string>
-    <string name="chat_header_character_name">Eva Belle</string>
-    <string name="chat_header_status_away">Ausente</string>
-    <string name="chat_footer_send_description">Enviar mensaje</string>
-    <string name="chat_footer_placeholder">Tu mensaje</string>
-    <string name="message_manga_prompt">Te espera una página de manga</string>
-    <string name="message_manga_open">Abrir</string>
-    <string name="message_next_chapter_title">Fin del capítulo</string>
-    <string name="message_next_chapter_test_mode_title">Fin del capítulo. Continúa probando desde la herramienta de autor.</string>
-    <string name="message_next_chapter_button">Próximo capítulo</string>
-    <string name="message_trial_finished_title">Prueba terminada</string>
-    <string name="message_trial_finished_button">Comprar la historia</string>
-    <string name="message_chapter_trial_finished_title">Tu prueba ha terminado</string>
-    <string name="message_chapter_trial_finished_title_highlight">prueba</string>
-    <string name="message_chapter_trial_finished_subtitle">Compra el juego\npara continuar la aventura</string>
-    <string name="message_chapter_trial_finished_subtitle_highlight">Compra el juego</string>
-    <string name="message_chapter_trial_finished_back_button">Volver al menú</string>
-    <string name="message_vocal_play_description">Reproducir</string>
-    <string name="message_story_finished">¡Historia terminada!</string>
+    <string name="game_presentation_chat_header_back_button_description">Botón atrás</string>
+    <string name="game_presentation_chat_header_character_name">Eva Belle</string>
+    <string name="game_presentation_chat_header_status_away">Ausente</string>
+    <string name="game_presentation_chat_footer_send_description">Enviar mensaje</string>
+    <string name="game_presentation_chat_footer_placeholder">Tu mensaje</string>
+    <string name="game_presentation_message_manga_prompt">Te espera una página de manga</string>
+    <string name="game_presentation_message_manga_open">Abrir</string>
+    <string name="game_presentation_message_next_chapter_title">Fin del capítulo</string>
+    <string name="game_presentation_message_next_chapter_test_mode_title">Fin del capítulo. Continúa probando desde la herramienta de autor.</string>
+    <string name="game_presentation_message_next_chapter_button">Próximo capítulo</string>
+    <string name="game_presentation_message_trial_finished_title">Prueba terminada</string>
+    <string name="game_presentation_message_trial_finished_button">Comprar la historia</string>
+    <string name="game_presentation_message_chapter_trial_finished_title">Tu prueba ha terminado</string>
+    <string name="game_presentation_message_chapter_trial_finished_title_highlight">prueba</string>
+    <string name="game_presentation_message_chapter_trial_finished_subtitle">Compra el juego\npara continuar la aventura</string>
+    <string name="game_presentation_message_chapter_trial_finished_subtitle_highlight">Compra el juego</string>
+    <string name="game_presentation_message_chapter_trial_finished_back_button">Volver al menú</string>
+    <string name="game_presentation_message_vocal_play_description">Reproducir</string>
+    <string name="game_presentation_message_story_finished">¡Historia terminada!</string>
 
     <!-- Live update indicator -->
-    <string name="live_update_connected">Actualización en vivo conectada</string>
-    <string name="live_update_disconnected">Actualización en vivo desconectada</string>
-    <string name="live_update_loading">Cargando cambios…</string>
-    <string name="live_update_reload">Historia actualizada — recarga para aplicar</string>
+    <string name="game_presentation_live_update_connected">Actualización en vivo conectada</string>
+    <string name="game_presentation_live_update_disconnected">Actualización en vivo desconectada</string>
+    <string name="game_presentation_live_update_loading">Cargando cambios…</string>
+    <string name="game_presentation_live_update_reload">Historia actualizada — recarga para aplicar</string>
 
     <!-- Choices box -->
-    <string name="game_choices_title">Tu elección:</string>
-    <string name="game_choices_make_a_choice">Haz una elección</string>
-    <string name="game_choices_toggle_dark_mode">Alternar modo oscuro</string>
+    <string name="game_presentation_game_choices_title">Tu elección:</string>
+    <string name="game_presentation_game_choices_make_a_choice">Haz una elección</string>
+    <string name="game_presentation_game_choices_toggle_dark_mode">Alternar modo oscuro</string>
 
     <!-- Cinematic -->
-    <string name="cinematic_skip">Saltar &gt;&gt;</string>
+    <string name="game_presentation_cinematic_skip">Saltar &gt;&gt;</string>
 
     <!-- Game UI errors -->
-    <string name="error_load_game">No se pudo cargar el juego</string>
-    <string name="error_play_from_node_missing">No se encontró esa parte, empezando desde el principio</string>
-    <string name="error_purchase">Error en la compra</string>
-    <string name="error_download">Error en la descarga</string>
-    <string name="error_update">Error en la actualización</string>
-    <string name="error_delete">Error al eliminar</string>
-    <string name="error_restart">Error al reiniciar el juego</string>
+    <string name="game_presentation_error_load_game">No se pudo cargar el juego</string>
+    <string name="game_presentation_error_play_from_node_missing">No se encontró esa parte, empezando desde el principio</string>
+    <string name="game_presentation_error_purchase">Error en la compra</string>
+    <string name="game_presentation_error_download">Error en la descarga</string>
+    <string name="game_presentation_error_update">Error en la actualización</string>
+    <string name="game_presentation_error_delete">Error al eliminar</string>
+    <string name="game_presentation_error_restart">Error al reiniciar el juego</string>
 
     <!-- Session errors -->
-    <string name="error_game_not_found">Juego no encontrado</string>
-    <string name="error_game_not_installed">Juego no instalado</string>
-    <string name="error_game_update_required">Actualización de la aplicación requerida</string>
-    <string name="error_chapter_unavailable">Capítulo aún no publicado</string>
-    <string name="error_chapter_not_found">No se encontró un capítulo disponible</string>
-    <string name="error_no_chapters_found">No hay capítulos disponibles</string>
-    <string name="error_unknown">Ocurrió un error desconocido</string>
+    <string name="game_presentation_error_game_not_found">Juego no encontrado</string>
+    <string name="game_presentation_error_game_not_installed">Juego no instalado</string>
+    <string name="game_presentation_error_game_update_required">Actualización de la aplicación requerida</string>
+    <string name="game_presentation_error_chapter_unavailable">Capítulo aún no publicado</string>
+    <string name="game_presentation_error_chapter_not_found">No se encontró un capítulo disponible</string>
+    <string name="game_presentation_error_no_chapters_found">No hay capítulos disponibles</string>
+    <string name="game_presentation_error_unknown">Ocurrió un error desconocido</string>
 
     <!-- Purchase / alert strings -->
-    <string name="game_buy_story_error_check_internet">No se pudo comprar la historia, verifica tu conexión a internet.</string>
-    <string name="game_story_preview_buy_story_unknown_error_occured_you_have_been_refunded">Ha ocurrido un error desconocido, se te ha reembolsado.</string>
-    <string name="game_story_preview_buy_story_story_not_buyable_anymore">Esta historia ya no se puede comprar</string>
-    <string name="already_bought_alert_title">¡Ya tenías la historia!</string>
-    <string name="already_bought_alert_description">Parece que ya compraste la historia, ¡así que conservas tus monedas!</string>
-    <string name="already_bought_alert_button">Continuar</string>
-    <string name="insufficient_funds_alert_title">Fondos Insuficientes</string>
-    <string name="insufficient_funds_alert_description">No tienes suficientes monedas para comprar este artículo.</string>
-    <string name="insufficient_funds_alert_button">Continuar</string>
-    <string name="game_story_chapters_button_chapters">Capítulos</string>
-    <string name="game_story_chapters_button_chapters_count">%1$d capítulos</string>
+    <string name="game_presentation_game_buy_story_error_check_internet">No se pudo comprar la historia, verifica tu conexión a internet.</string>
+    <string name="game_presentation_game_story_preview_buy_story_unknown_error_occured_you_have_been_refunded">Ha ocurrido un error desconocido, se te ha reembolsado.</string>
+    <string name="game_presentation_game_story_preview_buy_story_story_not_buyable_anymore">Esta historia ya no se puede comprar</string>
+    <string name="game_presentation_already_bought_alert_title">¡Ya tenías la historia!</string>
+    <string name="game_presentation_already_bought_alert_description">Parece que ya compraste la historia, ¡así que conservas tus monedas!</string>
+    <string name="game_presentation_already_bought_alert_button">Continuar</string>
+    <string name="game_presentation_insufficient_funds_alert_title">Fondos Insuficientes</string>
+    <string name="game_presentation_insufficient_funds_alert_description">No tienes suficientes monedas para comprar este artículo.</string>
+    <string name="game_presentation_insufficient_funds_alert_button">Continuar</string>
+    <string name="game_presentation_game_story_chapters_button_chapters">Capítulos</string>
+    <string name="game_presentation_game_story_chapters_button_chapters_count">%1$d capítulos</string>
 
 </resources>

@@ -29,8 +29,8 @@ internal fun GamePreviewUnavailable(modifier: Modifier = Modifier, chapter: Chap
         verticalAlignment = Alignment.CenterVertically
     ) {
         Icon(
-            painter = painterResource(id = R.drawable.calendar),
-            contentDescription = stringResource(R.string.game_preview_calendar_icon),
+            painter = painterResource(id = R.drawable.game_presentation_calendar),
+            contentDescription = stringResource(R.string.game_presentation_game_preview_calendar_icon),
             modifier = Modifier.size(14.dp),
             tint = Color.Gray
         )
@@ -38,7 +38,7 @@ internal fun GamePreviewUnavailable(modifier: Modifier = Modifier, chapter: Chap
             .format(Date(chapter.releaseDate * 1000))
 
         Text(
-            text = stringResource(R.string.game_preview_next_chapter, formattedDate),
+            text = stringResource(R.string.game_presentation_game_preview_next_chapter, formattedDate),
             fontFamily = PlusJakartaSansFontFamily,
             color = Color.Gray,
             fontSize = 12.sp,

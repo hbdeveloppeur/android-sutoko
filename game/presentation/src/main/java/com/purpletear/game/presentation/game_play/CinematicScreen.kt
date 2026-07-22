@@ -113,7 +113,7 @@ internal fun CinematicScreen(
 
         if (!finished) {
             Text(
-                text = stringResource(R.string.cinematic_skip),
+                text = stringResource(R.string.game_presentation_cinematic_skip),
                 color = Color.White.copy(alpha = 0.5f),
                 fontSize = 14.sp,
                 modifier = Modifier

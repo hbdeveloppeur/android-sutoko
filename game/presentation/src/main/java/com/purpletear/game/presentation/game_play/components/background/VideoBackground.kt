@@ -52,7 +52,7 @@ fun VideoBackground(
         AndroidView(
             factory = { ctx ->
                 (LayoutInflater.from(ctx)
-                    .inflate(R.layout.video_background, null, false) as PlayerView).apply {
+                    .inflate(R.layout.game_presentation_video_background, null, false) as PlayerView).apply {
                     player = exoPlayer
                 }
             },

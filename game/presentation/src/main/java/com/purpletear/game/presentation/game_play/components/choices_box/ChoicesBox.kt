@@ -139,15 +139,15 @@ fun ChoicesBox(
                     modifier = Modifier
                         .weight(1f)
                         .padding(vertical = 8.dp),
-                    text = stringResource(R.string.game_choices_title),
+                    text = stringResource(R.string.game_presentation_game_choices_title),
                     color = colors.title,
                     fontWeight = FontWeight.SemiBold,
                     fontSize = 20.sp
                 )
                 IconButton(onClick = onToggleDarkMode) {
                     Icon(
-                        painter = painterResource(if (isDarkMode) R.drawable.ic_darkmode_white else R.drawable.ic_darkmode),
-                        contentDescription = stringResource(R.string.game_choices_toggle_dark_mode),
+                        painter = painterResource(if (isDarkMode) R.drawable.game_presentation_ic_darkmode_white else R.drawable.game_presentation_ic_darkmode),
+                        contentDescription = stringResource(R.string.game_presentation_game_choices_toggle_dark_mode),
                         modifier = Modifier.size(20.dp),
                         tint = Color.Unspecified
                     )
@@ -218,7 +218,7 @@ fun MakeAChoiceButton(
     ) {
         Text(
             modifier = Modifier.fillMaxWidth(0.8f),
-            text = stringResource(R.string.game_choices_make_a_choice).uppercase(),
+            text = stringResource(R.string.game_presentation_game_choices_make_a_choice).uppercase(),
             color = Color(0xFFC9C9C9),
             fontFamily = RobotoFontFamily,
             fontWeight = FontWeight.Normal,
@@ -227,7 +227,7 @@ fun MakeAChoiceButton(
             textAlign = TextAlign.Center
         )
         Icon(
-            painter = painterResource(R.drawable.ic_action_choice),
+            painter = painterResource(R.drawable.game_presentation_ic_action_choice),
             contentDescription = null,
             modifier = Modifier
                 .padding(top = 12.dp)

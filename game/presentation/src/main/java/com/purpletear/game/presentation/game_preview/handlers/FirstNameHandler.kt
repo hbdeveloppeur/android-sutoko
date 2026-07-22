@@ -52,8 +52,8 @@ class FirstNameHandler @Inject constructor(
      */
     fun askFirstName(): String {
         val popUp = EditTextPopUp(
-            title = UiText.StringResource(R.string.first_name_prompt_title),
-            placeholder = UiText.StringResource(R.string.first_name_prompt_placeholder),
+            title = UiText.StringResource(R.string.game_presentation_first_name_prompt_title),
+            placeholder = UiText.StringResource(R.string.game_presentation_first_name_prompt_placeholder),
         )
         return showPopUpUseCase(popUp)
     }

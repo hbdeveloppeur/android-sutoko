@@ -31,7 +31,7 @@ private fun Preview() {
             .padding(2.dp)
             .height(200.dp)
             .aspectRatio(589f / 241f),
-        drawable = R.drawable.preview_manga_page,
+        drawable = R.drawable.game_presentation_preview_manga_page,
     ) {
         Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
             MessageNextChapter()
@@ -42,8 +42,8 @@ private fun Preview() {
 @Composable
 internal fun MessageNextChapter(
     modifier: Modifier = Modifier,
-    title: String = stringResource(R.string.message_next_chapter_title),
-    buttonText: String = stringResource(R.string.message_next_chapter_button),
+    title: String = stringResource(R.string.game_presentation_message_next_chapter_title),
+    buttonText: String = stringResource(R.string.game_presentation_message_next_chapter_button),
     showButton: Boolean = true,
     onClick: () -> Unit = {},
 ) {

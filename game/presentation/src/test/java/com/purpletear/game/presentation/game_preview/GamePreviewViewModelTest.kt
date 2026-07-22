@@ -256,7 +256,7 @@ class GamePreviewViewModelTest {
         viewModel.refresh()
         advanceUntilIdle()
 
-        assertTrue(toastService.shownMessages.contains(R.string.error_load_game))
+        assertTrue(toastService.shownMessages.contains(R.string.game_presentation_error_load_game))
         assertFalse(viewModel.isRefreshing.value)
     }
 

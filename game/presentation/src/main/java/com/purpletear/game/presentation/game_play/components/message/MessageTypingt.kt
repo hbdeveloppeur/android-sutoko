@@ -42,7 +42,7 @@ private fun Preview() {
             .padding(2.dp)
             .height(36.dp)
             .aspectRatio(82f / 42f),
-        drawable = R.drawable.preview_typing,
+        drawable = R.drawable.game_presentation_preview_typing,
     ) {
         Column(Modifier.padding(4.dp)) {
             MessageTyping()

@@ -79,7 +79,7 @@ fun NickNameInputDialog(
                     modifier = Modifier
                         .padding(top = 6.dp, bottom = 4.dp)
                         .padding(horizontal = 12.dp),
-                    text = stringResource(R.string.first_name_prompt_title),
+                    text = stringResource(R.string.game_presentation_first_name_prompt_title),
                     color = Color.White,
                     fontFamily = Poppins,
                     fontWeight = FontWeight.Normal,
@@ -94,7 +94,7 @@ fun NickNameInputDialog(
                     },
                     placeholder = {
                         Text(
-                            text = stringResource(R.string.first_name_prompt_placeholder),
+                            text = stringResource(R.string.game_presentation_first_name_prompt_placeholder),
                             color = SubtleText,
                             fontFamily = Poppins,
                             fontSize = 14.sp,
@@ -106,7 +106,7 @@ fun NickNameInputDialog(
                         {
                             Text(
                                 text = stringResource(
-                                    R.string.first_name_prompt_error,
+                                    R.string.game_presentation_first_name_prompt_error,
                                     UserNickNameSanitizer.MIN_LENGTH,
                                     UserNickNameSanitizer.MAX_LENGTH,
                                 ),

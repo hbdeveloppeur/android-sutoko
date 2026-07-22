@@ -117,12 +117,12 @@ private fun TopBar(onBackClick: () -> Unit) {
         IconButton(onClick = onBackClick) {
             Icon(
                 imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                contentDescription = stringResource(R.string.game_chapters_back),
+                contentDescription = stringResource(R.string.game_presentation_game_chapters_back),
                 tint = Color.White,
             )
         }
         Text(
-            text = stringResource(R.string.game_chapter_selection_title),
+            text = stringResource(R.string.game_presentation_game_chapter_selection_title),
             color = Color.White,
             fontFamily = Poppins,
             fontSize = 16.sp,
@@ -175,7 +175,7 @@ private fun ChapterItem(
     ) {
         Column(modifier = Modifier.weight(1f)) {
             Text(
-                text = stringResource(R.string.game_chapter_number, chapter.number),
+                text = stringResource(R.string.game_presentation_game_chapter_number, chapter.number),
                 color = if (isCurrent) Color.White else Color(0xFF8C8C8C),
                 fontFamily = Poppins,
                 fontSize = 12.sp,
@@ -191,14 +191,14 @@ private fun ChapterItem(
 
         if (isCurrent) {
             Text(
-                text = stringResource(R.string.game_chapter_selection_current),
+                text = stringResource(R.string.game_presentation_game_chapter_selection_current),
                 color = Color.White,
                 fontFamily = Poppins,
                 fontSize = 12.sp,
             )
         } else if (!chapter.isAvailable) {
             Text(
-                text = stringResource(R.string.game_chapter_selection_locked),
+                text = stringResource(R.string.game_presentation_game_chapter_selection_locked),
                 color = Color(0xFF8C8C8C),
                 fontFamily = Poppins,
                 fontSize = 12.sp,
@@ -228,7 +228,7 @@ private fun ErrorMessage(message: String?) {
         contentAlignment = Alignment.Center
     ) {
         Text(
-            text = message ?: stringResource(R.string.error_load_game),
+            text = message ?: stringResource(R.string.game_presentation_error_load_game),
             color = Color.White,
             fontFamily = Poppins,
             fontSize = 14.sp,

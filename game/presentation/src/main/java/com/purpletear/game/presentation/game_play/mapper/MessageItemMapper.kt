@@ -93,7 +93,7 @@ internal fun Message(
                         )
                     } else {
                         val title = nextChapterTitleRes?.let { stringResource(it) }
-                            ?: stringResource(R.string.message_next_chapter_title)
+                            ?: stringResource(R.string.game_presentation_message_next_chapter_title)
                         MessageNextChapter(
                             title = title,
                             showButton = showNextChapterButton,
@@ -105,7 +105,7 @@ internal fun Message(
                 GameMessageType.Info -> {
                     msg as GameMessageInfo
                     val text = if (msg.id == "end_story") {
-                        stringResource(R.string.message_story_finished)
+                        stringResource(R.string.game_presentation_message_story_finished)
                     } else {
                         msg.text
                     }

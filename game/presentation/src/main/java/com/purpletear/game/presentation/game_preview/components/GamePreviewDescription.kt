@@ -162,7 +162,7 @@ private fun Avatar(url: String, totalHeight: Dp, minHeight: Dp = 20.dp) {
                 .data(uri)
                 .crossfade(true)
                 .build(),
-            contentDescription = stringResource(GameR.string.game_preview_avatar_description),
+            contentDescription = stringResource(GameR.string.game_presentation_game_preview_avatar_description),
             contentScale = ContentScale.Crop,
             modifier = Modifier
                 .size(imageSize)

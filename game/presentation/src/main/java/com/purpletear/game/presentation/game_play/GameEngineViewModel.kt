@@ -116,7 +116,7 @@ class GameEngineViewModel @Inject constructor(
                 isLiveUpdateMode = isLiveUpdateMode,
                 isTrial = isTrial,
                 showNextChapterButton = !isLiveUpdateMode,
-                nextChapterTitleRes = if (isLiveUpdateMode) R.string.message_next_chapter_test_mode_title else null,
+                nextChapterTitleRes = if (isLiveUpdateMode) R.string.game_presentation_message_next_chapter_test_mode_title else null,
                 isChoicesDarkMode = readChoicesDarkMode()
             )
         }
@@ -184,7 +184,7 @@ class GameEngineViewModel @Inject constructor(
                     },
                     onFailure = { error ->
                         logger.exception(error) { "Failed to load chapter $chapterCode" }
-                        makeToastService(R.string.error_load_game)
+                        makeToastService(R.string.game_presentation_error_load_game)
                     }
                 )
             }
@@ -262,7 +262,7 @@ class GameEngineViewModel @Inject constructor(
                     logger.exception(IllegalArgumentException(startNodeId)) {
                         "PLAY_FROM_NODE target missing in ${graph.chapterCode}: $startNodeId - fallback to start"
                     }
-                    makeToastService(R.string.error_play_from_node_missing)
+                    makeToastService(R.string.game_presentation_error_play_from_node_missing)
                 }
 
                 when {
@@ -274,7 +274,7 @@ class GameEngineViewModel @Inject constructor(
             } catch (e: Exception) {
                 logger.exception(e) { "startGame failed for ${graph.chapterCode}" }
                 if (BuildConfig.DEBUG) throw e
-                makeToastService(R.string.error_load_game)
+                makeToastService(R.string.game_presentation_error_load_game)
             }
         }
     }
@@ -311,7 +311,7 @@ class GameEngineViewModel @Inject constructor(
             } catch (e: Exception) {
                 logger.exception(e) { "startGameWithDebugJump failed for ${graph.chapterCode}" }
                 if (BuildConfig.DEBUG) throw e
-                makeToastService(R.string.error_load_game)
+                makeToastService(R.string.game_presentation_error_load_game)
             }
         }
     }
@@ -335,7 +335,7 @@ class GameEngineViewModel @Inject constructor(
                     if (error != lastLoggedError) {
                         lastLoggedError = error
                         StoryTestingLogger.e("NAV") { "Story testing error: $error" }
-                        makeToastService(R.string.error_load_game)
+                        makeToastService(R.string.game_presentation_error_load_game)
                     }
                 } ?: run {
                     lastLoggedError = null
@@ -482,7 +482,7 @@ class GameEngineViewModel @Inject constructor(
 
     private fun playTypingSound() {
         typingPlayer?.release()
-        typingPlayer = MediaPlayer.create(context, R.raw.typing)?.apply {
+        typingPlayer = MediaPlayer.create(context, R.raw.game_presentation_typing)?.apply {
             setOnCompletionListener {
                 release()
                 typingPlayer = null

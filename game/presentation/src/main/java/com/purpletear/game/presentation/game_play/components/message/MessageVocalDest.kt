@@ -106,8 +106,8 @@ private fun PlayButton(isPlaying: Boolean, onClick: () -> Unit) {
         contentAlignment = Alignment.Center
     ) {
         Image(
-            painter = painterResource(id = if (isPlaying) R.drawable.ic_pause_button else R.drawable.ic_play_button),
-            contentDescription = stringResource(R.string.message_vocal_play_description),
+            painter = painterResource(id = if (isPlaying) R.drawable.game_presentation_ic_pause_button else R.drawable.game_presentation_ic_play_button),
+            contentDescription = stringResource(R.string.game_presentation_message_vocal_play_description),
             modifier = Modifier
                 .size(22.dp)
                 .clip(shape)

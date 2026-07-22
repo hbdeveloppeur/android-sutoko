@@ -31,7 +31,7 @@ private fun Preview() {
             .padding(2.dp)
             .height(200.dp)
             .aspectRatio(589f / 241f),
-        drawable = R.drawable.preview_manga_page,
+        drawable = R.drawable.game_presentation_preview_manga_page,
     ) {
         Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
             MessageManga()
@@ -41,8 +41,8 @@ private fun Preview() {
 
 @Composable
 internal fun MessageManga(
-    prompt: String = stringResource(R.string.message_manga_prompt),
-    openButtonText: String = stringResource(R.string.message_manga_open),
+    prompt: String = stringResource(R.string.game_presentation_message_manga_prompt),
+    openButtonText: String = stringResource(R.string.game_presentation_message_manga_open),
     onClick: () -> Unit = {}
 ) {
     Column(
@@ -55,7 +55,7 @@ internal fun MessageManga(
     ) {
         Avatar(
             size = 56.dp,
-            imageModel = R.drawable.page_manga_preview,
+            imageModel = R.drawable.game_presentation_page_manga_preview,
         )
         Text(
             text = prompt,

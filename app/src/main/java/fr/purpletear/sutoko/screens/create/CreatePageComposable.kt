@@ -118,7 +118,7 @@ internal fun CreatePageComposable(
                         GameCardCompact(
                             modifier = Modifier.padding(top = 16.dp),
                             game = game,
-                            openButtonLabel = stringResource(com.purpletear.game.presentation.R.string.game_button_test),
+                            openButtonLabel = stringResource(com.purpletear.game.presentation.R.string.game_presentation_game_button_test),
                             onOpenClick = { openGame(game, true) }
                         )
                     }

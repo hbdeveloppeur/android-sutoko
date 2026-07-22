@@ -21,10 +21,10 @@ class PopupManager @Inject constructor(
      */
     fun showDeleteConfirmation(): String {
         val popUp = SutokoPopUp(
-            title = UiText.StringResource(R.string.game_delete_confirm_title),
-            description = UiText.StringResource(R.string.game_delete_confirm_description),
-            icon = PopUpIconAnimation(id = R.raw.lottie_animation_validation_green),
-            buttonText = UiText.StringResource(R.string.game_delete_confirm_button)
+            title = UiText.StringResource(R.string.game_presentation_game_delete_confirm_title),
+            description = UiText.StringResource(R.string.game_presentation_game_delete_confirm_description),
+            icon = PopUpIconAnimation(id = R.raw.game_presentation_lottie_animation_validation_green),
+            buttonText = UiText.StringResource(R.string.game_presentation_game_delete_confirm_button)
         )
         return showPopUpUseCase(popUp)
     }
@@ -35,10 +35,10 @@ class PopupManager @Inject constructor(
      */
     fun showAlreadyBoughtAlert(): String {
         val popUp = SutokoPopUp(
-            title = UiText.StringResource(R.string.already_bought_alert_title),
-            description = UiText.StringResource(R.string.already_bought_alert_description),
-            icon = PopUpIconAnimation(id = R.raw.lottie_animation_validation_green),
-            buttonText = UiText.StringResource(R.string.already_bought_alert_button)
+            title = UiText.StringResource(R.string.game_presentation_already_bought_alert_title),
+            description = UiText.StringResource(R.string.game_presentation_already_bought_alert_description),
+            icon = PopUpIconAnimation(id = R.raw.game_presentation_lottie_animation_validation_green),
+            buttonText = UiText.StringResource(R.string.game_presentation_already_bought_alert_button)
         )
         return showPopUpUseCase(popUp)
     }
@@ -49,10 +49,10 @@ class PopupManager @Inject constructor(
      */
     fun showInsufficientFundsAlert(): String {
         val popUp = SutokoPopUp(
-            title = UiText.StringResource(R.string.insufficient_funds_alert_title),
-            description = UiText.StringResource(R.string.insufficient_funds_alert_description),
-            icon = PopUpIconAnimation(id = R.raw.lottie_animation_treasure),
-            buttonText = UiText.StringResource(R.string.insufficient_funds_alert_button)
+            title = UiText.StringResource(R.string.game_presentation_insufficient_funds_alert_title),
+            description = UiText.StringResource(R.string.game_presentation_insufficient_funds_alert_description),
+            icon = PopUpIconAnimation(id = R.raw.game_presentation_lottie_animation_treasure),
+            buttonText = UiText.StringResource(R.string.game_presentation_insufficient_funds_alert_button)
         )
         return showPopUpUseCase(popUp)
     }
