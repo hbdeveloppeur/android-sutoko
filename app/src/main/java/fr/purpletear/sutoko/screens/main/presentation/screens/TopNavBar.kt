@@ -147,7 +147,7 @@ fun TopNavigation(
                 modifier = Modifier.padding(start = 8.dp),
                 amount = loadedBalance.diamonds,
                 onClick = onDiamondsButtonPressed,
-                iconResId = SharedElementsR.drawable.sutoko_ic_diamond,
+                iconResId = SharedElementsR.drawable.shared_elements_sutoko_ic_diamond,
                 borderColor = Color(0xFF4DB9EC),
                 backgroundColor = Color(0xFF2E3A4F)
             )

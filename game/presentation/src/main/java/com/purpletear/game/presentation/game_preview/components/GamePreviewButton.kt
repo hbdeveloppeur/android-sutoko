@@ -36,10 +36,10 @@ import com.purpletear.game.presentation.game_preview.Background
 import com.purpletear.game.presentation.game_preview.toBrush
 
 private val WorkSansSemiBold = FontFamily(
-    Font(R.font.font_worksans_semibold, FontWeight.SemiBold)
+    Font(R.font.shared_elements_font_worksans_semibold, FontWeight.SemiBold)
 )
 private val WorkSansRegular = FontFamily(
-    Font(R.font.font_worksans_regular, FontWeight.Normal)
+    Font(R.font.shared_elements_font_worksans_regular, FontWeight.Normal)
 )
 
 

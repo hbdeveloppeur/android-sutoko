@@ -191,7 +191,7 @@ object ShopActivityGraphics {
         requestManager.load(R.drawable.sutoko_ic_diamond)
             .into(binding.sutokoDiamondsImage)
 
-        requestManager.load(SharedElementsR.drawable.sutoko_account_creation_header_background)
+        requestManager.load(SharedElementsR.drawable.shared_elements_sutoko_account_creation_header_background)
             .into(binding.headerBackground)
 
     }

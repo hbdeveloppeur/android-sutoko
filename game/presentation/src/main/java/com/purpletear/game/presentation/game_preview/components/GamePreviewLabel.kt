@@ -48,7 +48,7 @@ internal fun GamePreviewLabel(
             text = text,
             fontFamily = FontFamily(
                 Font(
-                    resId = SharedElementsR.font.plus_jakarta_sans,
+                    resId = SharedElementsR.font.shared_elements_plus_jakarta_sans,
                     weight = FontWeight.Bold,
                 )
             ),

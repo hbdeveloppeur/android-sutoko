@@ -72,7 +72,7 @@ class SutokoParams() : Serializable, Parcelable {
     companion object {
 
         private fun getDefaultName(context: Context): String {
-            return context.getString(R.string.sutoko_default_name)
+            return context.getString(R.string.shared_elements_sutoko_default_name)
         }
 
         /**

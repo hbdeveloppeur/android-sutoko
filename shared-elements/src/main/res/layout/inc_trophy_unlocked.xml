@@ -15,7 +15,7 @@
         android:paddingLeft="6dp"
         android:paddingStart="6dp"
         android:paddingEnd="6dp"
-        android:background="@drawable/background_rounded_white"
+        android:background="@drawable/shared_elements_background_rounded_white"
         android:gravity="center_vertical">
 
         <ImageView
@@ -31,7 +31,7 @@
             android:layout_marginStart="4dp"
             android:textColor="#737373"
             android:layout_marginLeft="2dp"
-            android:text="@string/sutoko_shared_elements_trophy_new_trophy_found" />
+            android:text="@string/shared_elements_sutoko_shared_elements_trophy_new_trophy_found" />
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

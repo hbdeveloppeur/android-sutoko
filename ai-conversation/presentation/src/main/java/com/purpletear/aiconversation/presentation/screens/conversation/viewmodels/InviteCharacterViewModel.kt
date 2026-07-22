@@ -203,7 +203,7 @@ class InviteCharacterViewModel @Inject constructor(
         val tag = showPopUpUseCase(
             SutokoPopUp(
                 title = UiText.StringResource(R.string.ai_conversation_confirm_invite_title),
-                icon = PopUpIconDrawable(sharedElementsR.drawable.account_creation_character),
+                icon = PopUpIconDrawable(sharedElementsR.drawable.shared_elements_account_creation_character),
                 iconHeight = null,
                 buttonText = UiText.StringResource(R.string.ai_conversation_invite),
                 description = UiText.StringResource(

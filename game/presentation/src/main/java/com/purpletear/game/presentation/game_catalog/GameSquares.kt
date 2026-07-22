@@ -136,7 +136,7 @@ private fun GameSquare(
                 color = Color.White,
                 fontFamily = FontFamily(
                     Font(
-                        SharedR.font.font_poppins_semibold,
+                        SharedR.font.shared_elements_font_poppins_semibold,
                         FontWeight.SemiBold
                     )
                 )

@@ -10,86 +10,86 @@ import com.example.sharedelements.R
 
 // Define PlayFair Display font family
 val PlayfairDisplayFontFamily = FontFamily(
-    Font(R.font.playfair_display, FontWeight.Normal)
+    Font(R.font.shared_elements_playfair_display, FontWeight.Normal)
 )
 
 // Define Montserrat font family
 val MontserratFontFamily = FontFamily(
-    Font(R.font.font_montserrat_regular, FontWeight.Normal),
-    Font(R.font.font_montserrat_medium, FontWeight.Medium),
-    Font(R.font.font_montserrat_semibold, FontWeight.SemiBold),
-    Font(R.font.font_montserrat_bold, FontWeight.Bold)
+    Font(R.font.shared_elements_font_montserrat_regular, FontWeight.Normal),
+    Font(R.font.shared_elements_font_montserrat_medium, FontWeight.Medium),
+    Font(R.font.shared_elements_font_montserrat_semibold, FontWeight.SemiBold),
+    Font(R.font.shared_elements_font_montserrat_bold, FontWeight.Bold)
 )
 
 // Define Crimson Text font family
 val CrimsonTextFontFamily = FontFamily(
-    Font(R.font.font_crimson_text_regular, FontWeight.Normal),
-    Font(R.font.font_crimson_text_semibold, FontWeight.SemiBold),
-    Font(R.font.font_crimson_text_bold, FontWeight.Bold),
-    Font(R.font.font_crimson_text_italic, FontWeight.Normal)
+    Font(R.font.shared_elements_font_crimson_text_regular, FontWeight.Normal),
+    Font(R.font.shared_elements_font_crimson_text_semibold, FontWeight.SemiBold),
+    Font(R.font.shared_elements_font_crimson_text_bold, FontWeight.Bold),
+    Font(R.font.shared_elements_font_crimson_text_italic, FontWeight.Normal)
 )
 
 // Define PlusJakartaSans font family
 val PlusJakartaSansFontFamily = FontFamily(
-    Font(R.font.plus_jakarta_sans, FontWeight.Normal)
+    Font(R.font.shared_elements_plus_jakarta_sans, FontWeight.Normal)
 )
 
 // Define WorkSans font family
 val WorkSansFontFamily = FontFamily(
-    Font(R.font.font_worksans_regular, FontWeight.Normal),
-    Font(R.font.font_worksans_medium, FontWeight.Medium),
-    Font(R.font.font_worksans_semibold, FontWeight.SemiBold)
+    Font(R.font.shared_elements_font_worksans_regular, FontWeight.Normal),
+    Font(R.font.shared_elements_font_worksans_medium, FontWeight.Medium),
+    Font(R.font.shared_elements_font_worksans_semibold, FontWeight.SemiBold)
 )
 
 // Define Roboto font family
 val RobotoFontFamily = FontFamily(
-    Font(R.font.font_roboto_regular, FontWeight.Normal)
+    Font(R.font.shared_elements_font_roboto_regular, FontWeight.Normal)
 )
 
 // Set of Material typography styles to start with
 val Typography = Typography(
     body1 = TextStyle(
-        fontFamily = FontFamily(Font(R.font.font_poppins_regular, FontWeight.Normal)),
+        fontFamily = FontFamily(Font(R.font.shared_elements_font_poppins_regular, FontWeight.Normal)),
         fontWeight = FontWeight.Normal,
         fontSize = 16.sp
     ),
     h1 = TextStyle(
-        fontFamily = FontFamily(Font(R.font.font_poppins_bold, FontWeight.Bold)),
+        fontFamily = FontFamily(Font(R.font.shared_elements_font_poppins_bold, FontWeight.Bold)),
         fontWeight = FontWeight.Bold,
         fontSize = 24.sp
     ),
     h2 = TextStyle(
-        fontFamily = FontFamily(Font(R.font.font_poppins_semibold, FontWeight.SemiBold)),
+        fontFamily = FontFamily(Font(R.font.shared_elements_font_poppins_semibold, FontWeight.SemiBold)),
         fontWeight = FontWeight.SemiBold,
         fontSize = 20.sp
     ),
     h3 = TextStyle(
-        fontFamily = FontFamily(Font(R.font.font_poppins_medium, FontWeight.Medium)),
+        fontFamily = FontFamily(Font(R.font.shared_elements_font_poppins_medium, FontWeight.Medium)),
         fontWeight = FontWeight.SemiBold,
         fontSize = 18.sp
     ),
     h4 = TextStyle(
-        fontFamily = FontFamily(Font(R.font.font_poppins_regular, FontWeight.Normal)),
+        fontFamily = FontFamily(Font(R.font.shared_elements_font_poppins_regular, FontWeight.Normal)),
         fontWeight = FontWeight.SemiBold,
         fontSize = 16.sp
     ),
     h5 = TextStyle(
-        fontFamily = FontFamily(Font(R.font.font_poppins_regular, FontWeight.Normal)),
+        fontFamily = FontFamily(Font(R.font.shared_elements_font_poppins_regular, FontWeight.Normal)),
         fontWeight = FontWeight.SemiBold,
         fontSize = 14.sp
     ),
     h6 = TextStyle(
-        fontFamily = FontFamily(Font(R.font.font_poppins_regular, FontWeight.Normal)),
+        fontFamily = FontFamily(Font(R.font.shared_elements_font_poppins_regular, FontWeight.Normal)),
         fontWeight = FontWeight.SemiBold,
         fontSize = 12.sp
     ),
     subtitle1 = TextStyle(
-        fontFamily = FontFamily(Font(R.font.font_poppins_regular, FontWeight.Normal)),
+        fontFamily = FontFamily(Font(R.font.shared_elements_font_poppins_regular, FontWeight.Normal)),
         fontWeight = FontWeight.SemiBold,
         fontSize = 16.sp
     ),
     subtitle2 = TextStyle(
-        fontFamily = FontFamily(Font(R.font.font_poppins_regular, FontWeight.Normal)),
+        fontFamily = FontFamily(Font(R.font.shared_elements_font_poppins_regular, FontWeight.Normal)),
         fontWeight = FontWeight.SemiBold,
         fontSize = 14.sp
     ),

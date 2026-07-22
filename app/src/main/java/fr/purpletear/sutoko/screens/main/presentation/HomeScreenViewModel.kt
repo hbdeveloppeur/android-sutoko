@@ -172,10 +172,10 @@ class HomeScreenViewModel @Inject constructor(
 
         this._squareIcons = mutableStateOf(
             mapOf(
-                159 to com.example.sharedelements.R.drawable.logo_card_159,
-                161 to com.example.sharedelements.R.drawable.logo_card_161,
-                162 to com.example.sharedelements.R.drawable.logo_card_162,
-                163 to com.example.sharedelements.R.drawable.logo_card_163,
+                159 to com.example.sharedelements.R.drawable.shared_elements_logo_card_159,
+                161 to com.example.sharedelements.R.drawable.shared_elements_logo_card_161,
+                162 to com.example.sharedelements.R.drawable.shared_elements_logo_card_162,
+                163 to com.example.sharedelements.R.drawable.shared_elements_logo_card_163,
             )
         )
     }

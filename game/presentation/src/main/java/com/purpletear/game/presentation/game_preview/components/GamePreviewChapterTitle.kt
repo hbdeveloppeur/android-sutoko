@@ -78,7 +78,7 @@ private fun buildColoredAnnotatedString(
                             color = color,
                             fontFamily = FontFamily(
                                 Font(
-                                    R.font.font_worksans_semibold,
+                                    R.font.shared_elements_font_worksans_semibold,
                                     FontWeight.SemiBold
                                 )
                             ),

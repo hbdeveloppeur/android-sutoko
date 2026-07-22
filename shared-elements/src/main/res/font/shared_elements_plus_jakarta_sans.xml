@@ -4,5 +4,5 @@
     <font
         app:fontStyle="normal"
         app:fontWeight="400"
-        app:font="@font/font_plus_jakarta_sans_variable" />
+        app:font="@font/shared_elements_font_plus_jakarta_sans_variable" />
 </font-family>

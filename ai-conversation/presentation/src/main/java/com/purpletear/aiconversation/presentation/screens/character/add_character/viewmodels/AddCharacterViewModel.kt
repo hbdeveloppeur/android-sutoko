@@ -157,7 +157,7 @@ class AddCharacterViewModel @Inject constructor(
         val popUp = SutokoPopUp(
             title = UiText.StringResource(R.string.ai_conversation_pop_up_characters_limit_reached_title),
             description = UiText.StringResource(R.string.ai_conversation_pop_up_characters_limit_reached_description),
-            icon = PopUpIconDrawable(sharedElementsR.drawable.account_creation_character),
+            icon = PopUpIconDrawable(sharedElementsR.drawable.shared_elements_account_creation_character),
             buttonText = UiText.StringResource(R.string.ai_conversation_continue)
         )
         val tag = showPopUpUseCase(popUp)

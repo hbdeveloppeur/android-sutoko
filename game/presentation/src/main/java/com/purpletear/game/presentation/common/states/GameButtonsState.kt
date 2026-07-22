@@ -96,7 +96,7 @@ internal fun GameActionState?.toButtonsState(
     is GameActionState.ConfirmPurchase -> GameButtonsState(
         left = ButtonUiState(
             weight = LEFT_BUTTON_WEIGHT,
-            icon = Image(SutokoSharedElementsR.drawable.shared_ic_arrow_back_ios),
+            icon = Image(SutokoSharedElementsR.drawable.shared_elements_shared_ic_arrow_back_ios),
             backgroundColor = LeftButtonBackground,
             isEnabled = !isLoading,
             onClick = { onAction(GamePreviewAction.OnAbortBuy) },

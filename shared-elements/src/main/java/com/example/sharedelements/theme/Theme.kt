@@ -23,15 +23,15 @@ private val DarkColorPalette = darkColors(
 
 
 val Poppins = FontFamily(
-    Font(R.font.font_poppins_regular, FontWeight.Normal),
-    Font(R.font.font_poppins_medium, FontWeight.Medium),
-    Font(R.font.font_poppins_semibold, FontWeight.SemiBold),
-    Font(R.font.font_poppins_bold, FontWeight.Bold),
-    Font(R.font.font_poppins_extrabold, FontWeight.ExtraBold)
+    Font(R.font.shared_elements_font_poppins_regular, FontWeight.Normal),
+    Font(R.font.shared_elements_font_poppins_medium, FontWeight.Medium),
+    Font(R.font.shared_elements_font_poppins_semibold, FontWeight.SemiBold),
+    Font(R.font.shared_elements_font_poppins_bold, FontWeight.Bold),
+    Font(R.font.shared_elements_font_poppins_extrabold, FontWeight.ExtraBold)
 )
 
 val Boldonse = FontFamily(
-    Font(R.font.boldonse_regular, FontWeight.Bold),
+    Font(R.font.shared_elements_boldonse_regular, FontWeight.Bold),
 )
 
 

@@ -307,10 +307,10 @@ object UserHelper {
                 if (it.exception != null && (it.exception!! as FirebaseAuthRecentLoginRequiredException).errorCode == "ERROR_REQUIRES_RECENT_LOGIN") {
                     Std.confirm(
                         activity,
-                        R.string.security_check_delete_account_title,
-                        R.string.security_check_delete_account_message,
-                        R.string.ok,
-                        R.string.abort, {
+                        R.string.shared_elements_security_check_delete_account_title,
+                        R.string.shared_elements_security_check_delete_account_message,
+                        R.string.shared_elements_ok,
+                        R.string.shared_elements_abort, {
                             Handler(Looper.getMainLooper()).post(onComplete)
                         }, {
                             Handler(Looper.getMainLooper()).post(onComplete)

@@ -17,7 +17,7 @@ object AccountConnectionActivityGraphics {
     fun setImages(activity: AccountConnectionActivity, requestManager: RequestManager) {
         requestManager.load(R.drawable.ic_logo_white).transition(withCrossFade())
             .into(activity.binding.sutokoAccountConnectionImageLogo)
-        requestManager.load(SharedElementsR.drawable.sutoko_account_creation_header_background)
+        requestManager.load(SharedElementsR.drawable.shared_elements_sutoko_account_creation_header_background)
             .transition(withCrossFade())
             .into(activity.binding.sutokoAccountConnectionHeaderBackground)
     }
