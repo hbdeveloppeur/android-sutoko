@@ -27,23 +27,8 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
-            buildConfigField("int", "VERSION_CODE", "1")
-            buildConfigField("String", "VERSION_NAME", "\"1.0\"")
-        }
-        debug {
-            buildConfigField("int", "VERSION_CODE", "1")
-            buildConfigField("String", "VERSION_NAME", "\"1.0\"")
         }
     }
-
-    buildTypes.getByName("release") {
-        isDebuggable = false
-    }
-
-    buildTypes.getByName("debug") {
-        isDebuggable = true
-    }
-
 
 
     compileOptions {
@@ -65,6 +50,10 @@ dependencies {
     androidTestImplementation(libs.androidx.espresso.core)
     implementation(libs.coil.compose)
     implementation(libs.androidx.runtime)
+    // BounceClick / UiText use these directly; do not rely on Coil's transitive deps.
+    implementation(libs.compose.ui)
+    implementation(libs.compose.foundation)
+    implementation("androidx.compose.animation:animation:1.7.6")
     implementation(libs.javax.inject)
 
     // DI

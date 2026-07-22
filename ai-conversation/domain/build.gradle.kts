@@ -2,7 +2,6 @@ plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.jetbrains.kotlin.android)
     alias(libs.plugins.ksp)
-    alias(libs.plugins.compose.compiler)
     id("dagger.hilt.android.plugin")
     id("kotlin-parcelize")
 }
@@ -38,17 +37,12 @@ android {
 dependencies {
 
     implementation(libs.androidx.ktx)
-    implementation(libs.androidx.appcompat)
-    implementation(libs.android.material)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
 
     implementation(libs.dagger.hilt)
     ksp(libs.dagger.hilt.compiler)
-    ksp(libs.androidx.hilt.compiler)
-    implementation(libs.androidx.hilt.work)
-    implementation(libs.androidx.runtime)
 
     // Room
     implementation(libs.room.runtime)

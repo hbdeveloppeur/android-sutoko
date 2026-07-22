@@ -96,7 +96,6 @@ dependencies {
     kspAndroidTest(libs.androidx.hilt.compiler)
     implementation(libs.androidx.hilt.navigation.compose)
 
-    implementation(libs.androidx.hilt.work)
     implementation(libs.lottie.compose)
 
     implementation(platform(libs.firebase.bom))
@@ -106,7 +105,6 @@ dependencies {
     implementation(libs.zoomable)
     implementation(libs.easycrop)
 
-    implementation(libs.androidx.runtime)
     implementation(libs.androidx.lifecycle.runtime.compose)
 
 }
