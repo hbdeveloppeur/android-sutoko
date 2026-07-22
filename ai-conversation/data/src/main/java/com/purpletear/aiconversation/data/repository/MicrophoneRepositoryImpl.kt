@@ -77,23 +77,27 @@ class MicrophoneRepositoryImpl(
                 }
             }
             Result.success(Unit)
-        } catch (e: IOException) {
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            runCatching { recorder?.release() }
+            recorder = null
             Result.failure(e)
         }
     }
 
     override suspend fun stopRecording(): Result<Unit> {
+        val active = recorder
+        recorder = null
         return try {
-            recorder?.apply {
-                stop()
-                release()
-            }
-            recorder = null
+            active?.stop()
             Result.success(Unit)
         } catch (e: CancellationException) {
             throw e
         } catch (e: Exception) {
             Result.failure(e)
+        } finally {
+            runCatching { active?.release() }
         }
     }
 

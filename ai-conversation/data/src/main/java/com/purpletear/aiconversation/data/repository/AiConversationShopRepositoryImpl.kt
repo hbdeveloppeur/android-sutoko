@@ -49,14 +49,18 @@ class AiConversationShopRepositoryImpl(
             )
 
             if (apiResponse.isSuccessful) {
-                val newTokensCount = apiResponse.body()?.newTokensCount ?: 0
-                saveUserMessageCount(newTokensCount)
-                setTrialUnavailability()
-                _aiTokensState.value = _aiTokensState.value.copy(
-                    messagesCount = newTokensCount,
-                    freeTrialAvailable = false,
-                )
-                Result.success(Unit)
+                val newTokensCount = apiResponse.body()?.newTokensCount
+                if (newTokensCount == null) {
+                    Result.failure(NoResponseException())
+                } else {
+                    saveUserMessageCount(newTokensCount)
+                    setTrialUnavailability()
+                    _aiTokensState.value = _aiTokensState.value.copy(
+                        messagesCount = newTokensCount,
+                        freeTrialAvailable = false,
+                    )
+                    Result.success(Unit)
+                }
             } else {
                 val exception = ApiFailureResponseHandler.handler(apiResponse.errorBody())
                 Result.failure(exception)
@@ -87,16 +91,18 @@ class AiConversationShopRepositoryImpl(
             )
 
             if (apiResponse.isSuccessful) {
-                apiResponse.body()?.let { response ->
+                val response = apiResponse.body()
+                if (response == null) {
+                    Result.failure(NoResponseException())
+                } else {
                     val domain = response.toDomain()
-                    val count = domain.messagesCount
-                    saveUserMessageCount(count)
+                    saveUserMessageCount(domain.messagesCount)
                     _aiTokensState.value = domain
                     Result.success(domain)
                 }
+            } else {
+                Result.failure(ApiFailureResponseHandler.handler(apiResponse.errorBody()))
             }
-            val exception = ApiFailureResponseHandler.handler(apiResponse.errorBody())
-            Result.failure(exception)
         } catch (e: CancellationException) {
             throw e
         } catch (e: Exception) {

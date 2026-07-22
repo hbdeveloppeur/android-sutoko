@@ -1,9 +1,7 @@
 package com.purpletear.aiconversation.data.repository
 
 import android.content.ContentResolver
-import android.content.ContentValues
 import android.content.Context
-import android.provider.MediaStore
 import com.purpletear.aiconversation.data.exception.FailedToCreateConversationDirsException
 import com.purpletear.aiconversation.domain.repository.FileManagerRepository
 import kotlinx.coroutines.CancellationException
@@ -55,16 +53,6 @@ class FileManagerRepositoryImpl(private val contentResolver: ContentResolver, co
                 }
             }
 
-            val metadata = ContentValues().apply {
-                put(MediaStore.Audio.Media.DISPLAY_NAME, fileName)
-                put(MediaStore.Audio.Media.MIME_TYPE, "audio/mp3")
-                put(MediaStore.Audio.Media.DATE_ADDED, System.currentTimeMillis() / 1000)
-                put(MediaStore.Audio.Media.DATE_MODIFIED, System.currentTimeMillis() / 1000)
-                put(MediaStore.Audio.Media.DATE_EXPIRES, System.currentTimeMillis() / 1000)
-            }
-
-            contentResolver.insert(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, metadata)
-
             return@withContext Result.success(file)
         }
     }
@@ -92,8 +80,7 @@ class FileManagerRepositoryImpl(private val contentResolver: ContentResolver, co
             val file = File(recordingsDir, name).copyTo(File(recordingsDir, "tmp_$name"))
             Result.success(file)
         } catch (e: FileAlreadyExistsException) {
-            val file = File(recordingsDir, name)
-            Result.success(file)
+            Result.success(File(recordingsDir, "tmp_$name"))
         } catch (e: CancellationException) {
             throw e
         } catch (e: Exception) {

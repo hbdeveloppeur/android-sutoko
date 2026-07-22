@@ -52,12 +52,10 @@ class MediaRepositoryImpl(private val dao: MediaDao, private val api: MediaApi) 
                 val media = response.toDomain(type)
                 emit(Result.success(media))
             } ?: run {
-                file.delete()
                 emit(Result.failure(NoResponseException()))
                 return@flow
             }
         } else {
-            file.delete()
             val exception = ApiFailureResponseHandler.handler(apiResponse.errorBody())
             emit(Result.failure(exception))
         }
@@ -82,8 +80,7 @@ class MediaRepositoryImpl(private val dao: MediaDao, private val api: MediaApi) 
                 return@flow
             }
         } else {
-            val exception = ApiFailureResponseHandler.handler(apiResponse.errorBody())
-            exception.printStackTrace()
+            emit(Result.failure(ApiFailureResponseHandler.handler(apiResponse.errorBody())))
         }
     }.catch {
         emit(Result.failure(it))
