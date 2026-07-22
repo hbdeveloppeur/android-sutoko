@@ -103,6 +103,7 @@ class WebSocketDataSourceImpl(
                     return
                 }
 
+                try {
                 when (action) {
 
                     WebSocketMessageType.ERROR_CODE -> {
@@ -238,6 +239,9 @@ class WebSocketDataSourceImpl(
                     WebSocketMessageType.AUTHENTICATION_FAILURE -> {
                         trySend(WebSocketMessage.AuthenticateFailure)
                     }
+                }
+                } catch (e: Exception) {
+                    e.printStackTrace()
                 }
             }
 

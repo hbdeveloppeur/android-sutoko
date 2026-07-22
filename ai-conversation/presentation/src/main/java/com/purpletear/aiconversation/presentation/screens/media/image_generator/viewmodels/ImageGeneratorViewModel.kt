@@ -106,7 +106,7 @@ class ImageGeneratorViewModel @Inject constructor(
     }
 
     private suspend fun getUserAccountState(wait: Long = 1280L) {
-        val user = userRepository.observeUser().first() ?: throw IllegalStateException()
+        val user = userRepository.observeUser().first() ?: return
 
         _isCoinsLoading.value = true
         executeFlowResultUseCase({
@@ -137,7 +137,11 @@ class ImageGeneratorViewModel @Inject constructor(
         }
 
         viewModelScope.launch {
-            val user = userRepository.observeUser().first() ?: throw IllegalStateException()
+            val user = userRepository.observeUser().first()
+            if (user == null) {
+                onUserNotConnected()
+                return@launch
+            }
             executeFlowResultUseCase({
                 generateImageFromPromptUseCase(
                     userId = user.id,

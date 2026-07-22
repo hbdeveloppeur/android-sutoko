@@ -233,7 +233,6 @@ class AiConversationHomeViewModel @Inject constructor(
         } catch (e: NoSuchElementException) {
             Log.e("AiConversationHomeViewModel", e.toString())
         }
-        _selectedCharacter.value = _characters.value.first { it.id == id }
     }
 
     fun onClickElement(code: String) {

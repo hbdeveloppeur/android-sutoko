@@ -34,6 +34,6 @@ class NewCharacterMessageHandlerImpl(
 
     fun getRemoteAssetsUrl(url: String): String {
         if (url.contains("http") || url.contains(".com")) return url
-        return "${Server.urlPrefix()}/$url".replace("//", "/")
+        return "${Server.urlPrefix()}/${url.trimStart('/')}"
     }
 }
