@@ -75,7 +75,7 @@ internal fun GamePreviewDescription(
             lineHeight = 18.sp,
             fontFamily = FontFamily(
                 Font(
-                    R.font.font_worksans_regular,
+                    R.font.shared_elements_font_worksans_regular,
                     FontWeight.Normal
                 )
             )
@@ -210,7 +210,7 @@ private fun AnnotatedText(
         textAlign = TextAlign.Justify,
         fontFamily = FontFamily(
             Font(
-                R.font.font_worksans_regular,
+                R.font.shared_elements_font_worksans_regular,
                 FontWeight.Normal
             )
         ),
@@ -233,7 +233,7 @@ private fun buildColoredAnnotatedString(
                             color = color,
                             fontFamily = FontFamily(
                                 Font(
-                                    R.font.font_worksans_semibold,
+                                    R.font.shared_elements_font_worksans_semibold,
                                     FontWeight.SemiBold
                                 )
                             )

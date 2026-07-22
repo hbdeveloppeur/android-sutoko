@@ -58,7 +58,7 @@ private fun Preview() {
 @Composable
 internal fun ChatFooter(
     onClickSend: () -> Unit = {},
-    sendContentDescription: String = stringResource(R.string.chat_footer_send_description),
+    sendContentDescription: String = stringResource(R.string.game_presentation_chat_footer_send_description),
 ) {
     Row(
         Modifier
@@ -68,7 +68,7 @@ internal fun ChatFooter(
             Modifier.weight(1f)
         )
         ChatFooterButton(
-            icon = R.drawable.ic_send_white,
+            icon = R.drawable.game_presentation_ic_send_white,
             size = 16.dp,
             transformX = 5f,
             onClick = onClickSend,
@@ -80,7 +80,7 @@ internal fun ChatFooter(
 @Composable
 internal fun MessageBox(
     modifier: Modifier = Modifier,
-    placeholder: String = stringResource(R.string.chat_footer_placeholder),
+    placeholder: String = stringResource(R.string.game_presentation_chat_footer_placeholder),
     onClick: () -> Unit = {}
 ) {
     val shape = RoundedCornerShape(percent = 50)

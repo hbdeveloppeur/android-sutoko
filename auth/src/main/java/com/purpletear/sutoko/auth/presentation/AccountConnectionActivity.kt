@@ -9,7 +9,7 @@ import androidx.lifecycle.lifecycleScope
 import com.example.sharedelements.Data
 import com.purpletear.sutoko.auth.R
 import com.purpletear.sutoko.auth.data.UserHelper
-import com.purpletear.sutoko.auth.databinding.ActivityAccountConnectionBinding
+import com.purpletear.sutoko.auth.databinding.AuthActivityAccountConnectionBinding
 import com.purpletear.sutoko.auth.domain.AccountFormHelper
 import com.purpletear.sutoko.domain.repository.UserRepository
 import dagger.hilt.android.AndroidEntryPoint
@@ -19,7 +19,7 @@ import javax.inject.Inject
 
 @AndroidEntryPoint
 class AccountConnectionActivity : AppCompatActivity(), AccountConnectionCallBack {
-    lateinit var binding: ActivityAccountConnectionBinding
+    lateinit var binding: AuthActivityAccountConnectionBinding
     private lateinit var model: AccountConnectionActivityModel
 
     @Inject
@@ -28,7 +28,7 @@ class AccountConnectionActivity : AppCompatActivity(), AccountConnectionCallBack
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        binding = ActivityAccountConnectionBinding.inflate(layoutInflater)
+        binding = AuthActivityAccountConnectionBinding.inflate(layoutInflater)
         model = AccountConnectionActivityModel(this)
         setContentView(binding.root)
         this.model.fillForm(this)

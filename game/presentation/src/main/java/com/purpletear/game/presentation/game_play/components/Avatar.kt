@@ -36,7 +36,7 @@ private fun Preview() {
         Box(Modifier.padding(start = 14.dp)) {
             Avatar(
                 size = 24.dp,
-                imageModel = R.drawable.tmp_avatar
+                imageModel = R.drawable.game_presentation_tmp_avatar
             )
         }
     }
@@ -49,7 +49,7 @@ internal fun Avatar(
     borderWidth: Dp = 1.dp,
     borderColor: Color = Color.White,
     imageModel: Any?,
-    @DrawableRes fallbackDrawable: Int = R.drawable.tmp_avatar
+    @DrawableRes fallbackDrawable: Int = R.drawable.game_presentation_tmp_avatar
 ) {
     val shape = CircleShape
     Box(

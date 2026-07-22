@@ -15,7 +15,7 @@ import com.bumptech.glide.RequestManager
 import com.purpletear.sutoko.auth.presentation.AccountConnectionActivity
 import com.purpletear.sutoko.auth.presentation.AccountConnectionActivityModel
 import com.purpletear.sutoko.shop.R
-import com.purpletear.sutoko.shop.databinding.ActivityShopFixedBinding
+import com.purpletear.sutoko.shop.databinding.ShopActivityShopFixedBinding
 import com.purpletear.sutoko.shop.domain.repository.model.CoinsPackType
 import com.purpletear.sutoko.shop.domain.repository.model.ShopPack
 import dagger.hilt.android.AndroidEntryPoint
@@ -24,7 +24,7 @@ import purpletear.fr.purpleteartools.FingerV2
 
 @AndroidEntryPoint
 class ShopActivity : AppCompatActivity() {
-    lateinit var binding: ActivityShopFixedBinding
+    lateinit var binding: ShopActivityShopFixedBinding
     private lateinit var requestManager: RequestManager
 
     private val viewModel: ShopViewModel by viewModels()

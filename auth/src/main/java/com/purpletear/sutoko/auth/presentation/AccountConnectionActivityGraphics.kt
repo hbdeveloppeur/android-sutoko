@@ -9,13 +9,13 @@ import androidx.core.view.updateLayoutParams
 import com.bumptech.glide.RequestManager
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions.withCrossFade
 import com.purpletear.sutoko.auth.R
-import com.purpletear.sutoko.auth.databinding.ActivityAccountConnectionBinding
+import com.purpletear.sutoko.auth.databinding.AuthActivityAccountConnectionBinding
 import com.example.sharedelements.R as SharedElementsR
 
 object AccountConnectionActivityGraphics {
 
     fun setImages(activity: AccountConnectionActivity, requestManager: RequestManager) {
-        requestManager.load(R.drawable.ic_logo_white).transition(withCrossFade())
+        requestManager.load(R.drawable.auth_ic_logo_white).transition(withCrossFade())
             .into(activity.binding.sutokoAccountConnectionImageLogo)
         requestManager.load(SharedElementsR.drawable.shared_elements_sutoko_account_creation_header_background)
             .transition(withCrossFade())
@@ -75,33 +75,33 @@ object AccountConnectionActivityGraphics {
         var subtitle: Int? = null
         when (page) {
             AccountConnectionActivityModel.Page.SIGNIN -> {
-                title = R.string.sutoko_connection_page_signin_title
-                subtitle = R.string.sutoko_connection_page_signin_subtitle
+                title = R.string.auth_sutoko_connection_page_signin_title
+                subtitle = R.string.auth_sutoko_connection_page_signin_subtitle
             }
 
             AccountConnectionActivityModel.Page.REGISTER -> {
-                title = R.string.sutoko_connection_page_register_title
-                subtitle = R.string.sutoko_connection_page_signin_subtitle
+                title = R.string.auth_sutoko_connection_page_register_title
+                subtitle = R.string.auth_sutoko_connection_page_signin_subtitle
             }
 
             AccountConnectionActivityModel.Page.VALIDATE_MAIL_WAITING -> {
-                title = R.string.sutoko_connection_page_sent_mail_title
-                subtitle = R.string.sutoko_connection_page_sent_mail_subtitle
+                title = R.string.auth_sutoko_connection_page_sent_mail_title
+                subtitle = R.string.auth_sutoko_connection_page_sent_mail_subtitle
             }
 
             AccountConnectionActivityModel.Page.VALIDATE_MAIL_SUCCESS -> {
-                title = R.string.sutoko_connection_page_register_title
-                subtitle = R.string.sutoko_connection_page_sent_mail_success_subtitle
+                title = R.string.auth_sutoko_connection_page_register_title
+                subtitle = R.string.auth_sutoko_connection_page_sent_mail_success_subtitle
             }
 
             AccountConnectionActivityModel.Page.FORGOT_PASSWORD_MAIL_SENT -> {
-                title = R.string.sutoko_connection_page_forgot_pwd_title
-                subtitle = R.string.sutoko_connection_page_sent_mail_subtitle
+                title = R.string.auth_sutoko_connection_page_forgot_pwd_title
+                subtitle = R.string.auth_sutoko_connection_page_sent_mail_subtitle
             }
 
             AccountConnectionActivityModel.Page.FORGOT_PASSWORD -> {
-                title = R.string.sutoko_connection_page_forgot_pwd_title
-                subtitle = R.string.sutoko_connection_page_forgot_pwd_subtitle
+                title = R.string.auth_sutoko_connection_page_forgot_pwd_title
+                subtitle = R.string.auth_sutoko_connection_page_forgot_pwd_subtitle
             }
         }
         activity.binding.sutokoAccountConnectionTitle.text =
@@ -139,32 +139,32 @@ object AccountConnectionActivityGraphics {
         var backgroundAlpha = 1f
         when (page) {
             AccountConnectionActivityModel.Page.SIGNIN -> {
-                text = R.string.sutoko_connection_page_signin_button_text
+                text = R.string.auth_sutoko_connection_page_signin_button_text
                 backgroundAlpha = 1f
             }
 
             AccountConnectionActivityModel.Page.REGISTER -> {
-                text = R.string.sutoko_connection_page_register_button_text
+                text = R.string.auth_sutoko_connection_page_register_button_text
                 backgroundAlpha = 1f
             }
 
             AccountConnectionActivityModel.Page.VALIDATE_MAIL_WAITING -> {
-                text = R.string.sutoko_connection_page_sent_button_text
+                text = R.string.auth_sutoko_connection_page_sent_button_text
                 backgroundAlpha = 0.3f
             }
 
             AccountConnectionActivityModel.Page.VALIDATE_MAIL_SUCCESS -> {
-                text = R.string.sutoko_connection_page_sent_mail_success_button_text
+                text = R.string.auth_sutoko_connection_page_sent_mail_success_button_text
                 backgroundAlpha = 1f
             }
 
             AccountConnectionActivityModel.Page.FORGOT_PASSWORD -> {
-                text = R.string.sutoko_connection_page_forgot_pwd_button_text
+                text = R.string.auth_sutoko_connection_page_forgot_pwd_button_text
                 backgroundAlpha = 1f
             }
 
             AccountConnectionActivityModel.Page.FORGOT_PASSWORD_MAIL_SENT -> {
-                text = R.string.sutoko_connection_page_signin_button_text
+                text = R.string.auth_sutoko_connection_page_signin_button_text
                 backgroundAlpha = 1f
             }
         }
@@ -217,13 +217,13 @@ object AccountConnectionActivityGraphics {
     }
 
     private fun startMailValidatedAnimation(activity: AccountConnectionActivity) {
-        activity.binding.sutokoAccountConnectionMailConfirmationAnimation.setAnimation(R.raw.email_confirmation_sent)
+        activity.binding.sutokoAccountConnectionMailConfirmationAnimation.setAnimation(R.raw.auth_email_confirmation_sent)
         activity.binding.sutokoAccountConnectionMailConfirmationAnimation.setMinFrame(123)
         activity.binding.sutokoAccountConnectionMailConfirmationAnimation.setMaxFrame(266)
         activity.binding.sutokoAccountConnectionMailConfirmationAnimation.playAnimation()
     }
 
-    fun setFilterVisibility(binding: ActivityAccountConnectionBinding, isVisible: Boolean) {
+    fun setFilterVisibility(binding: AuthActivityAccountConnectionBinding, isVisible: Boolean) {
         binding.sutokoAccountConnectionFilter.visibility =
             if (isVisible) View.VISIBLE else View.INVISIBLE
     }
@@ -237,18 +237,18 @@ object AccountConnectionActivityGraphics {
         var subtitle: Int? = null
         when (page) {
             AccountConnectionActivityModel.Page.VALIDATE_MAIL_WAITING -> {
-                title = R.string.sutoko_connection_page_mail_validated_waiting_title
-                subtitle = R.string.sutoko_connection_page_mail_validated_waiting_subtitle
+                title = R.string.auth_sutoko_connection_page_mail_validated_waiting_title
+                subtitle = R.string.auth_sutoko_connection_page_mail_validated_waiting_subtitle
             }
 
             AccountConnectionActivityModel.Page.VALIDATE_MAIL_SUCCESS -> {
-                title = R.string.sutoko_connection_page_mail_validated_success_title
-                subtitle = R.string.sutoko_connection_page_mail_validated_success_subtitle
+                title = R.string.auth_sutoko_connection_page_mail_validated_success_title
+                subtitle = R.string.auth_sutoko_connection_page_mail_validated_success_subtitle
             }
 
             AccountConnectionActivityModel.Page.FORGOT_PASSWORD_MAIL_SENT -> {
-                title = R.string.sutoko_connection_page_forgot_mail_sent_title
-                subtitle = R.string.sutoko_connection_page_forgot_mail_sent_subtitle
+                title = R.string.auth_sutoko_connection_page_forgot_mail_sent_title
+                subtitle = R.string.auth_sutoko_connection_page_forgot_mail_sent_subtitle
             }
 
             else -> {
@@ -272,13 +272,13 @@ object AccountConnectionActivityGraphics {
         var text2: Int? = null
         when (page) {
             AccountConnectionActivityModel.Page.SIGNIN -> {
-                text0 = R.string.sutoko_connection_page_button_cta_forgot
-                text2 = R.string.sutoko_connection_page_button_cta_register
+                text0 = R.string.auth_sutoko_connection_page_button_cta_forgot
+                text2 = R.string.auth_sutoko_connection_page_button_cta_register
             }
 
             AccountConnectionActivityModel.Page.REGISTER -> {
                 text0 = null
-                text2 = R.string.sutoko_connection_page_button_cta_signin
+                text2 = R.string.auth_sutoko_connection_page_button_cta_signin
             }
 
             AccountConnectionActivityModel.Page.VALIDATE_MAIL_WAITING -> {
@@ -293,7 +293,7 @@ object AccountConnectionActivityGraphics {
 
             AccountConnectionActivityModel.Page.FORGOT_PASSWORD -> {
                 text0 = null
-                text2 = R.string.sutoko_connection_page_button_cta_signin
+                text2 = R.string.auth_sutoko_connection_page_button_cta_signin
             }
 
             else -> {}

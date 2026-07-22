@@ -24,8 +24,8 @@ import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.target.Target
 import com.example.sharedelements.SutokoSharedElementsData
 import com.purpletear.sutoko.shop.R
-import com.purpletear.sutoko.shop.databinding.ActivityShopFixedBinding
-import com.purpletear.sutoko.shop.databinding.LayoutShopBuyValidationBinding
+import com.purpletear.sutoko.shop.databinding.ShopActivityShopFixedBinding
+import com.purpletear.sutoko.shop.databinding.ShopLayoutShopBuyValidationBinding
 import com.purpletear.sutoko.shop.domain.model.PackItem
 import com.purpletear.sutoko.shop.domain.repository.model.CoinsPackType
 import com.purpletear.sutoko.shop.domain.repository.model.ShopPack
@@ -38,7 +38,7 @@ object ShopActivityGraphics {
 
     fun setBackground(
         activity: Activity,
-        binding: ActivityShopFixedBinding,
+        binding: ShopActivityShopFixedBinding,
         requestManager: RequestManager
     ) {
         val ratio = "600:1072"
@@ -58,7 +58,7 @@ object ShopActivityGraphics {
     }
 
     fun setDiamondsAndCoins(
-        binding: ActivityShopFixedBinding,
+        binding: ShopActivityShopFixedBinding,
         diamonds: Int,
         coins: Int,
     ) {
@@ -66,7 +66,7 @@ object ShopActivityGraphics {
         binding.sutokoDiamonds.text = diamonds.toString()
     }
 
-    fun setHeaderState(binding: ActivityShopFixedBinding, state: ShopHeaderState) {
+    fun setHeaderState(binding: ShopActivityShopFixedBinding, state: ShopHeaderState) {
         when (state) {
             ShopHeaderState.Disconnected -> {
                 binding.sutokoShopSignInButton.visibility = View.VISIBLE
@@ -88,7 +88,7 @@ object ShopActivityGraphics {
 
     fun setUnlockItemPageVisibility(
         activity: Activity,
-        binding: ActivityShopFixedBinding,
+        binding: ShopActivityShopFixedBinding,
         isVisible: Boolean
     ) {
         if (!isVisible) {
@@ -104,14 +104,14 @@ object ShopActivityGraphics {
     }
 
     private fun setUnlockCoinsInformationVisibility(
-        binding: LayoutShopBuyValidationBinding,
+        binding: ShopLayoutShopBuyValidationBinding,
         isVisible: Boolean
     ) {
         binding.sutokoCoinsInformation.visibility = if (isVisible) View.VISIBLE else View.GONE
     }
 
     fun setUnlockItemDesign(
-        context: Context, binding: LayoutShopBuyValidationBinding,
+        context: Context, binding: ShopLayoutShopBuyValidationBinding,
         requestManager: RequestManager,
         isUserConnected: Boolean,
         isPending: Boolean,
@@ -124,15 +124,15 @@ object ShopActivityGraphics {
 
         val image = when (shopPack.type) {
             CoinsPackType.Low -> {
-                R.drawable.sutoko_shop_item_bag
+                R.drawable.shop_sutoko_shop_item_bag
             }
 
             CoinsPackType.Medium -> {
-                R.drawable.sutoko_shop_item_chest
+                R.drawable.shop_sutoko_shop_item_chest
             }
 
             CoinsPackType.High -> {
-                R.drawable.sutoko_shop_item_chest2
+                R.drawable.shop_sutoko_shop_item_chest2
             }
 
             else -> {
@@ -166,29 +166,29 @@ object ShopActivityGraphics {
             })
             .into(binding.sutokoShopBuyValidationItemImage)
         if (isPending) {
-            binding.title.text = context.getText(R.string.sutoko_shop_unlock_item_pending_title)
+            binding.title.text = context.getText(R.string.shop_sutoko_shop_unlock_item_pending_title)
             binding.packName.text =
-                context.getText(R.string.sutoko_shop_unlock_item_pending_title_subtitle)
+                context.getText(R.string.shop_sutoko_shop_unlock_item_pending_title_subtitle)
             binding.sutokoAuthWarning.text =
-                context.getText(R.string.sutoko_shop_unlock_item_pending_title_description)
+                context.getText(R.string.shop_sutoko_shop_unlock_item_pending_title_description)
             return
 
         } else {
             binding.sutokoAuthWarning.visibility = if (isUserConnected) View.GONE else View.VISIBLE
             binding.packName.text = context.getString(
                 if (shopPack.sku.contains("premium")) {
-                    R.string.sutoko_shop_unlock_item_title_premium
+                    R.string.shop_sutoko_shop_unlock_item_title_premium
                 } else {
-                    R.string.sutoko_shop_unlock_item_title_pack
+                    R.string.shop_sutoko_shop_unlock_item_title_pack
                 }
             )
 
         }
 
-        requestManager.load(R.drawable.sutoko_item_coin)
+        requestManager.load(R.drawable.shop_sutoko_item_coin)
             .into(binding.sutokoCoinsImage)
 
-        requestManager.load(R.drawable.sutoko_ic_diamond)
+        requestManager.load(R.drawable.shop_sutoko_ic_diamond)
             .into(binding.sutokoDiamondsImage)
 
         requestManager.load(SharedElementsR.drawable.shared_elements_sutoko_account_creation_header_background)
@@ -198,7 +198,7 @@ object ShopActivityGraphics {
 
     fun animateUnlockItem(
         activity: Activity,
-        binding: LayoutShopBuyValidationBinding,
+        binding: ShopLayoutShopBuyValidationBinding,
         coins: Int,
         diamonds: Int
     ) {
@@ -213,22 +213,22 @@ object ShopActivityGraphics {
     }
 
 
-    fun setImages(binding: ActivityShopFixedBinding, requestManager: RequestManager) {
+    fun setImages(binding: ShopActivityShopFixedBinding, requestManager: RequestManager) {
         val map = mapOf<ImageView, Int>(
             // Coins card.
-            binding.sutokoShopCard1.sutokoCoinsCardImageItem to R.drawable.sutoko_shop_item_bag,
-            binding.sutokoShopCard2.sutokoCoinsCardImageItem to R.drawable.sutoko_shop_item_chest,
-            binding.sutokoShopCard1.sutokoCoinsCardCoinImage to R.drawable.sutoko_item_coin,
-            binding.sutokoShopCard1.sutokoCoinsCardDiamondImage to R.drawable.sutoko_ic_diamond,
-            binding.sutokoShopCard2.sutokoCoinsCardCoinImage to R.drawable.sutoko_item_coin,
-            binding.sutokoShopCard2.sutokoCoinsCardDiamondImage to R.drawable.sutoko_ic_diamond,
-            binding.sutokoShopCard2.sutokoCoinsCardStarsImage to R.drawable.ic_stars_multi,
+            binding.sutokoShopCard1.sutokoCoinsCardImageItem to R.drawable.shop_sutoko_shop_item_bag,
+            binding.sutokoShopCard2.sutokoCoinsCardImageItem to R.drawable.shop_sutoko_shop_item_chest,
+            binding.sutokoShopCard1.sutokoCoinsCardCoinImage to R.drawable.shop_sutoko_item_coin,
+            binding.sutokoShopCard1.sutokoCoinsCardDiamondImage to R.drawable.shop_sutoko_ic_diamond,
+            binding.sutokoShopCard2.sutokoCoinsCardCoinImage to R.drawable.shop_sutoko_item_coin,
+            binding.sutokoShopCard2.sutokoCoinsCardDiamondImage to R.drawable.shop_sutoko_ic_diamond,
+            binding.sutokoShopCard2.sutokoCoinsCardStarsImage to R.drawable.shop_ic_stars_multi,
 
             // Treasure
-            binding.sutokoShopCard3.sutokoCoinsCardLargeBackgroundImage to R.drawable.sutoko_shop_item_mega_background,
-            binding.sutokoShopCard3.sutokoCoinsCardLargeItemImage to R.drawable.sutoko_shop_item_chest2,
-            binding.sutokoShopCard3.sutokoCoinsCardLargeGainInfoCoinsImage to R.drawable.sutoko_item_coin,
-            binding.sutokoShopCard3.sutokoCoinsCardLargeGainInfoDiamondImage to R.drawable.sutoko_ic_diamond,
+            binding.sutokoShopCard3.sutokoCoinsCardLargeBackgroundImage to R.drawable.shop_sutoko_shop_item_mega_background,
+            binding.sutokoShopCard3.sutokoCoinsCardLargeItemImage to R.drawable.shop_sutoko_shop_item_chest2,
+            binding.sutokoShopCard3.sutokoCoinsCardLargeGainInfoCoinsImage to R.drawable.shop_sutoko_item_coin,
+            binding.sutokoShopCard3.sutokoCoinsCardLargeGainInfoDiamondImage to R.drawable.shop_sutoko_ic_diamond,
         )
         map.forEach { (view, id) ->
             requestManager.load(id)
@@ -237,7 +237,7 @@ object ShopActivityGraphics {
     }
 
 
-    fun setCardsBalances(binding: ActivityShopFixedBinding, packs: List<PackItem>) {
+    fun setCardsBalances(binding: ShopActivityShopFixedBinding, packs: List<PackItem>) {
         if (packs.isEmpty()) {
             return
         }
@@ -290,7 +290,7 @@ object ShopActivityGraphics {
     }
 
     private fun setUnlockItemDiamondsAndCoins(
-        binding: LayoutShopBuyValidationBinding,
+        binding: ShopLayoutShopBuyValidationBinding,
         diamonds: Int,
         coins: Int
     ) {
@@ -299,7 +299,7 @@ object ShopActivityGraphics {
     }
 
 
-    fun setFakeStatusBarSize(activity: Activity, binding: ActivityShopFixedBinding) {
+    fun setFakeStatusBarSize(activity: Activity, binding: ShopActivityShopFixedBinding) {
         val statusBar = SutokoSharedElementsData.getStatusBarHeight(activity)
         val extra = Std.dpToPx(26f, activity.resources)
         (binding.root as MotionLayout).getConstraintSet(R.id.start)?.let { startConstraintSet ->
@@ -320,7 +320,7 @@ object ShopActivityGraphics {
         }
     }
 
-    fun setMaxContentHeight(activity: Activity, binding: ActivityShopFixedBinding) {
+    fun setMaxContentHeight(activity: Activity, binding: ShopActivityShopFixedBinding) {
         val statusBar = SutokoSharedElementsData.getStatusBarHeight(activity)
 
         binding.sutokoShopScrollview.post {
@@ -346,7 +346,7 @@ object ShopActivityGraphics {
     }
 
 
-    fun setHeaderFading(binding: ActivityShopFixedBinding) {
+    fun setHeaderFading(binding: ShopActivityShopFixedBinding) {
         (binding.root as MotionLayout).getConstraintSet(R.id.start)?.let { startConstraintSet ->
             // You can set the width and height here as well
             startConstraintSet.setAlpha(R.id.sutoko_shop_subtitle, 1f)
@@ -362,7 +362,7 @@ object ShopActivityGraphics {
         }
     }
 
-    fun setUserPointsStickScrollViewsTop(binding: ActivityShopFixedBinding) {
+    fun setUserPointsStickScrollViewsTop(binding: ShopActivityShopFixedBinding) {
         (binding.root as MotionLayout).getConstraintSet(R.id.start)?.let { constraint ->
             constraint.setAlpha(R.id.sutoko_coins_information, 1f)
         }
@@ -374,7 +374,7 @@ object ShopActivityGraphics {
     }
 
     fun setProductsInfo(
-        binding: ActivityShopFixedBinding,
+        binding: ShopActivityShopFixedBinding,
         packsItems: List<PackItem>,
     ) {
         fun bind(cardRoot: View, button: TextView, type: CoinsPackType) {
@@ -404,7 +404,7 @@ object ShopActivityGraphics {
 
     fun headerShouldDisappear(
         activity: Activity,
-        binding: ActivityShopFixedBinding,
+        binding: ShopActivityShopFixedBinding,
         onCompletion: (Boolean) -> Unit
     ) {
         binding.sutokoShopSubtitle.post {
@@ -432,7 +432,7 @@ object ShopActivityGraphics {
 
     fun pointsInfoConstraintShouldStickToScrollView(
         activity: Activity,
-        binding: ActivityShopFixedBinding,
+        binding: ShopActivityShopFixedBinding,
         onCompletion: (Boolean) -> Unit
     ) {
         binding.sutokoShopSubtitle.post {

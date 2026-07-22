@@ -55,8 +55,8 @@ internal fun GameActionState?.toButtonsState(
         left = restartLeftButton(chapterNumber, onAction),
         right = primaryRightButton(
             onAction = onAction,
-            title = StringResource(R.string.game_menu_play),
-            subtitle = StringResource(R.string.game_menu_chapter_number, chapterNumber),
+            title = StringResource(R.string.game_presentation_game_menu_play),
+            subtitle = StringResource(R.string.game_presentation_game_menu_chapter_number, chapterNumber),
             action = GamePreviewAction.OnPlay,
             isEnabled = isChapterAvailable,
         ),
@@ -66,8 +66,8 @@ internal fun GameActionState?.toButtonsState(
         left = deleteLeftButton(onAction),
         right = primaryRightButton(
             onAction = onAction,
-            title = StringResource(R.string.game_menu_restart),
-            subtitle = StringResource(R.string.game_menu_game_finished),
+            title = StringResource(R.string.game_presentation_game_menu_restart),
+            subtitle = StringResource(R.string.game_presentation_game_menu_game_finished),
             action = GamePreviewAction.OnRestart,
         ),
     )
@@ -76,8 +76,8 @@ internal fun GameActionState?.toButtonsState(
         left = deleteLeftButton(onAction),
         right = primaryRightButton(
             onAction = onAction,
-            title = StringResource(R.string.game_menu_play),
-            subtitle = StringResource(R.string.game_menu_app_update_required),
+            title = StringResource(R.string.game_presentation_game_menu_play),
+            subtitle = StringResource(R.string.game_presentation_game_menu_app_update_required),
             action = GamePreviewAction.OnUpdateApp,
             isEnabled = false,
         ),
@@ -87,8 +87,8 @@ internal fun GameActionState?.toButtonsState(
         left = deleteLeftButton(onAction),
         right = primaryRightButton(
             onAction = onAction,
-            title = StringResource(R.string.game_menu_update_game),
-            subtitle = StringResource(R.string.game_menu_game_update_required),
+            title = StringResource(R.string.game_presentation_game_menu_update_game),
+            subtitle = StringResource(R.string.game_presentation_game_menu_game_update_required),
             action = GamePreviewAction.OnUpdateGame,
         ),
     )
@@ -103,8 +103,8 @@ internal fun GameActionState?.toButtonsState(
         ),
         right = ButtonUiState(
             weight = 8f,
-            title = StringResource(R.string.game_menu_confirm_order),
-            subtitle = StringResource(R.string.game_menu_coins, this.price),
+            title = StringResource(R.string.game_presentation_game_menu_confirm_order),
+            subtitle = StringResource(R.string.game_presentation_game_menu_coins, this.price),
             backgroundColor = InfoBlue,
             isLoading = isLoading,
             onClick = { onAction(GamePreviewAction.OnBuyConfirm) },
@@ -114,8 +114,8 @@ internal fun GameActionState?.toButtonsState(
     is GameActionState.Download -> GameButtonsState(
         right = infoRightButton(
             onAction = onAction,
-            title = R.string.game_menu_download_game,
-            subtitle = R.string.game_menu_download_size,
+            title = R.string.game_presentation_game_menu_download_game,
+            subtitle = R.string.game_presentation_game_menu_download_size,
             action = GamePreviewAction.OnDownload,
         ),
     )
@@ -123,8 +123,8 @@ internal fun GameActionState?.toButtonsState(
     is GameActionState.Downloading -> GameButtonsState(
         right = ButtonUiState(
             weight = 1f,
-            title = StringResource(R.string.game_menu_downloading),
-            subtitle = StringResource(R.string.game_menu_download_progress_percent, progress.toInt()),
+            title = StringResource(R.string.game_presentation_game_menu_downloading),
+            subtitle = StringResource(R.string.game_presentation_game_menu_download_progress_percent, progress.toInt()),
             backgroundColor = InfoBlue,
         ),
     )
@@ -138,11 +138,11 @@ internal fun GameActionState?.toButtonsState(
         },
         right = primaryRightButton(
             onAction = onAction,
-            title = StringResource(R.string.game_menu_buy),
+            title = StringResource(R.string.game_presentation_game_menu_buy),
             subtitle = if (isUserConnected) {
-                StringResource(R.string.game_menu_coins, price)
+                StringResource(R.string.game_presentation_game_menu_coins, price)
             } else {
-                StringResource(R.string.game_menu_connect_to_buy)
+                StringResource(R.string.game_presentation_game_menu_connect_to_buy)
             },
             action = GamePreviewAction.OnBuy,
             weight = if (showTry) 1f else RIGHT_BUTTON_WEIGHT,
@@ -152,8 +152,8 @@ internal fun GameActionState?.toButtonsState(
     is GameActionState.Pending -> GameButtonsState(
         right = infoRightButton(
             onAction = onAction,
-            title = R.string.game_menu_pending,
-            subtitle = R.string.game_menu_pending_subtitle,
+            title = R.string.game_presentation_game_menu_pending,
+            subtitle = R.string.game_presentation_game_menu_pending_subtitle,
         ),
     )
 }
@@ -161,7 +161,7 @@ internal fun GameActionState?.toButtonsState(
 private fun deleteLeftButton(
     onAction: (GamePreviewAction) -> Unit,
 ): ButtonUiState = ButtonUiState(
-    title = StringResource(R.string.game_menu_delete),
+    title = StringResource(R.string.game_presentation_game_menu_delete),
     weight = LEFT_BUTTON_WEIGHT,
     backgroundColor = LeftButtonBackground,
     onClick = { onAction(GamePreviewAction.OnDelete) },
@@ -174,7 +174,7 @@ private fun restartLeftButton(
     hiddenButton()
 } else {
     ButtonUiState(
-        title = StringResource(R.string.game_menu_restart),
+        title = StringResource(R.string.game_presentation_game_menu_restart),
         weight = LEFT_BUTTON_WEIGHT,
         backgroundColor = LeftButtonBackground,
         onClick = { onAction(GamePreviewAction.OnRestart) },
@@ -185,8 +185,8 @@ private fun tryFirstChapterLeftButton(
     onAction: (GamePreviewAction) -> Unit,
     weight: Float = LEFT_BUTTON_WEIGHT,
 ): ButtonUiState = ButtonUiState(
-    title = StringResource(R.string.game_menu_try_first_chapter),
-    subtitle = StringResource(R.string.game_menu_try_first_chapter_subtitle),
+    title = StringResource(R.string.game_presentation_game_menu_try_first_chapter),
+    subtitle = StringResource(R.string.game_presentation_game_menu_try_first_chapter_subtitle),
     weight = weight,
     backgroundColor = LeftButtonBackground,
     onClick = { onAction(GamePreviewAction.OnTry) },
