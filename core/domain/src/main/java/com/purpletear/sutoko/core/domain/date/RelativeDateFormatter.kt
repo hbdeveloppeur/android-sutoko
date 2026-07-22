@@ -21,11 +21,11 @@ object RelativeDateFormatter {
 
         val text = when {
             diffDays < 0 -> formatAbsoluteDate(targetMillis, Locale.getDefault())
-            diffDays == 0 -> context.getString(CoreR.string.date_relative_today)
-            diffDays == 1 -> context.getString(CoreR.string.date_relative_tomorrow)
-            diffDays == 2 -> context.getString(CoreR.string.date_relative_day_after_tomorrow)
+            diffDays == 0 -> context.getString(CoreR.string.core_domain_date_relative_today)
+            diffDays == 1 -> context.getString(CoreR.string.core_domain_date_relative_tomorrow)
+            diffDays == 2 -> context.getString(CoreR.string.core_domain_date_relative_day_after_tomorrow)
             diffDays in 3..6 -> context.resources.getQuantityString(
-                CoreR.plurals.date_relative_in_days,
+                CoreR.plurals.core_domain_date_relative_in_days,
                 diffDays,
                 diffDays
             )
