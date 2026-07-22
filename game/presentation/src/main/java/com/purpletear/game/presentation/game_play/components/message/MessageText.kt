@@ -7,8 +7,10 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
@@ -234,7 +236,11 @@ private fun ClickableAvatar(
     character: Character,
     onAvatarClick: (imageModel: Any?, bounds: Rect) -> Unit,
 ) {
-    val avatarModel = character.avatar ?: return
+    val avatarModel = character.avatar
+    if (avatarModel == null) {
+        Spacer(Modifier.size(22.dp))
+        return
+    }
     var bounds by remember { mutableStateOf(Rect.Zero) }
     val clickableModifier = Modifier
         .onGloballyPositioned { bounds = it.boundsInWindow() }

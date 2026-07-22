@@ -5,9 +5,11 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -94,17 +96,18 @@ internal fun MessageImage(
                 contentScale = ContentScale.Crop,
             )
         }
+        val avatarColor = character.color.toWhitenedComposeColor(fraction = 0.7f)
+        val avatarModifier = Modifier.align(alignment)
         if (character.avatar != null) {
-            val avatarColor = character.color.toWhitenedComposeColor(fraction = 0.7f)
             Avatar(
-                modifier = Modifier
-                    .background(avatarColor, CircleShape)
-                    .align(alignment),
+                modifier = avatarModifier.background(avatarColor, CircleShape),
                 size = 26.dp,
                 borderWidth = 1.4.dp,
                 borderColor = avatarColor,
                 imageModel = character.avatar
             )
+        } else {
+            Spacer(avatarModifier.size(26.dp))
         }
     }
 }
