@@ -16,7 +16,6 @@ import com.purpletear.core.presentation.extensions.executeFlowUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 
-// TODO: WEAK
 @HiltViewModel
 class BuyTokensDialogViewModel @Inject constructor(
     private val savedStateHandle: SavedStateHandle,
