@@ -159,7 +159,9 @@ class AiConversationHomeViewModel @Inject constructor(
                 }
             }
         }, onFailure = {
-
+            Log.e("AiConversationHomeViewModel", "loadUserState failed", it)
+            // Fallback: allow play, the trial/coins gate is enforced server-side anyway.
+            _playabilityState.value = PlayabilityState.Playable
         })
     }
 

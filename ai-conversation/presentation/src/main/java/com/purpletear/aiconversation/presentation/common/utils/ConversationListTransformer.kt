@@ -27,9 +27,9 @@ fun conversationListTransformer(messages: List<Message>, index: Int, current: Me
                 next
             )) -> MessagePositionInGroup.PositionMiddle
 
-            (isGrouped(previous, current)) -> MessagePositionInGroup.PositionFirst
-            (isGrouped(current, next)) -> MessagePositionInGroup.PositionLast
-            else -> MessagePositionInGroup.PositionMiddle
+            (isGrouped(previous, current)) -> MessagePositionInGroup.PositionLast
+            (isGrouped(current, next)) -> MessagePositionInGroup.PositionFirst
+            else -> MessagePositionInGroup.PositionSingle
         }
     }
 

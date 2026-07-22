@@ -135,6 +135,7 @@ internal class SettingsScreenViewModel @Inject constructor(
                 _nextVersion.value = it.next
             },
             onFailure = {
+                _isRefreshing.value = false
                 Log.d("ConversationViewModel", "onFailure: ${it.message}")
             }
         )

@@ -121,7 +121,7 @@ class AddCharacterViewModel @Inject constructor(
     val selectedCharacterStyle: State<Style?>
         get() = _selectedCharacterStyle
 
-    private val _navigationEvents = MutableSharedFlow<NavigationEvent>(replay = 1)
+    private val _navigationEvents = MutableSharedFlow<NavigationEvent>(replay = 0)
     val navigationEvents: SharedFlow<NavigationEvent> = _navigationEvents
 
 

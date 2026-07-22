@@ -84,7 +84,7 @@ fun RecordButton(
     val density = LocalDensity.current
 
 
-    LaunchedEffect(size, density) {
+    LaunchedEffect(size.value, density) {
         val pxValue = with(density) { boxSize.toPx() }
         initialOffset.value = IntOffset(size.value.width.roundToInt() - pxValue.roundToInt(), 0)
         offsetX.snapTo(initialOffset.value.x.toFloat())

@@ -76,7 +76,7 @@ fun HomePlayButtonsComposable(
             subtitle = if (isUserConnected.value) {
                 stringResource(
                     R.string.ai_conversation_button_buy_coins_subtitle,
-                    viewModel.customerCoins.value ?: -1
+                    viewModel.customerCoins.value ?: 0
                 )
             } else {
                 stringResource(R.string.ai_conversation_you_are_not_connected)

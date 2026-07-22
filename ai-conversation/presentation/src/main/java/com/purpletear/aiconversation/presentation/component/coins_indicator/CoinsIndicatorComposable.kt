@@ -99,7 +99,7 @@ internal fun CoinsIndicatorComposable(
             )
         } else {
             Text(
-                text = amount.toString(),
+                text = amount?.toString() ?: "",
                 color = Color.White,
                 style = MaterialTheme.typography.labelSmall,
                 fontWeight = FontWeight.Bold,

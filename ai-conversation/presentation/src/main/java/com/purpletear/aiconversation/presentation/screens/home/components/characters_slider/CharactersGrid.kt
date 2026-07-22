@@ -150,7 +150,7 @@ internal fun CharactersGrid(
         val screenWidth = maxWidth
         val itemSize = 60.dp
         val spacing = 12.dp
-        val columns = (screenWidth / (itemSize + spacing)).toInt()
+        val columns = (screenWidth / (itemSize + spacing)).toInt().coerceAtLeast(1)
 
         Column(
             verticalArrangement = Arrangement.spacedBy(spacing)

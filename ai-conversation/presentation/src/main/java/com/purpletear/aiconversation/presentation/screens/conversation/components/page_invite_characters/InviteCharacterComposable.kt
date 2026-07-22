@@ -75,9 +75,11 @@ internal fun InviteCharacterComposable(
 ) {
     val shouldTriggerAction by viewModel.closeComposable.collectAsState()
 
-    if (shouldTriggerAction) {
-        conversationViewModel.closeInviteCharacterPage()
-        viewModel.resetCloseComposable()
+    LaunchedEffect(shouldTriggerAction) {
+        if (shouldTriggerAction) {
+            conversationViewModel.closeInviteCharacterPage()
+            viewModel.resetCloseComposable()
+        }
     }
 
     val lifecycleOwner = LocalLifecycleOwner.current

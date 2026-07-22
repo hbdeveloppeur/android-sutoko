@@ -3,6 +3,7 @@ package com.purpletear.aiconversation.presentation.screens.conversation.viewmode
 
 import android.util.Log
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.LiveData
@@ -64,10 +65,10 @@ class VoiceRecordViewModel @Inject constructor(
     private var timerJob: Job? = null
 
     private var _counter: MutableState<Int> = mutableIntStateOf(0)
-    val counter: MutableState<Int> = _counter
+    val counter: State<Int> = _counter
 
     private var _isRecording: MutableState<Boolean> = mutableStateOf(false)
-    val isRecording: MutableState<Boolean> = _isRecording
+    val isRecording: State<Boolean> = _isRecording
 
     init {
         aiCharacterId = savedStateHandle.get<Int>("character_id") ?: 1
