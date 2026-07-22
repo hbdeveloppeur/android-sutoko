@@ -150,9 +150,9 @@ fun NewsCard(
 @Composable
 private fun ButtonText(modifier: Modifier = Modifier, news: News, onClick: () -> Unit) {
     val buttonTextRes: Int? = when (news.action?.name) {
-        ActionName.OpenLink -> R.string.news_button_open
-        ActionName.OpenGame -> R.string.news_button_play
-        ActionName.OpenPage -> R.string.news_button_open
+        ActionName.OpenLink -> R.string.news_presentation_news_button_open
+        ActionName.OpenGame -> R.string.news_presentation_news_button_play
+        ActionName.OpenPage -> R.string.news_presentation_news_button_open
         null -> null
     }
     if (buttonTextRes == null) {
@@ -213,7 +213,7 @@ private fun NewsCardDate(modifier: Modifier = Modifier, date: Long) {
             contentAlignment = Alignment.Center,
         ) {
             Image(
-                painter = painterResource(id = R.drawable.news_calendar),
+                painter = painterResource(id = R.drawable.news_presentation_news_calendar),
                 contentDescription = null,
                 modifier = Modifier.size(14.dp),
             )
