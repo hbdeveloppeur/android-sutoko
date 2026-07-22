@@ -56,7 +56,7 @@ dependencies {
     implementation(project(":shared-elements"))
     implementation(project(":purchase"))
     implementation(project(":popup:domain"))
-    implementation(project(":Framework"))
+    implementation(project(":framework"))
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

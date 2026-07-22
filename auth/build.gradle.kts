@@ -53,7 +53,7 @@ dependencies {
     implementation(project(":core:domain"))
     implementation(project(":core:data"))
     implementation(project(":core:presentation"))
-    implementation(project(":Framework"))
+    implementation(project(":framework"))
 
     implementation(libs.androidx.ktx)
     implementation(libs.androidx.appcompat)

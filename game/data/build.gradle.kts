@@ -71,8 +71,7 @@ dependencies {
     testImplementation(libs.kotlinx.coroutines.test)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
-    implementation(libs.google.firebase.crashlytics.ktx)
-    implementation(platform("com.google.firebase:firebase-bom:31.2.1"))
+    implementation(platform(libs.firebase.bom))
     implementation(libs.google.firebase.analytics.ktx)
     implementation(libs.google.firebase.crashlytics.ktx)
 

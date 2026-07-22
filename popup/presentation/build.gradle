@@ -55,7 +55,7 @@ dependencies {
     implementation libs.coil.compose
     implementation libs.lottie.compose
 
-    implementation "androidx.compose.ui:ui:$compose_ui_version"
+    implementation libs.compose.ui
     implementation project(path: ':popup:domain')
     implementation project(path: ':shared-elements')
 

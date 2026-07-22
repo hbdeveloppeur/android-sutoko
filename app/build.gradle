@@ -124,7 +124,7 @@ android {
 dependencies {
     // Import the BoM for the Firebase platform
     implementation project(path: ':shared-elements')
-    implementation platform("com.google.firebase:firebase-bom:$firebase_bom_platform_version")
+    implementation platform(libs.firebase.bom)
     implementation("com.google.protobuf:protobuf-javalite") {
         version {
             strictly '3.21.7'
@@ -141,17 +141,14 @@ dependencies {
     implementation project(':ai-conversation:data')
     implementation project(':ai-conversation:core')
     implementation project(':auth')
-    implementation project(':auth')
     implementation project(':core:presentation')
     implementation project(':popup:data')
-    implementation project(':Framework')
+    implementation project(':framework')
     implementation project(':popup:presentation')
     implementation project(':game:domain')
     implementation project(':game:data')
     implementation project(':game:presentation')
-    implementation project(':core:presentation')
     implementation project(':core:android')
-    implementation project(':auth')
     implementation project(':shop')
     implementation project(':logger:data')
 

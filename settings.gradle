@@ -20,12 +20,11 @@ buildCache {
 }
 
 
-include ':app', ':friendzone1', ':friendzone2', ':friendzone3', ':friendzone4'
+include ':app'
 include ':shared-elements'
 
 
 include ':tools'
-include ':error:presentation'
 include ':alert:alert_presentation'
 include ':popup:domain'
 include ':games:friendzone1'
@@ -41,7 +40,7 @@ include ':ai-conversation:presentation'
 include ':auth'
 include ':core:presentation'
 include ':popup:data'
-include ':Framework'
+include ':framework'
 include ':permission:domain'
 include ':permission:data'
 include ':popup:presentation'
