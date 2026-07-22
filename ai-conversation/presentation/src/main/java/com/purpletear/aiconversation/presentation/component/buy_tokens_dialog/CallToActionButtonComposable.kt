@@ -188,7 +188,7 @@ fun CallToActionRowButtonComposable(
 
 @Composable
 private fun AnimationStarsExplode(modifier: Modifier) {
-    val composition by rememberLottieComposition(LottieCompositionSpec.RawRes(R.raw.animation_stars_explode))
+    val composition by rememberLottieComposition(LottieCompositionSpec.RawRes(R.raw.ai_conversation_presentation_animation_stars_explode))
     val progress by animateLottieCompositionAsState(
         composition,
         iterations = LottieConstants.IterateForever

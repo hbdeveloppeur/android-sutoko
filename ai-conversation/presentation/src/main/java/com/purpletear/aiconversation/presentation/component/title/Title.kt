@@ -24,12 +24,12 @@ internal fun Title(
     Column(modifier, verticalArrangement = Arrangement.spacedBy(10.dp)) {
         Text(
             buildColoredAnnotatedString(title), style = style, color = Color.White,
-            fontFamily = FontFamily(Font(R.font.montserrat_medium))
+            fontFamily = FontFamily(Font(R.font.ai_conversation_presentation_montserrat_medium))
         )
         subtitle?.let {
             Text(
                 subtitle, style = MaterialTheme.typography.labelSmall,
-                fontFamily = FontFamily(Font(R.font.montserrat_medium)),
+                fontFamily = FontFamily(Font(R.font.ai_conversation_presentation_montserrat_medium)),
                 color = Color.White,
             )
         }

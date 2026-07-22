@@ -37,7 +37,7 @@ private fun Preview() {
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Image(
-                painter = painterResource(id = R.drawable.preview_quoted_text),
+                painter = painterResource(id = R.drawable.ai_conversation_presentation_preview_quoted_text),
                 contentDescription = null,
             )
             QuotedTextComposable(

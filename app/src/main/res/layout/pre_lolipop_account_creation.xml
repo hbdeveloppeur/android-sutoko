@@ -287,8 +287,8 @@
             android:layout_height="wrap_content"
             android:textColorHint="#D7D7D7"
             android:hint="@string/auth_your_nickname"
-            android:theme="@style/TextInputLayoutStyle"
-            app:errorTextAppearance="@style/TextInputLayoutErrorAppearance">
+            android:theme="@style/auth_TextInputLayoutStyle"
+            app:errorTextAppearance="@style/auth_TextInputLayoutErrorAppearance">
 
 
             <com.google.android.material.textfield.TextInputEditText
@@ -320,8 +320,8 @@
             android:background="#00ffffff"
             android:hint="@string/auth_your_mail_address"
             android:textColorHint="#ACACAC"
-            android:theme="@style/TextInputLayoutStyle"
-            app:errorTextAppearance="@style/TextInputLayoutErrorAppearance">
+            android:theme="@style/auth_TextInputLayoutStyle"
+            app:errorTextAppearance="@style/auth_TextInputLayoutErrorAppearance">
 
 
             <com.google.android.material.textfield.TextInputEditText
@@ -350,8 +350,8 @@
             android:background="#00ffffff"
             android:textColorHint="#ACACAC"
             android:hint="@string/sutoko_form_birthday"
-            android:theme="@style/TextInputLayoutStyle"
-            app:errorTextAppearance="@style/TextInputLayoutErrorAppearance">
+            android:theme="@style/auth_TextInputLayoutStyle"
+            app:errorTextAppearance="@style/auth_TextInputLayoutErrorAppearance">
 
 
             <com.google.android.material.textfield.TextInputEditText
@@ -380,9 +380,9 @@
             android:layout_height="wrap_content"
             android:hint="@string/auth_your_password"
             android:textColorHint="#ACACAC"
-            android:theme="@style/TextInputLayoutStyle"
+            android:theme="@style/auth_TextInputLayoutStyle"
             app:endIconMode="password_toggle"
-            app:errorTextAppearance="@style/TextInputLayoutErrorAppearance">
+            app:errorTextAppearance="@style/auth_TextInputLayoutErrorAppearance">
 
 
             <com.google.android.material.textfield.TextInputEditText
@@ -411,10 +411,10 @@
             android:layout_height="wrap_content"
             android:hint="@string/auth_your_password"
             android:textColorHint="#ACACAC"
-            android:theme="@style/TextInputLayoutStyle"
+            android:theme="@style/auth_TextInputLayoutStyle"
             app:endIconMode="password_toggle"
             app:errorEnabled="true"
-            app:errorTextAppearance="@style/TextInputLayoutErrorAppearance">
+            app:errorTextAppearance="@style/auth_TextInputLayoutErrorAppearance">
 
 
             <com.google.android.material.textfield.TextInputEditText

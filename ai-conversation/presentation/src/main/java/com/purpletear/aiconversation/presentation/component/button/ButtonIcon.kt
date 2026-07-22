@@ -43,7 +43,7 @@ private fun Preview() {
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Image(
-                painter = painterResource(id = R.drawable.preview_full_image_card),
+                painter = painterResource(id = R.drawable.ai_conversation_presentation_preview_full_image_card),
                 contentDescription = null,
             )
             Row(
@@ -53,17 +53,17 @@ private fun Preview() {
             ) {
                 ButtonIconComposable(
                     Modifier.weight(1f),
-                    drawableId = R.drawable.vec_image,
+                    drawableId = R.drawable.ai_conversation_presentation_vec_image,
                     text = "Import"
                 )
                 ButtonIconComposable(
                     Modifier.weight(1f),
-                    drawableId = R.drawable.vec_random,
+                    drawableId = R.drawable.ai_conversation_presentation_vec_random,
                     text = "Random"
                 )
                 ButtonIconComposable(
                     Modifier.weight(1f),
-                    drawableId = R.drawable.vec_magic,
+                    drawableId = R.drawable.ai_conversation_presentation_vec_magic,
                     text = "Use IA",
                     isPremium = true
                 )

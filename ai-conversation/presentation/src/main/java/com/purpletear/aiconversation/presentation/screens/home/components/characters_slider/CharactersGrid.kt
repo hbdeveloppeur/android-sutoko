@@ -56,7 +56,7 @@ private fun Preview() {
     AiConversationTheme {
         Column(Modifier.background(Color.Black)) {
             Image(
-                painter = painterResource(id = R.drawable.preview_characters_grid),
+                painter = painterResource(id = R.drawable.ai_conversation_presentation_preview_characters_grid),
                 contentDescription = null,
             )
             CharacterSlider(elementSize = 60.dp, items = emptyList(), onClickNewElement = {})
@@ -224,7 +224,7 @@ fun ButtonAddCharacter(
             ),
         contentAlignment = Alignment.Center
     ) {
-        val vector = ImageVector.vectorResource(id = R.drawable.vec_add_box)
+        val vector = ImageVector.vectorResource(id = R.drawable.ai_conversation_presentation_vec_add_box)
         val painter = rememberVectorPainter(image = vector)
 
 

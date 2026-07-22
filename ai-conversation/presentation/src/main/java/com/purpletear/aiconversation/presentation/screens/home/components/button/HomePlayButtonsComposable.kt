@@ -51,7 +51,7 @@ fun HomePlayButtonsComposable(
                 }
             },
             subtitle = null,
-            theme = ButtonTheme.Pink(iconId = R.drawable.gaming),
+            theme = ButtonTheme.Pink(iconId = R.drawable.ai_conversation_presentation_gaming),
             isLoading = state == Loading,
             isEnabled = viewModel.selectedCharacter.value != null,
             onClick = {
@@ -81,7 +81,7 @@ fun HomePlayButtonsComposable(
             } else {
                 stringResource(R.string.ai_conversation_you_are_not_connected)
             },
-            theme = ButtonTheme.Maroon(iconId = R.drawable.cart),
+            theme = ButtonTheme.Maroon(iconId = R.drawable.ai_conversation_presentation_cart),
             onClick = {
                 viewModel.onBuyCoinsPressed()
             }

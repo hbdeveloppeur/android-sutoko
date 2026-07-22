@@ -40,7 +40,7 @@ private fun Preview() {
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Image(
-                    painter = painterResource(id = R.drawable.preview_conversation_narration),
+                    painter = painterResource(id = R.drawable.ai_conversation_presentation_preview_conversation_narration),
                     contentDescription = null,
                 )
                 Box(Modifier.padding(vertical = 12.dp)) {

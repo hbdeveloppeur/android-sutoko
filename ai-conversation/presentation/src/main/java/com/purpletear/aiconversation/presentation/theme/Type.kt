@@ -9,11 +9,11 @@ import androidx.compose.ui.unit.sp
 import com.purpletear.aiconversation.presentation.R
 
 val poppinsFont = FontFamily(
-    Font(R.font.font_poppins_regular, FontWeight.Normal),
-    Font(R.font.font_poppins_bold, FontWeight.Bold),
-    Font(R.font.font_poppins_semibold, FontWeight.SemiBold),
-    Font(R.font.font_poppins_extrabold, FontWeight.ExtraBold),
-    Font(R.font.font_poppins_medium, FontWeight.Medium)
+    Font(R.font.ai_conversation_presentation_font_poppins_regular, FontWeight.Normal),
+    Font(R.font.ai_conversation_presentation_font_poppins_bold, FontWeight.Bold),
+    Font(R.font.ai_conversation_presentation_font_poppins_semibold, FontWeight.SemiBold),
+    Font(R.font.ai_conversation_presentation_font_poppins_extrabold, FontWeight.ExtraBold),
+    Font(R.font.ai_conversation_presentation_font_poppins_medium, FontWeight.Medium)
 )
 
 val Typography = Typography(

@@ -13,7 +13,7 @@ import com.purpletear.aiconversation.presentation.R
 @Composable
 internal fun FuturisticText(modifier : Modifier = Modifier, fontSize : TextUnit, text: String) {
     val fontFamily = FontFamily(
-        Font(R.font.orbitron, FontWeight.Normal)
+        Font(R.font.ai_conversation_presentation_orbitron, FontWeight.Normal)
     )
 
     Text(modifier = modifier, text = text, color = Color.White, fontFamily = fontFamily, fontSize = fontSize)

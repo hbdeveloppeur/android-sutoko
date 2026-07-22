@@ -46,7 +46,7 @@ private fun Preview() {
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Image(
-                painter = painterResource(id = R.drawable.preview_image_action_card),
+                painter = painterResource(id = R.drawable.ai_conversation_presentation_preview_image_action_card),
                 contentDescription = null,
             )
             ImageActionCardComposable(

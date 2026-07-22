@@ -44,7 +44,7 @@ private fun Preview() {
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Image(
-                painter = painterResource(id = R.drawable.preview_character),
+                painter = painterResource(id = R.drawable.ai_conversation_presentation_preview_character),
                 contentDescription = null,
             )
             PreviewCharacterComposable(

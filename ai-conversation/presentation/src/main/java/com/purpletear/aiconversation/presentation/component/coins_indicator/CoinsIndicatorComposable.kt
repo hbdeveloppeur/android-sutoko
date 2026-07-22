@@ -44,7 +44,7 @@ private fun Preview() {
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Image(
-                    painter = painterResource(id = R.drawable.preview_coins_indicator),
+                    painter = painterResource(id = R.drawable.ai_conversation_presentation_preview_coins_indicator),
                     contentDescription = null,
                 )
                 Box(
@@ -108,7 +108,7 @@ internal fun CoinsIndicatorComposable(
         }
         Image(
             modifier = Modifier.size(16.dp),
-            painter = painterResource(id = R.drawable.message_coin),
+            painter = painterResource(id = R.drawable.ai_conversation_presentation_message_coin),
             contentDescription = null
         )
     }

@@ -46,7 +46,7 @@ private fun Preview() {
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Image(
-                painter = painterResource(id = R.drawable.preview_circular_options),
+                painter = painterResource(id = R.drawable.ai_conversation_presentation_preview_circular_options),
                 contentDescription = null,
             )
             FlowRow(

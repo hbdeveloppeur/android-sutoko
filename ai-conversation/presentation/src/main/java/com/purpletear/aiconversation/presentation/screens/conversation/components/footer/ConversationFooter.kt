@@ -217,7 +217,7 @@ private fun ArrowDown() {
     Icon(
         modifier = Modifier
             .size(16.dp),
-        imageVector = ImageVector.vectorResource(id = R.drawable.ic_arrow_down),
+        imageVector = ImageVector.vectorResource(id = R.drawable.ai_conversation_presentation_ic_arrow_down),
         contentDescription = "icon send a message",
         tint = Color.White
     )
@@ -228,7 +228,7 @@ private fun DeleteIcon(color: Color = Color.White) {
     Icon(
         modifier = Modifier
             .size(16.dp),
-        imageVector = ImageVector.vectorResource(id = R.drawable.ic_delete),
+        imageVector = ImageVector.vectorResource(id = R.drawable.ai_conversation_presentation_ic_delete),
         contentDescription = "Delete the voice message",
         tint = color
     )
@@ -236,7 +236,7 @@ private fun DeleteIcon(color: Color = Color.White) {
 
 @Composable
 internal fun SquareAnimation() {
-    val rawRes = R.raw.lottie_anim_square_futuristic
+    val rawRes = R.raw.ai_conversation_presentation_lottie_anim_square_futuristic
     val composition by rememberLottieComposition(LottieCompositionSpec.RawRes(rawRes))
 
     LottieAnimation(
@@ -323,7 +323,7 @@ private fun MessageEditText(modifier: Modifier = Modifier, viewModel: Conversati
                             .padding(start = 8.dp)
                             .size(18.dp)
                             .clip(CircleShape),
-                        painter = painterResource(id = R.drawable.message_coin),
+                        painter = painterResource(id = R.drawable.ai_conversation_presentation_message_coin),
                         contentDescription = null,
                     )
                 }

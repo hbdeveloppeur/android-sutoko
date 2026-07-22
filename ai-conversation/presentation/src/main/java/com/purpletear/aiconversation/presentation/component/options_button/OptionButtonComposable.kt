@@ -34,7 +34,7 @@ fun OptionButtonComposable(
         Icon(
             modifier = Modifier
                 .size(26.dp),
-            imageVector = ImageVector.vectorResource(id = R.drawable.baseline_more_vert_24),
+            imageVector = ImageVector.vectorResource(id = R.drawable.ai_conversation_presentation_baseline_more_vert_24),
             contentDescription = "icon microphone",
             tint = Color.White
         )

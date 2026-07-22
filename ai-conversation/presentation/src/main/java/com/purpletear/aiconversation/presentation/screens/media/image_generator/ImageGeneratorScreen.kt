@@ -177,7 +177,7 @@ private fun MainButton(modifier: Modifier = Modifier, isEnabled: Boolean, onClic
             .background(bgColor)
             .clickable(enabled = isEnabled, onClick = onClick),
     ) {
-        val vector = ImageVector.vectorResource(id = R.drawable.vec_use)
+        val vector = ImageVector.vectorResource(id = R.drawable.ai_conversation_presentation_vec_use)
         val painter = rememberVectorPainter(image = vector)
 
         Image(

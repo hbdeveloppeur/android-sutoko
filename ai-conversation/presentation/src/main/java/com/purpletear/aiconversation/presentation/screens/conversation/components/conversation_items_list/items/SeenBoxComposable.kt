@@ -50,7 +50,7 @@ internal fun SeenBoxComposable(
                 Icon(
                     modifier = Modifier
                         .size(6.dp),
-                    imageVector = ImageVector.vectorResource(id = R.drawable.icons8_check_384),
+                    imageVector = ImageVector.vectorResource(id = R.drawable.ai_conversation_presentation_icons8_check_384),
                     contentDescription = "icon send a message",
                     tint = Color.White.copy(if (state == MessageState.Sending) 0.3f else 1f)
                 )

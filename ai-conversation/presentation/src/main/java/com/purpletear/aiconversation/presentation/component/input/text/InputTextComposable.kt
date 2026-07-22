@@ -45,7 +45,7 @@ private fun Preview() {
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Image(
-                painter = painterResource(id = R.drawable.preview_form_input),
+                painter = painterResource(id = R.drawable.ai_conversation_presentation_preview_form_input),
                 contentDescription = null,
             )
             InputTextComposable(
@@ -133,7 +133,7 @@ internal fun InputTextComposable(
                     .padding(end = 6.dp)
                     .size(22.dp)
                     .clickable { onClickErrorBadge() },
-                painter = painterResource(id = R.drawable.ic_alert),
+                painter = painterResource(id = R.drawable.ai_conversation_presentation_ic_alert),
                 contentDescription = null,
             )
         }

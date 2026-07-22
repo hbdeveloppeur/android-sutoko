@@ -54,7 +54,7 @@ private fun Preview() {
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Image(
-                painter = painterResource(id = R.drawable.preview_button),
+                painter = painterResource(id = R.drawable.ai_conversation_presentation_preview_button),
                 contentDescription = null,
             )
             ButtonComposable(
@@ -63,7 +63,7 @@ private fun Preview() {
                 theme = ButtonTheme.Pink(glow = true)
             )
             Image(
-                painter = painterResource(id = R.drawable.preview_button_buy),
+                painter = painterResource(id = R.drawable.ai_conversation_presentation_preview_button_buy),
                 contentDescription = null,
             )
             ButtonComposable(
@@ -71,7 +71,7 @@ private fun Preview() {
                 theme = ButtonTheme.Maroon()
             )
             Image(
-                painter = painterResource(id = R.drawable.preview_short_button),
+                painter = painterResource(id = R.drawable.ai_conversation_presentation_preview_short_button),
                 contentDescription = null,
             )
             Box(
@@ -224,7 +224,7 @@ internal fun WhitePillArrowComposable(
             modifier = Modifier
                 .size(18.dp)
                 .clip(CircleShape),
-            painter = painterResource(id = R.drawable.line_arrow_right),
+            painter = painterResource(id = R.drawable.ai_conversation_presentation_line_arrow_right),
             contentDescription = null,
         )
     }
@@ -319,7 +319,7 @@ private fun LongButtonComposable(
             Box(Modifier.fillMaxSize()) {
 
                 if (theme is ButtonTheme.Pink) {
-                    val vector = ImageVector.vectorResource(id = R.drawable.arrow_right)
+                    val vector = ImageVector.vectorResource(id = R.drawable.ai_conversation_presentation_arrow_right)
                     val painter = rememberVectorPainter(image = vector)
                     val tintColor = Color.White.copy(0.3f)
 
@@ -332,7 +332,7 @@ private fun LongButtonComposable(
                         colorFilter = androidx.compose.ui.graphics.ColorFilter.tint(tintColor)
                     )
                 } else {
-                    val vector = ImageVector.vectorResource(id = R.drawable.theme_crosses)
+                    val vector = ImageVector.vectorResource(id = R.drawable.ai_conversation_presentation_theme_crosses)
                     val painter = rememberVectorPainter(image = vector)
                     val tintColor = Color.White.copy(0.2f)
 

@@ -31,7 +31,7 @@ internal fun SendMessageIconComposable(size: Dp = 16.dp) {
             modifier = Modifier
                 .size(size)
                 .rotate(45f),
-            imageVector = ImageVector.vectorResource(id = R.drawable.icons8_send_96),
+            imageVector = ImageVector.vectorResource(id = R.drawable.ai_conversation_presentation_icons8_send_96),
             contentDescription = "icon send a message",
             tint = Color.White
         )

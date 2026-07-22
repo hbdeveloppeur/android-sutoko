@@ -104,7 +104,7 @@ private fun AddButtonComposable(onClick: () -> Unit) {
             },
         contentAlignment = Alignment.Center
     ) {
-        val vector = ImageVector.vectorResource(id = R.drawable.vec_add_box)
+        val vector = ImageVector.vectorResource(id = R.drawable.ai_conversation_presentation_vec_add_box)
         val painter = rememberVectorPainter(image = vector)
 
         Image(

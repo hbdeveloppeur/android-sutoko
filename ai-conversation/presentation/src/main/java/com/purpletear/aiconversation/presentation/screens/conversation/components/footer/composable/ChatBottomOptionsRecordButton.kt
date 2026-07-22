@@ -168,7 +168,7 @@ fun RecordButton(
                     .pointerInput(Unit) {}
                     .focusable(false),
                 isEnabled = true,
-                icon = R.drawable.ic_microphone
+                icon = R.drawable.ai_conversation_presentation_ic_microphone
             )
         }
     }

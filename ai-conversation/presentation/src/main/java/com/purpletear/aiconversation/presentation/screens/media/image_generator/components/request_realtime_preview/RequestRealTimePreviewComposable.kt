@@ -101,13 +101,13 @@ fun RequestRealTimePreviewComposable(
                             .graphicsLayer {
                                 rotationY = 180f
                             },
-                        icon = R.drawable.vec_forward,
+                        icon = R.drawable.ai_conversation_presentation_vec_forward,
                         enabled = viewModel.selectedDocument.value?.hasPrevious() == true,
                         onClick = viewModel::onClickPrevious
                     )
                     IconButton(
                         modifier = Modifier,
-                        icon = R.drawable.vec_forward,
+                        icon = R.drawable.ai_conversation_presentation_vec_forward,
                         enabled = viewModel.selectedDocument.value?.hasNext() == true,
                         onClick = viewModel::onClickNext
                     )
@@ -260,7 +260,7 @@ private fun DocumentCurrentImage(
                         verticalArrangement = Arrangement.spacedBy(6.dp)
                     ) {
                         Icon(
-                            imageVector = ImageVector.vectorResource(id = R.drawable.ic_alert),
+                            imageVector = ImageVector.vectorResource(id = R.drawable.ai_conversation_presentation_ic_alert),
                             contentDescription = stringResource(R.string.ai_conversation_error_occured_refund),
                             modifier = Modifier.size(26.dp),
                             tint = Color(0xFFEC216B)
@@ -329,7 +329,7 @@ private fun Button(
 
 @Composable
 private fun LoaderLottieAnimation() {
-    val rawRes = R.raw.loader_animation
+    val rawRes = R.raw.ai_conversation_presentation_loader_animation
     val composition by rememberLottieComposition(LottieCompositionSpec.RawRes(rawRes))
     Box(
         modifier = Modifier

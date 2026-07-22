@@ -411,7 +411,7 @@ private fun Button(
                 .padding(end = 16.dp)
                 .align(Alignment.CenterEnd)
                 .size(18.dp),
-            painter = painterResource(id = R.drawable.cart),
+            painter = painterResource(id = R.drawable.ai_conversation_presentation_cart),
             contentDescription = null
         )
     }

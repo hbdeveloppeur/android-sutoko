@@ -68,7 +68,7 @@ internal fun AlertComposable(
 
             state.icon?.let {
                 Icon(
-                    imageVector = ImageVector.vectorResource(id = R.drawable.ic_alert),
+                    imageVector = ImageVector.vectorResource(id = R.drawable.ai_conversation_presentation_ic_alert),
                     contentDescription = "Alert icon",
                     modifier = Modifier.size(14.dp),
                     tint = Color(0xFFC95757)

@@ -51,7 +51,7 @@ private fun Preview() {
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Image(
-                    painter = painterResource(id = R.drawable.preview_tool_button),
+                    painter = painterResource(id = R.drawable.ai_conversation_presentation_preview_tool_button),
                     contentDescription = null,
                 )
                 Box(
@@ -114,7 +114,7 @@ internal fun RecordingAnimationComposable(
 
 @Composable
 private fun RecordingLottieAnimation(modifier: Modifier = Modifier, isLoading: Boolean = true) {
-    val rawRes = R.raw.lottie_recording
+    val rawRes = R.raw.ai_conversation_presentation_lottie_recording
     val composition by rememberLottieComposition(LottieCompositionSpec.RawRes(rawRes))
     Box(
         modifier = Modifier

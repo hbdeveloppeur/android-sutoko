@@ -285,7 +285,7 @@ private fun Header(viewModel: InviteCharacterViewModel) {
             contentAlignment = Alignment.Center
         ) {
             Icon(
-                imageVector = ImageVector.vectorResource(id = R.drawable.arrow_back),
+                imageVector = ImageVector.vectorResource(id = R.drawable.ai_conversation_presentation_arrow_back),
                 contentDescription = "Back button icon",
                 modifier = Modifier.size(10.dp),
                 tint = Color.White
@@ -375,7 +375,7 @@ private fun CharacterRow(
                             modifier = Modifier
                                 .size(18.dp)
                                 .alpha(0.5f),
-                            painter = painterResource(id = R.drawable.ic_moon),
+                            painter = painterResource(id = R.drawable.ai_conversation_presentation_ic_moon),
                             contentDescription = null,
                         )
                     }
@@ -434,7 +434,7 @@ private fun Avatar(url: String, isSelected: Boolean) {
             Icon(
                 modifier = Modifier
                     .size(18.dp),
-                imageVector = ImageVector.vectorResource(id = R.drawable.icons8_check_384),
+                imageVector = ImageVector.vectorResource(id = R.drawable.ai_conversation_presentation_icons8_check_384),
                 contentDescription = "icon checked",
                 tint = Color.White
             )

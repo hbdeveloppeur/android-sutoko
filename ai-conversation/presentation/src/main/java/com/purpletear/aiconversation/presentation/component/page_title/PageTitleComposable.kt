@@ -41,7 +41,7 @@ private fun Preview() {
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Image(
-                painter = painterResource(id = R.drawable.preview_page_title),
+                painter = painterResource(id = R.drawable.ai_conversation_presentation_preview_page_title),
                 contentDescription = null,
             )
             Box(Modifier.padding(vertical = 12.dp)) {
@@ -80,7 +80,7 @@ internal fun PageTitleComposable(
             contentAlignment = Alignment.Center
         ) {
             Icon(
-                imageVector = ImageVector.vectorResource(id = R.drawable.arrow_back),
+                imageVector = ImageVector.vectorResource(id = R.drawable.ai_conversation_presentation_arrow_back),
                 contentDescription = "Back button icon",
                 modifier = Modifier.size(10.dp),
                 tint = Color.White

@@ -15,7 +15,7 @@ sealed class AlertState(
             R.string.ai_conversation_character_blocked_user,
             characterName,
         ),
-        icon = R.drawable.ic_alert,
+        icon = R.drawable.ai_conversation_presentation_ic_alert,
         button = UiText.StringResource(R.string.ai_conversation_restart)
     )
 }

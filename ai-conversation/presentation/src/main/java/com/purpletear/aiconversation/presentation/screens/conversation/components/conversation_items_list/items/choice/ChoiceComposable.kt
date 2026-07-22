@@ -63,7 +63,7 @@ private fun Preview() {
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Image(
-                    painter = painterResource(id = R.drawable.preview_choice),
+                    painter = painterResource(id = R.drawable.ai_conversation_presentation_preview_choice),
                     contentDescription = null,
                 )
                 Box(Modifier.padding(vertical = 12.dp)) {
@@ -194,7 +194,7 @@ private fun ChoiceRow(
                 modifier = Modifier
                     .size(16.dp)
                     .alpha(0.3f),
-                painter = painterResource(id = R.drawable.ic_arrow_choice),
+                painter = painterResource(id = R.drawable.ai_conversation_presentation_ic_arrow_choice),
                 contentDescription = null,
             )
             content()
@@ -203,7 +203,7 @@ private fun ChoiceRow(
                     .size(16.dp)
                     .alpha(0.3f)
                     .scale(scaleX = -1f, scaleY = 1f),
-                painter = painterResource(id = R.drawable.ic_arrow_choice),
+                painter = painterResource(id = R.drawable.ai_conversation_presentation_ic_arrow_choice),
                 contentDescription = null,
             )
         }

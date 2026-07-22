@@ -42,14 +42,14 @@ private fun Preview() {
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Image(
-                    painter = painterResource(id = R.drawable.preview_image_title_with_coins),
+                    painter = painterResource(id = R.drawable.ai_conversation_presentation_preview_image_title_with_coins),
                     contentDescription = null,
                 )
                 Box(Modifier.padding(vertical = 12.dp)) {
                     TitleWithCoins(
                         modifier = Modifier
                             .fillMaxWidth(0.88f),
-                        imageVector = ImageVector.vectorResource(id = R.drawable.vec_square_dot),
+                        imageVector = ImageVector.vectorResource(id = R.drawable.ai_conversation_presentation_vec_square_dot),
                         title = "Imagine your image",
                         coins = 1234
                     )

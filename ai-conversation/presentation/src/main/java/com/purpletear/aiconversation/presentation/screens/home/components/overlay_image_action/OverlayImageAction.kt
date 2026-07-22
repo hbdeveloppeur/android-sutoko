@@ -37,7 +37,7 @@ private fun Preview() {
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Image(
-                painter = painterResource(id = R.drawable.preview_overlay_image_action),
+                painter = painterResource(id = R.drawable.ai_conversation_presentation_preview_overlay_image_action),
                 contentDescription = null,
             )
             OverlayImageAction(

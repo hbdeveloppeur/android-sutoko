@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <style name="AiConversationTheme" parent="Theme.MaterialComponents.NoActionBar">
-        <item name="colorPrimaryDark">@color/black</item>
+    <style name="ai_conversation_presentation_AiConversationTheme" parent="Theme.MaterialComponents.NoActionBar">
+        <item name="colorPrimaryDark">@color/ai_conversation_presentation_black</item>
         <item name="android:windowActivityTransitions">true</item>
         <item name="android:windowTranslucentStatus">false</item>
         <item name="android:windowTranslucentNavigation">true</item>
@@ -11,15 +11,15 @@
     </style>
 
     <!-- Fix account creation -->
-    <style name="TextInputLayoutStyle" parent="Widget.MaterialComponents.TextInputLayout.FilledBox">
+    <style name="ai_conversation_presentation_TextInputLayoutStyle" parent="Widget.MaterialComponents.TextInputLayout.FilledBox">
 
     </style>
 
-    <style name="TextInputLayoutErrorAppearance" parent="Widget.MaterialComponents.TextInputLayout.FilledBox">
+    <style name="ai_conversation_presentation_TextInputLayoutErrorAppearance" parent="Widget.MaterialComponents.TextInputLayout.FilledBox">
 
     </style>
 
-    <style name="BillingProxy" parent="android:Theme.Translucent.NoTitleBar">
+    <style name="ai_conversation_presentation_BillingProxy" parent="android:Theme.Translucent.NoTitleBar">
         <item name="android:statusBarColor">@android:color/transparent</item>
         <item name="android:navigationBarColor">@android:color/transparent</item>
         <item name="android:windowDrawsSystemBarBackgrounds">true</item>

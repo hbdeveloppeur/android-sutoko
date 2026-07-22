@@ -54,7 +54,7 @@ private fun Preview() {
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Image(
-                painter = painterResource(id = R.drawable.preview_full_image_card),
+                painter = painterResource(id = R.drawable.ai_conversation_presentation_preview_full_image_card),
                 contentDescription = null,
             )
             Box(Modifier.padding(vertical = 12.dp)) {
@@ -133,7 +133,7 @@ internal fun FullImageCardComposable(
                 text = stringResource(R.string.ai_conversation_add_character_cta_use_ai_title),
                 style = MaterialTheme.typography.labelMedium,
                 color = Color.White,
-                fontFamily = FontFamily(Font(R.font.montserrat_medium))
+                fontFamily = FontFamily(Font(R.font.ai_conversation_presentation_montserrat_medium))
             )
             Row(
                 verticalAlignment = Alignment.CenterVertically,
@@ -143,14 +143,14 @@ internal fun FullImageCardComposable(
                     modifier = Modifier
                         .size(18.dp)
                         .clip(CircleShape),
-                    painter = painterResource(id = R.drawable.message_coin),
+                    painter = painterResource(id = R.drawable.ai_conversation_presentation_message_coin),
                     contentDescription = null,
                 )
                 Text(
                     text = stringResource(R.string.ai_conversation_add_character_cta_use_ai_subtitle),
                     style = MaterialTheme.typography.labelMedium,
                     color = Color.White,
-                    fontFamily = FontFamily(Font(R.font.montserrat_medium))
+                    fontFamily = FontFamily(Font(R.font.ai_conversation_presentation_montserrat_medium))
                 )
             }
         }

@@ -87,7 +87,7 @@ private fun Preview() {
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Image(
-                    painter = painterResource(id = R.drawable.preview_chat_header),
+                    painter = painterResource(id = R.drawable.ai_conversation_presentation_preview_chat_header),
                     contentDescription = null,
                 )
                 Box(Modifier.padding(vertical = 12.dp)) {
@@ -208,7 +208,7 @@ internal fun SaveForFineTuning(onClick: () -> Unit, isLoading: Boolean, size: Dp
                 .size(size)
                 .offset(x = 2.dp)
                 .alpha(if (isLoading) 0.5f else 1f),
-            imageVector = ImageVector.vectorResource(id = R.drawable.finetune),
+            imageVector = ImageVector.vectorResource(id = R.drawable.ai_conversation_presentation_finetune),
             contentDescription = "moderation icon",
             tint = Color.White
         )
@@ -435,7 +435,7 @@ private fun Status(
                         modifier = Modifier
                             .size(18.dp)
                             .alpha(0.5f),
-                        painter = painterResource(id = R.drawable.ic_moon),
+                        painter = painterResource(id = R.drawable.ai_conversation_presentation_ic_moon),
                         contentDescription = null,
                     )
                 }
@@ -473,7 +473,7 @@ private fun Block(modifier: Modifier = Modifier) {
     ) {
 
         Icon(
-            imageVector = ImageVector.vectorResource(id = R.drawable.ic_alert),
+            imageVector = ImageVector.vectorResource(id = R.drawable.ai_conversation_presentation_ic_alert),
             contentDescription = "Back button icon",
             modifier = Modifier.size(12.dp),
             tint = Color(0xFFFD5D5D)

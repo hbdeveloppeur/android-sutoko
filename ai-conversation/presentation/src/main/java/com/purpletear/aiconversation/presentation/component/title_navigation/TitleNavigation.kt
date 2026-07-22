@@ -52,7 +52,7 @@ internal fun TitleNavigation(
             contentAlignment = Alignment.Center
         ) {
             Icon(
-                imageVector = ImageVector.vectorResource(id = R.drawable.arrow_back),
+                imageVector = ImageVector.vectorResource(id = R.drawable.ai_conversation_presentation_arrow_back),
                 contentDescription = "Back button icon",
                 modifier = Modifier.size(10.dp),
                 tint = Color.White

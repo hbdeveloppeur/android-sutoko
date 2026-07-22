@@ -201,7 +201,7 @@ private fun CharacterName(state: ProcessStatus, name: String) {
     ) {
         Image(
             modifier = Modifier.size(22.dp),
-            painter = painterResource(id = R.drawable.ic_moon),
+            painter = painterResource(id = R.drawable.ai_conversation_presentation_ic_moon),
             contentDescription = null,
         )
         Text(text = name, style = MaterialTheme.typography.labelSmall, color = Color.White)
@@ -235,7 +235,7 @@ private fun CharacterName(state: ProcessStatus, name: String) {
 
 @Composable
 private fun LoaderLottieAnimation(modifier: Modifier = Modifier) {
-    val rawRes = R.raw.loader_checked
+    val rawRes = R.raw.ai_conversation_presentation_loader_checked
     val composition by rememberLottieComposition(LottieCompositionSpec.RawRes(rawRes))
     Box(
         modifier = Modifier

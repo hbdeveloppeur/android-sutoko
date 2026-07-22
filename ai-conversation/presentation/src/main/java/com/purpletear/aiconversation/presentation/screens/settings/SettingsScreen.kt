@@ -125,7 +125,7 @@ internal fun SettingsScreen(
                         ),
                     ) {
                         Button(
-                            icon = R.drawable.ic_restart,
+                            icon = R.drawable.ai_conversation_presentation_ic_restart,
                             text = stringResource(R.string.ai_conversation_restart_conversation),
                             onClick = viewModel::onRestartConversationPressed
                         )
@@ -141,7 +141,7 @@ internal fun SettingsScreen(
                         ),
                     ) {
                         Button(
-                            icon = R.drawable.icons8_check_384,
+                            icon = R.drawable.ai_conversation_presentation_icons8_check_384,
                             color = Color(0xFF9BDAB9),
                             text = "Conversation deleted",
                             onClick = null
@@ -215,13 +215,13 @@ private fun VersionHeaderComposable(currentVersion: Version?, nextVersion: Versi
                 text = "Version ${currentVersion?.code}",
                 color = Color.White,
                 style = MaterialTheme.typography.labelSmall,
-                fontFamily = FontFamily(Font(R.font.montserrat_medium))
+                fontFamily = FontFamily(Font(R.font.ai_conversation_presentation_montserrat_medium))
             )
             Text(
                 text = "Status : online",
                 color = Color(0xFFCFFFE6),
                 style = MaterialTheme.typography.labelSmall,
-                fontFamily = FontFamily(Font(R.font.montserrat_medium))
+                fontFamily = FontFamily(Font(R.font.ai_conversation_presentation_montserrat_medium))
             )
 
             Spacer(Modifier.weight(1f))
@@ -235,14 +235,14 @@ private fun VersionHeaderComposable(currentVersion: Version?, nextVersion: Versi
                         text = "Next Update in $days days",
                         color = Color.White,
                         style = MaterialTheme.typography.labelSmall,
-                        fontFamily = FontFamily(Font(R.font.montserrat_medium))
+                        fontFamily = FontFamily(Font(R.font.ai_conversation_presentation_montserrat_medium))
                     )
                 } else {
                     Text(
                         text = "Next Update is available\nDownload in Google Play",
                         color = Color.White,
                         style = MaterialTheme.typography.labelSmall,
-                        fontFamily = FontFamily(Font(R.font.montserrat_medium))
+                        fontFamily = FontFamily(Font(R.font.ai_conversation_presentation_montserrat_medium))
                     )
                 }
             }
@@ -284,7 +284,7 @@ private fun Button(
             text = text,
             color = color,
             style = MaterialTheme.typography.labelSmall,
-            fontFamily = FontFamily(Font(R.font.montserrat_regular))
+            fontFamily = FontFamily(Font(R.font.ai_conversation_presentation_montserrat_regular))
         )
     }
 }

@@ -138,7 +138,7 @@ private fun DeleteIcon(color: Color = Color(0xFFFFB3B3)) {
     Icon(
         modifier = Modifier
             .size(16.dp),
-        imageVector = ImageVector.vectorResource(id = R.drawable.ic_delete_square),
+        imageVector = ImageVector.vectorResource(id = R.drawable.ai_conversation_presentation_ic_delete_square),
         contentDescription = "Delete the voice message",
         tint = color
     )

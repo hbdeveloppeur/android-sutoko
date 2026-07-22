@@ -348,7 +348,7 @@ private fun List(
                     ) {
                         ButtonIconComposable(
                             Modifier.weight(1f),
-                            drawableId = R.drawable.vec_image,
+                            drawableId = R.drawable.ai_conversation_presentation_vec_image,
                             text = "Import",
                             onClick = {
                                 imagePicker.pick()
@@ -356,13 +356,13 @@ private fun List(
                         )
                         ButtonIconComposable(
                             Modifier.weight(1f),
-                            drawableId = R.drawable.vec_random,
+                            drawableId = R.drawable.ai_conversation_presentation_vec_random,
                             text = "Random",
                             onClick = viewModel::onRandomAvatarPressed
                         )
                         ButtonIconComposable(
                             Modifier.weight(1f),
-                            drawableId = R.drawable.vec_magic,
+                            drawableId = R.drawable.ai_conversation_presentation_vec_magic,
                             text = "Use AI",
                             isPremium = true,
                             onClick = {

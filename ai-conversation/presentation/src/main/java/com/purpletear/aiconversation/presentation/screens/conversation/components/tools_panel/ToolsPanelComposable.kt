@@ -61,7 +61,7 @@ private fun Preview() {
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Image(
-                    painter = painterResource(id = R.drawable.preview_tool_button),
+                    painter = painterResource(id = R.drawable.ai_conversation_presentation_preview_tool_button),
                     contentDescription = null,
                 )
                 Box(Modifier.padding(vertical = 12.dp)) {
@@ -110,13 +110,13 @@ internal fun ToolsPanelComposable(
                 ToolButton(
                     url = "https://data.sutoko.app/resources/sutoko-ai/image/tools-btn-invite-character.jpg",
                     text = stringResource(R.string.ai_conversation_title_invite_character),
-                    icon = R.drawable.ic_add,
+                    icon = R.drawable.ai_conversation_presentation_ic_add,
                     onClick = viewModel::onClickAddCharacter
                 )
                 ToolButton(
                     url = "https://data.sutoko.app/resources/sutoko-ai/image/tools-btn-generate-image.jpg",
                     text = stringResource(R.string.ai_conversation_image_generator_title),
-                    icon = R.drawable.ic_stars,
+                    icon = R.drawable.ai_conversation_presentation_ic_stars,
                     onClick = {
                         navController.navigate(AiConversationRouteDestination.GenerateImage.route)
                     }

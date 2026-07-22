@@ -90,7 +90,7 @@ fun MessageVocalBox(modifier: Modifier = Modifier) {
         content = {
             Image(
                 modifier = Modifier.height(20.dp),
-                painter = painterResource(id = R.drawable.ic_sound_wave),
+                painter = painterResource(id = R.drawable.ai_conversation_presentation_ic_sound_wave),
                 contentDescription = null
             )
         }

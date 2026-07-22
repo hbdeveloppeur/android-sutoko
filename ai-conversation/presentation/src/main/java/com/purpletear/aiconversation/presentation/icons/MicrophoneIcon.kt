@@ -26,7 +26,7 @@ internal fun MicrophoneIcon(size: Dp = 16.dp) {
         Icon(
             modifier = Modifier
                 .size(size),
-            imageVector = ImageVector.vectorResource(id = R.drawable.ic_microphone),
+            imageVector = ImageVector.vectorResource(id = R.drawable.ai_conversation_presentation_ic_microphone),
             contentDescription = "icon microphone",
             tint = Color.White
         )
