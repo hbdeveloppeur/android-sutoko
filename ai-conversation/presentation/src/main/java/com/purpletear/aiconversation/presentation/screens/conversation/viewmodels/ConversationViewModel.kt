@@ -63,7 +63,9 @@ import fr.purpletear.sutoko.popup.domain.PopUpUserInteraction
 import fr.purpletear.sutoko.popup.domain.SutokoPopUp
 import fr.purpletear.sutoko.popup.domain.usecase.GetPopUpInteractionUseCase
 import fr.purpletear.sutoko.popup.domain.usecase.ShowPopUpUseCase
+import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
@@ -163,6 +165,7 @@ class ConversationViewModel @Inject constructor(
     val inviteCharacterPageIsOpened: State<Boolean> get() = _inviteCharacterPageIsOpened
 
     private var updateMessagesStateJob: Job? = null
+    private var webSocketJob: Job? = null
 
     var messages = mutableStateListOf<UIMessage>()
 
@@ -574,7 +577,8 @@ class ConversationViewModel @Inject constructor(
         }
 
         _isLoading.value = true
-        viewModelScope.launch(Dispatchers.IO) {
+        webSocketJob?.cancel()
+        webSocketJob = viewModelScope.launch(Dispatchers.IO) {
             webSocketDataSource.connect(
                 uid = user.id,
                 token = user.token
@@ -689,6 +693,8 @@ class ConversationViewModel @Inject constructor(
                 onNoMoreCoins()
                 return
             }
+
+            else -> Log.e("ConversationViewModel", "Unhandled error: $exception")
         }
     }
 
@@ -747,13 +753,26 @@ class ConversationViewModel @Inject constructor(
     }
 
 
+    @OptIn(DelicateCoroutinesApi::class)
     override fun onCleared() {
-        if (messageQueue.isNotEmpty()) {
-            val messagesToInsert = messageQueue.messages
-            viewModelScope.launch {
-                sendMessage(messages = messagesToInsert.value, onSuccess = {
-                    messageQueue.remove { m -> m.id in messagesToInsert.value.map { s -> s.id } }
-                })
+        // viewModelScope is already cancelled here: flush the queue on a detached scope.
+        val pending = messageQueue.messages.value.filter {
+            it.hiddenState !in listOf(MessageState.Sending, MessageState.Sent) && !it.isAcknowledged
+        }
+        if (pending.isNotEmpty()) {
+            GlobalScope.launch(Dispatchers.IO) {
+                val user = userRepository.observeUser().first() ?: return@launch
+                sendMessageUseCase(
+                    characterId = aiCharacterId,
+                    messages = pending,
+                    userId = user.id,
+                    token = user.token,
+                    userName = null,
+                ).collect { result ->
+                    result.onSuccess {
+                        messageQueue.remove { m -> m.id in pending.map { s -> s.id } }
+                    }
+                }
             }
         }
         messageQueue.cancelTimer()
@@ -840,6 +859,7 @@ class ConversationViewModel @Inject constructor(
             },
             onFailure = {
                 messageQueue.mark(state = MessageState.Failed)
+                _userCoinsCount.value = _userCoinsCount.value?.inc()
                 if (it is UserNameNotFoundException) {
                     requestName()
                     return@executeFlowResultUseCase
