@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/sutoko_account_connection_gradient_purple"
+    android:background="@drawable/auth_sutoko_account_connection_gradient_purple"
     tools:context="com.purpletear.sutoko.auth.presentation.AccountConnectionActivity">
 
     <ImageView
@@ -68,7 +68,7 @@
             android:id="@+id/sutoko_account_connection_button_main_background"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="@drawable/sutoko_button_rounded_pink" />
+            android:background="@drawable/auth_sutoko_button_rounded_pink" />
 
 
         <com.example.sharedelements.fonts.WorkSansSemiBold
@@ -80,7 +80,7 @@
             android:focusable="false"
             android:focusableInTouchMode="false"
             android:gravity="center"
-            android:textColor="@color/white" />
+            android:textColor="@color/auth_white" />
 
         <ProgressBar
             android:id="@+id/sutoko_account_connection_button_main_progress_bar"
@@ -116,8 +116,8 @@
             android:id="@+id/sutoko_account_connection_button_bottom_cta_text1"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/sutoko_or"
-            android:textColor="@color/white" />
+            android:text="@string/auth_sutoko_or"
+            android:textColor="@color/auth_white" />
 
         <com.example.sharedelements.fonts.PoppinsRegular
             android:id="@+id/sutoko_account_connection_button_bottom_cta_text2"
@@ -143,10 +143,10 @@
             android:id="@+id/sutoko_account_connection_form_nickname"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="@string/your_nickname"
+            android:hint="@string/auth_your_nickname"
             android:textColorHint="#968E97"
-            android:theme="@style/TextInputLayoutStyle"
-            app:errorTextAppearance="@style/TextInputLayoutErrorAppearance">
+            android:theme="@style/auth_TextInputLayoutStyle"
+            app:errorTextAppearance="@style/auth_TextInputLayoutErrorAppearance">
 
 
             <com.google.android.material.textfield.TextInputEditText
@@ -174,10 +174,10 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
-            android:hint="@string/your_mail_address"
+            android:hint="@string/auth_your_mail_address"
             android:textColorHint="#968E97"
-            android:theme="@style/TextInputLayoutStyle"
-            app:errorTextAppearance="@style/TextInputLayoutErrorAppearance">
+            android:theme="@style/auth_TextInputLayoutStyle"
+            app:errorTextAppearance="@style/auth_TextInputLayoutErrorAppearance">
 
 
             <com.google.android.material.textfield.TextInputEditText
@@ -204,10 +204,10 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
-            android:hint="@string/your_password"
+            android:hint="@string/auth_your_password"
             android:textColorHint="#938294"
-            android:theme="@style/TextInputLayoutStyle"
-            app:errorTextAppearance="@style/TextInputLayoutErrorAppearance"
+            android:theme="@style/auth_TextInputLayoutStyle"
+            app:errorTextAppearance="@style/auth_TextInputLayoutErrorAppearance"
             app:passwordToggleEnabled="true">
 
             <com.google.android.material.textfield.TextInputEditText
@@ -235,10 +235,10 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
-            android:hint="@string/your_password"
+            android:hint="@string/auth_your_password"
             android:textColorHint="#938294"
-            android:theme="@style/TextInputLayoutStyle"
-            app:errorTextAppearance="@style/TextInputLayoutErrorAppearance"
+            android:theme="@style/auth_TextInputLayoutStyle"
+            app:errorTextAppearance="@style/auth_TextInputLayoutErrorAppearance"
             app:passwordToggleEnabled="true">
 
 
@@ -285,7 +285,7 @@
                 android:layout_gravity="center_vertical"
                 android:gravity="center_vertical"
                 android:lineSpacingExtra="3dp"
-                android:text="@string/cgu"
+                android:text="@string/auth_cgu"
                 android:textColor="#D2D2D2" />
         </LinearLayout>
     </LinearLayout>
@@ -308,14 +308,14 @@
             android:layout_width="180dp"
             android:layout_height="180dp"
             app:lottie_loop="true"
-            app:lottie_rawRes="@raw/email_confirmation_sent" />
+            app:lottie_rawRes="@raw/auth_email_confirmation_sent" />
 
         <com.example.sharedelements.fonts.PoppinsRegular
             android:id="@+id/sutoko_account_connection_mail_confirmation_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
-            android:textColor="@color/darkModeWhite2"
+            android:textColor="@color/auth_darkModeWhite2"
             android:textSize="13sp" />
 
         <com.example.sharedelements.fonts.PoppinsBold
@@ -323,7 +323,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="6dp"
-            android:textColor="@color/darkModeWhite2"
+            android:textColor="@color/auth_darkModeWhite2"
             android:textSize="18sp" />
 
         <com.example.sharedelements.fonts.PoppinsRegular
@@ -333,7 +333,7 @@
             android:layout_marginTop="12dp"
             android:maxWidth="300dp"
             android:textAlignment="center"
-            android:textColor="@color/darkModeWhite3"
+            android:textColor="@color/auth_darkModeWhite3"
             android:textSize="13sp" />
     </LinearLayout>
 

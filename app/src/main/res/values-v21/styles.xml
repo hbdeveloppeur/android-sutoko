@@ -94,8 +94,8 @@
     </style>
 
     <style name="ContactSupport" parent="Theme.MaterialComponents.NoActionBar">
-        <item name="colorPrimary">@color/headerBlue</item>
-        <item name="colorSecondary">@color/headerBlue</item>
+        <item name="colorPrimary">@color/auth_headerBlue</item>
+        <item name="colorSecondary">@color/auth_headerBlue</item>
         <item name="colorAccent">#FFFFFF</item>
         <item name="android:windowBackground">#202124</item>
         <item name="android:fitsSystemWindows">true</item>
@@ -104,8 +104,8 @@
     </style>
 
     <style name="StorySummary" parent="Theme.MaterialComponents.NoActionBar">
-        <item name="colorPrimary">@color/headerBlue</item>
-        <item name="colorSecondary">@color/headerBlue</item>
+        <item name="colorPrimary">@color/auth_headerBlue</item>
+        <item name="colorSecondary">@color/auth_headerBlue</item>
         <item name="colorAccent">#FFFFFF</item>
         <item name="android:windowBackground">#0c0e13</item>
         <item name="android:statusBarColor">#0c0e13</item>

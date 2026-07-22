@@ -96,7 +96,7 @@
             android:name="com.purpletear.sutoko.auth.presentation.AccountConnectionActivity"
             android:exported="false"
             android:screenOrientation="portrait"
-            android:theme="@style/AccountCreation"
+            android:theme="@style/auth_AccountCreation"
             android:windowSoftInputMode="adjustPan"
             tools:ignore="LockedOrientationActivity" />
 

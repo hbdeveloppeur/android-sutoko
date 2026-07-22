@@ -103,7 +103,7 @@ class AccountConnectionActivity : AppCompatActivity(), AccountConnectionCallBack
             AccountConnectionActivityGraphics.setButtonLoading(this, false)
             Toast.makeText(
                 applicationContext,
-                R.string.sutoko_you_are_connected,
+                R.string.auth_sutoko_you_are_connected,
                 Toast.LENGTH_LONG
             ).show()
             setResult(Activity.RESULT_OK)
@@ -233,7 +233,7 @@ class AccountConnectionActivity : AppCompatActivity(), AccountConnectionCallBack
                 } else {
                     Toast.makeText(
                         applicationContext,
-                        R.string.sutoko_error_cannot_reach_this_mail_address,
+                        R.string.auth_sutoko_error_cannot_reach_this_mail_address,
                         Toast.LENGTH_LONG
                     ).show()
                 }

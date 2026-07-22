@@ -33,43 +33,43 @@ object AccountFormHelper {
 
     enum class FormValidationCode(val messageId: Int?, val target: Input?) {
         SUCCESS(null, null),
-        UNKNOWN_ERROR(R.string.sutoko_account_error_unknown, null),
+        UNKNOWN_ERROR(R.string.auth_sutoko_account_error_unknown, null),
 
         // LOGIN
-        INVALID_CREDENTIALS(R.string.sutoko_account_error_invalid_credentials, Input.MAIL),
+        INVALID_CREDENTIALS(R.string.auth_sutoko_account_error_invalid_credentials, Input.MAIL),
         MAIL_NOT_VALIDATED(null, null),
         REQUIRE_FIREBASE_AUTH_CHECK(null, null),
 
         // REGISTER
-        MAIL_ADDRESS_NOT_AVAILABLE(R.string.sutoko_account_error_address_not_available, Input.MAIL),
+        MAIL_ADDRESS_NOT_AVAILABLE(R.string.auth_sutoko_account_error_address_not_available, Input.MAIL),
         NICKNAME_NOT_AVAILABLE(
-            R.string.sutoko_account_error_username_not_available,
+            R.string.auth_sutoko_account_error_username_not_available,
             Input.NICKNAME
         ),
-        NICKNAME_REGEX_ERROR(R.string.sutoko_account_error_invalid_nickname_format, Input.NICKNAME),
+        NICKNAME_REGEX_ERROR(R.string.auth_sutoko_account_error_invalid_nickname_format, Input.NICKNAME),
         NICKNAME_LENGTH_TOO_SHORT(
-            R.string.sutoko_account_error_invalid_nickname_size,
+            R.string.auth_sutoko_account_error_invalid_nickname_size,
             Input.NICKNAME
         ),
         NICKNAME_LENGTH_TOO_LONG(
-            R.string.sutoko_account_error_invalid_nickname_size,
+            R.string.auth_sutoko_account_error_invalid_nickname_size,
             Input.NICKNAME
         ),
-        PASSWORD_WEAK(R.string.sutoko_account_error_weak_password, Input.PASSWORD),
+        PASSWORD_WEAK(R.string.auth_sutoko_account_error_weak_password, Input.PASSWORD),
         PASSWORD_LENGTH_NOT_VALID(
-            R.string.sutoko_account_error_invalid_password_size,
+            R.string.auth_sutoko_account_error_invalid_password_size,
             Input.PASSWORD
         ),
         PASSWORD_CONFIRMATION_NOT_VALID(
-            R.string.sutoko_account_error_invalid_password_confirm,
+            R.string.auth_sutoko_account_error_invalid_password_confirm,
             Input.PASSWORD_CONFIRMATION
         ),
-        MAIL_ADDRESS_WRONG_FORMAT(R.string.sutoko_account_error_invalid_mail_address, Input.MAIL),
+        MAIL_ADDRESS_WRONG_FORMAT(R.string.auth_sutoko_account_error_invalid_mail_address, Input.MAIL),
         MAIL_ADDRESS_DOMAIN_FORBIDDEN(
-            R.string.sutoko_account_error_mail_provider_banned,
+            R.string.auth_sutoko_account_error_mail_provider_banned,
             Input.MAIL
         ),
-        RULES_NOT_CHECKED(R.string.sutoko_account_error_cgu, Input.CGU)
+        RULES_NOT_CHECKED(R.string.auth_sutoko_account_error_cgu, Input.CGU)
     }
 
     fun displayError(activity: AccountConnectionActivity, validationCode: FormValidationCode) {

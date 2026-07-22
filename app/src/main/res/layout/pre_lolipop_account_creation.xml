@@ -224,7 +224,7 @@
             app:layout_constraintVertical_bias="0.3"
             app:lottie_autoPlay="true"
             app:lottie_loop="true"
-            app:lottie_rawRes="@raw/email_confirmation_sent" />
+            app:lottie_rawRes="@raw/auth_email_confirmation_sent" />
 
         <com.example.sharedelements.fonts.RobotoRegular
             android:id="@+id/account_creation.mail_validation.title"
@@ -286,7 +286,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textColorHint="#D7D7D7"
-            android:hint="@string/your_nickname"
+            android:hint="@string/auth_your_nickname"
             android:theme="@style/TextInputLayoutStyle"
             app:errorTextAppearance="@style/TextInputLayoutErrorAppearance">
 
@@ -318,7 +318,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="#00ffffff"
-            android:hint="@string/your_mail_address"
+            android:hint="@string/auth_your_mail_address"
             android:textColorHint="#ACACAC"
             android:theme="@style/TextInputLayoutStyle"
             app:errorTextAppearance="@style/TextInputLayoutErrorAppearance">
@@ -378,7 +378,7 @@
             android:id="@+id/sutoko.account.creation.form.password.parent"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="@string/your_password"
+            android:hint="@string/auth_your_password"
             android:textColorHint="#ACACAC"
             android:theme="@style/TextInputLayoutStyle"
             app:endIconMode="password_toggle"
@@ -409,7 +409,7 @@
             android:id="@+id/sutoko.account.creation.form.password_confirmation.parent"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="@string/your_password"
+            android:hint="@string/auth_your_password"
             android:textColorHint="#ACACAC"
             android:theme="@style/TextInputLayoutStyle"
             app:endIconMode="password_toggle"
@@ -456,7 +456,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
                 android:gravity="center_vertical"
-                android:text="@string/cgu" />
+                android:text="@string/auth_cgu" />
         </LinearLayout>
     </LinearLayout>
 
