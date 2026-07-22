@@ -94,16 +94,18 @@ internal fun MessageImage(
                 contentScale = ContentScale.Crop,
             )
         }
-        val avatarColor = character.color.toWhitenedComposeColor(fraction = 0.7f)
-        Avatar(
-            modifier = Modifier
-                .background(avatarColor, CircleShape)
-                .align(alignment),
-            size = 26.dp,
-            borderWidth = 1.4.dp,
-            borderColor = avatarColor,
-            imageModel = character.avatar
-        )
+        if (character.avatar != null) {
+            val avatarColor = character.color.toWhitenedComposeColor(fraction = 0.7f)
+            Avatar(
+                modifier = Modifier
+                    .background(avatarColor, CircleShape)
+                    .align(alignment),
+                size = 26.dp,
+                borderWidth = 1.4.dp,
+                borderColor = avatarColor,
+                imageModel = character.avatar
+            )
+        }
     }
 }
 

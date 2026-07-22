@@ -35,15 +35,17 @@ import com.purpletear.sutoko.game.model.character.Character
 internal fun MessageVocalDest(
     character: Character, isPlaying: Boolean, percent: Float, onClick: () -> Unit = {}
 ) {
-    val avatarColor = character.color.toWhitenedComposeColor(fraction = 0.7f)
     MessageBubble(Modifier.padding(end = 4.dp)) {
-        Avatar(
-            modifier = Modifier.background(avatarColor, CircleShape),
-            size = 22.dp,
-            borderWidth = 1.4.dp,
-            borderColor = avatarColor,
-            imageModel = character.avatar
-        )
+        if (character.avatar != null) {
+            val avatarColor = character.color.toWhitenedComposeColor(fraction = 0.7f)
+            Avatar(
+                modifier = Modifier.background(avatarColor, CircleShape),
+                size = 22.dp,
+                borderWidth = 1.4.dp,
+                borderColor = avatarColor,
+                imageModel = character.avatar
+            )
+        }
         Progress(percent)
         PlayButton(isPlaying, onClick)
     }

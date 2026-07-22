@@ -234,19 +234,15 @@ private fun ClickableAvatar(
     character: Character,
     onAvatarClick: (imageModel: Any?, bounds: Rect) -> Unit,
 ) {
+    val avatarModel = character.avatar ?: return
     var bounds by remember { mutableStateOf(Rect.Zero) }
-    val avatarModel = character.avatar
-    val clickableModifier = if (avatarModel != null) {
-        Modifier
-            .onGloballyPositioned { bounds = it.boundsInWindow() }
-            .clickable(
-                interactionSource = remember { MutableInteractionSource() },
-                indication = null,
-                onClick = { onAvatarClick(avatarModel, bounds) }
-            )
-    } else {
-        Modifier
-    }
+    val clickableModifier = Modifier
+        .onGloballyPositioned { bounds = it.boundsInWindow() }
+        .clickable(
+            interactionSource = remember { MutableInteractionSource() },
+            indication = null,
+            onClick = { onAvatarClick(avatarModel, bounds) }
+        )
 
     val avatarColor = character.color.toWhitenedComposeColor(fraction = 0.7f)
     Box(clickableModifier) {
