@@ -4,6 +4,7 @@ import com.google.gson.Gson
 import com.google.gson.JsonParser
 import com.google.gson.JsonSyntaxException
 import com.purpletear.aiconversation.data.BuildConfig
+import com.purpletear.aiconversation.data.exception.UnableToReachServiceException
 import com.purpletear.aiconversation.data.remote.dto.TextWithId
 import com.purpletear.aiconversation.domain.enums.MessageRole
 import com.purpletear.aiconversation.domain.enums.WebSocketMessageType
@@ -33,8 +34,11 @@ class WebSocketDataSourceImpl(
     private val websocketMessageParser: WebsocketMessageParser,
 ) : WebSocketDataSource {
     private val client = OkHttpClient()
+
+    @Volatile
     private var webSocket: WebSocket? = null
 
+    @Volatile
     private var _isConnected: Boolean = false
     override val isConnected: Boolean get() = _isConnected
 
@@ -53,7 +57,7 @@ class WebSocketDataSourceImpl(
                 "uid" to userId,
                 "token" to token,
                 "appVersion" to BuildConfig.VERSION_NAME,
-                "texts" to messages.map {
+                "texts" to messages.mapNotNull {
                     when (it) {
                         is MessageText -> TextWithId(it.id, it.text, MessageRole.User.code)
                         is MessageNarration -> TextWithId(
@@ -69,9 +73,15 @@ class WebSocketDataSourceImpl(
                 "langCode" to (Language.determineLangDirectory().take(2)),
                 "userName" to userName,
             )
-            webSocket?.send(
-                Gson().toJson(data)
-            )
+            val socket = webSocket
+            if (socket == null) {
+                emit(Result.failure(UnableToReachServiceException()))
+                return@flow
+            }
+            if (!socket.send(Gson().toJson(data))) {
+                emit(Result.failure(UnableToReachServiceException()))
+                return@flow
+            }
             emit(Result.success(Unit))
         }
 
@@ -88,9 +98,6 @@ class WebSocketDataSourceImpl(
 
             override fun onMessage(webSocket: WebSocket, text: String) {
                 super.onMessage(webSocket, text)
-                if (text.contains("new_message_image")) {
-                    print(text)
-                }
 
                 val action: WebSocketMessageType
                 try {
@@ -250,6 +257,7 @@ class WebSocketDataSourceImpl(
 
                 trySend(WebSocketMessage.Error)
                 _isConnected = false
+                close()
             }
 
             override fun onClosing(webSocket: WebSocket, code: Int, reason: String) {
@@ -259,18 +267,21 @@ class WebSocketDataSourceImpl(
             }
         }
 
+        webSocket?.close(1000, "Reconnecting")
         this@WebSocketDataSourceImpl.webSocket = client.newWebSocket(webSocketRequest, listener)
 
         awaitClose {
             webSocket?.close(1000, "Flow closed")
             webSocket = null
+            client.dispatcher.executorService.shutdown()
+            client.connectionPool.evictAll()
         }
     }.catch {
         emit(WebSocketMessage.Error)
     }
 
     override fun send(message: String): Boolean {
-        return true
+        return webSocket?.send(message) ?: false
     }
 
     override fun sendPong(uid: String, token: String) {
@@ -278,7 +289,7 @@ class WebSocketDataSourceImpl(
             "action" to "pong",
             "uid" to uid,
             "token" to token
-        );
+        )
         send(Gson().toJson(data))
     }
 
@@ -301,8 +312,6 @@ class WebSocketDataSourceImpl(
         try {
             val jsonElement = JsonParser.parseString(json)
             if (!jsonElement.isJsonObject) {
-                // Log the problematic string for debugging
-                println("Parsed JSON is not an object: $json")
                 throw WebsocketMessageParserException("The parsed JSON is not an object.")
             }
             val jsonObject = jsonElement.asJsonObject
