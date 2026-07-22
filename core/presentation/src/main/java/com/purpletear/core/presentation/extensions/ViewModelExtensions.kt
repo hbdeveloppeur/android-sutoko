@@ -3,6 +3,7 @@ package com.purpletear.core.presentation.extensions
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
@@ -10,6 +11,14 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
  
+/**
+ * Last-resort safety net: any exception escaping the flow operators or the
+ * callbacks below is logged instead of crashing the app (default Android
+ * behavior for uncaught coroutine exceptions).
+ */
+private val viewModelCoroutineExceptionHandler = CoroutineExceptionHandler { _, throwable ->
+    Log.e("ViewModelExtension", "Uncaught exception in ViewModel coroutine", throwable)
+}
 
 fun <T> ViewModel.executeFlowResultUseCase(
     useCase: suspend () -> Flow<Result<T>>,
@@ -17,7 +26,7 @@ fun <T> ViewModel.executeFlowResultUseCase(
     onFailure: ((Throwable) -> Unit)? = null,
     finally: () -> Unit = {},
 ) {
-    viewModelScope.launch {
+    viewModelScope.launch(viewModelCoroutineExceptionHandler) {
         withContext(Dispatchers.IO) {
             useCase()
                 .catch { throwable ->
@@ -57,7 +66,7 @@ fun <T> ViewModel.executeFlowUseCase(
     onStream: (T) -> Unit,
     onFailure: ((Throwable) -> Unit)? = null,
 ) {
-    viewModelScope.launch {
+    viewModelScope.launch(viewModelCoroutineExceptionHandler) {
         withContext(Dispatchers.IO) {
             useCase()
                 .catch { throwable ->
