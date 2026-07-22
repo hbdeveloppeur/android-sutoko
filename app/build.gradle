@@ -24,7 +24,7 @@ android {
         minSdkVersion 24
         targetSdk 35
         versionCode rootProject.versionCode
-        versionName "Your Turn"
+        versionName "Your New Turn"
         vectorDrawables.useSupportLibrary true
         resourceConfigurations += ['fr', 'es', 'es-rES', 'en', 'de']
     }
