@@ -22,26 +22,9 @@ open class Message(
         isAcknowledged = true
     }
 
-    override fun equals(other: Any?): Boolean {
-        return other is Message && id == other.id
-                && state.code == other.state.code
-                && role.code == other.role.code
-                && typing == other.typing
-                && aiCharacterId == other.aiCharacterId
-                && timestamp == other.timestamp
-                && isAcknowledged == other.isAcknowledged
-    }
-
-    override fun hashCode(): Int {
-        var result = id.hashCode()
-        result = 31 * result + state.hashCode()
-        result = 31 * result + role.hashCode()
-        result = 31 * result + typing.hashCode()
-        result = 31 * result + (aiCharacterId ?: 0)
-        result = 31 * result + timestamp.hashCode()
-        result = 31 * result + isAcknowledged.hashCode()
-        return result
-    }
+    // No custom equals/hashCode here: subclasses are data classes and generate their own
+    // structural equality from their constructor properties. A base-class implementation
+    // comparing different fields would break substitutability (Liskov).
 
     fun copy(
         state: MessageState = this.state,

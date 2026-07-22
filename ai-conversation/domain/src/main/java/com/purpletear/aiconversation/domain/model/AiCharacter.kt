@@ -23,19 +23,8 @@ data class AiCharacter(
         return other is AiCharacter && id == other.id
     }
 
-    override fun hashCode(): Int {
-        var result = id
-        result = 31 * result + firstName.hashCode()
-        result = 31 * result + (lastName?.hashCode() ?: 0)
-        result = 31 * result + description.hashCode()
-        result = 31 * result + (avatarUrl?.hashCode() ?: 0)
-        result = 31 * result + (bannerUrl?.hashCode() ?: 0)
-        result = 31 * result + createdAt.hashCode()
-        result = 31 * result + visibility.hashCode()
-        result = 31 * result + (statusDescription?.hashCode() ?: 0)
-        result = 31 * result + (code?.hashCode() ?: 0)
-        return result
-    }
+    // equals compares id only: hashCode must do the same (equal objects, equal hash codes).
+    override fun hashCode(): Int = id
 }
 
 

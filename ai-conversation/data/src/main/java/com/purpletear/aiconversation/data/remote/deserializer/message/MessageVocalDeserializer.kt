@@ -19,7 +19,7 @@ class MessageVocalDeserializer : JsonDeserializer<Message> {
         val jsonObject = json.asJsonObject
 
         val id = jsonObject.get("id")?.asString ?: UUID.randomUUID().toString()
-        val timestamp = jsonObject.get("createdAt")?.asLong ?: System.currentTimeMillis()
+        val timestamp = jsonObject.get("createdAt")?.asLong ?: (System.currentTimeMillis() / 1000)
         val role = jsonObject.get("role")?.asString
         val state = jsonObject.get("state")?.asString
 

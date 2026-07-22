@@ -1,6 +1,7 @@
 package com.purpletear.aiconversation.domain.usecase
 
 import com.purpletear.aiconversation.domain.model.messages.entities.Message
+import com.purpletear.aiconversation.domain.model.messages.entities.MessageNarration
 import com.purpletear.aiconversation.domain.model.messages.entities.MessageText
 import com.purpletear.aiconversation.domain.model.messages.entities.MessageVocal
 import com.purpletear.aiconversation.domain.repository.MessageRepository
@@ -20,12 +21,15 @@ class SendMessageUseCase @Inject constructor(
         messages: List<Message>,
     ): Flow<Result<Unit>> {
 
+        // The REST transport is required for audio; it only carries plain texts, so
+        // narrations are sent as user texts (message images are not supported here).
         if (messages.any { it is MessageVocal }) {
             return messageRepository.sendMessage(
                 uid = userId,
                 token = token,
                 characterId = characterId,
-                texts = messages.filterIsInstance<MessageText>().map { it.text },
+                texts = messages.filterIsInstance<MessageText>().map { it.text } +
+                    messages.filterIsInstance<MessageNarration>().map { it.text },
                 userName = userName,
                 audioFiles = messages.filterIsInstance<MessageVocal>()
                     .filter { it.file != null }.map { it.file!! },

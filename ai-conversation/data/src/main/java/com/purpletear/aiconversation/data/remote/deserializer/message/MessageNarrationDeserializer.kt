@@ -18,7 +18,7 @@ class MessageNarrationDeserializer : JsonDeserializer<Message> {
         val jsonObject = json.asJsonObject
 
         val id = jsonObject.get("id")?.asString ?: UUID.randomUUID().toString()
-        val timestamp = jsonObject.get("createdAt")?.asLong ?: System.currentTimeMillis()
+        val timestamp = jsonObject.get("createdAt")?.asLong ?: (System.currentTimeMillis() / 1000)
         val text = jsonObject.get("text")?.asString ?: ""
 
         return MessageNarration(
