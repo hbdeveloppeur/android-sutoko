@@ -37,10 +37,8 @@ class DocumentsRowViewModel @Inject constructor(
     val selectedDocumentId: MutableState<String?> get() = _selectedDocumentId
 
     init {
-        viewModelScope.launch {
-            observeConnection()
-            observeDocuments()
-        }
+        viewModelScope.launch { observeConnection() }
+        viewModelScope.launch { observeDocuments() }
     }
 
     private suspend fun observeConnection() {

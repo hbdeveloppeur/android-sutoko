@@ -51,7 +51,7 @@ class InviteCharacterViewModel @Inject constructor(
     private val user: StateFlow<User?> = userRepository.observeUser()
         .stateIn(
             scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5000),
+            started = SharingStarted.Eagerly,
             initialValue = null,
         )
 
@@ -88,6 +88,7 @@ class InviteCharacterViewModel @Inject constructor(
 
     internal fun loadCharacters() {
         getConversationSettings()
+        getCharacters()
     }
 
 

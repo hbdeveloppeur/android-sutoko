@@ -46,7 +46,7 @@ class RequestRealTimePreviewViewModel @Inject constructor(
     private val user: StateFlow<User?> = userRepository.observeUser()
         .stateIn(
             scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5000),
+            started = SharingStarted.Eagerly,
             initialValue = null,
         )
 
