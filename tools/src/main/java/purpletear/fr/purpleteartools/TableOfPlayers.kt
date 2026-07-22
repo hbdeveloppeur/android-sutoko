@@ -24,7 +24,7 @@ class TableOfSoundsPlayer {
 
         urlsToLoad.forEach { url ->
             if (!exists(url)) {
-                val player = PurpleExoPlayer(R.string.app_name, url, false)
+                val player = PurpleExoPlayer(R.string.tools_app_name, url, false)
                 players.add(player)
                 val position = players.indexOf(player)
                 players[position].create(context)

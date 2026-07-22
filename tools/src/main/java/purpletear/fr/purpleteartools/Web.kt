@@ -18,7 +18,7 @@ object Web {
         if (i.resolveActivity(activity.packageManager) == null) {
             Toast.makeText(
                 activity.applicationContext,
-                activity.getString(R.string.pptools_no_web_navigator_found),
+                activity.getString(R.string.tools_pptools_no_web_navigator_found),
                 Toast.LENGTH_LONG
             ).show()
             return

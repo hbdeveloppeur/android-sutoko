@@ -55,12 +55,12 @@ public class Animation {
                 }, (duration == 0) ? animation.getDuration() : duration);
             }
             case ANIMATION_SLIDE_IN_FROM_RIGHT -> {
-                animation = AnimationUtils.loadAnimation(context, R.anim.slide_in_right);
+                animation = AnimationUtils.loadAnimation(context, R.anim.tools_slide_in_right);
                 Handler handler = new Handler();
                 handler.postDelayed(() -> viewToAnimate.setVisibility(View.VISIBLE), (duration == 0) ? animation.getDuration() : duration);
             }
             case ANIMATION_SLIDE_IN_FROM_BOTTOM -> {
-                animation = AnimationUtils.loadAnimation(context, R.anim.slide_in_bottom);
+                animation = AnimationUtils.loadAnimation(context, R.anim.tools_slide_in_bottom);
                 Handler handler = new Handler();
                 handler.postDelayed(new Runnable() {
                     @Override
@@ -74,17 +74,17 @@ public class Animation {
             case ANIMATION_SLIDE_OUT_TO_RIGHT ->
                     animation = AnimationUtils.loadAnimation(context, android.R.anim.slide_out_right);
             case ANIMATION_SLIDE_OUT_TO_LEFT ->
-                    animation = AnimationUtils.loadAnimation(context, R.anim.slide_out_to_left);
+                    animation = AnimationUtils.loadAnimation(context, R.anim.tools_slide_out_to_left);
             case ANIMATION_SLIDE_OUT_TO_BOTTOM -> {
-                animation = AnimationUtils.loadAnimation(context, R.anim.slide_out_bottom);
+                animation = AnimationUtils.loadAnimation(context, R.anim.tools_slide_out_bottom);
                 Handler handler = new Handler();
                 handler.postDelayed(() -> viewToAnimate.setVisibility(View.INVISIBLE), (duration == 0) ? animation.getDuration() : duration);
             }
             case ANIMATION_SLIDE_OUT_AND_STAY ->
-                    animation = AnimationUtils.loadAnimation(context, R.anim.slide_out_right_and_stay);
+                    animation = AnimationUtils.loadAnimation(context, R.anim.tools_slide_out_right_and_stay);
             case ANIMATION_ZOOM_IN -> {
                 viewToAnimate.setVisibility(View.VISIBLE);
-                animation = AnimationUtils.loadAnimation(context, R.anim.zoom_in);
+                animation = AnimationUtils.loadAnimation(context, R.anim.tools_zoom_in);
             }
             default -> animation = AnimationUtils.loadAnimation(context, android.R.anim.fade_in);
         }

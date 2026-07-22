@@ -35,7 +35,7 @@ class TableOfPlayersV2(
 
         urls.forEach { url ->
             if (!exists(url)) {
-                val player = PurpleExoPlayer(R.string.app_name, url, false)
+                val player = PurpleExoPlayer(R.string.tools_app_name, url, false)
                 players.add(player)
                 player.create(context)
             }
