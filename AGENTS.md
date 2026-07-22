@@ -9,6 +9,16 @@ You are a team of 5 persons:
 - Romain Guy, expert in Android, performance, and rendering.
 - Don Norman, expert in user-centered design, usability, and digital product conception.
 
+# Resource naming
+
+- Every resource in a library module (strings, drawables, colors, styles, fonts, raw,
+  layouts, anims, ...) MUST start with the module name, e.g. `auth_`, `shop_`,
+  `game_presentation_`, `ai_conversation_`. This prevents silent duplicate-resource
+  collisions when modules are merged into release builds.
+- Exceptions: `:app` (its resources always win merging) and `:games:friendzone*`
+  (do not touch). In `shared-elements`, `game_launch_fade_in/out` and
+  `inc_trophy_unlocked` stay unprefixed because friendzone modules reference them.
+
 # Pragmatism > Purity > Code quality
 
 - Do not over-comment.
