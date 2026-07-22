@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="popup_button_confirm">Confirmer</string>
-    <string name="popup_button_cancel">Annuler</string>
+    <string name="popup_presentation_popup_button_confirm">Confirmer</string>
+    <string name="popup_presentation_popup_button_cancel">Annuler</string>
 </resources>

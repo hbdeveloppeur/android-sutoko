@@ -152,12 +152,12 @@ private fun SutokoPopUpComposable(
             Box {
                 Image(
                     modifier = Modifier.aspectRatio(1895 / 795f),
-                    painter = painterResource(R.drawable.pop_up_header_violet_optimized),
+                    painter = painterResource(R.drawable.popup_presentation_pop_up_header_violet_optimized),
                     contentDescription = null,
                     contentScale = ContentScale.Crop
                 )
                 Image(
-                    painter = painterResource(R.drawable.pop_up_shape),
+                    painter = painterResource(R.drawable.popup_presentation_pop_up_shape),
                     contentDescription = null,
                     modifier = Modifier
                         .align(Alignment.BottomCenter)
@@ -332,7 +332,7 @@ private fun RegularPopUpComposable(
         ) {
             Spacer(Modifier.weight(1f))
             Text(
-                stringResource(R.string.popup_button_cancel),
+                stringResource(R.string.popup_presentation_popup_button_cancel),
                 style = MaterialTheme.typography.button.copy(color = Color(0xFF706D5F)),
                 fontSize = 11.sp,
                 modifier = Modifier
@@ -343,7 +343,7 @@ private fun RegularPopUpComposable(
                     }
             )
             Text(
-                stringResource(R.string.popup_button_confirm),
+                stringResource(R.string.popup_presentation_popup_button_confirm),
                 style = MaterialTheme.typography.button.copy(color = Color(0xFF08475B)),
                 fontSize = 11.sp,
                 modifier = Modifier
