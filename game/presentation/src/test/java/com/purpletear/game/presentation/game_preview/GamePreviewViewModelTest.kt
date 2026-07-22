@@ -235,13 +235,14 @@ class GamePreviewViewModelTest {
     }
 
     @Test
-    fun `refresh syncs catalog and chapters and resets isRefreshing`() = runTest {
+    fun `refresh syncs the game and chapters and resets isRefreshing`() = runTest {
         val viewModel = createViewModel()
 
         viewModel.refresh()
         advanceUntilIdle()
 
-        assertEquals(1, gameRepository.syncOfficialGamesCalls)
+        assertEquals(listOf(TestFixtures.GAME_ID), gameRepository.syncGameCalls)
+        assertEquals(0, gameRepository.syncOfficialGamesCalls)
         assertEquals(1, chapterRepository.getChaptersCalls)
         assertFalse(viewModel.isRefreshing.value)
         assertTrue(toastService.shownMessages.isEmpty())
@@ -271,7 +272,7 @@ class GamePreviewViewModelTest {
 
         viewModel.refresh()
         advanceUntilIdle()
-        assertEquals(1, gameRepository.syncOfficialGamesCalls)
+        assertEquals(1, gameRepository.syncGameCalls.size)
 
         gate.complete(Unit)
         advanceUntilIdle()

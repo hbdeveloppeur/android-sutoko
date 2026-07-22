@@ -111,6 +111,26 @@ class GameRepositoryImpl @Inject constructor(
         }
     }
 
+    override suspend fun syncGame(gameId: String, languageTag: String): Result<Unit> {
+        return try {
+            val response = api.getGame(storyId = gameId, langCode = languageTag)
+            if (!response.isSuccessful) {
+                return Result.failure(HttpException(response))
+            }
+            val dto = response.body()
+                ?: return Result.failure(IllegalStateException("Empty body for gameId=$gameId"))
+            // Never re-categorize an existing row: the official/user partition is
+            // owned by the catalog syncs, not by this single-story endpoint.
+            val isOfficial = dao.getGame(gameId)?.isOfficial ?: (dto.official ?: false)
+            dao.upsertAll(listOf(dto.toDomain().copy(isOfficial = isOfficial)))
+            Result.success(Unit)
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
     override suspend fun loadMoreUserGames(languageTag: String): Result<Boolean> {
         return try {
             val nextPage = userGamesPagination.currentPage + 1

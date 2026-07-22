@@ -110,11 +110,20 @@ class GameEngine @Inject constructor(
         memory.load(gameId, graph.chapterNumber)
 
         characterRepository.preload(gameId)
-        val mainCharacters = characterRepository.getAll().filter { it.isMainCharacter }
-        check(mainCharacters.size == 1) {
-            "Expected exactly one main character for game $gameId, found ${mainCharacters.size}"
+        // Tolerate authoring mistakes: a story must stay playable even when its
+        // characters.json declares zero or several main characters. Selection is
+        // deterministic (lowest id) because repository ordering is not guaranteed.
+        val mainCharacters = characterRepository.getAll()
+            .filter { it.isMainCharacter }
+            .sortedBy { it.id }
+        when {
+            mainCharacters.isEmpty() ->
+                GameEngineLogger.w("GAME") { "No main character defined for game $gameId — isMainCharacter() will always be false" }
+
+            mainCharacters.size > 1 ->
+                GameEngineLogger.w("GAME") { "Expected one main character for game $gameId, found ${mainCharacters.size} — using ${mainCharacters.first().id}" }
         }
-        memory.setMainCharacterId(mainCharacters.first().id)
+        mainCharacters.firstOrNull()?.let { memory.setMainCharacterId(it.id) }
 
         _state.value = GameEngineState.Ready(
             chapterCode = graph.chapterCode,

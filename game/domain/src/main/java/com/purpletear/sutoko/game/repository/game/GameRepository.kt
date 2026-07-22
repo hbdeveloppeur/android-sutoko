@@ -16,6 +16,12 @@ interface GameRepository {
     suspend fun syncUserGames(languageTag: String): Result<Unit>
 
     /**
+     * Re-fetch a single story from the network and upsert it locally, preserving
+     * its official/user categorization. Used to detect new versions of one story.
+     */
+    suspend fun syncGame(gameId: String, languageTag: String): Result<Unit>
+
+    /**
      * Load the next page of user-created games.
      *
      * @param languageTag The BCP-47 language tag to request games for.

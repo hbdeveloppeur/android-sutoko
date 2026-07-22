@@ -18,6 +18,9 @@ interface GameDao {
     @Query("SELECT * FROM games WHERE id = :id")
     fun observeGame(id: String): Flow<GameCatalogEntity?>
 
+    @Query("SELECT * FROM games WHERE id = :id")
+    suspend fun getGame(id: String): GameCatalogEntity?
+
     @Query("DELETE FROM games WHERE isOfficial = 1")
     suspend fun deleteAllOfficial()
 

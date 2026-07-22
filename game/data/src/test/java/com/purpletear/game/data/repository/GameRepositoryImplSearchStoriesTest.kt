@@ -24,6 +24,7 @@ class GameRepositoryImplSearchStoriesTest {
         override fun observeOfficialGames(): Flow<List<GameCatalogEntity>> = flowOf(emptyList())
         override fun observeUserGames(): Flow<List<GameCatalogEntity>> = flowOf(emptyList())
         override fun observeGame(id: String): Flow<GameCatalogEntity?> = flowOf(null)
+        override suspend fun getGame(id: String): GameCatalogEntity? = null
         override suspend fun deleteAllOfficial() {}
         override suspend fun deleteAllUserGames() {}
         override suspend fun upsertAll(entities: List<GameCatalogEntity>) {}
@@ -153,6 +154,7 @@ class GameRepositoryImplSearchStoriesTest {
                         cachedChaptersCount = 5,
                         bannerAsset = null,
                         menuBackgroundAsset = null,
+                        titleAsset = null,
                         logoAsset = null,
                         metadata = GameMetadataDto(
                             title = "Search Result",
@@ -325,6 +327,7 @@ class GameRepositoryImplSearchStoriesTest {
         override fun observeOfficialGames(): Flow<List<GameCatalogEntity>> = flowOf(emptyList())
         override fun observeUserGames(): Flow<List<GameCatalogEntity>> = flowOf(emptyList())
         override fun observeGame(id: String): Flow<GameCatalogEntity?> = flowOf(null)
+        override suspend fun getGame(id: String): GameCatalogEntity? = null
         override suspend fun deleteAllOfficial() {}
         override suspend fun deleteAllUserGames() {}
 
@@ -355,6 +358,7 @@ class GameRepositoryImplSearchStoriesTest {
         cachedChaptersCount = 5,
         bannerAsset = null,
         menuBackgroundAsset = null,
+        titleAsset = null,
         logoAsset = null,
         metadata = GameMetadataDto(
             title = "Title",

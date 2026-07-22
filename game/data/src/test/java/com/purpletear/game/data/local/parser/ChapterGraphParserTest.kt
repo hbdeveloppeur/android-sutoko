@@ -273,6 +273,223 @@ class ChapterGraphParserTest {
     }
 
     @Test
+    fun `narration node with empty text is bypassed and its incoming edge is retargeted`() {
+        val nodes = listOf(
+            node("start-0", "start"),
+            node("narration-1", "narration", text = "Narration"),
+            node("narration-2", "narration", text = ""),
+            node("message-3", "message", text = "Hello", characterId = 1)
+        )
+        val edges = listOf(
+            edge("start-0", "narration-1"),
+            edge("narration-1", "narration-2"),
+            edge("narration-2", "message-3")
+        )
+
+        val graph = ChapterGraphParser.parse(
+            chapterCode = "1a",
+            metadata = ChapterMetadataDto(title = "Chapter 1A"),
+            nodeDtos = nodes,
+            edgeDtos = edges,
+            gameId = "game1",
+            legacyId = null,
+            pathProvider = pathProvider
+        )
+
+        assertNull("blank narration should be removed", graph.getNode("narration-2"))
+        assertEquals("message-3", graph.getNextEdges("narration-1").first().target)
+    }
+
+    @Test
+    fun `narration node with whitespace-only text is bypassed`() {
+        val nodes = listOf(
+            node("start-0", "start"),
+            node("narration-1", "narration", text = "   "),
+            node("message-2", "message", text = "Hello", characterId = 1)
+        )
+        val edges = listOf(
+            edge("start-0", "narration-1"),
+            edge("narration-1", "message-2")
+        )
+
+        val graph = ChapterGraphParser.parse(
+            chapterCode = "1a",
+            metadata = ChapterMetadataDto(title = "Chapter 1A"),
+            nodeDtos = nodes,
+            edgeDtos = edges,
+            gameId = "game1",
+            legacyId = null,
+            pathProvider = pathProvider
+        )
+
+        assertNull(graph.getNode("narration-1"))
+        assertEquals("message-2", graph.getNextEdges("start-0").first().target)
+    }
+
+    @Test
+    fun `narration node with non-object data is bypassed`() {
+        val nodes = listOf(
+            node("start-0", "start"),
+            node("narration-1", "narration", data = JsonArray()),
+            node("message-2", "message", text = "Hello", characterId = 1)
+        )
+        val edges = listOf(
+            edge("start-0", "narration-1"),
+            edge("narration-1", "message-2")
+        )
+
+        val graph = ChapterGraphParser.parse(
+            chapterCode = "1a",
+            metadata = ChapterMetadataDto(title = "Chapter 1A"),
+            nodeDtos = nodes,
+            edgeDtos = edges,
+            gameId = "game1",
+            legacyId = null,
+            pathProvider = pathProvider
+        )
+
+        assertNull(graph.getNode("narration-1"))
+        assertEquals("message-2", graph.getNextEdges("start-0").first().target)
+    }
+
+    @Test
+    fun `chained blank narration nodes are all bypassed transitively`() {
+        val nodes = listOf(
+            node("start-0", "start"),
+            node("narration-1", "narration", text = ""),
+            node("narration-2", "narration", text = ""),
+            node("message-3", "message", text = "Hello", characterId = 1)
+        )
+        val edges = listOf(
+            edge("start-0", "narration-1"),
+            edge("narration-1", "narration-2"),
+            edge("narration-2", "message-3")
+        )
+
+        val graph = ChapterGraphParser.parse(
+            chapterCode = "1a",
+            metadata = ChapterMetadataDto(title = "Chapter 1A"),
+            nodeDtos = nodes,
+            edgeDtos = edges,
+            gameId = "game1",
+            legacyId = null,
+            pathProvider = pathProvider
+        )
+
+        assertNull(graph.getNode("narration-1"))
+        assertNull(graph.getNode("narration-2"))
+        val startEdges = graph.getNextEdges("start-0")
+        assertEquals(1, startEdges.size)
+        assertEquals("message-3", startEdges.first().target)
+    }
+
+    @Test
+    fun `blank narration node with no outgoing edge drops incoming edges`() {
+        val nodes = listOf(
+            node("start-0", "start"),
+            node("narration-1", "narration", text = "Narration"),
+            node("narration-2", "narration", text = "")
+        )
+        val edges = listOf(
+            edge("start-0", "narration-1"),
+            edge("narration-1", "narration-2")
+        )
+
+        val graph = ChapterGraphParser.parse(
+            chapterCode = "1a",
+            metadata = ChapterMetadataDto(title = "Chapter 1A"),
+            nodeDtos = nodes,
+            edgeDtos = edges,
+            gameId = "game1",
+            legacyId = null,
+            pathProvider = pathProvider
+        )
+
+        assertNull(graph.getNode("narration-2"))
+        assertTrue(graph.getNextEdges("narration-1").isEmpty())
+    }
+
+    @Test
+    fun `message node with empty text is bypassed and its incoming edge is retargeted`() {
+        val nodes = listOf(
+            node("start-0", "start"),
+            node("narration-1", "narration", text = "Narration"),
+            node("message-2", "message", text = "", characterId = 1),
+            node("message-3", "message", text = "Hello", characterId = 1)
+        )
+        val edges = listOf(
+            edge("start-0", "narration-1"),
+            edge("narration-1", "message-2"),
+            edge("message-2", "message-3")
+        )
+
+        val graph = ChapterGraphParser.parse(
+            chapterCode = "1a",
+            metadata = ChapterMetadataDto(title = "Chapter 1A"),
+            nodeDtos = nodes,
+            edgeDtos = edges,
+            gameId = "game1",
+            legacyId = null,
+            pathProvider = pathProvider
+        )
+
+        assertNull("blank message should be removed", graph.getNode("message-2"))
+        assertEquals("message-3", graph.getNextEdges("narration-1").first().target)
+    }
+
+    @Test
+    fun `message node with missing text is bypassed`() {
+        val nodes = listOf(
+            node("start-0", "start"),
+            node("message-1", "message", data = JsonObject()),
+            node("message-2", "message", text = "Hello", characterId = 1)
+        )
+        val edges = listOf(
+            edge("start-0", "message-1"),
+            edge("message-1", "message-2")
+        )
+
+        val graph = ChapterGraphParser.parse(
+            chapterCode = "1a",
+            metadata = ChapterMetadataDto(title = "Chapter 1A"),
+            nodeDtos = nodes,
+            edgeDtos = edges,
+            gameId = "game1",
+            legacyId = null,
+            pathProvider = pathProvider
+        )
+
+        assertNull(graph.getNode("message-1"))
+        assertEquals("message-2", graph.getNextEdges("start-0").first().target)
+    }
+
+    @Test
+    fun `intro-sentence node with blank text is bypassed`() {
+        val nodes = listOf(
+            node("start-0", "start"),
+            node("intro-1", "intro-sentence", text = "  "),
+            node("message-2", "message", text = "Hello", characterId = 1)
+        )
+        val edges = listOf(
+            edge("start-0", "intro-1"),
+            edge("intro-1", "message-2")
+        )
+
+        val graph = ChapterGraphParser.parse(
+            chapterCode = "1a",
+            metadata = ChapterMetadataDto(title = "Chapter 1A"),
+            nodeDtos = nodes,
+            edgeDtos = edges,
+            gameId = "game1",
+            legacyId = null,
+            pathProvider = pathProvider
+        )
+
+        assertNull(graph.getNode("intro-1"))
+        assertEquals("message-2", graph.getNextEdges("start-0").first().target)
+    }
+
+    @Test
     fun `code node parses to Node Code and recognises intro markers`() {
         val nodes = listOf(
             node("start-0", "start"),

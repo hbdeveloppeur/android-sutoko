@@ -187,7 +187,7 @@ class GamePreviewViewModel @Inject constructor(
     }
 
     /**
-     * Re-fetches the catalog and the chapters from the network. The Room
+     * Re-fetches this story and its chapters from the network. The Room
      * observation flows update the UI automatically when fresh data lands.
      */
     fun refresh() {
@@ -195,9 +195,9 @@ class GamePreviewViewModel @Inject constructor(
         viewModelScope.launch {
             _isRefreshing.value = true
             try {
-                val catalogSynced = async { syncCatalog() }
+                val gameSynced = async { syncGame() }
                 val chaptersLoaded = async { loadChapters() }
-                val catalogOk = catalogSynced.await()
+                val catalogOk = gameSynced.await()
                 val chaptersOk = chaptersLoaded.await()
                 if (!catalogOk || !chaptersOk) {
                     toastService(R.string.error_load_game)
@@ -249,10 +249,10 @@ class GamePreviewViewModel @Inject constructor(
         _events.tryEmit(event)
     }
 
-    private suspend fun syncCatalog(): Boolean {
-        return gameRepository.syncOfficialGames(Locale.getDefault().toLanguageTag())
+    private suspend fun syncGame(): Boolean {
+        return gameRepository.syncGame(gameId, Locale.getDefault().toLanguageTag())
             .onFailure { error ->
-                logger.exception(error) { "Catalog sync failed during refresh for gameId=$gameId" }
+                logger.exception(error) { "Game sync failed during refresh for gameId=$gameId" }
             }
             .isSuccess
     }

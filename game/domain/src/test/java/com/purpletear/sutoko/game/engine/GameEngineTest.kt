@@ -31,6 +31,9 @@ import com.purpletear.sutoko.game.model.chapter.Edge
 import com.purpletear.sutoko.game.model.chapter.EdgeType
 import com.purpletear.sutoko.game.model.chapter.GameMemory
 import com.purpletear.sutoko.game.model.chapter.Node
+import com.purpletear.sutoko.game.model.character.Character
+import com.purpletear.sutoko.game.model.character.CharacterColor
+import com.purpletear.sutoko.game.repository.CharacterRepository
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -363,7 +366,47 @@ class GameEngineTest {
         assertTrue(texts.any { it.text == "Hmm" })
     }
 
-    private fun createEngine(memory: GameMemory = createFakeGameMemory()): GameEngine {
+    @Test
+    fun `initialize with multiple main characters - should not throw and become ready`() = runBlocking {
+        val characters = listOf(
+            Character(id = 7087, name = "lucie", avatar = null, isMainCharacter = true, color = CharacterColor("#8E2DE2", "#4A00E0")),
+            Character(id = 7088, name = "mark", avatar = null, isMainCharacter = true, color = CharacterColor("#ff6a88", "#ff99ac")),
+            Character(id = 7089, name = "espris", avatar = null, isMainCharacter = true, color = CharacterColor("#f12711", "#f5af19"))
+        )
+        val engine = createEngine(characterRepository = FakeCharacterRepository(characters))
+        val graph = ChapterGraph(
+            chapterCode = "1A",
+            title = "Test",
+            nodes = mapOf("start" to Node.Start(id = "start")),
+            edges = emptyList(),
+            startNodeId = "start"
+        )
+
+        engine.initialize("game-1", graph)
+
+        assertTrue(engine.state.value is GameEngineState.Ready)
+    }
+
+    @Test
+    fun `initialize with no main character - should not throw and become ready`() = runBlocking {
+        val engine = createEngine(characterRepository = FakeCharacterRepository(emptyList()))
+        val graph = ChapterGraph(
+            chapterCode = "1A",
+            title = "Test",
+            nodes = mapOf("start" to Node.Start(id = "start")),
+            edges = emptyList(),
+            startNodeId = "start"
+        )
+
+        engine.initialize("game-1", graph)
+
+        assertTrue(engine.state.value is GameEngineState.Ready)
+    }
+
+    private fun createEngine(
+        memory: GameMemory = createFakeGameMemory(),
+        characterRepository: CharacterRepository = fakeCharacterRepository
+    ): GameEngine {
         return GameEngine(
             handlerFactory = NodeHandlerFactory(
                 startHandler = StartNodeHandler(),
@@ -389,7 +432,7 @@ class GameEngineTest {
             memory = memory,
             timingScheduler = fakeTimingScheduler,
             textProcessor = textProcessor,
-            characterRepository = fakeCharacterRepository
+            characterRepository = characterRepository
         )
     }
 }

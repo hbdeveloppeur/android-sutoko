@@ -33,6 +33,7 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.example.sharedelements.theme.CrimsonTextFontFamily
 import com.purpletear.game.presentation.BuildConfig
+import com.purpletear.game.presentation.common.components.GameLogo
 import com.purpletear.sutoko.game.model.game.GameCatalog
 import kotlin.math.abs
 import kotlin.math.roundToInt
@@ -75,29 +76,14 @@ fun GameCard(
             contentScale = ContentScale.Fit,
             contentDescription = null,
         )
-        Logo(gameCatalog = gameCatalog)
+        GameLogo(
+            titleUrl = remember(gameCatalog.title) { gameCatalog.titleUrl() },
+            modifier = Modifier.titleRect(),
+        )
         Themes(themes = themes)
     }
 }
 
-
-/**
- * Overlays the game's logo (logoAsset) inside the title rectangle of the banner,
- * scaled to fit without distortion. Nothing is drawn when the game has no logo.
- * Fades in once when the card is first composed.
- */
-@Composable
-private fun Logo(gameCatalog: GameCatalog) {
-    val context = LocalContext.current
-    val request = remember(gameCatalog.title) { gameCatalog.logoImageRequest(context) } ?: return
-    AsyncImage(
-        modifier = Modifier
-            .titleRect(),
-        model = request,
-        contentScale = ContentScale.Fit,
-        contentDescription = null,
-    )
-}
 
 /** Places the content inside the title rectangle, as fractions of the card size. */
 private fun Modifier.titleRect(): Modifier = layout { measurable, constraints ->
@@ -127,7 +113,6 @@ private fun Themes(modifier: Modifier = Modifier, themes: List<String>) {
             Log.w("GameCard", "Dropping ${clean.size - MAX_THEMES} theme(s): max is $MAX_THEMES")
         }
         clean.take(MAX_THEMES).map { theme ->
-            // Long compound words (e.g. German) are capped, then ellipsized if still too wide.
             if (theme.length <= MAX_THEME_LENGTH) theme
             else theme.take(MAX_THEME_LENGTH - 1) + '…'
         }

@@ -47,7 +47,7 @@ object ChapterGraphParser {
         pathProvider: GamePathProvider
     ): ChapterGraph {
         val (compactedNodeDtos, compactedEdgeDtos) =
-            compactIgnoreNodes(nodeDtos, edgeDtos)
+            GraphCompactor.compact(nodeDtos, edgeDtos)
 
         val nodes = compactedNodeDtos
             .mapNotNull { parseNode(it, gameId, legacyId, pathProvider) }
@@ -67,61 +67,6 @@ object ChapterGraphParser {
         )
     }
 
-    /**
-     * Removes "ignore" nodes from the authored graph and reconnects edges so the
-     * engine never has to execute them. An ignore node is a no-op placeholder:
-     * it emits nothing and is meant to be transparently bypassed.
-     *
-     * Transformation rules:
-     * - Edges targeting an ignore node are retargeted to the ignore node's single
-     *   outgoing target.
-     * - Edges originating from an ignore node are dropped (their purpose is already
-     *   fulfilled by retargeting incoming edges).
-     * - Ignore nodes with zero or multiple outgoing edges are treated as dead ends:
-     *   incoming edges to them are dropped.
-     */
-    private fun compactIgnoreNodes(
-        nodeDtos: List<NodeDto>,
-        edgeDtos: List<EdgeDto>
-    ): Pair<List<NodeDto>, List<EdgeDto>> {
-        val ignoreNodeIds = nodeDtos
-            .filter { it.type == "ignore" }
-            .map { it.id }
-            .toSet()
-
-        if (ignoreNodeIds.isEmpty()) {
-            return nodeDtos to edgeDtos
-        }
-
-        val ignoreBypassTargets = ignoreNodeIds.associateWith { ignoreId ->
-            val outgoing = edgeDtos.filter { it.source == ignoreId }
-            when (outgoing.size) {
-                1 -> outgoing.first().target
-                else -> null
-            }
-        }
-
-        val compactedEdges = edgeDtos.mapNotNull { edge ->
-            when {
-                edge.source in ignoreNodeIds -> null
-                edge.target in ignoreNodeIds -> {
-                    val bypassTarget = ignoreBypassTargets[edge.target]
-                    if (bypassTarget != null) {
-                        edge.copy(target = bypassTarget, type = edge.type)
-                    } else {
-                        null
-                    }
-                }
-
-                else -> edge
-            }
-        }
-
-        val compactedNodes = nodeDtos.filter { it.type != "ignore" }
-
-        return compactedNodes to compactedEdges
-    }
-
     private fun parseNode(
         dto: NodeDto,
         gameId: String,
@@ -138,6 +83,7 @@ object ChapterGraphParser {
 
             "message" -> Node.Message(
                 id = dto.id,
+                // Blank messages are bypassed upstream by GraphCompactor; this require is an invariant guard.
                 text = requireNotNull(data?.text) { "message node ${dto.id} missing text" },
                 characterId = data?.characterId ?: -1,
                 waitMs = data?.wait ?: 0,
@@ -208,6 +154,7 @@ object ChapterGraphParser {
             }
 
             "narration" -> {
+                // Blank narrations are bypassed upstream by GraphCompactor; this require is an invariant guard.
                 val id = dto.id
                 val text = data?.text
                 require(id.isNotBlank()) { "narration node missing id" }
@@ -263,6 +210,7 @@ object ChapterGraphParser {
 
             "intro-sentence" -> Node.IntroSentence(
                 id = dto.id,
+                // Blank intro-sentences are bypassed upstream by GraphCompactor; invariant guard.
                 text = requireNotNull(data?.text?.takeIf { it.isNotBlank() }) {
                     "intro-sentence node ${dto.id} missing text"
                 },

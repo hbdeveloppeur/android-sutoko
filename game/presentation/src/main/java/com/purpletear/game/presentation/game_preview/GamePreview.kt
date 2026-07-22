@@ -68,7 +68,7 @@ import com.purpletear.core.presentation.util.openAppInStore
 import com.purpletear.game.presentation.R
 import com.purpletear.game.presentation.common.components.NickNameInputDialog
 import com.purpletear.game.presentation.game_play.components.Avatar
-import com.purpletear.game.presentation.game_preview.components.GamePreviewAnimatedGameTitle
+import com.purpletear.game.presentation.common.components.GameLogo
 import com.purpletear.game.presentation.game_preview.components.GamePreviewCategories
 import com.purpletear.game.presentation.game_preview.components.GamePreviewChapterTitle
 import com.purpletear.game.presentation.game_preview.components.GamePreviewDescription
@@ -294,10 +294,13 @@ fun GamePreview(
                             verticalArrangement = Arrangement.spacedBy(26.dp)
                         ) {
                             gameItem?.let { game ->
-                                GamePreviewAnimatedGameTitle(
+                                GameLogo(
+                                    titleUrl = game.titleUrl,
+                                    contentDescription = game.title,
                                     modifier = Modifier
-                                        .align(Alignment.CenterHorizontally),
-                                    title = game.title,
+                                        .align(Alignment.CenterHorizontally)
+                                        .fillMaxWidth(0.8f)
+                                        .heightIn(max = 120.dp),
                                 )
                             }
 

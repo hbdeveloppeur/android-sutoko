@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -37,6 +38,7 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.example.sharedelements.theme.Poppins
 import com.purpletear.game.presentation.R
+import com.purpletear.game.presentation.game_play.components.Avatar
 import com.purpletear.game.presentation.model.GameItem
 
 private const val CROSSFADE_DURATION_MS = 400
@@ -84,6 +86,7 @@ fun GameCardCompact(
                         .build(),
                     contentDescription = null,
                     contentScale = ContentScale.Crop,
+                    fallback = painterResource(R.drawable.game_logo_fallback),
                     modifier = Modifier.fillMaxSize(),
                 )
             }
@@ -106,6 +109,17 @@ fun GameCardCompact(
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(4.dp)
                     ) {
+                        game.authorAvatarUrl?.let { avatarUrl ->
+                            Avatar(
+                                modifier = Modifier
+                                    .background(Color.White, CircleShape)
+                                    .clip(CircleShape),
+                                size = 16.dp,
+                                borderWidth = 1.dp,
+                                borderColor = Color.White,
+                                imageModel = avatarUrl,
+                            )
+                        }
                         Text(
                             text = author.displayName,
                             fontFamily = Poppins,

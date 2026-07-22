@@ -30,15 +30,3 @@ fun GameCatalog.bannerImageRequest(context: Context): ImageRequest? {
  */
 fun GameCatalog.titleUrl(): String? = title.getFullUrl()
 
-/**
- * Creates an ImageRequest for the game's logo.
- * @param context The Android context for the request builder.
- * @return An ImageRequest configured for the logo image, or null if not available.
- */
-fun GameCatalog.logoImageRequest(context: Context): ImageRequest? {
-    val url = titleUrl() ?: return null
-    return ImageRequest.Builder(context)
-        .data(url)
-        .crossfade(true)
-        .build()
-}

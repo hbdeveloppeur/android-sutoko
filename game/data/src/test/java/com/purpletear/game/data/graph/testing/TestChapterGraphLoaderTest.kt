@@ -195,6 +195,80 @@ class TestChapterGraphLoaderTest {
         )
     }
 
+    @Test
+    fun `blank narration node is compacted and edges are reconnected`() {
+        val extractDir = tempFolder.newFolder("extracted")
+        tempFolder.newFolder("games", "game1")
+
+        val manifest = TestPackageManifestDto(
+            seed = 1,
+            chapterId = "chapter-1",
+            storyId = "story-1",
+            updatedAt = "2024-01-01T00:00:00Z",
+            nodes = listOf(
+                nodeDto("start-0", "start", label = "Start"),
+                nodeDto("narration-1", "narration", text = ""),
+                nodeDto("message-2", "message", text = "Hello", characterId = 1),
+                nodeDto("end-3", "end")
+            ),
+            edges = listOf(
+                edgeDto("start-0", "narration-1"),
+                edgeDto("narration-1", "message-2"),
+                edgeDto("message-2", "end-3")
+            ),
+            assetInventory = emptyList()
+        )
+
+        File(extractDir, "manifest.json").writeText(gson.toJson(manifest))
+
+        val pathProvider = FakeAndroidGamePathProvider(tempFolder.root)
+        val assetCacheManager = TestAssetCacheManager(pathProvider)
+        val loader = TestChapterGraphLoader(assetCacheManager, pathProvider)
+
+        val graph = loader.load(extractDir.absolutePath, gameId = "game1")
+
+        assertTrue("blank narration should be removed", graph.getNode("narration-1") == null)
+        val startEdges = graph.getNextEdges("start-0")
+        assertEquals(1, startEdges.size)
+        assertEquals("message-2", startEdges.first().target)
+    }
+
+    @Test
+    fun `blank message node is compacted and edges are reconnected`() {
+        val extractDir = tempFolder.newFolder("extracted")
+        tempFolder.newFolder("games", "game1")
+
+        val manifest = TestPackageManifestDto(
+            seed = 1,
+            chapterId = "chapter-1",
+            storyId = "story-1",
+            updatedAt = "2024-01-01T00:00:00Z",
+            nodes = listOf(
+                nodeDto("start-0", "start", label = "Start"),
+                nodeDto("message-1", "message", text = "", characterId = 1),
+                nodeDto("message-2", "message", text = "Hello", characterId = 1),
+                nodeDto("end-3", "end")
+            ),
+            edges = listOf(
+                edgeDto("start-0", "message-1"),
+                edgeDto("message-1", "message-2"),
+                edgeDto("message-2", "end-3")
+            ),
+            assetInventory = emptyList()
+        )
+
+        File(extractDir, "manifest.json").writeText(gson.toJson(manifest))
+
+        val pathProvider = FakeAndroidGamePathProvider(tempFolder.root)
+        val assetCacheManager = TestAssetCacheManager(pathProvider)
+        val loader = TestChapterGraphLoader(assetCacheManager, pathProvider)
+
+        val graph = loader.load(extractDir.absolutePath, gameId = "game1")
+
+        assertTrue("blank message should be removed", graph.getNode("message-1") == null)
+        assertEquals("message-2", graph.getNextEdges("start-0").first().target)
+    }
+
     private fun nodeDto(
         id: String,
         type: String,

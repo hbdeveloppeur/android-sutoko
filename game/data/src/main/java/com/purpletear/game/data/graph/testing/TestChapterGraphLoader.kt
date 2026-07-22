@@ -5,6 +5,7 @@ import com.purpletear.game.data.file.testing.TestAssetCacheManager
 import com.purpletear.game.data.local.dto.EdgeDto
 import com.purpletear.game.data.local.dto.NodeDataDto
 import com.purpletear.game.data.local.dto.NodeDto
+import com.purpletear.game.data.local.parser.GraphCompactor
 import com.purpletear.game.data.provider.AndroidGamePathProvider
 import com.purpletear.game.data.remote.testing.dto.parseManifest
 import com.purpletear.sutoko.game.model.chapter.ChapterGraph
@@ -44,7 +45,7 @@ class TestChapterGraphLoader @Inject constructor(
         val assetLookup =
             buildAssetLookup(gameId, manifest.assetInventory.map { it.uniqueFileName })
 
-        val (compactedNodes, compactedEdges) = compactIgnoreNodes(manifest.nodes, manifest.edges)
+        val (compactedNodes, compactedEdges) = GraphCompactor.compact(manifest.nodes, manifest.edges)
         val nodes = compactedNodes
             .mapNotNull { parseNode(it, assetLookup) }
             .associateBy { it.id }
@@ -285,43 +286,6 @@ class TestChapterGraphLoader @Inject constructor(
             "CHOICE" -> EdgeType.CHOICE
             else -> EdgeType.NORMAL
         }
-    }
-
-    private fun compactIgnoreNodes(
-        nodeDtos: List<NodeDto>,
-        edgeDtos: List<EdgeDto>
-    ): Pair<List<NodeDto>, List<EdgeDto>> {
-        val ignoreNodeIds = nodeDtos
-            .filter { it.type == "ignore" }
-            .map { it.id }
-            .toSet()
-
-        if (ignoreNodeIds.isEmpty()) {
-            return nodeDtos to edgeDtos
-        }
-
-        val ignoreBypassTargets = ignoreNodeIds.associateWith { ignoreId ->
-            val outgoing = edgeDtos.filter { it.source == ignoreId }
-            when (outgoing.size) {
-                1 -> outgoing.first().target
-                else -> null
-            }
-        }
-
-        val compactedEdges = edgeDtos.mapNotNull { edge ->
-            when {
-                edge.source in ignoreNodeIds -> null
-                edge.target in ignoreNodeIds -> {
-                    val bypassTarget = ignoreBypassTargets[edge.target]
-                    bypassTarget?.let { edge.copy(target = it) }
-                }
-
-                else -> edge
-            }
-        }
-
-        val compactedNodes = nodeDtos.filter { it.type != "ignore" }
-        return compactedNodes to compactedEdges
     }
 
     private companion object {

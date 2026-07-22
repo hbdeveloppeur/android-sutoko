@@ -51,6 +51,14 @@ class FakeGameRepository : GameRepository {
         syncOfficialGamesCalls++
         return syncOfficialGamesResult
     }
+
+    var syncGameResult: Result<Unit> = Result.success(Unit)
+    val syncGameCalls = mutableListOf<String>()
+
+    override suspend fun syncGame(gameId: String, languageTag: String): Result<Unit> {
+        syncGameCalls.add(gameId)
+        return syncGameResult
+    }
     override suspend fun syncUserGames(languageTag: String): Result<Unit> = Result.success(Unit)
     override suspend fun loadMoreUserGames(languageTag: String): Result<Boolean> = Result.success(false)
     override suspend fun searchStories(
