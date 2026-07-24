@@ -374,6 +374,7 @@ Entrez votre pseudo pour le classement!</string>
     <string name="sutoko_community_rank_title">Classement des auteurs</string>
     <string name="sutoko_community_cta_row_stories">Vous pouvez écrire une histoire</string>
     <string name="sutoko_create">Créer</string>
+    <string name="sutoko_companion">Compagnon</string>
     <string name="sutoko_see_all_authors">Voir tous les auteurs</string>
     <string name="sutoko_params_themes_flavor">Thèmes favoris et genre</string>
     <string name="sutoko_flavor_saved">Params successfully saved</string>

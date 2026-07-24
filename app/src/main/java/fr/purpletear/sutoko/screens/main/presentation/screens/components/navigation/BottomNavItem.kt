@@ -15,6 +15,12 @@ sealed class BottomNavItem(val title: Int, val icon: Int, val route: String) {
         "create"
     )
 
+    data object Companion : BottomNavItem(
+        R.string.sutoko_companion,
+        R.drawable.compagnon,
+        "companion"
+    )
+
     data object Shop : BottomNavItem(
         R.string.sutoko_shop,
         R.drawable.ic_shop,

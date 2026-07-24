@@ -375,6 +375,7 @@ Geben Sie Ihren Benutzernamen für die Rangliste ein!</string>
     <string name="sutoko_community_rank_title">Rangliste der Autoren</string>
     <string name="sutoko_community_cta_row_stories">Du kannst eine Geschichte schreiben</string>
     <string name="sutoko_create">Erstellen</string>
+    <string name="sutoko_companion">Begleiter</string>
     <string name="sutoko_see_all_authors">Alle Autoren anzeigen</string>
     <string name="sutoko_params_themes_flavor">Thèmes favoris et genre</string>
     <string name="sutoko_flavor_saved">Params successfully saved</string>

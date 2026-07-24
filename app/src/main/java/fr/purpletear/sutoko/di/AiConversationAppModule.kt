@@ -423,7 +423,7 @@ class AiConversationAppModule {
             .addInterceptor(loggingInterceptor)
             .build()
         return Retrofit.Builder()
-            .baseUrl("${Server.urlPrefix()}/api/")
+            .baseUrl("${Server.shop()}/")
             .addConverterFactory(GsonConverterFactory.create())
             .client(okHttpClient)
             .build()

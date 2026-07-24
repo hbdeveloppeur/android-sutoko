@@ -29,8 +29,8 @@ import kotlinx.coroutines.delay
 val brush = Brush.verticalGradient(colors = listOf(Color(0xFF05070C), Color(0xFF0E1116)))
 val alphaBrush = Brush.verticalGradient(
     colors = listOf(
-        Color(0xFF05070C).copy(0.8f),
-        Color(0xFF0E1116).copy(0.8f)
+        Color(0xFF05070C).copy(0.7f),
+        Color(0xFF0E1116).copy(0.7f)
     )
 )
 

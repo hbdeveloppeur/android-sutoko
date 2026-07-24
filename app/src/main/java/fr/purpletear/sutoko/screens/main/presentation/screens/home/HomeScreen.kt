@@ -21,19 +21,15 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
-import com.purpletear.aiconversation.presentation.navigation.AiConversationRouteDestination
 import com.purpletear.core.presentation.extensions.Resource
 import com.purpletear.game.presentation.game_catalog.GameCard
 import com.purpletear.game.presentation.game_catalog.GameSquares
 import com.purpletear.sutoko.game.model.game.GameCatalog
 import com.purpletear.sutoko.news.model.News
 import com.purpletear.sutoko.shop.domain.repository.model.Balance
-import fr.purpletear.sutoko.BuildConfig
 import fr.purpletear.sutoko.screens.main.presentation.HomeScreenViewModel
-import fr.purpletear.sutoko.screens.main.presentation.MainEvents
 import fr.purpletear.sutoko.screens.main.presentation.MainScreenPages
 import fr.purpletear.sutoko.screens.main.presentation.screens.TopNavigation
-import fr.purpletear.sutoko.screens.main.presentation.screens.home.components.AiConversationCard
 import fr.purpletear.sutoko.screens.main.presentation.screens.home.components.HeaderPager
 import kotlinx.coroutines.CancellationException
 
@@ -89,8 +85,6 @@ fun HomeScreen(
         squareIcons = viewModel.squareIcons.value,
         coinsBalance = balance.value,
         isConnected = isConnected.value,
-        aiConversationMessageCount = viewModel.aiConversationMessageCount.value,
-        displayAiConversationCard = viewModel.displayAiConversationCard.value,
         onAccountButtonPressed = onAccountPressed,
         onSignInButtonPressed = onSignInPressed,
         onCoinsButtonPressed = onCoinsPressed,
@@ -102,13 +96,6 @@ fun HomeScreen(
         },
         onFullStoryTap = { card ->
             mainNavController.navigate(MainScreenPages.GamePreview.createRoute(card.id))
-        },
-        onAiConversationTap = {
-            if (viewModel.displayAiConversationCard.value || BuildConfig.DEBUG) {
-                mainNavController.navigate(AiConversationRouteDestination.Home.destination)
-            } else {
-                viewModel.onEvent(MainEvents.TapAiConversationMenu)
-            }
         }
     )
 }
@@ -126,8 +113,6 @@ private fun HomeContent(
     squareIcons: Map<Int, Int?>,
     coinsBalance: Resource<Balance>,
     isConnected: Boolean,
-    aiConversationMessageCount: Int?,
-    displayAiConversationCard: Boolean,
     onAccountButtonPressed: () -> Unit,
     onSignInButtonPressed: () -> Unit,
     onCoinsButtonPressed: () -> Unit,
@@ -136,7 +121,6 @@ private fun HomeContent(
     onNewsPressed: (com.purpletear.sutoko.core.domain.appaction.AppAction) -> Unit,
     onSquareStoryTap: (GameCatalog) -> Unit,
     onFullStoryTap: (GameCatalog) -> Unit,
-    onAiConversationTap: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     LazyColumn(
@@ -170,12 +154,6 @@ private fun HomeContent(
             squareStories = squareStories,
             fullStories = fullStories,
             onStoryTap = onFullStoryTap
-        )
-
-        aiConversationSection(
-            aiConversationMessageCount = aiConversationMessageCount,
-            displayAiConversationCard = displayAiConversationCard,
-            onAiConversationTap = onAiConversationTap
         )
 
         fullStoriesSection(
@@ -266,20 +244,6 @@ private fun LazyListScope.squareStoriesAsCardsSection(
             modifier = Modifier.animateItemPlacement(),
             gameCatalog = item,
             onTap = { card -> onStoryTap(card) }
-        )
-    }
-}
-
-private fun LazyListScope.aiConversationSection(
-    aiConversationMessageCount: Int?,
-    displayAiConversationCard: Boolean,
-    onAiConversationTap: () -> Unit
-) {
-    item(key = "ai_conversation") {
-        AiConversationCard(
-            messagesCount = aiConversationMessageCount,
-            onTap = onAiConversationTap,
-            isAvailable = displayAiConversationCard
         )
     }
 }

@@ -377,6 +377,7 @@ Enter your nickname for the leaderboard!</string>
     <string name="sutoko_community_rank_title">Authors ranking</string>
     <string name="sutoko_community_cta_row_stories">You can write a story</string>
     <string name="sutoko_create">Create</string>
+    <string name="sutoko_companion">Companion</string>
     <string name="sutoko_see_all_authors">See all authors</string>
     <string name="sutoko_version_name_build" translatable="false">Sutoko %s (build %d)</string>
     <string name="sutoko_params_themes_flavor">Thèmes favoris et genre</string>
