@@ -509,6 +509,74 @@ class GamePreviewViewModelTest {
     }
 
     @Test
+    fun `coin grant check runs once when connected and story unbought`() = runTest {
+        gameRepository.setGame(TestFixtures.GAME_ID, TestFixtures.gameCatalog(price = 100, skus = listOf("sku-1")))
+        val viewModel = createViewModel(connectedUser = true)
+        activateStateFlows(backgroundScope, viewModel)
+
+        viewModel.start()
+        advanceUntilIdle()
+
+        assertEquals(1, isStoryGrantedUseCase.calls)
+    }
+
+    @Test
+    fun `coin grant check is deferred until the user connects`() = runTest {
+        gameRepository.setGame(TestFixtures.GAME_ID, TestFixtures.gameCatalog(price = 100, skus = listOf("sku-1")))
+        val viewModel = createViewModel()
+        activateStateFlows(backgroundScope, viewModel)
+
+        viewModel.start()
+        advanceUntilIdle()
+        assertEquals(0, isStoryGrantedUseCase.calls)
+
+        userRepository.setUser(User(id = "user-1", token = "token-1"))
+        advanceUntilIdle()
+        assertEquals(1, isStoryGrantedUseCase.calls)
+    }
+
+    @Test
+    fun `coin grant check retries transient failures until a definitive answer`() = runTest {
+        gameRepository.setGame(TestFixtures.GAME_ID, TestFixtures.gameCatalog(price = 100, skus = listOf("sku-1")))
+        isStoryGrantedUseCase.enqueueResults(
+            listOf(
+                Result.failure(RuntimeException("network")),
+                Result.failure(RuntimeException("network")),
+                Result.success(true),
+            )
+        )
+        val viewModel = createViewModel(connectedUser = true)
+        activateStateFlows(backgroundScope, viewModel)
+
+        viewModel.start()
+        advanceUntilIdle()
+
+        assertEquals(3, isStoryGrantedUseCase.calls)
+    }
+
+    @Test
+    fun `coin grant check gives up after bounded retries and refresh grants a fresh round`() = runTest {
+        gameRepository.setGame(TestFixtures.GAME_ID, TestFixtures.gameCatalog(price = 100, skus = listOf("sku-1")))
+        isStoryGrantedUseCase.enqueueResults(
+            listOf(
+                Result.failure(RuntimeException("network")),
+                Result.failure(RuntimeException("network")),
+                Result.failure(RuntimeException("network")),
+            )
+        )
+        val viewModel = createViewModel(connectedUser = true)
+        activateStateFlows(backgroundScope, viewModel)
+
+        viewModel.start()
+        advanceUntilIdle()
+        assertEquals(3, isStoryGrantedUseCase.calls)
+
+        viewModel.refresh()
+        advanceUntilIdle()
+        assertEquals(4, isStoryGrantedUseCase.calls)
+    }
+
+    @Test
     fun `successful coin purchase emits PurchaseSuccess`() = runTest {
         gameRepository.setGame(TestFixtures.GAME_ID, TestFixtures.gameCatalog(price = 100, skus = listOf("sku-1")))
         buyStoryWithCoinsUseCase.setResult("sku-1", Result.success(com.purpletear.sutoko.shop.domain.repository.model.Balance(coins = 900, diamonds = 0)))

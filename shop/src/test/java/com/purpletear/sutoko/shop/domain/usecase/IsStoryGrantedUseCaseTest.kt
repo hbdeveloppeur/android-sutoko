@@ -3,14 +3,13 @@ package com.purpletear.sutoko.shop.domain.usecase
 import com.purpletear.sutoko.domain.model.User
 import com.purpletear.sutoko.shop.test.FakeCoinPurchaseRepository
 import kotlinx.coroutines.test.runTest
-import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class IsStoryGrantedUseCaseTest {
 
     @Test
-    fun `invoke returns false when user is not connected`() = runTest {
+    fun `invoke fails when user is not loaded so callers can retry`() = runTest {
         val useCase = IsStoryGrantedUseCase(
             coinPurchaseRepository = FakeCoinPurchaseRepository(),
             userRepository = NotConnectedUserRepository(),
@@ -18,8 +17,7 @@ class IsStoryGrantedUseCaseTest {
 
         val result = useCase(listOf("sku-1"))
 
-        assertTrue(result.isSuccess)
-        assertFalse(result.getOrThrow())
+        assertTrue(result.isFailure)
     }
 
     @Test

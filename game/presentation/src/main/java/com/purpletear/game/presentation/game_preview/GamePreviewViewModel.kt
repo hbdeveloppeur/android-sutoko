@@ -29,6 +29,8 @@ import com.purpletear.sutoko.shop.domain.usecase.IsStoryGrantedUseCase
 import com.purpletear.sutoko.shop.domain.usecase.ObserveCoinPurchasedSkusUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import fr.sutoko.inapppurchase.application.domain.repository.PurchaseRepository
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -187,6 +189,7 @@ class GamePreviewViewModel @Inject constructor(
     val isRefreshing: StateFlow<Boolean> = _isRefreshing.asStateFlow()
 
     private var coinGrantCheckDone = false
+    private var coinGrantCheckJob: Job? = null
     private var initialLoadStarted = false
     private var recoveryAttempted = false
 
@@ -293,6 +296,9 @@ class GamePreviewViewModel @Inject constructor(
                     recoveryAttempted = false
                     attemptCatalogRecovery()
                 }
+                // Explicit user refresh also grants a fresh coin grant check round.
+                coinGrantCheckDone = false
+                triggerCoinGrantCheck()
                 val chaptersOk = loadChapters()
                 if (!chaptersOk) {
                     GamePreviewLogger.w("SYNC") { "refresh() failed for gameId=$gameId" }
@@ -408,29 +414,68 @@ class GamePreviewViewModel @Inject constructor(
         return success
     }
 
+    /**
+     * Reactive healing: coin purchase grants live in memory only, so whenever
+     * the screen shows an unbought paid story while the user is connected, we
+     * ask the server. Combining with [isUserConnected] re-triggers the check
+     * when the user connects after the data has loaded.
+     */
     private suspend fun syncCoinPurchaseGrantOnDataLoad() {
         GamePreviewLogger.d("PUR") { "syncCoinPurchaseGrantOnDataLoad() started for gameId=$gameId" }
-        game.collect { state ->
-            val data = state as? GamePreviewUiState.Data ?: return@collect
-            if (coinGrantCheckDone || !isUserConnected.value || data.item.isPurchased || data.gameCatalog.skus.isEmpty()) {
-                GamePreviewLogger.d("PUR") {
-                    "syncCoinPurchaseGrantOnDataLoad() skipped for gameId=$gameId: " +
-                        "alreadyChecked=$coinGrantCheckDone, connected=${isUserConnected.value}, " +
-                        "isPurchased=${data.item.isPurchased}, hasSkus=${data.gameCatalog.skus.isNotEmpty()}"
-                }
-                return@collect
-            }
+        combine(game, isUserConnected, ::Pair).collect {
+            triggerCoinGrantCheck()
+        }
+    }
 
-            coinGrantCheckDone = true
-            GamePreviewLogger.i("PUR") { "syncCoinPurchaseGrantOnDataLoad() checking SKUs for gameId=$gameId" }
-            isStoryGrantedUseCase(data.gameCatalog.skus)
-                .onSuccess {
-                    GamePreviewLogger.i("PUR") { "syncCoinPurchaseGrantOnDataLoad() completed for gameId=$gameId" }
+    /**
+     * Single entry point for the coin grant check. Guards against re-entrance:
+     * at most one check job in flight, and a definitive server answer
+     * ([coinGrantCheckDone]) stops further checks until [refresh].
+     */
+    private fun triggerCoinGrantCheck() {
+        val data = game.value as? GamePreviewUiState.Data ?: return
+        if (coinGrantCheckDone || coinGrantCheckJob?.isActive == true ||
+            !isUserConnected.value || data.item.isPurchased || data.gameCatalog.skus.isEmpty()
+        ) {
+            GamePreviewLogger.d("PUR") {
+                "coin grant check skipped for gameId=$gameId: " +
+                    "done=$coinGrantCheckDone, inFlight=${coinGrantCheckJob?.isActive == true}, " +
+                    "connected=${isUserConnected.value}, " +
+                    "isPurchased=${data.item.isPurchased}, hasSkus=${data.gameCatalog.skus.isNotEmpty()}"
+            }
+            return
+        }
+        coinGrantCheckJob = viewModelScope.launch { attemptCoinGrantCheck(data.gameCatalog.skus) }
+    }
+
+    /**
+     * Bounded retry: transient failures (network, 5xx, user-not-loaded-yet)
+     * get up to [MAX_GRANT_CHECK_ATTEMPTS] attempts with linear backoff. Only
+     * a definitive server answer marks [coinGrantCheckDone]; after exhausting
+     * the attempts we give up silently — pull-to-refresh grants a fresh round.
+     */
+    private suspend fun attemptCoinGrantCheck(skus: List<String>) {
+        var attempt = 0
+        while (attempt < MAX_GRANT_CHECK_ATTEMPTS && !coinGrantCheckDone) {
+            attempt++
+            GamePreviewLogger.i("PUR") { "coin grant check attempt $attempt/$MAX_GRANT_CHECK_ATTEMPTS for gameId=$gameId" }
+            isStoryGrantedUseCase(skus)
+                .onSuccess { granted ->
+                    coinGrantCheckDone = true
+                    GamePreviewLogger.i("PUR") { "coin grant check answered granted=$granted for gameId=$gameId" }
                 }
                 .onFailure { error ->
-                    GamePreviewLogger.e("PUR", error) { "syncCoinPurchaseGrantOnDataLoad() failed for gameId=$gameId" }
-                    logger.exception(error) { "Failed to sync coin purchase grant for gameId=$gameId" }
+                    GamePreviewLogger.e("PUR", error) { "coin grant check attempt $attempt failed for gameId=$gameId" }
+                    if (attempt == MAX_GRANT_CHECK_ATTEMPTS) {
+                        logger.warning(
+                            message = "Coin purchase grant check gave up after $MAX_GRANT_CHECK_ATTEMPTS attempts for gameId=$gameId",
+                            data = mapOf("gameId" to gameId),
+                        )
+                    }
                 }
+            if (!coinGrantCheckDone && attempt < MAX_GRANT_CHECK_ATTEMPTS) {
+                delay(GRANT_CHECK_RETRY_DELAY_MS * attempt)
+            }
         }
     }
 
@@ -512,5 +557,10 @@ class GamePreviewViewModel @Inject constructor(
                     sendEvent(GamePreviewEvent.ShowError(GameUiError.Restart))
                 }
         }
+    }
+
+    private companion object {
+        const val MAX_GRANT_CHECK_ATTEMPTS = 3
+        const val GRANT_CHECK_RETRY_DELAY_MS = 1_000L
     }
 }
