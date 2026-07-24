@@ -30,6 +30,7 @@ data class GameItem(
     val legacyId: Int? = null,
     val narrativeThemes: List<NarrativeTheme> = emptyList(),
     val price: Int = 0,
+    val isFavorite: Boolean = false,
 ) {
     constructor(
         catalog: GameCatalog,
@@ -40,7 +41,8 @@ data class GameItem(
         logoUrl: String? = null,
         menuBackgroundUrl: String? = null,
         authorAvatarUrl: String? = null,
-        downloadProgress: Float? = null
+        downloadProgress: Float? = null,
+        isFavorite: Boolean = false,
     ) : this(
         id = catalog.id,
         title = catalog.metadata.title,
@@ -63,5 +65,6 @@ data class GameItem(
         legacyId = catalog.legacyId,
         narrativeThemes = catalog.narrativeThemes,
         price = catalog.price,
+        isFavorite = isFavorite,
     )
 }

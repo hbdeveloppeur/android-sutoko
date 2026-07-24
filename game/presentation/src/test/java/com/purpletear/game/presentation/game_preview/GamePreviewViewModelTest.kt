@@ -6,6 +6,7 @@ import com.purpletear.game.presentation.R
 import com.purpletear.game.presentation.game_preview.events.GamePreviewEvent
 import com.purpletear.game.presentation.game_preview.fakes.FakeAppVersionProvider
 import com.purpletear.game.presentation.game_preview.fakes.FakeChapterRepository
+import com.purpletear.game.presentation.game_preview.fakes.FakeFavoriteGamesRepository
 import com.purpletear.game.presentation.game_preview.fakes.FakeGameInstallRepository
 import com.purpletear.game.presentation.game_preview.fakes.FakeGameRepository
 import com.purpletear.game.presentation.game_preview.fakes.FakeBuyStoryWithCoinsUseCase
@@ -53,6 +54,7 @@ class GamePreviewViewModelTest {
     private val gameRepository = FakeGameRepository()
     private val chapterRepository = FakeChapterRepository()
     private val gameInstallRepository = FakeGameInstallRepository()
+    private val favoriteGamesRepository = FakeFavoriteGamesRepository()
     private val purchaseRepository = FakePurchaseRepository()
     private val mediaUrlResolver = FakeMediaUrlResolver()
     private val userRepository = FakeUserRepository()
@@ -105,6 +107,7 @@ class GamePreviewViewModelTest {
         return GamePreviewViewModel(
             savedStateHandle = SavedStateHandle(mapOf("gameId" to gameId)),
             gameRepository = gameRepository,
+            favoriteGamesRepository = favoriteGamesRepository,
             chapterRepository = chapterRepository,
             gameInstallRepository = gameInstallRepository,
             gamePurchaseRepository = purchaseRepository,
@@ -133,6 +136,24 @@ class GamePreviewViewModelTest {
             gameRepository.setGame(TestFixtures.GAME_ID, TestFixtures.gameCatalog())
             assertTrue(awaitItem() is GamePreviewUiState.Data)
         }
+    }
+
+    @Test
+    fun `onAction OnToggleFavorite toggles isFavorite in game state`() = runTest {
+        gameRepository.setGame(TestFixtures.GAME_ID, TestFixtures.gameCatalog())
+        val viewModel = createViewModel()
+        activateStateFlows(backgroundScope, viewModel)
+        advanceUntilIdle()
+
+        assertFalse((viewModel.game.value as GamePreviewUiState.Data).item.isFavorite)
+
+        viewModel.onAction(GamePreviewAction.OnToggleFavorite)
+        advanceUntilIdle()
+        assertTrue((viewModel.game.value as GamePreviewUiState.Data).item.isFavorite)
+
+        viewModel.onAction(GamePreviewAction.OnToggleFavorite)
+        advanceUntilIdle()
+        assertFalse((viewModel.game.value as GamePreviewUiState.Data).item.isFavorite)
     }
 
     @Test

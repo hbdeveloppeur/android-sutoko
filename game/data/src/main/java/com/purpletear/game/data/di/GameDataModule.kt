@@ -13,6 +13,7 @@ import com.purpletear.game.data.file.GameFileManager
 import com.purpletear.game.data.file.GameFileManagerImpl
 import com.purpletear.game.data.infrastructure.SystemTimingScheduler
 import com.purpletear.game.data.local.dao.GameDao
+import com.purpletear.game.data.local.dao.GameFavoriteDao
 import com.purpletear.game.data.local.dao.GameInstallationDao
 import com.purpletear.game.data.local.dao.MemoryDao
 import com.purpletear.game.data.local.dao.UserGameProgressDao
@@ -22,6 +23,7 @@ import com.purpletear.game.data.remote.testing.TestEventDataSourceImpl
 import com.purpletear.game.data.remote.testing.TestSessionApi
 import com.purpletear.game.data.repository.ChapterGraphRepositoryImpl
 import com.purpletear.game.data.repository.CharacterRepositoryImpl
+import com.purpletear.game.data.repository.FavoriteGamesRepositoryImpl
 import com.purpletear.game.data.repository.GameInstallRepositoryImpl
 import com.purpletear.game.data.repository.GameRepositoryImpl
 import com.purpletear.game.data.repository.MemoryRepositoryImpl
@@ -40,6 +42,7 @@ import com.purpletear.sutoko.game.repository.CharacterRepository
 import com.purpletear.sutoko.game.repository.MemoryRepository
 import com.purpletear.sutoko.game.repository.SceneRepository
 import com.purpletear.sutoko.game.repository.UserGameProgressRepository
+import com.purpletear.sutoko.game.repository.game.FavoriteGamesRepository
 import com.purpletear.sutoko.game.repository.game.GameInstallRepository
 import com.purpletear.sutoko.game.repository.game.GameRepository
 import com.purpletear.sutoko.game.repository.testing.LastTestedChapterRepository
@@ -108,6 +111,18 @@ object GameDataModule {
     @Singleton
     fun provideGameInstallationDao(database: GameDatabase): GameInstallationDao {
         return database.gameInstallationDao()
+    }
+
+    /**
+     * Provides the GameFavoriteDao instance.
+     *
+     * @param database The GameDatabase instance.
+     * @return The GameFavoriteDao instance.
+     */
+    @Provides
+    @Singleton
+    fun provideGameFavoriteDao(database: GameDatabase): GameFavoriteDao {
+        return database.gameFavoriteDao()
     }
 
     /**
@@ -394,6 +409,12 @@ abstract class RepositoryModule {
     @Binds
     @Singleton
     abstract fun bindGameRepository(impl: GameRepositoryImpl): GameRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindFavoriteGamesRepository(
+        impl: FavoriteGamesRepositoryImpl
+    ): FavoriteGamesRepository
 
     @Binds
     @Singleton

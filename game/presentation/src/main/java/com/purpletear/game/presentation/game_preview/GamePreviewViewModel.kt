@@ -16,6 +16,7 @@ import com.purpletear.sutoko.core.domain.logger.warning
 import com.purpletear.sutoko.domain.repository.UserRepository
 import com.purpletear.sutoko.game.model.Chapter
 import com.purpletear.sutoko.game.repository.ChapterRepository
+import com.purpletear.sutoko.game.repository.game.FavoriteGamesRepository
 import com.purpletear.sutoko.game.repository.game.GameInstallRepository
 import com.purpletear.sutoko.game.repository.game.GameRepository
 import com.purpletear.sutoko.game.service.MediaUrlResolver
@@ -47,6 +48,7 @@ import javax.inject.Inject
 class GamePreviewViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val gameRepository: GameRepository,
+    private val favoriteGamesRepository: FavoriteGamesRepository,
     private val chapterRepository: ChapterRepository,
     private val gameInstallRepository: GameInstallRepository,
     private val gamePurchaseRepository: PurchaseRepository,
@@ -119,7 +121,8 @@ class GamePreviewViewModel @Inject constructor(
             )
         },
         observeCoinPurchasedSkusUseCase(),
-    ) { observation, coinPurchasedSkus ->
+        favoriteGamesRepository.observeFavoriteIds(),
+    ) { observation, coinPurchasedSkus, favoriteIds ->
         when {
             observation.catalog != null -> {
                 GamePreviewLogger.d("OBS") {
@@ -140,6 +143,7 @@ class GamePreviewViewModel @Inject constructor(
                         authorAvatarUrl = mediaUrlResolver.resolveBannerUrl(observation.catalog.author?.avatarUrl),
                         titleUrl = mediaUrlResolver.resolveBannerUrl(observation.catalog.title?.storagePath),
                         downloadProgress = observation.downloadProgress,
+                        isFavorite = gameId in favoriteIds,
                     ),
                     gameCatalog = observation.catalog,
                 )
@@ -251,6 +255,21 @@ class GamePreviewViewModel @Inject constructor(
             GamePreviewAction.OnRestart -> sendEvent(GamePreviewEvent.ShowRestartDialog)
             GamePreviewAction.OnRestartConfirm -> onRestartGame()
             GamePreviewAction.OnDelete -> onDeleteGame()
+            GamePreviewAction.OnToggleFavorite -> onToggleFavorite()
+        }
+    }
+
+    private fun onToggleFavorite() {
+        GamePreviewLogger.i("FAV") { "onToggleFavorite() gameId=$gameId" }
+        viewModelScope.launch {
+            try {
+                favoriteGamesRepository.toggle(gameId)
+            } catch (e: kotlinx.coroutines.CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                GamePreviewLogger.e("FAV", e) { "onToggleFavorite() failed for gameId=$gameId" }
+                logger.exception(e) { "Toggle favorite failed for gameId=$gameId" }
+            }
         }
     }
 

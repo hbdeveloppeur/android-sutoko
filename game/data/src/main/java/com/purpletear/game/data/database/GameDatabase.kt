@@ -5,11 +5,13 @@ import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import com.purpletear.game.data.local.dao.ChapterDao
 import com.purpletear.game.data.local.dao.GameDao
+import com.purpletear.game.data.local.dao.GameFavoriteDao
 import com.purpletear.game.data.local.dao.GameInstallationDao
 import com.purpletear.game.data.local.dao.MemoryDao
 import com.purpletear.game.data.local.dao.UserGameProgressDao
 import com.purpletear.game.data.local.entity.ChapterEntity
 import com.purpletear.game.data.local.entity.GameCatalogEntity
+import com.purpletear.game.data.local.entity.GameFavoriteEntity
 import com.purpletear.game.data.local.entity.GameInstallEntity
 import com.purpletear.game.data.local.entity.MemoryEntity
 import com.purpletear.game.data.local.entity.UserGameProgressEntity
@@ -21,8 +23,9 @@ import com.purpletear.game.data.local.entity.UserGameProgressEntity
         GameCatalogEntity::class,
         GameInstallEntity::class,
         MemoryEntity::class,
+        GameFavoriteEntity::class,
     ],
-    version = 14,
+    version = 15,
     exportSchema = false,
 )
 @TypeConverters(GameTypeConverters::class)
@@ -32,4 +35,5 @@ abstract class GameDatabase : RoomDatabase() {
     abstract fun userGameProgressDao(): UserGameProgressDao
     abstract fun gameInstallationDao(): GameInstallationDao
     abstract fun memoryDao(): MemoryDao
+    abstract fun gameFavoriteDao(): GameFavoriteDao
 }

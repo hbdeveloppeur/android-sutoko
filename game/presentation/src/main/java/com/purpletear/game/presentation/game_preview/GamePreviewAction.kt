@@ -12,4 +12,5 @@ sealed class GamePreviewAction {
     data object OnRestartConfirm : GamePreviewAction()
     data object OnPlay : GamePreviewAction()
     data object OnDelete : GamePreviewAction()
+    data object OnToggleFavorite : GamePreviewAction()
 }

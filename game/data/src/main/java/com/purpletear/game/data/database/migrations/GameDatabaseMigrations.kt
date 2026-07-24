@@ -97,10 +97,28 @@ object GameDatabaseMigrations {
         }
     }
 
+    /**
+     * Migration from version 14 to 15:
+     * - Adds the game_favorites table storing the user's favorite stories.
+     */
+    val MIGRATION_14_15 = object : Migration(14, 15) {
+        override fun migrate(db: SupportSQLiteDatabase) {
+            db.execSQL(
+                """
+                CREATE TABLE IF NOT EXISTS game_favorites (
+                    gameId TEXT PRIMARY KEY NOT NULL,
+                    addedAt INTEGER NOT NULL
+                )
+                """.trimIndent()
+            )
+        }
+    }
+
     val ALL: Array<Migration> = arrayOf(
         MIGRATION_6_7,
         MIGRATION_10_11,
         MIGRATION_11_12,
         MIGRATION_12_13,
+        MIGRATION_14_15,
     )
 }

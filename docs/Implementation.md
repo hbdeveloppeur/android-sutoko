@@ -4,11 +4,5 @@ it.
 task - you can compact your context between each task.
 If necessary you are allowed to do any commands like curls, install script, etc
 
-Task 1: ConversationScreen - Writing a message and pressing send button does nothing visually,
-unless we restart the app-the message must appears locally.
-DONE (branch fix/conversation-send-message-not-appearing): root cause was in
-ConversationRepositoryImpl.addMessage - the list contract is newest-first (index 0 = bottom,
-LazyColumn reverseLayout), but the optimistic local message was appended at the END of the list
-(= visual top, off-screen), so nothing appeared until restart re-fetched the server-ordered list.
-Fix: prepend with id-dedupe. Also fixes live websocket replies landing at the top.
-Unit tests added: ai-conversation/data .../repository/ConversationRepositoryImplTest.kt (passing).
+Task 1: in Game Preview, we want to be able to tap an icon to send the game to a friend. And when
+they click on the link, it opens the app to the right GamePreview game.

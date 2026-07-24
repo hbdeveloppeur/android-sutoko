@@ -74,6 +74,7 @@ import com.purpletear.game.presentation.common.components.GameLogo
 import com.purpletear.game.presentation.game_preview.components.GamePreviewCategories
 import com.purpletear.game.presentation.game_preview.components.GamePreviewChapterTitle
 import com.purpletear.game.presentation.game_preview.components.GamePreviewDescription
+import com.purpletear.game.presentation.game_preview.components.GamePreviewFavoriteButton
 import com.purpletear.game.presentation.game_preview.components.GamePreviewGradients
 import com.purpletear.game.presentation.game_preview.components.GamePreviewLabel
 import com.purpletear.game.presentation.game_preview.components.GamePreviewUnavailable
@@ -465,6 +466,17 @@ fun GamePreview(
                             )
                         }
                     }
+                }
+
+                gameItem?.let { game ->
+                    GamePreviewFavoriteButton(
+                        isFavorite = game.isFavorite,
+                        onToggle = { viewModel.onAction(GamePreviewAction.OnToggleFavorite) },
+                        modifier = Modifier
+                            .align(Alignment.TopEnd)
+                            .statusBarsPadding()
+                            .padding(top = 8.dp, end = 8.dp),
+                    )
                 }
 
                 gameItem?.authorAvatarUrl?.let { avatarUrl ->

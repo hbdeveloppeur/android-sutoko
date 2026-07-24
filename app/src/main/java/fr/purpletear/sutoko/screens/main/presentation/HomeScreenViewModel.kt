@@ -21,6 +21,7 @@ import com.purpletear.sutoko.core.domain.appaction.AppAction
 import com.purpletear.sutoko.domain.repository.UserRepository
 import com.purpletear.sutoko.game.model.game.GameCatalog
 import com.purpletear.sutoko.game.model.game.isPremium
+import com.purpletear.sutoko.game.repository.game.FavoriteGamesRepository
 import com.purpletear.sutoko.game.usecase.ObserveOfficialGamesUseCase
 import com.purpletear.sutoko.news.model.News
 import com.purpletear.sutoko.news.usecase.ObserveNewsUseCase
@@ -30,12 +31,14 @@ import com.purpletear.sutoko.shop.domain.repository.ShopRepository
 import com.purpletear.sutoko.shop.domain.repository.model.Balance
 import dagger.hilt.android.lifecycle.HiltViewModel
 import fr.purpletear.sutoko.R
+import fr.purpletear.sutoko.friendzoned.FriendzonedGameRouter
 import fr.purpletear.sutoko.objects.CalendarEvent
 import fr.purpletear.sutoko.symbols.SymbolsRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
@@ -56,6 +59,7 @@ class HomeScreenViewModel @Inject constructor(
     private val openDiscordOrBrowser: OpenDiscordOrBrowserService,
     private val shopRepository: ShopRepository,
     private val userRepository: UserRepository,
+    private val favoriteGamesRepository: FavoriteGamesRepository,
 ) : ViewModel(), LifecycleObserver {
 
     val balance: StateFlow<Resource<Balance>> = shopRepository.observeBalance()
@@ -79,6 +83,13 @@ class HomeScreenViewModel @Inject constructor(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(7000),
             initialValue = emptyList(),
+        )
+
+    val favoriteIds: StateFlow<Set<String>> = favoriteGamesRepository.observeFavoriteIds()
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(7000),
+            initialValue = emptySet(),
         )
 
     private val _state: MutableState<MainState> = mutableStateOf(
@@ -161,13 +172,15 @@ class HomeScreenViewModel @Inject constructor(
             )
         }
 
-        // Derive square/full stories and main state from the observed games
+        // Derive square/full stories and main state from the observed games.
         viewModelScope.launch {
-            games.collect { gamesList ->
-                _squareStories.value = getSquareStories(gamesList) ?: emptyList()
-                _fullStories.value = getFullWidthStories(gamesList)
-                _state.value = _state.value.copy(initialStories = gamesList)
-            }
+            combine(games, favoriteIds) { gamesList, favorites -> gamesList to favorites }
+                .collect { (gamesList, favorites) ->
+                    val sorted = sortForHome(gamesList, favorites)
+                    _squareStories.value = getSquareStories(sorted) ?: emptyList()
+                    _fullStories.value = getFullWidthStories(sorted, favorites)
+                    _state.value = _state.value.copy(initialStories = gamesList)
+                }
         }
 
         this._squareIcons = mutableStateOf(
@@ -205,10 +218,31 @@ class HomeScreenViewModel @Inject constructor(
         }
     }
 
-    private fun getSortedCards(cards: Set<GameCatalog>): List<GameCatalog> {
+    /**
+     * Friendzoned games are contractually pinned to the first positions: the home screen
+     * always lists them as the 4 first games. Favorites rank first only within the
+     * remaining games. Catalog order is preserved within each group (stable sorts).
+     */
+    private fun sortForHome(
+        games: List<GameCatalog>,
+        favoriteIds: Set<String>,
+    ): List<GameCatalog> {
+        val (friendzoned, others) = games.partition { it.isFriendzoned() }
+        return friendzoned + others.sortedByDescending { it.id in favoriteIds }
+    }
+
+    private fun GameCatalog.isFriendzoned(): Boolean =
+        legacyId?.let { FriendzonedGameRouter.loaderClassFor(it) != null } == true
+
+    private fun getSortedCards(
+        cards: Set<GameCatalog>,
+        favoriteIds: Set<String>,
+    ): List<GameCatalog> {
         val cardsWithIndex = cards.mapIndexed { index, card -> Pair(index, card) }
 
-        return cardsWithIndex.sortedBy { it.second.isPremium() }.map { it.second }
+        return cardsWithIndex
+            .sortedWith(compareBy({ it.second.id !in favoriteIds }, { it.second.isPremium() }))
+            .map { it.second }
     }
 
 
@@ -236,12 +270,13 @@ class HomeScreenViewModel @Inject constructor(
      */
     private fun getFullWidthStories(
         stories: List<GameCatalog>,
+        favoriteIds: Set<String>,
     ): List<GameCatalog> {
         if (stories.size < 4) {
             return stories
         }
         val storiesToSort = stories.subList(4, stories.size)
-        return getSortedCards(storiesToSort.toSet())
+        return getSortedCards(storiesToSort.toSet(), favoriteIds)
     }
 
     fun displayAiConversationCard(appParams: SutokoAppParams) {

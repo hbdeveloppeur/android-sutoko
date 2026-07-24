@@ -33,6 +33,8 @@
     <string name="game_presentation_game_preview_community">Community story</string>
     <string name="game_presentation_game_preview_written_by">Written by</string>
     <string name="game_presentation_game_preview_certified_author">Certified author</string>
+    <string name="game_presentation_game_preview_add_favorite">Add to favorites</string>
+    <string name="game_presentation_game_preview_remove_favorite">Remove from favorites</string>
     <string name="game_presentation_game_preview_author_avatar">Author avatar, tap to enlarge</string>
     <string name="game_presentation_game_preview_background_description">Background</string>
     <string name="game_presentation_game_preview_avatar_description">Avatar</string>

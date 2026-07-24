@@ -8,6 +8,7 @@ import com.purpletear.game.presentation.model.GameItem
 import com.purpletear.sutoko.domain.repository.UserRepository
 import com.purpletear.sutoko.game.model.game.GameCatalog
 import com.purpletear.sutoko.game.model.game.GameInstall
+import com.purpletear.sutoko.game.repository.game.FavoriteGamesRepository
 import com.purpletear.sutoko.game.repository.game.GameInstallRepository
 import com.purpletear.sutoko.game.repository.game.GameRepository
 import com.purpletear.sutoko.game.service.MediaUrlResolver
@@ -42,6 +43,7 @@ class CreateViewModel @Inject constructor(
     private val loadMoreUserGamesUseCase: LoadMoreUserGamesUseCase,
     private val getOneUserGamesUseCase: GetOneUserGamesUseCase,
     private val userRepository: UserRepository,
+    private val favoriteGamesRepository: FavoriteGamesRepository,
 ) : ViewModel() {
     val balance: StateFlow<Resource<Balance>> = shopRepository.observeBalance()
         .map { Resource.Success(it) }
@@ -58,8 +60,26 @@ class CreateViewModel @Inject constructor(
             initialValue = false,
         )
 
-    private val _myStories = MutableStateFlow<List<GameItem>>(emptyList())
-    val myStories: StateFlow<List<GameItem>> = _myStories
+    private val myStoryCatalogs = MutableStateFlow<List<GameCatalog>>(emptyList())
+
+    val myStories: StateFlow<List<GameItem>> = combine(
+        myStoryCatalogs,
+        favoriteGamesRepository.observeFavoriteIds(),
+    ) { catalogs, favoriteIds ->
+        catalogs
+            .map { catalog ->
+                buildMyStoryItem(
+                    catalog = catalog,
+                    mediaUrlResolver = mediaUrlResolver,
+                    isFavorite = catalog.id in favoriteIds,
+                )
+            }
+            .sortedByDescending { it.isFavorite }
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(7000),
+        initialValue = emptyList(),
+    )
 
     private val _searchQuery = MutableStateFlow("")
     private val _searchResults = MutableStateFlow<List<GameCatalog>>(emptyList())
@@ -106,7 +126,8 @@ class CreateViewModel @Inject constructor(
         _searchQuery,
         _searchResults,
         gameOwnershipState,
-    ) { userCatalogs, query, searchCatalogs, ownership ->
+        favoriteGamesRepository.observeFavoriteIds(),
+    ) { userCatalogs, query, searchCatalogs, ownership, favoriteIds ->
         val catalogs = if (query.isBlank()) userCatalogs else searchCatalogs
         catalogs.map { catalog ->
             buildGameItem(
@@ -115,8 +136,9 @@ class CreateViewModel @Inject constructor(
                 installs = ownership.installs,
                 downloads = ownership.downloads,
                 mediaUrlResolver = mediaUrlResolver,
+                isFavorite = catalog.id in favoriteIds,
             )
-        }
+        }.sortedByDescending { it.isFavorite }
     }.catch { e ->
         emit(emptyList())
     }.stateIn(
@@ -131,7 +153,7 @@ class CreateViewModel @Inject constructor(
                 if (connected) {
                     loadMyStories()
                 } else {
-                    _myStories.value = emptyList()
+                    myStoryCatalogs.value = emptyList()
                 }
             }
         }
@@ -141,16 +163,11 @@ class CreateViewModel @Inject constructor(
         val user = userRepository.observeUser().firstOrNull() ?: return
         getOneUserGamesUseCase(userId = user.id)
             .onSuccess { catalogs ->
-                _myStories.value = catalogs.map { catalog ->
-                    buildMyStoryItem(
-                        catalog = catalog,
-                        mediaUrlResolver = mediaUrlResolver,
-                    )
-                }
+                myStoryCatalogs.value = catalogs
             }
             .onFailure { error ->
                 Log.e(TAG, "Failed to load my stories for userId=${user.id}", error)
-                _myStories.value = emptyList()
+                myStoryCatalogs.value = emptyList()
             }
     }
 
@@ -229,6 +246,7 @@ class CreateViewModel @Inject constructor(
         installs: List<GameInstall>,
         downloads: Map<String, Float>,
         mediaUrlResolver: MediaUrlResolver,
+        isFavorite: Boolean = false,
     ): GameItem = GameItem(
         catalog = catalog,
         install = installs.find { it.gameId == catalog.id },
@@ -237,17 +255,20 @@ class CreateViewModel @Inject constructor(
         logoUrl = mediaUrlResolver.resolveBannerUrl(catalog.logo?.storagePath),
         menuBackgroundUrl = mediaUrlResolver.resolveBannerUrl(catalog.menuBackground?.storagePath),
         downloadProgress = downloads[catalog.id],
+        isFavorite = isFavorite,
     )
 
     private fun buildMyStoryItem(
         catalog: GameCatalog,
         mediaUrlResolver: MediaUrlResolver,
+        isFavorite: Boolean = false,
     ): GameItem = buildGameItem(
         catalog = catalog,
         purchasedSkus = catalog.skus.toSet(),
         installs = emptyList(),
         downloads = emptyMap(),
         mediaUrlResolver = mediaUrlResolver,
+        isFavorite = isFavorite,
     )
 
     companion object {
