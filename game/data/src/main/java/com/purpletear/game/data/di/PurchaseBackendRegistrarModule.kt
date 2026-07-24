@@ -1,6 +1,5 @@
 package com.purpletear.game.data.di
 
-import com.purpletear.game.data.registrar.GamePurchaseBackendRegistrar
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn

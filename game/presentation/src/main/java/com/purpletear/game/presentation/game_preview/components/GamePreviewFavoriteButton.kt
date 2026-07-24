@@ -79,7 +79,7 @@ fun GamePreviewFavoriteButton(
                 contentDescription = null,
                 tint = Color.White,
                 modifier = Modifier
-                    .size(22.dp)
+                    .size(20.dp)
                     .graphicsLayer {
                         scaleX = scale.value
                         scaleY = scale.value

@@ -2,6 +2,7 @@ package com.purpletear.sutoko.shop.data.repository
 
 import androidx.annotation.VisibleForTesting
 import com.google.gson.Gson
+import com.purpletear.sutoko.shop.data.remote.BuyCatalogProductRequestDto
 import com.purpletear.sutoko.shop.data.remote.ShopApi
 import com.purpletear.sutoko.shop.data.remote.ShopErrorResponseDto
 import com.purpletear.sutoko.shop.data.remote.toDomainModel
@@ -38,7 +39,7 @@ class InMemoryCoinPurchaseRepository @Inject constructor(
 
         return try {
             val response = api.buyCatalogProduct(
-                com.purpletear.sutoko.shop.data.remote.BuyCatalogProductRequestDto(
+                BuyCatalogProductRequestDto(
                     skuIdentifier = sku,
                     userId = userId,
                     type = "story"

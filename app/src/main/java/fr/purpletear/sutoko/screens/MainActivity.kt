@@ -31,11 +31,13 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import androidx.navigation.navDeepLink
 import com.example.sharedelements.Data
 import com.example.sharedelements.SutokoAppParams
 import com.example.sharedelements.theme.SutokoTheme
@@ -56,6 +58,7 @@ import com.purpletear.aiconversation.presentation.screens.shopDialog.MessagesCoi
 import com.purpletear.game.presentation.game_play.SmsGameActivity
 import com.purpletear.game.presentation.game_play.SmsGameActivityArgs
 import com.purpletear.game.presentation.game_preview.GamePreview
+import com.purpletear.game.presentation.game_preview.GamePreviewDeepLink
 import com.purpletear.game.presentation.game_preview.GamePreviewViewModel
 import com.purpletear.sutoko.auth.coordinator.AuthCoordinator
 import com.purpletear.sutoko.auth.coordinator.AuthEvent
@@ -107,6 +110,9 @@ class MainActivity @Inject constructor(
 
     private var _newDestination: MutableStateFlow<String?> =
         MutableStateFlow(null)
+
+    // Kept to route deep links delivered via onNewIntent (singleTop) to the NavHost.
+    private var navController: NavHostController? = null
 
 
     @Inject
@@ -172,6 +178,7 @@ class MainActivity @Inject constructor(
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         setIntent(intent)
+        navController?.handleDeepLink(intent)
         _newDestination.update { intent.getStringExtra("destination") }
     }
 
@@ -188,7 +195,7 @@ class MainActivity @Inject constructor(
         setContent {
             SutokoTheme {
                 val widthSizeClass = calculateWindowSizeClass(this).widthSizeClass
-                val navController = rememberNavController()
+                val navController = rememberNavController().also { navController = it }
 
                 val lifecycleOwner = LocalLifecycleOwner.current
 
@@ -248,6 +255,9 @@ class MainActivity @Inject constructor(
                             route = MainScreenPages.GamePreview.route,
                             arguments = listOf(
                                 navArgument("gameId") { type = NavType.StringType }
+                            ),
+                            deepLinks = listOf(
+                                navDeepLink { uriPattern = GamePreviewDeepLink.URI_PATTERN }
                             )
                         ) { backStackEntry ->
                             val viewModel: GamePreviewViewModel = hiltViewModel()

@@ -1,5 +1,7 @@
 package com.purpletear.game.presentation.game_preview
 
+import android.content.Context
+import android.content.Intent
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Animatable
@@ -68,15 +70,16 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.sharedelements.theme.PlusJakartaSansFontFamily
 import com.purpletear.core.presentation.util.openAppInStore
 import com.purpletear.game.presentation.R
+import com.purpletear.game.presentation.common.components.GameLogo
 import com.purpletear.game.presentation.common.components.NickNameInputDialog
 import com.purpletear.game.presentation.game_play.components.Avatar
-import com.purpletear.game.presentation.common.components.GameLogo
 import com.purpletear.game.presentation.game_preview.components.GamePreviewCategories
 import com.purpletear.game.presentation.game_preview.components.GamePreviewChapterTitle
 import com.purpletear.game.presentation.game_preview.components.GamePreviewDescription
 import com.purpletear.game.presentation.game_preview.components.GamePreviewFavoriteButton
 import com.purpletear.game.presentation.game_preview.components.GamePreviewGradients
 import com.purpletear.game.presentation.game_preview.components.GamePreviewLabel
+import com.purpletear.game.presentation.game_preview.components.GamePreviewShareButton
 import com.purpletear.game.presentation.game_preview.components.GamePreviewUnavailable
 import com.purpletear.game.presentation.game_preview.components.GamePreviewUnlockAnimation
 import com.purpletear.game.presentation.game_preview.components.PremiumActiveLabelGradient
@@ -330,6 +333,7 @@ fun GamePreview(
                                     titleUrl = game.titleUrl,
                                     contentDescription = game.title,
                                     modifier = Modifier
+                                        .padding(top = 40.dp)
                                         .align(Alignment.CenterHorizontally)
                                         .fillMaxWidth(0.8f)
                                         .heightIn(max = 120.dp),
@@ -390,7 +394,9 @@ fun GamePreview(
                                                     .background(Color.White, CircleShape)
                                                     .clip(CircleShape)
                                                     .clickable { showAuthorAvatar = true }
-                                                    .semantics { contentDescription = avatarDescription },
+                                                    .semantics {
+                                                        contentDescription = avatarDescription
+                                                    },
                                                 size = 22.dp,
                                                 borderWidth = 1.4.dp,
                                                 borderColor = Color.White,
@@ -469,14 +475,20 @@ fun GamePreview(
                 }
 
                 gameItem?.let { game ->
-                    GamePreviewFavoriteButton(
-                        isFavorite = game.isFavorite,
-                        onToggle = { viewModel.onAction(GamePreviewAction.OnToggleFavorite) },
+                    Row(
                         modifier = Modifier
                             .align(Alignment.TopEnd)
                             .statusBarsPadding()
                             .padding(top = 8.dp, end = 8.dp),
-                    )
+                    ) {
+                        GamePreviewShareButton(
+                            onShare = { shareGame(context, game) },
+                        )
+                        GamePreviewFavoriteButton(
+                            isFavorite = game.isFavorite,
+                            onToggle = { viewModel.onAction(GamePreviewAction.OnToggleFavorite) },
+                        )
+                    }
                 }
 
                 gameItem?.authorAvatarUrl?.let { avatarUrl ->
@@ -500,6 +512,22 @@ fun GamePreview(
     }
 }
 
+
+/**
+ * Opens the system share sheet with the public deep link of [game].
+ */
+private fun shareGame(context: Context, game: GameItem) {
+    val message = context.getString(
+        R.string.game_presentation_game_preview_share_message,
+        game.title,
+        GamePreviewDeepLink.url(game.id),
+    )
+    val intent = Intent(Intent.ACTION_SEND).apply {
+        type = "text/plain"
+        putExtra(Intent.EXTRA_TEXT, message)
+    }
+    context.startActivity(Intent.createChooser(intent, null))
+}
 
 /**
  * Full-screen overlay showing the author's avatar enlarged.

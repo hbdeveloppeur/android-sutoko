@@ -61,6 +61,17 @@
                 <action android:name="conversation_message" />
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
+            <!-- Public game links shared from GamePreview: https://sutoko.com/game/{gameId}.
+                 autoVerify requires https://sutoko.com/.well-known/assetlinks.json to be hosted. -->
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data
+                    android:scheme="https"
+                    android:host="sutoko.com"
+                    android:pathPrefix="/game/" />
+            </intent-filter>
         </activity>
 
         <activity

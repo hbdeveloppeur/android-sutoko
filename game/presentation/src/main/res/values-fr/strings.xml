@@ -35,6 +35,8 @@
     <string name="game_presentation_game_preview_certified_author">Auteur certifié</string>
     <string name="game_presentation_game_preview_add_favorite">Ajouter aux favoris</string>
     <string name="game_presentation_game_preview_remove_favorite">Retirer des favoris</string>
+    <string name="game_presentation_game_preview_share">Envoyer à un ami</string>
+    <string name="game_presentation_game_preview_share_message">Viens jouer à %1$s avec moi sur Sutoko : %2$s</string>
     <string name="game_presentation_game_preview_author_avatar">Avatar de l\'auteur, appuyez pour agrandir</string>
     <string name="game_presentation_game_preview_background_description">Arrière-plan</string>
     <string name="game_presentation_game_preview_avatar_description">Avatar</string>

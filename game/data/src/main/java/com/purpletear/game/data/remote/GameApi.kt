@@ -2,11 +2,8 @@ package com.purpletear.game.data.remote
 
 import com.purpletear.game.data.remote.dto.DownloadLinkResponseDto
 import com.purpletear.game.data.remote.dto.GameDto
-import okhttp3.ResponseBody
 import retrofit2.Response
-import retrofit2.http.Field
 import retrofit2.http.GET
-import retrofit2.http.POST
 import retrofit2.http.Path
 import retrofit2.http.Query
 
@@ -102,13 +99,4 @@ interface GameApi {
         @Query("userId") userId: String?,
         @Query("userToken") userToken: String?,
     ): DownloadLinkResponseDto
-
-
-    @POST("api/games/buy")
-    suspend fun grantGame(
-        @Field("user_id") userId: String,
-        @Field("user_token") userToken: String,
-        @Field("purchase_token") purchaseToken: String,
-        @Field("order_id") orderId: String,
-    ): Response<ResponseBody>
 }
