@@ -16,10 +16,12 @@ import com.purpletear.aiconversation.domain.parser.WebsocketMessageParser
 import com.purpletear.aiconversation.domain.repository.WebSocketDataSource
 import com.purpletear.aiconversation.domain.sealed.WebSocketMessage
 import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.launch
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.Response
@@ -28,12 +30,23 @@ import okhttp3.WebSocketListener
 import purpletear.fr.purpleteartools.Language
 import java.util.TimeZone
 import java.util.UUID
+import java.util.concurrent.TimeUnit
 
 class WebSocketDataSourceImpl(
     private val webSocketRequest: Request,
     private val websocketMessageParser: WebsocketMessageParser,
+    private val authTimeoutMs: Long = DEFAULT_AUTH_TIMEOUT_MS,
 ) : WebSocketDataSource {
-    private val client = OkHttpClient()
+    // pingInterval: detect silently dead connections (radio switch, server crash
+    // without FIN) so onFailure fires and the caller's reconnect logic engages.
+    private val client = OkHttpClient.Builder()
+        .pingInterval(PING_INTERVAL_SECONDS, TimeUnit.SECONDS)
+        .build()
+
+    private companion object {
+        const val DEFAULT_AUTH_TIMEOUT_MS = 10_000L
+        const val PING_INTERVAL_SECONDS = 20L
+    }
 
     @Volatile
     private var webSocket: WebSocket? = null
@@ -86,6 +99,9 @@ class WebSocketDataSourceImpl(
         }
 
     override fun connect(uid: String, token: String): Flow<WebSocketMessage> = callbackFlow {
+        // A fresh handshake starts unauthenticated.
+        _isConnected = false
+
         val listener = object : WebSocketListener() {
             override fun onOpen(webSocket: WebSocket, response: Response) {
                 super.onOpen(webSocket, response)
@@ -112,6 +128,10 @@ class WebSocketDataSourceImpl(
 
                 try {
                 when (action) {
+
+                    WebSocketMessageType.CONNECTED -> {
+                        // Server handshake frame sent on TCP connect, before authentication.
+                    }
 
                     WebSocketMessageType.ERROR_CODE -> {
                         trySend(
@@ -262,19 +282,33 @@ class WebSocketDataSourceImpl(
 
             override fun onClosing(webSocket: WebSocket, code: Int, reason: String) {
                 super.onClosing(webSocket, code, reason)
-                close()
                 _isConnected = false
+                // A close must not end the stream silently: surface it as an error
+                // so the caller's bounded reconnect logic engages.
+                trySend(WebSocketMessage.Error)
+                close()
             }
         }
 
         webSocket?.close(1000, "Reconnecting")
         this@WebSocketDataSourceImpl.webSocket = client.newWebSocket(webSocketRequest, listener)
 
+        // Bounded handshake: if the server never completes authentication, surface an
+        // error so the caller's reconnect logic engages instead of loading forever.
+        val authTimeout = launch {
+            delay(authTimeoutMs)
+            if (!_isConnected) {
+                trySend(WebSocketMessage.Error)
+            }
+        }
+
         awaitClose {
+            authTimeout.cancel()
+            // The OkHttpClient is shared by this @Singleton data source: only close the
+            // socket. Shutting down the dispatcher would kill the client for every
+            // future reconnection until process death.
             webSocket?.close(1000, "Flow closed")
             webSocket = null
-            client.dispatcher.executorService.shutdown()
-            client.connectionPool.evictAll()
         }
     }.catch {
         emit(WebSocketMessage.Error)
@@ -317,7 +351,8 @@ class WebSocketDataSourceImpl(
             val jsonObject = jsonElement.asJsonObject
             val str = jsonObject["action"]?.asString
                 ?: throw WebsocketMessageParserException("Le JSON ne contient pas le champ 'action'")
-            return WebSocketMessageType.entries.first { it.code == str }
+            return WebSocketMessageType.entries.firstOrNull { it.code == str }
+                ?: throw WebsocketMessageParserException("Unknown websocket action: $str")
         } catch (e: JsonSyntaxException) {
             throw WebsocketMessageParserException("Entrée non valide, ce n'est pas un JSON valide.")
         }

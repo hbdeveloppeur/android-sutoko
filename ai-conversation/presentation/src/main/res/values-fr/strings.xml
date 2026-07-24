@@ -9,6 +9,8 @@
     <string name="ai_conversation_restart_title">Voulez-vous vraiment redémarrer la conversation ?</string>
     <string name="ai_conversation_restart">Redémarrer</string>
     <string name="ai_conversation_character_blocked_user">%s vous a bloqué</string>
+    <string name="ai_conversation_connection_error">Connexion perdue. Vérifiez votre connexion internet et réessayez.</string>
+    <string name="ai_conversation_retry">Réessayer</string>
 
     <!-- Écran d'accueil -->
     <string name="ai_conversation_sutoko_home_title">Sutoko *Ai*</string>

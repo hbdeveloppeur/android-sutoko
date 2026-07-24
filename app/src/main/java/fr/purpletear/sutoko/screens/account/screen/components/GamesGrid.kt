@@ -50,11 +50,10 @@ const val GamesGridTag = "GamesGridTag"
 
 @Composable
 fun GamesGrid(list: List<GameItem>, onTap: (GameItem) -> Unit) {
-    Surface(modifier = Modifier.background(Color(0xFF1A1A1A))) {
+    Surface(color = Color(0xFF1A1A1A)) {
         Column(
             modifier = Modifier
                 .testTag(GamesGridTag)
-                .background(Color(0xFF1A1A1A))
                 .padding(12.dp)
                 .fillMaxHeight()
                 .widthIn(min = Dp.Infinity, max = 500.dp),

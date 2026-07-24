@@ -187,6 +187,16 @@ class ConversationViewModel @Inject constructor(
     fun onResume() {
         viewModelScope.launch {
             updateUserCoinsCount()
+            // Safety net: if the socket died while the screen was away (e.g. the flow
+            // completed without an error), restore live updates without forcing the
+            // user to leave and re-enter the page.
+            if (webSocketBindRequested
+                && webSocketReconnectAttempts == 0
+                && _alert.value !is AlertState.ConnectionError
+                && webSocketDataSource.isConnected.not()
+            ) {
+                bindToWebSocket()
+            }
         }
     }
 
@@ -356,6 +366,14 @@ class ConversationViewModel @Inject constructor(
                     restartConversation()
                 }
             }
+
+            AlertState.ConnectionError -> {
+                _alert.value = null
+                webSocketReconnectAttempts = 0
+                viewModelScope.launch {
+                    bindToWebSocket()
+                }
+            }
         }
     }
 
@@ -475,12 +493,17 @@ class ConversationViewModel @Inject constructor(
         }
     }
 
+    private var webSocketReconnectAttempts: Int = 0
+    private var webSocketBindRequested: Boolean = false
+
     private fun onUserNotConnected() {
         // TODO("show error message")
     }
 
     private fun onAuthenticateFailure() {
-        // TODO("show error message")
+        // Retrying would fail again with the same token: stop the loader and surface the error.
+        _isLoading.value = false
+        _alert.value = AlertState.ConnectionError
     }
 
     fun bindNavigationChanges(savedStateHandle: SavedStateHandle?) {
@@ -570,6 +593,7 @@ class ConversationViewModel @Inject constructor(
 
 
     private suspend fun bindToWebSocket() {
+        webSocketBindRequested = true
         val user = userRepository.observeUser().first()
         if (null == user) {
             onUserNotConnected()
@@ -591,10 +615,17 @@ class ConversationViewModel @Inject constructor(
     }
 
     private fun onWebSocketError() {
+        if (webSocketReconnectAttempts >= MAX_WEBSOCKET_RECONNECT_ATTEMPTS) {
+            _isLoading.value = false
+            _alert.value = AlertState.ConnectionError
+            return
+        }
+        webSocketReconnectAttempts++
         _isLoading.value = true
 
         viewModelScope.launch(Dispatchers.IO) {
-            delay(1000L)
+            // Bounded backoff: 1s, 2s, 4s
+            delay(1000L * (1 shl (webSocketReconnectAttempts - 1)))
             if (webSocketDataSource.isConnected.not()) {
                 bindToWebSocket()
             }
@@ -624,6 +655,10 @@ class ConversationViewModel @Inject constructor(
 
             WebSocketMessage.AuthenticateFailure -> onAuthenticateFailure()
             WebSocketMessage.AuthenticateSuccess -> {
+                webSocketReconnectAttempts = 0
+                if (_alert.value is AlertState.ConnectionError) {
+                    _alert.value = null
+                }
                 _isLoading.value = false
             }
 
@@ -858,6 +893,8 @@ class ConversationViewModel @Inject constructor(
                 messageQueue.mark(state = MessageState.Sent)
             },
             onFailure = {
+                updateMessagesStateJob?.cancel()
+                updateConversationMessagesState(messagesToSend, MessageState.Failed)
                 messageQueue.mark(state = MessageState.Failed)
                 _userCoinsCount.value = _userCoinsCount.value?.inc()
                 if (it is UserNameNotFoundException) {
@@ -911,9 +948,14 @@ class ConversationViewModel @Inject constructor(
         messageQueue.cancelTimer()
         messageQueue.startTimer { messages ->
             viewModelScope.launch {
-                sendMessage(messages = messages)
+                sendMessage(messages = messages, onSuccess = {
+                    messageQueue.remove { m -> m.id in messages.map { s -> s.id } }
+                })
             }
         }
     }
 
+    private companion object {
+        const val MAX_WEBSOCKET_RECONNECT_ATTEMPTS = 3
+    }
 }

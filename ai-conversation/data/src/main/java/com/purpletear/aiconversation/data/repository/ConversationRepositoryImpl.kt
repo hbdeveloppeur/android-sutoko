@@ -192,10 +192,10 @@ class ConversationRepositoryImpl(private val api: MessageApi) : ConversationRepo
     }
 
     override fun addMessage(message: Message) {
+        // The list contract is newest-first (index 0 = most recent, rendered at the
+        // bottom via reverseLayout). New messages must be prepended, not appended.
         _messagesFlow.update { current ->
-            val map = current.associateBy { it.id }.toMutableMap()
-            map[message.id] = message
-            map.values.toList()
+            listOf(message) + current.filterNot { it.id == message.id }
         }
     }
 

@@ -4,7 +4,8 @@ import androidx.annotation.Keep
 
 @Keep
 enum class WebSocketMessageType(val code: String) {
-    AUTHENTICATION_SUCCESS("connected"),
+    CONNECTED("connected"),
+    AUTHENTICATION_SUCCESS("authenticated"),
     AUTHENTICATION_FAILURE("authenticate_failure"),
     PING("ping"),
     SEEN("seen"),

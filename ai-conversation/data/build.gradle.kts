@@ -59,6 +59,8 @@ dependencies {
     implementation(libs.google.firebase.messaging.ktx)
 
     testImplementation(libs.junit)
+    testImplementation(libs.mockwebserver3)
+    testImplementation(libs.kotlinx.coroutines.test)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
 

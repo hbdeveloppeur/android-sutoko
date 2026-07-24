@@ -18,4 +18,11 @@ sealed class AlertState(
         icon = R.drawable.ai_conversation_presentation_ic_alert,
         button = UiText.StringResource(R.string.ai_conversation_restart)
     )
+
+    @Keep
+    data object ConnectionError : AlertState(
+        message = UiText.StringResource(R.string.ai_conversation_connection_error),
+        icon = R.drawable.ai_conversation_presentation_ic_alert,
+        button = UiText.StringResource(R.string.ai_conversation_retry)
+    )
 }
