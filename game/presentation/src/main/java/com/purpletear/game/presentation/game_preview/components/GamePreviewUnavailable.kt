@@ -17,9 +17,6 @@ import androidx.compose.ui.unit.sp
 import com.example.sharedelements.theme.PlusJakartaSansFontFamily
 import com.purpletear.game.presentation.R
 import com.purpletear.sutoko.game.model.Chapter
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
 
 @Composable
 internal fun GamePreviewUnavailable(modifier: Modifier = Modifier, chapter: Chapter) {
@@ -34,13 +31,13 @@ internal fun GamePreviewUnavailable(modifier: Modifier = Modifier, chapter: Chap
             modifier = Modifier.size(14.dp),
             tint = Color.Gray
         )
-        val formattedDate = SimpleDateFormat("EEEE d MMMM", Locale.getDefault())
-            .format(Date(chapter.releaseDate * 1000))
-
         Text(
-            text = stringResource(R.string.game_presentation_game_preview_next_chapter, formattedDate),
+            text = stringResource(
+                R.string.game_presentation_game_preview_next_chapter,
+                chapter.formatReleaseDate()
+            ),
             fontFamily = PlusJakartaSansFontFamily,
-            color = Color.Gray,
+            color = Color(0xFF90EE90),
             fontSize = 12.sp,
             fontWeight = FontWeight.Normal
         )

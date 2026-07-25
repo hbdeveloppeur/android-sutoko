@@ -29,6 +29,7 @@ import com.purpletear.game.data.repository.GameRepositoryImpl
 import com.purpletear.game.data.repository.MemoryRepositoryImpl
 import com.purpletear.game.data.repository.SceneRepositoryImpl
 import com.purpletear.game.data.repository.UserGameProgressRepositoryImpl
+import com.purpletear.game.data.repository.UserRoleRepositoryImpl
 import com.purpletear.game.data.repository.testing.DataStoreLastTestedChapterRepository
 import com.purpletear.game.data.repository.testing.TestChapterGraphRepositoryImpl
 import com.purpletear.game.data.repository.testing.TestPackageRepositoryImpl
@@ -42,6 +43,7 @@ import com.purpletear.sutoko.game.repository.CharacterRepository
 import com.purpletear.sutoko.game.repository.MemoryRepository
 import com.purpletear.sutoko.game.repository.SceneRepository
 import com.purpletear.sutoko.game.repository.UserGameProgressRepository
+import com.purpletear.sutoko.game.repository.UserRoleRepository
 import com.purpletear.sutoko.game.repository.game.FavoriteGamesRepository
 import com.purpletear.sutoko.game.repository.game.GameInstallRepository
 import com.purpletear.sutoko.game.repository.game.GameRepository
@@ -428,6 +430,10 @@ abstract class RepositoryModule {
     abstract fun bindLastTestedChapterRepository(
         impl: DataStoreLastTestedChapterRepository
     ): LastTestedChapterRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindUserRoleRepository(impl: UserRoleRepositoryImpl): UserRoleRepository
 
     @Binds
     @Singleton

@@ -62,6 +62,8 @@ import com.purpletear.game.presentation.game_chapters.ChaptersViewModel
 import com.purpletear.game.presentation.game_preview.GamePreview
 import com.purpletear.game.presentation.game_preview.GamePreviewDeepLink
 import com.purpletear.game.presentation.game_preview.GamePreviewViewModel
+import com.purpletear.game.presentation.game_preview_options.GamePreviewOptionsScreen
+import com.purpletear.game.presentation.game_preview_options.GamePreviewOptionsViewModel
 import com.purpletear.sutoko.auth.coordinator.AuthCoordinator
 import com.purpletear.sutoko.auth.coordinator.AuthEvent
 import com.purpletear.sutoko.auth.presentation.AccountConnectionActivity
@@ -288,6 +290,25 @@ class MainActivity @Inject constructor(
                                     )
                                 },
                                 onOpenAccountConnection = ::openConnectionPage,
+                                onOpenOptions = { gameId ->
+                                    navController.navigate(
+                                        MainScreenPages.GamePreviewOptions.createRoute(gameId)
+                                    )
+                                },
+                            )
+                        }
+
+                        // Sutoko - Game preview options screen (tester account only).
+                        animatedComposable(
+                            route = MainScreenPages.GamePreviewOptions.route,
+                            arguments = listOf(
+                                navArgument("gameId") { type = NavType.StringType }
+                            )
+                        ) {
+                            val optionsViewModel: GamePreviewOptionsViewModel = hiltViewModel()
+                            GamePreviewOptionsScreen(
+                                viewModel = optionsViewModel,
+                                onBack = { navController.popBackStack() },
                             )
                         }
 

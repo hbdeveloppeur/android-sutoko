@@ -81,6 +81,7 @@ import com.purpletear.game.presentation.game_preview.components.GamePreviewDescr
 import com.purpletear.game.presentation.game_preview.components.GamePreviewFavoriteButton
 import com.purpletear.game.presentation.game_preview.components.GamePreviewGradients
 import com.purpletear.game.presentation.game_preview.components.GamePreviewLabel
+import com.purpletear.game.presentation.game_preview.components.GamePreviewOptionsButton
 import com.purpletear.game.presentation.game_preview.components.GamePreviewShareButton
 import com.purpletear.game.presentation.game_preview.components.GamePreviewUnavailable
 import com.purpletear.game.presentation.game_preview.components.GamePreviewUnlockAnimation
@@ -108,6 +109,7 @@ fun GamePreview(
     onNavigateToGame: (String, Int?, Boolean, String?, Boolean) -> Unit = { _, _, _, _, _ -> },
     onNavigateToChapters: (String) -> Unit = {},
     onOpenAccountConnection: () -> Unit = {},
+    onOpenOptions: (String) -> Unit = {},
 ) {
     // Get the game from the ViewModel
     val state by viewModel.game.collectAsStateWithLifecycle()
@@ -116,6 +118,8 @@ fun GamePreview(
     val currentChapter by viewModel.currentChapter.collectAsStateWithLifecycle()
     val isUserPremium by viewModel.isUserPremium.collectAsStateWithLifecycle()
     val isUserConnected by viewModel.isUserConnected.collectAsStateWithLifecycle()
+    val isOptionsVisible by viewModel.isOptionsVisible.collectAsStateWithLifecycle()
+    val isAdmin by viewModel.isAdmin.collectAsStateWithLifecycle()
     val isPurchasing by viewModel.isPurchasing.collectAsStateWithLifecycle()
     val isPurchaseLoading by viewModel.isPurchaseLoading.collectAsStateWithLifecycle()
     val isRefreshing by viewModel.isRefreshing.collectAsStateWithLifecycle()
@@ -366,7 +370,8 @@ fun GamePreview(
                                 }
                                     ?: GamePreviewChapterTitle(text = stringResource(R.string.game_presentation_game_preview_loading_chapter))
 
-                                val unavailableChapter = currentChapter?.takeIf { !it.isAvailable }
+                                val unavailableChapter =
+                                    currentChapter?.takeIf { !it.isAvailable && !isAdmin }
                                 if (unavailableChapter != null) {
                                     GamePreviewUnavailable(
                                         chapter = unavailableChapter
@@ -523,6 +528,11 @@ fun GamePreview(
                             isFavorite = game.isFavorite,
                             onToggle = { viewModel.onAction(GamePreviewAction.OnToggleFavorite) },
                         )
+                        if (isOptionsVisible) {
+                            GamePreviewOptionsButton(
+                                onClick = { onOpenOptions(game.id) },
+                            )
+                        }
                     }
                 }
 

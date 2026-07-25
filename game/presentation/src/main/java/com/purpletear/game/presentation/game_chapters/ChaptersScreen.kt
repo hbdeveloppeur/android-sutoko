@@ -148,6 +148,7 @@ fun ChaptersScreen(
                             ChapterList(
                                 chapters = state.chapters,
                                 currentChapterCode = state.currentChapterCode,
+                                isAdmin = state.isAdmin,
                                 onChapterClick = { chapter ->
                                     val isCurrent =
                                         chapter.normalizedCode == state.currentChapterCode
@@ -214,10 +215,14 @@ private fun ChaptersTopBar(onBack: () -> Unit) {
 private fun ChapterList(
     chapters: List<Chapter>,
     currentChapterCode: String?,
+    isAdmin: Boolean,
     onChapterClick: (Chapter) -> Unit,
 ) {
     // Locked chapters leave the main list: they are teased in a dedicated top section.
-    val (upcoming, released) = remember(chapters) { chapters.partition { !it.isAvailable } }
+    // Administrators see and can open them like released chapters.
+    val (upcoming, released) = remember(chapters, isAdmin) {
+        chapters.partition { !it.isAvailable && !isAdmin }
+    }
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
         contentPadding = PaddingValues(horizontal = 0.dp, vertical = 8.dp),
@@ -257,6 +262,7 @@ private fun ChapterList(
             ChapterCard(
                 chapter = chapter,
                 isCurrent = chapter.normalizedCode == currentChapterCode,
+                forceAvailable = isAdmin,
                 onClick = { onChapterClick(chapter) },
             )
         }
@@ -360,8 +366,9 @@ private fun ChapterCard(
     isCurrent: Boolean,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
+    forceAvailable: Boolean = false,
 ) {
-    val isAvailable = chapter.isAvailable
+    val isAvailable = chapter.isAvailable || forceAvailable
     val contentAlpha = if (isAvailable) 1f else 0.45f
 
     // Flat dark card, identity carried by a thin accent bar on the left edge.

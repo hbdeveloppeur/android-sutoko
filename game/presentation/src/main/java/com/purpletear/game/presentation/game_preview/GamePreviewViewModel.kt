@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.purpletear.core.presentation.services.ToastService
 import com.purpletear.game.presentation.R
+import com.purpletear.game.presentation.game_preview.components.formatReleaseDate
 import com.purpletear.game.presentation.game_preview.events.GamePreviewEvent
 import com.purpletear.game.presentation.game_preview.handlers.GamePreviewPurchaseHandler
 import com.purpletear.game.presentation.model.GameItem
@@ -15,7 +16,9 @@ import com.purpletear.sutoko.core.domain.logger.exception
 import com.purpletear.sutoko.core.domain.logger.warning
 import com.purpletear.sutoko.domain.repository.UserRepository
 import com.purpletear.sutoko.game.model.Chapter
+import com.purpletear.sutoko.game.model.UserRole
 import com.purpletear.sutoko.game.repository.ChapterRepository
+import com.purpletear.sutoko.game.repository.UserRoleRepository
 import com.purpletear.sutoko.game.repository.game.FavoriteGamesRepository
 import com.purpletear.sutoko.game.repository.game.GameInstallRepository
 import com.purpletear.sutoko.game.repository.game.GameRepository
@@ -64,6 +67,7 @@ class GamePreviewViewModel @Inject constructor(
     private val downloadGameUseCase: DownloadGameUseCase,
     private val purchaseHandler: GamePreviewPurchaseHandler,
     private val userRepository: UserRepository,
+    private val userRoleRepository: UserRoleRepository,
     private val observeCoinPurchasedSkusUseCase: ObserveCoinPurchasedSkusUseCase,
     private val isStoryGrantedUseCase: IsStoryGrantedUseCase,
     private val logger: Logger,
@@ -112,6 +116,24 @@ class GamePreviewViewModel @Inject constructor(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(7000),
             initialValue = userRepository.isConnected().getOrDefault(false),
+        )
+
+    /** The story options entry point is only offered to the tester account. */
+    val isOptionsVisible: StateFlow<Boolean> = userRepository.observeUser()
+        .map { it?.id == OPTIONS_ACCESS_UID }
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(7000),
+            initialValue = false,
+        )
+
+    /** Administrators bypass chapter availability rules (unreleased chapters). */
+    val isAdmin: StateFlow<Boolean> = userRoleRepository.observe()
+        .map { it == UserRole.ADMINISTRATOR }
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(7000),
+            initialValue = false,
         )
 
     private data class GameObservation(
@@ -269,7 +291,7 @@ class GamePreviewViewModel @Inject constructor(
             GamePreviewAction.OnDownload -> onStartDownload()
             GamePreviewAction.OnUpdateGame -> onStartDownload()
             GamePreviewAction.OnUpdateApp -> sendEvent(GamePreviewEvent.OpenAppStore)
-            GamePreviewAction.OnPlay -> navigateToPlay(requestNickName = true)
+            GamePreviewAction.OnPlay -> onPlay()
             GamePreviewAction.OnTry -> navigateToPlay(requestNickName = true, isTrial = true)
             GamePreviewAction.OnRestart -> sendEvent(GamePreviewEvent.ShowRestartDialog)
             GamePreviewAction.OnRestartConfirm -> onRestartGame()
@@ -347,6 +369,27 @@ class GamePreviewViewModel @Inject constructor(
         }
         GamePreviewLogger.i("PUR") { "onBuy() starting purchase flow for gameId=$gameId" }
         purchaseHandler.startPurchaseFlow()
+    }
+
+    /**
+     * Single gatekeeper for starting the game. An unreleased chapter no longer
+     * disables the Play button: tapping it surfaces the same message as
+     * GamePreviewUnavailable as a toast instead. Administrators bypass the check.
+     */
+    private fun onPlay() {
+        val chapter = currentChapter.value
+        when {
+            // Chapter still loading: the Play button is disabled in this state.
+            chapter == null -> Unit
+            !chapter.isAvailable && !isAdmin.value -> {
+                GamePreviewLogger.d("NAV") { "onPlay() chapter ${chapter.number} unavailable for gameId=$gameId" }
+                toastService(
+                    R.string.game_presentation_game_preview_next_chapter,
+                    chapter.formatReleaseDate(),
+                )
+            }
+            else -> navigateToPlay(requestNickName = true)
+        }
     }
 
     private fun navigateToPlay(requestNickName: Boolean, isTrial: Boolean = false) {
@@ -586,6 +629,7 @@ class GamePreviewViewModel @Inject constructor(
     }
 
     private companion object {
+        const val OPTIONS_ACCESS_UID = "8be954c7a18f4e7cba9c"
         const val MAX_GRANT_CHECK_ATTEMPTS = 3
         const val GRANT_CHECK_RETRY_DELAY_MS = 1_000L
     }

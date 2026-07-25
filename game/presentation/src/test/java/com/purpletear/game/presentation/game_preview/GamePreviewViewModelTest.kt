@@ -19,11 +19,13 @@ import com.purpletear.game.presentation.game_preview.fakes.FakePurchaseRepositor
 import com.purpletear.game.presentation.game_preview.fakes.FakeToastService
 import com.purpletear.game.presentation.game_preview.fakes.FakeUserGameProgressRepository
 import com.purpletear.game.presentation.game_preview.fakes.FakeUserRepository
+import com.purpletear.game.presentation.game_preview.fakes.FakeUserRoleRepository
 import com.purpletear.game.presentation.game_preview.fakes.TestFixtures
 import com.purpletear.game.presentation.game_preview.handlers.GamePreviewPurchaseHandler
 import com.purpletear.game.presentation.model.GameUiError
 import com.purpletear.sutoko.domain.model.User
 import com.purpletear.sutoko.game.model.Chapter
+import com.purpletear.sutoko.game.model.UserRole
 import com.purpletear.sutoko.game.usecase.DownloadGameUseCase
 import com.purpletear.sutoko.game.usecase.GetChaptersUseCase
 import com.purpletear.sutoko.game.usecase.RestartGameUseCase
@@ -58,6 +60,7 @@ class GamePreviewViewModelTest {
     private val purchaseRepository = FakePurchaseRepository()
     private val mediaUrlResolver = FakeMediaUrlResolver()
     private val userRepository = FakeUserRepository()
+    private val userRoleRepository = FakeUserRoleRepository()
     private val userGameProgressRepository = FakeUserGameProgressRepository()
     private val memoryRepository = FakeMemoryRepository()
     private val logger = FakeLogger()
@@ -119,6 +122,7 @@ class GamePreviewViewModelTest {
             downloadGameUseCase = downloadGameUseCase,
             purchaseHandler = purchaseHandler,
             userRepository = userRepository,
+            userRoleRepository = userRoleRepository,
             observeCoinPurchasedSkusUseCase = observeCoinPurchasedSkusUseCase,
             isStoryGrantedUseCase = isStoryGrantedUseCase,
             logger = logger,
@@ -136,6 +140,34 @@ class GamePreviewViewModelTest {
             gameRepository.setGame(TestFixtures.GAME_ID, TestFixtures.gameCatalog())
             assertTrue(awaitItem() is GamePreviewUiState.Data)
         }
+    }
+
+    @Test
+    fun `options entry point is visible only for the tester uid`() = runTest {
+        val viewModel = createViewModel()
+        backgroundScope.launch { viewModel.isOptionsVisible.collect { } }
+        advanceUntilIdle()
+        assertFalse(viewModel.isOptionsVisible.value)
+
+        userRepository.setUser(User(id = "user-1", token = "token-1"))
+        advanceUntilIdle()
+        assertFalse(viewModel.isOptionsVisible.value)
+
+        userRepository.setUser(User(id = "8be954c7a18f4e7cba9c", token = "token-2"))
+        advanceUntilIdle()
+        assertTrue(viewModel.isOptionsVisible.value)
+    }
+
+    @Test
+    fun `administrator role is exposed as isAdmin`() = runTest {
+        val viewModel = createViewModel()
+        backgroundScope.launch { viewModel.isAdmin.collect { } }
+        advanceUntilIdle()
+        assertFalse(viewModel.isAdmin.value)
+
+        userRoleRepository.set(UserRole.ADMINISTRATOR)
+        advanceUntilIdle()
+        assertTrue(viewModel.isAdmin.value)
     }
 
     @Test
@@ -451,10 +483,12 @@ class GamePreviewViewModelTest {
         val viewModel = createViewModel()
         gameRepository.setGame(TestFixtures.GAME_ID, TestFixtures.gameCatalog())
         chapterRepository.setCurrentChapter(TestFixtures.GAME_ID, Chapter(number = 1, code = "1A"))
+        backgroundScope.launch { viewModel.currentChapter.collect { } }
 
         viewModel.game.test {
             skipItems(1) // Loading
             assertTrue(awaitItem() is GamePreviewUiState.Data)
+            advanceUntilIdle()
 
             viewModel.events.test {
                 viewModel.onAction(GamePreviewAction.OnPlay)
@@ -465,6 +499,54 @@ class GamePreviewViewModelTest {
                 assertFalse((event as GamePreviewEvent.PlayGame).isTrial)
             }
         }
+    }
+
+    @Test
+    fun `onAction OnPlay with unavailable chapter shows toast and does not navigate`() = runTest {
+        val viewModel = createViewModel()
+        gameRepository.setGame(TestFixtures.GAME_ID, TestFixtures.gameCatalog())
+        chapterRepository.setCurrentChapter(
+            TestFixtures.GAME_ID,
+            Chapter(number = 2, code = "1B", releaseDate = System.currentTimeMillis() / 1000 + 86_400),
+        )
+        backgroundScope.launch { viewModel.currentChapter.collect { } }
+        val events = mutableListOf<GamePreviewEvent>()
+        backgroundScope.launch { viewModel.events.collect { events.add(it) } }
+        advanceUntilIdle()
+
+        viewModel.onAction(GamePreviewAction.OnPlay)
+        advanceUntilIdle()
+
+        assertTrue(toastService.shownMessages.contains(R.string.game_presentation_game_preview_next_chapter))
+        assertTrue(events.none { it is GamePreviewEvent.PlayGame })
+    }
+
+    @Test
+    fun `onAction OnPlay with unavailable chapter as admin still navigates`() = runTest {
+        val viewModel = createViewModel()
+        gameRepository.setGame(TestFixtures.GAME_ID, TestFixtures.gameCatalog())
+        chapterRepository.setCurrentChapter(
+            TestFixtures.GAME_ID,
+            Chapter(number = 2, code = "1B", releaseDate = System.currentTimeMillis() / 1000 + 86_400),
+        )
+        userRoleRepository.set(UserRole.ADMINISTRATOR)
+        backgroundScope.launch { viewModel.currentChapter.collect { } }
+        backgroundScope.launch { viewModel.isAdmin.collect { } }
+
+        viewModel.game.test {
+            skipItems(1) // Loading
+            assertTrue(awaitItem() is GamePreviewUiState.Data)
+            advanceUntilIdle()
+
+            viewModel.events.test {
+                viewModel.onAction(GamePreviewAction.OnPlay)
+                advanceUntilIdle()
+
+                val event = awaitItem()
+                assertTrue(event is GamePreviewEvent.PlayGame)
+            }
+        }
+        assertTrue(toastService.shownMessages.isEmpty())
     }
 
     @Test

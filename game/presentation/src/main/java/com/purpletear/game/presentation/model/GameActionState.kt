@@ -32,7 +32,6 @@ sealed class GameActionState {
     data object Pending : GameActionState()
     data class Play(
         val chapterNumber: Int,
-        val isChapterAvailable: Boolean,
     ) : GameActionState()
 }
 
@@ -68,6 +67,5 @@ fun GameItem.toGameActionState(
     isGameFinished -> GameActionState.GameFinished
     else -> GameActionState.Play(
         chapterNumber = currentChapter?.number ?: -1,
-        isChapterAvailable = currentChapter?.isAvailable ?: false,
     )
 }

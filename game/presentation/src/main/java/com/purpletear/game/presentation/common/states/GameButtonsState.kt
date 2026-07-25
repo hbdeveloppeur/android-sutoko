@@ -58,7 +58,10 @@ internal fun GameActionState?.toButtonsState(
             title = StringResource(R.string.game_presentation_game_menu_play),
             subtitle = StringResource(R.string.game_presentation_game_menu_chapter_number, chapterNumber),
             action = GamePreviewAction.OnPlay,
-            isEnabled = isChapterAvailable,
+            // The ViewModel gates availability with a toast; keep the button
+            // fully visible once a chapter is loaded (chapterNumber <= 0 means
+            // the chapter is still loading).
+            isEnabled = chapterNumber > 0,
         ),
     )
 
