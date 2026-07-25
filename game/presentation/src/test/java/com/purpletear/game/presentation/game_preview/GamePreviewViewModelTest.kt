@@ -629,4 +629,36 @@ class GamePreviewViewModelTest {
         }
         assertFalse(viewModel.isPurchasing.value)
     }
+
+    @Test
+    fun `releasedChaptersCount is null when no chapters are stored`() = runTest {
+        val viewModel = createViewModel()
+
+        viewModel.releasedChaptersCount.test {
+            assertEquals(null, awaitItem())
+        }
+    }
+
+    @Test
+    fun `releasedChaptersCount counts only available chapters`() = runTest {
+        val viewModel = createViewModel()
+        val now = System.currentTimeMillis() / 1000
+
+        viewModel.releasedChaptersCount.test {
+            assertEquals(null, awaitItem())
+
+            chapterRepository.setChapters(
+                TestFixtures.GAME_ID,
+                Result.success(
+                    listOf(
+                        Chapter(id = "1", number = 1, releaseDate = now - 200),
+                        Chapter(id = "2", number = 2, releaseDate = now - 100),
+                        Chapter(id = "3", number = 3, releaseDate = now + 100_000),
+                    )
+                )
+            )
+
+            assertEquals(2, awaitItem())
+        }
+    }
 }

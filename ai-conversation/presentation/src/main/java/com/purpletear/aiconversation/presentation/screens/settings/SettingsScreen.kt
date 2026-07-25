@@ -86,7 +86,7 @@ internal fun SettingsScreen(
 
     PullToRefreshBox(
         isRefreshing = viewModel.isRefreshing.value,
-        onRefresh = viewModel::refreshVersion,
+        onRefresh = { viewModel.refreshVersion() },
     ) {
 
         LazyColumn(

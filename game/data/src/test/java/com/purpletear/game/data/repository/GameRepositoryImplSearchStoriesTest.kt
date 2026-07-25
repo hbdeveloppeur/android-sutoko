@@ -527,13 +527,6 @@ class GameRepositoryImplSearchStoriesTest {
             userToken: String?
         ) = throw NotImplementedError()
 
-        override suspend fun grantGame(
-            userId: String,
-            userToken: String,
-            purchaseToken: String,
-            orderId: String
-        ) = throw NotImplementedError()
-
         override suspend fun searchStories(
             query: String,
             languageCode: String,

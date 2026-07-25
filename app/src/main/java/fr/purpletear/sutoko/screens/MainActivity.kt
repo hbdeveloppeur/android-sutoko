@@ -57,6 +57,8 @@ import com.purpletear.aiconversation.presentation.screens.media.image_generator.
 import com.purpletear.aiconversation.presentation.screens.shopDialog.MessagesCoinsDialogComposable
 import com.purpletear.game.presentation.game_play.SmsGameActivity
 import com.purpletear.game.presentation.game_play.SmsGameActivityArgs
+import com.purpletear.game.presentation.game_chapters.ChaptersScreen
+import com.purpletear.game.presentation.game_chapters.ChaptersViewModel
 import com.purpletear.game.presentation.game_preview.GamePreview
 import com.purpletear.game.presentation.game_preview.GamePreviewDeepLink
 import com.purpletear.game.presentation.game_preview.GamePreviewViewModel
@@ -280,7 +282,33 @@ class MainActivity @Inject constructor(
                                         isTrial = isTrial,
                                     )
                                 },
+                                onNavigateToChapters = { gameId ->
+                                    navController.navigate(
+                                        MainScreenPages.Chapters.createRoute(gameId)
+                                    )
+                                },
                                 onOpenAccountConnection = ::openConnectionPage,
+                            )
+                        }
+
+                        // Sutoko - Chapters screen.
+                        animatedComposable(
+                            route = MainScreenPages.Chapters.route,
+                            arguments = listOf(
+                                navArgument("gameId") { type = NavType.StringType }
+                            )
+                        ) { backStackEntry ->
+                            val chaptersViewModel: ChaptersViewModel = hiltViewModel()
+                            ChaptersScreen(
+                                viewModel = chaptersViewModel,
+                                fallbackBackgroundPainter = painterResource(R.drawable.book_details_background),
+                                onBack = { navController.popBackStack() },
+                                onOpenChapter = { chapterCode ->
+                                    startSmsGameActivity(
+                                        gameId = backStackEntry.arguments?.getString("gameId").orEmpty(),
+                                        chapterCode = chapterCode,
+                                    )
+                                },
                             )
                         }
 

@@ -4,6 +4,7 @@
     <!-- Game catalog -->
     <string name="game_presentation_sutoko_index_chapter_plural">%1$d Chapitres</string>
     <string name="game_presentation_game_card_genre_fallback">Policier • Romance • Drame</string>
+    <string name="game_presentation_game_card_new_chapters_soon">Bientôt de nouveaux chapitres</string>
 
     <!-- Game card buttons -->
     <string name="game_presentation_game_button_get">Obtenir</string>
@@ -112,6 +113,9 @@
     <string name="game_presentation_game_chapter_number_title">%1$d - %2$s</string>
     <string name="game_presentation_game_chapter_return">Revenir à ce chapitre</string>
     <string name="game_presentation_game_chapter_current">Actuel</string>
+    <string name="game_presentation_game_chapter_available_on">Disponible le %1$s</string>
+    <string name="game_presentation_game_chapters_select_error">Impossible d\'ouvrir ce chapitre. Veuillez réessayer.</string>
+    <string name="game_presentation_game_chapters_upcoming_title">Bientôt disponible</string>
 
     <!-- Game play / chat -->
     <string name="game_presentation_chat_header_back_button_description">Bouton retour</string>

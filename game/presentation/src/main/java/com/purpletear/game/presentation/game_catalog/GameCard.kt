@@ -23,8 +23,10 @@ import androidx.compose.ui.layout.Placeable
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
@@ -32,6 +34,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.Constraints
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
@@ -44,21 +47,35 @@ import com.purpletear.sutoko.game.model.game.GameCatalog
 import kotlin.math.abs
 import kotlin.math.roundToInt
 
+/** Whitened green for the "new chapters soon" label replacing the themes. */
+private val NewChaptersSoonGreen = Color(0xFF90EE90)
+
 @Composable
 fun GameCard(
     modifier: Modifier = Modifier,
     gameCatalog: GameCatalog,
     isFavorite: Boolean = false,
+    hasNewChaptersSoon: Boolean = false,
     onTap: (GameCatalog) -> Unit,
 ) {
     val themes = remember(gameCatalog.narrativeThemes) {
         gameCatalog.narrativeThemes.map { it.name }
     }
+    val newChaptersSoonLabel =
+        stringResource(R.string.game_presentation_game_card_new_chapters_soon)
     // The title comes from the logo asset, so TalkBack needs it explicitly.
-    val description = remember(gameCatalog.metadata.title, themes) {
+    val description = remember(
+        gameCatalog.metadata.title,
+        themes,
+        hasNewChaptersSoon,
+        newChaptersSoonLabel,
+    ) {
         buildString {
             append(gameCatalog.metadata.title)
-            if (themes.isNotEmpty()) {
+            if (hasNewChaptersSoon) {
+                append(". ")
+                append(newChaptersSoonLabel)
+            } else if (themes.isNotEmpty()) {
                 append(". ")
                 append(themes.joinToString(", "))
             }
@@ -87,7 +104,11 @@ fun GameCard(
             titleUrl = remember(gameCatalog.title) { gameCatalog.titleUrl() },
             modifier = Modifier.titleRect(),
         )
-        Themes(themes = themes)
+        if (hasNewChaptersSoon) {
+            NewChaptersSoonSubtitle(label = newChaptersSoonLabel)
+        } else {
+            Themes(themes = themes)
+        }
         if (isFavorite) {
             Icon(
                 painter = painterResource(R.drawable.game_star_selected),
@@ -148,19 +169,60 @@ private fun Themes(modifier: Modifier = Modifier, themes: List<String>) {
         }
     }
 
+    Subtitle(modifier = modifier, candidates = candidates, color = Color.White)
+}
+
+/**
+ * Replaces the themes when the game has upcoming chapters: an uppercase
+ * "new chapters soon" label in whitened green, wrapped on up to two
+ * centered lines inside the card.
+ */
+@Composable
+private fun NewChaptersSoonSubtitle(modifier: Modifier = Modifier, label: String) {
+    val candidates = remember(label) { listOf(AnnotatedString(label.uppercase())) }
+    Subtitle(
+        modifier = modifier,
+        candidates = candidates,
+        color = NewChaptersSoonGreen,
+        maxLines = 2,
+        softWrap = true,
+        textMaxWidth = 150.dp,
+    )
+}
+
+/**
+ * Renders the first candidate that fits inside the card, under the title
+ * rectangle, horizontally centered on the title column. With [softWrap] off,
+ * candidates must fit on one line; with it on, they wrap on up to [maxLines]
+ * centered lines. If none fits, the last (shortest) candidate is ellipsized
+ * to the card width.
+ *
+ * [textMaxWidth] caps the width wrapping candidates are measured against;
+ * the layout itself always spans the whole card so the geometry fractions
+ * stay relative to the card size.
+ */
+@Composable
+private fun Subtitle(
+    modifier: Modifier = Modifier,
+    candidates: List<AnnotatedString>,
+    color: Color,
+    maxLines: Int = 1,
+    softWrap: Boolean = false,
+    textMaxWidth: Dp = Dp.Unspecified,
+) {
     Layout(
         modifier = modifier,
         content = {
             candidates.forEach { text ->
                 Text(
                     text = text,
-                    color = Color.White,
+                    color = color,
                     fontSize = 11.sp,
                     fontFamily = CrimsonTextFontFamily,
                     fontWeight = FontWeight.SemiBold,
                     textAlign = TextAlign.Center,
-                    maxLines = 1,
-                    softWrap = false,
+                    maxLines = maxLines,
+                    softWrap = softWrap,
                     overflow = TextOverflow.Ellipsis,
                 )
             }
@@ -172,7 +234,15 @@ private fun Themes(modifier: Modifier = Modifier, themes: List<String>) {
                 "GameCard lost its aspect ratio: w=${constraints.maxWidth}, h=${constraints.maxHeight}"
             }
         }
-        val loose = Constraints(maxWidth = Constraints.Infinity, maxHeight = constraints.maxHeight)
+        // Wrapping text must be measured against the real width to wrap; single-line
+        // candidates are measured with infinite width to know their natural size.
+        val loose = if (softWrap) {
+            val maxWidth = if (textMaxWidth == Dp.Unspecified) constraints.maxWidth
+            else minOf(constraints.maxWidth, textMaxWidth.roundToPx())
+            constraints.copy(minWidth = 0, minHeight = 0, maxWidth = maxWidth)
+        } else {
+            Constraints(maxWidth = Constraints.Infinity, maxHeight = constraints.maxHeight)
+        }
         var fitting: Placeable? = null
         for (measurable in measurables) {
             val measured = measurable.measure(loose)

@@ -12,6 +12,7 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
@@ -50,6 +51,16 @@ class ChapterRepositoryImpl @Inject constructor(
             }
         }
     }.flowOn(Dispatchers.IO)
+
+    override fun observeChapters(storyId: String): Flow<List<Chapter>> =
+        chapterDao.observeAllForStory(storyId)
+            .map { entities -> entities.map { it.toDomain() } }
+            .flowOn(Dispatchers.IO)
+
+    override fun observeStoryIdsWithUpcomingChapters(): Flow<Set<String>> = flow {
+        // "now" is fixed at collection start; releaseDate is epoch seconds (server format).
+        emitAll(chapterDao.observeStoryIdsWithUpcomingChapters(System.currentTimeMillis() / 1000))
+    }.map { it.toSet() }.flowOn(Dispatchers.IO)
 
     override fun getChapter(id: Int): Flow<Result<Chapter>> = flow {
         val dbChapter = chapterDao.getById(id.toString())?.toDomain()

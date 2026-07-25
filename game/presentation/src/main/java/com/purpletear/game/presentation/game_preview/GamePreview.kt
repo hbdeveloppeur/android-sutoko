@@ -68,11 +68,13 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.sharedelements.theme.PlusJakartaSansFontFamily
+import com.purpletear.core.presentation.components.icon.Icon.Image
 import com.purpletear.core.presentation.util.openAppInStore
 import com.purpletear.game.presentation.R
 import com.purpletear.game.presentation.common.components.GameLogo
 import com.purpletear.game.presentation.common.components.NickNameInputDialog
 import com.purpletear.game.presentation.game_play.components.Avatar
+import com.purpletear.game.presentation.game_preview.components.GamePreviewButton
 import com.purpletear.game.presentation.game_preview.components.GamePreviewCategories
 import com.purpletear.game.presentation.game_preview.components.GamePreviewChapterTitle
 import com.purpletear.game.presentation.game_preview.components.GamePreviewDescription
@@ -86,11 +88,13 @@ import com.purpletear.game.presentation.game_preview.components.PremiumActiveLab
 import com.purpletear.game.presentation.game_preview.components.PremiumLabelGradient
 import com.purpletear.game.presentation.game_preview.components.UnlockedLabelGradient
 import com.purpletear.game.presentation.game_preview.events.GamePreviewEvent
+import com.purpletear.game.presentation.model.GameActionState
 import com.purpletear.game.presentation.model.GameItem
 import com.purpletear.game.presentation.model.formatNarrativeThemes
 import com.purpletear.game.presentation.model.toGameActionState
 import com.purpletear.sutoko.alert.presentation.SimpleAlertDialog
 import kotlinx.coroutines.delay
+import com.example.sharedelements.R as SutokoSharedElementsR
 
 /**
  * A preview screen that displays detailed game information
@@ -102,6 +106,7 @@ fun GamePreview(
     viewModel: GamePreviewViewModel,
     fallbackBackgroundPainter: Painter? = null,
     onNavigateToGame: (String, Int?, Boolean, String?, Boolean) -> Unit = { _, _, _, _, _ -> },
+    onNavigateToChapters: (String) -> Unit = {},
     onOpenAccountConnection: () -> Unit = {},
 ) {
     // Get the game from the ViewModel
@@ -114,6 +119,7 @@ fun GamePreview(
     val isPurchasing by viewModel.isPurchasing.collectAsStateWithLifecycle()
     val isPurchaseLoading by viewModel.isPurchaseLoading.collectAsStateWithLifecycle()
     val isRefreshing by viewModel.isRefreshing.collectAsStateWithLifecycle()
+    val releasedChaptersCount by viewModel.releasedChaptersCount.collectAsStateWithLifecycle()
     val appBuildNumber = viewModel.appBuildNumber
 
     val showVideo = rememberShowVideoAfterNavigation()
@@ -137,7 +143,7 @@ fun GamePreview(
     ) {
         PullToRefreshBox(
             isRefreshing = isRefreshing,
-            onRefresh = viewModel::refresh,
+            onRefresh = { viewModel.refresh() },
             modifier = Modifier.fillMaxSize(),
         ) {
             Box(
@@ -325,7 +331,8 @@ fun GamePreview(
                                 .heightIn(min = viewportHeight)
                                 .navigationBarsPadding()
                                 .statusBarsPadding()
-                                .padding(vertical = 30.dp, horizontal = 16.dp),
+                                .padding(vertical = 30.dp, horizontal = 16.dp)
+                                .padding(bottom = 12.dp),
                             verticalArrangement = Arrangement.spacedBy(26.dp)
                         ) {
                             gameItem?.let { game ->
@@ -459,17 +466,45 @@ fun GamePreview(
                             )
 
 
-                            GameActionButtons(
-                                gameActionState = gameItem?.toGameActionState(
-                                    isPurchasing = isPurchasing,
-                                    isPurchaseLoading = isPurchaseLoading,
-                                    currentChapter = currentChapter,
-                                    appBuildNumber = appBuildNumber,
-                                    isUserConnected = isUserConnected,
-                                ),
-                                onAction = viewModel::onAction,
-                                modifier = Modifier.padding(bottom = 12.dp),
+                            val gameActionState = gameItem?.toGameActionState(
+                                isPurchasing = isPurchasing,
+                                isPurchaseLoading = isPurchaseLoading,
+                                currentChapter = currentChapter,
+                                appBuildNumber = appBuildNumber,
+                                isUserConnected = isUserConnected,
                             )
+
+                            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                                GameActionButtons(
+                                    gameActionState = gameActionState,
+                                    onAction = viewModel::onAction,
+                                )
+
+                                // The catalog count is a server-side cached value
+                                // that can be stale; real loaded chapters win.
+                                val chaptersCount = releasedChaptersCount
+                                    ?: (state as? GamePreviewUiState.Data)?.gameCatalog?.chaptersCount
+                                    ?: 0
+                                if (gameActionState is GameActionState.Play && chaptersCount > 0) {
+                                    GamePreviewButton(
+                                        modifier = Modifier
+                                            .fillMaxWidth(),
+                                        title = stringResource(R.string.game_presentation_game_story_chapters_button_chapters),
+                                        subtitle = stringResource(
+                                            R.string.game_presentation_game_story_chapters_button_chapters_count,
+                                            chaptersCount,
+                                        ),
+                                        onClick = {
+                                            gameItem.let { onNavigateToChapters(it.id) }
+                                        },
+                                        icon = Image(
+                                            drawableId = SutokoSharedElementsR.drawable.shared_elements_shared_ic_arrow_back_ios,
+                                            scaleX = -1f,
+                                        ),
+                                        background = Background.Solid(Color.White.copy(alpha = 0.12f)),
+                                    )
+                                }
+                            }
                         }
                     }
                 }

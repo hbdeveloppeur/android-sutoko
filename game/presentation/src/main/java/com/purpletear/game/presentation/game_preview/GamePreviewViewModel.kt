@@ -41,6 +41,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -86,6 +87,20 @@ class GamePreviewViewModel @Inject constructor(
                 } ?: "currentChapter emitted: null for gameId=$gameId"
             }
         }
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(7000),
+            initialValue = null,
+        )
+
+    /**
+     * Number of released chapters actually stored locally. The catalog's
+     * chaptersCount is a server-side cached value that can be stale, so the
+     * real chapters win once loaded. Null until the local store holds at
+     * least one chapter: callers then fall back to the catalog count.
+     */
+    val releasedChaptersCount: StateFlow<Int?> = chapterRepository.observeChapters(gameId)
+        .map { chapters -> chapters.takeIf { it.isNotEmpty() }?.count { it.isAvailable } }
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(7000),

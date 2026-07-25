@@ -38,4 +38,7 @@ interface ChapterDao {
 
     @Query("SELECT * FROM chapters WHERE story = :storyId AND code = :code LIMIT 1")
     fun observeByStoryAndCode(storyId: String, code: String): Flow<ChapterEntity?>
+
+    @Query("SELECT DISTINCT story FROM chapters WHERE releaseDate > :nowSeconds")
+    fun observeStoryIdsWithUpcomingChapters(nowSeconds: Long): Flow<List<String>>
 }

@@ -21,7 +21,9 @@ import com.purpletear.sutoko.core.domain.appaction.AppAction
 import com.purpletear.sutoko.domain.repository.UserRepository
 import com.purpletear.sutoko.game.model.game.GameCatalog
 import com.purpletear.sutoko.game.model.game.isPremium
+import com.purpletear.sutoko.game.repository.ChapterRepository
 import com.purpletear.sutoko.game.repository.game.FavoriteGamesRepository
+import com.purpletear.sutoko.game.usecase.GetChaptersUseCase
 import com.purpletear.sutoko.game.usecase.ObserveOfficialGamesUseCase
 import com.purpletear.sutoko.news.model.News
 import com.purpletear.sutoko.news.usecase.ObserveNewsUseCase
@@ -60,6 +62,8 @@ class HomeScreenViewModel @Inject constructor(
     private val shopRepository: ShopRepository,
     private val userRepository: UserRepository,
     private val favoriteGamesRepository: FavoriteGamesRepository,
+    private val chapterRepository: ChapterRepository,
+    private val getChaptersUseCase: GetChaptersUseCase,
 ) : ViewModel(), LifecycleObserver {
 
     val balance: StateFlow<Resource<Balance>> = shopRepository.observeBalance()
@@ -91,6 +95,18 @@ class HomeScreenViewModel @Inject constructor(
             started = SharingStarted.WhileSubscribed(7000),
             initialValue = emptySet(),
         )
+
+    /** Ids of games with at least one cached chapter releasing in the future. */
+    val newChaptersSoonGameIds: StateFlow<Set<String>> =
+        chapterRepository.observeStoryIdsWithUpcomingChapters()
+            .stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(7000),
+                initialValue = emptySet(),
+            )
+
+    /** Games whose chapters were already fetched once for this ViewModel lifetime. */
+    private val warmedUpChapterGameIds = mutableSetOf<String>()
 
     private val _state: MutableState<MainState> = mutableStateOf(
         MainState(
@@ -181,6 +197,19 @@ class HomeScreenViewModel @Inject constructor(
                     _fullStories.value = getFullWidthStories(sorted, favorites)
                     _state.value = _state.value.copy(initialStories = gamesList)
                 }
+        }
+
+        // Warm the chapters cache once per game so the "new chapters soon" badge
+        // reflects server data, not only previously visited stories. Failures are
+        // delivered as Result values by the repository and simply leave the badge off.
+        viewModelScope.launch {
+            games.collect { gamesList ->
+                gamesList.forEach { game ->
+                    if (warmedUpChapterGameIds.add(game.id)) {
+                        launch { getChaptersUseCase(game.id).collect { } }
+                    }
+                }
+            }
         }
 
         this._squareIcons = mutableStateOf(

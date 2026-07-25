@@ -45,7 +45,9 @@ object ChapterDataModule {
         val okHttpClient: OkHttpClient = OkHttpClient.Builder()
             .build()
         return Retrofit.Builder()
-            .baseUrl("https://sutoko.com/portal/")
+            // /portal/ filters out unreleased chapters server-side; /api/ returns
+            // them all so upcoming chapters can be listed as locked teasers.
+            .baseUrl("https://sutoko.com/api/")
             .addConverterFactory(GsonConverterFactory.create())
             .client(okHttpClient)
             .build()

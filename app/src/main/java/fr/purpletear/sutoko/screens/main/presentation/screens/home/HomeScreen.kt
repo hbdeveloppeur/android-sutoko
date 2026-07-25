@@ -77,6 +77,7 @@ fun HomeScreen(
     val balance = viewModel.balance.collectAsStateWithLifecycle()
     val isConnected = viewModel.isConnected.collectAsStateWithLifecycle()
     val favoriteIds = viewModel.favoriteIds.collectAsStateWithLifecycle()
+    val newChaptersSoonGameIds = viewModel.newChaptersSoonGameIds.collectAsStateWithLifecycle()
 
     HomeContent(
         scrollState = scrollState,
@@ -85,6 +86,7 @@ fun HomeScreen(
         fullStories = viewModel.fullStories.value,
         squareIcons = viewModel.squareIcons.value,
         favoriteIds = favoriteIds.value,
+        newChaptersSoonGameIds = newChaptersSoonGameIds.value,
         coinsBalance = balance.value,
         isConnected = isConnected.value,
         onAccountButtonPressed = onAccountPressed,
@@ -114,6 +116,7 @@ private fun HomeContent(
     fullStories: List<GameCatalog>,
     squareIcons: Map<Int, Int?>,
     favoriteIds: Set<String>,
+    newChaptersSoonGameIds: Set<String>,
     coinsBalance: Resource<Balance>,
     isConnected: Boolean,
     onAccountButtonPressed: () -> Unit,
@@ -157,12 +160,14 @@ private fun HomeContent(
             squareStories = squareStories,
             fullStories = fullStories,
             favoriteIds = favoriteIds,
+            newChaptersSoonGameIds = newChaptersSoonGameIds,
             onStoryTap = onFullStoryTap
         )
 
         fullStoriesSection(
             fullStories = fullStories,
             favoriteIds = favoriteIds,
+            newChaptersSoonGameIds = newChaptersSoonGameIds,
             onStoryTap = onFullStoryTap
         )
 
@@ -238,6 +243,7 @@ private fun LazyListScope.squareStoriesAsCardsSection(
     squareStories: List<GameCatalog>,
     fullStories: List<GameCatalog>,
     favoriteIds: Set<String>,
+    newChaptersSoonGameIds: Set<String>,
     onStoryTap: (GameCatalog) -> Unit
 ) {
     if (squareStories.isEmpty() || fullStories.isNotEmpty()) return
@@ -250,6 +256,7 @@ private fun LazyListScope.squareStoriesAsCardsSection(
             modifier = Modifier.animateItemPlacement(),
             gameCatalog = item,
             isFavorite = item.id in favoriteIds,
+            hasNewChaptersSoon = item.id in newChaptersSoonGameIds,
             onTap = { card -> onStoryTap(card) }
         )
     }
@@ -259,6 +266,7 @@ private fun LazyListScope.squareStoriesAsCardsSection(
 private fun LazyListScope.fullStoriesSection(
     fullStories: List<GameCatalog>,
     favoriteIds: Set<String>,
+    newChaptersSoonGameIds: Set<String>,
     onStoryTap: (GameCatalog) -> Unit
 ) {
     if (fullStories.isEmpty()) return
@@ -271,6 +279,7 @@ private fun LazyListScope.fullStoriesSection(
             modifier = Modifier.animateItemPlacement(),
             gameCatalog = item,
             isFavorite = item.id in favoriteIds,
+            hasNewChaptersSoon = item.id in newChaptersSoonGameIds,
             onTap = { card -> onStoryTap(card) }
         )
     }

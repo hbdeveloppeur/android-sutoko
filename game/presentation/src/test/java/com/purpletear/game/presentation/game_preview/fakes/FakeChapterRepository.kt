@@ -8,6 +8,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.map
 
 class FakeChapterRepository : ChapterRepository {
     private val chapters = mutableMapOf<String, MutableStateFlow<Result<List<Chapter>>>>()
@@ -35,6 +36,24 @@ class FakeChapterRepository : ChapterRepository {
             getChaptersCalls++
             emit(source.value)
             gate?.await()
+        }
+    }
+
+    override fun observeChapters(storyId: String): Flow<List<Chapter>> {
+        return chapters.getOrPut(storyId) { MutableStateFlow(Result.success(emptyList())) }
+            .map { it.getOrDefault(emptyList()) }
+    }
+
+    override fun observeStoryIdsWithUpcomingChapters(): Flow<Set<String>> {
+        return flow {
+            val nowSeconds = System.currentTimeMillis() / 1000
+            emit(
+                chapters.values.mapNotNull { it.value.getOrNull() }
+                    .flatten()
+                    .filter { it.releaseDate > nowSeconds }
+                    .map { it.story }
+                    .toSet()
+            )
         }
     }
 
