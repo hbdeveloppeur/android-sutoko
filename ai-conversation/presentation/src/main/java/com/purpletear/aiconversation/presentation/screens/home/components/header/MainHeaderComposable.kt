@@ -48,6 +48,11 @@ internal fun MainHeaderComposable(
 ) {
     val aspectRatio = 1216 / 1664f
     val isLoading = remember { mutableStateOf(true) }
+    // When the video re-enters composition (e.g. app back to foreground), show the
+    // placeholder again until the recreated player is ready
+    LaunchedEffect(showVideo) {
+        if (showVideo) isLoading.value = true
+    }
 
     Box(
         Modifier

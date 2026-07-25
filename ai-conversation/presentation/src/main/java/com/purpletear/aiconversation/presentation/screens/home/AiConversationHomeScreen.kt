@@ -71,16 +71,18 @@ fun AiConversationHomeScreen(
         }
     }
 
-    // Show header only after the navigation enter animation has finished (760ms)
+    // Show header only after the navigation enter animation has finished (760ms).
+    // Hidden while not RESUMED (background or exit transition), restored on resume.
     var showHeader by remember { mutableStateOf(false) }
-    // Enter: delay to show header after navigation animation
-    LaunchedEffect(Unit) {
-        kotlinx.coroutines.delay(920)
-        showHeader = true
-    }
-    // Exit: hide header as soon as screen is not RESUMED (start of exit transition)
+    var headerShownOnce by remember { mutableStateOf(false) }
     LaunchedEffect(lifecycleState) {
-        if (lifecycleState != Lifecycle.State.RESUMED) {
+        if (lifecycleState == Lifecycle.State.RESUMED) {
+            if (!headerShownOnce) {
+                kotlinx.coroutines.delay(920)
+                headerShownOnce = true
+            }
+            showHeader = true
+        } else {
             showHeader = false
         }
     }
