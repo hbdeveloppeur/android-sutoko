@@ -68,7 +68,7 @@ object ShopActivityGraphics {
 
     fun setHeaderState(binding: ShopActivityShopFixedBinding, state: ShopHeaderState) {
         when (state) {
-            ShopHeaderState.Disconnected -> {
+            ShopHeaderState.Disconnected, ShopHeaderState.Failed -> {
                 binding.sutokoShopSignInButton.visibility = View.VISIBLE
                 binding.sutokoCoinsInformation.visibility = View.GONE
             }

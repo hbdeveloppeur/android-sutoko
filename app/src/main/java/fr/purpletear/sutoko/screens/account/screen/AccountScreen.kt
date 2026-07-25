@@ -44,8 +44,9 @@ fun AccountScreen(viewModel: AccountViewModel) {
                 )
                 Connection(
                     isConnected = isConnected,
-                    coins = coinsBalance.data?.coins ?: -1,
-                    diamonds = coinsBalance.data?.diamonds ?: -1,
+                    coins = coinsBalance.data?.coins ?: 0,
+                    diamonds = coinsBalance.data?.diamonds ?: 0,
+                    balanceUnavailable = coinsBalance.data?.let { it.loadFailed && !it.isLoaded() } == true,
                     onClickCoins = {
                         viewModel.onEvent(AccountEvents.OnClickCoins)
                     },

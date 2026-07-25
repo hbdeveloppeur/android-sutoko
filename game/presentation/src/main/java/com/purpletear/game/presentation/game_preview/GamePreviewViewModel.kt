@@ -29,6 +29,7 @@ import com.purpletear.sutoko.shop.domain.usecase.IsStoryGrantedUseCase
 import com.purpletear.sutoko.shop.domain.usecase.ObserveCoinPurchasedSkusUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import fr.sutoko.inapppurchase.application.domain.repository.PurchaseRepository
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -482,15 +483,25 @@ class GamePreviewViewModel @Inject constructor(
     private fun onStartDownload() {
         GamePreviewLogger.i("DOWN") { "onStartDownload() gameId=$gameId" }
         viewModelScope.launch {
-            downloadGameUseCase(gameId = gameId)
-                .catch { error ->
-                    GamePreviewLogger.e("DOWN", error) { "onStartDownload() failed for gameId=$gameId" }
-                    logger.exception(error) { "Download failed for gameId=$gameId" }
-                    sendEvent(GamePreviewEvent.ShowError(GameUiError.Download))
-                }
-                .collect { progress ->
-                    GamePreviewLogger.d("DOWN") { "onStartDownload() progress=$progress for gameId=$gameId" }
-                }
+            // The use case is suspend and can throw before returning its flow (game not
+            // cached, download link fetch failed offline): .catch only covers collection.
+            try {
+                downloadGameUseCase(gameId = gameId)
+                    .catch { error ->
+                        GamePreviewLogger.e("DOWN", error) { "onStartDownload() failed for gameId=$gameId" }
+                        logger.exception(error) { "Download failed for gameId=$gameId" }
+                        sendEvent(GamePreviewEvent.ShowError(GameUiError.Download))
+                    }
+                    .collect { progress ->
+                        GamePreviewLogger.d("DOWN") { "onStartDownload() progress=$progress for gameId=$gameId" }
+                    }
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                GamePreviewLogger.e("DOWN", e) { "onStartDownload() failed for gameId=$gameId" }
+                logger.exception(e) { "Download failed for gameId=$gameId" }
+                sendEvent(GamePreviewEvent.ShowError(GameUiError.Download))
+            }
         }
     }
 

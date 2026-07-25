@@ -149,11 +149,11 @@
     <string name="game_presentation_cinematic_skip">Skip &gt;&gt;</string>
 
     <!-- Game UI errors -->
-    <string name="game_presentation_error_load_game">Failed to load the game</string>
+    <string name="game_presentation_error_load_game">Unable to load the story. Check your internet connection and try again.</string>
     <string name="game_presentation_story_unavailable">This story is no longer available</string>
     <string name="game_presentation_error_play_from_node_missing">Couldn\'t find that part of the story, starting from the beginning</string>
     <string name="game_presentation_error_purchase">Purchase failed</string>
-    <string name="game_presentation_error_download">Download failed</string>
+    <string name="game_presentation_error_download">Download failed. Check your internet connection and try again.</string>
     <string name="game_presentation_error_update">Update failed</string>
     <string name="game_presentation_error_delete">Delete failed</string>
     <string name="game_presentation_error_restart">Failed to restart the game</string>

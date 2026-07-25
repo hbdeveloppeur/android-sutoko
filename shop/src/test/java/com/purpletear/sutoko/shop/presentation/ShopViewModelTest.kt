@@ -156,6 +156,19 @@ class ShopViewModelTest {
     }
 
     @Test
+    fun `header state is Failed when connected and balance load failed`() = runTest(testDispatcher) {
+        fakeUserRepository.isConnectedFlow.value = true
+        fakeShopRepository.balanceFlow.value = Balance(coins = -1, diamonds = -1, loadFailed = true)
+
+        val viewModel = createViewModel()
+        val states = mutableListOf<ShopHeaderState>()
+        backgroundScope.launch { viewModel.headerState.collect { states.add(it) } }
+        advanceUntilIdle()
+
+        assertEquals(ShopHeaderState.Failed, states.last())
+    }
+
+    @Test
     fun `header state is Loaded when connected and balance loaded`() = runTest(testDispatcher) {
         val balance = Balance(coins = 100, diamonds = 50)
         fakeUserRepository.isConnectedFlow.value = true

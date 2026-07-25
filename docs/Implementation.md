@@ -4,32 +4,31 @@ it.
 task - you can compact your context between each task.
 If necessary you are allowed to do any commands like curls, install script, etc
 
-Task : Some users bought games but don't see them as granted, fix this.
-I found several real scenarios. The healing mechanism (syncCoinPurchaseGrantOnDataLoad) is one-shot
-with no retry, so anything that goes wrong at that single moment leaves
-the story displayed as "not bought" even though the user is connected and did buy it:
+Human testers feedback : This is the test of starting the app without connectivity (Air plane mode)
+Feedback :
 
-For coin purchases (most exposed):
-
-1. Transient remote failure, no retry. The one-shot userHasProduct call fails (timeout, server 500,
-   flaky network) → onFailure just logs. coinGrantCheckDone was already set to tr
-   before the call (line 424), so it never retries — not even on pull-to-refresh (refresh() only
-   resets recoveryAttempted, not coinGrantCheckDone). The story shows "not bought" u
-   l the screen/ViewModel is recreated.
-2. Connect-after-load race. If the game data emits while isUserConnected is still false (auth still
-   restoring), the check is skipped — fine — but the game flow doesn't include co
-   ction state in its combine, so connecting afterwards doesn't retrigger the check. Unless some DB
-   row changes to force a re-emission, the remote check never runs for that scree
-   ession.
-
-3. Connected-but-user-not-loaded race. IsStoryGrantedUseCase does userRepository.observeUser()
-   .firstOrNull() ?: return success(false). If isUserConnected is already true but the
-   r profile hasn't emitted yet, it returns false, and the ViewModel has already burned its one
-   attempt → permanently "not bought" for this screen instance.
-
-5. Room is only refreshed by PurchaseSyncCoordinator (app foreground / billing reconnect / purchase
-   updates). If syncPurchases() fails at those moments, the preview shows "not bo
-   t" — but this one retries on the next foreground/reconnect, so it's transient. One sharper edge:
-   syncPurchases calls purchaseDao.replaceAll(receipts), so if the device's Play
-   ount changed, previously synced purchases are wiped → "not bought" (arguably correct per Play
-   semantics).
+- Opening shop displays -1 coins and -1 diamonds. It's better to have a button to log in. Same in
+  Account screen.
+- In Compagnon / Sutoko Ai Home Screen pressing "Start the conversation" does nothing, at least a
+  toast to say there is no connectivity would be good
+- GamePreview displays a Toast "Unable to load story" It's not clear enough, right?
+- GamePreview - Clicking on Download game makes a crash with the following stack trace : """
+  2026-07-25 01:36:24.096 23250-23250 AndroidRuntime fr.purpletear.sutoko E FATAL EXCEPTION: main
+  Process: fr.purpletear.sutoko, PID: 23250
+  2026-07-25 01:36:24.141 23250-23255 rpletear.sutoko fr.purpletear.sutoko I Background young
+  concurrent mark compact GC freed 10032KB AllocSpace bytes, 25(1792KB) LOS objects, 46% free,
+  12MB/23MB, paused 244us,8.444ms total 50.796ms
+  2026-07-25 01:36:24.244 23250-23300 FirebaseCrashlytics fr.purpletear.sutoko W Unable to read App
+  Quality Sessions session id.
+  2026-07-25 01:36:24.332 23250-23250 Process fr.purpletear.sutoko I Quit itself, Pid:23250
+  StackTrace:
+  com.android.internal.os.RuntimeInit$KillApplicationHandler.uncaughtException:201 com.google.firebase.crashlytics.internal.common.CrashlyticsUncaughtExceptionHandler.uncaughtException:63 java.lang.ThreadGroup.uncaughtException:1098 java.lang.ThreadGroup.uncaughtException:1093 com.android.internal.os.RuntimeInitExtImpl.uncaughtExceptionExt:72 com.android.internal.os.RuntimeInit$
+  LoggingHandler.uncaughtException:138
+  com.android.internal.os.RuntimeInit$KillApplicationHandler.ensureLogging:226 com.android.internal.os.RuntimeInit$
+  KillApplicationHandler.uncaughtException:171
+  com.google.firebase.crashlytics.internal.common.CrashlyticsUncaughtExceptionHandler.uncaughtException:
+  63 java.lang.ThreadGroup.uncaughtException:1098
+  2026-07-25 01:36:24.332 23250-23250 Process fr.purpletear.sutoko I Sending signal. PID: 23250 SIG:
+  9
+  ---------------------------- PROCESS ENDED (23250) for package
+  fr.purpletear.sutoko ----------------------------"""""""

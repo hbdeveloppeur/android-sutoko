@@ -53,8 +53,13 @@ fun HomePlayButtonsComposable(
             subtitle = null,
             theme = ButtonTheme.Pink(iconId = R.drawable.ai_conversation_presentation_gaming),
             isLoading = state == Loading,
-            isEnabled = viewModel.selectedCharacter.value != null,
+            isEnabled = true,
             onClick = {
+                if (viewModel.selectedCharacter.value == null) {
+                    // Characters failed to load (e.g. offline): give feedback instead of a dead button.
+                    viewModel.onStartConversationUnavailable()
+                    return@ButtonComposable
+                }
                 if (isUserConnected.value) {
                     when (state) {
                         is PlayabilityState.Triable -> {

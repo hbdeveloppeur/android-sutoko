@@ -149,10 +149,10 @@
     <string name="game_presentation_cinematic_skip">Saltar &gt;&gt;</string>
 
     <!-- Game UI errors -->
-    <string name="game_presentation_error_load_game">No se pudo cargar el juego</string>
+    <string name="game_presentation_error_load_game">No se pudo cargar la historia. Comprueba tu conexión a internet e inténtalo de nuevo.</string>
     <string name="game_presentation_error_play_from_node_missing">No se encontró esa parte, empezando desde el principio</string>
     <string name="game_presentation_error_purchase">Error en la compra</string>
-    <string name="game_presentation_error_download">Error en la descarga</string>
+    <string name="game_presentation_error_download">Error en la descarga. Comprueba tu conexión a internet e inténtalo de nuevo.</string>
     <string name="game_presentation_error_update">Error en la actualización</string>
     <string name="game_presentation_error_delete">Error al eliminar</string>
     <string name="game_presentation_error_restart">Error al reiniciar el juego</string>

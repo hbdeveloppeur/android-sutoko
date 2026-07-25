@@ -55,6 +55,7 @@ class ShopViewModel @Inject constructor(
     ) { connected, balance ->
         when {
             !connected -> ShopHeaderState.Disconnected
+            balance.loadFailed && !balance.isLoaded() -> ShopHeaderState.Failed
             !balance.isLoaded() -> ShopHeaderState.Loading
             else -> ShopHeaderState.Loaded(balance)
         }

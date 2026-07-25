@@ -222,6 +222,10 @@ class AiConversationHomeViewModel @Inject constructor(
         openSignInPageUseCase()
     }
 
+    fun onStartConversationUnavailable() {
+        makeToastService(R.string.ai_conversation_connection_error)
+    }
+
     fun onBuyCoinsPressed() {
         if (!isUserConnected.value) {
             openSignInPageUseCase()

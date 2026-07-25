@@ -149,10 +149,10 @@
     <string name="game_presentation_cinematic_skip">Überspringen &gt;&gt;</string>
 
     <!-- Game UI errors -->
-    <string name="game_presentation_error_load_game">Spiel konnte nicht geladen werden</string>
+    <string name="game_presentation_error_load_game">Die Geschichte konnte nicht geladen werden. Überprüfe deine Internetverbindung und versuche es erneut.</string>
     <string name="game_presentation_error_play_from_node_missing">Abschnitt nicht gefunden, beginne von vorne</string>
     <string name="game_presentation_error_purchase">Kauf fehlgeschlagen</string>
-    <string name="game_presentation_error_download">Download fehlgeschlagen</string>
+    <string name="game_presentation_error_download">Download fehlgeschlagen. Überprüfe deine Internetverbindung und versuche es erneut.</string>
     <string name="game_presentation_error_update">Update fehlgeschlagen</string>
     <string name="game_presentation_error_delete">Löschen fehlgeschlagen</string>
     <string name="game_presentation_error_restart">Spiel konnte nicht neu gestartet werden</string>

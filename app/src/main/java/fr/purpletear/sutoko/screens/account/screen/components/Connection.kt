@@ -33,6 +33,7 @@ fun Connection(
     isConnected: Boolean,
     coins: Int,
     diamonds: Int,
+    balanceUnavailable: Boolean,
     onClickCoins: () -> Unit,
     onClickDiamonds: () -> Unit,
     onTapSignIn: () -> Unit
@@ -67,7 +68,7 @@ fun Connection(
             )
         )
 
-        if (isConnected) {
+        if (isConnected && !balanceUnavailable) {
             ConnectedView(
                 coins = coins,
                 diamonds = diamonds,

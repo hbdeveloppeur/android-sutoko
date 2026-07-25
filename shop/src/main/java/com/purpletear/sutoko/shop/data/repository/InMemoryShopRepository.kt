@@ -8,6 +8,7 @@ import com.purpletear.sutoko.shop.domain.repository.model.CoinsPackType
 import com.purpletear.sutoko.shop.domain.repository.model.ShopPack
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.FlowCollector
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.flow
@@ -46,19 +47,24 @@ class InMemoryShopRepository @Inject constructor(
                     _balance.value = balanceResponse.toDomainModel()
                     emit(Result.success(Unit))
                 } else {
-                    emit(Result.failure(Exception("Response body is null")))
+                    emitLoadFailure(Exception("Response body is null"))
                 }
             } else {
                 val errorMessage = response.errorBody()?.string()
-                emit(Result.failure(Exception("HTTP ${response.code()}: $errorMessage")))
+                emitLoadFailure(Exception("HTTP ${response.code()}: $errorMessage"))
             }
         } catch (e: CancellationException) {
             throw e
         } catch (e: IOException) {
-            emit(Result.failure(Exception("Network error", e)))
+            emitLoadFailure(Exception("Network error", e))
         } catch (e: Exception) {
-            emit(Result.failure(e))
+            emitLoadFailure(e)
         }
+    }
+
+    private suspend fun FlowCollector<Result<Unit>>.emitLoadFailure(error: Exception) {
+        _balance.value = Balance(coins = -1, diamonds = -1, loadFailed = true)
+        emit(Result.failure(error))
     }
 
     override suspend fun getPacks(): Result<List<ShopPack>> {
