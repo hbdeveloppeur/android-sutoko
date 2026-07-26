@@ -31,6 +31,7 @@ data class GameItem(
     val narrativeThemes: List<NarrativeTheme> = emptyList(),
     val price: Int = 0,
     val isFavorite: Boolean = false,
+    val isOnline: Boolean = true,
 ) {
     constructor(
         catalog: GameCatalog,
@@ -66,5 +67,6 @@ data class GameItem(
         narrativeThemes = catalog.narrativeThemes,
         price = catalog.price,
         isFavorite = isFavorite,
+        isOnline = catalog.isOnline,
     )
 }

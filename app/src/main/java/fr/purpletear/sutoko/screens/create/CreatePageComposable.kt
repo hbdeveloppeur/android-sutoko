@@ -1,5 +1,6 @@
 package fr.purpletear.sutoko.screens.create
 
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
@@ -23,6 +24,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -54,6 +56,7 @@ internal fun CreatePageComposable(
     var isMyStoriesExpanded by remember { mutableStateOf(false) }
     val isRefreshing by remember { mutableStateOf(false) }
     val focusManager = LocalFocusManager.current
+    val context = LocalContext.current
     val balance = viewModel.balance.collectAsStateWithLifecycle()
     val games = viewModel.games.collectAsStateWithLifecycle()
     val isLoadingMore = viewModel.isLoadingMore.collectAsStateWithLifecycle()
@@ -118,7 +121,18 @@ internal fun CreatePageComposable(
                         GameCardCompact(
                             modifier = Modifier.padding(top = 16.dp),
                             game = game,
-                            onOpenClick = { openGame(game) }
+                            isOpenEnabled = game.isOnline,
+                            onOpenClick = {
+                                if (game.isOnline) {
+                                    openGame(game)
+                                } else {
+                                    Toast.makeText(
+                                        context,
+                                        R.string.create_page_story_not_online,
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                }
+                            }
                         )
                     }
 

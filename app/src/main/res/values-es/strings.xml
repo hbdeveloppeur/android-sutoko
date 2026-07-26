@@ -388,6 +388,7 @@ Buena suerte :D</string>
 
     <!-- Create Story Page -->
     <string name="create_page_section_title_my_stories">Mis historias publicadas</string>
+    <string name="create_page_story_not_online">Esta historia aún no está en línea. Se podrá abrir una vez publicada.</string>
     <string name="create_story_page_title">Crea tu historia</string>
     <string name="create_story_page_body">Para dar forma a tu mundo, siéntate en el escritorio del creador.</string>
     <string name="create_story_page_url">sutoko.com</string>

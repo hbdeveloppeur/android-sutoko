@@ -23,6 +23,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Brush
@@ -51,6 +52,7 @@ fun GameCardCompact(
     game: GameItem,
     modifier: Modifier = Modifier,
     openButtonLabel: String? = null,
+    isOpenEnabled: Boolean = true,
     onOpenClick: () -> Unit = {},
 ) {
     Column(
@@ -157,6 +159,7 @@ fun GameCardCompact(
 
             OpenButton(
                 label = openButtonLabel ?: stringResource(R.string.game_presentation_game_button_open),
+                enabled = isOpenEnabled,
                 onClick = onOpenClick
             )
         }
@@ -166,19 +169,22 @@ fun GameCardCompact(
 @Composable
 private fun OpenButton(
     label: String,
+    enabled: Boolean,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val interactionSource = remember { MutableInteractionSource() }
     val isPressed by interactionSource.collectIsPressedAsState()
     val scale by androidx.compose.animation.core.animateFloatAsState(
-        targetValue = if (isPressed) 0.95f else 1f,
+        targetValue = if (isPressed && enabled) 0.95f else 1f,
         label = "press_scale"
     )
 
+    // Stays clickable when disabled so the caller can explain why (e.g. toast).
     Box(
         modifier = modifier
             .scale(scale)
+            .alpha(if (enabled) 1f else 0.4f)
             .clip(ButtonShape)
             .background(BackgroundIdle)
             .clickable(

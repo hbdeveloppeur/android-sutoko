@@ -24,6 +24,7 @@ data class GameCatalog(
     val userNickNameRequired: Boolean = false,
     val minAppBuild: Int,
     val narrativeThemes: List<NarrativeTheme> = emptyList(),
+    val isOnline: Boolean = true,
 )
 
 fun GameCatalog.isPremium(): Boolean = price > 0

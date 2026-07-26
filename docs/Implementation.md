@@ -4,4 +4,6 @@ it.
 task - you can compact your context between each task.
 If necessary you are allowed to do any commands like curls, install script, etc
 
-Task 1 ✅ : The title "My stories" in the create pages must be "My published stories"
+Task 1 [DONE] : In the section "My published stories" the stories that are not online must have the
+button "open" disabled (alpha lowered) and if clicked it displays a toast with a text something
+like "The story is not online" but more clear
