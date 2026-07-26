@@ -17,6 +17,9 @@ class FakeChapterRepository : ChapterRepository {
     var getChaptersCalls = 0
         private set
 
+    var observeCurrentChapterCalls = 0
+        private set
+
     /** When non-null, getChapters suspends after the first emission until this gate completes. */
     var getChaptersGate: CompletableDeferred<Unit>? = null
 
@@ -72,6 +75,10 @@ class FakeChapterRepository : ChapterRepository {
     }
 
     override fun observeCurrentChapter(gameId: String): Flow<Chapter?> {
-        return currentChapters.getOrPut(gameId) { MutableStateFlow(null) }.asStateFlow()
+        return flow {
+            observeCurrentChapterCalls++
+            currentChapters.getOrPut(gameId) { MutableStateFlow(null) }.asStateFlow()
+                .collect { emit(it) }
+        }
     }
 }

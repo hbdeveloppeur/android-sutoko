@@ -33,6 +33,7 @@ import com.purpletear.sutoko.shop.domain.usecase.ObserveCoinPurchasedSkusUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import fr.sutoko.inapppurchase.application.domain.repository.PurchaseRepository
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -44,6 +45,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
@@ -83,7 +85,22 @@ class GamePreviewViewModel @Inject constructor(
 
     val appBuildNumber: Int = appVersionProvider.getVersionCode()
 
-    val currentChapter: StateFlow<Chapter?> = chapterRepository.observeCurrentChapter(gameId)
+    /**
+     * Bump to re-collect the current chapter. Friendzoned games persist their
+     * own progress outside Room, so only a re-collection re-reads it (standard
+     * games simply re-emit the same Room value). Bumped on ON_RESUME (the game
+     * may have advanced while this screen sat in the back stack) and after a
+     * confirmed restart (progress was just wiped, no lifecycle event fires).
+     */
+    private val currentChapterRefreshTicks = MutableStateFlow(0)
+
+    fun onResume() {
+        currentChapterRefreshTicks.value += 1
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    val currentChapter: StateFlow<Chapter?> = currentChapterRefreshTicks
+        .flatMapLatest { chapterRepository.observeCurrentChapter(gameId) }
         .onEach { chapter ->
             GamePreviewLogger.d("OBS") {
                 chapter?.let {
@@ -615,9 +632,13 @@ class GamePreviewViewModel @Inject constructor(
     private fun onRestartGame() {
         GamePreviewLogger.i("LIFE") { "onRestartGame() gameId=$gameId" }
         viewModelScope.launch {
-            restartGameUseCase(gameId)
+            restartGameUseCase(gameId, legacyId = currentGameItem?.legacyId)
                 .onSuccess {
                     GamePreviewLogger.i("LIFE") { "onRestartGame() succeeded for gameId=$gameId" }
+                    // Progress was just wiped: re-read the current chapter so the
+                    // Play button shows chapter 1 again (Friendzoned progress lives
+                    // outside Room and would otherwise stay stale until ON_RESUME).
+                    currentChapterRefreshTicks.value += 1
                     toastService(R.string.game_presentation_game_restart_success)
                 }
                 .onFailure { error ->

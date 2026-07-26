@@ -2,10 +2,12 @@ package com.purpletear.game.data.di
 
 import com.purpletear.game.data.database.GameDatabase
 import com.purpletear.game.data.local.dao.ChapterDao
+import com.purpletear.game.data.local.dao.GameDao
 import com.purpletear.game.data.local.dao.UserGameProgressDao
 import com.purpletear.game.data.remote.ChapterApi
 import com.purpletear.game.data.repository.ChapterRepositoryImpl
 import com.purpletear.sutoko.game.repository.ChapterRepository
+import com.purpletear.sutoko.game.repository.FriendzonedProgressRepository
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -60,6 +62,8 @@ object ChapterDataModule {
      * @param chapterApi The ChapterApi instance.
      * @param chapterDao The ChapterDao instance.
      * @param userGameProgressDao The UserGameProgressDao instance.
+     * @param gameDao The GameDao instance (Friendzoned detection via legacyId).
+     * @param friendzonedProgressRepository The Friendzoned progress gateway.
      * @return The ChapterRepository implementation.
      */
     @Provides
@@ -67,8 +71,16 @@ object ChapterDataModule {
     fun provideChapterRepository(
         chapterApi: ChapterApi,
         chapterDao: ChapterDao,
-        userGameProgressDao: UserGameProgressDao
+        userGameProgressDao: UserGameProgressDao,
+        gameDao: GameDao,
+        friendzonedProgressRepository: FriendzonedProgressRepository,
     ): ChapterRepository {
-        return ChapterRepositoryImpl(chapterApi, chapterDao, userGameProgressDao)
+        return ChapterRepositoryImpl(
+            chapterApi,
+            chapterDao,
+            userGameProgressDao,
+            gameDao,
+            friendzonedProgressRepository,
+        )
     }
 }

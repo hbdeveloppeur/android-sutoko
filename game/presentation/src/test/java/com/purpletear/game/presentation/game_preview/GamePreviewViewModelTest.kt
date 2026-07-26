@@ -7,6 +7,7 @@ import com.purpletear.game.presentation.game_preview.events.GamePreviewEvent
 import com.purpletear.game.presentation.game_preview.fakes.FakeAppVersionProvider
 import com.purpletear.game.presentation.game_preview.fakes.FakeChapterRepository
 import com.purpletear.game.presentation.game_preview.fakes.FakeFavoriteGamesRepository
+import com.purpletear.game.presentation.game_preview.fakes.FakeFriendzonedProgressRepository
 import com.purpletear.game.presentation.game_preview.fakes.FakeGameInstallRepository
 import com.purpletear.game.presentation.game_preview.fakes.FakeGameRepository
 import com.purpletear.game.presentation.game_preview.fakes.FakeBuyStoryWithCoinsUseCase
@@ -63,6 +64,7 @@ class GamePreviewViewModelTest {
     private val userRoleRepository = FakeUserRoleRepository()
     private val userGameProgressRepository = FakeUserGameProgressRepository()
     private val memoryRepository = FakeMemoryRepository()
+    private val friendzonedProgressRepository = FakeFriendzonedProgressRepository()
     private val logger = FakeLogger()
     private val appVersionProvider = FakeAppVersionProvider(TestFixtures.APP_BUILD_NUMBER)
     private val toastService = FakeToastService()
@@ -73,7 +75,8 @@ class GamePreviewViewModelTest {
 
     private val getChaptersUseCase = GetChaptersUseCase(chapterRepository)
     private val saveUserNickNameUseCase = SaveUserNickNameUseCase(userGameProgressRepository)
-    private val restartGameUseCase = RestartGameUseCase(userGameProgressRepository, memoryRepository)
+    private val restartGameUseCase =
+        RestartGameUseCase(userGameProgressRepository, memoryRepository, friendzonedProgressRepository)
     private val downloadGameUseCase = DownloadGameUseCase(gameRepository, gameInstallRepository, userRepository)
 
     private val testDispatcher = StandardTestDispatcher()
@@ -335,6 +338,40 @@ class GamePreviewViewModelTest {
 
             expectNoEvents()
         }
+        // Default fixture legacyId (42) is not Friendzoned: no symbols reset.
+        assertTrue(friendzonedProgressRepository.resetLegacyIds.isEmpty())
+    }
+
+    @Test
+    fun `onAction OnRestartConfirm re-reads the current chapter`() = runTest {
+        val viewModel = createViewModel()
+        chapterRepository.setCurrentChapter(TestFixtures.GAME_ID, Chapter(number = 3, code = "3A"))
+        backgroundScope.launch { viewModel.currentChapter.collect { } }
+        advanceUntilIdle()
+        val callsBefore = chapterRepository.observeCurrentChapterCalls
+
+        viewModel.onAction(GamePreviewAction.OnRestartConfirm)
+        advanceUntilIdle()
+
+        // A wiped progress must be re-read immediately: the preview would
+        // otherwise keep showing the pre-restart chapter until ON_RESUME.
+        assertTrue(chapterRepository.observeCurrentChapterCalls > callsBefore)
+    }
+
+    @Test
+    fun `onAction OnRestartConfirm with friendzoned game resets its own progress store`() = runTest {
+        gameRepository.setGame(TestFixtures.GAME_ID, TestFixtures.gameCatalog(legacyId = 162))
+        val viewModel = createViewModel()
+        activateStateFlows(backgroundScope, viewModel)
+        advanceUntilIdle()
+
+        viewModel.events.test {
+            viewModel.onAction(GamePreviewAction.OnRestartConfirm)
+            advanceUntilIdle()
+
+            expectNoEvents()
+        }
+        assertEquals(listOf(162), friendzonedProgressRepository.resetLegacyIds)
     }
 
     @Test

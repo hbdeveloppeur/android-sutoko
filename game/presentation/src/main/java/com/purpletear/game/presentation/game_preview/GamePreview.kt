@@ -94,6 +94,7 @@ import com.purpletear.game.presentation.model.GameItem
 import com.purpletear.game.presentation.model.formatNarrativeThemes
 import com.purpletear.game.presentation.model.toGameActionState
 import com.purpletear.sutoko.alert.presentation.SimpleAlertDialog
+import com.purpletear.sutoko.game.model.FriendzonedLegacyIds
 import kotlinx.coroutines.delay
 import com.example.sharedelements.R as SutokoSharedElementsR
 
@@ -138,6 +139,9 @@ fun GamePreview(
         if (lifecycleState == Lifecycle.State.RESUMED) {
             transitionAlpha.snapTo(0f)
             isFadingToGame = false
+            // Friendzoned games may have advanced their own progress while
+            // this screen sat in the back stack: refresh the current chapter.
+            viewModel.onResume()
         }
     }
 
@@ -490,7 +494,10 @@ fun GamePreview(
                                 val chaptersCount = releasedChaptersCount
                                     ?: (state as? GamePreviewUiState.Data)?.gameCatalog?.chaptersCount
                                     ?: 0
-                                if (gameActionState is GameActionState.Play && chaptersCount > 0) {
+                                // Friendzoned games manage their own progress: chapter
+                                // switching from the preview would have no effect on them.
+                                val isFriendzoned = FriendzonedLegacyIds.isFriendzoned(gameItem?.legacyId)
+                                if (gameActionState is GameActionState.Play && chaptersCount > 0 && !isFriendzoned) {
                                     GamePreviewButton(
                                         modifier = Modifier
                                             .fillMaxWidth(),

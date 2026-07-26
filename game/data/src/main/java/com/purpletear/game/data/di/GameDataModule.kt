@@ -24,6 +24,7 @@ import com.purpletear.game.data.remote.testing.TestSessionApi
 import com.purpletear.game.data.repository.ChapterGraphRepositoryImpl
 import com.purpletear.game.data.repository.CharacterRepositoryImpl
 import com.purpletear.game.data.repository.FavoriteGamesRepositoryImpl
+import com.purpletear.game.data.repository.FriendzonedProgressRepositoryImpl
 import com.purpletear.game.data.repository.GameInstallRepositoryImpl
 import com.purpletear.game.data.repository.GameRepositoryImpl
 import com.purpletear.game.data.repository.MemoryRepositoryImpl
@@ -40,6 +41,7 @@ import com.purpletear.sutoko.game.engine.processing.TextProcessorImpl
 import com.purpletear.sutoko.game.engine.timing.TimingScheduler
 import com.purpletear.sutoko.game.repository.ChapterGraphRepository
 import com.purpletear.sutoko.game.repository.CharacterRepository
+import com.purpletear.sutoko.game.repository.FriendzonedProgressRepository
 import com.purpletear.sutoko.game.repository.MemoryRepository
 import com.purpletear.sutoko.game.repository.SceneRepository
 import com.purpletear.sutoko.game.repository.UserGameProgressRepository
@@ -434,6 +436,12 @@ abstract class RepositoryModule {
     @Binds
     @Singleton
     abstract fun bindUserRoleRepository(impl: UserRoleRepositoryImpl): UserRoleRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindFriendzonedProgressRepository(
+        impl: FriendzonedProgressRepositoryImpl
+    ): FriendzonedProgressRepository
 
     @Binds
     @Singleton

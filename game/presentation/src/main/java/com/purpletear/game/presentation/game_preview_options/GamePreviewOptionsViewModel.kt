@@ -7,10 +7,12 @@ import com.purpletear.core.presentation.services.ToastService
 import com.purpletear.game.presentation.R
 import com.purpletear.sutoko.core.domain.logger.Logger
 import com.purpletear.sutoko.core.domain.logger.exception
+import com.purpletear.sutoko.game.model.FriendzonedLegacyIds
 import com.purpletear.sutoko.game.model.UserRole
 import com.purpletear.sutoko.game.repository.ChapterRepository
 import com.purpletear.sutoko.game.repository.MemoryRepository
 import com.purpletear.sutoko.game.repository.UserRoleRepository
+import com.purpletear.sutoko.game.repository.game.GameRepository
 import com.purpletear.sutoko.game.usecase.RestartGameUseCase
 import com.purpletear.sutoko.game.usecase.SelectChapterUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -28,6 +30,7 @@ import javax.inject.Inject
 class GamePreviewOptionsViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val chapterRepository: ChapterRepository,
+    private val gameRepository: GameRepository,
     private val selectChapterUseCase: SelectChapterUseCase,
     private val restartGameUseCase: RestartGameUseCase,
     private val memoryRepository: MemoryRepository,
@@ -53,6 +56,27 @@ class GamePreviewOptionsViewModel @Inject constructor(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(7000),
             initialValue = "",
+        )
+
+    /** Null until the catalog row is loaded. */
+    private val legacyId: StateFlow<Int?> = gameRepository.observeGame(gameId)
+        .map { it?.legacyId }
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(7000),
+            initialValue = null,
+        )
+
+    /**
+     * Friendzoned games manage their own chapter progress: switching chapters
+     * from here would write a store they never read, so the section is hidden.
+     */
+    val isFriendzoned: StateFlow<Boolean> = legacyId
+        .map { FriendzonedLegacyIds.isFriendzoned(it) }
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(7000),
+            initialValue = false,
         )
 
     private var actionJob: Job? = null
@@ -89,7 +113,7 @@ class GamePreviewOptionsViewModel @Inject constructor(
     fun onRestartConfirmed() {
         if (actionJob?.isActive == true) return
         actionJob = viewModelScope.launch {
-            restartGameUseCase(gameId)
+            restartGameUseCase(gameId, legacyId = legacyId.value)
                 .onSuccess { toastService(R.string.game_presentation_game_restart_success) }
                 .onFailure { error ->
                     logger.exception(error) { "Restart failed for gameId=$gameId" }

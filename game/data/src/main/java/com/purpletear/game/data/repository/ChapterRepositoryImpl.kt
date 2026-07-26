@@ -1,13 +1,16 @@
 package com.purpletear.game.data.repository
 
 import com.purpletear.game.data.local.dao.ChapterDao
+import com.purpletear.game.data.local.dao.GameDao
 import com.purpletear.game.data.local.dao.UserGameProgressDao
 import com.purpletear.game.data.local.entity.toDomain
 import com.purpletear.game.data.local.entity.toEntity
 import com.purpletear.game.data.remote.ChapterApi
 import com.purpletear.game.data.remote.dto.toDomain
 import com.purpletear.sutoko.game.model.Chapter
+import com.purpletear.sutoko.game.model.FriendzonedLegacyIds
 import com.purpletear.sutoko.game.repository.ChapterRepository
+import com.purpletear.sutoko.game.repository.FriendzonedProgressRepository
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -24,6 +27,8 @@ class ChapterRepositoryImpl @Inject constructor(
     private val api: ChapterApi,
     private val chapterDao: ChapterDao,
     private val userGameProgressDao: UserGameProgressDao,
+    private val gameDao: GameDao,
+    private val friendzonedProgressRepository: FriendzonedProgressRepository,
 ) : ChapterRepository {
 
     override fun getChapters(storyId: String): Flow<Result<List<Chapter>>> = flow {
@@ -100,14 +105,49 @@ class ChapterRepositoryImpl @Inject constructor(
 
     @OptIn(ExperimentalCoroutinesApi::class)
     override fun observeCurrentChapter(gameId: String): Flow<Chapter?> {
+        return gameDao.observeGame(gameId)
+            .flatMapLatest { game ->
+                val legacyId = game?.legacyId
+                if (FriendzonedLegacyIds.isFriendzoned(legacyId)) {
+                    observeFriendzonedCurrentChapter(gameId, legacyId!!)
+                } else {
+                    observeProgressCurrentChapter(gameId)
+                }
+            }
+            .flowOn(Dispatchers.IO)
+    }
+
+    /** Standard engine: the current chapter comes from the Room user-progress row. */
+    @OptIn(ExperimentalCoroutinesApi::class)
+    private fun observeProgressCurrentChapter(gameId: String): Flow<Chapter?> {
         return userGameProgressDao.observe(gameId)
             .flatMapLatest { progress ->
                 val code = progress?.currentChapterCode ?: DEFAULT_CHAPTER_CODE
                 chapterDao.observeByStoryAndCode(gameId, code)
             }
             .map { it?.toDomain() }
-            .flowOn(Dispatchers.IO)
     }
+
+    /**
+     * Friendzoned games persist their progress in TableOfSymbols, never in the
+     * Room user-progress row. The code is read once per collection (callers
+     * re-collect on ON_RESUME); only the chapter data itself is observed.
+     * Codes live in two namespaces (symbols "7a" vs catalog "7A"): exact
+     * match first, then same chapter number, then the story's first chapter.
+     */
+    private fun observeFriendzonedCurrentChapter(gameId: String, legacyId: Int): Flow<Chapter?> =
+        flow {
+            val code = friendzonedProgressRepository.getChapterCode(legacyId)
+            val chapterNumber = code.dropLast(1).toIntOrNull()
+            emitAll(
+                chapterDao.observeAllForStory(gameId).map { entities ->
+                    val chapters = entities.map { it.toDomain() }
+                    chapters.firstOrNull { it.code.equals(code, ignoreCase = true) }
+                        ?: chapters.firstOrNull { it.number == chapterNumber }
+                        ?: chapters.firstOrNull()
+                }
+            )
+        }
 
     companion object {
         private const val DEFAULT_CHAPTER_CODE = "1A"

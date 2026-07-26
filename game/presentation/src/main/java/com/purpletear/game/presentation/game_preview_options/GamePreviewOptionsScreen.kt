@@ -67,6 +67,7 @@ fun GamePreviewOptionsScreen(
 ) {
     val role by viewModel.role.collectAsStateWithLifecycle()
     val currentChapterCode by viewModel.currentChapterCode.collectAsStateWithLifecycle()
+    val isFriendzoned by viewModel.isFriendzoned.collectAsStateWithLifecycle()
 
     // Null until the user edits the field: the current code stays the prefill.
     var chapterCodeInput by rememberSaveable { mutableStateOf<String?>(null) }
@@ -84,44 +85,48 @@ fun GamePreviewOptionsScreen(
     ) {
         OptionsTopBar(onBack = onBack)
 
-        OptionsSectionLabel(text = stringResource(R.string.game_presentation_options_chapter_section))
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 18.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
-        ) {
-            OutlinedTextField(
-                value = chapterCode,
-                onValueChange = { chapterCodeInput = sanitizeChapterCodeInput(it) },
-                modifier = Modifier.weight(1f),
-                singleLine = true,
-                textStyle = androidx.compose.ui.text.TextStyle(
-                    color = Color.White,
+        // Friendzoned games manage their own progress: chapter switching here
+        // would write a store they never read, so the section is hidden.
+        if (!isFriendzoned) {
+            OptionsSectionLabel(text = stringResource(R.string.game_presentation_options_chapter_section))
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 18.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
+            ) {
+                OutlinedTextField(
+                    value = chapterCode,
+                    onValueChange = { chapterCodeInput = sanitizeChapterCodeInput(it) },
+                    modifier = Modifier.weight(1f),
+                    singleLine = true,
+                    textStyle = androidx.compose.ui.text.TextStyle(
+                        color = Color.White,
+                        fontSize = 12.sp,
+                        fontFamily = PlusJakartaSansFontFamily,
+                    ),
+                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+                    keyboardActions = KeyboardActions(
+                        onDone = { viewModel.onChapterCodeSubmitted(chapterCode) },
+                    ),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedTextColor = Color.White,
+                        unfocusedTextColor = Color.White,
+                        cursorColor = OptionsAccent,
+                        focusedBorderColor = OptionsAccent,
+                        unfocusedBorderColor = Color.White.copy(alpha = 0.24f),
+                    ),
+                )
+                Text(
+                    text = stringResource(R.string.game_presentation_options_chapter_apply),
+                    color = OptionsAccent,
                     fontSize = 12.sp,
+                    fontWeight = FontWeight.SemiBold,
                     fontFamily = PlusJakartaSansFontFamily,
-                ),
-                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
-                keyboardActions = KeyboardActions(
-                    onDone = { viewModel.onChapterCodeSubmitted(chapterCode) },
-                ),
-                colors = OutlinedTextFieldDefaults.colors(
-                    focusedTextColor = Color.White,
-                    unfocusedTextColor = Color.White,
-                    cursorColor = OptionsAccent,
-                    focusedBorderColor = OptionsAccent,
-                    unfocusedBorderColor = Color.White.copy(alpha = 0.24f),
-                ),
-            )
-            Text(
-                text = stringResource(R.string.game_presentation_options_chapter_apply),
-                color = OptionsAccent,
-                fontSize = 12.sp,
-                fontWeight = FontWeight.SemiBold,
-                fontFamily = PlusJakartaSansFontFamily,
-                modifier = Modifier.clickable { viewModel.onChapterCodeSubmitted(chapterCode) },
-            )
+                    modifier = Modifier.clickable { viewModel.onChapterCodeSubmitted(chapterCode) },
+                )
+            }
         }
 
         OptionsSectionLabel(text = stringResource(R.string.game_presentation_options_role_section))
