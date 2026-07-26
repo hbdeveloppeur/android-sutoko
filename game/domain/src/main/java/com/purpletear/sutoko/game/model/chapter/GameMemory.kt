@@ -20,8 +20,8 @@ import javax.inject.Singleton
  * This follows explicit persistence points (chapter end, pause) rather than
  * auto-save on every change for predictable behavior and simpler debugging.
  *
- * Scoped as a singleton so that test coordinators and the game engine view model
- * observe the same memory state; load() resets in-memory state per game session.
+ * Scoped as a singleton so that the game engine and the view model observe the same memory
+ * state; load() resets in-memory state per game session.
  */
 @Keep
 @Singleton
@@ -36,21 +36,7 @@ class GameMemory @Inject constructor(
     private var currentGameId: String? = null
     private var currentChapterCode: String? = null
     private var currentChapterNumber: Int? = null
-    private var namespace: String? = null
     private var mainCharacterId: Int? = null
-
-    /**
-     * Sets an optional namespace for persistence.
-     * When set, load/save/clear operate on a prefixed game id so test sessions do not
-     * overwrite the user's real progress.
-     */
-    fun setNamespace(namespace: String?) {
-        this.namespace = namespace
-    }
-
-    private fun namespacedGameId(gameId: String): String {
-        return namespace?.let { "$it:$gameId" } ?: gameId
-    }
 
     /**
      * The currently loaded game ID, or null if not loaded.
@@ -68,10 +54,10 @@ class GameMemory @Inject constructor(
         currentGameId = gameId
         currentChapterNumber = chapterNumber
         memory.clear()
-        val memories = repository.load(namespacedGameId(gameId), chapterNumber)
+        val memories = repository.load(gameId, chapterNumber)
         memory.putAll(memories)
 
-        val heroName = progressRepository.get(namespacedGameId(gameId)).heroName
+        val heroName = progressRepository.get(gameId).heroName
         if (heroName.isNotBlank()) {
             memory[HERO_NAME_KEY] = MemoryEntry(heroName, chapterNumber)
         }
@@ -86,15 +72,14 @@ class GameMemory @Inject constructor(
      */
     suspend fun save() {
         currentGameId?.let { gameId ->
-            val namespacedId = namespacedGameId(gameId)
-            repository.save(namespacedId, memory.toMap())
+            repository.save(gameId, memory.toMap())
             GameEngineLogger.d("MEM") { "Saved for gameId=$gameId — ${memory.size} entries" }
             currentChapterCode?.let { chapter ->
                 val heroName = memory[HERO_NAME_KEY]?.value
-                    ?: progressRepository.get(namespacedId).heroName
+                    ?: progressRepository.get(gameId).heroName
                 progressRepository.save(
                     UserGameProgress(
-                        gameId = namespacedId,
+                        gameId = gameId,
                         currentChapterCode = chapter,
                         normalizedChapterCode = chapter.lowercase(),
                         heroName = heroName,
@@ -125,7 +110,7 @@ class GameMemory @Inject constructor(
      */
     suspend fun clear() {
         currentGameId?.let { gameId ->
-            repository.clear(namespacedGameId(gameId))
+            repository.clear(gameId)
         }
         memory.clear()
         currentChapterCode = null

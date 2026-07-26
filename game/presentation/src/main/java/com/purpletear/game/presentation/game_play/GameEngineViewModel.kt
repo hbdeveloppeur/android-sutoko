@@ -11,10 +11,7 @@ import com.purpletear.core.presentation.services.MakeToastService
 import com.purpletear.game.debug.SmsGameDebugNodeJumps
 import com.purpletear.game.presentation.BuildConfig
 import com.purpletear.game.presentation.R
-import com.purpletear.game.presentation.game_play.liveupdate.StoryLiveUpdateConnectionState
-import com.purpletear.game.presentation.game_play.liveupdate.StoryLiveUpdateCoordinator
 import com.purpletear.game.presentation.game_play.state.GameUiState
-import com.purpletear.game.presentation.game_play.state.LiveUpdateStatus
 import com.purpletear.sutoko.core.domain.logger.Logger
 import com.purpletear.sutoko.core.domain.logger.exception
 import com.purpletear.sutoko.game.engine.GameEngine
@@ -27,7 +24,6 @@ import com.purpletear.sutoko.game.repository.CharacterRepository
 import com.purpletear.sutoko.game.repository.SceneRepository
 import com.purpletear.sutoko.game.repository.game.GameRepository
 import com.purpletear.sutoko.game.service.MediaUrlResolver
-import com.purpletear.sutoko.game.testing.StoryTestingLogger
 import com.purpletear.sutoko.game.usecase.GetSceneUseCase
 import com.purpletear.sutoko.game.usecase.LoadChapterGraphUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -63,7 +59,6 @@ class GameEngineViewModel @Inject constructor(
     private val getSceneUseCase: GetSceneUseCase,
     private val mediaUrlResolver: MediaUrlResolver,
     private val makeToastService: MakeToastService,
-    private val storyLiveUpdateCoordinator: StoryLiveUpdateCoordinator,
     private val logger: Logger,
     savedStateHandle: SavedStateHandle,
     @ApplicationContext private val context: Context,
@@ -80,8 +75,6 @@ class GameEngineViewModel @Inject constructor(
     private val chapterCode: String = checkNotNull(savedStateHandle["chapterCode"]) {
         "chapterCode is required"
     }
-    private val isLiveUpdateMode: Boolean =
-        savedStateHandle.get<Boolean>(SmsGameRoutes.IS_LIVE_UPDATE_MODE_ARG) ?: false
     private val isTrial: Boolean =
         savedStateHandle.get<Boolean>(SmsGameRoutes.IS_TRIAL_ARG) ?: false
 
@@ -102,10 +95,6 @@ class GameEngineViewModel @Inject constructor(
     private var pendingChapterCode: String? = null
     private var currentGraph: ChapterGraph? = null
 
-    private var lastPlayRequestCount = 0
-    private var lastGraphVersion = 0
-    private var hasStartedGame = false
-
     private val _uiState = MutableStateFlow(GameUiState())
     val uiState: StateFlow<GameUiState> = _uiState.asStateFlow()
 
@@ -113,10 +102,7 @@ class GameEngineViewModel @Inject constructor(
         Trace.beginSection("GameEngineViewModel.init")
         updateState {
             it.copy(
-                isLiveUpdateMode = isLiveUpdateMode,
                 isTrial = isTrial,
-                showNextChapterButton = !isLiveUpdateMode,
-                nextChapterTitleRes = if (isLiveUpdateMode) R.string.game_presentation_message_next_chapter_test_mode_title else null,
                 isChoicesDarkMode = readChoicesDarkMode()
             )
         }
@@ -146,11 +132,7 @@ class GameEngineViewModel @Inject constructor(
                         }
                 }
 
-                if (isLiveUpdateMode) {
-                    observeStoryLiveUpdateState()
-                } else {
-                    loadChapterGraphAndStartGame(gameId, chapterCode)
-                }
+                loadChapterGraphAndStartGame(gameId, chapterCode)
 
                 preloadScenes.join()
                 preloadCharacters.join()
@@ -221,15 +203,11 @@ class GameEngineViewModel @Inject constructor(
     }
 
     /**
-     * Initializes the engine and starts playback. If [startNodeId] is provided but does not
-     * exist in [graph] (e.g. a stale PLAY_FROM_NODE request), it is ignored and playback falls
-     * back to the chapter start node instead of crashing.
+     * Initializes the engine and starts playback from the chapter start node.
      */
     private fun startGame(
         gameId: String,
         graph: ChapterGraph,
-        startNodeId: String? = null,
-        showLoadingOverlay: Boolean = true,
     ) {
         resetForNewPlay()
         currentGraph = graph
@@ -242,33 +220,18 @@ class GameEngineViewModel @Inject constructor(
                 choices = emptyList(),
                 isChoicesRevealed = false,
                 isAwaitingInput = false,
-                isLoadingStoryUpdates = showLoadingOverlay
+                isLoadingStoryUpdates = true
             )
         }
 
         viewModelScope.launch {
             try {
-                if (showLoadingOverlay) {
-                    delay(1000)
-                    updateState { it.copy(isLoadingStoryUpdates = false) }
-                    delay(280)
-                }
+                delay(1000)
+                updateState { it.copy(isLoadingStoryUpdates = false) }
+                delay(280)
 
                 gameEngine.initialize(gameId, graph)
-
-                // Tolerate an untrusted/unknown node (e.g. PLAY_FROM_NODE): never crash.
-                val safeStartNodeId = resolveStartNodeId(graph, startNodeId)
-                if (startNodeId != null && safeStartNodeId == null) {
-                    logger.exception(IllegalArgumentException(startNodeId)) {
-                        "PLAY_FROM_NODE target missing in ${graph.chapterCode}: $startNodeId - fallback to start"
-                    }
-                    makeToastService(R.string.game_presentation_error_play_from_node_missing)
-                }
-
-                when {
-                    safeStartNodeId != null -> gameEngine.startFromNode(safeStartNodeId)
-                    else -> gameEngine.start()
-                }
+                gameEngine.start()
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {
@@ -312,77 +275,6 @@ class GameEngineViewModel @Inject constructor(
                 logger.exception(e) { "startGameWithDebugJump failed for ${graph.chapterCode}" }
                 if (BuildConfig.DEBUG) throw e
                 makeToastService(R.string.game_presentation_error_load_game)
-            }
-        }
-    }
-
-    private fun observeStoryLiveUpdateState() {
-        StoryTestingLogger.i("NAV") { "GameEngineViewModel entering test mode — gameId=$gameId" }
-
-        viewModelScope.launch {
-            var lastLoggedError: String? = null
-            storyLiveUpdateCoordinator.state.collect { testingState ->
-                val status = when {
-                    !testingState.isActive -> null
-                    testingState.isLoading -> LiveUpdateStatus.Loading
-                    testingState.connectionState == StoryLiveUpdateConnectionState.CONNECTED -> LiveUpdateStatus.Connected
-                    testingState.connectionState == StoryLiveUpdateConnectionState.DISCONNECTED -> LiveUpdateStatus.Disconnected
-                    else -> null
-                }
-                updateState { it.copy(liveUpdateStatus = status) }
-
-                testingState.error?.let { error ->
-                    if (error != lastLoggedError) {
-                        lastLoggedError = error
-                        StoryTestingLogger.e("NAV") { "Story testing error: $error" }
-                        makeToastService(R.string.game_presentation_error_load_game)
-                    }
-                } ?: run {
-                    lastLoggedError = null
-                }
-
-                val graph = testingState.currentGraph
-                val targetNodeId = testingState.targetNodeId
-
-                // Explicit author request: always restart from the requested node.
-                if (graph != null && targetNodeId != null && testingState.playRequestCount != lastPlayRequestCount) {
-                    lastPlayRequestCount = testingState.playRequestCount
-                    lastGraphVersion = testingState.graphVersion
-                    if (_uiState.value.isCinematicActive) {
-                        StoryTestingLogger.i("NAV") { "Test mode explicit play deferred — cinematic active" }
-                        updateState { it.copy(hasPendingStoryUpdate = true) }
-                        return@collect
-                    }
-                    if (_uiState.value.isMangaActive) {
-                        StoryTestingLogger.i("NAV") { "Test mode explicit play deferred — manga page active" }
-                        updateState { it.copy(hasPendingStoryUpdate = true) }
-                        return@collect
-                    }
-                    StoryTestingLogger.i("NAV") { "Test mode explicit play — ${graph.chapterCode} → $targetNodeId" }
-                    updateState { it.copy(hasPendingStoryUpdate = false) }
-                    hasStartedGame = true
-                    startGame(gameId, graph, targetNodeId, showLoadingOverlay = false)
-                    return@collect
-                }
-
-                if (graph != null && testingState.graphVersion != lastGraphVersion) {
-                    lastGraphVersion = testingState.graphVersion
-                    if (!hasStartedGame) {
-                        val initialChapterId = testingState.initialChapterId
-                        if (initialChapterId != null && graph.chapterCode != initialChapterId) {
-                            StoryTestingLogger.d("NAV") { "Test mode initial start skipped — ${graph.chapterCode} is not the initial chapter $initialChapterId" }
-                            return@collect
-                        }
-                        StoryTestingLogger.i("NAV") { "Test mode initial start — ${graph.chapterCode} → ${graph.startNodeId}" }
-                        hasStartedGame = true
-                        startGame(gameId, graph, graph.startNodeId, showLoadingOverlay = false)
-                    } else if (graph.chapterCode == _uiState.value.chapterCode) {
-                        StoryTestingLogger.i("NAV") { "Test mode graph updated — reload available" }
-                        updateState { it.copy(hasPendingStoryUpdate = true) }
-                    } else {
-                        StoryTestingLogger.d("NAV") { "Test mode graph update ignored — ${graph.chapterCode} is not current chapter" }
-                    }
-                }
             }
         }
     }
@@ -686,26 +578,8 @@ class GameEngineViewModel @Inject constructor(
 
         gameEngine.resume()
 
-        val pendingGraph = if (_uiState.value.hasPendingStoryUpdate) {
-            storyLiveUpdateCoordinator.state.value.currentGraph
-        } else {
-            null
-        }
-
-        when (val action = decideCinematicResume(resumeNodeId, pendingGraph)) {
-            is CinematicResumeAction.ApplyPendingGraph -> {
-                updateState { it.copy(hasPendingStoryUpdate = false) }
-                StoryTestingLogger.i("NAV") {
-                    "Cinematic done — applying deferred story update, resume=${action.safeResumeNodeId}"
-                }
-                startGame(gameId, action.graph, action.safeResumeNodeId, showLoadingOverlay = false)
-            }
-
-            is CinematicResumeAction.ResumeOldGraph -> {
-                viewModelScope.launch { gameEngine.startFromNode(action.nodeId) }
-            }
-
-            CinematicResumeAction.None -> Unit
+        if (resumeNodeId != null) {
+            viewModelScope.launch { gameEngine.startFromNode(resumeNodeId) }
         }
     }
 
@@ -731,14 +605,10 @@ class GameEngineViewModel @Inject constructor(
                 }
                 cinematicResumeNodeId = resumeNodeId
                 if (body.isEmpty()) {
-                    StoryTestingLogger.d("CINE") { "Empty cinematic — resume at $cinematicResumeNodeId" }
                     resumeFromCinematic()
                 } else {
                     updateState { it.copy(cinematicBody = body, isCinematicActive = true) }
                     _navigateToCinematic.trySend(Unit)
-                    StoryTestingLogger.d("CINE") {
-                        "Enter cinematic — ${body.size} nodes, resume=$cinematicResumeNodeId"
-                    }
                 }
             },
             onFailure = { error ->
@@ -760,30 +630,6 @@ class GameEngineViewModel @Inject constructor(
         )
     }
 
-    /**
-     * Applies a graph update that arrived while the engine was already running.
-     * Playback resets and resumes from the last known node if it still exists in the new graph,
-     * otherwise from the chapter start node.
-     */
-    fun onReloadStoryUpdates() {
-        if (!_uiState.value.hasPendingStoryUpdate) return
-        if (_uiState.value.isCinematicActive) {
-            StoryTestingLogger.d("NAV") { "Test mode reload deferred — cinematic active" }
-            return
-        }
-        if (_uiState.value.isMangaActive) {
-            StoryTestingLogger.d("NAV") { "Test mode reload deferred — manga page active" }
-            return
-        }
-
-        val graph = storyLiveUpdateCoordinator.state.value.currentGraph ?: return
-        val resumeNodeId = graph.startNodeId
-
-        StoryTestingLogger.i("NAV") { "Test mode reloading — ${graph.chapterCode} → $resumeNodeId" }
-        updateState { it.copy(hasPendingStoryUpdate = false) }
-        startGame(gameId, graph, resumeNodeId, showLoadingOverlay = false)
-    }
-
     private fun updateState(transform: (GameUiState) -> GameUiState) {
         _uiState.value = transform(_uiState.value)
     }
@@ -793,13 +639,5 @@ class GameEngineViewModel @Inject constructor(
         const val CHOICES_DARK_MODE_KEY = "enabled"
     }
 }
-
-/**
- * Returns [requestedNodeId] when it exists in [graph], or `null` when it is null/unknown so the
- * caller can fall back to the chapter start node. Pure policy that keeps the engine's strict
- * precondition from being reached with untrusted node ids (e.g. PLAY_FROM_NODE).
- */
-internal fun resolveStartNodeId(graph: ChapterGraph, requestedNodeId: String?): String? =
-    requestedNodeId?.takeIf { graph.getNode(it) != null }
 
 

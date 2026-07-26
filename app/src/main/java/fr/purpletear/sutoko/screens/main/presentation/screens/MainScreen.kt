@@ -60,7 +60,7 @@ fun MainScreen(
     onOptionsPressed: () -> Unit,
     onCoinsPressed: () -> Unit,
     onDiamondsPressed: () -> Unit,
-    onGamePressed: (String, Boolean) -> Unit,
+    onGamePressed: (String) -> Unit,
     onCreateStoryPressed: () -> Unit,
     size: WindowWidthSizeClass
 ) {
@@ -136,8 +136,8 @@ fun MainScreen(
                         onCoinsPressed = onCoinsPressed,
                         onDiamondsPressed = onDiamondsPressed,
                         onCreateStoryPressed = onCreateStoryPressed,
-                        openGame = { game, isLiveUpdateMode ->
-                            onGamePressed(game.id, isLiveUpdateMode)
+                        openGame = { game ->
+                            onGamePressed(game.id)
                         }
                     )
                 }

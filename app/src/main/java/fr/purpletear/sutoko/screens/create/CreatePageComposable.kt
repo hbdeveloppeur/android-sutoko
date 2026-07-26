@@ -49,7 +49,7 @@ internal fun CreatePageComposable(
     onCoinsPressed: () -> Unit = {},
     onDiamondsPressed: () -> Unit = {},
     onCreateStoryPressed: () -> Unit = {},
-    openGame: (GameItem, Boolean) -> Unit = { _, _ -> },
+    openGame: (GameItem) -> Unit = {},
 ) {
     var isMyStoriesExpanded by remember { mutableStateOf(false) }
     val isRefreshing by remember { mutableStateOf(false) }
@@ -118,8 +118,7 @@ internal fun CreatePageComposable(
                         GameCardCompact(
                             modifier = Modifier.padding(top = 16.dp),
                             game = game,
-                            openButtonLabel = stringResource(com.purpletear.game.presentation.R.string.game_presentation_game_button_test),
-                            onOpenClick = { openGame(game, true) }
+                            onOpenClick = { openGame(game) }
                         )
                     }
 
@@ -175,7 +174,7 @@ internal fun CreatePageComposable(
                     GameCardCompact(
                         modifier = Modifier.padding(top = 16.dp),
                         game = game,
-                        onOpenClick = { openGame(game, false) }
+                        onOpenClick = { openGame(game) }
                     )
                 }
 

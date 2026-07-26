@@ -11,9 +11,7 @@ import kotlinx.parcelize.Parcelize
  * Arguments/Parameters for launching SmsGameActivity.
  *
  * @property gameId The unique identifier of the game to be played
- * @property storyId Optional story identifier for real-time author testing mode.
- * @property isLiveUpdateMode When true, the activity connects to a backend test session.
- * @property chapterCode The chapter to start playing. Required unless [isLiveUpdateMode] is true.
+ * @property chapterCode The chapter to start playing.
  * @property isTrial When true, the session is a "try the 1st chapter" trial: at the end of the
  *   chapter the next-chapter CTA is replaced by a buy-to-continue message. Paid, unowned games only.
  */
@@ -21,8 +19,6 @@ import kotlinx.parcelize.Parcelize
 @Parcelize
 data class SmsGameActivityArgs(
     val gameId: String,
-    val storyId: String? = null,
-    val isLiveUpdateMode: Boolean = false,
     val chapterCode: String? = null,
     val isTrial: Boolean = false,
 ) : Parcelable {

@@ -9,7 +9,6 @@
     <!-- Game card buttons -->
     <string name="game_presentation_game_button_get">Get</string>
     <string name="game_presentation_game_button_open">Open</string>
-    <string name="game_presentation_game_button_test">Test</string>
     <string name="game_presentation_game_button_retry">Retry</string>
 
     <!-- Game announce card -->
@@ -140,7 +139,6 @@
     <string name="game_presentation_message_manga_prompt">A manga page is waiting for you</string>
     <string name="game_presentation_message_manga_open">Open</string>
     <string name="game_presentation_message_next_chapter_title">End of chapter</string>
-    <string name="game_presentation_message_next_chapter_test_mode_title">End of chapter. Continue testing from the authoring tool.</string>
     <string name="game_presentation_message_next_chapter_button">Next chapter</string>
     <string name="game_presentation_message_trial_finished_title">Trial finished</string>
     <string name="game_presentation_message_trial_finished_button">Buy the story</string>
@@ -151,12 +149,6 @@
     <string name="game_presentation_message_chapter_trial_finished_back_button">Back to menu</string>
     <string name="game_presentation_message_vocal_play_description">Play</string>
     <string name="game_presentation_message_story_finished">Story finished!</string>
-
-    <!-- Live update indicator -->
-    <string name="game_presentation_live_update_connected">Live update connected</string>
-    <string name="game_presentation_live_update_disconnected">Live update disconnected</string>
-    <string name="game_presentation_live_update_loading">Loading changes…</string>
-    <string name="game_presentation_live_update_reload">Story updated — reload to apply</string>
 
     <!-- Choices box -->
     <string name="game_presentation_game_choices_title">Your choice:</string>
@@ -169,7 +161,6 @@
     <!-- Game UI errors -->
     <string name="game_presentation_error_load_game">Unable to load the story. Check your internet connection and try again.</string>
     <string name="game_presentation_story_unavailable">This story is no longer available</string>
-    <string name="game_presentation_error_play_from_node_missing">Couldn\'t find that part of the story, starting from the beginning</string>
     <string name="game_presentation_error_purchase">Purchase failed</string>
     <string name="game_presentation_error_download">Download failed. Check your internet connection and try again.</string>
     <string name="game_presentation_error_update">Update failed</string>

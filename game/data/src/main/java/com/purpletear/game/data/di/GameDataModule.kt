@@ -19,8 +19,6 @@ import com.purpletear.game.data.local.dao.MemoryDao
 import com.purpletear.game.data.local.dao.UserGameProgressDao
 import com.purpletear.game.data.provider.AndroidGamePathProviderImpl
 import com.purpletear.game.data.remote.GameApi
-import com.purpletear.game.data.remote.testing.TestEventDataSourceImpl
-import com.purpletear.game.data.remote.testing.TestSessionApi
 import com.purpletear.game.data.repository.ChapterGraphRepositoryImpl
 import com.purpletear.game.data.repository.CharacterRepositoryImpl
 import com.purpletear.game.data.repository.FavoriteGamesRepositoryImpl
@@ -31,10 +29,6 @@ import com.purpletear.game.data.repository.MemoryRepositoryImpl
 import com.purpletear.game.data.repository.SceneRepositoryImpl
 import com.purpletear.game.data.repository.UserGameProgressRepositoryImpl
 import com.purpletear.game.data.repository.UserRoleRepositoryImpl
-import com.purpletear.game.data.repository.testing.DataStoreLastTestedChapterRepository
-import com.purpletear.game.data.repository.testing.TestChapterGraphRepositoryImpl
-import com.purpletear.game.data.repository.testing.TestPackageRepositoryImpl
-import com.purpletear.game.data.repository.testing.TestSessionRepositoryImpl
 import com.purpletear.game.data.service.MediaUrlResolverImpl
 import com.purpletear.sutoko.game.engine.processing.TextProcessor
 import com.purpletear.sutoko.game.engine.processing.TextProcessorImpl
@@ -49,11 +43,6 @@ import com.purpletear.sutoko.game.repository.UserRoleRepository
 import com.purpletear.sutoko.game.repository.game.FavoriteGamesRepository
 import com.purpletear.sutoko.game.repository.game.GameInstallRepository
 import com.purpletear.sutoko.game.repository.game.GameRepository
-import com.purpletear.sutoko.game.repository.testing.LastTestedChapterRepository
-import com.purpletear.sutoko.game.repository.testing.TestChapterGraphRepository
-import com.purpletear.sutoko.game.repository.testing.TestEventDataSource
-import com.purpletear.sutoko.game.repository.testing.TestPackageRepository
-import com.purpletear.sutoko.game.repository.testing.TestSessionRepository
 import com.purpletear.sutoko.game.service.MediaUrlResolver
 import dagger.Binds
 import dagger.Module
@@ -256,6 +245,18 @@ object GameDataModule {
     }
 
     /**
+     * Provides the DataStore used for game-related user preferences (e.g. user role).
+     */
+    @Provides
+    @Singleton
+    fun provideGameDataStore(@ApplicationContext context: Context): DataStore<Preferences> {
+        return PreferenceDataStoreFactory.create(
+            corruptionHandler = ReplaceFileCorruptionHandler { emptyPreferences() },
+            produceFile = { File(context.filesDir, "datastore/game_prefs.preferences_pb") }
+        )
+    }
+
+    /**
      * Provides the TimingScheduler implementation.
      */
     @Provides
@@ -297,110 +298,6 @@ object GameDataModule {
         return impl
     }
 
-    /**
-     * Provides a shared OkHttp client for SSE and package downloads.
-     */
-    @Provides
-    @Singleton
-    @TestingOkHttpClient
-    fun provideOkHttpClient(): OkHttpClient {
-        return OkHttpClient.Builder()
-            .cache(null)
-            .build()
-    }
-
-    /**
-     * Provides the base URL for the real-time testing API.
-     */
-    @Provides
-    @Singleton
-    @TestingBaseUrl
-    fun provideTestingBaseUrl(): String = "https://canvas.sutoko.com/api/"
-
-    /**
-     * Provides the Retrofit instance for the testing API.
-     */
-    @Provides
-    @Singleton
-    @TestingApi
-    fun provideTestingRetrofit(@TestingBaseUrl baseUrl: String): Retrofit {
-        val okHttpClient: OkHttpClient = OkHttpClient.Builder()
-            .cache(null)
-            .build()
-        return Retrofit.Builder()
-            .baseUrl(baseUrl)
-            .addConverterFactory(GsonConverterFactory.create())
-            .client(okHttpClient)
-            .build()
-    }
-
-    /**
-     * Provides the TestSessionApi implementation.
-     */
-    @Provides
-    @Singleton
-    fun provideTestSessionApi(@TestingApi retrofit: Retrofit): TestSessionApi {
-        return retrofit.create(TestSessionApi::class.java)
-    }
-
-    /**
-     * Provides the TestSessionRepository implementation.
-     */
-    @Provides
-    @Singleton
-    fun provideTestSessionRepository(
-        impl: TestSessionRepositoryImpl
-    ): TestSessionRepository {
-        return impl
-    }
-
-    /**
-     * Provides the TestPackageRepository implementation.
-     */
-    @Provides
-    @Singleton
-    fun provideTestPackageRepository(
-        impl: TestPackageRepositoryImpl
-    ): TestPackageRepository {
-        return impl
-    }
-
-    /**
-     * Provides the TestEventDataSource implementation.
-     */
-    @Provides
-    @Singleton
-    fun provideTestEventDataSource(
-        impl: TestEventDataSourceImpl
-    ): TestEventDataSource {
-        return impl
-    }
-
-    /**
-     * Provides the TestChapterGraphRepository implementation.
-     */
-    @Provides
-    @Singleton
-    fun provideTestChapterGraphRepository(
-        impl: TestChapterGraphRepositoryImpl
-    ): TestChapterGraphRepository {
-        return impl
-    }
-
-    /**
-     * Provides the DataStore used for real-time testing preferences.
-     */
-    @Provides
-    @Singleton
-    fun provideTestingDataStore(@ApplicationContext context: Context): DataStore<Preferences> {
-        return PreferenceDataStoreFactory.create(
-            corruptionHandler = ReplaceFileCorruptionHandler {
-                com.purpletear.sutoko.game.testing.StoryTestingLogger.e("PREFS") { "Testing preferences corrupted — resetting" }
-                emptyPreferences()
-            },
-            produceFile = { File(context.filesDir, "datastore/testing_prefs.preferences_pb") }
-        )
-    }
 }
 
 @Module
@@ -429,12 +326,6 @@ abstract class RepositoryModule {
 
     @Binds
     @Singleton
-    abstract fun bindLastTestedChapterRepository(
-        impl: DataStoreLastTestedChapterRepository
-    ): LastTestedChapterRepository
-
-    @Binds
-    @Singleton
     abstract fun bindUserRoleRepository(impl: UserRoleRepositoryImpl): UserRoleRepository
 
     @Binds
@@ -443,9 +334,4 @@ abstract class RepositoryModule {
         impl: FriendzonedProgressRepositoryImpl
     ): FriendzonedProgressRepository
 
-    @Binds
-    @Singleton
-    abstract fun bindDeviceIdProvider(
-        impl: com.purpletear.game.data.repository.testing.DataStoreDeviceIdProvider
-    ): com.purpletear.sutoko.game.repository.testing.DeviceIdProvider
 }

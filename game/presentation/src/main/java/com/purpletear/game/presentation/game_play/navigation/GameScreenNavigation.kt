@@ -36,10 +36,6 @@ internal fun NavGraphBuilder.gameScreen(
         navArgument("chapterCode") {
             type = NavType.StringType
         },
-        navArgument(SmsGameRoutes.IS_LIVE_UPDATE_MODE_ARG) {
-            type = NavType.BoolType
-            defaultValue = false
-        },
         navArgument(SmsGameRoutes.IS_TRIAL_ARG) {
             type = NavType.BoolType
             defaultValue = false
@@ -81,7 +77,6 @@ internal fun NavGraphBuilder.gameScreen(
         onChoiceSelected = viewModel::onChoiceSelected,
         onRevealChoicesClicked = viewModel::onRevealChoicesClicked,
         onHideChoicesClicked = viewModel::onHideChoicesClicked,
-        onReloadStoryUpdates = viewModel::onReloadStoryUpdates,
         onMangaPageDismissed = viewModel::onMangaPageDismissed,
         onToggleChoicesDarkMode = viewModel::onToggleChoicesDarkMode,
     )

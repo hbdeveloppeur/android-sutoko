@@ -9,7 +9,6 @@
     <!-- Game card buttons -->
     <string name="game_presentation_game_button_get">Obtener</string>
     <string name="game_presentation_game_button_open">Abrir</string>
-    <string name="game_presentation_game_button_test">Probar</string>
     <string name="game_presentation_game_button_retry">Reintentar</string>
 
     <!-- Game announce card -->
@@ -140,7 +139,6 @@
     <string name="game_presentation_message_manga_prompt">Te espera una página de manga</string>
     <string name="game_presentation_message_manga_open">Abrir</string>
     <string name="game_presentation_message_next_chapter_title">Fin del capítulo</string>
-    <string name="game_presentation_message_next_chapter_test_mode_title">Fin del capítulo. Continúa probando desde la herramienta de autor.</string>
     <string name="game_presentation_message_next_chapter_button">Próximo capítulo</string>
     <string name="game_presentation_message_trial_finished_title">Prueba terminada</string>
     <string name="game_presentation_message_trial_finished_button">Comprar la historia</string>
@@ -152,12 +150,6 @@
     <string name="game_presentation_message_vocal_play_description">Reproducir</string>
     <string name="game_presentation_message_story_finished">¡Historia terminada!</string>
 
-    <!-- Live update indicator -->
-    <string name="game_presentation_live_update_connected">Actualización en vivo conectada</string>
-    <string name="game_presentation_live_update_disconnected">Actualización en vivo desconectada</string>
-    <string name="game_presentation_live_update_loading">Cargando cambios…</string>
-    <string name="game_presentation_live_update_reload">Historia actualizada — recarga para aplicar</string>
-
     <!-- Choices box -->
     <string name="game_presentation_game_choices_title">Tu elección:</string>
     <string name="game_presentation_game_choices_make_a_choice">Haz una elección</string>
@@ -168,7 +160,6 @@
 
     <!-- Game UI errors -->
     <string name="game_presentation_error_load_game">No se pudo cargar la historia. Comprueba tu conexión a internet e inténtalo de nuevo.</string>
-    <string name="game_presentation_error_play_from_node_missing">No se encontró esa parte, empezando desde el principio</string>
     <string name="game_presentation_error_purchase">Error en la compra</string>
     <string name="game_presentation_error_download">Error en la descarga. Comprueba tu conexión a internet e inténtalo de nuevo.</string>
     <string name="game_presentation_error_update">Error en la actualización</string>

@@ -61,9 +61,6 @@ dependencies {
     implementation(project(":purchase"))
     implementation(project(":auth"))
 
-    // Zip4j for zip file extraction
-    implementation("net.lingala.zip4j:zip4j:2.11.5")
-
     implementation(libs.androidx.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.android.material)

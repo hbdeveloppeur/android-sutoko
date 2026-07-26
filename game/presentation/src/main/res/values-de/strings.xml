@@ -9,7 +9,6 @@
     <!-- Game card buttons -->
     <string name="game_presentation_game_button_get">Holen</string>
     <string name="game_presentation_game_button_open">Öffnen</string>
-    <string name="game_presentation_game_button_test">Testen</string>
     <string name="game_presentation_game_button_retry">Wiederholen</string>
 
     <!-- Game announce card -->
@@ -140,7 +139,6 @@
     <string name="game_presentation_message_manga_prompt">Eine Manga-Seite wartet auf dich</string>
     <string name="game_presentation_message_manga_open">Öffnen</string>
     <string name="game_presentation_message_next_chapter_title">Kapitelende</string>
-    <string name="game_presentation_message_next_chapter_test_mode_title">Kapitelende. Setzen Sie das Testen im Authoring-Tool fort.</string>
     <string name="game_presentation_message_next_chapter_button">Nächstes Kapitel</string>
     <string name="game_presentation_message_trial_finished_title">Testphase beendet</string>
     <string name="game_presentation_message_trial_finished_button">Geschichte kaufen</string>
@@ -152,12 +150,6 @@
     <string name="game_presentation_message_vocal_play_description">Abspielen</string>
     <string name="game_presentation_message_story_finished">Geschichte beendet!</string>
 
-    <!-- Live update indicator -->
-    <string name="game_presentation_live_update_connected">Live-Update verbunden</string>
-    <string name="game_presentation_live_update_disconnected">Live-Update getrennt</string>
-    <string name="game_presentation_live_update_loading">Änderungen werden geladen…</string>
-    <string name="game_presentation_live_update_reload">Story aktualisiert — zum Anwenden neu laden</string>
-
     <!-- Choices box -->
     <string name="game_presentation_game_choices_title">Deine Wahl:</string>
     <string name="game_presentation_game_choices_make_a_choice">Wählen</string>
@@ -168,7 +160,6 @@
 
     <!-- Game UI errors -->
     <string name="game_presentation_error_load_game">Die Geschichte konnte nicht geladen werden. Überprüfe deine Internetverbindung und versuche es erneut.</string>
-    <string name="game_presentation_error_play_from_node_missing">Abschnitt nicht gefunden, beginne von vorne</string>
     <string name="game_presentation_error_purchase">Kauf fehlgeschlagen</string>
     <string name="game_presentation_error_download">Download fehlgeschlagen. Überprüfe deine Internetverbindung und versuche es erneut.</string>
     <string name="game_presentation_error_update">Update fehlgeschlagen</string>

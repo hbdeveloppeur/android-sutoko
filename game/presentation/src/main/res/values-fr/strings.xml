@@ -9,7 +9,6 @@
     <!-- Game card buttons -->
     <string name="game_presentation_game_button_get">Obtenir</string>
     <string name="game_presentation_game_button_open">Ouvrir</string>
-    <string name="game_presentation_game_button_test">Tester</string>
     <string name="game_presentation_game_button_retry">Réessayer</string>
 
     <!-- Game announce card -->
@@ -140,7 +139,6 @@
     <string name="game_presentation_message_manga_prompt">Une page de manga vous attend</string>
     <string name="game_presentation_message_manga_open">Ouvrir</string>
     <string name="game_presentation_message_next_chapter_title">Fin du chapitre</string>
-    <string name="game_presentation_message_next_chapter_test_mode_title">Fin du chapitre. Poursuivez le test depuis l\'outil d\'auteur.</string>
     <string name="game_presentation_message_next_chapter_button">Chapitre suivant</string>
     <string name="game_presentation_message_trial_finished_title">Essai terminé</string>
     <string name="game_presentation_message_trial_finished_button">Acheter l\'histoire</string>
@@ -151,12 +149,6 @@
     <string name="game_presentation_message_chapter_trial_finished_back_button">Retour au menu</string>
     <string name="game_presentation_message_vocal_play_description">Lecture</string>
     <string name="game_presentation_message_story_finished">Histoire terminée !</string>
-
-    <!-- Live update indicator -->
-    <string name="game_presentation_live_update_connected">Mise à jour en direct connectée</string>
-    <string name="game_presentation_live_update_disconnected">Mise à jour en direct déconnectée</string>
-    <string name="game_presentation_live_update_loading">Chargement des modifications…</string>
-    <string name="game_presentation_live_update_reload">Histoire mise à jour — recharger pour appliquer</string>
 
     <!-- Choices box -->
     <string name="game_presentation_game_choices_title">Votre choix :</string>
@@ -169,7 +161,6 @@
     <!-- Game UI errors -->
     <string name="game_presentation_error_load_game">Impossible de charger l’histoire. Vérifiez votre connexion internet et réessayez.</string>
     <string name="game_presentation_story_unavailable">Cette histoire n\'est plus disponible</string>
-    <string name="game_presentation_error_play_from_node_missing">Passage introuvable, retour au début</string>
     <string name="game_presentation_error_purchase">Échec de l\'achat</string>
     <string name="game_presentation_error_download">Échec du téléchargement. Vérifiez votre connexion internet et réessayez.</string>
     <string name="game_presentation_error_update">Échec de la mise à jour</string>

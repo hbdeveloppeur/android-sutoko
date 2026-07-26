@@ -17,22 +17,14 @@ import androidx.navigation.compose.rememberNavController
 import com.example.sharedelements.theme.SutokoTheme
 import com.purpletear.game.presentation.BuildConfig
 import com.purpletear.game.presentation.game_chapter_selection.chapterSelectionScreen
-import com.purpletear.game.presentation.game_play.liveupdate.StoryLiveUpdateCoordinator
 import com.purpletear.game.presentation.game_play.navigation.cinematicScreen
 import com.purpletear.game.presentation.game_play.navigation.gameScreen
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
 @AndroidEntryPoint
 class SmsGameActivity : ComponentActivity() {
-
-    @Inject
-    lateinit var storyLiveUpdateCoordinator: StoryLiveUpdateCoordinator
-
-    private var isLiveUpdateMode: Boolean = false
-    private var storyId: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         Trace.beginSection("SmsGameActivity.onCreate")
@@ -40,14 +32,8 @@ class SmsGameActivity : ComponentActivity() {
 
         val args = extractArgs()
         val gameId = args.gameId
-        isLiveUpdateMode = args.isLiveUpdateMode
-        storyId = args.storyId
         val chapterCode = args.chapterCode
         val isTrial = args.isTrial
-
-        if (isLiveUpdateMode) {
-            storyId?.let { storyLiveUpdateCoordinator.startLiveUpdate(gameId, it) }
-        }
 
         enableEdgeToEdge()
         setContent {
@@ -78,14 +64,13 @@ class SmsGameActivity : ComponentActivity() {
                     }
                 }
 
-                val startDestination = when {
-                    isLiveUpdateMode -> SmsGameRoutes.game("test", isLiveUpdateMode = true)
-                    chapterCode != null -> SmsGameRoutes.game(
+                val startDestination = if (chapterCode != null) {
+                    SmsGameRoutes.game(
                         chapterCode = chapterCode,
-                        isLiveUpdateMode = false,
                         isTrial = isTrial,
                     )
-                    else -> error("SmsGameActivity requires a chapterCode or live-update mode")
+                } else {
+                    error("SmsGameActivity requires a chapterCode")
                 }
 
                 SmsGameNavHost(
@@ -107,10 +92,7 @@ class SmsGameActivity : ComponentActivity() {
                         onNavigateToChapter = { chapterCode ->
                             fadeThenRun {
                                 navController.navigate(
-                                    SmsGameRoutes.game(
-                                        chapterCode,
-                                        isLiveUpdateMode
-                                    )
+                                    SmsGameRoutes.game(chapterCode)
                                 ) {
                                     popUpTo(SmsGameRoutes.GAME) { inclusive = true }
                                 }
@@ -147,9 +129,6 @@ class SmsGameActivity : ComponentActivity() {
     override fun onDestroy() {
         Trace.beginSection("SmsGameActivity.onDestroy")
         super.onDestroy()
-        if (isLiveUpdateMode) {
-            storyLiveUpdateCoordinator.stopLiveUpdate()
-        }
         Trace.endSection()
     }
 
