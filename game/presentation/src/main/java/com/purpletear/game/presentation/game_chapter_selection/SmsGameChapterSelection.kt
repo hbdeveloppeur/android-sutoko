@@ -175,7 +175,10 @@ private fun ChapterItem(
     ) {
         Column(modifier = Modifier.weight(1f)) {
             Text(
-                text = stringResource(R.string.game_presentation_game_chapter_number, chapter.number),
+                text = stringResource(
+                    R.string.game_presentation_game_chapter_number,
+                    chapter.number
+                ),
                 color = if (isCurrent) Color.White else Color(0xFF8C8C8C),
                 fontFamily = Poppins,
                 fontSize = 12.sp,
@@ -196,7 +199,7 @@ private fun ChapterItem(
                 fontFamily = Poppins,
                 fontSize = 12.sp,
             )
-        } else if (!chapter.isAvailable) {
+        } else if (!chapter.available) {
             Text(
                 text = stringResource(R.string.game_presentation_game_chapter_selection_locked),
                 color = Color(0xFF8C8C8C),

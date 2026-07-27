@@ -9,6 +9,7 @@ import com.purpletear.game.data.local.dto.EdgeDto
 import com.purpletear.game.data.local.dto.NodeDto
 import com.purpletear.game.data.local.parser.ChapterGraphParser
 import com.purpletear.game.data.provider.AndroidGamePathProvider
+import com.purpletear.game.data.provider.ChapterLanguageResolver
 import com.purpletear.sutoko.game.model.chapter.ChapterGraph
 import com.purpletear.sutoko.game.repository.ChapterGraphRepository
 import com.purpletear.sutoko.game.repository.game.GameRepository
@@ -38,7 +39,19 @@ class ChapterGraphRepositoryImpl @Inject constructor(
         try {
             val legacyId = gameRepository.observeGame(gameId).firstOrNull()?.legacyId
             val gameDir = pathProvider.getGameDirectory(gameId, legacyId)
-            val chapterDir = File(gameDir, "chapters/$language/${chapterCode.lowercase()}")
+            val chaptersRoot = File(gameDir, "chapters")
+            val availableLanguages = chaptersRoot.listFiles()
+                ?.filter { it.isDirectory }
+                ?.map { it.name }
+                ?: emptyList()
+
+            val resolvedLanguage = ChapterLanguageResolver.resolve(language, availableLanguages)
+            if (resolvedLanguage == null) {
+                emit(Result.failure(IllegalArgumentException("No chapter languages found in: ${chaptersRoot.absolutePath}")))
+                return@flow
+            }
+
+            val chapterDir = File(chaptersRoot, "$resolvedLanguage/${chapterCode.lowercase()}")
 
             if (!chapterDir.exists()) {
                 emit(Result.failure(IllegalArgumentException("Chapter directory not found: ${chapterDir.absolutePath}")))

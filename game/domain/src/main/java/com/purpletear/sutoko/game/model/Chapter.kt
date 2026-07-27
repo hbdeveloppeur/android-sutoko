@@ -13,12 +13,9 @@ data class Chapter(
     val title: String = "",
     val description: String = "",
     val canvasAppVersion: Int = 0,
-    val code: String = ""
+    val code: String = "",
+    val available: Boolean = false,
 ) {
-    // TODO: to prevent user changing the date of the phone, the isAvailable data must be fetched from server
-    // releaseDate is epoch seconds (server format); division avoids Long overflow.
-    val isAvailable: Boolean
-        get() = releaseDate <= System.currentTimeMillis() / 1000
 
     val normalizedCode: String
         get() = code.lowercase()

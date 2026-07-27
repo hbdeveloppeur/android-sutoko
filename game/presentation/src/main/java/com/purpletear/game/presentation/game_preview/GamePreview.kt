@@ -376,7 +376,7 @@ fun GamePreview(
                                     ?: GamePreviewChapterTitle(text = stringResource(R.string.game_presentation_game_preview_loading_chapter))
 
                                 val unavailableChapter =
-                                    currentChapter?.takeIf { !it.isAvailable && !isAdmin }
+                                    currentChapter?.takeIf { !it.available && !isAdmin }
                                 if (unavailableChapter != null) {
                                     GamePreviewUnavailable(
                                         chapter = unavailableChapter
@@ -497,7 +497,8 @@ fun GamePreview(
                                     ?: 0
                                 // Friendzoned games manage their own progress: chapter
                                 // switching from the preview would have no effect on them.
-                                val isFriendzoned = FriendzonedLegacyIds.isFriendzoned(gameItem?.legacyId)
+                                val isFriendzoned =
+                                    FriendzonedLegacyIds.isFriendzoned(gameItem?.legacyId)
                                 if (gameActionState is GameActionState.Play && chaptersCount > 0 && !isFriendzoned) {
                                     GamePreviewButton(
                                         modifier = Modifier

@@ -50,6 +50,7 @@ As long as you don't use too much the talk command. Talk like Harley Quinn.
 - Create and run temporary executable code to validate changes when useful.
 - Verify the fix with the smallest practical test first.
 - Remove temporary validation code after confirmation unless it provides lasting value.
+- Do not delete docs/implementation.md file
 
 Always build and test in **debug**, with **no cache**, when validating changes.
 Tell me the best possible **production-grade plan** and wait for my approval before starting

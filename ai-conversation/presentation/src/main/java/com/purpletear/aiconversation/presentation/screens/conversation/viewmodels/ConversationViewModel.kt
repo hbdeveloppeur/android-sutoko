@@ -485,13 +485,6 @@ class ConversationViewModel @Inject constructor(
         }
     }
 
-    // TODO
-    private fun onConversationSettingsLoaded(settings: Conversation) {
-        _conversationSettings.value = settings
-        if (settings.isBlocked) {
-            blockConversation()
-        }
-    }
 
     private var webSocketReconnectAttempts: Int = 0
     private var webSocketBindRequested: Boolean = false

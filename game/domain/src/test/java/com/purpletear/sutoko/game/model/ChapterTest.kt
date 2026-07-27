@@ -11,23 +11,23 @@ class ChapterTest {
     @Test
     fun `chapter with past release date is available`() {
         val chapter = Chapter(releaseDate = nowSeconds - 3600)
-        assertTrue(chapter.isAvailable)
+        assertTrue(chapter.available)
     }
 
     @Test
     fun `chapter with future release date is locked`() {
         // Server sends epoch seconds, e.g. story 0AZY0NtFQKu chapter 13 (1818633600).
         val chapter = Chapter(releaseDate = nowSeconds + 3600)
-        assertFalse(chapter.isAvailable)
+        assertFalse(chapter.available)
     }
 
     @Test
     fun `chapter without release date is available`() {
-        assertTrue(Chapter(releaseDate = 0L).isAvailable)
+        assertTrue(Chapter(releaseDate = 0L).available)
     }
 
     @Test
     fun `extreme release date stays locked without overflow`() {
-        assertFalse(Chapter(releaseDate = Long.MAX_VALUE).isAvailable)
+        assertFalse(Chapter(releaseDate = Long.MAX_VALUE).available)
     }
 }

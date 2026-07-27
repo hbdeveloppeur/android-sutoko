@@ -136,7 +136,7 @@ class ChaptersViewModel @Inject constructor(
      */
     fun onChapterSelected(chapter: Chapter) {
         val isAdmin = (uiState.value as? ChaptersUiState.Data)?.isAdmin == true
-        if (!chapter.isAvailable && !isAdmin) return
+        if (!chapter.available && !isAdmin) return
         if (selectJob?.isActive == true) return
         selectJob = viewModelScope.launch {
             selectChapterUseCase(gameId, chapter.code)

@@ -218,10 +218,8 @@ private fun ChapterList(
     isAdmin: Boolean,
     onChapterClick: (Chapter) -> Unit,
 ) {
-    // Locked chapters leave the main list: they are teased in a dedicated top section.
-    // Administrators see and can open them like released chapters.
     val (upcoming, released) = remember(chapters, isAdmin) {
-        chapters.partition { !it.isAvailable && !isAdmin }
+        chapters.partition { !it.available && !isAdmin }
     }
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
@@ -368,7 +366,7 @@ private fun ChapterCard(
     modifier: Modifier = Modifier,
     forceAvailable: Boolean = false,
 ) {
-    val isAvailable = chapter.isAvailable || forceAvailable
+    val isAvailable = chapter.available || forceAvailable
     val contentAlpha = if (isAvailable) 1f else 0.45f
 
     // Flat dark card, identity carried by a thin accent bar on the left edge.

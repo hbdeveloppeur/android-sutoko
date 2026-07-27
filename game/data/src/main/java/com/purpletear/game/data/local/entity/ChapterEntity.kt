@@ -33,6 +33,7 @@ fun ChapterEntity.toDomain(): Chapter = Chapter(
     description = description,
     canvasAppVersion = canvasAppVersion,
     code = code.uppercase(),
+    available = available,
 )
 
 fun Chapter.toEntity(): ChapterEntity = ChapterEntity(

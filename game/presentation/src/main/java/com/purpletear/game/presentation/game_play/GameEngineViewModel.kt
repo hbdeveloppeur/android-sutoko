@@ -366,7 +366,6 @@ class GameEngineViewModel @Inject constructor(
             is HandlerEffect.EnterCinematic -> enterCinematic(effect)
 
             else -> {
-                // TODO: Implement effect handling when needed
                 Log.d("GameEngine", "Received effect: ${effect::class.simpleName}")
             }
         }

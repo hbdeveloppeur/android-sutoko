@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.purpletear.core.presentation.services.ToastService
 import com.purpletear.game.presentation.R
+import com.purpletear.game.presentation.game_preview.GamePreviewViewModel.Companion.MAX_GRANT_CHECK_ATTEMPTS
 import com.purpletear.game.presentation.game_preview.components.formatReleaseDate
 import com.purpletear.game.presentation.game_preview.events.GamePreviewEvent
 import com.purpletear.game.presentation.game_preview.handlers.GamePreviewPurchaseHandler
@@ -13,7 +14,6 @@ import com.purpletear.game.presentation.model.GameUiError
 import com.purpletear.sutoko.core.domain.helper.AppVersionProvider
 import com.purpletear.sutoko.core.domain.logger.Logger
 import com.purpletear.sutoko.core.domain.logger.exception
-import com.purpletear.sutoko.core.domain.logger.warning
 import com.purpletear.sutoko.domain.repository.UserRepository
 import com.purpletear.sutoko.game.model.Chapter
 import com.purpletear.sutoko.game.model.UserRole
@@ -104,7 +104,7 @@ class GamePreviewViewModel @Inject constructor(
         .onEach { chapter ->
             GamePreviewLogger.d("OBS") {
                 chapter?.let {
-                    "currentChapter emitted: gameId=$gameId, code=${it.code}, number=${it.number}, available=${it.isAvailable}"
+                    "currentChapter emitted: gameId=$gameId, code=${it.code}, number=${it.number}, available=${it.available}"
                 } ?: "currentChapter emitted: null for gameId=$gameId"
             }
         }
@@ -121,7 +121,7 @@ class GamePreviewViewModel @Inject constructor(
      * least one chapter: callers then fall back to the catalog count.
      */
     val releasedChaptersCount: StateFlow<Int?> = chapterRepository.observeChapters(gameId)
-        .map { chapters -> chapters.takeIf { it.isNotEmpty() }?.count { it.isAvailable } }
+        .map { chapters -> chapters.takeIf { it.isNotEmpty() }?.count { it.available } }
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(7000),
@@ -184,9 +184,9 @@ class GamePreviewViewModel @Inject constructor(
             observation.catalog != null -> {
                 GamePreviewLogger.d("OBS") {
                     "game emitted Data: gameId=$gameId, title=${observation.catalog.title}, " +
-                        "chapters=${observation.catalog.chaptersCount}, " +
-                        "isPurchased=${observation.catalog.skus.any { it in observation.purchasedSkus || it in coinPurchasedSkus } || observation.hasGlobalPremium}, " +
-                        "downloadProgress=${observation.downloadProgress}"
+                            "chapters=${observation.catalog.chaptersCount}, " +
+                            "isPurchased=${observation.catalog.skus.any { it in observation.purchasedSkus || it in coinPurchasedSkus } || observation.hasGlobalPremium}, " +
+                            "downloadProgress=${observation.downloadProgress}"
                 }
                 GamePreviewUiState.Data(
                     item = GameItem(
@@ -401,7 +401,13 @@ class GamePreviewViewModel @Inject constructor(
     }
 
     fun onNickNameConfirmed(name: String?, isTrial: Boolean) {
-        GamePreviewLogger.d("NAV") { "onNickNameConfirmed() gameId=$gameId, isTrial=$isTrial, name=${name?.take(20)}" }
+        GamePreviewLogger.d("NAV") {
+            "onNickNameConfirmed() gameId=$gameId, isTrial=$isTrial, name=${
+                name?.take(
+                    20
+                )
+            }"
+        }
         viewModelScope.launch {
             saveUserNickNameUseCase(gameId, name)
             navigateToPlay(requestNickName = false, isTrial = isTrial)
@@ -428,13 +434,14 @@ class GamePreviewViewModel @Inject constructor(
         when {
             // Chapter still loading: the Play button is disabled in this state.
             chapter == null -> Unit
-            !chapter.isAvailable && !isAdmin.value -> {
+            !chapter.available && !isAdmin.value -> {
                 GamePreviewLogger.d("NAV") { "onPlay() chapter ${chapter.number} unavailable for gameId=$gameId" }
                 toastService(
                     R.string.game_presentation_game_preview_next_chapter,
                     chapter.formatReleaseDate(),
                 )
             }
+
             else -> navigateToPlay(requestNickName = true)
         }
     }
@@ -459,7 +466,7 @@ class GamePreviewViewModel @Inject constructor(
 
             GamePreviewLogger.i("NAV") {
                 "navigateToPlay() gameId=$gameId, isTrial=$isTrial, " +
-                    "chapterCode=${chapter?.normalizedCode}, needsNickName=$needsNickName"
+                        "chapterCode=${chapter?.normalizedCode}, needsNickName=$needsNickName"
             }
 
             if (needsNickName) {
@@ -511,7 +518,10 @@ class GamePreviewViewModel @Inject constructor(
                 }
                 result.onFailure { error ->
                     success = false
-                    GamePreviewLogger.e("CHAP", error) { "loadChapters() failed for gameId=$gameId" }
+                    GamePreviewLogger.e(
+                        "CHAP",
+                        error
+                    ) { "loadChapters() failed for gameId=$gameId" }
                     logger.exception(error) { "Failed to load chapters for gameId=$gameId" }
                     sendEvent(GamePreviewEvent.ShowError(GameUiError.Load))
                 }
@@ -545,9 +555,9 @@ class GamePreviewViewModel @Inject constructor(
         ) {
             GamePreviewLogger.d("PUR") {
                 "coin grant check skipped for gameId=$gameId: " +
-                    "done=$coinGrantCheckDone, inFlight=${coinGrantCheckJob?.isActive == true}, " +
-                    "connected=${isUserConnected.value}, " +
-                    "isPurchased=${data.item.isPurchased}, hasSkus=${data.gameCatalog.skus.isNotEmpty()}"
+                        "done=$coinGrantCheckDone, inFlight=${coinGrantCheckJob?.isActive == true}, " +
+                        "connected=${isUserConnected.value}, " +
+                        "isPurchased=${data.item.isPurchased}, hasSkus=${data.gameCatalog.skus.isNotEmpty()}"
             }
             return
         }
@@ -571,7 +581,10 @@ class GamePreviewViewModel @Inject constructor(
                     GamePreviewLogger.i("PUR") { "coin grant check answered granted=$granted for gameId=$gameId" }
                 }
                 .onFailure { error ->
-                    GamePreviewLogger.e("PUR", error) { "coin grant check attempt $attempt failed for gameId=$gameId" }
+                    GamePreviewLogger.e(
+                        "PUR",
+                        error
+                    ) { "coin grant check attempt $attempt failed for gameId=$gameId" }
                     if (attempt == MAX_GRANT_CHECK_ATTEMPTS) {
                         logger.warning(
                             message = "Coin purchase grant check gave up after $MAX_GRANT_CHECK_ATTEMPTS attempts for gameId=$gameId",
@@ -593,7 +606,10 @@ class GamePreviewViewModel @Inject constructor(
             try {
                 downloadGameUseCase(gameId = gameId)
                     .catch { error ->
-                        GamePreviewLogger.e("DOWN", error) { "onStartDownload() failed for gameId=$gameId" }
+                        GamePreviewLogger.e(
+                            "DOWN",
+                            error
+                        ) { "onStartDownload() failed for gameId=$gameId" }
                         logger.exception(error) { "Download failed for gameId=$gameId" }
                         sendEvent(GamePreviewEvent.ShowError(GameUiError.Download))
                     }
@@ -618,7 +634,10 @@ class GamePreviewViewModel @Inject constructor(
                     GamePreviewLogger.i("DOWN") { "onDeleteGame() succeeded for gameId=$gameId" }
                 }
                 .onFailure { error ->
-                    GamePreviewLogger.e("DOWN", error) { "onDeleteGame() failed for gameId=$gameId" }
+                    GamePreviewLogger.e(
+                        "DOWN",
+                        error
+                    ) { "onDeleteGame() failed for gameId=$gameId" }
                     logger.exception(error) { "Delete failed for gameId=$gameId" }
                     sendEvent(GamePreviewEvent.ShowError(GameUiError.Delete))
                 }
@@ -672,7 +691,10 @@ class GamePreviewViewModel @Inject constructor(
                     toastService(R.string.game_presentation_game_restart_success)
                 }
                 .onFailure { error ->
-                    GamePreviewLogger.e("LIFE", error) { "onRestartGame() failed for gameId=$gameId" }
+                    GamePreviewLogger.e(
+                        "LIFE",
+                        error
+                    ) { "onRestartGame() failed for gameId=$gameId" }
                     logger.exception(error) { "Restart failed for gameId=$gameId" }
                     sendEvent(GamePreviewEvent.ShowError(GameUiError.Restart))
                 }

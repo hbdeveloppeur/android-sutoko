@@ -17,7 +17,8 @@ data class ChapterDto(
     @SerializedName("story") val story: String,
     @SerializedName("metas") val metas: ChapterMetasDto,
     @SerializedName("canvasAppVersion") val canvasAppVersion: Int,
-    @SerializedName("code") val code: String
+    @SerializedName("code") val code: String,
+    @SerializedName("available") val available: Boolean,
 )
 
 /**
@@ -45,7 +46,8 @@ fun ChapterDto.toDomain(): Chapter {
         title = metas.title,
         description = metas.description,
         canvasAppVersion = canvasAppVersion,
-        code = code.uppercase()
+        code = code.uppercase(),
+        available = available,
     )
 }
 
