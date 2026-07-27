@@ -1,8 +1,10 @@
 docs/
 .sutori-cbac9-firebase-adminsdk-ox8bj-c27b27ee70.json
 
- .vscode
-  
+.vscode
+
+docs/Implementation.md
+
 # Built application files
 *.apk
 *.ap_
