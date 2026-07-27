@@ -40,6 +40,9 @@
     <string name="game_presentation_game_preview_author_avatar">Author avatar, tap to enlarge</string>
     <string name="game_presentation_game_preview_background_description">Background</string>
     <string name="game_presentation_game_preview_avatar_description">Avatar</string>
+    <string name="game_presentation_game_preview_current_version">Current version: %1$d</string>
+    <string name="game_presentation_game_preview_current_version_up_to_date">Current version: %1$d (Up to date)</string>
+    <string name="game_presentation_game_preview_available_version">Available version: %1$d</string>
 
     <!-- Game menu state -->
     <string name="game_presentation_game_menu_play">Play</string>

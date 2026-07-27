@@ -348,6 +348,77 @@ class GameRepositoryImplSearchStoriesTest {
     }
 
     @Test
+    fun `refreshGameCatalog fetches remotely even when local catalog exists`() = runTest {
+        val recordingDao = RecordingGameDao()
+        recordingDao.game = stubGameDto("game-1").toDomain().copy(version = 14)
+        val api = object : FakeGameApi() {
+            override suspend fun getStory(gameId: String, languageCode: String): Response<GameDto> {
+                assertEquals("game-1", gameId)
+                assertEquals("fr-FR", languageCode)
+                return Response.success(stubGameDto("game-1").copy(version = 15))
+            }
+        }
+        val repository = GameRepositoryImpl(api, recordingDao)
+
+        val result = repository.refreshGameCatalog("game-1", "fr-FR")
+
+        assertTrue("Expected success but got $result", result.isSuccess)
+        assertEquals(15, result.getOrThrow()?.version)
+        assertEquals(1, recordingDao.upsertAllCalls.size)
+        assertEquals(15, recordingDao.upsertAllCalls.first().first().version)
+    }
+
+    @Test
+    fun `refreshGameCatalog returns success null on 404 without persisting`() = runTest {
+        val recordingDao = RecordingGameDao()
+        recordingDao.game = stubGameDto("game-1").toDomain()
+        val api = object : FakeGameApi() {
+            override suspend fun getStory(gameId: String, languageCode: String): Response<GameDto> =
+                Response.error(404, "story_not_found".toResponseBody(null))
+        }
+        val repository = GameRepositoryImpl(api, recordingDao)
+
+        val result = repository.refreshGameCatalog("game-1", "fr-FR")
+
+        assertTrue("Expected success but got $result", result.isSuccess)
+        assertEquals(null, result.getOrThrow())
+        assertTrue(recordingDao.upsertAllCalls.isEmpty())
+    }
+
+    @Test
+    fun `refreshGameCatalog returns failure with HttpException on 500 without persisting`() = runTest {
+        val recordingDao = RecordingGameDao()
+        recordingDao.game = stubGameDto("game-1").toDomain()
+        val api = object : FakeGameApi() {
+            override suspend fun getStory(gameId: String, languageCode: String): Response<GameDto> =
+                Response.error(500, "Server error".toResponseBody(null))
+        }
+        val repository = GameRepositoryImpl(api, recordingDao)
+
+        val result = repository.refreshGameCatalog("game-1", "fr-FR")
+
+        assertTrue("Expected failure but got $result", result.isFailure)
+        assertTrue(result.exceptionOrNull() is HttpException)
+        assertTrue(recordingDao.upsertAllCalls.isEmpty())
+    }
+
+    @Test
+    fun `refreshGameCatalog rethrows CancellationException`() = runTest {
+        val api = object : FakeGameApi() {
+            override suspend fun getStory(gameId: String, languageCode: String): Response<GameDto> =
+                throw CancellationException("cancelled")
+        }
+        val repository = GameRepositoryImpl(api, stubGameDao)
+
+        try {
+            repository.refreshGameCatalog("game-1", "fr-FR")
+            fail("Expected CancellationException")
+        } catch (e: CancellationException) {
+            // expected
+        }
+    }
+
+    @Test
     fun `searchStories returns empty list when body is null`() = runTest {
         val api = object : FakeGameApi() {
             override suspend fun searchStories(

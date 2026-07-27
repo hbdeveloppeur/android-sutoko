@@ -269,6 +269,66 @@ class GamePreviewViewModelTest {
     }
 
     @Test
+    fun `start refreshes catalog from remote once data is shown`() = runTest {
+        gameRepository.setGame(TestFixtures.GAME_ID, TestFixtures.gameCatalog())
+        val viewModel = createViewModel()
+
+        viewModel.game.test {
+            skipItems(1) // Loading
+            viewModel.start()
+            advanceUntilIdle()
+            assertTrue(expectMostRecentItem() is GamePreviewUiState.Data)
+        }
+        assertEquals(1, gameRepository.refreshGameCatalogCalls)
+    }
+
+    @Test
+    fun `start does not refresh catalog remotely while catalog is missing`() = runTest {
+        gameRepository.setGame(TestFixtures.GAME_ID, null)
+        val viewModel = createViewModel()
+
+        viewModel.game.test {
+            skipItems(1) // Loading
+            viewModel.start()
+            advanceUntilIdle()
+            assertEquals(GamePreviewUiState.NotFound, awaitItem())
+        }
+        assertEquals(0, gameRepository.refreshGameCatalogCalls)
+    }
+
+    @Test
+    fun `remote catalog refresh failure keeps cached data`() = runTest {
+        gameRepository.setGame(TestFixtures.GAME_ID, TestFixtures.gameCatalog())
+        gameRepository.refreshGameCatalogResult = Result.failure(RuntimeException("network"))
+        val viewModel = createViewModel()
+
+        viewModel.game.test {
+            skipItems(1) // Loading
+            viewModel.start()
+            advanceUntilIdle()
+            assertTrue(expectMostRecentItem() is GamePreviewUiState.Data)
+        }
+        assertEquals(1, gameRepository.refreshGameCatalogCalls)
+    }
+
+    @Test
+    fun `refresh on Data refreshes catalog from remote once more`() = runTest {
+        gameRepository.setGame(TestFixtures.GAME_ID, TestFixtures.gameCatalog())
+        val viewModel = createViewModel()
+        activateStateFlows(backgroundScope, viewModel)
+
+        viewModel.start()
+        advanceUntilIdle()
+        assertEquals(1, gameRepository.refreshGameCatalogCalls)
+
+        viewModel.refresh()
+        advanceUntilIdle()
+
+        assertEquals(2, gameRepository.refreshGameCatalogCalls)
+        assertFalse(viewModel.isRefreshing.value)
+    }
+
+    @Test
     fun `onAction OnBuy when not connected emits OpenAccountConnection`() = runTest {
         val viewModel = createViewModel()
 

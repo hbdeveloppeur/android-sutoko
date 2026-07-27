@@ -168,7 +168,26 @@ class GameRepositoryImpl @Inject constructor(
             dao.observeGame(id).first()?.let { entity ->
                 return Result.success(entity.toDomain())
             }
+            fetchRemoteCatalog(id, languageTag)
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
 
+    override suspend fun refreshGameCatalog(id: String, languageTag: String): Result<GameCatalog?> {
+        assert(id.isNotBlank())
+        return fetchRemoteCatalog(id, languageTag)
+    }
+
+    /**
+     * Remote fetch + persist shared by [getGameCatalog] and [refreshGameCatalog].
+     * A found story is upserted so Room observers re-emit; 404 and errors leave
+     * the local row untouched.
+     */
+    private suspend fun fetchRemoteCatalog(id: String, languageTag: String): Result<GameCatalog?> {
+        return try {
             val response = api.getStory(gameId = id, languageCode = languageTag)
             if (response.code() == 404) {
                 return Result.success(null)

@@ -266,8 +266,35 @@ class GamePreviewViewModel @Inject constructor(
             recoverMissingCatalogOnNotFound()
         }
         viewModelScope.launch {
+            refreshCatalogOnDataLoad()
+        }
+        viewModelScope.launch {
             syncCoinPurchaseGrantOnDataLoad()
         }
+    }
+
+    /**
+     * Waits for the first Data state, then refreshes the catalog row remotely so
+     * the observed catalog (including the admin version badge) converges to the
+     * server state. A missing catalog is the recovery path's job, not ours.
+     */
+    private suspend fun refreshCatalogOnDataLoad() {
+        game.first { it is GamePreviewUiState.Data }
+        refreshCatalogFromRemote()
+    }
+
+    /**
+     * Best-effort remote refresh of this story's catalog row. Failures are
+     * non-fatal: the cached row keeps feeding the UI.
+     */
+    private suspend fun refreshCatalogFromRemote() {
+        gameRepository.refreshGameCatalog(gameId, Locale.getDefault().toLanguageTag())
+            .onSuccess { catalog ->
+                GamePreviewLogger.i("SYNC") { "catalog refresh ${if (catalog != null) "updated" else "found no story"} for gameId=$gameId" }
+            }
+            .onFailure { error ->
+                GamePreviewLogger.w("SYNC") { "catalog refresh failed for gameId=$gameId: ${error.message}" }
+            }
     }
 
     /**
@@ -332,10 +359,10 @@ class GamePreviewViewModel @Inject constructor(
     }
 
     /**
-     * Re-fetches this story's chapters from the network. The Room observation
-     * flows update the UI automatically when fresh data lands. The catalog row
-     * itself is maintained by the app-foreground catalog syncs; an installed
-     * game is never evicted by those syncs (see GameDao).
+     * Re-fetches this story's catalog row and chapters from the network. The
+     * Room observation flows update the UI automatically when fresh data lands.
+     * An installed game is never evicted by the app-foreground catalog syncs
+     * (see GameDao).
      */
     fun refresh() {
         if (_isRefreshing.value) {
@@ -354,6 +381,9 @@ class GamePreviewViewModel @Inject constructor(
                 // Explicit user refresh also grants a fresh coin grant check round.
                 coinGrantCheckDone = false
                 triggerCoinGrantCheck()
+                if (game.value is GamePreviewUiState.Data) {
+                    refreshCatalogFromRemote()
+                }
                 val chaptersOk = loadChapters()
                 if (!chaptersOk) {
                     GamePreviewLogger.w("SYNC") { "refresh() failed for gameId=$gameId" }

@@ -30,6 +30,15 @@ interface GameRepository {
      */
     suspend fun getGameCatalog(id: String, languageTag: String): Result<GameCatalog?>
 
+    /**
+     * Always fetches the catalog row for [id] remotely and persists it on success,
+     * so local observers converge to the server state (e.g. a version bump).
+     * Success(null) = the story does not exist or is not public (404).
+     * Failure = network/server error. In both cases the local row is left untouched.
+     * Cancellation always propagates.
+     */
+    suspend fun refreshGameCatalog(id: String, languageTag: String): Result<GameCatalog?>
+
     suspend fun searchStories(
         query: String,
         languageTag: String,

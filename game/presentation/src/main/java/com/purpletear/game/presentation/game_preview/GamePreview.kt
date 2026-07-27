@@ -85,6 +85,7 @@ import com.purpletear.game.presentation.game_preview.components.GamePreviewOptio
 import com.purpletear.game.presentation.game_preview.components.GamePreviewShareButton
 import com.purpletear.game.presentation.game_preview.components.GamePreviewUnavailable
 import com.purpletear.game.presentation.game_preview.components.GamePreviewUnlockAnimation
+import com.purpletear.game.presentation.game_preview.components.GamePreviewVersionBadges
 import com.purpletear.game.presentation.game_preview.components.PremiumActiveLabelGradient
 import com.purpletear.game.presentation.game_preview.components.PremiumLabelGradient
 import com.purpletear.game.presentation.game_preview.components.UnlockedLabelGradient
@@ -522,6 +523,16 @@ fun GamePreview(
                 }
 
                 gameItem?.let { game ->
+                    if (isAdmin) {
+                        GamePreviewVersionBadges(
+                            currentVersion = game.localVersion,
+                            availableVersion = game.version,
+                            modifier = Modifier
+                                .align(Alignment.TopStart)
+                                .statusBarsPadding()
+                                .padding(top = 16.dp, start = 8.dp),
+                        )
+                    }
                     Row(
                         modifier = Modifier
                             .align(Alignment.TopEnd)

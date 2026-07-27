@@ -53,6 +53,18 @@ class FakeGameRepository : GameRepository {
         return result
     }
 
+    var refreshGameCatalogResult: Result<GameCatalog?>? = null
+    var refreshGameCatalogCalls = 0
+        private set
+
+    override suspend fun refreshGameCatalog(id: String, languageTag: String): Result<GameCatalog?> {
+        refreshGameCatalogCalls++
+        val result = refreshGameCatalogResult ?: return Result.success(games[id]?.value)
+        // Mimic the real repository: a found catalog is persisted, so observeGame re-emits.
+        result.getOrNull()?.let { setGame(id, it) }
+        return result
+    }
+
     var syncOfficialGamesResult: Result<Unit> = Result.success(Unit)
     var syncOfficialGamesCalls = 0
         private set
