@@ -47,4 +47,5 @@ fun Chapter.toEntity(): ChapterEntity = ChapterEntity(
     description = description,
     canvasAppVersion = canvasAppVersion,
     code = code.uppercase(),
+    available = available,
 )

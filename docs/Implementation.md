@@ -4,13 +4,14 @@ it.
 task - you can compact your context between each task.
 If necessary you are allowed to do any commands like curls, install script, etc
 
-Task 1 [DONE - branch fix/chapter-language-fallback] : When a game starts it loads the chapter at "
-/data/user/0/fr.purpletear.sutoko/files/games/180/chapters/fr-ES/1a"
-But there is a problem here, "fr-ES" is never in the list of avalaible languages.
-The only possible languages are fr-FR, es-ES, es-419, de-DE, en-GB, en-US
-So we want the closest language: for instance fr-ES would use fr-FR, es-MX would use es-ES, etc.
+Problem 1: After branch new uninstall/install - the game story with id 5JZvpvXaS6r has all chapters
+available but it still displays a message "Prochain chapitre - mercredi 1 janvier"
 
-Fix: ChapterGraphRepositoryImpl now resolves the requested locale tag against the
-language directories actually present on disk via ChapterLanguageResolver
-(exact match -> same language canonical dir -> en-US/en-GB fallback).
-Covered by ChapterLanguageResolverTest (7 tests).
+- These chapters are all available since 2020, you can check with curl "
+  GET https://sutoko.com/api/story/5JZvpvXaS6r/chapters"
+
+[DONE] Root cause: Chapter.toEntity() (game/data/.../local/entity/ChapterEntity.kt) dropped the
+`available` flag, so every chapter persisted to Room was stored as unavailable after a fresh
+install. The date shown (Jan 1st) was the chapter's real 2020 release date, formatted without
+the year. Fix: persist `available` in toEntity(); the next getChapters() fetch self-heals
+existing installs (REPLACE upsert). Regression test: ChapterEntityMapperTest.
