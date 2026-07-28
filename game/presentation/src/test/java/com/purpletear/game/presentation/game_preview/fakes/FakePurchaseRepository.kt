@@ -45,4 +45,5 @@ class FakePurchaseRepository : PurchaseRepository {
     override suspend fun queryProductDetails(sku: String): Result<Product> = Result.failure(UnsupportedOperationException())
     override suspend fun queryProductDetails(skus: List<String>): Result<List<Product>> = Result.failure(UnsupportedOperationException())
     override suspend fun markBackendRegistered(sku: String) {}
+    override suspend fun deletePurchase(sku: String) {}
 }

@@ -2,6 +2,7 @@ package fr.sutoko.inapppurchase.application.domain.coordinator
 
 import android.util.Log
 import fr.sutoko.inapppurchase.application.domain.PurchaseBackendRegistrar
+import fr.sutoko.inapppurchase.application.domain.PurchaseRegistrationRejectedException
 import fr.sutoko.inapppurchase.application.domain.model.PurchaseState
 import fr.sutoko.inapppurchase.application.domain.repository.PurchaseRepository
 import kotlinx.coroutines.CoroutineScope
@@ -41,7 +42,10 @@ class PurchaseBackendRegistrationCoordinator @Inject constructor(
         val supportedRegistrars = registrars.filter { it.supports(purchase.sku) }
 
         if (supportedRegistrars.isEmpty()) {
-            // No registrar claims this SKU; treat it as handled to avoid reprocessing.
+            Log.w(
+                "BackendRegistration",
+                "No registrar claims ${purchase.sku}; marking as registered without backend call"
+            )
             purchaseRepository.markBackendRegistered(purchase.sku)
             return
         }
@@ -55,6 +59,19 @@ class PurchaseBackendRegistrationCoordinator @Inject constructor(
 
             val results = supportedRegistrars.map { registrar ->
                 registrar.register(purchase.sku, purchase.purchaseToken, purchase.orderId)
+            }
+
+            val rejection = results.firstNotNullOfOrNull { result ->
+                result.exceptionOrNull() as? PurchaseRegistrationRejectedException
+            }
+            if (rejection != null) {
+                Log.w(
+                    "BackendRegistration",
+                    "Backend rejected registration for ${purchase.sku}; purging local purchase",
+                    rejection
+                )
+                purchaseRepository.deletePurchase(purchase.sku)
+                return
             }
 
             if (results.all { it.isSuccess }) {

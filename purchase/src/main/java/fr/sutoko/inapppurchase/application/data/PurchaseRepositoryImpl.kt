@@ -209,6 +209,10 @@ class PurchaseRepositoryImpl @Inject constructor(
     override suspend fun markBackendRegistered(sku: String) {
         purchaseDao.markBackendRegistered(sku)
     }
+
+    override suspend fun deletePurchase(sku: String) {
+        purchaseDao.deleteBySku(sku)
+    }
 }
 
 private fun PurchaseEntity.toDomain(): DomainPurchase =

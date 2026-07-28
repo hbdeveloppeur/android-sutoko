@@ -15,10 +15,10 @@ import com.purpletear.sutoko.game.service.MediaUrlResolver
 import com.purpletear.sutoko.game.usecase.GetOneUserGamesUseCase
 import com.purpletear.sutoko.game.usecase.LoadMoreUserGamesUseCase
 import com.purpletear.sutoko.game.usecase.SearchGamesUseCase
+import com.purpletear.sutoko.shop.domain.repository.EntitlementRepository
 import com.purpletear.sutoko.shop.domain.repository.ShopRepository
 import com.purpletear.sutoko.shop.domain.repository.model.Balance
 import dagger.hilt.android.lifecycle.HiltViewModel
-import fr.sutoko.inapppurchase.application.domain.repository.PurchaseRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -36,7 +36,7 @@ import javax.inject.Inject
 class CreateViewModel @Inject constructor(
     shopRepository: ShopRepository,
     gameRepository: GameRepository,
-    private val gamePurchaseRepository: PurchaseRepository,
+    private val entitlementRepository: EntitlementRepository,
     private val gameInstallRepository: GameInstallRepository,
     private val mediaUrlResolver: MediaUrlResolver,
     private val searchGamesUseCase: SearchGamesUseCase,
@@ -104,21 +104,23 @@ class CreateViewModel @Inject constructor(
     )
 
     private data class GameOwnershipState(
-        val purchasedSkus: Set<String>,
+        val grantedSkus: Set<String>,
+        val hasPremium: Boolean,
         val installs: List<GameInstall>,
         val downloads: Map<String, Float>,
     )
 
     private val gameOwnershipState: StateFlow<GameOwnershipState> = combine(
-        gamePurchaseRepository.observePurchasedSkus(),
+        entitlementRepository.observeGrantedSkus(),
+        entitlementRepository.observeHasPremium(),
         gameInstallRepository.observeInstalls(),
         gameInstallRepository.observeDownloadProgresses(),
-    ) { purchasedSkus, installs, downloads ->
-        GameOwnershipState(purchasedSkus, installs, downloads)
+    ) { grantedSkus, hasPremium, installs, downloads ->
+        GameOwnershipState(grantedSkus, hasPremium, installs, downloads)
     }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(7000),
-        initialValue = GameOwnershipState(emptySet(), emptyList(), emptyMap()),
+        initialValue = GameOwnershipState(emptySet(), false, emptyList(), emptyMap()),
     )
 
     val games: StateFlow<List<GameItem>> = combine(
@@ -132,7 +134,8 @@ class CreateViewModel @Inject constructor(
         catalogs.map { catalog ->
             buildGameItem(
                 catalog = catalog,
-                purchasedSkus = ownership.purchasedSkus,
+                grantedSkus = ownership.grantedSkus,
+                hasPremium = ownership.hasPremium,
                 installs = ownership.installs,
                 downloads = ownership.downloads,
                 mediaUrlResolver = mediaUrlResolver,
@@ -242,7 +245,8 @@ class CreateViewModel @Inject constructor(
 
     private fun buildGameItem(
         catalog: GameCatalog,
-        purchasedSkus: Set<String>,
+        grantedSkus: Set<String>,
+        hasPremium: Boolean,
         installs: List<GameInstall>,
         downloads: Map<String, Float>,
         mediaUrlResolver: MediaUrlResolver,
@@ -250,7 +254,7 @@ class CreateViewModel @Inject constructor(
     ): GameItem = GameItem(
         catalog = catalog,
         install = installs.find { it.gameId == catalog.id },
-        isPurchased = catalog.skus.any { it in purchasedSkus },
+        isPurchased = hasPremium || catalog.skus.any { it in grantedSkus },
         bannerUrl = mediaUrlResolver.resolveBannerUrl(catalog.banner?.storagePath),
         logoUrl = mediaUrlResolver.resolveBannerUrl(catalog.logo?.storagePath),
         menuBackgroundUrl = mediaUrlResolver.resolveBannerUrl(catalog.menuBackground?.storagePath),
@@ -264,7 +268,8 @@ class CreateViewModel @Inject constructor(
         isFavorite: Boolean = false,
     ): GameItem = buildGameItem(
         catalog = catalog,
-        purchasedSkus = catalog.skus.toSet(),
+        grantedSkus = catalog.skus.toSet(),
+        hasPremium = false,
         installs = emptyList(),
         downloads = emptyMap(),
         mediaUrlResolver = mediaUrlResolver,

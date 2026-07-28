@@ -18,4 +18,7 @@ interface PurchaseRepository {
     suspend fun queryProductDetails(sku: String): Result<Product>
     suspend fun queryProductDetails(skus: List<String>): Result<List<Product>>
     suspend fun markBackendRegistered(sku: String)
+
+    /** Removes the local purchase row entirely; used when the backend rejects registration. */
+    suspend fun deletePurchase(sku: String)
 }

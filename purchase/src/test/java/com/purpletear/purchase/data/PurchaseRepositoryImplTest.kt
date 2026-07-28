@@ -369,6 +369,18 @@ class PurchaseRepositoryImplTest {
         assertEquals(listOf("sku"), fakeDao.markedBackendRegisteredSkus)
     }
 
+    @Test
+    fun `deletePurchase removes the local row and observePurchase emits without it`() = runTest {
+        fakeDao.upsert(entity(sku = "sku"))
+        assertEquals(listOf("sku"), repository.observePurchases().first().map { it.sku })
+
+        repository.deletePurchase("sku")
+
+        assertEquals(listOf("sku"), fakeDao.deletedSkus)
+        assertTrue(repository.observePurchases().first().isEmpty())
+        assertNull(repository.observePurchase("sku").first())
+    }
+
     //endregion
 
     //region entitlement flows

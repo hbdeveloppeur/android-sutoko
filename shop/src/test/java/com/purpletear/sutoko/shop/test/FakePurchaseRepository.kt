@@ -20,7 +20,11 @@ class FakePurchaseRepository : PurchaseRepository {
     var queryProductDetailsCallCount = 0
         private set
 
-    override fun observePurchases(): Flow<List<Purchase>> = flowOf(emptyList())
+    val purchasesFlow = MutableStateFlow<List<Purchase>>(emptyList())
+
+    val deletedPurchaseSkus = mutableListOf<String>()
+
+    override fun observePurchases(): Flow<List<Purchase>> = purchasesFlow
     override fun observePurchase(sku: String): Flow<Purchase?> = flowOf(null)
     override fun observeHasGlobalPremium(): Flow<Boolean> = flowOf(false)
     override fun observeUnregisteredPurchases(): Flow<List<Purchase>> = flowOf(emptyList())
@@ -51,4 +55,8 @@ class FakePurchaseRepository : PurchaseRepository {
     }
 
     override suspend fun markBackendRegistered(sku: String) {}
+
+    override suspend fun deletePurchase(sku: String) {
+        deletedPurchaseSkus.add(sku)
+    }
 }

@@ -8,10 +8,10 @@ import com.purpletear.game.presentation.model.GameItem
 import com.purpletear.sutoko.domain.repository.UserRepository
 import com.purpletear.sutoko.game.repository.game.GameRepository
 import com.purpletear.sutoko.game.service.MediaUrlResolver
+import com.purpletear.sutoko.shop.domain.repository.EntitlementRepository
 import com.purpletear.sutoko.shop.domain.repository.ShopRepository
 import com.purpletear.sutoko.shop.domain.repository.model.Balance
 import dagger.hilt.android.lifecycle.HiltViewModel
-import fr.sutoko.inapppurchase.application.domain.repository.PurchaseRepository
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.catch
@@ -24,7 +24,7 @@ import javax.inject.Inject
 class AccountViewModel @Inject constructor(
 
     private val gameRepository: GameRepository,
-    private val gamePurchaseRepository: PurchaseRepository,
+    private val entitlementRepository: EntitlementRepository,
     private val userRepository: UserRepository,
     private val shopRepository: ShopRepository,
     mediaUrlResolver: MediaUrlResolver,
@@ -39,13 +39,14 @@ class AccountViewModel @Inject constructor(
 
     val games: StateFlow<List<GameItem>> = combine(
         gameRepository.observeOfficialGames(),
-        gamePurchaseRepository.observePurchasedSkus(),
-    ) { catalogs, purchasedSkus ->
+        entitlementRepository.observeGrantedSkus(),
+        entitlementRepository.observeHasPremium(),
+    ) { catalogs, grantedSkus, hasPremium ->
         catalogs.map { catalog ->
             GameItem(
                 catalog = catalog,
                 install = null,
-                isPurchased = catalog.skus.any { it in purchasedSkus },
+                isPurchased = hasPremium || catalog.skus.any { it in grantedSkus },
                 bannerUrl = mediaUrlResolver.resolveBannerUrl(catalog.banner?.storagePath),
                 logoUrl = mediaUrlResolver.resolveBannerUrl(catalog.logo?.storagePath),
                 menuBackgroundUrl = mediaUrlResolver.resolveBannerUrl(catalog.menuBackground?.storagePath),

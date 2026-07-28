@@ -18,6 +18,7 @@ class FakePurchaseDao : PurchaseDao {
     val upsertedEntities = mutableListOf<PurchaseEntity>()
     val replaceAllCalls = mutableListOf<List<PurchaseEntity>>()
     val markedBackendRegisteredSkus = mutableListOf<String>()
+    val deletedSkus = mutableListOf<String>()
 
     val observeAllSubscriptionCount = AtomicInteger(0)
 
@@ -54,6 +55,7 @@ class FakePurchaseDao : PurchaseDao {
         _purchases.map { list -> list.count { it.sku in skus } }
 
     override suspend fun deleteBySku(sku: String) {
+        deletedSkus += sku
         _purchases.update { list -> list.filter { it.sku != sku } }
     }
 

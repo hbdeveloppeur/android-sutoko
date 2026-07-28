@@ -28,10 +28,8 @@ import com.purpletear.sutoko.game.usecase.GetChaptersUseCase
 import com.purpletear.sutoko.game.usecase.RestartGameUseCase
 import com.purpletear.sutoko.game.usecase.SaveUserNickNameUseCase
 import com.purpletear.sutoko.shop.domain.error.BuyStoryError
-import com.purpletear.sutoko.shop.domain.usecase.IsStoryGrantedUseCase
-import com.purpletear.sutoko.shop.domain.usecase.ObserveCoinPurchasedSkusUseCase
+import com.purpletear.sutoko.shop.domain.repository.EntitlementRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
-import fr.sutoko.inapppurchase.application.domain.repository.PurchaseRepository
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
@@ -44,8 +42,10 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
@@ -60,7 +60,6 @@ class GamePreviewViewModel @Inject constructor(
     private val favoriteGamesRepository: FavoriteGamesRepository,
     private val chapterRepository: ChapterRepository,
     private val gameInstallRepository: GameInstallRepository,
-    private val gamePurchaseRepository: PurchaseRepository,
     private val mediaUrlResolver: MediaUrlResolver,
     private val getChaptersUseCase: GetChaptersUseCase,
     private val saveUserNickNameUseCase: SaveUserNickNameUseCase,
@@ -70,8 +69,7 @@ class GamePreviewViewModel @Inject constructor(
     private val purchaseHandler: GamePreviewPurchaseHandler,
     private val userRepository: UserRepository,
     private val userRoleRepository: UserRoleRepository,
-    private val observeCoinPurchasedSkusUseCase: ObserveCoinPurchasedSkusUseCase,
-    private val isStoryGrantedUseCase: IsStoryGrantedUseCase,
+    private val entitlementRepository: EntitlementRepository,
     private val logger: Logger,
     appVersionProvider: AppVersionProvider,
 ) : ViewModel() {
@@ -153,11 +151,22 @@ class GamePreviewViewModel @Inject constructor(
             initialValue = false,
         )
 
+    /**
+     * Server-confirmed entitlement for this story's SKUs (billing purchase,
+     * coin grant or premium). Fail-closed: false until the server confirms.
+     */
+    @OptIn(ExperimentalCoroutinesApi::class)
+    val isEntitled: StateFlow<Boolean> = gameRepository.observeGame(id = gameId)
+        .flatMapLatest { catalog ->
+            if (catalog == null || catalog.skus.isEmpty()) flowOf(false)
+            else entitlementRepository.observeIsGranted(catalog.skus)
+        }
+        .distinctUntilChanged()
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(7000), false)
+
     private data class GameObservation(
         val catalog: com.purpletear.sutoko.game.model.game.GameCatalog?,
         val install: com.purpletear.sutoko.game.model.game.GameInstall?,
-        val purchasedSkus: Set<String>,
-        val hasGlobalPremium: Boolean,
         val downloadProgress: Float?,
     )
 
@@ -165,35 +174,31 @@ class GamePreviewViewModel @Inject constructor(
         combine(
             gameRepository.observeGame(id = gameId),
             gameInstallRepository.observeInstall(gameId = gameId),
-            gamePurchaseRepository.observePurchasedSkus(),
-            gamePurchaseRepository.observeHasGlobalPremium(),
             gameInstallRepository.observeDownloadProgress(gameId),
-        ) { catalog, install, purchasedSkus, hasGlobalPremium, downloadProgress ->
+        ) { catalog, install, downloadProgress ->
             GameObservation(
                 catalog = catalog,
                 install = install,
-                purchasedSkus = purchasedSkus,
-                hasGlobalPremium = hasGlobalPremium,
                 downloadProgress = downloadProgress,
             )
         },
-        observeCoinPurchasedSkusUseCase(),
+        isEntitled,
         favoriteGamesRepository.observeFavoriteIds(),
-    ) { observation, coinPurchasedSkus, favoriteIds ->
+    ) { observation, isEntitled, favoriteIds ->
         when {
             observation.catalog != null -> {
                 GamePreviewLogger.d("OBS") {
                     "game emitted Data: gameId=$gameId, title=${observation.catalog.title}, " +
                             "chapters=${observation.catalog.chaptersCount}, " +
-                            "isPurchased=${observation.catalog.skus.any { it in observation.purchasedSkus || it in coinPurchasedSkus } || observation.hasGlobalPremium}, " +
+                            "isPurchased=$isEntitled, " +
                             "downloadProgress=${observation.downloadProgress}"
                 }
                 GamePreviewUiState.Data(
                     item = GameItem(
                         observation.catalog,
                         observation.install,
-                        // Full access = owns a game SKU OR has an active global premium.
-                        isPurchased = observation.catalog.skus.any { it in observation.purchasedSkus || it in coinPurchasedSkus } || observation.hasGlobalPremium,
+                        // Full access = server-confirmed entitlement (billing purchase, coin grant or premium).
+                        isPurchased = isEntitled,
                         bannerUrl = mediaUrlResolver.resolveBannerUrl(observation.catalog.banner?.storagePath),
                         logoUrl = mediaUrlResolver.resolveBannerUrl(observation.catalog.logo?.storagePath),
                         menuBackgroundUrl = mediaUrlResolver.resolveBannerUrl(observation.catalog.menuBackground?.storagePath),
@@ -230,7 +235,7 @@ class GamePreviewViewModel @Inject constructor(
     val isPurchasing: StateFlow<Boolean> = purchaseHandler.isPurchasing
     val isPurchaseLoading: StateFlow<Boolean> = purchaseHandler.isPurchaseLoading
 
-    val isUserPremium: StateFlow<Boolean> = gamePurchaseRepository.observeHasGlobalPremium()
+    val isUserPremium: StateFlow<Boolean> = entitlementRepository.observeHasPremium()
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(7000),
@@ -575,7 +580,7 @@ class GamePreviewViewModel @Inject constructor(
         while (attempt < MAX_GRANT_CHECK_ATTEMPTS && !coinGrantCheckDone) {
             attempt++
             GamePreviewLogger.i("PUR") { "coin grant check attempt $attempt/$MAX_GRANT_CHECK_ATTEMPTS for gameId=$gameId" }
-            isStoryGrantedUseCase(skus)
+            entitlementRepository.refreshGrant(skus)
                 .onSuccess { granted ->
                     coinGrantCheckDone = true
                     GamePreviewLogger.i("PUR") { "coin grant check answered granted=$granted for gameId=$gameId" }
@@ -684,9 +689,6 @@ class GamePreviewViewModel @Inject constructor(
             restartGameUseCase(gameId, legacyId = currentGameItem?.legacyId)
                 .onSuccess {
                     GamePreviewLogger.i("LIFE") { "onRestartGame() succeeded for gameId=$gameId" }
-                    // Progress was just wiped: re-read the current chapter so the
-                    // Play button shows chapter 1 again (Friendzoned progress lives
-                    // outside Room and would otherwise stay stale until ON_RESUME).
                     currentChapterRefreshTicks.value += 1
                     toastService(R.string.game_presentation_game_restart_success)
                 }

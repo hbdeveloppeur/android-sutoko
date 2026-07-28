@@ -11,12 +11,10 @@ import com.purpletear.game.presentation.game_preview.fakes.FakeFriendzonedProgre
 import com.purpletear.game.presentation.game_preview.fakes.FakeGameInstallRepository
 import com.purpletear.game.presentation.game_preview.fakes.FakeGameRepository
 import com.purpletear.game.presentation.game_preview.fakes.FakeBuyStoryWithCoinsUseCase
-import com.purpletear.game.presentation.game_preview.fakes.FakeIsStoryGrantedUseCase
+import com.purpletear.game.presentation.game_preview.fakes.FakeEntitlementRepository
 import com.purpletear.game.presentation.game_preview.fakes.FakeLogger
 import com.purpletear.game.presentation.game_preview.fakes.FakeMediaUrlResolver
 import com.purpletear.game.presentation.game_preview.fakes.FakeMemoryRepository
-import com.purpletear.game.presentation.game_preview.fakes.FakeObserveCoinPurchasedSkusUseCase
-import com.purpletear.game.presentation.game_preview.fakes.FakePurchaseRepository
 import com.purpletear.game.presentation.game_preview.fakes.FakeToastService
 import com.purpletear.game.presentation.game_preview.fakes.FakeUserGameProgressRepository
 import com.purpletear.game.presentation.game_preview.fakes.FakeUserRepository
@@ -58,7 +56,6 @@ class GamePreviewViewModelTest {
     private val chapterRepository = FakeChapterRepository()
     private val gameInstallRepository = FakeGameInstallRepository()
     private val favoriteGamesRepository = FakeFavoriteGamesRepository()
-    private val purchaseRepository = FakePurchaseRepository()
     private val mediaUrlResolver = FakeMediaUrlResolver()
     private val userRepository = FakeUserRepository()
     private val userRoleRepository = FakeUserRoleRepository()
@@ -70,8 +67,7 @@ class GamePreviewViewModelTest {
     private val toastService = FakeToastService()
     private val buyStoryWithCoinsUseCase = FakeBuyStoryWithCoinsUseCase()
     private val purchaseHandler = GamePreviewPurchaseHandler(buyStoryWithCoinsUseCase)
-    private val observeCoinPurchasedSkusUseCase = FakeObserveCoinPurchasedSkusUseCase()
-    private val isStoryGrantedUseCase = FakeIsStoryGrantedUseCase()
+    private val entitlementRepository = FakeEntitlementRepository()
 
     private val getChaptersUseCase = GetChaptersUseCase(chapterRepository)
     private val saveUserNickNameUseCase = SaveUserNickNameUseCase(userGameProgressRepository)
@@ -116,7 +112,6 @@ class GamePreviewViewModelTest {
             favoriteGamesRepository = favoriteGamesRepository,
             chapterRepository = chapterRepository,
             gameInstallRepository = gameInstallRepository,
-            gamePurchaseRepository = purchaseRepository,
             mediaUrlResolver = mediaUrlResolver,
             getChaptersUseCase = getChaptersUseCase,
             saveUserNickNameUseCase = saveUserNickNameUseCase,
@@ -126,8 +121,7 @@ class GamePreviewViewModelTest {
             purchaseHandler = purchaseHandler,
             userRepository = userRepository,
             userRoleRepository = userRoleRepository,
-            observeCoinPurchasedSkusUseCase = observeCoinPurchasedSkusUseCase,
-            isStoryGrantedUseCase = isStoryGrantedUseCase,
+            entitlementRepository = entitlementRepository,
             logger = logger,
             appVersionProvider = appVersionProvider,
         )
@@ -579,7 +573,7 @@ class GamePreviewViewModelTest {
     fun `onAction OnPlay emits PlayGame with isTrial false`() = runTest {
         val viewModel = createViewModel()
         gameRepository.setGame(TestFixtures.GAME_ID, TestFixtures.gameCatalog())
-        chapterRepository.setCurrentChapter(TestFixtures.GAME_ID, Chapter(number = 1, code = "1A"))
+        chapterRepository.setCurrentChapter(TestFixtures.GAME_ID, Chapter(number = 1, code = "1A", available = true))
         backgroundScope.launch { viewModel.currentChapter.collect { } }
 
         viewModel.game.test {
@@ -648,13 +642,15 @@ class GamePreviewViewModelTest {
 
     @Test
     fun `global premium makes a paid game owned`() = runTest {
-        purchaseRepository.setHasGlobalPremium(true)
+        entitlementRepository.hasPremiumFlow.value = true
         gameRepository.setGame(TestFixtures.GAME_ID, TestFixtures.gameCatalog(price = 100, skus = listOf("sku-1")))
         val viewModel = createViewModel()
 
         viewModel.game.test {
             skipItems(1) // Loading
-            val data = awaitItem()
+            // The first Data may predate the entitlement emission; the most recent one wins.
+            advanceUntilIdle()
+            val data = expectMostRecentItem()
             assertTrue(data is GamePreviewUiState.Data)
             assertTrue((data as GamePreviewUiState.Data).item.isPurchased)
         }
@@ -674,14 +670,16 @@ class GamePreviewViewModelTest {
     }
 
     @Test
-    fun `coin purchased sku makes a paid game owned`() = runTest {
+    fun `server granted sku makes a paid game owned`() = runTest {
         gameRepository.setGame(TestFixtures.GAME_ID, TestFixtures.gameCatalog(price = 100, skus = listOf("sku-1")))
-        observeCoinPurchasedSkusUseCase.setSkus(setOf("sku-1"))
+        entitlementRepository.isGrantedFlow.value = true
         val viewModel = createViewModel()
 
         viewModel.game.test {
             skipItems(1) // Loading
-            val data = awaitItem()
+            // The first Data may predate the entitlement emission; the most recent one wins.
+            advanceUntilIdle()
+            val data = expectMostRecentItem()
             assertTrue(data is GamePreviewUiState.Data)
             assertTrue((data as GamePreviewUiState.Data).item.isPurchased)
         }
@@ -696,7 +694,21 @@ class GamePreviewViewModelTest {
         viewModel.start()
         advanceUntilIdle()
 
-        assertEquals(1, isStoryGrantedUseCase.calls)
+        assertEquals(1, entitlementRepository.refreshGrantCalls)
+    }
+
+    @Test
+    fun `coin grant check grants access when the server confirms the grant`() = runTest {
+        gameRepository.setGame(TestFixtures.GAME_ID, TestFixtures.gameCatalog(price = 100, skus = listOf("sku-1")))
+        entitlementRepository.refreshGrantResult = Result.success(true)
+        val viewModel = createViewModel(connectedUser = true)
+        activateStateFlows(backgroundScope, viewModel)
+
+        viewModel.start()
+        advanceUntilIdle()
+
+        val data = viewModel.game.value as GamePreviewUiState.Data
+        assertTrue(data.item.isPurchased)
     }
 
     @Test
@@ -707,17 +719,17 @@ class GamePreviewViewModelTest {
 
         viewModel.start()
         advanceUntilIdle()
-        assertEquals(0, isStoryGrantedUseCase.calls)
+        assertEquals(0, entitlementRepository.refreshGrantCalls)
 
         userRepository.setUser(User(id = "user-1", token = "token-1"))
         advanceUntilIdle()
-        assertEquals(1, isStoryGrantedUseCase.calls)
+        assertEquals(1, entitlementRepository.refreshGrantCalls)
     }
 
     @Test
     fun `coin grant check retries transient failures until a definitive answer`() = runTest {
         gameRepository.setGame(TestFixtures.GAME_ID, TestFixtures.gameCatalog(price = 100, skus = listOf("sku-1")))
-        isStoryGrantedUseCase.enqueueResults(
+        entitlementRepository.enqueueResults(
             listOf(
                 Result.failure(RuntimeException("network")),
                 Result.failure(RuntimeException("network")),
@@ -730,13 +742,13 @@ class GamePreviewViewModelTest {
         viewModel.start()
         advanceUntilIdle()
 
-        assertEquals(3, isStoryGrantedUseCase.calls)
+        assertEquals(3, entitlementRepository.refreshGrantCalls)
     }
 
     @Test
     fun `coin grant check gives up after bounded retries and refresh grants a fresh round`() = runTest {
         gameRepository.setGame(TestFixtures.GAME_ID, TestFixtures.gameCatalog(price = 100, skus = listOf("sku-1")))
-        isStoryGrantedUseCase.enqueueResults(
+        entitlementRepository.enqueueResults(
             listOf(
                 Result.failure(RuntimeException("network")),
                 Result.failure(RuntimeException("network")),
@@ -748,11 +760,11 @@ class GamePreviewViewModelTest {
 
         viewModel.start()
         advanceUntilIdle()
-        assertEquals(3, isStoryGrantedUseCase.calls)
+        assertEquals(3, entitlementRepository.refreshGrantCalls)
 
         viewModel.refresh()
         advanceUntilIdle()
-        assertEquals(4, isStoryGrantedUseCase.calls)
+        assertEquals(4, entitlementRepository.refreshGrantCalls)
     }
 
     @Test
@@ -830,8 +842,8 @@ class GamePreviewViewModelTest {
                 TestFixtures.GAME_ID,
                 Result.success(
                     listOf(
-                        Chapter(id = "1", number = 1, releaseDate = now - 200),
-                        Chapter(id = "2", number = 2, releaseDate = now - 100),
+                        Chapter(id = "1", number = 1, releaseDate = now - 200, available = true),
+                        Chapter(id = "2", number = 2, releaseDate = now - 100, available = true),
                         Chapter(id = "3", number = 3, releaseDate = now + 100_000),
                     )
                 )

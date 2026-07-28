@@ -10,7 +10,7 @@ import fr.sutoko.inapppurchase.application.domain.model.PurchaseState
 
 @Database(
     entities = [PurchaseEntity::class],
-    version = 3,
+    version = 4,
     exportSchema = false
 )
 abstract class PurchaseDatabase : RoomDatabase() {
@@ -33,10 +33,23 @@ abstract class PurchaseDatabase : RoomDatabase() {
             }
         }
 
+        /**
+         * Premium purchases were historically flagged backendRegistered without ever
+         * reaching the backend (no registrar claimed the premium SKU). Reset their
+         * flag so the coordinator re-registers them once at the next app start.
+         */
+        val MIGRATION_3_4 = object : Migration(3, 4) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL(
+                    "UPDATE purchases SET backendRegistered = 0 WHERE sku LIKE '%premium%'"
+                )
+            }
+        }
+
         @Suppress("DEPRECATION")
         fun create(context: Context): PurchaseDatabase {
             return Room.databaseBuilder(context, PurchaseDatabase::class.java, NAME)
-                .addMigrations(MIGRATION_2_3)
+                .addMigrations(MIGRATION_2_3, MIGRATION_3_4)
                 .build()
         }
     }

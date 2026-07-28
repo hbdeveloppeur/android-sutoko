@@ -29,6 +29,7 @@ android {
     buildFeatures {
         dataBinding = true
         viewBinding = true
+        buildConfig = true
     }
 
     compileOptions {
@@ -38,6 +39,10 @@ android {
 
     kotlinOptions {
         jvmTarget = "11"
+    }
+
+    testOptions {
+        unitTests.isReturnDefaultValues = true
     }
 
     buildTypes.getByName("release") {

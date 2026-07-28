@@ -2,9 +2,11 @@ package com.purpletear.sutoko.shop.data.repository
 
 import androidx.annotation.VisibleForTesting
 import com.google.gson.Gson
+import com.purpletear.sutoko.domain.repository.UserRepository
 import com.purpletear.sutoko.shop.data.remote.BuyCatalogProductRequestDto
 import com.purpletear.sutoko.shop.data.remote.ShopApi
 import com.purpletear.sutoko.shop.data.remote.ShopErrorResponseDto
+import com.purpletear.sutoko.shop.data.remote.UserHasProductRequestDto
 import com.purpletear.sutoko.shop.data.remote.toDomainModel
 import com.purpletear.sutoko.shop.domain.error.BuyStoryError
 import com.purpletear.sutoko.shop.domain.repository.CoinPurchaseRepository
@@ -13,7 +15,8 @@ import com.purpletear.sutoko.shop.domain.repository.model.Balance
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
 import java.io.IOException
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -22,12 +25,22 @@ import javax.inject.Singleton
 class InMemoryCoinPurchaseRepository @Inject constructor(
     private val api: ShopApi,
     private val shopRepository: ShopRepository,
+    private val userRepository: UserRepository,
 ) : CoinPurchaseRepository {
 
-    private val gson = Gson()
-    private val _coinPurchasedSkus = MutableStateFlow<Set<String>>(emptySet())
+    private data class CachedGrants(val userId: String, val skus: Set<String>)
 
-    override fun observeCoinPurchasedSkus(): Flow<Set<String>> = _coinPurchasedSkus.asStateFlow()
+    private val gson = Gson()
+    private val cache = MutableStateFlow<CachedGrants?>(null)
+
+    override fun observeCoinPurchasedSkus(): Flow<Set<String>> =
+        combine(cache, userRepository.observeUser()) { cached, user ->
+            if (cached != null && user != null && cached.userId == user.id) {
+                cached.skus
+            } else {
+                emptySet()
+            }
+        }.distinctUntilChanged()
 
     override suspend fun buyStoryWithCoins(
         sku: String,
@@ -51,12 +64,12 @@ class InMemoryCoinPurchaseRepository @Inject constructor(
                     ?: return Result.failure(BuyStoryError.Unknown("Response body is null"))
                 val balance = body.balance.toDomainModel()
                 shopRepository.updateBalance(balance)
-                _coinPurchasedSkus.value += sku
+                addCachedSku(userId, sku)
                 Result.success(balance)
             } else {
                 val error = parseError(response.code(), response.errorBody()?.string())
                 if (error is BuyStoryError.AlreadyOwned) {
-                    _coinPurchasedSkus.value += sku
+                    addCachedSku(userId, sku)
                 }
                 Result.failure(error)
             }
@@ -77,14 +90,14 @@ class InMemoryCoinPurchaseRepository @Inject constructor(
             return Result.success(false)
         }
 
-        val cached = _coinPurchasedSkus.value
+        val cached = cache.value?.takeIf { it.userId == userId }?.skus ?: emptySet()
         if (skuIdentifiers.any { it in cached }) {
             return Result.success(true)
         }
 
         return try {
             val response = api.userHasProduct(
-                com.purpletear.sutoko.shop.data.remote.UserHasProductRequestDto(
+                UserHasProductRequestDto(
                     userId = userId,
                     skuIdentifiers = skuIdentifiers
                 )
@@ -93,7 +106,10 @@ class InMemoryCoinPurchaseRepository @Inject constructor(
             if (response.isSuccessful) {
                 val granted = response.body()?.granted == true
                 if (granted) {
-                    _coinPurchasedSkus.value += skuIdentifiers
+                    cache.value = CachedGrants(
+                        userId,
+                        (cache.value?.takeIf { it.userId == userId }?.skus ?: emptySet()) + skuIdentifiers
+                    )
                 }
                 Result.success(granted)
             } else {
@@ -109,8 +125,11 @@ class InMemoryCoinPurchaseRepository @Inject constructor(
     }
 
     @VisibleForTesting
-    internal fun addCachedSku(sku: String) {
-        _coinPurchasedSkus.value += sku
+    internal fun addCachedSku(userId: String, sku: String) {
+        cache.value = CachedGrants(
+            userId,
+            (cache.value?.takeIf { it.userId == userId }?.skus ?: emptySet()) + sku
+        )
     }
 
     private fun parseError(code: Int, errorBody: String?): BuyStoryError {

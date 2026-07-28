@@ -1,9 +1,11 @@
 package com.purpletear.sutoko.shop.data.repository
 
+import com.purpletear.sutoko.domain.model.User
 import com.purpletear.sutoko.shop.data.remote.UserHasProductResponseDto
 import com.purpletear.sutoko.shop.domain.error.BuyStoryError
 import com.purpletear.sutoko.shop.test.FakeShopApi
 import com.purpletear.sutoko.shop.test.FakeShopRepository
+import com.purpletear.sutoko.shop.test.FakeUserRepository
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
@@ -16,13 +18,16 @@ class InMemoryCoinPurchaseRepositoryTest {
 
     private lateinit var api: FakeShopApi
     private lateinit var shopRepository: FakeShopRepository
+    private lateinit var userRepository: FakeUserRepository
     private lateinit var repository: InMemoryCoinPurchaseRepository
 
     @Before
     fun setUp() {
         api = FakeShopApi()
         shopRepository = FakeShopRepository()
-        repository = InMemoryCoinPurchaseRepository(api, shopRepository)
+        userRepository = FakeUserRepository()
+        userRepository.userFlow.value = User(id = "user-1", token = "token-1")
+        repository = InMemoryCoinPurchaseRepository(api, shopRepository, userRepository)
     }
 
     @Test
@@ -57,7 +62,7 @@ class InMemoryCoinPurchaseRepositoryTest {
 
     @Test
     fun `isStoryGranted returns cached value without calling api`() = runTest {
-        repository.addCachedSku("sku-1")
+        repository.addCachedSku("user-1", "sku-1")
 
         val result = repository.isStoryGranted("user-1", listOf("sku-1"))
 
@@ -76,5 +81,24 @@ class InMemoryCoinPurchaseRepositoryTest {
         assertTrue(result.getOrThrow())
         assertEquals(1, api.userHasProductCallCount)
         assertTrue(repository.observeCoinPurchasedSkus().first().contains("sku-1"))
+    }
+
+    @Test
+    fun `grants cached for another user are not observable`() = runTest {
+        repository.addCachedSku("user-a", "sku-1")
+        userRepository.userFlow.value = User(id = "user-b", token = "token-b")
+
+        assertEquals(emptySet<String>(), repository.observeCoinPurchasedSkus().first())
+    }
+
+    @Test
+    fun `grants cached for another user are not returned and api is called`() = runTest {
+        repository.addCachedSku("user-a", "sku-1")
+
+        val result = repository.isStoryGranted("user-b", listOf("sku-1"))
+
+        assertTrue(result.isSuccess)
+        assertEquals(false, result.getOrThrow())
+        assertEquals(1, api.userHasProductCallCount)
     }
 }
