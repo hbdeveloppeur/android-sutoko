@@ -7,8 +7,9 @@ import com.purpletear.sutoko.shop.domain.repository.model.Balance
  *
  * - [Disconnected]: no authenticated user — show the sign-in button instead of a balance.
  * - [Loading]: user connected, balance not yet fetched — show the loading indicator.
- * - [Failed]: user connected but the balance load failed (e.g. offline) — show the
- *   sign-in button instead of meaningless sentinel values.
+ * - [Failed]: user connected but the balance load failed (e.g. offline) — show a
+ *   retryable unavailable placeholder instead of meaningless sentinel values.
+ *   The sign-in button is only shown for [Disconnected].
  * - [Loaded]: balance available — show coins and diamonds.
  */
 sealed interface ShopHeaderState {

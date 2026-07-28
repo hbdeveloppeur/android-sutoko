@@ -20,6 +20,9 @@ class FakePurchaseRepository : PurchaseRepository {
     var queryProductDetailsCallCount = 0
         private set
 
+    var purchaseCallCount = 0
+        private set
+
     val purchasesFlow = MutableStateFlow<List<Purchase>>(emptyList())
 
     val deletedPurchaseSkus = mutableListOf<String>()
@@ -31,7 +34,10 @@ class FakePurchaseRepository : PurchaseRepository {
     override fun observePurchasedSkus(): Flow<Set<String>> = flowOf(emptySet())
     override fun observeIsPurchased(skus: List<String>): Flow<Boolean> = flowOf(false)
 
-    override suspend fun purchase(sku: String): Result<Unit> = purchaseResult
+    override suspend fun purchase(sku: String): Result<Unit> {
+        purchaseCallCount++
+        return purchaseResult
+    }
 
     override suspend fun syncPurchases(): Result<Unit> = Result.success(Unit)
 

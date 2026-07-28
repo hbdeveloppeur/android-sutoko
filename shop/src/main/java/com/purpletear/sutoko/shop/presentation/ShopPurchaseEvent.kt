@@ -20,6 +20,8 @@ sealed interface ShopPurchaseEvent {
     @Keep
     data class AlreadyOwned(override val packType: CoinsPackType) : ShopPurchaseEvent
     @Keep
+    data class NotConnected(override val packType: CoinsPackType) : ShopPurchaseEvent
+    @Keep
     data class Failed(
         override val packType: CoinsPackType,
         val reason: String?

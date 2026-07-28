@@ -31,6 +31,7 @@ class ShopActivity : AppCompatActivity() {
 
 
     private fun startBuyAnimation(isPending: Boolean, pack: ShopPack) {
+        val balance = viewModel.balance.value
         ShopActivityGraphics.setUnlockItemDesign(
             this,
             binding.buyValidation,
@@ -42,10 +43,16 @@ class ShopActivity : AppCompatActivity() {
             ShopActivityGraphics.animateUnlockItem(
                 this,
                 binding.buyValidation,
-                viewModel.balance.value.coins,
-                viewModel.balance.value.diamonds,
+                balance.coins,
+                balance.diamonds,
+                isBalanceLoaded = balance.isLoaded(),
             )
         }
+    }
+
+    override fun onStart() {
+        super.onStart()
+        viewModel.retryBalanceLoad()
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -115,6 +122,10 @@ class ShopActivity : AppCompatActivity() {
                             pack?.let { startBuyAnimation(isPending = true, it) }
                         }
 
+                        is ShopPurchaseEvent.NotConnected -> {
+                            openConnectionPage()
+                        }
+
                         is ShopPurchaseEvent.Cancelled,
                         is ShopPurchaseEvent.AlreadyOwned,
                         is ShopPurchaseEvent.Failed -> {
@@ -148,6 +159,10 @@ class ShopActivity : AppCompatActivity() {
 
         FingerV2.register(this.binding.sutokoShopSignInButton, null) {
             this.openConnectionPage()
+        }
+
+        FingerV2.register(this.binding.sutokoCoinsInformation, null) {
+            this.viewModel.retryBalanceLoad()
         }
 
         FingerV2.register(this.binding.sutokoShopCard1.root, null) {

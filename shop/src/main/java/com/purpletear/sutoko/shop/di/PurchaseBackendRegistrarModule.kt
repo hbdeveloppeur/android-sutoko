@@ -1,5 +1,6 @@
 package com.purpletear.sutoko.shop.di
 
+import com.purpletear.sutoko.shop.data.registrar.CoinsPackPurchaseBackendRegistrar
 import com.purpletear.sutoko.shop.data.registrar.StoryPurchaseBackendRegistrar
 import dagger.Binds
 import dagger.Module
@@ -16,5 +17,11 @@ abstract class PurchaseBackendRegistrarModule {
     @IntoSet
     abstract fun bindStoryPurchaseBackendRegistrar(
         impl: StoryPurchaseBackendRegistrar
+    ): PurchaseBackendRegistrar
+
+    @Binds
+    @IntoSet
+    abstract fun bindCoinsPackPurchaseBackendRegistrar(
+        impl: CoinsPackPurchaseBackendRegistrar
     ): PurchaseBackendRegistrar
 }

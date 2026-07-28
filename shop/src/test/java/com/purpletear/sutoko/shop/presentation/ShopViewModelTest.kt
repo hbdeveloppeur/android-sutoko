@@ -11,6 +11,7 @@ import com.purpletear.sutoko.shop.domain.usecase.GetShopPacksUseCase
 import com.purpletear.sutoko.shop.domain.usecase.ObserveShopBalanceUseCase
 import com.purpletear.sutoko.shop.test.FakePurchaseRepository
 import fr.sutoko.inapppurchase.application.domain.model.Product
+import fr.sutoko.inapppurchase.application.domain.usecase.PurchaseWithAuthCheckUseCase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
@@ -202,11 +203,105 @@ class ShopViewModelTest {
         assertEquals(ShopHeaderState.Disconnected, states.last())
     }
 
+    @Test
+    fun `buy emits NotConnected and does not purchase when user is not connected`() =
+        runTest(testDispatcher) {
+            fakeUserRepository.isConnectedFlow.value = false
+            fakeShopRepository.packs = listOf(
+                ShopPack(coins = 100, diamonds = 100, sku = "low", type = CoinsPackType.Low),
+            )
+            fakePurchaseRepository.queryProductDetailsResult = mapOf(
+                "low" to Result.success(product("low", "$0.99")),
+            )
+
+            val viewModel = createViewModel()
+            advanceUntilIdle()
+
+            val events = mutableListOf<ShopPurchaseEvent>()
+            backgroundScope.launch {
+                viewModel.purchaseEvents.collect { events.add(it) }
+            }
+            advanceUntilIdle()
+
+            viewModel.onEvent(ShopEvent.BuyPack(CoinsPackType.Low))
+            advanceUntilIdle()
+
+            assertEquals(2, events.size)
+            assertTrue(events[0] is ShopPurchaseEvent.Started)
+            assertTrue(events[1] is ShopPurchaseEvent.NotConnected)
+            assertEquals(0, fakePurchaseRepository.purchaseCallCount)
+        }
+
+    @Test
+    fun `buy succeeds when user is connected`() = runTest(testDispatcher) {
+        fakeUserRepository.isConnectedFlow.value = true
+        fakeShopRepository.packs = listOf(
+            ShopPack(coins = 100, diamonds = 100, sku = "low", type = CoinsPackType.Low),
+        )
+        fakePurchaseRepository.queryProductDetailsResult = mapOf(
+            "low" to Result.success(product("low", "$0.99")),
+        )
+
+        val viewModel = createViewModel()
+        advanceUntilIdle()
+
+        val events = mutableListOf<ShopPurchaseEvent>()
+        backgroundScope.launch {
+            viewModel.purchaseEvents.collect { events.add(it) }
+        }
+        advanceUntilIdle()
+
+        viewModel.onEvent(ShopEvent.BuyPack(CoinsPackType.Low))
+        advanceUntilIdle()
+
+        assertEquals(2, events.size)
+        assertTrue(events[0] is ShopPurchaseEvent.Started)
+        assertTrue(events[1] is ShopPurchaseEvent.Success)
+        assertEquals(1, fakePurchaseRepository.purchaseCallCount)
+    }
+
+    @Test
+    fun `retryBalanceLoad does nothing when balance has not failed`() = runTest(testDispatcher) {
+        fakeUserRepository.isConnectedFlow.value = true
+        fakeUserRepository.userFlow.value = User(id = "user-1", token = "token-1")
+        fakeShopRepository.balanceFlow.value = Balance(coins = 100, diamonds = 50)
+
+        val viewModel = createViewModel()
+        backgroundScope.launch { viewModel.balance.collect {} }
+        advanceUntilIdle()
+
+        viewModel.retryBalanceLoad()
+        advanceUntilIdle()
+
+        assertEquals(0, fakeShopRepository.loadBalanceCallCount)
+    }
+
+    @Test
+    fun `retryBalanceLoad reloads balance after a failure`() = runTest(testDispatcher) {
+        fakeUserRepository.isConnectedFlow.value = true
+        fakeUserRepository.userFlow.value = User(id = "user-1", token = "token-1")
+        fakeShopRepository.balanceFlow.value = Balance(coins = -1, diamonds = -1, loadFailed = true)
+
+        val viewModel = createViewModel()
+        backgroundScope.launch { viewModel.balance.collect {} }
+        advanceUntilIdle()
+
+        viewModel.retryBalanceLoad()
+        advanceUntilIdle()
+
+        assertEquals(1, fakeShopRepository.loadBalanceCallCount)
+    }
+
     private fun createViewModel() = ShopViewModel(
         userRepository = fakeUserRepository,
+        shopRepository = fakeShopRepository,
         observeShopBalanceUseCase = observeShopBalanceUseCase,
         getShopPackPricesUseCase = getShopPackPricesUseCase,
         purchaseRepository = fakePurchaseRepository,
+        purchaseWithAuthCheckUseCase = PurchaseWithAuthCheckUseCase(
+            fakePurchaseRepository,
+            fakeUserRepository,
+        ),
     )
 
     private fun priceFor(viewModel: ShopViewModel, type: CoinsPackType): String? {
@@ -222,8 +317,9 @@ class ShopViewModelTest {
 
     private class FakeUserRepository : UserRepository {
         val isConnectedFlow = MutableStateFlow(false)
+        val userFlow = MutableStateFlow<User?>(null)
 
-        override fun observeUser(): Flow<User?> = flowOf(null)
+        override fun observeUser(): Flow<User?> = userFlow
         override fun observeIsConnected(): Flow<Boolean> = isConnectedFlow
         override fun isConnected(): Result<Boolean> = Result.success(isConnectedFlow.value)
         override suspend fun connect(id: String, token: String): Result<Unit> = Result.success(Unit)
@@ -235,8 +331,14 @@ class ShopViewModelTest {
         val balanceFlow = MutableStateFlow(Balance(coins = 0, diamonds = 0))
 
         override fun observeBalance(): Flow<Balance> = balanceFlow
-        override fun loadBalance(userId: String, userToken: String): Flow<Result<Unit>> =
-            flowOf(Result.success(Unit))
+
+        var loadBalanceCallCount = 0
+            private set
+
+        override fun loadBalance(userId: String, userToken: String): Flow<Result<Unit>> {
+            loadBalanceCallCount++
+            return flowOf(Result.success(Unit))
+        }
 
         override fun resetBalance() {
             balanceFlow.value = Balance(coins = -1, diamonds = -1)

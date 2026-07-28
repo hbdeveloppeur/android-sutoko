@@ -42,7 +42,10 @@ class PurchaseBackendRegistrationCoordinator @Inject constructor(
         val supportedRegistrars = registrars.filter { it.supports(purchase.sku) }
 
         if (supportedRegistrars.isEmpty()) {
-            Log.w(
+            // Contract breach: every purchasable SKU must have a registrar. An
+            // unclaimed SKU means the backend is never told about the purchase,
+            // so the user pays without being credited. This must be loud.
+            Log.e(
                 "BackendRegistration",
                 "No registrar claims ${purchase.sku}; marking as registered without backend call"
             )

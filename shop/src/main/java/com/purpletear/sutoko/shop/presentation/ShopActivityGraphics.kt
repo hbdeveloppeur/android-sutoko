@@ -35,6 +35,7 @@ import com.example.sharedelements.R as SharedElementsR
 
 object ShopActivityGraphics {
 
+    private const val BALANCE_UNAVAILABLE_PLACEHOLDER = "-"
 
     fun setBackground(
         activity: Activity,
@@ -68,9 +69,18 @@ object ShopActivityGraphics {
 
     fun setHeaderState(binding: ShopActivityShopFixedBinding, state: ShopHeaderState) {
         when (state) {
-            ShopHeaderState.Disconnected, ShopHeaderState.Failed -> {
+            ShopHeaderState.Disconnected -> {
                 binding.sutokoShopSignInButton.visibility = View.VISIBLE
                 binding.sutokoCoinsInformation.visibility = View.GONE
+            }
+
+            ShopHeaderState.Failed -> {
+                // Connected user, balance unavailable: never show the sign-in button.
+                // Show a retryable placeholder instead (tap triggers a reload).
+                binding.sutokoShopSignInButton.visibility = View.GONE
+                binding.sutokoCoinsInformation.visibility = View.VISIBLE
+                binding.sutokoCoins.text = BALANCE_UNAVAILABLE_PLACEHOLDER
+                binding.sutokoDiamonds.text = BALANCE_UNAVAILABLE_PLACEHOLDER
             }
 
             ShopHeaderState.Loading -> {
@@ -200,10 +210,16 @@ object ShopActivityGraphics {
         activity: Activity,
         binding: ShopLayoutShopBuyValidationBinding,
         coins: Int,
-        diamonds: Int
+        diamonds: Int,
+        isBalanceLoaded: Boolean = true,
     ) {
         binding.root.visibility = View.VISIBLE
-        setUnlockItemDiamondsAndCoins(binding, diamonds, coins)
+        if (isBalanceLoaded) {
+            setUnlockItemDiamondsAndCoins(binding, diamonds, coins)
+        } else {
+            // Never display the unloaded sentinel (-1) as a real balance.
+            setUnlockCoinsInformationVisibility(binding, false)
+        }
         Animation.setAnimation(
             binding.sutokoShopBuyValidationItemImage,
             Animation.Animations.ANIMATION_ZOOM_IN,
