@@ -31,6 +31,8 @@
     <string name="shop_sutoko_check_google_play_connexion">Please, check that you are connected to Google Play</string>
     <string name="shop_sutoko_shop_pack_name_starter">Starter</string>
     <string name="shop_sutoko_shop_pack_name_treasure">Treasure</string>
+    <string name="shop_sutoko_shop_pack_name_mega">Mega Pack</string>
+    <string name="shop_sutoko_shop_best_pack_label">Best pack</string>
     <string name="shop_sutoko_premium_game">Premium story</string>
     <string name="shop_sutoko_premium_presentation_1">Unlimited Stories Access</string>
     <string name="shop_sutoko_premium_presentation_2">Premium community rank</string>

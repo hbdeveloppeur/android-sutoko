@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.jetbrains.kotlin.android)
     alias(libs.plugins.ksp)
+    alias(libs.plugins.compose.compiler)
     id("dagger.hilt.android.plugin")
 }
 
@@ -27,8 +28,7 @@ android {
     }
 
     buildFeatures {
-        dataBinding = true
-        viewBinding = true
+        compose = true
         buildConfig = true
     }
 
@@ -56,15 +56,29 @@ android {
 
 dependencies {
     implementation(project(":shared-elements"))
-    implementation(project(":tools"))
     implementation(project(":auth"))
     implementation(project(":purchase"))
 
     implementation(libs.androidx.ktx)
-    implementation(libs.androidx.appcompat)
-    implementation(libs.android.material)
-    implementation(libs.lottie)
-    implementation(libs.glide)
+
+    // Compose
+    val composeBom = platform(libs.compose.bom)
+    implementation(composeBom)
+    androidTestImplementation(composeBom)
+    implementation(libs.compose.ui)
+    implementation(libs.compose.foundation)
+    implementation(libs.material.compose)
+    implementation(libs.androidx.material3)
+    implementation(libs.compose.ui.tooling.preview)
+    debugImplementation(libs.androidx.ui.tooling)
+    implementation(libs.activity.compose)
+    implementation(libs.androidx.lifecycle.viewmodel.compose)
+    implementation(libs.androidx.lifecycle.runtime.compose)
+
+    // Coil for image loading
+    implementation(libs.coil.compose)
+
+    implementation(libs.lottie.compose)
 
     implementation(libs.lifecycle.viewmodel.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
