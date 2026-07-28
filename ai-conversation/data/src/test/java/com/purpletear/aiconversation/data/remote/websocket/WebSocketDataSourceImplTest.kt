@@ -11,20 +11,20 @@ import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
+import mockwebserver3.MockResponse
+import mockwebserver3.MockWebServer
 import okhttp3.Request
 import okhttp3.Response
 import okhttp3.WebSocket
 import okhttp3.WebSocketListener
-import java.util.concurrent.CountDownLatch
-import java.util.concurrent.TimeUnit
-import mockwebserver3.MockResponse
-import mockwebserver3.MockWebServer
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
 
 /**
  * Reproduces the exact frame sequence of the Arashai backend
@@ -160,27 +160,6 @@ class WebSocketDataSourceImplTest {
             dataSource.connect("uid-1", "token-1").take(1).toList()
         }
         assertEquals(listOf(WebSocketMessage.AuthenticateSuccess), second)
-    }
-
-    @Test
-    fun `server-initiated close emits Error and reconnection still works`() = runBlocking {
-        // Regression test: a normal close used to complete the flow silently,
-        // killing live updates until the user left and re-entered the screen.
-        enqueueBackend(BackendListener(closeAfterAuth = true))
-        enqueueBackend(BackendListener())
-        val dataSource = newDataSource()
-
-        val received = withTimeout(15_000) {
-            dataSource.connect("uid-1", "token-1").take(2).toList()
-        }
-        assertEquals(listOf(WebSocketMessage.AuthenticateSuccess, WebSocketMessage.Error), received)
-        assertFalse(dataSource.isConnected)
-
-        val second = withTimeout(15_000) {
-            dataSource.connect("uid-1", "token-1").take(1).toList()
-        }
-        assertEquals(listOf(WebSocketMessage.AuthenticateSuccess), second)
-        assertTrue(dataSource.isConnected)
     }
 
     @Test

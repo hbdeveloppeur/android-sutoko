@@ -493,9 +493,9 @@ class ChapterGraphParserTest {
     fun `code node parses to Node Code and recognises intro markers`() {
         val nodes = listOf(
             node("start-0", "start"),
-            node("code-start", "code", text = "[intro=start]"),
+            node("code-start", "code-message", text = "[intro=start]"),
             node("msg-1", "message", text = "Hello", characterId = 1),
-            node("code-end", "code", text = "[intro=end]")
+            node("code-end", "code-message", text = "[intro=end]")
         )
         val edges = listOf(
             edge("start-0", "code-start"),
@@ -672,7 +672,7 @@ class ChapterGraphParserTest {
         }
         val data = JsonObject().apply {
             addProperty("assetId", 3887)
-            addProperty("assetFileName", "fc81f14a-484b-43d3-82fd-405774d9f1e3.webp")
+            addProperty("storagePath", "fc81f14a-484b-43d3-82fd-405774d9f1e3.webp")
             addProperty("name", "manga_page_bestfrien")
             add("messages", JsonArray().apply { add(message) })
             addProperty("delay", 0)
@@ -720,7 +720,7 @@ class ChapterGraphParserTest {
         }
         val good = JsonObject().apply { addProperty("sentence", "Hi") }
         val data = JsonObject().apply {
-            addProperty("assetFileName", "page.webp")
+            addProperty("storagePath", "page.webp")
             add("messages", JsonArray().apply { add(blank); add(good) })
         }
         val nodes = listOf(

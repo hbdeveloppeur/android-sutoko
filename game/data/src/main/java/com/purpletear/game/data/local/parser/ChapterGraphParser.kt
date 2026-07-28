@@ -293,7 +293,7 @@ object ChapterGraphParser {
         val id = dto.id
         val fileName =
             data?.storagePath?.trim()?.takeIf { it.isNotEmpty() }?.substringAfterLast("/")
-        require(fileName != null) { "manga-page node $id missing assetFileName" }
+        require(fileName != null) { "manga-page node $id missing storagePath" }
 
         // Bound parsing work and drop malformed entries rather than crashing.
         val messages = data.messages.orEmpty()
