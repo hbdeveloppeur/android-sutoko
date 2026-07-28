@@ -20,6 +20,7 @@ import com.purpletear.sutoko.game.engine.GameMessage
 import com.purpletear.sutoko.game.engine.HandlerEffect
 import com.purpletear.sutoko.game.model.chapter.ChapterGraph
 import com.purpletear.sutoko.game.model.chapter.extractCinematicBody
+import com.purpletear.sutoko.game.repository.ChapterRepository
 import com.purpletear.sutoko.game.repository.CharacterRepository
 import com.purpletear.sutoko.game.repository.SceneRepository
 import com.purpletear.sutoko.game.repository.game.GameRepository
@@ -36,6 +37,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.receiveAsFlow
@@ -55,6 +57,7 @@ class GameEngineViewModel @Inject constructor(
     private val gameEngine: GameEngine,
     private val sceneRepository: SceneRepository,
     private val characterRepository: CharacterRepository,
+    private val chapterRepository: ChapterRepository,
     private val gameRepository: GameRepository,
     private val getSceneUseCase: GetSceneUseCase,
     private val mediaUrlResolver: MediaUrlResolver,
@@ -352,6 +355,7 @@ class GameEngineViewModel @Inject constructor(
 
             is HandlerEffect.ChangeChapter -> {
                 pendingChapterCode = effect.chapterCode
+                checkNextChapterAvailability(effect.chapterCode)
             }
 
             is HandlerEffect.ShowChoices -> {
@@ -367,6 +371,29 @@ class GameEngineViewModel @Inject constructor(
 
             else -> {
                 Log.d("GameEngine", "Received effect: ${effect::class.simpleName}")
+            }
+        }
+    }
+
+    /**
+     * Resolves the availability of the next chapter targeted by a chapter change.
+     * Fail-closed: a missing chapter or a failed lookup is treated as unavailable
+     * (navigating there would be a dead end anyway).
+     */
+    private fun checkNextChapterAvailability(nextChapterCode: String) {
+        viewModelScope.launch {
+            val next = chapterRepository.observeChapters(gameId)
+                .catch { e ->
+                    logger.exception(e) { "next chapter availability check failed" }
+                    emit(emptyList())
+                }
+                .first()
+                .firstOrNull { it.normalizedCode == nextChapterCode.lowercase() }
+            updateState {
+                it.copy(
+                    isNextChapterAvailable = next?.available == true,
+                    nextChapterReleaseDate = next?.releaseDate?.takeIf { date -> date > 0 },
+                )
             }
         }
     }
@@ -508,6 +535,7 @@ class GameEngineViewModel @Inject constructor(
     }
 
     fun onNextChapterClicked() {
+        if (!_uiState.value.isNextChapterAvailable) return
         pendingChapterCode?.let { _navigateToNextChapter.trySend(it) }
     }
 

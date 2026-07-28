@@ -14,6 +14,7 @@ import com.purpletear.game.presentation.game_play.components.message.MessageImag
 import com.purpletear.game.presentation.game_play.components.message.MessageManga
 import com.purpletear.game.presentation.game_play.components.message.MessageNarration
 import com.purpletear.game.presentation.game_play.components.message.MessageNextChapter
+import com.purpletear.game.presentation.game_play.components.message.MessageNextChapterUnavailable
 import com.purpletear.game.presentation.game_play.components.message.MessagePositionInGroup
 import com.purpletear.game.presentation.game_play.components.message.MessageText
 import com.purpletear.game.presentation.game_play.components.message.MessageTyping
@@ -48,6 +49,8 @@ internal fun Message(
     onMangaClick: (imageUrl: String, overlays: List<GameMessageMangaPage.TextOverlay>) -> Unit = { _, _ -> },
     onNextChapterClick: () -> Unit = {},
     showNextChapterButton: Boolean = true,
+    isNextChapterAvailable: Boolean = true,
+    nextChapterReleaseDate: Long? = null,
     nextChapterTitleRes: Int? = null,
     isTrial: Boolean = false,
     gameLogoUrl: String? = null,
@@ -86,19 +89,31 @@ internal fun Message(
                 }
 
                 GameMessageType.ChapterEnd -> {
-                    if (isTrial) {
-                        MessageChapterTrialFinished(
-                            gameLogoUrl = gameLogoUrl.orEmpty(),
-                            onClick = onBackClick,
-                        )
-                    } else {
-                        val title = nextChapterTitleRes?.let { stringResource(it) }
-                            ?: stringResource(R.string.game_presentation_message_next_chapter_title)
-                        MessageNextChapter(
-                            title = title,
-                            showButton = showNextChapterButton,
-                            onClick = onNextChapterClick
-                        )
+                    when {
+                        isTrial -> {
+                            MessageChapterTrialFinished(
+                                gameLogoUrl = gameLogoUrl.orEmpty(),
+                                onClick = onBackClick,
+                            )
+                        }
+
+                        !isNextChapterAvailable -> {
+                            MessageNextChapterUnavailable(
+                                gameLogoUrl = gameLogoUrl.orEmpty(),
+                                releaseDateSeconds = nextChapterReleaseDate,
+                                onClick = onBackClick,
+                            )
+                        }
+
+                        else -> {
+                            val title = nextChapterTitleRes?.let { stringResource(it) }
+                                ?: stringResource(R.string.game_presentation_message_next_chapter_title)
+                            MessageNextChapter(
+                                title = title,
+                                showButton = showNextChapterButton,
+                                onClick = onNextChapterClick
+                            )
+                        }
                     }
                 }
 

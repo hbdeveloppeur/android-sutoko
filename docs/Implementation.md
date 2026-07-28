@@ -4,4 +4,6 @@ it.
 task - you can compact your context between each task.
 If necessary you are allowed to do any commands like curls, install script, etc
 
-Problem 1: 
+Task 1: When a chapter finishes and the next chapter is not available yet, we have to display a
+Composable to anounce the next chapter is not available yet-We want to adapt the Composable
+MessageChapterTrialFinished for that. Make a plan.

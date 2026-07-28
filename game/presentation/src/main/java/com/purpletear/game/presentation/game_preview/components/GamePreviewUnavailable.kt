@@ -11,7 +11,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.sharedelements.theme.PlusJakartaSansFontFamily
@@ -31,11 +34,15 @@ internal fun GamePreviewUnavailable(modifier: Modifier = Modifier, chapter: Chap
             modifier = Modifier.size(14.dp),
             tint = Color.Gray
         )
+        val date = chapter.formatReleaseDate(includeYear = true)
+        val text = buildAnnotatedString {
+            append(stringResource(R.string.game_presentation_game_preview_next_chapter, ""))
+            withStyle(SpanStyle(fontWeight = FontWeight.Bold)) {
+                append(date)
+            }
+        }
         Text(
-            text = stringResource(
-                R.string.game_presentation_game_preview_next_chapter,
-                chapter.formatReleaseDate()
-            ),
+            text = text,
             fontFamily = PlusJakartaSansFontFamily,
             color = Color(0xFF90EE90),
             fontSize = 12.sp,

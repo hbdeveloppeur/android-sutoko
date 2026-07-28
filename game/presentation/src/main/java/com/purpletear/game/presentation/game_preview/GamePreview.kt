@@ -352,7 +352,7 @@ fun GamePreview(
                                         .padding(top = 40.dp)
                                         .align(Alignment.CenterHorizontally)
                                         .fillMaxWidth(0.8f)
-                                        .heightIn(max = 120.dp),
+                                        .heightIn(max = 140.dp),
                                 )
                             }
 
@@ -363,7 +363,6 @@ fun GamePreview(
                                 verticalArrangement = Arrangement.spacedBy(6.dp),
                             ) {
 
-                                // Display the current chapter title if available, otherwise show a default
                                 currentChapter?.let { chapter ->
                                     GamePreviewChapterTitle(
                                         text = stringResource(

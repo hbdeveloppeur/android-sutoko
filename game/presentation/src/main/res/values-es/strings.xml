@@ -28,7 +28,7 @@
     <string name="game_presentation_game_preview_premium_active">Premium Activo</string>
     <string name="game_presentation_game_preview_unlocked">Desbloqueado</string>
     <string name="game_presentation_game_preview_calendar_icon">Icono de calendario</string>
-    <string name="game_presentation_game_preview_next_chapter">Próximo capítulo - %1$s</string>
+    <string name="game_presentation_game_preview_next_chapter">Próximo capítulo el %1$s</string>
     <string name="game_presentation_game_preview_free">Gratis</string>
     <string name="game_presentation_game_preview_community">Historia de la comunidad</string>
     <string name="game_presentation_game_preview_written_by">Escrito por</string>
@@ -150,6 +150,11 @@
     <string name="game_presentation_message_chapter_trial_finished_subtitle">Compra el juego\npara continuar la aventura</string>
     <string name="game_presentation_message_chapter_trial_finished_subtitle_highlight">Compra el juego</string>
     <string name="game_presentation_message_chapter_trial_finished_back_button">Volver al menú</string>
+    <string name="game_presentation_message_next_chapter_unavailable_title">El próximo capítulo aún no está disponible</string>
+    <string name="game_presentation_message_next_chapter_unavailable_title_highlight">aún no está disponible</string>
+    <string name="game_presentation_message_next_chapter_unavailable_subtitle">Vuelve pronto\npara continuar la aventura</string>
+    <string name="game_presentation_message_next_chapter_unavailable_subtitle_highlight">continuar la aventura</string>
+    <string name="game_presentation_message_next_chapter_unavailable_date">Disponible el %1$s</string>
     <string name="game_presentation_message_vocal_play_description">Reproducir</string>
     <string name="game_presentation_message_story_finished">¡Historia terminada!</string>
 

@@ -158,6 +158,8 @@ internal fun SmsGameScreen(
                         showNextChapterButton = state.showNextChapterButton,
                         nextChapterTitleRes = state.nextChapterTitleRes,
                         isTrial = state.isTrial,
+                        isNextChapterAvailable = state.isNextChapterAvailable,
+                        nextChapterReleaseDate = state.nextChapterReleaseDate,
                         gameLogoUrl = state.gameLogoUrl,
                         onBackClick = onBackClick,
                         onVocalClick = onVocalClick,

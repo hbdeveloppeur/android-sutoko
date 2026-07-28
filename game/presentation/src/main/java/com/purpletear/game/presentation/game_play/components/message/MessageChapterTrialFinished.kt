@@ -109,7 +109,7 @@ private fun Content(
     subtitle: String,
     subtitleHighlight: String,
     backText: String,
-    gameLogoUrl: String,
+    gameLogoUrl: String?,
     onClickBackButton: () -> Unit = {},
 ) {
     Column(
@@ -120,7 +120,9 @@ private fun Content(
         verticalArrangement = Arrangement.spacedBy(14.dp)
     ) {
         Title(text = title, highlight = titleHighlight)
-        GameLogo(url = gameLogoUrl)
+        if (gameLogoUrl != null) {
+            GameLogo(url = gameLogoUrl)
+        }
         Subtitle(text = subtitle, highlight = subtitleHighlight)
 
         SimpleButton(
@@ -147,7 +149,7 @@ private fun Background() {
 }
 
 @Composable
-private fun GameLogo(url: String) {
+internal fun GameLogo(url: String) {
     AsyncImage(
         modifier = Modifier
             .size(88.dp)
@@ -163,7 +165,7 @@ private fun GameLogo(url: String) {
 }
 
 @Composable
-private fun Title(text: String, highlight: String) {
+internal fun Title(text: String, highlight: String) {
     val annotated = remember(text, highlight) {
         highlightedAnnotatedString(text, highlight, MotifPink)
     }
@@ -178,7 +180,7 @@ private fun Title(text: String, highlight: String) {
 }
 
 @Composable
-private fun Subtitle(text: String, highlight: String) {
+internal fun Subtitle(text: String, highlight: String) {
     val annotated = remember(text, highlight) {
         highlightedAnnotatedString(text, highlight, MotifPink)
     }
@@ -186,6 +188,21 @@ private fun Subtitle(text: String, highlight: String) {
         text = annotated,
         color = Color.White,
         fontSize = 16.sp,
+        fontFamily = Poppins,
+        fontWeight = FontWeight.SemiBold,
+        textAlign = TextAlign.Center,
+    )
+}
+
+@Composable
+internal fun ReleaseDate(text: String, highlight: String = "") {
+    val annotated = remember(text, highlight) {
+        highlightedAnnotatedString(text, highlight, MotifPink)
+    }
+    Text(
+        text = annotated,
+        color = Color.White,
+        fontSize = 14.sp,
         fontFamily = Poppins,
         fontWeight = FontWeight.SemiBold,
         textAlign = TextAlign.Center,
@@ -239,14 +256,13 @@ private data class MotifPlacement(
 private val MotifPlacements = listOf(
     MotifPlacement(Motif.Diamond, MotifPurple, 24.dp, -18f, 0.16f, 0.33f),
     MotifPlacement(Motif.Oct, MotifPurple, 26.dp, 14f, 0.85f, 0.34f, opacity = 0.3f),
-    MotifPlacement(Motif.Send, null, 20.dp, -24f, 0.78f, 0.53f, opacity = 0.8f),
     MotifPlacement(Motif.Heart, MotifPink, 20.dp, -46f, 0.10f, 0.55f),
     MotifPlacement(Motif.Oct, MotifPurple, 24.dp, 24f, 0.92f, 0.80f),
     MotifPlacement(Motif.Oct, MotifGray, 22.dp, -12f, 0.11f, 0.88f),
 )
 
 @Composable
-private fun Motifs() {
+internal fun Motifs() {
 
     // Session-stable: safe to drive conditional composition.
     val resolver = LocalContext.current.contentResolver

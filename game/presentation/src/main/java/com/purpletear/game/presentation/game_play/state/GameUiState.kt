@@ -27,6 +27,8 @@ data class GameUiState(
     val vocalProgress: Float = 0f,
     val isLoadingStoryUpdates: Boolean = false,
     val isTrial: Boolean = false,
+    val isNextChapterAvailable: Boolean = true,
+    val nextChapterReleaseDate: Long? = null,
     val gameLogoUrl: String? = null,
     val showNextChapterButton: Boolean = true,
     @StringRes val nextChapterTitleRes: Int? = null,
