@@ -4,7 +4,6 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
-import androidx.core.text.isDigitsOnly
 import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.SavedStateHandle
@@ -15,9 +14,6 @@ import com.example.sharedelements.SutokoAppParams
 import com.example.sharedelements.utils.UiText
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.purpletear.core.presentation.extensions.Resource
-import com.purpletear.framework.services.OpenDiscordOrBrowserService
-import com.purpletear.sutoko.core.domain.appaction.ActionName
-import com.purpletear.sutoko.core.domain.appaction.AppAction
 import com.purpletear.sutoko.domain.repository.UserRepository
 import com.purpletear.sutoko.game.model.game.GameCatalog
 import com.purpletear.sutoko.game.model.game.isPremium
@@ -25,8 +21,6 @@ import com.purpletear.sutoko.game.repository.ChapterRepository
 import com.purpletear.sutoko.game.repository.game.FavoriteGamesRepository
 import com.purpletear.sutoko.game.usecase.GetChaptersUseCase
 import com.purpletear.sutoko.game.usecase.ObserveOfficialGamesUseCase
-import com.purpletear.sutoko.news.model.News
-import com.purpletear.sutoko.news.usecase.ObserveNewsUseCase
 import com.purpletear.sutoko.notification.sealed.Screen
 import com.purpletear.sutoko.notification.usecase.SetCurrentScreenUseCase
 import com.purpletear.sutoko.shop.domain.repository.ShopRepository
@@ -37,12 +31,10 @@ import fr.purpletear.sutoko.friendzoned.FriendzonedGameRouter
 import fr.purpletear.sutoko.objects.CalendarEvent
 import fr.purpletear.sutoko.symbols.SymbolsRepository
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -56,9 +48,7 @@ class HomeScreenViewModel @Inject constructor(
     private var firebaseAnalytics: FirebaseAnalytics,
     private val screenUseCase: SetCurrentScreenUseCase,
     private val symbolsRepository: SymbolsRepository,
-    private val observeNewsUseCase: ObserveNewsUseCase,
     private val observeOfficialGamesUseCase: ObserveOfficialGamesUseCase,
-    private val openDiscordOrBrowser: OpenDiscordOrBrowserService,
     private val shopRepository: ShopRepository,
     private val userRepository: UserRepository,
     private val favoriteGamesRepository: FavoriteGamesRepository,
@@ -119,9 +109,6 @@ class HomeScreenViewModel @Inject constructor(
             return _state
         }
 
-    private val _navEvents = Channel<String>(Channel.BUFFERED)
-    val navEvents = _navEvents.receiveAsFlow()
-
     private var _squareStories: MutableState<List<GameCatalog>> =
         mutableStateOf(emptyList())
     val squareStories: State<List<GameCatalog>>
@@ -131,13 +118,6 @@ class HomeScreenViewModel @Inject constructor(
         mutableStateOf(emptyMap())
     val squareIcons: State<Map<Int, Int?>>
         get() = _squareIcons
-
-    var news: StateFlow<List<News>> = observeNewsUseCase()
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(7000),
-            initialValue = emptyList(),
-        )
 
     private var _aiConversationMessageCount: MutableState<Int?> = mutableStateOf(null)
     val aiConversationMessageCount: State<Int?>
@@ -161,16 +141,12 @@ class HomeScreenViewModel @Inject constructor(
         MutableLiveData<UiText.StringResource>()
     }
 
-    val navigateToNews: MutableLiveData<News> by lazy {
-        MutableLiveData<News>()
-    }
-
     val navigateToShop: MutableLiveData<Unit> by lazy {
         MutableLiveData()
     }
 
     init {
-        // Initialize with empty list, news is observed below
+        // Initialize with saved state handle values
         val events =
             savedStateHandle.get<List<CalendarEvent>>(Data.Companion.Extra.CALENDAR_EVENTS.id)
                 ?.toList() ?: listOf()
@@ -333,43 +309,6 @@ class HomeScreenViewModel @Inject constructor(
             is MainEvents.TapShop -> {
                 this.navigateToShop.value = Unit
             }
-        }
-    }
-
-    fun handleAppAction(action: AppAction) {
-        when (action.name) {
-            ActionName.OpenLink -> {
-                action.value?.let {
-                    openDiscordOrBrowser(it)
-                }
-            }
-
-            ActionName.OpenGame -> {
-                action.value?.takeIf { s -> s.isDigitsOnly() }?.let {
-                    navigate(MainScreenPages.GamePreview.createRoute(it))
-                }
-            }
-
-            ActionName.OpenPage -> {
-                if (action.value == "page_shop") {
-                    this.navigateToShop.value = Unit
-                }
-                val route = when (action.value) {
-                    "page_create" -> MainScreenPages.Create.route
-                    "page_home" -> MainScreenPages.Home.route
-                    else -> null
-                }
-
-                route?.let {
-                    navigate(it)
-                }
-            }
-        }
-    }
-
-    private fun navigate(route: String) {
-        viewModelScope.launch {
-            _navEvents.send(route)
         }
     }
 }

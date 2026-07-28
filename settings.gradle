@@ -53,9 +53,6 @@ include ':game:domain'
 include ':game:data'
 include ':game:presentation'
 include ':game:debug'
-include ':news:domain'
-include ':news:data'
-include ':news:presentation'
 include ':version:domain'
 include ':version:infrastructure'
 include ':shop'
@@ -64,9 +61,6 @@ include ':logger:data'
 
 project(":platform:play").projectDir = new File(rootDir, "platform/play")
 project(":purchase").projectDir = new File(rootDir, "purchase")
-project(":news:domain").projectDir = new File(rootDir, "news/domain")
-project(":news:data").projectDir = new File(rootDir, "news/data")
-project(":news:presentation").projectDir = new File(rootDir, "news/presentation")
 project(":ai-conversation:core").projectDir = new File(rootDir, "ai-conversation/core")
 project(":ai-conversation:domain").projectDir = new File(rootDir, "ai-conversation/domain")
 project(":ai-conversation:data").projectDir = new File(rootDir, "ai-conversation/data")

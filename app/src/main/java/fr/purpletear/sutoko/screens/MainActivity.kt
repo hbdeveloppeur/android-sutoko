@@ -68,7 +68,6 @@ import com.purpletear.sutoko.auth.coordinator.AuthCoordinator
 import com.purpletear.sutoko.auth.coordinator.AuthEvent
 import com.purpletear.sutoko.auth.presentation.AccountConnectionActivity
 import com.purpletear.sutoko.auth.presentation.AccountConnectionActivityModel
-import com.purpletear.sutoko.news.model.News
 import com.purpletear.sutoko.notification.sealed.Screen
 import com.purpletear.sutoko.notification.usecase.ObserveNotificationRequestUseCase
 import com.purpletear.sutoko.notification.usecase.SetCurrentScreenUseCase
@@ -92,7 +91,6 @@ import fr.purpletear.sutoko.screens.main.presentation.MainScreenPages
 import fr.purpletear.sutoko.screens.main.presentation.screens.MainScreen
 import fr.purpletear.sutoko.screens.params.SutokoParamsActivity
 import fr.purpletear.sutoko.screens.splashscreen.SplashScreen
-import fr.purpletear.sutoko.screens.web.WebActivity
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.update
@@ -166,7 +164,6 @@ class MainActivity @Inject constructor(
     override fun onDestroy() {
         // Remove all observers to prevent memory leaks
         viewModel.toast.removeObservers(this)
-        viewModel.navigateToNews.removeObservers(this)
         viewModel.saveSymbols.removeObservers(this)
         viewModel.navigateToShop.removeObservers(this)
 
@@ -521,20 +518,10 @@ class MainActivity @Inject constructor(
      * StoryPreviewActivity when the value changes:
      *  - navigateToCard : MutableLiveData<Card>
      *      Navigates to the StoryPreviewActivity with the card as an extra.
-     *  - navigateToNews : MutableLiveData<News>
-     *      Navigates to the WebActivity with the news as an extra.
      */
     private fun observers() {
 
         viewModel.toast.observe(this, toasterObserver)
-        val newsNavigationObserver = Observer<News> { news ->
-            news.link?.let {
-                val intent = WebActivity.Companion.require(this, it, null, SutokoAppParams())
-                this.startActivity(intent)
-            }
-        }
-
-        viewModel.navigateToNews.observe(this, newsNavigationObserver)
 
         // saveSymbols
         val saveSymbolsObserver = Observer<TableOfSymbols> { symbols ->

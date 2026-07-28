@@ -1,9 +1,0 @@
-<resources>
-    <string name="core_domain_date_relative_today">Hoy</string>
-    <string name="core_domain_date_relative_tomorrow">Mañana</string>
-    <string name="core_domain_date_relative_day_after_tomorrow">Pasado mañana</string>
-    <plurals name="core_domain_date_relative_in_days">
-        <item quantity="one">En %d día</item>
-        <item quantity="other">En %d días</item>
-    </plurals>
-</resources>

@@ -1,6 +1,5 @@
 package fr.purpletear.sutoko.screens.main.presentation.screens.home
 
-import android.util.Log
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
@@ -13,9 +12,6 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -25,13 +21,10 @@ import com.purpletear.core.presentation.extensions.Resource
 import com.purpletear.game.presentation.game_catalog.GameCard
 import com.purpletear.game.presentation.game_catalog.GameSquares
 import com.purpletear.sutoko.game.model.game.GameCatalog
-import com.purpletear.sutoko.news.model.News
 import com.purpletear.sutoko.shop.domain.repository.model.Balance
 import fr.purpletear.sutoko.screens.main.presentation.HomeScreenViewModel
 import fr.purpletear.sutoko.screens.main.presentation.MainScreenPages
 import fr.purpletear.sutoko.screens.main.presentation.screens.TopNavigation
-import fr.purpletear.sutoko.screens.main.presentation.screens.home.components.HeaderPager
-import kotlinx.coroutines.CancellationException
 
 /**
  * Home screen composable that displays the main content of the application.
@@ -52,22 +45,6 @@ fun HomeScreen(
 ) {
     val scrollState = rememberLazyListState()
     val systemUiController = rememberSystemUiController()
-    val news = viewModel.news.collectAsStateWithLifecycle()
-
-    // Collect navigation events with lifecycle awareness
-    val navEvent by viewModel.navEvents.collectAsStateWithLifecycle(initialValue = null)
-
-    LaunchedEffect(navEvent) {
-        navEvent?.let { route ->
-            try {
-                mainNavController.navigate(route)
-            } catch (e: CancellationException) {
-                throw e
-            } catch (e: Exception) {
-                Log.e("HomeScreen", "Error navigating to route: $route", e)
-            }
-        }
-    }
 
     // System UI settings
     LaunchedEffect(Unit) {
@@ -81,7 +58,6 @@ fun HomeScreen(
 
     HomeContent(
         scrollState = scrollState,
-        news = news.value,
         squareStories = viewModel.squareStories.value,
         fullStories = viewModel.fullStories.value,
         squareIcons = viewModel.squareIcons.value,
@@ -94,7 +70,6 @@ fun HomeScreen(
         onCoinsButtonPressed = onCoinsPressed,
         onDiamondsButtonPressed = onDiamondsPressed,
         onOptionsButtonPressed = onOptionsPressed,
-        onNewsPressed = { action -> viewModel.handleAppAction(action = action) },
         onSquareStoryTap = { card ->
             mainNavController.navigate(MainScreenPages.GamePreview.createRoute(card.id))
         },
@@ -111,7 +86,6 @@ fun HomeScreen(
 @Composable
 private fun HomeContent(
     scrollState: LazyListState,
-    news: List<News>,
     squareStories: List<GameCatalog>,
     fullStories: List<GameCatalog>,
     squareIcons: Map<Int, Int?>,
@@ -124,7 +98,6 @@ private fun HomeContent(
     onCoinsButtonPressed: () -> Unit,
     onDiamondsButtonPressed: () -> Unit,
     onOptionsButtonPressed: () -> Unit,
-    onNewsPressed: (com.purpletear.sutoko.core.domain.appaction.AppAction) -> Unit,
     onSquareStoryTap: (GameCatalog) -> Unit,
     onFullStoryTap: (GameCatalog) -> Unit,
     modifier: Modifier = Modifier
@@ -142,11 +115,6 @@ private fun HomeContent(
             onCoinsButtonPressed = onCoinsButtonPressed,
             onDiamondsButtonPressed = onDiamondsButtonPressed,
             onOptionsButtonPressed = onOptionsButtonPressed
-        )
-
-        newsSection(
-            news = news,
-            onNewsPressed = onNewsPressed
         )
 
         squareStoriesSection(
@@ -198,24 +166,6 @@ private fun LazyListScope.topNavigationSection(
             onCoinsButtonPressed = onCoinsButtonPressed,
             onDiamondsButtonPressed = onDiamondsButtonPressed,
             onOptionsButtonPressed = onOptionsButtonPressed
-        )
-    }
-}
-
-private fun LazyListScope.newsSection(
-    news: List<com.purpletear.sutoko.news.model.News>,
-    onNewsPressed: (com.purpletear.sutoko.core.domain.appaction.AppAction) -> Unit
-) {
-    if (news.isEmpty()) return
-
-    item(key = "news_pager") {
-        val initialPageState = rememberSaveable { mutableIntStateOf(0) }
-
-        HeaderPager(
-            news = news,
-            initialPage = initialPageState.intValue,
-            onNewsPressed = onNewsPressed,
-            onPageChanged = { initialPageState.intValue = it }
         )
     }
 }

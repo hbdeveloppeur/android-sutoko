@@ -35,7 +35,7 @@ import fr.purpletear.sutoko.R
 
 /**
  * Composable function for the splash screen.
- * Displays a loading indicator while fetching news and games.
+ * Displays a loading indicator while fetching games.
  * Navigates to the main screen when animations are finished and data is loaded.
  *
  * @param onNavigateToMain Callback to navigate to the main screen when loading is complete.
