@@ -44,10 +44,6 @@ private fun Preview() {
             Modifier.background(Color.Black),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Image(
-                painter = painterResource(id = R.drawable.ai_conversation_presentation_preview_form_input),
-                contentDescription = null,
-            )
             InputTextComposable(
                 Modifier.fillMaxWidth(0.92f),
                 label = "Name",

@@ -43,10 +43,6 @@ private fun Preview() {
             Modifier.background(Color.Black),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Image(
-                painter = painterResource(id = R.drawable.ai_conversation_presentation_preview_character),
-                contentDescription = null,
-            )
             PreviewCharacterComposable(
                 Modifier.fillMaxWidth(0.88f)
             )

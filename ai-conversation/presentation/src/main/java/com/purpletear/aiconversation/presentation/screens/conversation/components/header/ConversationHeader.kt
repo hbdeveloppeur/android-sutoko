@@ -86,10 +86,6 @@ private fun Preview() {
                 Modifier.background(Color.Black),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Image(
-                    painter = painterResource(id = R.drawable.ai_conversation_presentation_preview_chat_header),
-                    contentDescription = null,
-                )
                 Box(Modifier.padding(vertical = 12.dp)) {
                     val transitionState =
                         remember { mutableStateOf(SharedElementTransitionState()) }

@@ -40,10 +40,6 @@ private fun Preview() {
             Modifier.background(Color.Black),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Image(
-                painter = painterResource(id = R.drawable.ai_conversation_presentation_preview_page_title),
-                contentDescription = null,
-            )
             Box(Modifier.padding(vertical = 12.dp)) {
                 PageTitleComposable(
                     modifier = Modifier

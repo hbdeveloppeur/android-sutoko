@@ -32,10 +32,6 @@ private fun Preview() {
             Modifier.background(Color(0xFF161826)),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Image(
-                painter = painterResource(id = R.drawable.ai_conversation_presentation_preview_badge),
-                contentDescription = null,
-            )
 
             Row(
                 modifier = Modifier.padding(vertical = 12.dp, horizontal = 20.dp).fillMaxWidth(),

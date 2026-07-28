@@ -53,26 +53,14 @@ private fun Preview() {
             Modifier.background(Color.Black),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Image(
-                painter = painterResource(id = R.drawable.ai_conversation_presentation_preview_button),
-                contentDescription = null,
-            )
             ButtonComposable(
                 title = "Discuss with Eva",
                 subtitle = "Eva is the most beautiful",
                 theme = ButtonTheme.Pink(glow = true)
             )
-            Image(
-                painter = painterResource(id = R.drawable.ai_conversation_presentation_preview_button_buy),
-                contentDescription = null,
-            )
             ButtonComposable(
                 title = "Buy more messages",
                 theme = ButtonTheme.Maroon()
-            )
-            Image(
-                painter = painterResource(id = R.drawable.ai_conversation_presentation_preview_short_button),
-                contentDescription = null,
             )
             Box(
                 Modifier

@@ -45,10 +45,6 @@ private fun Preview() {
             Modifier.background(Color.Black),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Image(
-                painter = painterResource(id = R.drawable.ai_conversation_presentation_preview_image_action_card),
-                contentDescription = null,
-            )
             ImageActionCardComposable(
                 Modifier.fillMaxWidth(0.92f),
                 title = "Get coins\nand *play*",

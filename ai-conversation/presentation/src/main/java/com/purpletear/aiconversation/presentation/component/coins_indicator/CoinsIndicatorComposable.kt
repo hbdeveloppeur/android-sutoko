@@ -43,10 +43,6 @@ private fun Preview() {
                     .fillMaxWidth(),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Image(
-                    painter = painterResource(id = R.drawable.ai_conversation_presentation_preview_coins_indicator),
-                    contentDescription = null,
-                )
                 Box(
                     Modifier
                         .padding(vertical = 12.dp)

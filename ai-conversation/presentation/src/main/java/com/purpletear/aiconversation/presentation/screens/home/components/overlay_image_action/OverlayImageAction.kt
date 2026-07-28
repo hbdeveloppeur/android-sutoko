@@ -36,10 +36,6 @@ private fun Preview() {
             Modifier.background(Color.Black),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Image(
-                painter = painterResource(id = R.drawable.ai_conversation_presentation_preview_overlay_image_action),
-                contentDescription = null,
-            )
             OverlayImageAction(
                 modifier = Modifier
                     .fillMaxWidth(0.88f),

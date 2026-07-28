@@ -42,10 +42,6 @@ private fun Preview() {
             Modifier.background(Color.Black),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Image(
-                painter = painterResource(id = R.drawable.ai_conversation_presentation_preview_full_image_card),
-                contentDescription = null,
-            )
             Row(
                 Modifier
                     .fillMaxWidth(0.86f),

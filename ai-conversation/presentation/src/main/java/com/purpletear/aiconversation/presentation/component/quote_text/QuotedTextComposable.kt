@@ -36,10 +36,6 @@ private fun Preview() {
             Modifier.background(Color.Black),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Image(
-                painter = painterResource(id = R.drawable.ai_conversation_presentation_preview_quoted_text),
-                contentDescription = null,
-            )
             QuotedTextComposable(
                 modifier = Modifier.fillMaxWidth(0.92f),
                 quote = "Anything is possible as long as it's not vulgar, immoral or dangerous."

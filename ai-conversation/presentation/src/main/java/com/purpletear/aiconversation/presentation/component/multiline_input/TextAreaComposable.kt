@@ -43,10 +43,6 @@ private fun Preview() {
             Modifier.background(Color.Black),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Image(
-                painter = painterResource(id = R.drawable.ai_conversation_presentation_preview_description_textarea),
-                contentDescription = null,
-            )
             TextAreaComposable(
                 text = "",
                 modifier = Modifier

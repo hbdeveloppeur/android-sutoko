@@ -55,10 +55,6 @@ import kotlin.math.ceil
 private fun Preview() {
     AiConversationTheme {
         Column(Modifier.background(Color.Black)) {
-            Image(
-                painter = painterResource(id = R.drawable.ai_conversation_presentation_preview_characters_grid),
-                contentDescription = null,
-            )
             CharacterSlider(elementSize = 60.dp, items = emptyList(), onClickNewElement = {})
             CharactersGrid(
                 modifier = Modifier.padding(20.dp),

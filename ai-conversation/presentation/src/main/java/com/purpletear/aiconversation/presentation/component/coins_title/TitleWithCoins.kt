@@ -41,10 +41,6 @@ private fun Preview() {
                 Modifier.background(Color.Black),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Image(
-                    painter = painterResource(id = R.drawable.ai_conversation_presentation_preview_image_title_with_coins),
-                    contentDescription = null,
-                )
                 Box(Modifier.padding(vertical = 12.dp)) {
                     TitleWithCoins(
                         modifier = Modifier

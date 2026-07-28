@@ -50,10 +50,6 @@ private fun Preview() {
                     .background(Color.Black),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Image(
-                    painter = painterResource(id = R.drawable.ai_conversation_presentation_preview_tool_button),
-                    contentDescription = null,
-                )
                 Box(
                     Modifier
                         .height(48.dp)
