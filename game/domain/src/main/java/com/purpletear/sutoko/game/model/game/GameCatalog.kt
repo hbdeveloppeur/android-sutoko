@@ -22,7 +22,7 @@ data class GameCatalog(
     val legacyId: Int? = null,
     val isOfficial: Boolean = false,
     val userNickNameRequired: Boolean = false,
-    val minAppBuild: Int,
+    val canvasTechnologyRequiredVersion: Int,
     val narrativeThemes: List<NarrativeTheme> = emptyList(),
     val isOnline: Boolean = true,
 )

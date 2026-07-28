@@ -1,5 +1,6 @@
 package com.purpletear.game.presentation.model
 
+import com.purpletear.sutoko.game.BuildConfig
 import com.purpletear.sutoko.game.model.Chapter
 
 /**
@@ -28,6 +29,7 @@ sealed class GameActionState {
         val isLoading: Boolean = false,
         val price: Int = 0,
     ) : GameActionState()
+
     data object GameFinished : GameActionState()
     data object Pending : GameActionState()
     data class Play(
@@ -44,7 +46,6 @@ fun GameItem.toGameActionState(
     isPurchasing: Boolean = false,
     isPurchaseLoading: Boolean = false,
     currentChapter: Chapter?,
-    appBuildNumber: Int,
     isGameFinished: Boolean = false,
     isUserConnected: Boolean = false,
 ): GameActionState = when {
@@ -52,6 +53,7 @@ fun GameItem.toGameActionState(
         isLoading = isPurchaseLoading,
         price = price,
     )
+
     isPending -> GameActionState.Pending
     downloadProgress != null -> GameActionState.Downloading(downloadProgress)
     !isFree && !isPurchased -> GameActionState.Purchase(
@@ -61,9 +63,9 @@ fun GameItem.toGameActionState(
         isUserConnected = isUserConnected,
     )
 
+    canvasTechnologyRequiredVersion > BuildConfig.CANVAS_VERSION_COMPATIBILITY -> GameActionState.UpdateApp
     localVersion == null -> GameActionState.Download
     localVersion != version -> GameActionState.UpdateGame
-    appBuildNumber < minAppBuild -> GameActionState.UpdateApp
     isGameFinished -> GameActionState.GameFinished
     else -> GameActionState.Play(
         chapterNumber = currentChapter?.number ?: -1,

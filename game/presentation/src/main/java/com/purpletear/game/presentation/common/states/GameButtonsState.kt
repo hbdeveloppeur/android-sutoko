@@ -56,7 +56,10 @@ internal fun GameActionState?.toButtonsState(
         right = primaryRightButton(
             onAction = onAction,
             title = StringResource(R.string.game_presentation_game_menu_play),
-            subtitle = StringResource(R.string.game_presentation_game_menu_chapter_number, chapterNumber),
+            subtitle = StringResource(
+                R.string.game_presentation_game_menu_chapter_number,
+                chapterNumber
+            ),
             action = GamePreviewAction.OnPlay,
             // The ViewModel gates availability with a toast; keep the button
             // fully visible once a chapter is loaded (chapterNumber <= 0 means
@@ -82,7 +85,7 @@ internal fun GameActionState?.toButtonsState(
             title = StringResource(R.string.game_presentation_game_menu_play),
             subtitle = StringResource(R.string.game_presentation_game_menu_app_update_required),
             action = GamePreviewAction.OnUpdateApp,
-            isEnabled = false,
+            isEnabled = true,
         ),
     )
 
@@ -127,7 +130,10 @@ internal fun GameActionState?.toButtonsState(
         right = ButtonUiState(
             weight = 1f,
             title = StringResource(R.string.game_presentation_game_menu_downloading),
-            subtitle = StringResource(R.string.game_presentation_game_menu_download_progress_percent, progress.toInt()),
+            subtitle = StringResource(
+                R.string.game_presentation_game_menu_download_progress_percent,
+                progress.toInt()
+            ),
             backgroundColor = InfoBlue,
         ),
     )

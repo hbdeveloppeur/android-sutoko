@@ -29,7 +29,7 @@ data class GameDto(
     @SerializedName("legacyId") val legacyId: Int?,
     @SerializedName("official") val official: Boolean?,
     @SerializedName("userNickNameRequired") val userNickNameRequired: Boolean?,
-    @SerializedName("minAppBuildAndroid") val minAppBuild: Int,
+    @SerializedName("canvasTechnologyRequiredVersion") val canvasTechnologyRequiredVersion: Int = 1,
     @SerializedName("narrativeThemes") val narrativeThemes: List<NarrativeThemeDto>? = null,
 )
 
@@ -54,7 +54,7 @@ fun GameDto.toDomain(): GameCatalogEntity {
         legacyId = legacyId,
         isOfficial = official ?: false,
         userNickNameRequired = userNickNameRequired ?: false,
-        minAppBuild = minAppBuild,
+        canvasTechnologyRequiredVersion = canvasTechnologyRequiredVersion,
         narrativeThemes = narrativeThemes?.map { it.toDomain() }.orEmpty(),
     )
 }

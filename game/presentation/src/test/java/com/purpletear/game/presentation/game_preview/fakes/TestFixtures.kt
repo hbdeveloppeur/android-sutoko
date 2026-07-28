@@ -8,7 +8,6 @@ import com.purpletear.sutoko.game.model.game.GameMetadata
 object TestFixtures {
     const val GAME_ID = "game-1"
     const val LEGACY_ID = 42
-    const val APP_BUILD_NUMBER = 100
 
     fun gameCatalog(
         id: String = GAME_ID,
@@ -16,7 +15,7 @@ object TestFixtures {
         price: Int = 0,
         skus: List<String> = emptyList(),
         userNickNameRequired: Boolean = false,
-        minAppBuild: Int = 1,
+        canvasTechnologyRequiredVersion: Int = 1,
         isOfficial: Boolean = true,
         legacyId: Int? = LEGACY_ID,
     ): GameCatalog = GameCatalog(
@@ -27,7 +26,7 @@ object TestFixtures {
         metadata = GameMetadata(title = "Test Game", description = "A test game"),
         legacyId = legacyId,
         userNickNameRequired = userNickNameRequired,
-        minAppBuild = minAppBuild,
+        canvasTechnologyRequiredVersion = canvasTechnologyRequiredVersion,
         isOfficial = isOfficial,
         banner = asset(storagePath = "banner/$id"),
         logo = asset(storagePath = "logo/$id"),

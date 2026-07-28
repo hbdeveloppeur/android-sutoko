@@ -49,7 +49,7 @@
     <string name="game_presentation_game_menu_chapter_number">Chapitre %1$d</string>
     <string name="game_presentation_game_menu_restart">Recommencer</string>
     <string name="game_presentation_game_menu_game_finished">Jeu terminé</string>
-    <string name="game_presentation_game_menu_app_update_required">Mise à jour de l\'application requise</string>
+    <string name="game_presentation_game_menu_app_update_required">Mise à jour de Sutoko requise</string>
     <string name="game_presentation_game_menu_update_game">Mettre à jour le jeu</string>
     <string name="game_presentation_game_menu_game_update_required">Mise à jour du jeu requise</string>
     <string name="game_presentation_game_menu_confirm_order">Confirmer la commande</string>
@@ -178,7 +178,7 @@
     <!-- Session errors -->
     <string name="game_presentation_error_game_not_found">Jeu introuvable</string>
     <string name="game_presentation_error_game_not_installed">Jeu non installé</string>
-    <string name="game_presentation_error_game_update_required">Mise à jour de l\'application requise</string>
+    <string name="game_presentation_error_game_update_required">Mise à jour de Sutoko requise</string>
     <string name="game_presentation_error_chapter_unavailable">Chapitre pas encore publié</string>
     <string name="game_presentation_error_chapter_not_found">Aucun chapitre disponible trouvé</string>
     <string name="game_presentation_error_no_chapters_found">Aucun chapitre disponible</string>

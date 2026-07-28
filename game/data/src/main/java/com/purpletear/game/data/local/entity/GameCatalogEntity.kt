@@ -29,7 +29,7 @@ data class GameCatalogEntity(
     val legacyId: Int? = null,
     val isOfficial: Boolean = false,
     val userNickNameRequired: Boolean = false,
-    val minAppBuild: Int = 1,
+    val canvasTechnologyRequiredVersion: Int = 1,
     val narrativeThemes: List<NarrativeTheme> = emptyList(),
 )
 
@@ -51,6 +51,6 @@ fun GameCatalogEntity.toDomain(): GameCatalog = GameCatalog(
     legacyId = legacyId,
     isOfficial = isOfficial,
     userNickNameRequired = userNickNameRequired,
-    minAppBuild = minAppBuild,
+    canvasTechnologyRequiredVersion = canvasTechnologyRequiredVersion,
     narrativeThemes = narrativeThemes,
 )

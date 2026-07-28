@@ -11,7 +11,6 @@ import com.purpletear.game.presentation.game_preview.events.GamePreviewEvent
 import com.purpletear.game.presentation.game_preview.handlers.GamePreviewPurchaseHandler
 import com.purpletear.game.presentation.model.GameItem
 import com.purpletear.game.presentation.model.GameUiError
-import com.purpletear.sutoko.core.domain.helper.AppVersionProvider
 import com.purpletear.sutoko.core.domain.logger.Logger
 import com.purpletear.sutoko.core.domain.logger.exception
 import com.purpletear.sutoko.domain.repository.UserRepository
@@ -71,7 +70,6 @@ class GamePreviewViewModel @Inject constructor(
     private val userRoleRepository: UserRoleRepository,
     private val entitlementRepository: EntitlementRepository,
     private val logger: Logger,
-    appVersionProvider: AppVersionProvider,
 ) : ViewModel() {
 
     private val gameId: String =
@@ -80,8 +78,6 @@ class GamePreviewViewModel @Inject constructor(
     init {
         GamePreviewLogger.i("LIFE") { "GamePreviewViewModel created for gameId=$gameId" }
     }
-
-    val appBuildNumber: Int = appVersionProvider.getVersionCode()
 
     /**
      * Bump to re-collect the current chapter. Friendzoned games persist their

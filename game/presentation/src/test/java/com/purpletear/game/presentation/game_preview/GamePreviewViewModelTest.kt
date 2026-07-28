@@ -4,7 +4,6 @@ import androidx.lifecycle.SavedStateHandle
 import app.cash.turbine.test
 import com.purpletear.game.presentation.R
 import com.purpletear.game.presentation.game_preview.events.GamePreviewEvent
-import com.purpletear.game.presentation.game_preview.fakes.FakeAppVersionProvider
 import com.purpletear.game.presentation.game_preview.fakes.FakeChapterRepository
 import com.purpletear.game.presentation.game_preview.fakes.FakeFavoriteGamesRepository
 import com.purpletear.game.presentation.game_preview.fakes.FakeFriendzonedProgressRepository
@@ -63,7 +62,6 @@ class GamePreviewViewModelTest {
     private val memoryRepository = FakeMemoryRepository()
     private val friendzonedProgressRepository = FakeFriendzonedProgressRepository()
     private val logger = FakeLogger()
-    private val appVersionProvider = FakeAppVersionProvider(TestFixtures.APP_BUILD_NUMBER)
     private val toastService = FakeToastService()
     private val buyStoryWithCoinsUseCase = FakeBuyStoryWithCoinsUseCase()
     private val purchaseHandler = GamePreviewPurchaseHandler(buyStoryWithCoinsUseCase)
@@ -123,7 +121,6 @@ class GamePreviewViewModelTest {
             userRoleRepository = userRoleRepository,
             entitlementRepository = entitlementRepository,
             logger = logger,
-            appVersionProvider = appVersionProvider,
         )
     }
 

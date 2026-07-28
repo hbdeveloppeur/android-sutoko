@@ -178,7 +178,7 @@
     <!-- Session errors -->
     <string name="game_presentation_error_game_not_found">Game not found</string>
     <string name="game_presentation_error_game_not_installed">Game not installed</string>
-    <string name="game_presentation_error_game_update_required">App update required</string>
+    <string name="game_presentation_error_game_update_required">Sutoko update required</string>
     <string name="game_presentation_error_chapter_unavailable">Chapter not yet released</string>
     <string name="game_presentation_error_chapter_not_found">No available chapter found</string>
     <string name="game_presentation_error_no_chapters_found">No chapters available</string>

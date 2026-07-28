@@ -1,6 +1,7 @@
 package com.purpletear.game.presentation.model
 
 import com.purpletear.sutoko.game.model.Chapter
+import com.purpletear.sutoko.game.BuildConfig
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -16,6 +17,7 @@ class GameActionStateTest {
         downloadProgress: Float? = null,
         price: Int = if (isFree) 0 else 100,
         isUserConnected: Boolean = false,
+        canvasTechnologyRequiredVersion: Int = BuildConfig.CANVAS_VERSION_COMPATIBILITY,
     ): GameItem = GameItem(
         id = "game-1",
         title = "Test",
@@ -25,20 +27,87 @@ class GameActionStateTest {
         downloadProgress = downloadProgress,
         isFree = isFree,
         legacyId = legacyId,
-        minAppBuild = 1,
+        canvasTechnologyRequiredVersion = canvasTechnologyRequiredVersion,
         price = price,
     )
 
     private fun state(
         item: GameItem,
         currentChapter: Chapter? = Chapter(number = 1, code = "1A"),
-        appBuildNumber: Int = 100,
         isUserConnected: Boolean = false,
     ): GameActionState = item.toGameActionState(
         currentChapter = currentChapter,
-        appBuildNumber = appBuildNumber,
         isUserConnected = isUserConnected,
     )
+
+    @Test
+    fun `story requires newer canvas technology - UpdateApp`() {
+        val result = state(
+            item(
+                isFree = true,
+                localVersion = 1,
+                version = 1,
+                canvasTechnologyRequiredVersion = BuildConfig.CANVAS_VERSION_COMPATIBILITY + 1,
+            )
+        )
+        assertEquals(GameActionState.UpdateApp, result)
+    }
+
+    @Test
+    fun `unpurchased story requiring newer canvas technology - Purchase not UpdateApp`() {
+        // Ownership wins over the compatibility gate: the user buys first and
+        // the update wall appears right after purchase, before any download.
+        val result = state(
+            item(
+                isFree = false,
+                isPurchased = false,
+                canvasTechnologyRequiredVersion = BuildConfig.CANVAS_VERSION_COMPATIBILITY + 1,
+            )
+        )
+        assertTrue(result is GameActionState.Purchase)
+    }
+
+    @Test
+    fun `purchased story requiring newer canvas technology - UpdateApp not Download`() {
+        // Once owned, the compatibility gate blocks content operations: no point
+        // downloading a story this app's canvas engine cannot run.
+        val result = state(
+            item(
+                isFree = false,
+                isPurchased = true,
+                localVersion = null,
+                canvasTechnologyRequiredVersion = BuildConfig.CANVAS_VERSION_COMPATIBILITY + 1,
+            )
+        )
+        assertEquals(GameActionState.UpdateApp, result)
+    }
+
+    @Test
+    fun `outdated story requiring newer canvas technology - UpdateApp not UpdateGame`() {
+        // Downloading the newer story would not help: the fix is an app update.
+        val result = state(
+            item(
+                isFree = true,
+                localVersion = 1,
+                version = 2,
+                canvasTechnologyRequiredVersion = BuildConfig.CANVAS_VERSION_COMPATIBILITY + 1,
+            )
+        )
+        assertEquals(GameActionState.UpdateApp, result)
+    }
+
+    @Test
+    fun `story requires current canvas technology - Play`() {
+        val result = state(
+            item(
+                isFree = true,
+                localVersion = 1,
+                version = 1,
+                canvasTechnologyRequiredVersion = BuildConfig.CANVAS_VERSION_COMPATIBILITY,
+            )
+        )
+        assertTrue(result is GameActionState.Play)
+    }
 
     @Test
     fun `free and not installed - Download`() {

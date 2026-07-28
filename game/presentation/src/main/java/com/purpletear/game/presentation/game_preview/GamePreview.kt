@@ -126,7 +126,6 @@ fun GamePreview(
     val isPurchaseLoading by viewModel.isPurchaseLoading.collectAsStateWithLifecycle()
     val isRefreshing by viewModel.isRefreshing.collectAsStateWithLifecycle()
     val releasedChaptersCount by viewModel.releasedChaptersCount.collectAsStateWithLifecycle()
-    val appBuildNumber = viewModel.appBuildNumber
 
     val showVideo = rememberShowVideoAfterNavigation()
 
@@ -479,7 +478,6 @@ fun GamePreview(
                                 isPurchasing = isPurchasing,
                                 isPurchaseLoading = isPurchaseLoading,
                                 currentChapter = currentChapter,
-                                appBuildNumber = appBuildNumber,
                                 isUserConnected = isUserConnected,
                             )
 

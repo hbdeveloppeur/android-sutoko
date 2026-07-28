@@ -14,6 +14,12 @@ android {
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles("consumer-rules.pro")
+
+        buildConfigField(
+            "int",
+            "CANVAS_VERSION_COMPATIBILITY",
+            project.findProperty("canvasVersionCompatibility") as? String ?: "1"
+        )
     }
 
     buildTypes {
