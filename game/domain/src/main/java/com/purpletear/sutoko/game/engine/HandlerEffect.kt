@@ -172,6 +172,22 @@ sealed class HandlerEffect {
     ) : HandlerEffect()
 
     /**
+     * Show a decorative, non-clickable fake system notification overlay.
+     * The presentation layer displays it for [durationMs], animates it out,
+     * then clears it. [imageUrl] is the resolved authored image; presentation
+     * may prefer the [characterId] avatar when loaded.
+     */
+    @Keep
+    data class ShowFakeNotification(
+        val title: String,
+        val subtitle: String,
+        val actionText: String,
+        val imageUrl: String?,
+        val characterId: Int?,
+        val durationMs: Long
+    ) : HandlerEffect()
+
+    /**
      * Signals the end of the story/game.
      */
     data object StoryFinished : HandlerEffect()

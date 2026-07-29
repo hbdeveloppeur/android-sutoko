@@ -3,7 +3,7 @@ package com.purpletear.game.debug
 object SmsGameDebugNodeJumps {
 
     private val chapterCodeToNodeId: Map<String, String> = mapOf(
-        "9a" to "fxba4BVO3ul-9A-346",
+        "1a" to "WMPmUkArG6d-1A-191",
     )
 
     fun getNodeId(chapterCode: String): String? =

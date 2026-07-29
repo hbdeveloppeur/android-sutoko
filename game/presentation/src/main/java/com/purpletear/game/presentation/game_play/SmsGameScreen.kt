@@ -23,6 +23,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -34,6 +35,7 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import com.purpletear.game.presentation.game_play.components.FakeNotificationOverlay
 import com.purpletear.game.presentation.game_play.components.choices_box.ChoicesBox
 import com.purpletear.game.presentation.game_play.components.choices_box.MakeAChoiceButton
 import com.purpletear.game.presentation.game_play.components.image_viewer.ImageViewerOverlay
@@ -71,6 +73,7 @@ internal fun SmsGameScreen(
     onHideChoicesClicked: () -> Unit = {},
     onMangaPageDismissed: () -> Unit = {},
     onToggleChoicesDarkMode: () -> Unit = {},
+    onFakeNotificationDismissed: () -> Unit = {},
 ) {
     var viewerState by remember { mutableStateOf(ImageViewerState()) }
     var mangaState by remember { mutableStateOf(MangaViewerState()) }
@@ -202,6 +205,15 @@ internal fun SmsGameScreen(
                 onMangaPageDismissed()
             },
         )
+
+        state.fakeNotification?.let { notification ->
+            key(notification) {
+                FakeNotificationOverlay(
+                    notification = notification,
+                    onDismissed = onFakeNotificationDismissed,
+                )
+            }
+        }
 
         AnimatedVisibility(
             visible = state.isLoadingStoryUpdates,

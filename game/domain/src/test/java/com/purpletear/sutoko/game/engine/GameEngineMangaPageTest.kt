@@ -6,6 +6,7 @@ import com.purpletear.sutoko.game.engine.handlers.CodeNodeHandler
 import com.purpletear.sutoko.game.engine.handlers.ConditionNodeHandler
 import com.purpletear.sutoko.game.engine.handlers.ConversationModeChangeNodeHandler
 import com.purpletear.sutoko.game.engine.handlers.EndNodeHandler
+import com.purpletear.sutoko.game.engine.handlers.FakeNotificationNodeHandler
 import com.purpletear.sutoko.game.engine.handlers.InfoNodeHandler
 import com.purpletear.sutoko.game.engine.handlers.IntroSentenceNodeHandler
 import com.purpletear.sutoko.game.engine.handlers.MangaPageNodeHandler
@@ -203,7 +204,8 @@ class GameEngineMangaPageTest {
                 soundHandler = SoundNodeHandler(),
                 messageVocalHandler = MessageVocalNodeHandler(),
                 codeHandler = CodeNodeHandler(),
-                introSentenceHandler = IntroSentenceNodeHandler()
+                introSentenceHandler = IntroSentenceNodeHandler(),
+                fakeNotificationHandler = FakeNotificationNodeHandler()
             ),
             nodeResolver = nodeResolver,
             memory = memory,

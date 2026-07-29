@@ -644,5 +644,6 @@ class GameEngine @Inject constructor(
         is Node.MessageVocal -> handlerFactory.getHandler(NodeType.MESSAGE_VOCAL)
         is Node.Code -> handlerFactory.getHandler(NodeType.CODE)
         is Node.IntroSentence -> handlerFactory.getHandler(NodeType.INTRO_SENTENCE)
+        is Node.FakeNotification -> handlerFactory.getHandler(NodeType.FAKE_NOTIFICATION)
     }
 }

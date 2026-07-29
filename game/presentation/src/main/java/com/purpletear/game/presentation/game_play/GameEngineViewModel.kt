@@ -11,6 +11,7 @@ import com.purpletear.core.presentation.services.MakeToastService
 import com.purpletear.game.debug.SmsGameDebugNodeJumps
 import com.purpletear.game.presentation.BuildConfig
 import com.purpletear.game.presentation.R
+import com.purpletear.game.presentation.game_play.state.FakeNotificationUi
 import com.purpletear.game.presentation.game_play.state.GameUiState
 import com.purpletear.sutoko.core.domain.logger.Logger
 import com.purpletear.sutoko.core.domain.logger.exception
@@ -369,6 +370,8 @@ class GameEngineViewModel @Inject constructor(
 
             is HandlerEffect.EnterCinematic -> enterCinematic(effect)
 
+            is HandlerEffect.ShowFakeNotification -> handleShowFakeNotification(effect)
+
             else -> {
                 Log.d("GameEngine", "Received effect: ${effect::class.simpleName}")
             }
@@ -525,6 +528,32 @@ class GameEngineViewModel @Inject constructor(
         soundPlayer?.stop()
         soundPlayer?.release()
         soundPlayer = null
+    }
+
+    private fun handleShowFakeNotification(effect: HandlerEffect.ShowFakeNotification) {
+        val avatarPath = effect.characterId
+            ?.let { _uiState.value.characters[it]?.avatar }
+            ?: effect.imageUrl
+        updateState {
+            it.copy(
+                fakeNotification = FakeNotificationUi(
+                    title = effect.title,
+                    subtitle = effect.subtitle,
+                    actionText = effect.actionText,
+                    avatarPath = avatarPath,
+                    durationMs = effect.durationMs
+                )
+            )
+        }
+    }
+
+    /**
+     * Called when the fake notification overlay has finished its exit animation.
+     * The notification is decorative: the engine resumes on its own timing, this only
+     * clears the UI state.
+     */
+    fun onFakeNotificationDismissed() {
+        updateState { it.copy(fakeNotification = null) }
     }
 
     private fun handleChangeScene(effect: HandlerEffect.ChangeScene) {

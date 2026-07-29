@@ -51,6 +51,14 @@ data class NodeDataDto(
     val alignment: String? = null,
     val delay: Long? = null,
     val duration: Long? = null,
+    val title: String? = null,
+    val subtitle: String? = null,
+    @SerializedName("actionText")
+    val actionText: String? = null,
+    @SerializedName("imageName")
+    val imageName: String? = null,
+    @SerializedName("isAutoTiming")
+    val isAutoTiming: Boolean? = null,
     @SerializedName("backgroundColor")
     val backgroundColor: String? = null,
     @SerializedName("foregroundColor")

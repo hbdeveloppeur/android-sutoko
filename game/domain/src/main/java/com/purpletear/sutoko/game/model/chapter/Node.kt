@@ -158,6 +158,27 @@ sealed class Node {
         val delayMs: Long = 0,
         val durationMs: Long = 0,
     ) : Node()
+
+    /**
+     * A decorative fake system notification: shows a non-clickable notification card
+     * ([title], [subtitle], [actionText], avatar) over a dimmed scrim, then auto-dismisses.
+     * [delayMs] is the pre-show delay and [durationMs] the on-screen time (mapped from
+     * authored `delay`/`duration`). [imageUrl] is resolved from the authored `imageName`;
+     * presentation may prefer the [characterId] avatar when available.
+     */
+    @Keep
+    data class FakeNotification(
+        override val id: String,
+        val title: String,
+        val subtitle: String,
+        val actionText: String,
+        val imageUrl: String?,
+        val characterId: Int?,
+        val delayMs: Long = 0,
+        val durationMs: Long = 0,
+        val isAutoTiming: Boolean = true,
+        val isHesitating: Boolean = false,
+    ) : Node()
 }
 
 @Keep

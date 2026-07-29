@@ -36,4 +36,18 @@ data class GameUiState(
     val isCinematicActive: Boolean = false,
     val isMangaActive: Boolean = false,
     val isChoicesDarkMode: Boolean = true,
+    val fakeNotification: FakeNotificationUi? = null,
+)
+
+/**
+ * Ephemeral, non-clickable fake system notification displayed over the conversation.
+ * [avatarPath] prefers the character avatar when loaded, falling back to the authored image.
+ */
+@Keep
+data class FakeNotificationUi(
+    val title: String,
+    val subtitle: String,
+    val actionText: String,
+    val avatarPath: String?,
+    val durationMs: Long,
 )

@@ -24,5 +24,6 @@ enum class NodeType {
     SOUND,
     MESSAGE_VOCAL,
     CODE,
-    INTRO_SENTENCE
+    INTRO_SENTENCE,
+    FAKE_NOTIFICATION
 }
