@@ -221,19 +221,23 @@ object ChapterGraphParser {
 
             "manga-page" -> parseMangaPage(dto, data, gameId, legacyId, pathProvider)
 
-            "fake-notification" -> Node.FakeNotification(
-                id = dto.id,
-                title = data?.title?.trim().orEmpty(),
-                subtitle = data?.subtitle?.trim().orEmpty(),
-                actionText = data?.actionText?.trim().orEmpty(),
-                imageUrl = data?.imageName?.trim()?.takeIf { it.isNotEmpty() }
-                    ?.let { resolveImagePath(it, gameId, legacyId, pathProvider) },
-                characterId = data?.characterId,
-                delayMs = data?.delay ?: 0,
-                durationMs = data?.duration ?: 0,
-                isAutoTiming = data?.isAutoTiming ?: true,
-                isHesitating = data?.isHesitating ?: false,
-            )
+            "fake-notification" -> {
+                val imagePath = data?.storagePath ?: data?.image
+                require(imagePath != null) { "message-notification node ${dto.id} missing storagePath or image" }
+
+                Node.FakeNotification(
+                    id = dto.id,
+                    title = data?.title?.trim().orEmpty(),
+                    subtitle = data?.subtitle?.trim().orEmpty(),
+                    actionText = data?.actionText?.trim().orEmpty(),
+                    imageUrl = resolveImagePath(imagePath, gameId, legacyId, pathProvider),
+                    characterId = data?.characterId,
+                    delayMs = data?.delay ?: 0,
+                    durationMs = data?.duration ?: 0,
+                    isAutoTiming = data?.isAutoTiming ?: true,
+                    isHesitating = data?.isHesitating ?: false,
+                )
+            }
 
             else -> null
         }

@@ -531,9 +531,8 @@ class GameEngineViewModel @Inject constructor(
     }
 
     private fun handleShowFakeNotification(effect: HandlerEffect.ShowFakeNotification) {
-        val avatarPath = effect.characterId
-            ?.let { _uiState.value.characters[it]?.avatar }
-            ?: effect.imageUrl
+        val avatarPath = effect.imageUrl
+            ?: effect.characterId?.let { _uiState.value.characters[it]?.avatar }
         updateState {
             it.copy(
                 fakeNotification = FakeNotificationUi(

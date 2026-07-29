@@ -3,10 +3,12 @@ You will have to create a git branch if the current branch is main for that work
 it.
 task - you can compact your context between each task.
 If necessary you are allowed to do any commands like curls, install script, etc
+You are an UX/UI designer, analyse, criticize, fix, subtile, clean-
+Task 1: Some user complains that playing GameEngine goes too fast, some
+users says "no, it's perfect"-So we want to add a feature:If the user hold their finger down
+GameEngine pauses.
+You can improve the idea if you want or just implement it, letsgo.
 
-Task:
-One user is complaining that when he start the app, sometime the screen stays black and doesn't
-reach HomeScreen:
-You are going to make an automatic loop script that will start 100 times the app in release mode on
-the connected device and to see if it reaches HomeScreen.
-Make a plan
+Task 2: when a message appears, it appears with the scroll animation a bit too fast creating an
+unpleasant/stressing effect.
+At least it could appear in smooth fade once only?
