@@ -12,7 +12,11 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
@@ -82,7 +86,7 @@ fun HomeScreen(
 /**
  * Stateless HomeContent composable for better testability and preview support.
  */
-@OptIn(ExperimentalFoundationApi::class)
+@OptIn(ExperimentalFoundationApi::class, ExperimentalComposeUiApi::class)
 @Composable
 private fun HomeContent(
     scrollState: LazyListState,
@@ -105,6 +109,8 @@ private fun HomeContent(
     LazyColumn(
         state = scrollState,
         modifier = modifier
+            .semantics { testTagsAsResourceId = true }
+            .testTag("home_screen")
             .statusBarsPadding()
     ) {
         topNavigationSection(
