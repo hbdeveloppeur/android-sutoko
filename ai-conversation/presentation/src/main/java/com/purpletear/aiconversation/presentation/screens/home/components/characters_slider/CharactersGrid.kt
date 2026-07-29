@@ -1,5 +1,7 @@
 package com.purpletear.aiconversation.presentation.screens.home.components.characters_slider
 
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -103,8 +105,14 @@ internal fun CharacterSlider(
         }
 
         Spacer(modifier = Modifier.width(12.dp - spacedBy * 2))
-        items.forEach { item ->
+        items.forEachIndexed { index, item ->
+            val alpha = remember { Animatable(0f) }
+            LaunchedEffect(Unit) {
+                delay(index * 50L)
+                alpha.animateTo(1f, animationSpec = tween(durationMillis = 300))
+            }
             ButtonSelectCharacter(
+                modifier = Modifier.alpha(alpha.value),
                 url = item.url,
                 isSelected = item.isSelected,
                 onClick = {
