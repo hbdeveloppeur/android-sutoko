@@ -4,8 +4,5 @@ it.
 task - you can compact your context between each task.
 If necessary you are allowed to do any commands like curls, install script, etc
 
-Task [DONE - branch fix/character-slider-fade-in]: You are an UX/UI designer - Go to Ai Friend tab,
-the characters avatars composables in CharacterSlider must appear in fade in, it's not the case for
-the moment and it creates a unpleasant effect.
--> Fixed: each avatar in CharacterSlider now fades in (300ms, 50ms stagger per item) via an
-Animatable alpha. Debug build :ai-conversation:presentation:assembleDebug --no-build-cache passed.
+Task [DONE - branch fix/create-page-stories-list-smoothness]: You are an UX/UI designer - Go to Create page.
+When the list of "My publish stories" get filled it creates an unpleasant effect; not smooth.

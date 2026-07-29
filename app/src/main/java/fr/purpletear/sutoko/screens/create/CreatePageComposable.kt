@@ -104,10 +104,12 @@ internal fun CreatePageComposable(
                 }
 
                 if (isConnected.value && myStories.value.isNotEmpty()) {
-                    item {
+                    item(key = "my_stories_title") {
                         SectionTitle(
                             text = stringResource(R.string.create_page_section_title_my_stories),
-                            modifier = Modifier.padding(top = 16.dp, bottom = 16.dp)
+                            modifier = Modifier
+                                .animateItem()
+                                .padding(top = 16.dp, bottom = 16.dp)
                         )
                     }
 
@@ -115,11 +117,15 @@ internal fun CreatePageComposable(
                         if (isMyStoriesExpanded) myStories.value else myStories.value.take(3)
 
                     items(
-                        count = displayedMyStories.size
+                        count = displayedMyStories.size,
+                        key = { index -> "my_story_${displayedMyStories[index].id}" },
+                        contentType = { "game_card" },
                     ) { index ->
                         val game = displayedMyStories[index]
                         GameCardCompact(
-                            modifier = Modifier.padding(top = 16.dp),
+                            modifier = Modifier
+                                .animateItem()
+                                .padding(top = 16.dp),
                             game = game,
                             isOpenEnabled = game.isOnline,
                             onOpenClick = {
@@ -137,8 +143,8 @@ internal fun CreatePageComposable(
                     }
 
                     if (myStories.value.size > 3 && !isMyStoriesExpanded) {
-                        item {
-                            Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
+                        item(key = "my_stories_load_more") {
+                            Box(Modifier.fillMaxWidth().animateItem(), contentAlignment = Alignment.Center) {
                                 LoadMoreButton(
                                     onClick = { isMyStoriesExpanded = true },
                                     isLoading = false,
@@ -149,27 +155,31 @@ internal fun CreatePageComposable(
                     }
                 }
 
-                item {
+                item(key = "community_title") {
                     SectionTitle(
                         text = stringResource(R.string.create_page_section_title_community),
-                        modifier = Modifier.padding(top = 16.dp, bottom = 16.dp)
+                        modifier = Modifier
+                            .animateItem()
+                            .padding(top = 16.dp, bottom = 16.dp)
                     )
                 }
 
-                item {
+                item(key = "create_story_button") {
                     CreateStoryButton(
                         text = stringResource(R.string.create_page_button_create_story),
                         variant = CreateStoryButtonVariant.Violet,
                         onClick = onCreateStoryPressed,
                         modifier = Modifier
+                            .animateItem()
                             .padding(horizontal = 16.dp)
                             .padding(top = 16.dp)
                     )
                 }
 
-                item {
+                item(key = "search_box") {
                     SearchBox(
                         modifier = Modifier
+                            .animateItem()
                             .padding(horizontal = 16.dp)
                             .padding(top = 16.dp),
                         onSearch = { query ->
@@ -182,11 +192,15 @@ internal fun CreatePageComposable(
                 }
 
                 items(
-                    count = games.value.size
+                    count = games.value.size,
+                    key = { index -> "game_${games.value[index].id}" },
+                    contentType = { "game_card" },
                 ) { index ->
                     val game = games.value[index]
                     GameCardCompact(
-                        modifier = Modifier.padding(top = 16.dp),
+                        modifier = Modifier
+                            .animateItem()
+                            .padding(top = 16.dp),
                         game = game,
                         onOpenClick = { openGame(game) }
                     )
@@ -194,8 +208,8 @@ internal fun CreatePageComposable(
 
 
                 if (hasMoreGames.value) {
-                    item {
-                        Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
+                    item(key = "games_load_more") {
+                        Box(Modifier.fillMaxWidth().animateItem(), contentAlignment = Alignment.Center) {
                             LoadMoreButton(
                                 onClick = { viewModel.loadMore() },
                                 isLoading = isLoadingMore.value,
