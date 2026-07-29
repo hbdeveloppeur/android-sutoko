@@ -168,6 +168,7 @@
 
     <!-- Game UI errors -->
     <string name="game_presentation_error_load_game">Impossible de charger l’histoire. Vérifiez votre connexion internet et réessayez.</string>
+    <string name="game_presentation_hold_paused">En pause</string>
     <string name="game_presentation_story_unavailable">Cette histoire n\'est plus disponible</string>
     <string name="game_presentation_error_purchase">Échec de l\'achat</string>
     <string name="game_presentation_error_download">Échec du téléchargement. Vérifiez votre connexion internet et réessayez.</string>

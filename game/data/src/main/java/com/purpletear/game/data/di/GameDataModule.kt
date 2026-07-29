@@ -258,10 +258,12 @@ object GameDataModule {
 
     /**
      * Provides the TimingScheduler implementation.
+     * Delegates to the @Singleton SystemTimingScheduler so the engine and any other
+     * consumer (e.g. the game ViewModel driving hold-to-pause) share one instance.
      */
     @Provides
     @Singleton
-    fun provideTimingScheduler(): TimingScheduler = SystemTimingScheduler()
+    fun provideTimingScheduler(impl: SystemTimingScheduler): TimingScheduler = impl
 
     /**
      * Provides the TextProcessor implementation.

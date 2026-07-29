@@ -168,6 +168,7 @@
 
     <!-- Game UI errors -->
     <string name="game_presentation_error_load_game">No se pudo cargar la historia. Comprueba tu conexión a internet e inténtalo de nuevo.</string>
+    <string name="game_presentation_hold_paused">En pausa</string>
     <string name="game_presentation_error_purchase">Error en la compra</string>
     <string name="game_presentation_error_download">Error en la descarga. Comprueba tu conexión a internet e inténtalo de nuevo.</string>
     <string name="game_presentation_error_update">Error en la actualización</string>

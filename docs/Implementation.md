@@ -3,12 +3,8 @@ You will have to create a git branch if the current branch is main for that work
 it.
 task - you can compact your context between each task.
 If necessary you are allowed to do any commands like curls, install script, etc
-You are an UX/UI designer, analyse, criticize, fix, subtile, clean-
-Task 1: Some user complains that playing GameEngine goes too fast, some
-users says "no, it's perfect"-So we want to add a feature:If the user hold their finger down
-GameEngine pauses.
-You can improve the idea if you want or just implement it, letsgo.
 
-Task 2: when a message appears, it appears with the scroll animation a bit too fast creating an
-unpleasant/stressing effect.
-At least it could appear in smooth fade once only?
+Fix 1: Analyse ./docs/graph-that-causes-a-bug.png, and patch it. Currently nothing happens, it just
+displays Sophie's message; it must also display the button to make a choice.
+Maybe it's because the message is empty-this must not be a problem, an empty message must be
+considered as skipped. so here it must display the button to make one of the 3 choices available.

@@ -74,7 +74,7 @@ class GameMemoryTest {
     fun `conversationMode defaults to IRL when both keys are missing`() {
         val memory = createFakeGameMemory()
 
-        assertEquals(ConversationMode.SMS, memory.conversationMode)
+        assertEquals(ConversationMode.IRL, memory.conversationMode)
     }
 
     @Test

@@ -168,6 +168,7 @@
 
     <!-- Game UI errors -->
     <string name="game_presentation_error_load_game">Unable to load the story. Check your internet connection and try again.</string>
+    <string name="game_presentation_hold_paused">Paused</string>
     <string name="game_presentation_story_unavailable">This story is no longer available</string>
     <string name="game_presentation_error_purchase">Purchase failed</string>
     <string name="game_presentation_error_download">Download failed. Check your internet connection and try again.</string>

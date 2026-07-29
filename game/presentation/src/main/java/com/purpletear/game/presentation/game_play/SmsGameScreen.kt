@@ -5,21 +5,29 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.awaitEachGesture
+import androidx.compose.foundation.gestures.awaitFirstDown
+import androidx.compose.foundation.gestures.waitForUpOrCancellation
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -34,7 +42,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import com.purpletear.game.presentation.R
 import com.purpletear.game.presentation.game_play.components.FakeNotificationOverlay
 import com.purpletear.game.presentation.game_play.components.choices_box.ChoicesBox
 import com.purpletear.game.presentation.game_play.components.choices_box.MakeAChoiceButton
@@ -74,11 +86,12 @@ internal fun SmsGameScreen(
     onMangaPageDismissed: () -> Unit = {},
     onToggleChoicesDarkMode: () -> Unit = {},
     onFakeNotificationDismissed: () -> Unit = {},
+    onHoldPauseChanged: (Boolean) -> Unit = {},
 ) {
     var viewerState by remember { mutableStateOf(ImageViewerState()) }
     var mangaState by remember { mutableStateOf(MangaViewerState()) }
 
-    Screen {
+    Screen(onHoldPauseChanged = onHoldPauseChanged) {
         SceneComposable(
             scene = state.currentScene,
         )
@@ -215,6 +228,8 @@ internal fun SmsGameScreen(
             }
         }
 
+        HoldPausedIndicator(visible = state.isHoldPaused)
+
         AnimatedVisibility(
             visible = state.isLoadingStoryUpdates,
             enter = fadeIn(animationSpec = tween(durationMillis = LOADING_FADE_DURATION_MS)),
@@ -272,10 +287,72 @@ private fun AnimatedChoicesBox(
     }
 }
 
+/**
+ * Hold-to-pause: the engine's pacing freezes while a finger rests anywhere on the screen.
+ * The detector consumes nothing, so scrolling, message clicks, and choice buttons keep
+ * working; any release or cancellation (e.g. a scroll taking over) lifts the pause.
+ */
 @Composable
-private fun Screen(content: @Composable BoxScope.() -> Unit) {
-    Box(modifier = Modifier.fillMaxSize()) {
+private fun Screen(
+    onHoldPauseChanged: (Boolean) -> Unit = {},
+    content: @Composable BoxScope.() -> Unit
+) {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .pointerInput(Unit) {
+                awaitEachGesture {
+                    awaitFirstDown(requireUnconsumed = false)
+                    onHoldPauseChanged(true)
+                    waitForUpOrCancellation()
+                    onHoldPauseChanged(false)
+                }
+            }
+    ) {
         content()
     }
+}
+
+private const val HOLD_PAUSE_FADE_DURATION_MS = 180
+
+@Composable
+private fun BoxScope.HoldPausedIndicator(visible: Boolean) {
+    AnimatedVisibility(
+        visible = visible,
+        modifier = Modifier
+            .align(Alignment.TopCenter)
+            .statusBarsPadding()
+            .padding(top = 24.dp),
+        enter = fadeIn(animationSpec = tween(durationMillis = HOLD_PAUSE_FADE_DURATION_MS)),
+        exit = fadeOut(animationSpec = tween(durationMillis = HOLD_PAUSE_FADE_DURATION_MS))
+    ) {
+        Row(
+            modifier = Modifier
+                .background(Color.Black.copy(alpha = 0.55f), RoundedCornerShape(percent = 50))
+                .padding(horizontal = 14.dp, vertical = 8.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            Row(horizontalArrangement = Arrangement.spacedBy(3.dp)) {
+                PauseBar()
+                PauseBar()
+            }
+            Text(
+                text = stringResource(R.string.game_presentation_hold_paused),
+                color = Color.White,
+                fontSize = 13.sp
+            )
+        }
+    }
+}
+
+@Composable
+private fun PauseBar() {
+    Box(
+        Modifier
+            .width(3.dp)
+            .height(11.dp)
+            .background(Color.White, RoundedCornerShape(1.dp))
+    )
 }
 

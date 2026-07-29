@@ -80,5 +80,6 @@ internal fun NavGraphBuilder.gameScreen(
         onMangaPageDismissed = viewModel::onMangaPageDismissed,
         onToggleChoicesDarkMode = viewModel::onToggleChoicesDarkMode,
         onFakeNotificationDismissed = viewModel::onFakeNotificationDismissed,
+        onHoldPauseChanged = viewModel::onHoldPauseChanged,
     )
 }

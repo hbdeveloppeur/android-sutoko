@@ -36,6 +36,7 @@ data class GameUiState(
     val isCinematicActive: Boolean = false,
     val isMangaActive: Boolean = false,
     val isChoicesDarkMode: Boolean = true,
+    val isHoldPaused: Boolean = false,
     val fakeNotification: FakeNotificationUi? = null,
 )
 

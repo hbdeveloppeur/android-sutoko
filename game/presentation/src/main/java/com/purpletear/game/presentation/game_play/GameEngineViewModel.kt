@@ -8,6 +8,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.purpletear.core.presentation.services.MakeToastService
+import com.purpletear.game.data.infrastructure.SystemTimingScheduler
 import com.purpletear.game.debug.SmsGameDebugNodeJumps
 import com.purpletear.game.presentation.BuildConfig
 import com.purpletear.game.presentation.R
@@ -56,6 +57,7 @@ import javax.inject.Inject
 class GameEngineViewModel @Inject constructor(
     private val loadChapterGraphUseCase: LoadChapterGraphUseCase,
     private val gameEngine: GameEngine,
+    private val timingScheduler: SystemTimingScheduler,
     private val sceneRepository: SceneRepository,
     private val characterRepository: CharacterRepository,
     private val chapterRepository: ChapterRepository,
@@ -104,6 +106,9 @@ class GameEngineViewModel @Inject constructor(
 
     init {
         Trace.beginSection("GameEngineViewModel.init")
+        // The scheduler is a process-wide @Singleton: never inherit a stale hold from a
+        // previous session.
+        timingScheduler.setHoldPaused(false)
         updateState {
             it.copy(
                 isTrial = isTrial,
@@ -177,6 +182,7 @@ class GameEngineViewModel @Inject constructor(
     }
 
     private fun resetForNewPlay() {
+        timingScheduler.setHoldPaused(false)
         typingPlayer?.release()
         typingPlayer = null
 
@@ -201,7 +207,8 @@ class GameEngineViewModel @Inject constructor(
                 currentScene = null,
                 currentVocalUrl = null,
                 isVocalPlaying = false,
-                vocalProgress = 0f
+                vocalProgress = 0f,
+                isHoldPaused = false
             )
         }
     }
@@ -414,6 +421,7 @@ class GameEngineViewModel @Inject constructor(
 
     override fun onCleared() {
         Trace.beginSection("GameEngineViewModel.onCleared")
+        timingScheduler.setHoldPaused(false)
         typingPlayer?.release()
         typingPlayer = null
         soundPlayer?.release()
@@ -587,6 +595,20 @@ class GameEngineViewModel @Inject constructor(
         viewModelScope.launch {
             gameEngine.resumeFromMangaPage()
         }
+    }
+
+    /**
+     * Hold-to-pause: freezes the engine's pacing while the player keeps a finger on the
+     * screen, and resumes on release. The freeze happens inside the timing scheduler, so
+     * in-flight scripts are never dropped (unlike GameEngine.pause()). Ignored while the
+     * engine is not actively streaming messages (choices, cinematic, manga page).
+     */
+    fun onHoldPauseChanged(held: Boolean) {
+        val state = _uiState.value
+        if (state.isHoldPaused == held) return
+        if (held && (state.isAwaitingInput || state.isCinematicActive || state.isMangaActive)) return
+        timingScheduler.setHoldPaused(held)
+        updateState { it.copy(isHoldPaused = held) }
     }
 
     fun onRevealChoicesClicked() {

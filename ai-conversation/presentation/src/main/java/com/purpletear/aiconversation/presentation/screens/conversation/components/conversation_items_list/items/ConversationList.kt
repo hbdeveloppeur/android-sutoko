@@ -1,5 +1,7 @@
 package com.purpletear.aiconversation.presentation.screens.conversation.components.conversation_items_list.items
 
+import androidx.compose.animation.core.LinearOutSlowInEasing
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -71,7 +73,13 @@ private fun LazyListScope.chatItemsIndexed(
     content: @Composable (index: Int, item: UIMessage) -> Unit, // Remove LazyListScope from here
 ) {
     itemsIndexed(items, key = key) { index, item ->
-        Column(verticalArrangement = Arrangement.spacedBy(0.dp)) {
+        Column(
+            verticalArrangement = Arrangement.spacedBy(0.dp),
+            // New messages fade in smoothly once instead of popping in instantly.
+            modifier = Modifier.animateItem(
+                fadeInSpec = tween(durationMillis = 300, easing = LinearOutSlowInEasing)
+            )
+        ) {
             if (listOf(
                     MessagePositionInGroup.PositionFirst,
                     MessagePositionInGroup.PositionSingle
