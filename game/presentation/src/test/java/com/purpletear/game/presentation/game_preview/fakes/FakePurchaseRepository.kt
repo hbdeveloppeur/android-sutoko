@@ -36,6 +36,7 @@ class FakePurchaseRepository : PurchaseRepository {
     }
 
     override val purchaseUpdates: Flow<Unit> = emptyFlow()
+    override val purchaseProcessing: Flow<String> = emptyFlow()
     override val connectionState: Flow<Boolean> = flowOf(true)
     override fun observePurchases(): Flow<List<Purchase>> = emptyFlow()
     override fun observePurchase(sku: String): Flow<Purchase?> = emptyFlow()

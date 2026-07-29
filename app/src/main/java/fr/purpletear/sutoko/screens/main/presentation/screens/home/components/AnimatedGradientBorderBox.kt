@@ -23,7 +23,7 @@ import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.purpletear.game.presentation.common.components.GradientThemes
+import com.example.sharedelements.components.GradientThemes
 import kotlin.math.cos
 import kotlin.math.sin
 

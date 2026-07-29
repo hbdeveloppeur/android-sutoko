@@ -4,9 +4,8 @@ it.
 task - you can compact your context between each task.
 If necessary you are allowed to do any commands like curls, install script, etc
 
-Task : You are a UX/UI designer, make an analyze and plan to improve. Hint: When the Google Play
-billing causes (because of payment successful)
-Nothing happens for 2-3 seconds, during this time the user is afraid they maybe paid for nothing.
+Task : You are a UX/UI designer, navigating to the ShopActivity : there is a video in background but
+it's not smooth it appears directly when loaded, no smooth fade in animation.
 
-- Hint 2 - A text amount animation would confirm visually that the user gained money.
-  Anything else?
+Task 2 : when successfuly paid a coins pack, a confirmation page opens, if we click on "continue",
+it closes instantly we want a fast smooth fade out.

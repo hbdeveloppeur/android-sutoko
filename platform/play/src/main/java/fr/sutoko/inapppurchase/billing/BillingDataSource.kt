@@ -5,6 +5,9 @@ import java.io.Closeable
 
 interface BillingDataSource : Closeable {
     val purchaseUpdates: Flow<List<PurchaseResult>>
+
+    /** Emits the sku of an in-progress purchase() as soon as Play confirms payment, before backend verification runs. */
+    val purchaseProcessing: Flow<String>
     val connectionState: Flow<Boolean>
     suspend fun purchase(sku: String): PurchaseResult
     suspend fun reconcilePurchases(): List<PurchaseResult>

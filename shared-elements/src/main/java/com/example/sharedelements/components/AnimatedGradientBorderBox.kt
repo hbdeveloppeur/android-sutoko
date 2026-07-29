@@ -1,4 +1,4 @@
-package com.purpletear.game.presentation.game_preview
+package com.example.sharedelements.components
 
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
@@ -23,7 +23,6 @@ import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.purpletear.game.presentation.common.components.GradientThemes
 import kotlin.math.cos
 import kotlin.math.sin
 

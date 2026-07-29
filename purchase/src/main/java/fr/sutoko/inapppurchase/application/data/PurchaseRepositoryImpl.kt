@@ -31,6 +31,9 @@ class PurchaseRepositoryImpl @Inject constructor(
             .filter { results -> results.any { it is PurchaseResult.Purchased } }
             .map { }
 
+    override val purchaseProcessing: Flow<String> =
+        billingDataSource.purchaseProcessing
+
     override val connectionState: Flow<Boolean> =
         billingDataSource.connectionState
 

@@ -8,7 +8,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
-import com.purpletear.game.presentation.game_preview.AnimatedGradientBorderBox
+import com.example.sharedelements.components.AnimatedGradientBorderBox
 
 /**
  * A composable that displays an animated gradient border box with fade in/out animation.

@@ -12,6 +12,8 @@ sealed interface ShopPurchaseEvent {
     @Keep
     data class Started(override val packType: CoinsPackType) : ShopPurchaseEvent
     @Keep
+    data class Processing(override val packType: CoinsPackType) : ShopPurchaseEvent
+    @Keep
     data class Success(override val packType: CoinsPackType) : ShopPurchaseEvent
     @Keep
     data class Pending(override val packType: CoinsPackType) : ShopPurchaseEvent

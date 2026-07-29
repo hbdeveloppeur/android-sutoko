@@ -149,6 +149,7 @@ class PurchaseBackendRegistrationCoordinatorTest {
         val deletedSkus = mutableListOf<String>()
 
         override val purchaseUpdates: Flow<Unit> = emptyFlow()
+        override val purchaseProcessing: Flow<String> = emptyFlow()
         override val connectionState: Flow<Boolean> = MutableStateFlow(true)
 
         fun addPurchase(purchase: Purchase) {

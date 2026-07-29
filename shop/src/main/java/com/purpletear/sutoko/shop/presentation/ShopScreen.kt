@@ -1,5 +1,6 @@
 package com.purpletear.sutoko.shop.presentation
 
+import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.layout.Arrangement
@@ -23,6 +24,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LifecycleEventEffect
@@ -42,10 +44,13 @@ import com.purpletear.sutoko.shop.presentation.components.ShopBackground
 import com.purpletear.sutoko.shop.presentation.components.ShopHeader
 import com.purpletear.sutoko.shop.presentation.components.ShopTopBar
 
+/** Phase of the purchase result overlay. */
+enum class PurchasePhase { CREDITING, SUCCESS, PENDING }
+
 /** State of the purchase result overlay; null when hidden. */
 data class PurchaseOverlayState(
     val pack: ShopPack,
-    val isPending: Boolean,
+    val phase: PurchasePhase,
 )
 
 @Composable
@@ -54,6 +59,7 @@ fun ShopScreen(
     onClose: (Balance) -> Unit,
 ) {
     val activity = LocalActivity.current
+    val context = LocalContext.current
     val headerState by viewModel.headerState.collectAsStateWithLifecycle()
     val packs by viewModel.packs.collectAsStateWithLifecycle()
     val balance by viewModel.balance.collectAsStateWithLifecycle()
@@ -77,19 +83,34 @@ fun ShopScreen(
                     // The Play Billing dialog provides its own in-progress UI.
                 }
 
+                is ShopPurchaseEvent.Processing -> {
+                    // Play confirmed the payment; backend verification is running.
+                    pack?.let {
+                        purchaseOverlay = PurchaseOverlayState(it, PurchasePhase.CREDITING)
+                    }
+                }
+
                 is ShopPurchaseEvent.Success -> {
-                    pack?.let { purchaseOverlay = PurchaseOverlayState(it, isPending = false) }
+                    pack?.let { purchaseOverlay = PurchaseOverlayState(it, PurchasePhase.SUCCESS) }
                 }
 
                 is ShopPurchaseEvent.Pending -> {
-                    pack?.let { purchaseOverlay = PurchaseOverlayState(it, isPending = true) }
+                    pack?.let { purchaseOverlay = PurchaseOverlayState(it, PurchasePhase.PENDING) }
                 }
 
                 is ShopPurchaseEvent.NotConnected -> activity?.let(::openConnectionPage)
 
+                is ShopPurchaseEvent.Failed -> {
+                    purchaseOverlay = null
+                    Toast.makeText(
+                        context,
+                        R.string.shop_sutoko_purchase_failed,
+                        Toast.LENGTH_SHORT,
+                    ).show()
+                }
+
                 is ShopPurchaseEvent.Cancelled,
-                is ShopPurchaseEvent.AlreadyOwned,
-                is ShopPurchaseEvent.Failed -> purchaseOverlay = null
+                is ShopPurchaseEvent.AlreadyOwned -> purchaseOverlay = null
             }
         }
     }

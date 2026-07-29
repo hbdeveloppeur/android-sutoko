@@ -14,6 +14,8 @@ class FakePurchaseRepository : PurchaseRepository {
 
     override val purchaseUpdates: Flow<Unit> = flowOf()
 
+    override val purchaseProcessing: Flow<String> = flowOf()
+
     var queryProductDetailsResult: Map<String, Result<Product>> = emptyMap()
     var purchaseResult: Result<Unit> = Result.success(Unit)
 

@@ -40,5 +40,9 @@
     <string name="shop_sutoko_premium_presentation_subtitle">100%% Sutoko with no interruptions</string>
     <string name="shop_sutoko_premium_presentation_title">Premium pass unlocked</string>
     <string name="shop_sutoko_sign_in">Login</string>
+    <string name="shop_sutoko_payment_received_title">Payment received!</string>
+    <string name="shop_sutoko_payment_received_subtitle">Crediting your coins…</string>
+    <string name="shop_sutoko_coins_gained">+%1$d coins</string>
+    <string name="shop_sutoko_purchase_failed">Purchase failed. Please try again.</string>
 
 </resources>

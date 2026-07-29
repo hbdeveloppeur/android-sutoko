@@ -6,6 +6,9 @@ import kotlinx.coroutines.flow.Flow
 
 interface PurchaseRepository {
     val purchaseUpdates: Flow<Unit>
+
+    /** Emits the sku as soon as Play confirms payment, before verification/registration finish. */
+    val purchaseProcessing: Flow<String>
     val connectionState: Flow<Boolean>
     fun observePurchases(): Flow<List<Purchase>>
     fun observePurchase(sku: String): Flow<Purchase?>

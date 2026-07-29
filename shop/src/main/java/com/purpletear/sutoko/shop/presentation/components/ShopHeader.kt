@@ -172,12 +172,9 @@ fun BalancePill(
             .padding(start = 18.dp, end = 16.dp, top = 8.dp, bottom = 8.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Text(
-            text = coins,
-            fontFamily = Poppins,
-            fontWeight = FontWeight.Bold,
+        AnimatedAmountText(
+            value = coins,
             fontSize = fontSize,
-            color = Color.White,
         )
         Image(
             painter = painterResource(R.drawable.shop_sutoko_item_coin),
@@ -188,12 +185,9 @@ fun BalancePill(
                 .rotate(45f),
         )
         Spacer(modifier = Modifier.width(6.dp))
-        Text(
-            text = diamonds,
-            fontFamily = Poppins,
-            fontWeight = FontWeight.Bold,
+        AnimatedAmountText(
+            value = diamonds,
             fontSize = fontSize,
-            color = Color.White,
         )
         Image(
             painter = painterResource(R.drawable.shop_sutoko_ic_diamond),

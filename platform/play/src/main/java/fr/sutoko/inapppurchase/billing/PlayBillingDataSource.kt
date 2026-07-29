@@ -64,6 +64,11 @@ internal class PlayBillingDataSource @Inject constructor(
     override val purchaseUpdates: Flow<List<PurchaseResult>> =
         _purchaseUpdates.asSharedFlow()
 
+    private val _purchaseProcessing =
+        MutableSharedFlow<String>(extraBufferCapacity = 1)
+    override val purchaseProcessing: Flow<String> =
+        _purchaseProcessing.asSharedFlow()
+
     private val _connectionState = MutableStateFlow(false)
     override val connectionState: StateFlow<Boolean> = _connectionState.asStateFlow()
 
@@ -76,6 +81,16 @@ internal class PlayBillingDataSource @Inject constructor(
                         message = "Purchase result OK but no purchase data returned"
                     )
                     return@PurchasesUpdatedListener
+                }
+
+                // Let the caller of purchase() show "payment received" UI while
+                // verification runs. Only signal for an active purchase flow:
+                // redelivered or externally completed purchases must not trigger UI.
+                val pendingSku = pendingPurchaseRef.get()?.productId
+                if (pendingSku != null) {
+                    purchases.flatMap { it.products }
+                        .filter { it == pendingSku }
+                        .forEach { _purchaseProcessing.tryEmit(it) }
                 }
 
                 /**

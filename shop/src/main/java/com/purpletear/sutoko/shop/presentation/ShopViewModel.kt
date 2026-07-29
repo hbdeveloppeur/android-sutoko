@@ -89,6 +89,18 @@ class ShopViewModel @Inject constructor(
                 .filter { it }
                 .collect { loadPacks() }
         }
+
+        viewModelScope.launch {
+            purchaseRepository.purchaseProcessing.collect { sku ->
+                val packType = _packs.value
+                    .firstOrNull { it.pack.sku == sku }
+                    ?.pack
+                    ?.type
+                if (packType != null) {
+                    _purchaseEvents.emit(ShopPurchaseEvent.Processing(packType))
+                }
+            }
+        }
     }
 
     private suspend fun loadPacks() {

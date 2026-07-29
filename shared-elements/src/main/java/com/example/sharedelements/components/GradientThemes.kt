@@ -1,4 +1,4 @@
-package com.purpletear.game.presentation.common.components
+package com.example.sharedelements.components
 
 import androidx.compose.ui.graphics.Color
 

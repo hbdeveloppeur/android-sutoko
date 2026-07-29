@@ -13,6 +13,7 @@ class FakeBillingDataSource : BillingDataSource {
     val connectionStateFlow = MutableSharedFlow<Boolean>(extraBufferCapacity = 1)
 
     override val purchaseUpdates: Flow<List<PurchaseResult>> get() = purchaseUpdatesFlow
+    override val purchaseProcessing: Flow<String> = MutableSharedFlow()
     override val connectionState: Flow<Boolean> get() = connectionStateFlow
 
     var purchaseResult: PurchaseResult = PurchaseResult.Canceled
