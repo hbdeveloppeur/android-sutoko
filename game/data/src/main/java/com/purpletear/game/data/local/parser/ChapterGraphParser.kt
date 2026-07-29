@@ -83,8 +83,9 @@ object ChapterGraphParser {
 
             "message" -> Node.Message(
                 id = dto.id,
-                // Blank messages are bypassed upstream by GraphCompactor; this require is an invariant guard.
-                text = requireNotNull(data?.text) { "message node ${dto.id} missing text" },
+                // Blank text is tolerated: choice hubs are kept by GraphCompactor and the
+                // runtime engine skips empty messages.
+                text = data?.text.orEmpty(),
                 characterId = data?.characterId ?: -1,
                 waitMs = data?.wait ?: 0,
                 seenMs = data?.seen ?: 0,

@@ -4,30 +4,6 @@ import com.google.gson.JsonObject
 import com.purpletear.game.data.local.dto.EdgeDto
 import com.purpletear.game.data.local.dto.NodeDto
 
-/**
- * Removes transparent ("bypassed") nodes from an authored graph and reconnects edges so
- * the engine never has to execute them. A bypassed node is a no-op placeholder:
- * it emits nothing and is meant to be transparently skipped.
- *
- * A node is bypassed when:
- * - its type is "ignore", or
- * - it is a text-displaying node ("message", "narration", "intro-sentence") with a
- *   blank/missing text (tolerated authoring mistake: an empty text node displays
- *   nothing, so it is skipped rather than failing the whole chapter).
- *
- * Media nodes (message-image, message-vocal, sound, manga-page) stay strict: a missing
- * asset has no meaningful empty fallback.
- *
- * Transformation rules:
- * - Edges targeting a bypassed node are retargeted to the bypassed node's single
- *   outgoing target, keeping their own type/condition.
- * - Edges originating from a bypassed node are dropped (their purpose is already
- *   fulfilled by retargeting incoming edges).
- * - Chains of bypassed nodes are resolved transitively: the incoming edge lands on the
- *   first non-bypassed node. A cycle of bypassed nodes is a dead end.
- * - Bypassed nodes with zero or multiple outgoing edges are treated as dead ends:
- *   incoming edges to them are dropped.
- */
 internal object GraphCompactor {
 
     fun compact(
@@ -35,7 +11,7 @@ internal object GraphCompactor {
         edgeDtos: List<EdgeDto>
     ): Pair<List<NodeDto>, List<EdgeDto>> {
         val bypassedNodeIds = nodeDtos
-            .filter { it.isBypassed() }
+            .filter { it.isBypassed(edgeDtos) }
             .map { it.id }
             .toSet()
 
@@ -80,11 +56,16 @@ internal object GraphCompactor {
         return current.takeIf { it !in bypassedNodeIds }
     }
 
-    private fun NodeDto.isBypassed(): Boolean = when (type) {
+    private fun NodeDto.isBypassed(edgeDtos: List<EdgeDto>): Boolean = when (type) {
         "ignore" -> true
-        "message", "narration", "intro-sentence" -> textOf().isNullOrBlank()
+        "message" -> textOf().isNullOrBlank() && !fansOutToChoices(edgeDtos)
+        "narration", "intro-sentence" -> textOf().isNullOrBlank()
         else -> false
     }
+
+    /** A blank message with several outgoing edges is a choice hub, not a dead end. */
+    private fun NodeDto.fansOutToChoices(edgeDtos: List<EdgeDto>): Boolean =
+        edgeDtos.count { it.source == id } > 1
 
     private fun NodeDto.textOf(): String? {
         val element = (data as? JsonObject)?.get("text") ?: return null

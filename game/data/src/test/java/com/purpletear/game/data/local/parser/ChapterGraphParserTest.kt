@@ -410,6 +410,72 @@ class ChapterGraphParserTest {
     }
 
     @Test
+    fun `message node with empty text and multiple outgoing edges is kept so choices stay reachable`() {
+        val nodes = listOf(
+            node("start-0", "start"),
+            node("message-1", "message", text = "Il suffit de regarder ta photo de profil", characterId = 1),
+            node("message-2", "message", text = "", characterId = 2),
+            node("choice-a", "message", text = "Tant pis, j'aurai essaye", characterId = 2),
+            node("choice-b", "message", text = "Tu me juges?", characterId = 2),
+            node("choice-c", "message", text = "Je ne comptais pas coucher avec toi ce soir", characterId = 2)
+        )
+        val edges = listOf(
+            edge("start-0", "message-1"),
+            edge("message-1", "message-2"),
+            edge("message-2", "choice-a"),
+            edge("message-2", "choice-b"),
+            edge("message-2", "choice-c")
+        )
+
+        val graph = ChapterGraphParser.parse(
+            chapterCode = "1a",
+            metadata = ChapterMetadataDto(title = "Chapter 1A"),
+            nodeDtos = nodes,
+            edgeDtos = edges,
+            gameId = "game1",
+            legacyId = null,
+            pathProvider = pathProvider
+        )
+
+        val hub = graph.getNode("message-2") as Node.Message
+        assertEquals("", hub.text)
+        assertEquals("message-2", graph.getNextEdges("message-1").single().target)
+        assertEquals(
+            setOf("choice-a", "choice-b", "choice-c"),
+            graph.getNextEdges("message-2").map { it.target }.toSet()
+        )
+    }
+
+    @Test
+    fun `message node with missing text and multiple outgoing edges is kept`() {
+        val nodes = listOf(
+            node("start-0", "start"),
+            node("message-1", "message", data = JsonObject(), characterId = 2),
+            node("choice-a", "message", text = "A", characterId = 2),
+            node("choice-b", "message", text = "B", characterId = 2)
+        )
+        val edges = listOf(
+            edge("start-0", "message-1"),
+            edge("message-1", "choice-a"),
+            edge("message-1", "choice-b")
+        )
+
+        val graph = ChapterGraphParser.parse(
+            chapterCode = "1a",
+            metadata = ChapterMetadataDto(title = "Chapter 1A"),
+            nodeDtos = nodes,
+            edgeDtos = edges,
+            gameId = "game1",
+            legacyId = null,
+            pathProvider = pathProvider
+        )
+
+        val hub = graph.getNode("message-1") as Node.Message
+        assertEquals("", hub.text)
+        assertEquals(2, graph.getNextEdges("message-1").size)
+    }
+
+    @Test
     fun `message node with empty text is bypassed and its incoming edge is retargeted`() {
         val nodes = listOf(
             node("start-0", "start"),
