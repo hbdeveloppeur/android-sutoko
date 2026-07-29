@@ -68,21 +68,26 @@ fun PurchaseResultOverlay(
     isUserConnected: Boolean,
     onContinue: () -> Unit,
 ) {
+    // Keep the last non-null state so the exit animation still has content
+    // to fade out (rendering `state` directly would empty the content instantly).
+    var lastState by remember { mutableStateOf<PurchaseOverlayState?>(null) }
+    if (state != null) lastState = state
+
+    val haptic = LocalHapticFeedback.current
+    val context = LocalContext.current
+    LaunchedEffect(state?.phase) {
+        if (state?.phase == PurchasePhase.SUCCESS) {
+            haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+            playCoinSound(context)
+        }
+    }
+
     AnimatedVisibility(
         visible = state != null,
         enter = fadeIn(animationSpec = tween(380)),
-        exit = fadeOut(animationSpec = tween(200)),
+        exit = fadeOut(animationSpec = tween(300)),
     ) {
-        state ?: return@AnimatedVisibility
-
-        val haptic = LocalHapticFeedback.current
-        val context = LocalContext.current
-        LaunchedEffect(state.phase) {
-            if (state.phase == PurchasePhase.SUCCESS) {
-                haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                playCoinSound(context)
-            }
-        }
+        val shownState = lastState ?: return@AnimatedVisibility
 
         Box(
             modifier = Modifier
@@ -111,7 +116,7 @@ fun PurchaseResultOverlay(
             ) {
                 Text(
                     text = stringResource(
-                        when (state.phase) {
+                        when (shownState.phase) {
                             PurchasePhase.CREDITING -> R.string.shop_sutoko_payment_received_title
                             PurchasePhase.PENDING -> R.string.shop_sutoko_shop_unlock_item_pending_title
                             PurchasePhase.SUCCESS -> R.string.shop_sutoko_congrats
@@ -126,11 +131,11 @@ fun PurchaseResultOverlay(
                 )
                 Text(
                     text = stringResource(
-                        when (state.phase) {
+                        when (shownState.phase) {
                             PurchasePhase.CREDITING -> R.string.shop_sutoko_payment_received_subtitle
                             PurchasePhase.PENDING -> R.string.shop_sutoko_shop_unlock_item_pending_title_subtitle
                             PurchasePhase.SUCCESS ->
-                                if (state.pack.sku.contains("premium")) R.string.shop_sutoko_shop_unlock_item_title_premium
+                                if (shownState.pack.sku.contains("premium")) R.string.shop_sutoko_shop_unlock_item_title_premium
                                 else R.string.shop_sutoko_shop_unlock_item_title_pack
                         }
                     ),
@@ -142,7 +147,7 @@ fun PurchaseResultOverlay(
                     modifier = Modifier.widthIn(max = 300.dp),
                 )
 
-                val packImageRes = when (state.pack.type) {
+                val packImageRes = when (shownState.pack.type) {
                     CoinsPackType.Low -> R.drawable.shop_sutoko_shop_item_bag
                     CoinsPackType.Medium -> R.drawable.shop_sutoko_shop_item_chest
                     CoinsPackType.High -> R.drawable.shop_sutoko_shop_item_chest2
@@ -150,7 +155,7 @@ fun PurchaseResultOverlay(
                 val imageModifier = Modifier
                     .padding(top = 12.dp)
                     .size(200.dp)
-                if (state.phase == PurchasePhase.CREDITING) {
+                if (shownState.phase == PurchasePhase.CREDITING) {
                     Image(
                         painter = painterResource(packImageRes),
                         contentDescription = null,
@@ -160,7 +165,7 @@ fun PurchaseResultOverlay(
                     ZoomInImage(imageRes = packImageRes, modifier = imageModifier)
                 }
 
-                when (state.phase) {
+                when (shownState.phase) {
                     PurchasePhase.CREDITING -> {
                         CircularProgressIndicator(
                             color = Color(0xFFDF3288),
@@ -169,7 +174,7 @@ fun PurchaseResultOverlay(
                                 .size(32.dp),
                         )
                         CoinsGainedText(
-                            coins = state.pack.coins,
+                            coins = shownState.pack.coins,
                             muted = true,
                             modifier = Modifier.padding(top = 12.dp),
                         )
@@ -177,7 +182,7 @@ fun PurchaseResultOverlay(
 
                     PurchasePhase.SUCCESS -> {
                         BouncingCoinsGainedText(
-                            coins = state.pack.coins,
+                            coins = shownState.pack.coins,
                             modifier = Modifier.padding(top = 12.dp),
                         )
                         if (balance.isLoaded()) {
@@ -194,7 +199,7 @@ fun PurchaseResultOverlay(
                     PurchasePhase.PENDING -> Unit
                 }
 
-                val warningRes = when (state.phase) {
+                val warningRes = when (shownState.phase) {
                     PurchasePhase.PENDING -> R.string.shop_sutoko_shop_unlock_item_pending_title_description
                     PurchasePhase.SUCCESS ->
                         if (!isUserConnected) R.string.shop_sutoko_shop_unlock_item_connection_warning
@@ -216,11 +221,11 @@ fun PurchaseResultOverlay(
                 }
             }
 
-            if (state.phase == PurchasePhase.SUCCESS) {
+            if (shownState.phase == PurchasePhase.SUCCESS) {
                 AnimatedGradientBorderBox(modifier = Modifier.fillMaxSize())
             }
 
-            if (state.phase != PurchasePhase.CREDITING) {
+            if (shownState.phase != PurchasePhase.CREDITING) {
                 Box(
                     modifier = Modifier
                         .align(Alignment.BottomCenter)
