@@ -128,6 +128,7 @@ internal fun CreatePageComposable(
                                 .padding(top = 16.dp),
                             game = game,
                             isOpenEnabled = game.isOnline,
+                            showDescription = false,
                             onOpenClick = {
                                 if (game.isOnline) {
                                     openGame(game)

@@ -4,5 +4,9 @@ it.
 task - you can compact your context between each task.
 If necessary you are allowed to do any commands like curls, install script, etc
 
-Task [DONE - branch fix/create-page-stories-list-smoothness]: You are an UX/UI designer - Go to Create page.
-When the list of "My publish stories" get filled it creates an unpleasant effect; not smooth.
+Task:
+One user is complaining that when he start the app, sometime the screen stays black and doesn't
+reach HomeScreen:
+You are going to make an automatic loop script that will start 100 times the app in release mode on
+the connected device and to see if it reaches HomeScreen.
+Make a plan

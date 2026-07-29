@@ -53,6 +53,7 @@ fun GameCardCompact(
     modifier: Modifier = Modifier,
     openButtonLabel: String? = null,
     isOpenEnabled: Boolean = true,
+    showDescription: Boolean = true,
     onOpenClick: () -> Unit = {},
 ) {
     Column(
@@ -158,10 +159,30 @@ fun GameCardCompact(
             }
 
             OpenButton(
-                label = openButtonLabel ?: stringResource(R.string.game_presentation_game_button_open),
+                label = openButtonLabel
+                    ?: stringResource(R.string.game_presentation_game_button_open),
                 enabled = isOpenEnabled,
                 onClick = onOpenClick
             )
+        }
+
+        if (showDescription) {
+            game.description
+                ?.trim()
+                ?.takeIf { it.split(Regex("\\s+")).size > 5 }
+                ?.let { description ->
+                    Text(
+                        text = description,
+                        fontFamily = Poppins,
+                        fontWeight = FontWeight.Normal,
+                        fontSize = 12.sp,
+                        lineHeight = 16.sp,
+                        color = Color.White.copy(alpha = 0.7f),
+                        maxLines = 3,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier.padding(top = 8.dp)
+                    )
+                }
         }
     }
 }
