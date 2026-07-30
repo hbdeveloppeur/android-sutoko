@@ -3,6 +3,7 @@ package com.purpletear.sutoko.shop.presentation
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.purpletear.sutoko.core.domain.analytics.AnalyticsTracker
 import com.purpletear.sutoko.domain.exception.NotConnectedException
 import com.purpletear.sutoko.domain.repository.UserRepository
 import com.purpletear.sutoko.shop.domain.repository.ShopRepository
@@ -39,6 +40,7 @@ class ShopViewModel @Inject constructor(
     private val getShopPackPricesUseCase: GetShopPackPricesUseCase,
     private val purchaseRepository: PurchaseRepository,
     private val purchaseWithAuthCheckUseCase: PurchaseWithAuthCheckUseCase,
+    private val analyticsTracker: AnalyticsTracker,
 ) : ViewModel() {
 
     val balance: StateFlow<Balance> = observeShopBalanceUseCase()
@@ -79,6 +81,8 @@ class ShopViewModel @Inject constructor(
     val purchaseEvents: SharedFlow<ShopPurchaseEvent> = _purchaseEvents.asSharedFlow()
 
     init {
+        analyticsTracker.logEvent("shop_view")
+
         viewModelScope.launch {
             loadPacks()
         }

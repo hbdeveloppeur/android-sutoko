@@ -4,6 +4,8 @@ import com.purpletear.sutoko.domain.model.User
 import com.purpletear.sutoko.shop.test.FakeShopApi
 import com.purpletear.sutoko.shop.test.FakeUserRepository
 import fr.sutoko.inapppurchase.application.domain.PurchaseRegistrationRejectedException
+import kotlinx.coroutines.async
+import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -107,11 +109,17 @@ class StoryPurchaseBackendRegistrarTest {
     }
 
     @Test
-    fun `register without user returns failure`() = runTest {
+    fun `register without user waits for connection before calling the api`() = runTest {
         userRepository.userFlow.value = null
 
-        val result = registrar.register("story_163", "token", "order-1")
+        val pending = backgroundScope.async { registrar.register("story_163", "token", "order-1") }
+        runCurrent()
 
-        assertTrue(result.isFailure)
+        assertEquals(0, api.registerOrderCallCount)
+
+        userRepository.userFlow.value = User(id = "user-1", token = "token-1")
+
+        assertTrue(pending.await().isSuccess)
+        assertEquals(1, api.registerOrderCallCount)
     }
 }

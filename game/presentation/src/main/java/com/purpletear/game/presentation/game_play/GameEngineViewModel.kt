@@ -14,6 +14,7 @@ import com.purpletear.game.presentation.BuildConfig
 import com.purpletear.game.presentation.R
 import com.purpletear.game.presentation.game_play.state.FakeNotificationUi
 import com.purpletear.game.presentation.game_play.state.GameUiState
+import com.purpletear.sutoko.core.domain.analytics.AnalyticsTracker
 import com.purpletear.sutoko.core.domain.logger.Logger
 import com.purpletear.sutoko.core.domain.logger.exception
 import com.purpletear.sutoko.game.engine.GameEngine
@@ -65,6 +66,7 @@ class GameEngineViewModel @Inject constructor(
     private val getSceneUseCase: GetSceneUseCase,
     private val mediaUrlResolver: MediaUrlResolver,
     private val makeToastService: MakeToastService,
+    private val analyticsTracker: AnalyticsTracker,
     private val logger: Logger,
     savedStateHandle: SavedStateHandle,
     @ApplicationContext private val context: Context,
@@ -328,6 +330,9 @@ class GameEngineViewModel @Inject constructor(
     }
 
     private fun updateUiStateFromEngine(engineState: GameEngineState) {
+        if (engineState is GameEngineState.ChapterFinished) {
+            logChapterFinished(engineState.chapterCode)
+        }
         when (engineState) {
             is GameEngineState.AwaitingInput -> {
                 updateState { it.copy(isAwaitingInput = true) }
@@ -372,6 +377,23 @@ class GameEngineViewModel @Inject constructor(
                 }
             }
         }
+    }
+
+    private var lastLoggedFinishedChapter: String? = null
+
+    /**
+     * Analytics: one `trial_end` / `chapter_complete` per finished chapter. The
+     * engine state is a StateFlow, so identical re-emissions are conflated; the
+     * guard covers replay-then-finish-again of the same chapter.
+     */
+    private fun logChapterFinished(finishedChapterCode: String) {
+        if (lastLoggedFinishedChapter == finishedChapterCode) return
+        lastLoggedFinishedChapter = finishedChapterCode
+        val event = if (isTrial) "trial_end" else "chapter_complete"
+        analyticsTracker.logEvent(
+            event,
+            mapOf("story_id" to gameId, "chapter_code" to finishedChapterCode)
+        )
     }
 
     private fun updateMessages(messages: List<GameMessage>) {

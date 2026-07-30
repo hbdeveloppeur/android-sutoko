@@ -9,6 +9,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.purpletear.aiconversation.domain.model.AiCharacter
+import com.purpletear.sutoko.core.domain.analytics.AnalyticsTracker
 import com.purpletear.aiconversation.domain.usecase.GetAiTokensStateUseCase
 import com.purpletear.aiconversation.domain.usecase.LoadCharactersUseCase
 import com.purpletear.aiconversation.domain.usecase.ObserveCharactersUseCase
@@ -50,6 +51,7 @@ class AiConversationHomeViewModel @Inject constructor(
     private val consumeTryMessagePackUseCase: TryMessagePackUseCase,
     private val makeToastService: MakeToastService,
     private val userRepository: UserRepository,
+    private val analyticsTracker: AnalyticsTracker,
 ) : ViewModel() {
     private var _characters: MutableState<List<AiCharacter>> = mutableStateOf(listOf())
     val characters: State<List<AiCharacter>> get() = _characters
@@ -80,6 +82,7 @@ class AiConversationHomeViewModel @Inject constructor(
 
 
     init {
+        analyticsTracker.logEvent("ai_conversation_view")
         observeCharacters()
         observeUserConnection()
         observeMessageCoinsDialogVisibility()

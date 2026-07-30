@@ -11,6 +11,7 @@ import com.purpletear.game.presentation.game_preview.events.GamePreviewEvent
 import com.purpletear.game.presentation.game_preview.handlers.GamePreviewPurchaseHandler
 import com.purpletear.game.presentation.model.GameItem
 import com.purpletear.game.presentation.model.GameUiError
+import com.purpletear.sutoko.core.domain.analytics.AnalyticsTracker
 import com.purpletear.sutoko.core.domain.logger.Logger
 import com.purpletear.sutoko.core.domain.logger.exception
 import com.purpletear.sutoko.domain.repository.UserRepository
@@ -69,6 +70,7 @@ class GamePreviewViewModel @Inject constructor(
     private val userRepository: UserRepository,
     private val userRoleRepository: UserRoleRepository,
     private val entitlementRepository: EntitlementRepository,
+    private val analyticsTracker: AnalyticsTracker,
     private val logger: Logger,
 ) : ViewModel() {
 
@@ -260,6 +262,7 @@ class GamePreviewViewModel @Inject constructor(
     fun start() {
         GamePreviewLogger.i("LIFE") { "start() called for gameId=$gameId" }
         initialLoadStarted = true
+        analyticsTracker.logEvent("story_preview_view", mapOf("story_id" to gameId))
         viewModelScope.launch {
             loadChapters()
         }
@@ -473,6 +476,15 @@ class GamePreviewViewModel @Inject constructor(
             if (needsNickName) {
                 sendEvent(GamePreviewEvent.RequestNickName(isTrial = isTrial))
             } else {
+                if (isTrial) {
+                    analyticsTracker.logEvent(
+                        "trial_start",
+                        mapOf(
+                            "story_id" to gameId,
+                            "chapter_code" to (chapter?.normalizedCode ?: "")
+                        )
+                    )
+                }
                 sendEvent(
                     GamePreviewEvent.PlayGame(
                         gameId = gameId,
@@ -656,14 +668,31 @@ class GamePreviewViewModel @Inject constructor(
         }
 
         GamePreviewLogger.i("PUR") { "onPurchase() confirming sku=$sku for gameId=$gameId" }
+        analyticsTracker.logEvent(
+            "purchase_initiated",
+            mapOf("sku" to sku, "method" to "coins", "story_id" to gameId)
+        )
         viewModelScope.launch {
             purchaseHandler.confirmPurchase(sku)
                 .onSuccess {
                     GamePreviewLogger.i("PUR") { "onPurchase() succeeded for sku=$sku" }
+                    analyticsTracker.logEvent(
+                        "purchase_completed",
+                        mapOf("sku" to sku, "method" to "coins", "story_id" to gameId)
+                    )
                     sendEvent(GamePreviewEvent.PurchaseSuccess)
                 }
                 .onFailure { error ->
                     GamePreviewLogger.e("PUR", error) { "onPurchase() failed for sku=$sku" }
+                    analyticsTracker.logEvent(
+                        "purchase_failed",
+                        mapOf(
+                            "sku" to sku,
+                            "method" to "coins",
+                            "story_id" to gameId,
+                            "error" to error::class.simpleName.orEmpty()
+                        )
+                    )
                     logger.exception(error) { "Purchase failed for sku=$sku" }
                     when (error) {
                         is BuyStoryError.AlreadyOwned -> sendEvent(GamePreviewEvent.ShowAlreadyBoughtAlert)

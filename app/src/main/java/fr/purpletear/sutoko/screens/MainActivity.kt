@@ -78,6 +78,7 @@ import com.purpletear.sutoko.shop.presentation.ShopActivity
 import dagger.hilt.android.AndroidEntryPoint
 import fr.purpletear.sutoko.R
 import fr.purpletear.sutoko.friendzoned.FriendzonedGameRouter
+import fr.purpletear.sutoko.helpers.GdprConsentHelper
 import fr.purpletear.sutoko.helpers.NotificationHelper
 import fr.purpletear.sutoko.popup.domain.PopUpIconUrl
 import fr.purpletear.sutoko.popup.domain.PopUpUserInteraction
@@ -192,6 +193,7 @@ class MainActivity @Inject constructor(
         registerLoginLauncher()
         load()
         observeAuthEvents()
+        GdprConsentHelper.requestConsentIfRequired(this)
 
         setContent {
             SutokoTheme {

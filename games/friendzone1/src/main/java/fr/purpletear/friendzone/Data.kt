@@ -15,9 +15,6 @@ import java.lang.IllegalStateException
 import java.util.*
 
 object Data {
-    // (DEFAULT : TRUE) Enables logs events
-    const val logEventEnabled = true
-
     // (DEFAULT : TestingDevice.NONE) Enables test device XIAOMI MI 8 PRO @purpletear
     val testingDevice : TestingDevice = TestingDevice.NONE
 

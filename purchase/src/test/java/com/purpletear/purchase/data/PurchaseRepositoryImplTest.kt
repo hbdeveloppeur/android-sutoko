@@ -3,6 +3,7 @@ package com.purpletear.purchase.data
 import com.purpletear.purchase.data.PurchaseTestFixtures.entity
 import com.purpletear.purchase.data.PurchaseTestFixtures.productDetails
 import com.purpletear.purchase.data.PurchaseTestFixtures.receipt
+import com.purpletear.sutoko.core.domain.analytics.AnalyticsTracker
 import fr.sutoko.inapppurchase.application.data.PurchaseRepositoryImpl
 import fr.sutoko.inapppurchase.application.domain.model.Product
 import fr.sutoko.inapppurchase.application.domain.model.PurchaseState
@@ -29,7 +30,16 @@ class PurchaseRepositoryImplTest {
 
     private val fakeDao = FakePurchaseDao()
     private val fakeBilling = FakeBillingDataSource()
-    private val repository = PurchaseRepositoryImpl(fakeDao, fakeBilling)
+    private val repository =
+        PurchaseRepositoryImpl(fakeDao, fakeBilling, FakeAnalyticsTracker())
+
+    private class FakeAnalyticsTracker : AnalyticsTracker {
+        val events = mutableListOf<String>()
+        override fun logEvent(name: String, params: Map<String, Any?>) {
+            events += name
+        }
+        override fun setUserProperty(name: String, value: String?) = Unit
+    }
 
     //region purchase()
 

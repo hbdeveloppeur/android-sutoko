@@ -1,5 +1,6 @@
 package com.purpletear.sutoko.shop.presentation
 
+import com.purpletear.sutoko.core.domain.analytics.AnalyticsTracker
 import com.purpletear.sutoko.domain.model.User
 import com.purpletear.sutoko.domain.repository.UserRepository
 import com.purpletear.sutoko.shop.domain.repository.ShopRepository
@@ -37,6 +38,7 @@ class ShopViewModelTest {
     private val fakeUserRepository = FakeUserRepository()
     private val fakeShopRepository = FakeShopRepository()
     private val fakePurchaseRepository = FakePurchaseRepository()
+    private val fakeAnalyticsTracker = FakeAnalyticsTracker()
     private val observeShopBalanceUseCase = ObserveShopBalanceUseCase(fakeShopRepository)
     private val getShopPacksUseCase = GetShopPacksUseCase(fakeShopRepository)
     private val getShopPackPricesUseCase = GetShopPackPricesUseCase(
@@ -302,7 +304,16 @@ class ShopViewModelTest {
             fakePurchaseRepository,
             fakeUserRepository,
         ),
+        analyticsTracker = fakeAnalyticsTracker,
     )
+
+    private class FakeAnalyticsTracker : AnalyticsTracker {
+        val events = mutableListOf<String>()
+        override fun logEvent(name: String, params: Map<String, Any?>) {
+            events += name
+        }
+        override fun setUserProperty(name: String, value: String?) = Unit
+    }
 
     private fun priceFor(viewModel: ShopViewModel, type: CoinsPackType): String? {
         return viewModel.packs.value.firstOrNull { it.pack.type == type }?.formattedPrice

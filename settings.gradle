@@ -58,6 +58,7 @@ include ':version:infrastructure'
 include ':shop'
 include ':benchmark'
 include ':logger:data'
+include ':analytics:data'
 
 project(":platform:play").projectDir = new File(rootDir, "platform/play")
 project(":purchase").projectDir = new File(rootDir, "purchase")

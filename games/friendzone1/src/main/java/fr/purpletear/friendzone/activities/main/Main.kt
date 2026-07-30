@@ -202,7 +202,6 @@ class Main : AppCompatActivity(), MainInterface {
         )
 
         model = MainModel(this, symbols, glide, adapter)
-        model.logEvent()
         graphics = MainGraphics(
             model.getChapterConversationName(this),
             model.getChapterConversationStatus(this),

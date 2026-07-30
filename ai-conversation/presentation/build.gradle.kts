@@ -40,6 +40,7 @@ android {
 
 dependencies {
 
+    implementation(project(":core:domain"))
     implementation(project(":ai-conversation:data"))
     implementation(project(":ai-conversation:domain"))
     implementation(project(":ai-conversation:core"))

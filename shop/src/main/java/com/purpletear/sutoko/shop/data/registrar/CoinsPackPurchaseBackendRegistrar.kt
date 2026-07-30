@@ -1,6 +1,5 @@
 package com.purpletear.sutoko.shop.data.registrar
 
-import com.purpletear.sutoko.domain.exception.NotConnectedException
 import com.purpletear.sutoko.domain.repository.UserRepository
 import com.purpletear.sutoko.shop.data.remote.RegisterOrderRequestDto
 import com.purpletear.sutoko.shop.data.remote.ShopApi
@@ -9,7 +8,8 @@ import com.purpletear.sutoko.shop.domain.repository.ShopRepository
 import fr.sutoko.inapppurchase.application.domain.PurchaseBackendRegistrar
 import fr.sutoko.inapppurchase.application.domain.PurchaseRegistrationRejectedException
 import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.first
 import java.io.IOException
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -38,8 +38,9 @@ class CoinsPackPurchaseBackendRegistrar @Inject constructor(
         purchaseToken: String,
         orderId: String?
     ): Result<Unit> {
-        val user = userRepository.observeUser().firstOrNull()
-            ?: return Result.failure(NotConnectedException())
+        // A paid purchase must be registered eventually: wait for the session
+        // instead of failing, since retrying a missing session cannot succeed.
+        val user = userRepository.observeUser().filterNotNull().first()
 
         return try {
             val response = shopApi.registerOrder(

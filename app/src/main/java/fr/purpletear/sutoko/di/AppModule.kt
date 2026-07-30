@@ -1,9 +1,7 @@
 package fr.purpletear.sutoko.di
 
-import android.app.Application
 import android.content.Context
 import androidx.room.Room
-import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.firestore.FirebaseFirestore
 import com.purpletear.core.presentation.services.MakeToastService
 import com.purpletear.sutoko.core.domain.helper.AppVersionProvider
@@ -32,12 +30,6 @@ object AppModule {
     @Provides
     fun provideToastService(@ApplicationContext context: Context): MakeToastService {
         return MakeToastService(context)
-    }
-
-    @Provides
-    @Singleton
-    fun provideFirebaseAnalytics(app: Application): FirebaseAnalytics {
-        return FirebaseAnalytics.getInstance(app)
     }
 
     @Provides

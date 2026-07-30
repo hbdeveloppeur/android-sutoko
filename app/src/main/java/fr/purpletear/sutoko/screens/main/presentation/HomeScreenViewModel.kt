@@ -12,7 +12,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.sharedelements.Data
 import com.example.sharedelements.SutokoAppParams
 import com.example.sharedelements.utils.UiText
-import com.google.firebase.analytics.FirebaseAnalytics
+import com.purpletear.sutoko.core.domain.analytics.AnalyticsTracker
 import com.purpletear.core.presentation.extensions.Resource
 import com.purpletear.sutoko.domain.repository.UserRepository
 import com.purpletear.sutoko.game.model.game.GameCatalog
@@ -45,7 +45,7 @@ import javax.inject.Inject
 @Stable
 class HomeScreenViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
-    private var firebaseAnalytics: FirebaseAnalytics,
+    private var analyticsTracker: AnalyticsTracker,
     private val screenUseCase: SetCurrentScreenUseCase,
     private val symbolsRepository: SymbolsRepository,
     private val observeOfficialGamesUseCase: ObserveOfficialGamesUseCase,
@@ -216,7 +216,7 @@ class HomeScreenViewModel @Inject constructor(
             // not be based on stale data predating the user's latest game session.
             withContext(Dispatchers.IO) { symbols.read() }
             symbols.setFirebaseNotification(value)
-            firebaseAnalytics.setUserProperty("want_to_get_notified", if (value) "yes" else "no")
+            analyticsTracker.setUserProperty("want_to_get_notified", if (value) "yes" else "no")
             saveSymbols.value = symbols
             _state.value =
                 _state.value.copy(notificationsOn = symbols.isFirebaseNotificationEnabled)

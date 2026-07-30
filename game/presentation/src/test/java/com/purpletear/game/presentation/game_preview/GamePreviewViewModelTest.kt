@@ -1,6 +1,7 @@
 package com.purpletear.game.presentation.game_preview
 
 import androidx.lifecycle.SavedStateHandle
+import com.purpletear.sutoko.core.domain.analytics.AnalyticsTracker
 import app.cash.turbine.test
 import com.purpletear.game.presentation.R
 import com.purpletear.game.presentation.game_preview.events.GamePreviewEvent
@@ -62,6 +63,7 @@ class GamePreviewViewModelTest {
     private val memoryRepository = FakeMemoryRepository()
     private val friendzonedProgressRepository = FakeFriendzonedProgressRepository()
     private val logger = FakeLogger()
+    private val analyticsTracker = FakeAnalyticsTracker()
     private val toastService = FakeToastService()
     private val buyStoryWithCoinsUseCase = FakeBuyStoryWithCoinsUseCase()
     private val purchaseHandler = GamePreviewPurchaseHandler(buyStoryWithCoinsUseCase)
@@ -120,8 +122,17 @@ class GamePreviewViewModelTest {
             userRepository = userRepository,
             userRoleRepository = userRoleRepository,
             entitlementRepository = entitlementRepository,
+            analyticsTracker = analyticsTracker,
             logger = logger,
         )
+    }
+
+    private class FakeAnalyticsTracker : AnalyticsTracker {
+        val events = mutableListOf<String>()
+        override fun logEvent(name: String, params: Map<String, Any?>) {
+            events += name
+        }
+        override fun setUserProperty(name: String, value: String?) = Unit
     }
 
     @Test

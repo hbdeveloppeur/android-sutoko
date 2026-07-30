@@ -1,5 +1,6 @@
 package fr.sutoko.inapppurchase.application.data
 
+import com.purpletear.sutoko.core.domain.analytics.AnalyticsTracker
 import fr.sutoko.inapppurchase.application.data.local.PurchaseDao
 import fr.sutoko.inapppurchase.application.data.local.PurchaseEntity
 import fr.sutoko.inapppurchase.application.domain.model.Product
@@ -24,6 +25,7 @@ import fr.sutoko.inapppurchase.application.domain.model.Purchase as DomainPurcha
 class PurchaseRepositoryImpl @Inject constructor(
     private val purchaseDao: PurchaseDao,
     private val billingDataSource: BillingDataSource,
+    private val analyticsTracker: AnalyticsTracker,
 ) : PurchaseRepository {
 
     override val purchaseUpdates: Flow<Unit> =
@@ -80,23 +82,36 @@ class PurchaseRepositoryImpl @Inject constructor(
             return Result.failure(IllegalArgumentException("SKU must not be blank"))
         }
 
+        analyticsTracker.logEvent(
+            "purchase_initiated",
+            mapOf("sku" to sku, "method" to "billing")
+        )
+
         return try {
             when (val purchaseResult = billingDataSource.purchase(sku)) {
                 is PurchaseResult.Purchased -> {
                     savePurchase(sku, purchaseResult.receipt)
+                    logPurchaseOutcome(sku, "purchase_completed")
                     Result.success(Unit)
                 }
 
                 is PurchaseResult.Pending -> {
                     savePurchase(sku, purchaseResult.receipt)
+                    logPurchaseOutcome(sku, "purchase_failed", error = "pending")
                     Result.failure(PurchasePendingException(sku))
                 }
 
                 PurchaseResult.Canceled -> {
+                    logPurchaseOutcome(sku, "purchase_cancelled")
                     Result.failure(PurchaseCancelledException(sku))
                 }
 
                 is PurchaseResult.Failed -> {
+                    logPurchaseOutcome(
+                        sku,
+                        "purchase_failed",
+                        error = "response_${purchaseResult.responseCode}"
+                    )
                     Result.failure(
                         PurchaseFailedException(
                             sku = sku,
@@ -107,6 +122,7 @@ class PurchaseRepositoryImpl @Inject constructor(
                 }
 
                 is PurchaseResult.AlreadyOwned -> {
+                    logPurchaseOutcome(sku, "purchase_failed", error = "already_owned")
                     Result.failure(
                         PurchaseAlreadyOwnedException(
                             sku = sku,
@@ -117,8 +133,20 @@ class PurchaseRepositoryImpl @Inject constructor(
         } catch (e: CancellationException) {
             throw e
         } catch (e: Exception) {
+            logPurchaseOutcome(sku, "purchase_failed", error = e::class.simpleName.orEmpty())
             Result.failure(e)
         }
+    }
+
+    private fun logPurchaseOutcome(sku: String, event: String, error: String? = null) {
+        analyticsTracker.logEvent(
+            event,
+            buildMap {
+                put("sku", sku)
+                put("method", "billing")
+                if (error != null) put("error", error)
+            }
+        )
     }
 
     private suspend fun savePurchase(

@@ -55,6 +55,7 @@ android {
 }
 
 dependencies {
+    implementation(project(":core:domain"))
     implementation(project(":shared-elements"))
     implementation(project(":auth"))
     implementation(project(":purchase"))

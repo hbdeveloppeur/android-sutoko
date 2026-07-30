@@ -9,6 +9,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.sharedelements.utils.UiText
 import com.purpletear.aiconversation.domain.model.AiMessagePack
+import com.purpletear.sutoko.core.domain.analytics.AnalyticsTracker
 import com.purpletear.aiconversation.domain.usecase.GetAiMessagesPacksUseCase
 import com.purpletear.aiconversation.domain.usecase.ObserveAiTokenStateUseCase
 import com.purpletear.aiconversation.presentation.R
@@ -40,6 +41,7 @@ class BuyTokensDialogViewModel @Inject constructor(
     private val observeAiTokenStateUseCase: ObserveAiTokenStateUseCase,
     private val purchaseRepository: PurchaseRepository,
     private val userRepository: UserRepository,
+    private val analyticsTracker: AnalyticsTracker,
 ) : ViewModel() {
 
     private var _state: MutableState<BuyTokensDialogState> =
@@ -63,6 +65,7 @@ class BuyTokensDialogViewModel @Inject constructor(
         }, onStream = { isVisible ->
             _isVisible.value = isVisible
             if (isVisible) {
+                analyticsTracker.logEvent("buy_tokens_dialog_view")
                 load()
             } else {
                 reset()

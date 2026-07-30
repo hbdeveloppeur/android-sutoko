@@ -10,10 +10,8 @@ package fr.purpletear.friendzone.activities.main
 
 import android.app.Activity
 import android.content.Context
-import android.os.Bundle
 import com.bumptech.glide.RequestManager
 import com.example.sharedelements.SutokoSharedElementsData
-import fr.purpletear.friendzone.Data
 import fr.purpletear.friendzone.R
 import fr.purpletear.friendzone.config.*
 import fr.purpletear.friendzone.tables.TableOfLinks
@@ -211,15 +209,6 @@ class MainModel(activity: Activity, var symbols: TableOfSymbols, rm: RequestMana
         val value = isFirstStart
         isFirstStart = false
         return value
-    }
-
-    fun logEvent() {
-        if(!Data.logEventEnabled) {
-            return
-        }
-        val params = Bundle()
-        params.putString("chapter_code", symbols.chapterCode)
-        params.putString("os", "android")
     }
 
     companion object {

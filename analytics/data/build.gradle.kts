@@ -6,11 +6,12 @@ plugins {
 }
 
 android {
-    namespace = "fr.sutoko.inapppurchase"
+    namespace = "com.purpletear.sutoko.analytics.data"
     compileSdk = 35
 
     defaultConfig {
         minSdk = 24
+
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles("consumer-rules.pro")
     }
@@ -26,16 +27,11 @@ android {
     }
 
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_17
-        targetCompatibility = JavaVersion.VERSION_17
+        sourceCompatibility = JavaVersion.VERSION_11
+        targetCompatibility = JavaVersion.VERSION_11
     }
-
-    testOptions {
-        unitTests.isReturnDefaultValues = true
-    }
-
     kotlinOptions {
-        jvmTarget = "17"
+        jvmTarget = "11"
     }
 
     buildTypes.getByName("release") {
@@ -49,25 +45,15 @@ android {
 
 dependencies {
     implementation(project(":core:domain"))
-    implementation(project(":platform:play"))
-    implementation(project(":auth"))
 
     implementation(libs.androidx.ktx)
-    implementation(libs.androidx.appcompat)
-    implementation(libs.android.material)
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.analytics.ktx)
 
-    // Room
-    implementation(libs.room.runtime)
-    implementation(libs.room.ktx)
-    ksp(libs.room.compiler)
-
-    // Hilt
     implementation(libs.dagger.hilt)
     ksp(libs.dagger.hilt.compiler)
-    ksp(libs.androidx.hilt.compiler)
-    implementation(libs.androidx.hilt.work)
-    implementation(libs.androidx.runtime)
 
     testImplementation(libs.junit)
-    testImplementation(libs.kotlinx.coroutines.test)
+    androidTestImplementation(libs.androidx.junit)
+    androidTestImplementation(libs.androidx.espresso.core)
 }
