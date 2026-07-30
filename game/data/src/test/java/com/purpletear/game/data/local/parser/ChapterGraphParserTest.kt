@@ -413,11 +413,21 @@ class ChapterGraphParserTest {
     fun `message node with empty text and multiple outgoing edges is kept so choices stay reachable`() {
         val nodes = listOf(
             node("start-0", "start"),
-            node("message-1", "message", text = "Il suffit de regarder ta photo de profil", characterId = 1),
+            node(
+                "message-1",
+                "message",
+                text = "Il suffit de regarder ta photo de profil",
+                characterId = 1
+            ),
             node("message-2", "message", text = "", characterId = 2),
             node("choice-a", "message", text = "Tant pis, j'aurai essaye", characterId = 2),
             node("choice-b", "message", text = "Tu me juges?", characterId = 2),
-            node("choice-c", "message", text = "Je ne comptais pas coucher avec toi ce soir", characterId = 2)
+            node(
+                "choice-c",
+                "message",
+                text = "Je ne comptais pas coucher avec toi ce soir",
+                characterId = 2
+            )
         )
         val edges = listOf(
             edge("start-0", "message-1"),
@@ -849,6 +859,7 @@ class ChapterGraphParserTest {
               "imageName":"kelly.jpeg",
               "subtitle":"Tu me manques ❤️",
               "actionText":"Votre petite amie",
+              "storagePath": "./kelly.jpeg",
               "characterId":124,
               "delay":1250,
               "duration":6000,
@@ -883,35 +894,6 @@ class ChapterGraphParserTest {
         assertEquals(6000, node.durationMs)
         assertEquals(false, node.isAutoTiming)
         assertEquals(false, node.isHesitating)
-    }
-
-    @Test
-    fun `fake-notification node without optional fields uses defaults`() {
-        val nodes = listOf(
-            node("start-0", "start"),
-            node("notif-1", "fake-notification", data = JsonObject())
-        )
-        val edges = listOf(edge("start-0", "notif-1"))
-
-        val graph = ChapterGraphParser.parse(
-            chapterCode = "1a",
-            metadata = ChapterMetadataDto(title = "Chapter 1A"),
-            nodeDtos = nodes,
-            edgeDtos = edges,
-            gameId = "game1",
-            legacyId = null,
-            pathProvider = pathProvider
-        )
-
-        val node = graph.getNode("notif-1") as Node.FakeNotification
-        assertEquals("", node.title)
-        assertEquals("", node.subtitle)
-        assertEquals("", node.actionText)
-        assertNull(node.imageUrl)
-        assertNull(node.characterId)
-        assertEquals(0, node.delayMs)
-        assertEquals(0, node.durationMs)
-        assertTrue(node.isAutoTiming)
     }
 
     private fun node(

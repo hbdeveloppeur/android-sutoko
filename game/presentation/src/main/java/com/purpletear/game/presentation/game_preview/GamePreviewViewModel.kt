@@ -1,5 +1,6 @@
 package com.purpletear.game.presentation.game_preview
 
+import androidx.annotation.Keep
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -18,6 +19,7 @@ import com.purpletear.sutoko.domain.repository.UserRepository
 import com.purpletear.sutoko.game.model.Chapter
 import com.purpletear.sutoko.game.model.UserRole
 import com.purpletear.sutoko.game.repository.ChapterRepository
+import com.purpletear.sutoko.game.repository.GamePreviewSoundRepository
 import com.purpletear.sutoko.game.repository.UserRoleRepository
 import com.purpletear.sutoko.game.repository.game.FavoriteGamesRepository
 import com.purpletear.sutoko.game.repository.game.GameInstallRepository
@@ -69,6 +71,7 @@ class GamePreviewViewModel @Inject constructor(
     private val purchaseHandler: GamePreviewPurchaseHandler,
     private val userRepository: UserRepository,
     private val userRoleRepository: UserRoleRepository,
+    private val soundRepository: GamePreviewSoundRepository,
     private val entitlementRepository: EntitlementRepository,
     private val analyticsTracker: AnalyticsTracker,
     private val logger: Logger,
@@ -81,13 +84,6 @@ class GamePreviewViewModel @Inject constructor(
         GamePreviewLogger.i("LIFE") { "GamePreviewViewModel created for gameId=$gameId" }
     }
 
-    /**
-     * Bump to re-collect the current chapter. Friendzoned games persist their
-     * own progress outside Room, so only a re-collection re-reads it (standard
-     * games simply re-emit the same Room value). Bumped on ON_RESUME (the game
-     * may have advanced while this screen sat in the back stack) and after a
-     * confirmed restart (progress was just wiped, no lifecycle event fires).
-     */
     private val currentChapterRefreshTicks = MutableStateFlow(0)
 
     fun onResume() {
@@ -162,6 +158,7 @@ class GamePreviewViewModel @Inject constructor(
         .distinctUntilChanged()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(7000), false)
 
+    @Keep
     private data class GameObservation(
         val catalog: com.purpletear.sutoko.game.model.game.GameCatalog?,
         val install: com.purpletear.sutoko.game.model.game.GameInstall?,
@@ -234,6 +231,14 @@ class GamePreviewViewModel @Inject constructor(
     val isPurchaseLoading: StateFlow<Boolean> = purchaseHandler.isPurchaseLoading
 
     val isUserPremium: StateFlow<Boolean> = entitlementRepository.observeHasPremium()
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(7000),
+            initialValue = false,
+        )
+
+    /** Persisted preference: the story's menu ambience plays unless muted. */
+    val isMenuSoundMuted: StateFlow<Boolean> = soundRepository.observeMuted()
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(7000),
@@ -345,6 +350,14 @@ class GamePreviewViewModel @Inject constructor(
             GamePreviewAction.OnRestartConfirm -> onRestartGame()
             GamePreviewAction.OnDelete -> onDeleteGame()
             GamePreviewAction.OnToggleFavorite -> onToggleFavorite()
+            GamePreviewAction.OnToggleMenuSound -> onToggleMenuSound()
+        }
+    }
+
+    private fun onToggleMenuSound() {
+        GamePreviewLogger.i("SND") { "onToggleMenuSound() gameId=$gameId" }
+        viewModelScope.launch {
+            soundRepository.setMuted(!isMenuSoundMuted.value)
         }
     }
 

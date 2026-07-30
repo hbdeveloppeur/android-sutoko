@@ -129,6 +129,19 @@ object GameDatabaseMigrations {
         }
     }
 
+    /**
+     * Migration from version 17 to 18:
+     * - Adds menuSoundUrl (nullable) to the games catalog so the preview screen
+     *   can play the story's menu ambience.
+     */
+    val MIGRATION_17_18 = object : Migration(17, 18) {
+        override fun migrate(db: SupportSQLiteDatabase) {
+            db.execSQL(
+                "ALTER TABLE games ADD COLUMN menuSoundUrl TEXT"
+            )
+        }
+    }
+
     val ALL: Array<Migration> = arrayOf(
         MIGRATION_6_7,
         MIGRATION_10_11,
@@ -136,5 +149,6 @@ object GameDatabaseMigrations {
         MIGRATION_12_13,
         MIGRATION_14_15,
         MIGRATION_16_17,
+        MIGRATION_17_18,
     )
 }

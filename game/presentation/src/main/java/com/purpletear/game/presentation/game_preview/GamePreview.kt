@@ -82,8 +82,10 @@ import com.purpletear.game.presentation.game_preview.components.GamePreviewDescr
 import com.purpletear.game.presentation.game_preview.components.GamePreviewFavoriteButton
 import com.purpletear.game.presentation.game_preview.components.GamePreviewGradients
 import com.purpletear.game.presentation.game_preview.components.GamePreviewLabel
+import com.purpletear.game.presentation.game_preview.components.GamePreviewMenuSoundEffect
 import com.purpletear.game.presentation.game_preview.components.GamePreviewOptionsButton
 import com.purpletear.game.presentation.game_preview.components.GamePreviewShareButton
+import com.purpletear.game.presentation.game_preview.components.GamePreviewSoundButton
 import com.purpletear.game.presentation.game_preview.components.GamePreviewUnavailable
 import com.purpletear.game.presentation.game_preview.components.GamePreviewUnlockAnimation
 import com.purpletear.game.presentation.game_preview.components.GamePreviewVersionBadges
@@ -123,6 +125,7 @@ fun GamePreview(
     val isUserConnected by viewModel.isUserConnected.collectAsStateWithLifecycle()
     val isOptionsVisible by viewModel.isOptionsVisible.collectAsStateWithLifecycle()
     val isAdmin by viewModel.isAdmin.collectAsStateWithLifecycle()
+    val isMenuSoundMuted by viewModel.isMenuSoundMuted.collectAsStateWithLifecycle()
     val isPurchasing by viewModel.isPurchasing.collectAsStateWithLifecycle()
     val isPurchaseLoading by viewModel.isPurchaseLoading.collectAsStateWithLifecycle()
     val isRefreshing by viewModel.isRefreshing.collectAsStateWithLifecycle()
@@ -168,6 +171,10 @@ fun GamePreview(
                             videoUrl = currentState.item.videoUrl.takeIf { showVideo && it?.isNotBlank() == true },
                             fallbackPainter = fallbackBackgroundPainter.takeIf { currentState.item.videoUrl.isNullOrBlank() },
                             modifier = Modifier.fillMaxSize()
+                        )
+                        GamePreviewMenuSoundEffect(
+                            soundUrl = currentState.item.menuSoundUrl,
+                            muted = isMenuSoundMuted,
                         )
                     }
 
@@ -555,6 +562,12 @@ fun GamePreview(
                             .padding(top = 8.dp, end = 8.dp),
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
+                        if (!game.menuSoundUrl.isNullOrBlank()) {
+                            GamePreviewSoundButton(
+                                isMuted = isMenuSoundMuted,
+                                onToggle = { viewModel.onAction(GamePreviewAction.OnToggleMenuSound) },
+                            )
+                        }
                         GamePreviewShareButton(
                             onShare = { shareGame(context, game) },
                         )

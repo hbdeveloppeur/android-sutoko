@@ -9,6 +9,7 @@ import com.purpletear.game.presentation.game_preview.fakes.FakeChapterRepository
 import com.purpletear.game.presentation.game_preview.fakes.FakeFavoriteGamesRepository
 import com.purpletear.game.presentation.game_preview.fakes.FakeFriendzonedProgressRepository
 import com.purpletear.game.presentation.game_preview.fakes.FakeGameInstallRepository
+import com.purpletear.game.presentation.game_preview.fakes.FakeGamePreviewSoundRepository
 import com.purpletear.game.presentation.game_preview.fakes.FakeGameRepository
 import com.purpletear.game.presentation.game_preview.fakes.FakeBuyStoryWithCoinsUseCase
 import com.purpletear.game.presentation.game_preview.fakes.FakeEntitlementRepository
@@ -59,6 +60,7 @@ class GamePreviewViewModelTest {
     private val mediaUrlResolver = FakeMediaUrlResolver()
     private val userRepository = FakeUserRepository()
     private val userRoleRepository = FakeUserRoleRepository()
+    private val soundRepository = FakeGamePreviewSoundRepository()
     private val userGameProgressRepository = FakeUserGameProgressRepository()
     private val memoryRepository = FakeMemoryRepository()
     private val friendzonedProgressRepository = FakeFriendzonedProgressRepository()
@@ -121,6 +123,7 @@ class GamePreviewViewModelTest {
             purchaseHandler = purchaseHandler,
             userRepository = userRepository,
             userRoleRepository = userRoleRepository,
+            soundRepository = soundRepository,
             entitlementRepository = entitlementRepository,
             analyticsTracker = analyticsTracker,
             logger = logger,
@@ -173,6 +176,22 @@ class GamePreviewViewModelTest {
         userRoleRepository.set(UserRole.ADMINISTRATOR)
         advanceUntilIdle()
         assertTrue(viewModel.isAdmin.value)
+    }
+
+    @Test
+    fun `onAction OnToggleMenuSound toggles persisted muted state`() = runTest {
+        val viewModel = createViewModel()
+        backgroundScope.launch { viewModel.isMenuSoundMuted.collect { } }
+        advanceUntilIdle()
+        assertFalse(viewModel.isMenuSoundMuted.value)
+
+        viewModel.onAction(GamePreviewAction.OnToggleMenuSound)
+        advanceUntilIdle()
+        assertTrue(viewModel.isMenuSoundMuted.value)
+
+        viewModel.onAction(GamePreviewAction.OnToggleMenuSound)
+        advanceUntilIdle()
+        assertFalse(viewModel.isMenuSoundMuted.value)
     }
 
     @Test

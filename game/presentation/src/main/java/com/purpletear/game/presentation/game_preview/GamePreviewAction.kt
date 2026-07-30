@@ -13,4 +13,5 @@ sealed class GamePreviewAction {
     data object OnPlay : GamePreviewAction()
     data object OnDelete : GamePreviewAction()
     data object OnToggleFavorite : GamePreviewAction()
+    data object OnToggleMenuSound : GamePreviewAction()
 }
