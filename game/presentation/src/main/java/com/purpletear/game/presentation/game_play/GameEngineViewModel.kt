@@ -605,6 +605,11 @@ class GameEngineViewModel @Inject constructor(
 
     fun onChoiceSelected(choice: HandlerEffect.ShowChoices.Choice) {
         val nextNodeId = choice.nextNodeId ?: return
+        // Ignore taps on stale choices (double-tap or tap during the choices fade-out),
+        // and clear the choices synchronously so a second tap finds nothing to submit.
+        val state = _uiState.value
+        if (!state.isAwaitingInput || state.choices.none { it.nextNodeId == nextNodeId }) return
+        updateState { it.copy(choices = emptyList()) }
         viewModelScope.launch {
             gameEngine.submitChoice(nextNodeId)
         }

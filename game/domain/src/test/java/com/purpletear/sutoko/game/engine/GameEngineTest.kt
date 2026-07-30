@@ -108,8 +108,8 @@ class GameEngineTest {
         assertTrue(textMessages.any { it.text == "Option B" })
     }
 
-    @Test(expected = IllegalStateException::class)
-    fun `submit choice while not awaiting input - should throw`() = runBlocking {
+    @Test
+    fun `submit choice while not awaiting input - should be ignored`() = runBlocking {
         val engine = createEngine()
         val graph = ChapterGraph(
             chapterCode = "1A",
@@ -125,10 +125,13 @@ class GameEngineTest {
         engine.start()
 
         engine.submitChoice("invalid")
+
+        assertTrue(engine.state.value !is GameEngineState.AwaitingInput)
+        assertTrue(engine.messages.value.isEmpty())
     }
 
-    @Test(expected = IllegalStateException::class)
-    fun `submit invalid choice - should throw`() = runBlocking {
+    @Test
+    fun `submit invalid choice - should be ignored and still accept a valid choice`() = runBlocking {
         val engine = createEngine()
         val graph = ChapterGraph(
             chapterCode = "1A",
@@ -149,6 +152,53 @@ class GameEngineTest {
         engine.start()
 
         engine.submitChoice("not-a-choice")
+
+        // Stale input is dropped: the engine must still be waiting with its choices intact.
+        assertTrue(engine.state.value is GameEngineState.AwaitingInput)
+
+        engine.submitChoice("choiceA")
+        val textMessages = engine.messages.value.filterIsInstance<com.purpletear.sutoko.game.engine.message.GameMessageText>()
+        assertTrue(textMessages.any { it.text == "Option A" })
+    }
+
+    @Test
+    fun `resubmit stale choice after engine moved to next hub - should be ignored`() = runBlocking {
+        val engine = createEngine()
+        val graph = ChapterGraph(
+            chapterCode = "1A",
+            title = "Test",
+            nodes = mapOf(
+                "start" to Node.Start(id = "start"),
+                "choiceA" to Node.Message(id = "choiceA", text = "Option A", characterId = 1),
+                "choiceB" to Node.Message(id = "choiceB", text = "Option B", characterId = 1),
+                "hub2" to Node.Message(id = "hub2", text = "After A", characterId = 2),
+                "choiceC" to Node.Message(id = "choiceC", text = "Option C", characterId = 1),
+                "choiceD" to Node.Message(id = "choiceD", text = "Option D", characterId = 1)
+            ),
+            edges = listOf(
+                Edge(source = "start", target = "choiceA", type = EdgeType.NORMAL),
+                Edge(source = "start", target = "choiceB", type = EdgeType.NORMAL),
+                Edge(source = "choiceA", target = "hub2", type = EdgeType.NORMAL),
+                Edge(source = "hub2", target = "choiceC", type = EdgeType.NORMAL),
+                Edge(source = "hub2", target = "choiceD", type = EdgeType.NORMAL)
+            ),
+            startNodeId = "start"
+        )
+
+        engine.initialize("game-1", graph)
+        engine.start()
+        assertTrue(engine.state.value is GameEngineState.AwaitingInput)
+
+        engine.submitChoice("choiceA")
+        assertTrue(engine.state.value is GameEngineState.AwaitingInput)
+
+        // Regression: a stale duplicate from the previous hub must not crash the engine.
+        engine.submitChoice("choiceA")
+        assertTrue(engine.state.value is GameEngineState.AwaitingInput)
+
+        engine.submitChoice("choiceC")
+        val textMessages = engine.messages.value.filterIsInstance<GameMessageText>()
+        assertTrue(textMessages.any { it.text == "Option C" })
     }
 
     @Test

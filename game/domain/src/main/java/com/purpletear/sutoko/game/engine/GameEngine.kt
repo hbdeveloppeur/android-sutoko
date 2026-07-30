@@ -488,20 +488,23 @@ class GameEngine @Inject constructor(
     /**
      * Resumes execution after the player selected a choice.
      *
+     * Stale or duplicate submissions (e.g. a second tap while the previous choice
+     * is still executing, or a tap on a choice from an already-passed hub) are
+     * logged and dropped: UI input is untrusted and must never crash the engine.
+     *
      * @param nextNodeId The target node id of the selected choice
-     * @throws IllegalStateException if the engine is not awaiting input
-     * @throws IllegalArgumentException if the id does not match any offered choice
      */
     suspend fun submitChoice(nextNodeId: String) {
         inputMutex.withLock {
-            check(awaitingInput && state.value is GameEngineState.AwaitingInput) {
-                "Precondition violation: submitChoice() called while engine is not awaiting input"
+            if (!awaitingInput || state.value !is GameEngineState.AwaitingInput) {
+                GameEngineLogger.w("INPT") { "Ignoring submitChoice($nextNodeId): engine is not awaiting input" }
+                return@withLock
             }
 
             val validIds = availableChoices.map { it.nextNodeId }
-            check(nextNodeId in validIds) {
-                GameEngineLogger.e("INPT") { "Invalid choice: $nextNodeId is not one of $validIds" }
-                "Invalid choice: $nextNodeId is not one of the offered choices"
+            if (nextNodeId !in validIds) {
+                GameEngineLogger.w("INPT") { "Ignoring stale choice: $nextNodeId is not one of $validIds" }
+                return@withLock
             }
 
             GameEngineLogger.d("INPT") { "Choice selected: $nextNodeId" }
