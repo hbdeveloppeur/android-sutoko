@@ -14,7 +14,7 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
 import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
 import androidx.compose.runtime.DisposableEffect
@@ -232,7 +232,7 @@ class MainActivity @Inject constructor(
                     }
                 }
 
-                Box(Modifier.imePadding()) {
+                Box(Modifier.fillMaxSize()) {
                     NavHost(
                         navController,
                         startDestination = MainScreenPages.SplashScreen.route,

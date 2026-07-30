@@ -9,11 +9,16 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.WindowInsetsSides
+import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.ime
+import androidx.compose.foundation.layout.navigationBars
+import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.material.MaterialTheme
@@ -32,6 +37,7 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -94,14 +100,28 @@ fun MainScreen(
 
             val bottomNavigationController = rememberNavController()
 
+            // Reserve space for the overlaid bottom navigation, minus the keyboard:
+            // when the IME covers the nav bar, the reservation shrinks to zero.
+            val density = LocalDensity.current
+            val imeBottom = WindowInsets.ime.getBottom(density)
+            val bottomPadding = with(density) {
+                (BottomNavigationHeight.toPx() + WindowInsets.navigationBars.getBottom(this) - imeBottom)
+                    .coerceAtLeast(0f)
+                    .toDp()
+            }
+
             NavHost(
                 navController = bottomNavigationController,
                 startDestination = BottomNavItem.Home.route,
                 modifier = Modifier
                     .fillMaxHeight()
                     .sizeIn(maxWidth = 500.dp)
-                    .navigationBarsPadding()
-                    .padding(bottom = BottomNavigationHeight)
+                    .padding(
+                        WindowInsets.navigationBars
+                            .only(WindowInsetsSides.Horizontal)
+                            .asPaddingValues()
+                    )
+                    .padding(bottom = bottomPadding)
                     .align(Alignment.Center)
             ) {
                 composable(

@@ -59,10 +59,6 @@ import java.util.Date
 
 /** Brand accent, shared with the in-game chapter selection (current chapter highlight). */
 private val ChaptersAccent = Color(0xFFFF007A)
-private val CardShape = RoundedCornerShape(12.dp)
-
-/** Accent gradient used by the "coming soon" teaser section. */
-private val UpcomingGradientColors = listOf(ChaptersAccent, Color(0xFF7A5CFF))
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -220,6 +216,11 @@ private fun ChapterList(
 ) {
     val (upcoming, released) = remember(chapters, isAdmin) {
         chapters.partition { !it.available && !isAdmin }
+            .let { (upcoming, released) ->
+                // Alternatives share the same chapter number: show each
+                // chapter only once.
+                upcoming.distinctBy { it.number } to released.distinctBy { it.number }
+            }
     }
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
@@ -242,7 +243,7 @@ private fun ChapterList(
             Text(
                 text = stringResource(
                     R.string.game_presentation_game_story_chapters_button_chapters_count,
-                    chapters.size,
+                    released.size,
                 ),
                 color = Color.White.copy(alpha = 0.5f),
                 fontSize = 13.sp,
@@ -326,17 +327,19 @@ private fun UpcomingChapterCard(
                 modifier = Modifier.weight(1f),
                 verticalArrangement = spacedBy(8.dp),
             ) {
-                if (chapter.title.isNotBlank()) {
-                    Text(
-                        text = chapter.title,
-                        color = Color.White,
-                        fontSize = 13.sp,
-                        fontWeight = FontWeight.SemiBold,
-                        fontFamily = PlusJakartaSansFontFamily,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                    )
-                }
+                Text(
+                    // "Chapter N" only: the title may spoil the story.
+                    text = stringResource(
+                        R.string.game_presentation_game_chapter_number,
+                        chapter.number,
+                    ),
+                    color = Color.White,
+                    fontSize = 13.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    fontFamily = PlusJakartaSansFontFamily,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
                 ChapterAvailabilityDate(releaseDate = chapter.releaseDate)
             }
 

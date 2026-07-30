@@ -4,6 +4,4 @@ it.
 task - you can compact your context between each task.
 If necessary you are allowed to do any commands like curls, install script, etc
 
-Task 1: You are marketing management for our user players intelligency department - One question: To
-maximize our revenues what would strategy would you install in the app. For example to know our
-users better. Analyze the App and tell us.
+Task 1 : As An UX UI expert, clean, subtile, perfect UX/UI designer, update MessageVocalDest
