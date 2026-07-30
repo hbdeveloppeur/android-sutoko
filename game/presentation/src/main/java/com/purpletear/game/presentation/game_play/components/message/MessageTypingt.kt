@@ -59,14 +59,15 @@ private const val DOT_DELAY = ANIMATION_DURATION / DOT_COUNT
 internal fun MessageTyping(
     character: Character? = null,
     modifier: Modifier = Modifier,
+    /** Display side of the bubble; defaults to the legacy main-character rule. */
+    isRightSide: Boolean = character?.isMainCharacter ?: false,
     bubbleColorHex: String? = null,
     textColorHex: String? = null,
 ) {
     val infiniteTransition = rememberInfiniteTransition(label = "typing_dots")
     val bubbleColor = remember(bubbleColorHex) { Color.parseOrNull(bubbleColorHex) }
     val dotColor = remember(textColorHex) { Color.parseOrNull(textColorHex) }
-    val isMainCharacter = character?.isMainCharacter ?: false
-    val alignment = if (isMainCharacter) Alignment.CenterEnd else Alignment.CenterStart
+    val alignment = if (isRightSide) Alignment.CenterEnd else Alignment.CenterStart
 
     Box(
         modifier

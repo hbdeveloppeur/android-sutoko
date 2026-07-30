@@ -40,6 +40,8 @@ internal fun Message(
     nextMessage: GameMessage?,
     message: GameMessage,
     character: Character? = null,
+    /** Resolved display side of [character]; defaults to the legacy main-character rule. */
+    isRightSide: Boolean = character?.isMainCharacter == true,
     isNewlyAdded: Boolean = false,
     currentVocalUrl: String? = null,
     isVocalPlaying: Boolean = false,
@@ -71,6 +73,7 @@ internal fun Message(
                     MessageText(
                         text = msg.text,
                         character = character!!,
+                        isRightSide = isRightSide,
                         showHeader = positionInGroup != MessagePositionInGroup.MIDDLE && positionInGroup != MessagePositionInGroup.BOTTOM,
                         positionInGroup = positionInGroup,
                         bubbleColorHex = msg.backgroundColor,
@@ -83,6 +86,7 @@ internal fun Message(
                     msg as GameMessageTyping
                     MessageTyping(
                         character = character,
+                        isRightSide = isRightSide,
                         bubbleColorHex = msg.backgroundColor,
                         textColorHex = msg.foregroundColor,
                     )
@@ -133,6 +137,7 @@ internal fun Message(
                     MessageImage(
                         path = msg.imageUrl,
                         character = character!!,
+                        isRightSide = isRightSide,
                         onClick = { bounds -> onImageClick(msg.imageUrl, bounds) }
                     )
                 }
@@ -150,6 +155,7 @@ internal fun Message(
                     MessageVocalDest(
                         isPlaying = isThisPlaying,
                         character = character!!,
+                        isRightSide = isRightSide,
                         percent = percent,
                         onClick = { onVocalClick(msg.audioUrl) }
                     )

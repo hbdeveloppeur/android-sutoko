@@ -56,6 +56,8 @@ private fun Preview() {
 internal fun MessageImage(
     path: String,
     character: Character,
+    /** Display side of the image; defaults to the legacy main-character rule. */
+    isRightSide: Boolean = character.isMainCharacter,
     onClick: (bounds: Rect) -> Unit = {},
 ) {
     val context = LocalContext.current
@@ -68,7 +70,7 @@ internal fun MessageImage(
     var bounds by remember { mutableStateOf(Rect.Zero) }
 
     val alignment =
-        if (character.isMainCharacter) Alignment.BottomEnd else Alignment.BottomStart
+        if (isRightSide) Alignment.BottomEnd else Alignment.BottomStart
     Box(Modifier.fillMaxWidth()
         .padding(horizontal = ITEMS_HORIZONTAL_PADDING), contentAlignment = alignment) {
         Box(

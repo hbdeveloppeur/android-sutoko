@@ -22,6 +22,12 @@ data class GameUiState(
     val isChoicesRevealed: Boolean = false,
     val currentScene: Scene? = null,
     val characters: Map<Int, Character> = emptyMap(),
+    /**
+     * Ids of the characters displayed on the right side for the current chapter
+     * (`Chapter.rightSideCharacterIds`). Empty when the chapter declares no layout:
+     * the screen then falls back to the legacy main-character rule.
+     */
+    val rightSideCharacterIds: Set<Int> = emptySet(),
     val currentVocalUrl: String? = null,
     val isVocalPlaying: Boolean = false,
     val vocalProgress: Float = 0f,

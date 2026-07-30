@@ -20,7 +20,12 @@ data class ChapterEntity(
     val canvasAppVersion: Int = 0,
     val code: String = "",
     val available: Boolean = false,
+    /** Comma-separated character ids displayed on the right side; empty when no layout. */
+    val rightSideCharacterIds: String = "",
 )
+
+private fun String.toCharacterIds(): List<Int> =
+    split(',').mapNotNull { it.trim().toIntOrNull() }
 
 fun ChapterEntity.toDomain(): Chapter = Chapter(
     id = id,
@@ -34,6 +39,7 @@ fun ChapterEntity.toDomain(): Chapter = Chapter(
     canvasAppVersion = canvasAppVersion,
     code = code.uppercase(),
     available = available,
+    rightSideCharacterIds = rightSideCharacterIds.toCharacterIds(),
 )
 
 fun Chapter.toEntity(): ChapterEntity = ChapterEntity(
@@ -48,4 +54,5 @@ fun Chapter.toEntity(): ChapterEntity = ChapterEntity(
     canvasAppVersion = canvasAppVersion,
     code = code.uppercase(),
     available = available,
+    rightSideCharacterIds = rightSideCharacterIds.joinToString(","),
 )

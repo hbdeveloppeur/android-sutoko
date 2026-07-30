@@ -15,6 +15,13 @@ data class Chapter(
     val canvasAppVersion: Int = 0,
     val code: String = "",
     val available: Boolean = false,
+    /**
+     * Ids of the characters whose messages are displayed on the right side of the
+     * conversation (from the chapter `layout.sides.right` payload). Every other
+     * character is displayed on the left. Empty when the chapter declares no
+     * layout: callers then fall back to the legacy main-character rule.
+     */
+    val rightSideCharacterIds: List<Int> = emptyList(),
 ) {
 
     val normalizedCode: String

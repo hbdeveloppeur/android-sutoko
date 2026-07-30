@@ -69,6 +69,8 @@ internal fun MessageText(
     modifier: Modifier = Modifier,
     text: String,
     character: Character,
+    /** Display side of the bubble; defaults to the legacy main-character rule. */
+    isRightSide: Boolean = character.isMainCharacter,
     showHeader: Boolean = true,
     positionInGroup: MessagePositionInGroup = MessagePositionInGroup.SINGLE,
     bubbleColorHex: String? = null,
@@ -77,14 +79,14 @@ internal fun MessageText(
 ) {
     val bubbleColor = remember(bubbleColorHex) { Color.parseOrNull(bubbleColorHex) }
     val textColor = remember(textColorHex) { Color.parseOrNull(textColorHex) }
-    val alignment = if (character.isMainCharacter) Alignment.CenterEnd else Alignment.CenterStart
+    val alignment = if (isRightSide) Alignment.CenterEnd else Alignment.CenterStart
     Box(
         Modifier
             .fillMaxWidth()
             .padding(horizontal = ITEMS_HORIZONTAL_PADDING),
         contentAlignment = alignment
     ) {
-        if (character.isMainCharacter) {
+        if (isRightSide) {
             MessageMainCharacter(
                 modifier = modifier,
                 text = text,

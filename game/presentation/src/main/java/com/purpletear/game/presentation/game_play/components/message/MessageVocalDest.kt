@@ -34,23 +34,35 @@ import com.purpletear.sutoko.game.model.character.Character
 
 @Composable
 internal fun MessageVocalDest(
-    character: Character, isPlaying: Boolean, percent: Float, onClick: () -> Unit = {}
+    character: Character,
+    isPlaying: Boolean,
+    percent: Float,
+    /** Display side of the bubble; vocal bubbles were historically left-aligned. */
+    isRightSide: Boolean = false,
+    onClick: () -> Unit = {}
 ) {
-    MessageBubble(Modifier.padding(end = 4.dp)) {
-        if (character.avatar != null) {
-            val avatarColor = character.color.toWhitenedComposeColor(fraction = 0.7f)
-            Avatar(
-                modifier = Modifier.background(avatarColor, CircleShape),
-                size = 22.dp,
-                borderWidth = 1.4.dp,
-                borderColor = avatarColor,
-                imageModel = character.avatar
-            )
-        } else {
-            Spacer(Modifier.size(22.dp))
+    Box(
+        Modifier
+            .fillMaxWidth()
+            .padding(horizontal = ITEMS_HORIZONTAL_PADDING),
+        contentAlignment = if (isRightSide) Alignment.CenterEnd else Alignment.CenterStart,
+    ) {
+        MessageBubble(Modifier.padding(end = 4.dp)) {
+            if (character.avatar != null) {
+                val avatarColor = character.color.toWhitenedComposeColor(fraction = 0.7f)
+                Avatar(
+                    modifier = Modifier.background(avatarColor, CircleShape),
+                    size = 22.dp,
+                    borderWidth = 1.4.dp,
+                    borderColor = avatarColor,
+                    imageModel = character.avatar
+                )
+            } else {
+                Spacer(Modifier.size(22.dp))
+            }
+            Progress(percent)
+            PlayButton(isPlaying, onClick)
         }
-        Progress(percent)
-        PlayButton(isPlaying, onClick)
     }
 }
 

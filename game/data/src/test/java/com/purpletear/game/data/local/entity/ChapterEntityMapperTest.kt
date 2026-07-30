@@ -31,4 +31,21 @@ class ChapterEntityMapperTest {
 
         assertTrue(chapter.toEntity().toDomain().available)
     }
+
+    @Test
+    fun `entity round trip preserves rightSideCharacterIds`() {
+        val chapter = Chapter(id = "1", rightSideCharacterIds = listOf(73, 12))
+
+        val entity = chapter.toEntity()
+
+        assertEquals("73,12", entity.rightSideCharacterIds)
+        assertEquals(listOf(73, 12), entity.toDomain().rightSideCharacterIds)
+    }
+
+    @Test
+    fun `empty stored rightSideCharacterIds maps to empty list`() {
+        val entity = ChapterEntity(id = "1")
+
+        assertTrue(entity.toDomain().rightSideCharacterIds.isEmpty())
+    }
 }

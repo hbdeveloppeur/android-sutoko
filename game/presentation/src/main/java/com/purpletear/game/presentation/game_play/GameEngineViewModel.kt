@@ -140,6 +140,7 @@ class GameEngineViewModel @Inject constructor(
                             }
                         }
                 }
+                launch { observeChapterLayout(gameId, chapterCode) }
 
                 loadChapterGraphAndStartGame(gameId, chapterCode)
 
@@ -178,6 +179,29 @@ class GameEngineViewModel @Inject constructor(
                         makeToastService(R.string.game_presentation_error_load_game)
                     }
                 )
+            }
+    }
+
+    /**
+     * Publishes the right-side character ids declared by the current chapter's layout
+     * (`layout.sides.right`). Emits an empty set while the chapter is unknown or declares
+     * no layout: the screen then falls back to the legacy main-character rule.
+     */
+    private suspend fun observeChapterLayout(gameId: String, chapterCode: String) {
+        chapterRepository.observeChapters(gameId)
+            .catch { e ->
+                logger.exception(e) { "chapter layout observation failed" }
+                emit(emptyList())
+            }
+            .collect { chapters ->
+                val rightSideIds = chapters
+                    .firstOrNull { it.normalizedCode == chapterCode.lowercase() }
+                    ?.rightSideCharacterIds
+                    .orEmpty()
+                    .toSet()
+                if (_uiState.value.rightSideCharacterIds != rightSideIds) {
+                    updateState { it.copy(rightSideCharacterIds = rightSideIds) }
+                }
             }
     }
 

@@ -146,11 +146,21 @@ internal fun SmsGameScreen(
                     key = { _, item -> item.id }
                 ) { index, message ->
                     val characterId = message.characterId()
+                    val character = characterId?.let { state.characters[it] }
+                    // When the chapter declares a layout, membership in rightSideCharacterIds
+                    // is the single source of truth (right if listed, left otherwise).
+                    // Otherwise fall back to the legacy main-character rule.
+                    val isRightSide = if (state.rightSideCharacterIds.isNotEmpty()) {
+                        characterId != null && characterId in state.rightSideCharacterIds
+                    } else {
+                        character?.isMainCharacter == true
+                    }
                     Message(
                         message = message,
                         previousMessage = messages.getOrNull(index + 1),
                         nextMessage = messages.getOrNull(index - 1),
-                        character = characterId?.let { state.characters[it] },
+                        character = character,
+                        isRightSide = isRightSide,
                         isNewlyAdded = message.id == newestMessageId && message.id != previousNewestMessageId,
                         currentVocalUrl = state.currentVocalUrl,
                         isVocalPlaying = state.isVocalPlaying,

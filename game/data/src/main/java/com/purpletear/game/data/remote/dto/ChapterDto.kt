@@ -19,6 +19,26 @@ data class ChapterDto(
     @SerializedName("canvasAppVersion") val canvasAppVersion: Int,
     @SerializedName("code") val code: String,
     @SerializedName("available") val available: Boolean,
+    @SerializedName("layout") val layout: ChapterLayoutDto? = null,
+)
+
+/**
+ * Data Transfer Object for Chapter layout.
+ * Declares on which side of the conversation each character's messages are displayed.
+ */
+@Keep
+data class ChapterLayoutDto(
+    @SerializedName("sides") val sides: ChapterSidesDto? = null,
+)
+
+/**
+ * Data Transfer Object for Chapter layout sides.
+ * [right] holds the ids of the characters displayed on the right; every other
+ * character is displayed on the left.
+ */
+@Keep
+data class ChapterSidesDto(
+    @SerializedName("right") val right: List<Int>? = null,
 )
 
 /**
@@ -48,6 +68,7 @@ fun ChapterDto.toDomain(): Chapter {
         canvasAppVersion = canvasAppVersion,
         code = code.uppercase(),
         available = available,
+        rightSideCharacterIds = layout?.sides?.right.orEmpty(),
     )
 }
 

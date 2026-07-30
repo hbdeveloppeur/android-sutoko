@@ -114,11 +114,27 @@ object GameDatabaseMigrations {
         }
     }
 
+    /**
+     * Migration from version 16 to 17:
+     * - Adds rightSideCharacterIds (comma-separated character ids) to chapters so the
+     *   conversation screen knows which characters are displayed on the right side.
+     * - Existing chapters default to an empty string, meaning "no layout": the UI then
+     *   falls back to the legacy main-character rule.
+     */
+    val MIGRATION_16_17 = object : Migration(16, 17) {
+        override fun migrate(db: SupportSQLiteDatabase) {
+            db.execSQL(
+                "ALTER TABLE chapters ADD COLUMN rightSideCharacterIds TEXT NOT NULL DEFAULT ''"
+            )
+        }
+    }
+
     val ALL: Array<Migration> = arrayOf(
         MIGRATION_6_7,
         MIGRATION_10_11,
         MIGRATION_11_12,
         MIGRATION_12_13,
         MIGRATION_14_15,
+        MIGRATION_16_17,
     )
 }
