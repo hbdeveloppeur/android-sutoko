@@ -30,7 +30,7 @@ internal fun MessageBubble(
             .padding(horizontal = 10.dp, vertical = 8.dp)
             .then(modifier),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(11.dp),
+        horizontalArrangement = Arrangement.spacedBy(4.dp),
         content = content
     )
 }
