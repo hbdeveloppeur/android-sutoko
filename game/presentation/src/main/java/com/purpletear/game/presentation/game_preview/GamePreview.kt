@@ -77,6 +77,7 @@ import com.purpletear.game.presentation.game_play.components.Avatar
 import com.purpletear.game.presentation.game_preview.components.GamePreviewButton
 import com.purpletear.game.presentation.game_preview.components.GamePreviewCategories
 import com.purpletear.game.presentation.game_preview.components.GamePreviewChapterTitle
+import com.purpletear.game.presentation.game_preview.components.GamePreviewConnectButton
 import com.purpletear.game.presentation.game_preview.components.GamePreviewDescription
 import com.purpletear.game.presentation.game_preview.components.GamePreviewFavoriteButton
 import com.purpletear.game.presentation.game_preview.components.GamePreviewGradients
@@ -469,6 +470,9 @@ fun GamePreview(
                             }
 
                             GamePreviewDescription(
+                                modifier = Modifier.alpha(
+                                    if (gameItem?.description.isNullOrBlank()) 0f else 1f
+                                ),
                                 avatarUrl = gameItem?.logoUrl ?: "",
                                 description = gameItem?.description ?: "",
                             )
@@ -520,22 +524,36 @@ fun GamePreview(
                     }
                 }
 
-                gameItem?.let { game ->
-                    if (isAdmin) {
-                        GamePreviewVersionBadges(
-                            currentVersion = game.localVersion,
-                            availableVersion = game.version,
-                            modifier = Modifier
-                                .align(Alignment.TopStart)
-                                .statusBarsPadding()
-                                .padding(top = 16.dp, start = 8.dp),
+                Row(
+                    modifier = Modifier
+                        .align(Alignment.TopStart)
+                        .statusBarsPadding()
+                        .padding(top = 10.dp, start = 8.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    if (!isUserConnected) {
+                        GamePreviewConnectButton(
+                            onClick = onOpenAccountConnection,
+                            modifier = Modifier.padding(start = 6.dp)
                         )
                     }
+                    gameItem?.let { game ->
+                        if (isAdmin) {
+                            GamePreviewVersionBadges(
+                                currentVersion = game.localVersion,
+                                availableVersion = game.version,
+                            )
+                        }
+                    }
+                }
+                gameItem?.let { game ->
                     Row(
                         modifier = Modifier
                             .align(Alignment.TopEnd)
                             .statusBarsPadding()
                             .padding(top = 8.dp, end = 8.dp),
+                        verticalAlignment = Alignment.CenterVertically,
                     ) {
                         GamePreviewShareButton(
                             onShare = { shareGame(context, game) },

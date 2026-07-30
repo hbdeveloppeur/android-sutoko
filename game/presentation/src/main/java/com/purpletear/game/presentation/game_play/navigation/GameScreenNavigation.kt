@@ -81,5 +81,6 @@ internal fun NavGraphBuilder.gameScreen(
         onToggleChoicesDarkMode = viewModel::onToggleChoicesDarkMode,
         onFakeNotificationDismissed = viewModel::onFakeNotificationDismissed,
         onHoldPauseChanged = viewModel::onHoldPauseChanged,
+        onImageViewerVisibilityChanged = viewModel::onImageViewerVisibilityChanged,
     )
 }

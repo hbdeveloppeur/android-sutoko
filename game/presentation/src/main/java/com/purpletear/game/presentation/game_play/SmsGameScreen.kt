@@ -87,6 +87,7 @@ internal fun SmsGameScreen(
     onToggleChoicesDarkMode: () -> Unit = {},
     onFakeNotificationDismissed: () -> Unit = {},
     onHoldPauseChanged: (Boolean) -> Unit = {},
+    onImageViewerVisibilityChanged: (Boolean) -> Unit = {},
 ) {
     var viewerState by remember { mutableStateOf(ImageViewerState()) }
     var mangaState by remember { mutableStateOf(MangaViewerState()) }
@@ -166,10 +167,12 @@ internal fun SmsGameScreen(
                         isVocalPlaying = state.isVocalPlaying,
                         vocalProgress = state.vocalProgress,
                         onImageClick = { url, bounds ->
+                            onImageViewerVisibilityChanged(true)
                             viewerState =
                                 ImageViewerState(url, bounds, true, SwipeToDismissDirection.ANY)
                         },
                         onAvatarClick = { imageModel, bounds ->
+                            onImageViewerVisibilityChanged(true)
                             viewerState = ImageViewerState(
                                 imageModel,
                                 bounds,
@@ -215,7 +218,10 @@ internal fun SmsGameScreen(
             imageModel = viewerState.imageModel,
             sourceBounds = viewerState.bounds,
             isVisible = viewerState.isExpanded,
-            onDismiss = { viewerState = viewerState.copy(isExpanded = false) },
+            onDismiss = {
+                onImageViewerVisibilityChanged(false)
+                viewerState = viewerState.copy(isExpanded = false)
+            },
             swipeToDismissDirection = viewerState.swipeToDismissDirection,
         )
 

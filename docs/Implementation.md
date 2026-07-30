@@ -1,7 +1,5 @@
 This file list messages from our human testers - it's features or fixes to implement.
 You will have to create a git branch if the current branch is main for that work and switch on
 it.
-task - you can compact your context between each task.
-If necessary you are allowed to do any commands like curls, install script, etc
-
-Task 1 : As An UX UI expert, clean, subtile, perfect UX/UI designer, update MessageVocalDest
+done ✅ - You are an UX/UI expert designer with the right design choices. In GamePreview, on the top
+left, when the user is not connect they must see a small clean button to connect.

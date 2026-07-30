@@ -36,6 +36,7 @@
     <string name="game_presentation_game_preview_add_favorite">Zu Favoriten hinzufügen</string>
     <string name="game_presentation_game_preview_remove_favorite">Aus Favoriten entfernen</string>
     <string name="game_presentation_game_preview_share">An einen Freund senden</string>
+    <string name="game_presentation_game_preview_sign_in">Anmelden</string>
     <string name="game_presentation_game_preview_share_message">Spiele %1$s mit mir auf Sutoko : %2$s</string>
     <string name="game_presentation_game_preview_author_avatar">Autoren-Avatar, zum Vergrößern tippen</string>
     <string name="game_presentation_game_preview_background_description">Hintergrund</string>

@@ -71,9 +71,18 @@ class GameEngineViewModel @Inject constructor(
 ) : ViewModel() {
 
     private var typingPlayer: MediaPlayer? = null
+
+    /** Ambient/looping channel: a new looping sound replaces the previous one. */
     private var soundPlayer: MediaPlayer? = null
+
+    /** Non-looping sounds: each one gets its own player so effects can overlap. */
+    private val oneShotSoundPlayers = mutableSetOf<MediaPlayer>()
+
     private var vocalPlayer: MediaPlayer? = null
     private var vocalProgressJob: Job? = null
+
+    private var isFingerHeld = false
+    private var isImageViewerOpen = false
 
     private val gameId: String = checkNotNull(savedStateHandle["gameId"]) {
         "gameId is required"
@@ -213,6 +222,10 @@ class GameEngineViewModel @Inject constructor(
         soundPlayer?.stop()
         soundPlayer?.release()
         soundPlayer = null
+        releaseOneShotSounds()
+
+        isFingerHeld = false
+        isImageViewerOpen = false
 
         vocalPlayer?.setOnCompletionListener(null)
         vocalPlayer?.release()
@@ -450,6 +463,7 @@ class GameEngineViewModel @Inject constructor(
         typingPlayer = null
         soundPlayer?.release()
         soundPlayer = null
+        releaseOneShotSounds()
         vocalPlayer?.release()
         vocalPlayer = null
         vocalProgressJob?.cancel()
@@ -458,24 +472,57 @@ class GameEngineViewModel @Inject constructor(
     }
 
     private fun playSound(soundUrl: String, loop: Boolean) {
+        if (loop) {
+            playLoopingSound(soundUrl)
+        } else {
+            playOneShotSound(soundUrl)
+        }
+    }
+
+    private fun playLoopingSound(soundUrl: String) {
         soundPlayer?.release()
         soundPlayer = try {
             MediaPlayer().apply {
                 setDataSource(soundUrl)
-                isLooping = loop
+                isLooping = true
                 prepare()
-                setOnCompletionListener {
-                    if (!loop) {
-                        release()
-                        soundPlayer = null
-                    }
-                }
                 start()
             }
         } catch (e: Exception) {
             Log.e("GameEngine", "Failed to play sound: $soundUrl", e)
             null
         }
+    }
+
+    /**
+     * Fire-and-forget playback: every one-shot sound owns its player, so several
+     * effects can overlap each other and the ambient loop. The player removes and
+     * releases itself on completion; [releaseOneShotSounds] covers early teardown.
+     */
+    private fun playOneShotSound(soundUrl: String) {
+        val player = try {
+            MediaPlayer().apply {
+                setDataSource(soundUrl)
+                prepare()
+            }
+        } catch (e: Exception) {
+            Log.e("GameEngine", "Failed to play sound: $soundUrl", e)
+            return
+        }
+        oneShotSoundPlayers += player
+        player.setOnCompletionListener { mp ->
+            oneShotSoundPlayers.remove(mp)
+            mp.release()
+        }
+        player.start()
+    }
+
+    private fun releaseOneShotSounds() {
+        oneShotSoundPlayers.forEach {
+            it.setOnCompletionListener(null)
+            it.release()
+        }
+        oneShotSoundPlayers.clear()
     }
 
     fun onVocalClicked(audioUrl: String) {
@@ -560,6 +607,7 @@ class GameEngineViewModel @Inject constructor(
         soundPlayer?.stop()
         soundPlayer?.release()
         soundPlayer = null
+        releaseOneShotSounds()
     }
 
     private fun handleShowFakeNotification(effect: HandlerEffect.ShowFakeNotification) {
@@ -634,10 +682,29 @@ class GameEngineViewModel @Inject constructor(
      */
     fun onHoldPauseChanged(held: Boolean) {
         val state = _uiState.value
-        if (state.isHoldPaused == held) return
+        if (isFingerHeld == held) return
         if (held && (state.isAwaitingInput || state.isCinematicActive || state.isMangaActive)) return
-        timingScheduler.setHoldPaused(held)
-        updateState { it.copy(isHoldPaused = held) }
+        isFingerHeld = held
+        applyTimingGate()
+    }
+
+    /**
+     * Image viewer: freezes the engine's pacing while a message image or avatar is
+     * open fullscreen, and resumes on dismiss. Uses the same timing gate as
+     * hold-to-pause, so an in-flight delay keeps its remaining time instead of
+     * finishing behind the viewer. The two pause sources are combined, so lifting
+     * the finger does not resume the story while the viewer is still open.
+     */
+    fun onImageViewerVisibilityChanged(visible: Boolean) {
+        if (isImageViewerOpen == visible) return
+        isImageViewerOpen = visible
+        applyTimingGate()
+    }
+
+    private fun applyTimingGate() {
+        val paused = isFingerHeld || isImageViewerOpen
+        timingScheduler.setHoldPaused(paused)
+        updateState { it.copy(isHoldPaused = paused) }
     }
 
     fun onRevealChoicesClicked() {
