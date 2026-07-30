@@ -4,6 +4,7 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import com.google.android.play.core.review.ReviewManagerFactory
 import fr.purpletear.friendzone.BuildConfig.VERSION_CODE
 import fr.purpletear.friendzone.R
 import fr.purpletear.friendzone.config.DiscussionHandler
@@ -136,6 +137,17 @@ class TextCinematic : AppCompatActivity() {
 
 
     private fun onRateButtonPressed() {
+        val reviewManager = ReviewManagerFactory.create(this)
+        reviewManager.requestReviewFlow().addOnCompleteListener { request ->
+            if (request.isSuccessful) {
+                reviewManager.launchReviewFlow(this, request.result)
+            } else {
+                openStorePage()
+            }
+        }
+    }
+
+    private fun openStorePage() {
         try {
             startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=$packageName")))
         } catch (anfe: android.content.ActivityNotFoundException) {
