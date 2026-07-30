@@ -68,6 +68,9 @@ internal fun BackgroundMedia(
                         // Set looping
                         mediaPlayer.isLooping = true
 
+                        // Mute the video
+                        mediaPlayer.setVolume(0f, 0f)
+
                         // Get video dimensions
                         val videoWidth = mediaPlayer.videoWidth
                         val videoHeight = mediaPlayer.videoHeight
