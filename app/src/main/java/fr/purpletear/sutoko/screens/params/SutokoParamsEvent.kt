@@ -8,5 +8,6 @@ sealed class SutokoParamsEvent {
     data object OnDeleteDownloadedStoriesPressed : SutokoParamsEvent()
     data object OnDisconnectPressed : SutokoParamsEvent()
     data object OnBackPressed : SutokoParamsEvent()
+    data object OnBuiltByPressed : SutokoParamsEvent()
     data object OnEffectConsumed : SutokoParamsEvent()
 }

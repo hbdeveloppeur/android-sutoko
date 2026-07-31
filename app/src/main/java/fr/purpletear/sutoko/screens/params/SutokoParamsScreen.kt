@@ -1,5 +1,6 @@
 package fr.purpletear.sutoko.screens.params
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
@@ -12,6 +13,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.Divider
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
@@ -26,7 +28,10 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -38,6 +43,7 @@ import fr.purpletear.sutoko.R
 fun SutokoParamsScreen(
     viewModel: SutokoParamsViewModel,
     onOpenPrivacyPolicy: (String) -> Unit,
+    onOpenInstagram: () -> Unit,
     onShareApp: () -> Unit,
     onNavigateBack: () -> Unit,
 ) {
@@ -46,6 +52,7 @@ fun SutokoParamsScreen(
     LaunchedEffect(uiState.effect) {
         when (val effect = uiState.effect) {
             is SutokoParamsEffect.OpenPrivacyPolicy -> onOpenPrivacyPolicy(effect.url)
+            is SutokoParamsEffect.OpenInstagram -> onOpenInstagram()
             is SutokoParamsEffect.ShareApp -> onShareApp()
             is SutokoParamsEffect.NavigateBack -> onNavigateBack()
             null -> Unit
@@ -141,6 +148,10 @@ private fun SutokoParamsContent(
                 thickness = 1.dp,
             )
 
+            BuiltByRow(
+                onClick = { onEvent(SutokoParamsEvent.OnBuiltByPressed) }
+            )
+
             Text(
                 text = uiState.versionText,
                 color = Color.White.copy(alpha = 0.6f),
@@ -150,6 +161,42 @@ private fun SutokoParamsContent(
 
             Spacer(modifier = Modifier.weight(1f))
         }
+    }
+}
+
+@Composable
+private fun BuiltByRow(onClick: () -> Unit) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick)
+            .padding(horizontal = 18.dp, vertical = 10.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Image(
+            painter = painterResource(R.drawable.built_by_hocinehope),
+            contentDescription = null,
+            contentScale = ContentScale.Crop,
+            modifier = Modifier
+                .size(28.dp)
+                .clip(CircleShape),
+        )
+
+        Spacer(modifier = Modifier.width(10.dp))
+
+        Text(
+            text = stringResource(R.string.sutoko_built_by_hocinehope),
+            color = Color.White.copy(alpha = 0.6f),
+            fontSize = 12.sp,
+            modifier = Modifier.weight(1f)
+        )
+
+        Icon(
+            painter = painterResource(R.drawable.ic_instagram),
+            contentDescription = stringResource(R.string.sutoko_built_by_instagram_description),
+            tint = Color.White.copy(alpha = 0.6f),
+            modifier = Modifier.size(16.dp),
+        )
     }
 }
 

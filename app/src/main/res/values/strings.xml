@@ -288,6 +288,8 @@ Enter your nickname for the leaderboard!</string>
     <string name="sutoko_escape_game_insert_limit">Registration limit reached</string>
     <string name="sutoko_escape_game_final_sentence">Congratulations %1$s, you have finished the escape game instead %2$d. You have access to the release dates before the other players</string>
     <string name="sutoko_share_app">Share Sutoko to a friend</string>
+    <string name="sutoko_built_by_hocinehope" translatable="false">Built by HocineHope</string>
+    <string name="sutoko_built_by_instagram_description">Open HocineHope on Instagram</string>
     <string name="sutoko_share_app_message">Play Sutoko a narrative game here : %1$s</string>
     <string name="sutoko_storychapters_cannot_rewind_title">You did not finish the story</string>
     <string name="sutoko_storychapters_cannot_rewind_message">You must finish the story at least once to be able to go back</string>

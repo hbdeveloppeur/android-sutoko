@@ -58,6 +58,7 @@ class SutokoParamsViewModel @Inject constructor(
             is SutokoParamsEvent.OnDeleteDownloadedStoriesPressed -> confirmDeleteDownloadedStories()
             is SutokoParamsEvent.OnDisconnectPressed -> disconnect()
             is SutokoParamsEvent.OnBackPressed -> emitEffect(SutokoParamsEffect.NavigateBack)
+            is SutokoParamsEvent.OnBuiltByPressed -> emitEffect(SutokoParamsEffect.OpenInstagram)
             is SutokoParamsEvent.OnEffectConsumed -> _uiState.update { it.copy(effect = null) }
         }
     }

@@ -5,6 +5,7 @@ import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.os.Parcelable
+import androidx.core.net.toUri
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
@@ -32,6 +33,7 @@ class SutokoParamsActivity : ComponentActivity() {
                 SutokoParamsScreen(
                     viewModel = viewModel,
                     onOpenPrivacyPolicy = ::openPrivacyPolicy,
+                    onOpenInstagram = ::openInstagram,
                     onShareApp = ::shareApp,
                     onNavigateBack = ::finish,
                 )
@@ -59,6 +61,12 @@ class SutokoParamsActivity : ComponentActivity() {
         startActivity(intent)
     }
 
+    private fun openInstagram() {
+        runCatching {
+            startActivity(Intent(Intent.ACTION_VIEW, INSTAGRAM_URL.toUri()))
+        }
+    }
+
     private fun shareApp() {
         val intent = Intent(Intent.ACTION_SEND).apply {
             type = "text/plain"
@@ -74,6 +82,8 @@ class SutokoParamsActivity : ComponentActivity() {
     }
 
     companion object {
+        private const val INSTAGRAM_URL = "https://www.instagram.com/hocinehope"
+
         fun require(activity: Activity, appParams: SutokoAppParams): Intent {
             return Intent(activity, SutokoParamsActivity::class.java).apply {
                 putExtra(Data.Companion.Extra.APP_PARAMS.id, appParams as Parcelable)

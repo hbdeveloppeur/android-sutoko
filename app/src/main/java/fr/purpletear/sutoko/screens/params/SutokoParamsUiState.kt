@@ -18,5 +18,6 @@ sealed class SutokoParamsEffect {
     @Keep
     data class OpenPrivacyPolicy(val url: String) : SutokoParamsEffect()
     data object ShareApp : SutokoParamsEffect()
+    data object OpenInstagram : SutokoParamsEffect()
     data object NavigateBack : SutokoParamsEffect()
 }

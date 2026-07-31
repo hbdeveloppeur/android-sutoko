@@ -276,3 +276,18 @@ dependencies {
     testImplementation "io.mockk:mockk:1.13.8"
     testImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.3"
 }
+
+
+// Archive the R8 mapping file per versionCode for Play Console deobfuscation.
+// Runs automatically after every release minification.
+def archiveReleaseMapping = tasks.register('archiveReleaseMapping', Copy) {
+    def vCode = android.defaultConfig.versionCode
+    def mappingFile = layout.buildDirectory.file('outputs/mapping/release/mapping.txt')
+    onlyIf { mappingFile.get().asFile.exists() }
+    from mappingFile
+    into rootProject.file("mapping-archive/${vCode}")
+    rename { "mapping-v${vCode}.txt" }
+}
+tasks.matching { it.name == 'minifyReleaseWithR8' }.configureEach {
+    finalizedBy archiveReleaseMapping
+}
