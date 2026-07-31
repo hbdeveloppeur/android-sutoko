@@ -172,6 +172,7 @@
     <!-- Game UI errors -->
     <string name="game_presentation_error_load_game">Die Geschichte konnte nicht geladen werden. Überprüfe deine Internetverbindung und versuche es erneut.</string>
     <string name="game_presentation_hold_paused">Pausiert</string>
+    <string name="game_presentation_story_unavailable">Diese Geschichte ist nicht mehr verfügbar</string>
     <string name="game_presentation_error_purchase">Kauf fehlgeschlagen</string>
     <string name="game_presentation_error_download">Download fehlgeschlagen. Überprüfe deine Internetverbindung und versuche es erneut.</string>
     <string name="game_presentation_error_update">Update fehlgeschlagen</string>

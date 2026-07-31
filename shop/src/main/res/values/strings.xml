@@ -9,7 +9,7 @@
     <string name="shop_sutoko_shop_unlock_item_pending_title_subtitle">Payment pending validation</string>
     <string name="shop_sutoko_shop_unlock_item_pending_title_description">You will receive your earnings when your payment is validated</string>
     <string name="shop_sutoko_shop_unlock_item_connection_warning">Connection error</string>
-    <string name="shop_sutoko_congrats_item_unlocked">Congratulations! Congratulations! Article unlocked!</string>
+    <string name="shop_sutoko_congrats_item_unlocked">Congratulations! Article unlocked!</string>
     <string name="shop_sutoko_congrats">Congratulations</string>
     <string name="shop_sutoko_continue">Continue</string>
     <string name="shop_sutoko_weeks">Week</string>

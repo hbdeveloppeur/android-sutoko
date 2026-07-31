@@ -54,8 +54,8 @@
     <string name="ai_conversation_confirm_invite_title">Charaktere einladen</string>
     <string name="ai_conversation_confirm_invite_description">Sind Sie sicher, dass Sie %1$s zum Gespräch einladen möchten?</string>
 
-    <string name="ai_conversation_delete_characters">Einladen</string>
-    <string name="ai_conversation_confirm_delete_title">Charaktere einladen</string>
+    <string name="ai_conversation_delete_characters">Charaktere löschen</string>
+    <string name="ai_conversation_confirm_delete_title">Charakter löschen</string>
     <string name="ai_conversation_confirm_delete_description">Sind Sie sicher, dass Sie %1$s löschen möchten?</string>
 
     <!-- Discord -->
@@ -110,18 +110,18 @@
     <string name="ai_conversation_file_rejected">Die Datei ist ungültig</string>
     <string name="ai_conversation_pop_up_characters_limit_reached_title">Limit erreicht</string>
     <string name="ai_conversation_pop_up_characters_limit_reached_description">Sie haben das Limit von 10 Charakteren erreicht</string>
-    <string name="ai_conversation_add_character_cta_use_ai_title">Generate your own images</string>
-    <string name="ai_conversation_add_character_cta_use_ai_subtitle">With AI</string>
-    <string name="ai_conversation_add_x_days_ago">Added %1$d days ago</string>
+    <string name="ai_conversation_add_character_cta_use_ai_title">Generiere deine eigenen Bilder</string>
+    <string name="ai_conversation_add_character_cta_use_ai_subtitle">Mit KI</string>
+    <string name="ai_conversation_add_x_days_ago">Vor %1$d Tagen hinzugefügt</string>
     <string name="ai_conversation_message_invite_characters_singular">%1$s wurde in das Gespräch eingeladen</string>
     <string name="ai_conversation_message_invite_characters_plural">%1$s wurden in das Gespräch eingeladen</string>
     <string name="ai_conversation_use_image">Dieses Bild verwenden</string>
     <string name="ai_conversation_save_gallery">In der Galerie speichern</string>
     <string name="ai_conversation_delete">Löschen</string>
-    <string name="ai_conversation_edit_text_placeholder_message">Tu mensaje</string>
+    <string name="ai_conversation_edit_text_placeholder_message">Deine Nachricht</string>
     <string name="ai_conversation_status_close_to_you">In deiner Nähe</string>
     <string name="ai_conversation_status_online">Online</string>
     <string name="ai_conversation_title_invite_character">Einen Charakter einladen</string>
-    <string name="ai_conversation_invite_characters_names">Invite %1$s</string>
+    <string name="ai_conversation_invite_characters_names">%1$s einladen</string>
     <string name="ai_conversation_restart_conversation">Gespräch löschen und neu beginnen</string>
 </resources>

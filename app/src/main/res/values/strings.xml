@@ -76,7 +76,7 @@
     <string name="sutoko_confirm_unlock">Unlock this article?</string>
     <string name="sutoko_unlocking_product">Unlocking the item</string>
     <string name="sutoko_cannot_unlock_this_item">Unable to unlock this item</string>
-    <string name="sutoko_congrats_item_unlocked">Congratulations! Congratulations! Article unlocked!</string>
+    <string name="sutoko_congrats_item_unlocked">Congratulations! Article unlocked!</string>
     <string name="sutoko_buy_an_error_has_occured">An error has occurred. Check that you are properly connected to the Internet</string>
     <string name="sutoko_you_already_have_this_item">You already own this item</string>
     <string name="sutoko_information">Information</string>
@@ -103,7 +103,7 @@
     <string name="sutoko_event_hello_sutoko_url">https://sutoko.app/announce/hello-sutoko</string>
     <string name="sutoko_new">New</string>
     <string name="sutoko_account_creation_account_created">That\'s it! You\'re logged in!</string>
-    <string name="sutoko_request_player_nickname_friendzone">You\'re playing Nick\'s story.nDo you want to change his name?</string>
+    <string name="sutoko_request_player_nickname_friendzone">You\'re playing Nick\'s story.\nDo you want to change his name?</string>
     <string name="sutoko_story_require_update">Please update Sutoko on Google play, so you can play this game</string>
     <string name="sutoko_params_activity_delete_my_account_data">Delete my account and its data</string>
     <string name="sutoko_params_activity_delete_my_account_data_confirm">Are you sure you want to delete your account and stories?</string>
@@ -334,7 +334,7 @@ Enter your nickname for the leaderboard!</string>
     <string name="theme_name_crime">Crime</string>
     <string name="theme_name_action">Action</string>
     <string name="theme_name_fantasy">Fantasy</string>
-    <string name="theme_name_sciencefiction">Sience-fiction</string>
+    <string name="theme_name_sciencefiction">Science fiction</string>
     <string name="theme_name_romance">Romance</string>
     <string name="theme_name_thriller">Thriller</string>
     <string name="theme_name_horror">Horror</string>
@@ -381,7 +381,7 @@ Enter your nickname for the leaderboard!</string>
     <string name="sutoko_companion" translatable="false">Ai Friend</string>
     <string name="sutoko_see_all_authors">See all authors</string>
     <string name="sutoko_version_name_build" translatable="false">Sutoko %s (build %d)</string>
-    <string name="sutoko_params_themes_flavor">Thèmes favoris et genre</string>
+    <string name="sutoko_params_themes_flavor">Favourite themes and genre</string>
     <string name="title_activity_themes_flavor" translatable="false">ThemesFlavorActivity</string>
     <string name="sutoko_flavor_saved">Params successfully saved</string>
     <string name="sutoko_functionality_maintenance">Feature in maintenance, try again later</string>

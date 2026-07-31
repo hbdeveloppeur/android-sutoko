@@ -50,12 +50,12 @@
     <string name="ai_conversation_generate">Generate</string>
     <string name="ai_conversation_signin_to_generate">Sign in to add your character</string>
     <string name="ai_conversation_demo">Demo</string>
-    <string name="ai_conversation_invite">Inviter</string>
+    <string name="ai_conversation_invite">Invite</string>
     <string name="ai_conversation_confirm_invite_title">Invite characters</string>
     <string name="ai_conversation_confirm_invite_description">Are you sure you want to invite %1$s in the conversation?</string>
 
-    <string name="ai_conversation_delete_characters">Inviter</string>
-    <string name="ai_conversation_confirm_delete_title">Invite characters</string>
+    <string name="ai_conversation_delete_characters">Delete characters</string>
+    <string name="ai_conversation_confirm_delete_title">Delete characters</string>
     <string name="ai_conversation_confirm_delete_description">Are you sure you want to delete %1$s?</string>
 
     <!-- Discord -->
@@ -87,7 +87,7 @@
     <string name="ai_conversation_presentation_error_trial_consumed">Trial already started</string>
 
     <!-- Account -->
-    <string name="ai_conversation_loading">Chargement…</string>
+    <string name="ai_conversation_loading">Loading…</string>
     <string name="ai_conversation_presentation_error_user_not_logged_in">You must be logged in to continue</string>
     <string name="ai_conversation_signin">Sign in</string>
 

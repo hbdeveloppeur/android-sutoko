@@ -5,7 +5,7 @@
     <string name="shared_elements_security_check_delete_account_title">Account security</string>
     <string name="shared_elements_security_check_delete_account_message">To ensure that you are the account holder, you must log in again before deleting the account</string>
     <string name="shared_elements_ok">Ok</string>
-    <string name="shared_elements_abort">You \'ve won a new trophy!</string>
+    <string name="shared_elements_abort">Abort</string>
     <string name="shared_elements_sutoko_theme_horror">Horror</string>
     <string name="shared_elements_sutoko_theme_drama">Drama</string>
     <string name="shared_elements_sutoko_theme_love">Love</string>

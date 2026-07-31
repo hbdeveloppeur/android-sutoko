@@ -12,8 +12,8 @@
     <string name="ai_conversation_connection_error">Connexion perdue. Vérifiez votre connexion internet et réessayez.</string>
     <string name="ai_conversation_retry">Réessayer</string>
 
-    <!-- Écran d'accueil -->
-    <string name="ai_conversation_sutoko_home_title">Sutoko *Ai*</string>
+    <!-- Écran d\'accueil -->
+    <string name="ai_conversation_sutoko_home_title">Sutoko *Real*</string>
     <string name="ai_conversation_home_subtitle">Générez leur visage, leur attitude, dans n\'importe quel style</string>
     <string name="ai_conversation_home_image_action_title">Obtenez des pièces\net *jouez*</string>
     <string name="ai_conversation_home_qrules">Puis-je faire *tout* ?</string>
@@ -54,7 +54,7 @@
     <string name="ai_conversation_confirm_invite_title">Inviter des personnages</string>
     <string name="ai_conversation_confirm_invite_description">Êtes-vous sûr de vouloir inviter %1$s dans la conversation ?</string>
 
-    <string name="ai_conversation_delete_characters">Inviter</string>
+    <string name="ai_conversation_delete_characters">Supprimer des personnages</string>
     <string name="ai_conversation_confirm_delete_title">Supprimer un personnage</string>
     <string name="ai_conversation_confirm_delete_description">Êtes-vous sûr de vouloir supprimer %1$s ?</string>
 
@@ -70,7 +70,7 @@
     <string name="ai_conversation_remove">Retirer</string>
     <string name="ai_conversation_select_image">Sélectionner une image</string>
 
-    <!-- Boîte d'achat -->
+    <!-- Boîte d\'achat -->
     <string name="ai_conversation_presentation_title_try">Essayez la conversation IA</string>
     <string name="ai_conversation_presentation_title_buy">Achetez des messages IA</string>
     <string name="ai_conversation_presentation_message_default">Discutez avec les personnages de l\'histoire que vous possédez</string>
@@ -111,7 +111,7 @@
     <string name="ai_conversation_pop_up_characters_limit_reached_title">Limite atteinte</string>
     <string name="ai_conversation_pop_up_characters_limit_reached_description">Vous avez atteint la limite de 10 personnages</string>
     <string name="ai_conversation_add_character_cta_use_ai_title">Générez vos propres images</string>
-    <string name="ai_conversation_add_character_cta_use_ai_subtitle">Avec l\'AI</string>
+    <string name="ai_conversation_add_character_cta_use_ai_subtitle">Avec l\'IA</string>
     <string name="ai_conversation_add_x_days_ago">Ajouté il y a %1$d jours</string>
     <string name="ai_conversation_message_invite_characters_singular">%1$s a été invité dans la conversation</string>
     <string name="ai_conversation_message_invite_characters_plural">%1$s ont été invités dans la conversation</string>
@@ -123,5 +123,5 @@
     <string name="ai_conversation_status_online">En ligne</string>
     <string name="ai_conversation_title_invite_character">Inviter un personnage</string>
     <string name="ai_conversation_invite_characters_names">Inviter %1$s</string>
-    <string name="ai_conversation_restart_conversation">Effacer et recommencer la conversation</string>
+    <string name="ai_conversation_restart_conversation">Redémarrer la conversation</string>
 </resources>

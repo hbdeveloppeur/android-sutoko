@@ -1,9 +1,7 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
     <string name="app_name">Sutoko</string>
-    <string name="create_page_section_title_my_stories">Mis historias publicadas</string>
-    <string name="create_page_story_not_online">Esta historia aún no está en línea. Se podrá abrir una vez publicada.</string>
-    <string name="notavailable_sentence">Este capítulo estará  disponible el %1$s %2$s</string>
+    <string name="notavailable_sentence">🕙 Este capítulo estará disponible el %1$s %2$s</string>
     <string name="trophy_activity_content">Cada trofeo le da puntos, ¡úselos para desbloquear capítulos en la tienda!</string>
     <string name="trophy_activity_trophy_game_title_count_format">%1$d / %2$d</string>
     <string name="trophies_trophy_description_format">%1$s: %2$s</string>
@@ -39,14 +37,14 @@
     <string name="simplestorypreview_button_download_state_downloading">Descargando…</string>
     <string name="remove_ads">Eliminar la publicidad</string>
     <string name="sutoko_privacy_policy">Política de privacidad</string>
-    <string name="sutoko_params_signal_a_bug">Reportar un error</string>
+    <string name="sutoko_params_signal_a_bug">Reportar un bug</string>
     <string name="sutoko_params_credits">Fuentes y créditos</string>
     <string name="sutoko_web_report_bug_back_confirm">¿Quiere regresar a la página previa?</string>
     <string name="sutoko_web_not_connected">Debe estar conectado a Internet para ver esta página.</string>
     <string name="loading">Cargando…</string>
     <string name="sutoko_title_long_stories">Historias largas</string>
     <string name="sutoko_title_short_stories">Historias cortas</string>
-    <string name="sutoko_title_community">Erschaffen</string>
+    <string name="sutoko_title_community">Crear</string>
     <string name="sutoko_account_my_character">Mi personaje</string>
     <string name="sutoko_account_my_character_description">El nombre de su personaje es %1$s</string>
     <string name="sutoko_edit">Editar</string>
@@ -87,13 +85,13 @@
     <string name="sutoko_account_creation_introduce_subtitle">¡Vamos!</string>
     <string name="sutoko_account_created">¡Creación exitosa! :)</string>
     <string name="sutoko_account_creation_we_sent_a_mail">Enviamos un correo de confirmación a %1$s</string>
-    <string name="sutoko_account_creation_signup_cta">¿No tiene cuenta? Regìstrese acá</string>
+    <string name="sutoko_account_creation_signup_cta">¿No tiene cuenta? Regístrese aquí</string>
     <string name="sutoko_sign_in">Iniciar sesión</string>
     <string name="sutoko_short_sms_stories">Historia SMS corta</string>
     <string name="sutoko_game_downloading">Descarga del juego (0%)…</string>
     <string name="sutoko_story_preview_replay">Repetir</string>
     <string name="sutoko_trophies_title">Mis trofeos</string>
-    <string name="sutoko_outlet_subtitle">La experiencia Sutoko al 100%</string>
+    <string name="sutoko_outlet_subtitle">La experiencia Sutoko al 100%%</string>
     <string name="sutoko_outlet_title">Tienda</string>
     <string name="sutoko_my_orders_subtitle">Mis compras y regalos</string>
     <string name="sutoko_my_orders_title">Librería</string>
@@ -114,7 +112,7 @@
     <string name="sutoko_params_activity_delete_downloaded_stories_success">Historias descargadas eliminadas</string>
     <string name="sutoko_params_activity_reload_my_account_data">Recargar la información de mi cuenta</string>
     <string name="sutoko_params_activity_reload_my_account_data_confirm">Está a punto de recargar toda la información de su cuenta</string>
-    <string name="sutoko_params_account_data_reloaded_success">¡Información de cuenta recargada</string>
+    <string name="sutoko_params_account_data_reloaded_success">Información de cuenta recargada</string>
     <string name="sutoko_required_field">Campo requerido</string>
     <string name="sutoko_form_birthday">Fecha de nacimiento</string>
     <string name="sutoko_download">Descargar</string>
@@ -167,7 +165,7 @@
     <string name="sutoko_disconnect">Desconectar</string>
     <string name="sutoko_select_picture">Seleccionar una foto</string>
     <string name="sutoko_main_bottom_navigationbar_stories">Juegos</string>
-    <string name="sutoko_main_bottom_navigationbar_sommunity">Erschaffen</string>
+    <string name="sutoko_main_bottom_navigationbar_sommunity">Crear</string>
     <string name="sutoko_main_bottom_navigationbar_premium">Premium</string>
     <string name="sutoko_error_unknown">Por favor verifique su conexión a Internet</string>
     <string name="sutoko_created_by">Creado por %1$s</string>
@@ -182,7 +180,7 @@
     <string name="sutoko_loading">Cargando…</string>
     <string name="sutoko_online_stories">Historias publicadas</string>
     <string name="sutoko_offline_stories">Historias no publicadas</string>
-    <string name="sutoko_publisher_error_nolinksfound">Un error ocurrió. Código: 53</string>
+    <string name="sutoko_publisher_error_nolinksfound">Un error ocurrió. Código: S3</string>
     <string name="sutoko_tutoriel">Tutorial</string>
     <string name="sutoko_load_more">Cargar más</string>
     <string name="sutoko_check_google_play_connexion">Por favor, revise que se encuentra conectado a Google Play</string>
@@ -198,14 +196,14 @@
     <string name="sutoko_main_section_subtitle_games">%1$d Historias de aventuras</string>
     <string name="sutoko_community_section_title_games">Juegos creados por jugadores</string>
     <string name="sutoko_community_section_subtitle_games">Clasificación</string>
-    <string name="sutoko_user_story_publisher_conditions">He leído y estoy de acuerdo con </string>
+    <string name="sutoko_user_story_publisher_conditions">He leído y acepto <a href="https://sutoko.app/terms-of-use">los términos de uso</a></string>
     <string name="sutoko_free">Gratis</string>
     <string name="sutoko_not_enough_space">No tiene suficiente espacio disponible</string>
     <string name="sutoko_internet_error">Por favor verifique su conexión a Internet</string>
     <string name="sutoko_simplestory_download_error">Ocurrió un error durante la carga. Intente de nuevo más tarde</string>
     <string name="sutoko_paid_content">Jugar con Pase Premium</string>
     <string name="sutoko_rate_story_title">Evalúa el juego</string>
-    <string name="sutoko_rate_story_subtitle">¿Disfrutaste tocándolo?</string>
+    <string name="sutoko_rate_story_subtitle">¿Disfrutaste jugando?</string>
     <string name="sutoko_item_manga_page_sentence">El final del capítulo está disponible como una página de manga</string>
     <string name="sutoko_simplestorypreview_rank_wrong_label">han hecho malas elecciones</string>
     <string name="sutoko_simplestorypreview_rank_right_label">han hecho buenas elecciones</string>
@@ -214,14 +212,14 @@
     <string name="sutoko_card_badge_new">Nuevo</string>
     <string name="sutoko_card_badge_new_chapters">Nuevos capítulos</string>
     <string name="sutoko_card_badge_premium_only">Premium</string>
-    <string name="sutoko_chapters">Capítulo</string>
+    <string name="sutoko_chapters">Capítulos</string>
     <string name="sutoko_item_next_chapter_sentence">Cargando el siguiente capítulo</string>
-    <string name="sutoko_card_free_until_midnight">Libre hasta la medianoche</string>
+    <string name="sutoko_card_free_until_midnight">Gratis hasta medianoche</string>
     <string name="sutoko_chapters_select_button_text">Seleccione este capítulo</string>
     <string name="sutoko_chapters_selected_button_text">Seleccionado</string>
     <string name="sutoko_change_chapter">Cambiar el capítulo</string>
     <string name="sutoko_cannot_go_back">No podrás volver</string>
-    <string name="sutoko_abort">abortar</string>
+    <string name="sutoko_abort">Abortar</string>
     <string name="sutoko_chapter_number">Capitulo %1$d</string>
     <string name="sutoko_chapter_locked">Termina el capítulo anterior para desbloquearlo.</string>
     <string name="sutoko_require_app_update">Actualiza a Sutoko para jugar este capítulo</string>
@@ -231,10 +229,10 @@
     <string name="sutoko_sms_game_real_time_activated_alert">Modo activado, recuerda activar las notificaciones para Sutoko</string>
     <string name="sutoko_alert_cancel_realtime_game_title">En tiempo real</string>
     <string name="sutoko_alert_cancel_realtime_game_message">Jugarás sin esperar a que los personajes te envíen un mensaje</string>
-    <string name="sutoko_directives_connect_with_computer_description">Entra en </string>
+    <string name="sutoko_directives_connect_with_computer_description">Entra en <b>Sutoko.com</b> desde un <b>ordenador</b> (Windows / Mac) y empieza a crear tu historia</string>
     <string name="coming_soon">Próximamente</string>
-    <string name="sutoko_calendar_title">Next chapters</string>
-    <string name="sutoko_calendar_subtitle">1 chapter on Wednesday and Saturday</string>
+    <string name="sutoko_calendar_title">Próximos capítulos</string>
+    <string name="sutoko_calendar_subtitle">1 capítulo los miércoles y sábados</string>
     <string name="instagram">Instagram</string>
     <string name="notified_when_releases">¿Recibir una notificación de los lanzamientos?</string>
     <string name="sutoko_event_waited_by">Esperado por %1$s+ jugadores</string>
@@ -249,7 +247,7 @@
     <string name="sutoko_buy">Comprar</string>
     <string name="paying_game">Prueba de la historia terminada</string>
     <string name="test_finished">Has terminado la prueba. Puedes continuar comprando el juego o comprando Premium</string>
-    <string name="sutoko_try">probar</string>
+    <string name="sutoko_try">Probar</string>
     <string name="sutoko_game_unlocked">¡Juego desbloqueado!</string>
     <string name="sutoko_be_notified">Recibir notificaciones de los próximos lanzamientos</string>
     <string name="sutoko_control_apps">Ejecutar una comprobación de rendimiento</string>
@@ -260,7 +258,7 @@
     <string name="sutoko_restart">Reiniciar desde el capítulo 1</string>
     <string name="sutoko_community_toolbox_search_hint">Búsqueda por título o autor</string>
     <string name="sutoko_simplestory_buy_to_remove_ads">Comprar una historia para eliminar los anuncios de Sutoko</string>
-    <string name="security_check_delete_account_title">Tiempo de espera de seguridad</string>
+    <string name="security_check_delete_account_title">Seguridad de la cuenta</string>
     <string name="security_check_delete_account_message">Para asegurarse de que usted es el titular de la cuenta, debe volver a conectarse antes de eliminarla</string>
     <string name="account_deleted">Su cuenta ha sido eliminada</string>
     <string name="escape_game_title_1">Juego de escape</string>
@@ -284,23 +282,24 @@ Buena suerte :D</string>
     <string name="sutoko_chose_an_answer">Elija una respuesta</string>
     <string name="sutoko_confirm_game_reset_message">¿Estás seguro de que quieres empezar de nuevo?</string>
     <string name="sutoko_escape_game_clue_1">4 Números, Juega el juego de abajo</string>
-    <string name="sutoko_escape_game_clue_2">Pide el código a la madre de Sylvie, en Friendzoné 2</string>
+    <string name="sutoko_escape_game_clue_2">Pide el código a Sylvie, en Friendzoné 2</string>
     <string name="sutoko_escape_game_result">¡Registro exitoso!</string>
     <string name="sutoko_escape_game_insert_limit">Límite de inscripción alcanzado</string>
     <string name="sutoko_escape_game_final_sentence">Enhorabuena %1$s, has terminado el juego de escape en lugar de %2$d. Tienes acceso a las fechas de lanzamiento antes que los demás jugadores</string>
     <string name="sutoko_share_app">Comparte Sutoko con un amigo</string>
-    <string name="sutoko_share_app_message">Juega a Sutoko, un juego narrativo de texto aquí : %1$s</string>
+    <string name="sutoko_share_app_message">Juega a Sutoko un juego narrativo de texto aquí : %1$s</string>
     <string name="sutoko_storychapters_cannot_rewind_title">No has terminado la historia</string>
     <string name="sutoko_storychapters_cannot_rewind_message">Debes terminar la historia al menos una vez para poder volver</string>
+
     <string name="sutoko_see_chapters">Ver capítulos</string>
     <string name="sutoko_see_choices">Compare sus opciones</string>
-    <string name="sutoko_simplestorypreview_announce_buy_ads">La compra de un artículo permite eliminar los anuncios</string>
+    <string name="sutoko_simplestorypreview_announce_buy_ads">Comprar una historia permite eliminar los anuncios</string>
     <string name="sutoko_simplestorypreview_announce_hidden_coins">Las monedas y los diamantes se esconden en esta historia</string>
     <string name="sutoko_shop_leaving_keys_label">Sólo %1$d  llaves más disponibles hoy</string>
     <string name="sutoko_shop_leaving_keys_label_unlocked">Tienes acceso a todo el contenido de la aplicación</string>
     <string name="sutoko_unlimited_access">Acceso ilimitado</string>
     <string name="sutoko_shop">Tienda</string>
-    <string name="sutoko_shop_title">Paquetes de rincón de la historia</string>
+    <string name="sutoko_shop_title">Packs de monedas de historias</string>
     <string name="sutoko_shop_subtitle">No mantengas el suspenso</string>
     <string name="sutoko_shop_unlock_item_title_pack">¡Pack desbloqueado!</string>
     <string name="sutoko_shop_unlock_item_title_premium">¡Clave Premium desbloqueada!</string>
@@ -317,8 +316,8 @@ Buena suerte :D</string>
     <string name="sutoko_buy_dialog_coins_and_diamonds_count">¡Tienes %1$d monedas y %2$d diamantes!</string>
     <string name="sutoko_go_to_game_shop">Comprar monedas</string>
     <string name="sutoko_game_shop">Tienda de juegos</string>
-    <string name="sutoko_get_logged_in">Entrar en</string>
-    <string name="sutoko_price_coins">Monedas de %1$d</string>
+    <string name="sutoko_get_logged_in">Iniciar sesión</string>
+    <string name="sutoko_price_coins">%1$d monedas</string>
     <string name="sutoko_story_unlocked">¡Historia comprada!</string>
     <string name="sutoko_story_unlock_coins">Acabas de encontrar %1$d piezas ocultas en este capítulo.</string>
     <string name="sutoko_story_price_coins_only">%1$d</string>
@@ -328,10 +327,10 @@ Buena suerte :D</string>
     <string name="sutoko_choice_summary_text2">%1$s de los jugadores y tú</string>
     <string name="sutoko_choice_summary_text">%1$s de los jugadores</string>
     <string name="theme_name_suspense">Suspense</string>
-    <string name="theme_name_crime">Crime</string>
+    <string name="theme_name_crime">Crimen</string>
     <string name="theme_name_action">Acción</string>
     <string name="theme_name_fantasy">Fantasía</string>
-    <string name="theme_name_sciencefiction">Ficción silenciosa</string>
+    <string name="theme_name_sciencefiction">Ciencia ficción</string>
     <string name="theme_name_romance">Romance</string>
     <string name="theme_name_thriller">Thriller</string>
     <string name="theme_name_horror">Horror</string>
@@ -339,23 +338,23 @@ Buena suerte :D</string>
     <string name="theme_name_mystery">Misterio</string>
     <string name="theme_name_drama">Drama</string>
     <string name="theme_name_manga">Manga</string>
-    <string name="sutoko_main_menu_books">Books</string>
-    <string name="sutoko_read">Read</string>
+    <string name="sutoko_main_menu_books">Libros</string>
+    <string name="sutoko_read">Leer</string>
     <string name="sutoko_params_activity_disconnect_success">Desconectado con éxito</string>
     <string name="friendzoned">Friendzoneado</string>
     <string name="sutoko_menu_games">Juegos</string>
-    <string name="sutoko_menu_free">gratis</string>
+    <string name="sutoko_menu_free">Gratis</string>
     <string name="sutoko_menu_premium">Premium</string>
     <string name="account_signin_description">Accede a tu cuenta para guardar tus progresos y compras. Navega por la biblioteca de historias y únete a la comunidad escribiendo tu propio guión.</string>
     <string name="account_connected_description">¡Bienvenido a tu cuenta de Sutoko!</string>
     <string name="sutoko_my_downloaded_games">Mis juegos descargados</string>
     <string name="sutoko_options">Opciones</string>
-    <string name="sutoko_count_diamonds">Tienes %1$d diamantes</string>
-    <string name="sutoko_diamonds_congrats">Felicitaciones, con ellos podrás desbloquear opciones secretas en algunas historias.</string>
-    <string name="sutoko_diamonds_context">Los diamantes se usan para desbloquear opciones secretas en algunas historias.</string>
-    <string name="sutoko_coins_congrats">Felicitaciones, con ellos podrás comprar historias en la tienda.</string>
-    <string name="sutoko_coins_context">Las monedas se usan para comprar historias en la tienda.</string>
-    <string name="sutoko_count_coins">Tus monedas en juego</string>
+    <string name="sutoko_count_diamonds">Tus diamantes en el juego</string>
+    <string name="sutoko_diamonds_congrats">¡Felicitaciones! Con esto podrás desbloquear elecciones secretas en algunas historias.</string>
+    <string name="sutoko_diamonds_context">Los diamantes se utilizan para desbloquear elecciones secretas en algunas historias.</string>
+    <string name="sutoko_coins_congrats">¡Felicitaciones! Con esto podrás comprar historias en la tienda.</string>
+    <string name="sutoko_coins_context">Las monedas se utilizan para comprar historias en la tienda.</string>
+    <string name="sutoko_count_coins">Tus monedas en el juego</string>
     <string name="sutoko_end_of_trial">Fin de la demo</string>
     <string name="sutoko_missing_book">No tienes este libro. Puedes comprarlo para seguir leyéndolo.</string>
     <string name="sutoko_end_of_book">Fin del libro</string>
@@ -364,22 +363,42 @@ Buena suerte :D</string>
     <string name="sutoko_you_dont_have_enough_coins">No tienes suficientes monedas</string>
     <string name="sutoko_not_enough_coins_description">Este libro cuesta %d monedas, solo tienes %d</string>
     <string name="sutoko_buy_coins">Comprar monedas</string>
-    <string name="sutoko_book_chapter_releasedate">El capítulo está previsto para el %s.</string>
-    <string name="sutoko_book_end_of_trial_description">Ya has terminado la prueba de este libro</string>
+    <string name="sutoko_book_chapter_releasedate">El capítulo está programado para el %s.</string>
+    <string name="sutoko_book_end_of_trial_description">Ya has terminado la prueba de este libro.</string>
     <string name="sutoko_book_successful_buy">Compra exitosa</string>
-    <string name="sutoko_book_successful_buy_description">Has comprado este libro con éxito</string>
+    <string name="sutoko_book_successful_buy_description">Has comprado este libro con éxito.</string>
     <string name="sutoko_book_failure_buy">Compra fallida</string>
-    <string name="sutoko_book_already_bought">Ya has comprado este libro</string>
-    <string name="sutoko_not_enough_coins_description_without_details">No tienes suficientes monedas para comprar este libro</string>
+    <string name="sutoko_book_already_bought">Ya has comprado este libro.</string>
+    <string name="sutoko_not_enough_coins_description_without_details">No tienes suficientes monedas para comprar este libro.</string>
     <string name="sutoko_community_title">Historias de la comunidad</string>
     <string name="sutoko_community_rank_title">Ranking de autores</string>
-    <string name="sutoko_community_cta_row_stories">Puedes escribir una historia</string>
+    <string name="sutoko_community_cta_row_stories">Puedes escribir una historia.</string>
     <string name="sutoko_create">Crear</string>
     <string name="sutoko_see_all_authors">Ver todos los autores</string>
-    <string name="sutoko_params_themes_flavor">Thèmes favoris et genre</string>
-    <string name="sutoko_flavor_saved">Params successfully saved</string>
+    <string name="sutoko_params_themes_flavor">Temas favoritos y género</string>
+    <string name="sutoko_flavor_saved">Ajustes guardados correctamente</string>
     <string name="sutoko_functionality_maintenance">Función en mantenimiento, intenta de nuevo más tarde</string>
+    <string name="app_ai_conversation_card_title">Teléfono de mensajes IA</string>
     <string name="app_ai_conversation_card_subtitle">Habla con Eva con tus propios mensajes.</string>
     <string name="app_ai_conversation_card_tag">Juega con Monedas de Mensajes</string>
-    <string name="app_game_access_denied">No posees %1$s.</string>
+    <string name="app_game_access_denied">No posees \"%1$s\".</string>
+    
+
+    <!-- Create Page -->
+    <string name="create_page_section_title_community">Historias de la comunidad</string>
+    <string name="create_page_button_create_story">Crear mi historia</string>
+    <string name="create_page_search_hint">Un autor, un título, un tema</string>
+    <string name="create_page_button_load_more">Cargar más historias</string>
+    <string name="create_page_search_clear">Borrar búsqueda</string>
+    <string name="sutoko_built_by_instagram_description">Abrir HocineHope en Instagram</string>
+
+    <!-- Create Story Page -->
+    <string name="create_page_section_title_my_stories">Mis historias publicadas</string>
+    <string name="create_page_story_not_online">Esta historia aún no está en línea. Se podrá abrir una vez publicada.</string>
+    <string name="create_story_page_title">Crea tu historia</string>
+    <string name="create_story_page_body">Para dar forma a tu mundo, siéntate en el escritorio del creador.</string>
+    <string name="create_story_page_url">sutoko.com</string>
+    <string name="create_story_page_url_hint">Abre en tu ordenador</string>
+    <string name="create_story_page_back_content_description">Atrás</string>
+
 </resources>

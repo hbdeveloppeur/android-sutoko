@@ -1,10 +1,10 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
-	<string name="shared_elements_sutoko_shared_elements_trophy_new_trophy_found">You \'ve won a new trophy!</string>
-	<string name="shared_elements_security_check_delete_account_title">Security time-out</string>
+	<string name="shared_elements_sutoko_shared_elements_trophy_new_trophy_found">Sie haben eine neue Trophäe gewonnen!</string>
+	<string name="shared_elements_security_check_delete_account_title">Kontosicherheit</string>
 	<string name="shared_elements_security_check_delete_account_message">Um sicherzustellen, dass Sie der Kontoinhaber sind, müssen Sie sich vor dem Löschen des Kontos erneut anmelden.</string>
 	<string name="shared_elements_ok">Ok</string>
-	<string name="shared_elements_abort">You \'ve won a new trophy!</string>
+	<string name="shared_elements_abort">Abbrechen</string>
 	<string name="shared_elements_sutoko_theme_horror">Horror</string>
 	<string name="shared_elements_sutoko_theme_drama">Drama</string>
 	<string name="shared_elements_sutoko_theme_love">Liebe</string>

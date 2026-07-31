@@ -7,7 +7,7 @@
     <string name="auth_sutoko_account_error_unknown">Asegúrese de que se encuentre conectado a Internet</string>
     <string name="auth_sutoko_account_error_username_not_available">Este nombre de usuario ya está en uso</string>
     <string name="auth_sutoko_account_error_address_not_available">Esta dirección de correo ya se encuentra en uso</string>
-    <string name="auth_sutoko_account_error_invalid_credentials">Correo y/o contraseña invalidos.</string>
+    <string name="auth_sutoko_account_error_invalid_credentials">Correo y/o contraseña inválidos.</string>
     <string name="auth_sutoko_account_error_weak_password">Use una contraseña más compleja</string>
     <string name="auth_sutoko_account_error_invalid_mail_address">Dirección de correo inválida.</string>
     <string name="auth_sutoko_account_error_mail_provider_banned">Proveedor de email  no autorizado.</string>

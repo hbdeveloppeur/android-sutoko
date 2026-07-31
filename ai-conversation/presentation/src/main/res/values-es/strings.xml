@@ -54,8 +54,8 @@
     <string name="ai_conversation_confirm_invite_title">Invitar personajes</string>
     <string name="ai_conversation_confirm_invite_description">¿Estás seguro de que deseas invitar a %1$s a la conversación?</string>
 
-    <string name="ai_conversation_delete_characters">Invitar</string>
-    <string name="ai_conversation_confirm_delete_title">Invitar personajes</string>
+    <string name="ai_conversation_delete_characters">Eliminar personajes</string>
+    <string name="ai_conversation_confirm_delete_title">Eliminar personajes</string>
     <string name="ai_conversation_confirm_delete_description">¿Estás seguro de que deseas eliminar a %1$s?</string>
 
     <!-- Discord -->
@@ -118,7 +118,7 @@
     <string name="ai_conversation_use_image">Usar esta imagen</string>
     <string name="ai_conversation_save_gallery">Guardar en galería</string>
     <string name="ai_conversation_delete">Eliminar</string>
-    <string name="ai_conversation_edit_text_placeholder_message">Ihre Nachricht</string>
+    <string name="ai_conversation_edit_text_placeholder_message">Tu mensaje</string>
     <string name="ai_conversation_status_close_to_you">Cerca de ti</string>
     <string name="ai_conversation_status_online">En línea</string>
     <string name="ai_conversation_title_invite_character">Invitar a un personaje</string>

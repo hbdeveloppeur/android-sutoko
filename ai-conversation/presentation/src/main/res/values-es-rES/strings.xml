@@ -46,7 +46,7 @@
     <!-- Acciones -->
     <string name="ai_conversation_button_import">Importar</string>
     <string name="ai_conversation_button_random">Aleatorio</string>
-    <string name="ai_conversation_button_use_ai">Usar AI</string>
+    <string name="ai_conversation_button_use_ai">Usar IA</string>
     <string name="ai_conversation_generate">Generar</string>
     <string name="ai_conversation_signin_to_generate">Inicia sesión para añadir tu personaje</string>
     <string name="ai_conversation_demo">Demostración</string>
@@ -54,12 +54,12 @@
     <string name="ai_conversation_confirm_invite_title">Invitar personajes</string>
     <string name="ai_conversation_confirm_invite_description">¿Estás seguro de que deseas invitar a %1$s a la conversación?</string>
 
-    <string name="ai_conversation_delete_characters">Invitar</string>
-    <string name="ai_conversation_confirm_delete_title">Invitar personajes</string>
+    <string name="ai_conversation_delete_characters">Eliminar personajes</string>
+    <string name="ai_conversation_confirm_delete_title">Eliminar personajes</string>
     <string name="ai_conversation_confirm_delete_description">¿Estás seguro de que deseas eliminar a %1$s?</string>
 
     <!-- Discord -->
-    <string name="ai_conversation_cta_join_discord">Únete\nnuestro *discord*</string>
+    <string name="ai_conversation_cta_join_discord">Únete\na nuestro *discord*</string>
     <string name="ai_conversation_cta_open_discord">Abrir discord</string>
     <string name="ai_conversation_image_viewer_gesture_indication">Puedes acercar y alejar con el gesto de pellizcar</string>
     <string name="ai_conversation_image_generator_title_prompt">Imagina tu imagen</string>
@@ -71,8 +71,8 @@
     <string name="ai_conversation_select_image">Seleccionar imagen</string>
 
     <!-- Diálogo de compra -->
-    <string name="ai_conversation_presentation_title_try">Prueba la conversación AI</string>
-    <string name="ai_conversation_presentation_title_buy">Comprar mensajes AI</string>
+    <string name="ai_conversation_presentation_title_try">Prueba la conversación de IA</string>
+    <string name="ai_conversation_presentation_title_buy">Comprar mensajes de IA</string>
     <string name="ai_conversation_presentation_message_default">Habla con los personajes de la historia que posees</string>
     <string name="ai_conversation_cta_get_coins">Obtén %1$s mensajes</string>
     <string name="ai_conversation_insufficient_coins">No tienes suficientes monedas</string>
@@ -122,6 +122,6 @@
     <string name="ai_conversation_status_close_to_you">Cerca de ti</string>
     <string name="ai_conversation_status_online">En línea</string>
     <string name="ai_conversation_title_invite_character">Invitar a un personaje</string>
-    <string name="ai_conversation_invite_characters_names">Einladen %1$s</string>
+    <string name="ai_conversation_invite_characters_names">Invitar %1$s</string>
     <string name="ai_conversation_restart_conversation">Borrar y reiniciar la conversación</string>
 </resources>

@@ -14,20 +14,20 @@
     <string name="auth_sutoko_account_error_cgu">Sie müssen die Nutzungsbedingungen akzeptieren, um fortzufahren.</string>
     <string name="auth_sutoko_account_error_invalid_password_confirm">Die Passwörter sind unterschiedlich.</string>
     <string name="auth_sutoko_account_error_invalid_nickname_format">Der Nickname darf keine Sonderzeichen enthalten</string>
-    <string name="auth_sutoko_account_error_invalid_nickname_size">Ungültiger Benutzername. Er muss zwischen den Zeichen 4 und 16 liegen.</string>
-    <string name="auth_sutoko_account_error_invalid_password_size">Ungültiges Passwort. Es muss zwischen 4 und 50 Zeichen enthalten.</string>
+    <string name="auth_sutoko_account_error_invalid_nickname_size">Ungültiger Benutzername. Er muss zwischen 4 und 16 Zeichen lang sein.</string>
+    <string name="auth_sutoko_account_error_invalid_password_size">Ungültiges Passwort. Es muss zwischen 4 und 50 Zeichen lang sein.</string>
     <string name="auth_cgu">Ich habe die <a href="https://sutoko.app/terms-of-use">Nutzungsbedingungen</a> gelesen und akzeptiere sie.</string>
     <string name="auth_sutoko_connection_page_register_title">Registrieren</string>
     <string name="auth_sutoko_connection_page_signin_title">Melden Sie sich an</string>
     <string name="auth_sutoko_connection_page_sent_mail_title">Bestätigen Sie Ihre E-Mail-Adresse</string>
     <string name="auth_sutoko_connection_page_forgot_pwd_title">Haben Sie Ihr Passwort vergessen?</string>
     <string name="auth_sutoko_connection_page_signin_subtitle">Gemeinschaft - Sicherung - Geschenke</string>
-    <string name="auth_sutoko_connection_page_sent_mail_subtitle">Mehr als ein Schritt!</string>
+    <string name="auth_sutoko_connection_page_sent_mail_subtitle">Nur noch ein Schritt!</string>
     <string name="auth_sutoko_connection_page_forgot_pwd_subtitle">Wie lautet deine E-Mail-Adresse?</string>
     <string name="auth_sutoko_connection_page_sent_mail_success_subtitle">Konto bestätigt!</string>
     <string name="auth_sutoko_connection_page_register_button_text">Registrieren</string>
     <string name="auth_sutoko_connection_page_signin_button_text">Melden Sie sich an</string>
-    <string name="auth_sutoko_connection_page_sent_button_text">In der Warteschleife …</string>
+    <string name="auth_sutoko_connection_page_sent_button_text">Warten…</string>
     <string name="auth_sutoko_connection_page_sent_mail_success_button_text">Beginnen</string>
     <string name="auth_sutoko_connection_page_forgot_pwd_button_text">Senden</string>
     <string name="auth_sutoko_connection_page_button_cta_forgot">Passwort vergessen</string>
