@@ -349,7 +349,7 @@ class GamePreviewViewModel @Inject constructor(
             GamePreviewAction.OnUpdateGame -> onStartDownload()
             GamePreviewAction.OnUpdateApp -> sendEvent(GamePreviewEvent.OpenAppStore)
             GamePreviewAction.OnPlay -> onPlay()
-            GamePreviewAction.OnTry -> navigateToPlay(requestNickName = true, isTrial = true)
+            GamePreviewAction.OnTry -> onPlay(isTrial = true)
             GamePreviewAction.OnRestart -> sendEvent(GamePreviewEvent.ShowRestartDialog)
             GamePreviewAction.OnRestartConfirm -> onRestartGame()
             GamePreviewAction.OnDelete -> onDeleteGame()
@@ -461,15 +461,21 @@ class GamePreviewViewModel @Inject constructor(
     }
 
     /**
-     * Single gatekeeper for starting the game. An unreleased chapter no longer
-     * disables the Play button: tapping it surfaces the same message as
-     * GamePreviewUnavailable as a toast instead. Administrators bypass the check.
+     * Single gatekeeper for starting the game, trial included. An unreleased
+     * chapter no longer disables the Play button: tapping it surfaces the same
+     * message as GamePreviewUnavailable as a toast instead. Administrators
+     * bypass the check. A null chapter (not loaded yet) is a dead end: the
+     * buttons are disabled in that state, and any programmatic attempt only
+     * gets an error toast - never a navigation.
      */
-    private fun onPlay() {
+    private fun onPlay(isTrial: Boolean = false) {
         val chapter = currentChapter.value
         when {
-            // Chapter still loading: the Play button is disabled in this state.
-            chapter == null -> Unit
+            chapter == null -> {
+                GamePreviewLogger.w("NAV") { "onPlay() aborted: null currentChapter for gameId=$gameId" }
+                sendEvent(GamePreviewEvent.ShowError(GameUiError.Load))
+            }
+
             !chapter.available && !isAdmin.value -> {
                 GamePreviewLogger.d("NAV") { "onPlay() chapter ${chapter.number} unavailable for gameId=$gameId" }
                 toastService(
@@ -478,7 +484,7 @@ class GamePreviewViewModel @Inject constructor(
                 )
             }
 
-            else -> navigateToPlay(requestNickName = true)
+            else -> navigateToPlay(requestNickName = true, isTrial = isTrial)
         }
     }
 
@@ -488,21 +494,23 @@ class GamePreviewViewModel @Inject constructor(
             return
         }
         viewModelScope.launch {
-            val chapter = currentChapter.value
-            val needsNickName = data.gameCatalog.userNickNameRequired &&
-                    chapter?.number == 1 && requestNickName
-
-            if (chapter == null) {
-                GamePreviewLogger.w("NAV") { "navigateToPlay() called with null currentChapter for gameId=$gameId" }
+            // Boundary invariant: PlayGame requires a chapter downstream
+            // (SmsGameActivity crashes without one), so never emit it without.
+            val chapter = currentChapter.value ?: run {
+                GamePreviewLogger.w("NAV") { "navigateToPlay() aborted: null currentChapter for gameId=$gameId" }
                 logger.warning(
-                    message = "Preview navigateToPlay() called with null currentChapter for gameId=$gameId",
+                    message = "Preview navigateToPlay() aborted with null currentChapter for gameId=$gameId",
                     data = mapOf("gameId" to gameId)
                 )
+                sendEvent(GamePreviewEvent.ShowError(GameUiError.Load))
+                return@launch
             }
+            val needsNickName = data.gameCatalog.userNickNameRequired &&
+                    chapter.number == 1 && requestNickName
 
             GamePreviewLogger.i("NAV") {
                 "navigateToPlay() gameId=$gameId, isTrial=$isTrial, " +
-                        "chapterCode=${chapter?.normalizedCode}, needsNickName=$needsNickName"
+                        "chapterCode=${chapter.normalizedCode}, needsNickName=$needsNickName"
             }
 
             if (needsNickName) {
@@ -513,7 +521,7 @@ class GamePreviewViewModel @Inject constructor(
                         "trial_start",
                         mapOf(
                             "story_id" to gameId,
-                            "chapter_code" to (chapter?.normalizedCode ?: "")
+                            "chapter_code" to chapter.normalizedCode
                         )
                     )
                 }
@@ -522,7 +530,7 @@ class GamePreviewViewModel @Inject constructor(
                         gameId = gameId,
                         legacyId = data.gameCatalog.legacyId,
                         isPurchased = data.item.isPurchased,
-                        chapterCode = chapter?.normalizedCode,
+                        chapterCode = chapter.normalizedCode,
                         isTrial = isTrial,
                     )
                 )

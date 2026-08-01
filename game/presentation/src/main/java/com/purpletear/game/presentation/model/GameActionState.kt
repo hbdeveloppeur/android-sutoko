@@ -18,6 +18,11 @@ sealed class GameActionState {
     data object UpdateGame : GameActionState()
     data object Download : GameActionState()
     data class Downloading(val progress: Float) : GameActionState()
+    /**
+     * @property chapterNumber current chapter, or -1 while no chapter is
+     * loaded yet: the Try button then stays visible but disabled (same
+     * sentinel convention as [Play.chapterNumber]).
+     */
     data class Purchase(
         val chapterNumber: Int,
         val showTry: Boolean,
@@ -32,6 +37,11 @@ sealed class GameActionState {
 
     data object GameFinished : GameActionState()
     data object Pending : GameActionState()
+
+    /**
+     * @property chapterNumber current chapter, or -1 while no chapter is
+     * loaded yet (same sentinel as [Purchase.chapterNumber]).
+     */
     data class Play(
         val chapterNumber: Int,
     ) : GameActionState()
@@ -57,7 +67,7 @@ fun GameItem.toGameActionState(
     isPending -> GameActionState.Pending
     downloadProgress != null -> GameActionState.Downloading(downloadProgress)
     !isFree && !isPurchased -> GameActionState.Purchase(
-        chapterNumber = currentChapter?.number ?: 1,
+        chapterNumber = currentChapter?.number ?: -1,
         showTry = legacyId !in FRIENDZONED_LEGACY_IDS && (currentChapter?.number ?: 1) <= 1,
         price = price,
         isUserConnected = isUserConnected,

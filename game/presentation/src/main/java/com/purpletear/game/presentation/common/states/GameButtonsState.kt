@@ -56,14 +56,19 @@ internal fun GameActionState?.toButtonsState(
         right = primaryRightButton(
             onAction = onAction,
             title = StringResource(R.string.game_presentation_game_menu_play),
-            subtitle = StringResource(
-                R.string.game_presentation_game_menu_chapter_number,
-                chapterNumber
-            ),
+            // chapterNumber <= 0 means the chapter is still loading: no
+            // subtitle rather than a bogus "Chapter -1".
+            subtitle = if (chapterNumber > 0) {
+                StringResource(
+                    R.string.game_presentation_game_menu_chapter_number,
+                    chapterNumber
+                )
+            } else {
+                null
+            },
             action = GamePreviewAction.OnPlay,
             // The ViewModel gates availability with a toast; keep the button
-            // fully visible once a chapter is loaded (chapterNumber <= 0 means
-            // the chapter is still loading).
+            // fully visible once a chapter is loaded.
             isEnabled = chapterNumber > 0,
         ),
     )
@@ -141,7 +146,9 @@ internal fun GameActionState?.toButtonsState(
     is GameActionState.Purchase -> GameButtonsState(
         left = if (showTry) {
             // Try + Buy share the row equally (1:1) when both are shown.
-            tryFirstChapterLeftButton(onAction, weight = 1f)
+            // chapterNumber <= 0 means the chapter is still loading: tapping
+            // Try without a chapter would navigate nowhere, so keep it disabled.
+            tryFirstChapterLeftButton(onAction, weight = 1f, isEnabled = chapterNumber > 0)
         } else {
             restartLeftButton(chapterNumber, onAction)
         },
@@ -193,11 +200,13 @@ private fun restartLeftButton(
 private fun tryFirstChapterLeftButton(
     onAction: (GamePreviewAction) -> Unit,
     weight: Float = LEFT_BUTTON_WEIGHT,
+    isEnabled: Boolean = true,
 ): ButtonUiState = ButtonUiState(
     title = StringResource(R.string.game_presentation_game_menu_try_first_chapter),
     subtitle = StringResource(R.string.game_presentation_game_menu_try_first_chapter_subtitle),
     weight = weight,
     backgroundColor = LeftButtonBackground,
+    isEnabled = isEnabled,
     onClick = { onAction(GamePreviewAction.OnTry) },
 )
 

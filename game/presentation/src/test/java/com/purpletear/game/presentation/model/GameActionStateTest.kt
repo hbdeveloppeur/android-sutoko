@@ -177,14 +177,25 @@ class GameActionStateTest {
     }
 
     @Test
-    fun `paid not owned with null chapter - defaults to chapter 1 with try`() {
+    fun `paid not owned with null chapter - Purchase keeps try with loading sentinel`() {
+        // No chapter loaded yet: chapterNumber is the -1 loading sentinel so
+        // the Try button renders disabled (see GameButtonsState).
         val result = state(
             item(isFree = false, isPurchased = false, legacyId = null),
             currentChapter = null,
         )
         assertEquals(
-            GameActionState.Purchase(chapterNumber = 1, showTry = true, price = 100, isUserConnected = false),
+            GameActionState.Purchase(chapterNumber = -1, showTry = true, price = 100, isUserConnected = false),
             result
         )
+    }
+
+    @Test
+    fun `free installed with null chapter - Play with loading sentinel`() {
+        val result = state(
+            item(isFree = true, localVersion = 1, version = 1),
+            currentChapter = null,
+        )
+        assertEquals(GameActionState.Play(chapterNumber = -1), result)
     }
 }

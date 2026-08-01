@@ -536,7 +536,7 @@ class GamePreviewViewModelTest {
     fun `onAction OnTry emits PlayGame with isTrial and chapter code`() = runTest {
         val viewModel = createViewModel()
         gameRepository.setGame(TestFixtures.GAME_ID, TestFixtures.gameCatalog(price = 100, skus = listOf("sku-1")))
-        chapterRepository.setCurrentChapter(TestFixtures.GAME_ID, Chapter(number = 1, code = "1A"))
+        chapterRepository.setCurrentChapter(TestFixtures.GAME_ID, Chapter(number = 1, code = "1A", available = true))
         // Keep currentChapter active so its StateFlow value is populated (as in the real screen).
         backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { viewModel.currentChapter.collect { } }
         advanceUntilIdle()
@@ -643,7 +643,7 @@ class GamePreviewViewModelTest {
                 userNickNameRequired = true,
             ),
         )
-        chapterRepository.setCurrentChapter(TestFixtures.GAME_ID, Chapter(number = 1, code = "1A"))
+        chapterRepository.setCurrentChapter(TestFixtures.GAME_ID, Chapter(number = 1, code = "1A", available = true))
         backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { viewModel.currentChapter.collect { } }
         advanceUntilIdle()
 
@@ -740,6 +740,67 @@ class GamePreviewViewModelTest {
             }
         }
         assertTrue(toastService.shownMessages.isEmpty())
+    }
+
+    @Test
+    fun `onAction OnTry with null chapter shows error toast and does not navigate`() = runTest {
+        val viewModel = createViewModel()
+        gameRepository.setGame(TestFixtures.GAME_ID, TestFixtures.gameCatalog(price = 100, skus = listOf("sku-1")))
+        // No setCurrentChapter: currentChapter stays null (chapter not loaded).
+        backgroundScope.launch { viewModel.currentChapter.collect { } }
+        val events = mutableListOf<GamePreviewEvent>()
+        backgroundScope.launch { viewModel.events.collect { events.add(it) } }
+        advanceUntilIdle()
+
+        viewModel.onAction(GamePreviewAction.OnTry)
+        advanceUntilIdle()
+
+        // Regression: a null chapter used to reach SmsGameActivity and crash.
+        assertTrue(toastService.shownMessages.contains(R.string.game_presentation_error_load_game))
+        assertTrue(events.none { it is GamePreviewEvent.PlayGame })
+    }
+
+    @Test
+    fun `onAction OnTry with unavailable chapter shows toast and does not navigate`() = runTest {
+        val viewModel = createViewModel()
+        gameRepository.setGame(TestFixtures.GAME_ID, TestFixtures.gameCatalog(price = 100, skus = listOf("sku-1")))
+        chapterRepository.setCurrentChapter(
+            TestFixtures.GAME_ID,
+            Chapter(number = 1, code = "1A", releaseDate = System.currentTimeMillis() / 1000 + 86_400),
+        )
+        backgroundScope.launch { viewModel.currentChapter.collect { } }
+        val events = mutableListOf<GamePreviewEvent>()
+        backgroundScope.launch { viewModel.events.collect { events.add(it) } }
+        advanceUntilIdle()
+
+        viewModel.onAction(GamePreviewAction.OnTry)
+        advanceUntilIdle()
+
+        assertTrue(toastService.shownMessages.contains(R.string.game_presentation_game_preview_next_chapter))
+        assertTrue(events.none { it is GamePreviewEvent.PlayGame })
+    }
+
+    @Test
+    fun `onNickNameConfirmed with null chapter does not navigate`() = runTest {
+        val viewModel = createViewModel()
+        gameRepository.setGame(TestFixtures.GAME_ID, TestFixtures.gameCatalog(userNickNameRequired = true))
+        // No setCurrentChapter: the chapter vanished between the nickname
+        // request and its confirmation - the boundary guard must hold.
+        backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { viewModel.currentChapter.collect { } }
+        advanceUntilIdle()
+
+        viewModel.game.test {
+            skipItems(1) // Loading
+            assertTrue(awaitItem() is GamePreviewUiState.Data)
+
+            viewModel.events.test {
+                viewModel.onNickNameConfirmed("Alex", isTrial = false)
+                advanceUntilIdle()
+
+                assertEquals(GamePreviewEvent.ShowError(GameUiError.Load), awaitItem())
+            }
+        }
+        assertTrue(toastService.shownMessages.contains(R.string.game_presentation_error_load_game))
     }
 
     @Test
