@@ -30,4 +30,15 @@ class FriendzonedProgressRepositoryImpl @Inject constructor() : FriendzonedProgr
         symbols.save()
         Unit
     }
+
+    override suspend fun setFirstName(legacyId: Int, name: String) = withContext(Dispatchers.IO) {
+        val symbols = TableOfSymbols(legacyId)
+        symbols.read()
+        // Row 0 feeds [prenom] phrase substitution in all four games; the
+        // per-game row feeds contact/conversation names (fz1, fz4).
+        symbols.globalFirstName = name
+        symbols.firstName = name
+        symbols.save()
+        Unit
+    }
 }

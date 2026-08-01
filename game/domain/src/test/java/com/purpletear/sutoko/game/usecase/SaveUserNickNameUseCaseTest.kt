@@ -47,6 +47,13 @@ class SaveUserNickNameUseCaseTest {
     }
 
     @Test
+    fun `sanitizer capitalizes the first letter`() {
+        assertEquals("Léa", UserNickNameSanitizer.sanitize("léa"))
+        assertEquals("Marie anne", UserNickNameSanitizer.sanitize("marie  anne"))
+        assertEquals("Pierre-louis", UserNickNameSanitizer.sanitize("pierre-louis"))
+    }
+
+    @Test
     fun `sanitizer rejects blank names`() {
         assertEquals(null, UserNickNameSanitizer.sanitize(""))
         assertEquals(null, UserNickNameSanitizer.sanitize("   "))
@@ -71,6 +78,17 @@ class SaveUserNickNameUseCaseTest {
 
         assertTrue(result.isSuccess)
         assertEquals("Pierre-Louis", repository.get("game-1").heroName)
+    }
+
+    @Test
+    fun `use case saves the hero name with a capitalized first letter`() = runTest {
+        val repository = FakeUserGameProgressRepository()
+        val useCase = SaveUserNickNameUseCase(repository)
+
+        val result = useCase("game-1", "pierre")
+
+        assertTrue(result.isSuccess)
+        assertEquals("Pierre", repository.get("game-1").heroName)
     }
 
     @Test

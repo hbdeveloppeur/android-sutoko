@@ -2,6 +2,7 @@ package com.purpletear.sutoko.game.usecase
 
 import com.purpletear.sutoko.game.repository.UserGameProgressRepository
 import kotlinx.coroutines.CancellationException
+import java.util.Locale
 import javax.inject.Inject
 
 /**
@@ -12,6 +13,7 @@ import javax.inject.Inject
  * - no double spaces
  * - no emojis, underscores, digits or special characters
  * - allows letters, spaces, hyphens and apostrophes
+ * - first letter capitalized
  * - length between 3 and 15 characters
  *
  * Returns the sanitized name, or null if the input is invalid.
@@ -26,6 +28,7 @@ object UserNickNameSanitizer {
             .replace(Regex("\\s{2,}"), " ")
             .replace(Regex("[^\\p{L}\\s'\\-]+"), "")
             .trim()
+            .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
 
         return sanitized.takeIf { it.length in MIN_LENGTH..MAX_LENGTH }
     }

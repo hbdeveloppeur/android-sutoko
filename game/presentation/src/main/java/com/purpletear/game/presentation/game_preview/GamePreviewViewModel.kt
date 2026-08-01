@@ -17,8 +17,10 @@ import com.purpletear.sutoko.core.domain.logger.Logger
 import com.purpletear.sutoko.core.domain.logger.exception
 import com.purpletear.sutoko.domain.repository.UserRepository
 import com.purpletear.sutoko.game.model.Chapter
+import com.purpletear.sutoko.game.model.FriendzonedLegacyIds
 import com.purpletear.sutoko.game.model.UserRole
 import com.purpletear.sutoko.game.repository.ChapterRepository
+import com.purpletear.sutoko.game.repository.FriendzonedProgressRepository
 import com.purpletear.sutoko.game.repository.GamePreviewSoundRepository
 import com.purpletear.sutoko.game.repository.UserRoleRepository
 import com.purpletear.sutoko.game.repository.game.FavoriteGamesRepository
@@ -29,6 +31,7 @@ import com.purpletear.sutoko.game.usecase.DownloadGameUseCase
 import com.purpletear.sutoko.game.usecase.GetChaptersUseCase
 import com.purpletear.sutoko.game.usecase.RestartGameUseCase
 import com.purpletear.sutoko.game.usecase.SaveUserNickNameUseCase
+import com.purpletear.sutoko.game.usecase.UserNickNameSanitizer
 import com.purpletear.sutoko.shop.domain.error.BuyStoryError
 import com.purpletear.sutoko.shop.domain.repository.EntitlementRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -61,6 +64,7 @@ class GamePreviewViewModel @Inject constructor(
     private val gameRepository: GameRepository,
     private val favoriteGamesRepository: FavoriteGamesRepository,
     private val chapterRepository: ChapterRepository,
+    private val friendzonedProgressRepository: FriendzonedProgressRepository,
     private val gameInstallRepository: GameInstallRepository,
     private val mediaUrlResolver: MediaUrlResolver,
     private val getChaptersUseCase: GetChaptersUseCase,
@@ -426,9 +430,24 @@ class GamePreviewViewModel @Inject constructor(
             }"
         }
         viewModelScope.launch {
-            saveUserNickNameUseCase(gameId, name)
+            val saveResult = saveUserNickNameUseCase(gameId, name)
+            saveFriendzonedFirstName(name, saveResult.isSuccess)
             navigateToPlay(requestNickName = false, isTrial = isTrial)
         }
+    }
+
+    /**
+     * Friendzoned games read the player name from their own `TableOfSymbols`
+     * store, not from the Room hero name, so mirror the confirmed nickname
+     * there. No-op for standard games or when the nickname was rejected.
+     */
+    private suspend fun saveFriendzonedFirstName(name: String?, saved: Boolean) {
+        if (!saved) return
+        val legacyId = currentGameItem?.legacyId
+        if (!FriendzonedLegacyIds.isFriendzoned(legacyId)) return
+        val firstName = name?.let { UserNickNameSanitizer.sanitize(it) }
+            ?: SaveUserNickNameUseCase.DEFAULT_HERO_NAME
+        friendzonedProgressRepository.setFirstName(legacyId!!, firstName)
     }
 
     private fun onBuy() {

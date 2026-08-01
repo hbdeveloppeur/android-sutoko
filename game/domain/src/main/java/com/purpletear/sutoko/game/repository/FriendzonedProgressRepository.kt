@@ -18,4 +18,11 @@ interface FriendzonedProgressRepository {
      * semantics: the story version and escape-game flag are preserved.
      */
     suspend fun reset(legacyId: Int)
+
+    /**
+     * Persists the player's first name so the Friendzoned games can substitute
+     * `[prenom]` in their phrases and contact names. [name] must already be
+     * sanitized (see `UserNickNameSanitizer`).
+     */
+    suspend fun setFirstName(legacyId: Int, name: String)
 }

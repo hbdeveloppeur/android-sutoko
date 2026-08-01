@@ -58,6 +58,8 @@ class RestartGameUseCaseTest {
         override suspend fun reset(legacyId: Int) {
             resetLegacyIds.add(legacyId)
         }
+
+        override suspend fun setFirstName(legacyId: Int, name: String) = Unit
     }
 
     private val progressRepository = FakeUserGameProgressRepository()

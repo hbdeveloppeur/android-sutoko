@@ -118,6 +118,8 @@ class ChapterRepositoryImplFriendzonedTest {
         }
 
         override suspend fun reset(legacyId: Int) = Unit
+
+        override suspend fun setFirstName(legacyId: Int, name: String) = Unit
     }
 
     private val chapterDao = FakeChapterDao()

@@ -113,6 +113,7 @@ class GamePreviewViewModelTest {
             gameRepository = gameRepository,
             favoriteGamesRepository = favoriteGamesRepository,
             chapterRepository = chapterRepository,
+            friendzonedProgressRepository = friendzonedProgressRepository,
             gameInstallRepository = gameInstallRepository,
             mediaUrlResolver = mediaUrlResolver,
             getChaptersUseCase = getChaptersUseCase,
@@ -555,6 +556,80 @@ class GamePreviewViewModelTest {
                 assertEquals("1a", event.chapterCode)
             }
         }
+    }
+
+    @Test
+    fun `onNickNameConfirmed with friendzoned game mirrors the name to the friendzoned store`() = runTest {
+        val viewModel = createViewModel()
+        gameRepository.setGame(
+            TestFixtures.GAME_ID,
+            TestFixtures.gameCatalog(legacyId = 162, userNickNameRequired = true),
+        )
+        chapterRepository.setCurrentChapter(TestFixtures.GAME_ID, Chapter(number = 1, code = "1A"))
+        backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { viewModel.currentChapter.collect { } }
+        advanceUntilIdle()
+
+        viewModel.game.test {
+            skipItems(1) // Loading
+            assertTrue(awaitItem() is GamePreviewUiState.Data)
+
+            viewModel.events.test {
+                viewModel.onNickNameConfirmed("Alex", isTrial = false)
+                advanceUntilIdle()
+
+                val event = awaitItem()
+                assertTrue(event is GamePreviewEvent.PlayGame)
+                assertEquals(162, (event as GamePreviewEvent.PlayGame).legacyId)
+            }
+        }
+        assertEquals("Alex", friendzonedProgressRepository.firstNames[162])
+    }
+
+    @Test
+    fun `onNickNameConfirmed with standard game does not touch the friendzoned store`() = runTest {
+        val viewModel = createViewModel()
+        gameRepository.setGame(TestFixtures.GAME_ID, TestFixtures.gameCatalog(userNickNameRequired = true))
+        chapterRepository.setCurrentChapter(TestFixtures.GAME_ID, Chapter(number = 1, code = "1A"))
+        backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { viewModel.currentChapter.collect { } }
+        advanceUntilIdle()
+
+        viewModel.game.test {
+            skipItems(1) // Loading
+            assertTrue(awaitItem() is GamePreviewUiState.Data)
+
+            viewModel.events.test {
+                viewModel.onNickNameConfirmed("Alex", isTrial = false)
+                advanceUntilIdle()
+
+                assertTrue(awaitItem() is GamePreviewEvent.PlayGame)
+            }
+        }
+        assertTrue(friendzonedProgressRepository.firstNames.isEmpty())
+    }
+
+    @Test
+    fun `onNickNameConfirmed with invalid name does not touch the friendzoned store`() = runTest {
+        val viewModel = createViewModel()
+        gameRepository.setGame(
+            TestFixtures.GAME_ID,
+            TestFixtures.gameCatalog(legacyId = 162, userNickNameRequired = true),
+        )
+        chapterRepository.setCurrentChapter(TestFixtures.GAME_ID, Chapter(number = 1, code = "1A"))
+        backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { viewModel.currentChapter.collect { } }
+        advanceUntilIdle()
+
+        viewModel.game.test {
+            skipItems(1) // Loading
+            assertTrue(awaitItem() is GamePreviewUiState.Data)
+
+            viewModel.events.test {
+                viewModel.onNickNameConfirmed("Al", isTrial = false) // below min length: rejected
+                advanceUntilIdle()
+
+                assertTrue(awaitItem() is GamePreviewEvent.PlayGame)
+            }
+        }
+        assertTrue(friendzonedProgressRepository.firstNames.isEmpty())
     }
 
     @Test
