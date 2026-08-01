@@ -5,6 +5,7 @@ import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.purpletear.sutoko.game.model.Asset
 import com.purpletear.sutoko.game.model.Author
+import com.purpletear.sutoko.game.model.game.CardLayout
 import com.purpletear.sutoko.game.model.game.GameMetadata
 import com.purpletear.sutoko.game.model.game.NarrativeTheme
 
@@ -44,6 +45,16 @@ class GameTypeConverters {
             val type = object : TypeToken<Asset>() {}.type
             gson.fromJson(it, type)
         }
+    }
+
+    @TypeConverter
+    fun fromCardLayout(layout: CardLayout): String {
+        return layout.name
+    }
+
+    @TypeConverter
+    fun toCardLayout(value: String?): CardLayout {
+        return CardLayout.fromRaw(value)
     }
 
     @TypeConverter

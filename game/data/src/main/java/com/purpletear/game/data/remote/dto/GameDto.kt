@@ -3,6 +3,7 @@ package com.purpletear.game.data.remote.dto
 import androidx.annotation.Keep
 import com.google.gson.annotations.SerializedName
 import com.purpletear.game.data.local.entity.GameCatalogEntity
+import com.purpletear.sutoko.game.model.game.CardLayout
 
 /**
  * Data Transfer Object for Game.
@@ -22,6 +23,8 @@ data class GameDto(
     @SerializedName("menuSoundUrl") val menuSoundUrl: String? = null,
     @SerializedName("cachedChaptersCount") val cachedChaptersCount: Int,
     @SerializedName("bannerAsset") val bannerAsset: AssetDto?,
+    @SerializedName("verticalBannerAsset") val verticalBannerAsset: AssetDto? = null,
+    @SerializedName("cardLayout") val cardLayout: String? = null,
     @SerializedName("menuBackgroundAsset") val menuBackgroundAsset: AssetDto?,
     @SerializedName("titleAsset") val titleAsset: AssetDto?,
     @SerializedName("logoAsset") val logoAsset: AssetDto?,
@@ -49,6 +52,8 @@ fun GameDto.toDomain(): GameCatalogEntity {
         chaptersCount = cachedChaptersCount,
         menuBackground = menuBackgroundAsset?.toDomain(),
         banner = bannerAsset?.toDomain(),
+        verticalBanner = verticalBannerAsset?.toDomain(),
+        cardLayout = CardLayout.fromRaw(cardLayout),
         title = titleAsset?.toDomain(),
         logo = logoAsset?.toDomain(),
         metadata = metadata.toDomain(),

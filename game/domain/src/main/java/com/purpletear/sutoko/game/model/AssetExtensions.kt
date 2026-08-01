@@ -15,6 +15,8 @@ const val SUTOKO_MEDIA_BASE_URL = "https://sutoko.com/media/"
  */
 fun Asset?.getFullUrl(): String? {
     if (this == null || storagePath.isBlank()) return null
+    // Absolute URIs (e.g. bundled debug assets) are returned as-is.
+    if (storagePath.contains("://")) return storagePath
     return "${SUTOKO_MEDIA_BASE_URL}$storagePath"
 }
 

@@ -15,6 +15,7 @@ import com.example.sharedelements.utils.UiText
 import com.purpletear.sutoko.core.domain.analytics.AnalyticsTracker
 import com.purpletear.core.presentation.extensions.Resource
 import com.purpletear.sutoko.domain.repository.UserRepository
+import com.purpletear.sutoko.game.model.game.CardLayout
 import com.purpletear.sutoko.game.model.game.GameCatalog
 import com.purpletear.sutoko.game.model.game.isPremium
 import com.purpletear.sutoko.game.repository.ChapterRepository
@@ -29,6 +30,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import fr.purpletear.sutoko.R
 import fr.purpletear.sutoko.friendzoned.FriendzonedGameRouter
 import fr.purpletear.sutoko.objects.CalendarEvent
+import fr.purpletear.sutoko.screens.main.presentation.screens.home.fakeVerticalStories
 import fr.purpletear.sutoko.symbols.SymbolsRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.SharingStarted
@@ -133,6 +135,12 @@ class HomeScreenViewModel @Inject constructor(
     val fullStories: State<List<GameCatalog>>
         get() = _fullStories
 
+    /** Stories showcased as portrait posters in a horizontal row (Netflix-style). */
+    private var _verticalStories: MutableState<List<GameCatalog>> =
+        mutableStateOf(emptyList())
+    val verticalStories: State<List<GameCatalog>>
+        get() = _verticalStories
+
 
     val saveSymbols: MutableLiveData<TableOfSymbols> by lazy {
         MutableLiveData<TableOfSymbols>()
@@ -168,9 +176,12 @@ class HomeScreenViewModel @Inject constructor(
         viewModelScope.launch {
             combine(games, favoriteIds) { gamesList, favorites -> gamesList to favorites }
                 .collect { (gamesList, favorites) ->
-                    val sorted = sortForHome(gamesList, favorites)
-                    _squareStories.value = getSquareStories(sorted) ?: emptyList()
-                    _fullStories.value = getFullWidthStories(sorted, favorites)
+                    val sorted = sortForHome(gamesList, favorites) + fakeVerticalStories()
+                    val (vertical, horizontal) =
+                        sorted.partition { it.cardLayout == CardLayout.VERTICAL }
+                    _verticalStories.value = vertical
+                    _squareStories.value = getSquareStories(horizontal) ?: emptyList()
+                    _fullStories.value = getFullWidthStories(horizontal, favorites)
                     _state.value = _state.value.copy(initialStories = gamesList)
                 }
         }

@@ -23,6 +23,7 @@ import androidx.navigation.NavController
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.purpletear.core.presentation.extensions.Resource
 import com.purpletear.game.presentation.game_catalog.GameCard
+import com.purpletear.game.presentation.game_catalog.GamePosterRow
 import com.purpletear.game.presentation.game_catalog.GameSquares
 import com.purpletear.sutoko.game.model.game.GameCatalog
 import com.purpletear.sutoko.shop.domain.repository.model.Balance
@@ -64,6 +65,7 @@ fun HomeScreen(
         scrollState = scrollState,
         squareStories = viewModel.squareStories.value,
         fullStories = viewModel.fullStories.value,
+        verticalStories = viewModel.verticalStories.value,
         squareIcons = viewModel.squareIcons.value,
         favoriteIds = favoriteIds.value,
         newChaptersSoonGameIds = newChaptersSoonGameIds.value,
@@ -92,6 +94,7 @@ private fun HomeContent(
     scrollState: LazyListState,
     squareStories: List<GameCatalog>,
     fullStories: List<GameCatalog>,
+    verticalStories: List<GameCatalog>,
     squareIcons: Map<Int, Int?>,
     favoriteIds: Set<String>,
     newChaptersSoonGameIds: Set<String>,
@@ -135,6 +138,12 @@ private fun HomeContent(
             fullStories = fullStories,
             favoriteIds = favoriteIds,
             newChaptersSoonGameIds = newChaptersSoonGameIds,
+            onStoryTap = onFullStoryTap
+        )
+
+        verticalStoriesSection(
+            verticalStories = verticalStories,
+            favoriteIds = favoriteIds,
             onStoryTap = onFullStoryTap
         )
 
@@ -214,6 +223,24 @@ private fun LazyListScope.squareStoriesAsCardsSection(
             isFavorite = item.id in favoriteIds,
             hasNewChaptersSoon = item.id in newChaptersSoonGameIds,
             onTap = { card -> onStoryTap(card) }
+        )
+    }
+}
+
+@OptIn(ExperimentalFoundationApi::class)
+private fun LazyListScope.verticalStoriesSection(
+    verticalStories: List<GameCatalog>,
+    favoriteIds: Set<String>,
+    onStoryTap: (GameCatalog) -> Unit
+) {
+    if (verticalStories.isEmpty()) return
+
+    item(key = "vertical_stories") {
+        GamePosterRow(
+            modifier = Modifier.padding(vertical = 8.dp),
+            stories = verticalStories,
+            favoriteIds = favoriteIds,
+            onTap = onStoryTap
         )
     }
 }

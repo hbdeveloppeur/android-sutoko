@@ -16,6 +16,8 @@ data class GameCatalog(
     val menuBackground: Asset? = null,
     val chaptersCount: Int = 0,
     val banner: Asset? = null,
+    val verticalBanner: Asset? = null,
+    val cardLayout: CardLayout = CardLayout.HORIZONTAL,
     val logo: Asset? = null,
     val title: Asset? = null,
     val metadata: GameMetadata,

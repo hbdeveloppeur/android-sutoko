@@ -5,6 +5,7 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.purpletear.sutoko.game.model.Asset
 import com.purpletear.sutoko.game.model.Author
+import com.purpletear.sutoko.game.model.game.CardLayout
 import com.purpletear.sutoko.game.model.game.GameCatalog
 import com.purpletear.sutoko.game.model.game.GameMetadata
 import com.purpletear.sutoko.game.model.game.NarrativeTheme
@@ -23,6 +24,8 @@ data class GameCatalogEntity(
     val menuBackground: Asset? = null,
     val chaptersCount: Int = 0,
     val banner: Asset? = null,
+    val verticalBanner: Asset? = null,
+    val cardLayout: CardLayout = CardLayout.HORIZONTAL,
     val logo: Asset? = null,
     val title: Asset? = null,
     val metadata: GameMetadata,
@@ -46,6 +49,8 @@ fun GameCatalogEntity.toDomain(): GameCatalog = GameCatalog(
     chaptersCount = chaptersCount,
     menuBackground = menuBackground,
     banner = banner,
+    verticalBanner = verticalBanner,
+    cardLayout = cardLayout,
     logo = logo,
     title = title,
     metadata = metadata,

@@ -30,3 +30,22 @@ fun GameCatalog.bannerImageRequest(context: Context): ImageRequest? {
  */
 fun GameCatalog.titleUrl(): String? = title.getFullUrl()
 
+/**
+ * Gets the portrait poster URL for a game (VERTICAL card layout).
+ * @return The URL string for the vertical banner image, or null if not available.
+ */
+fun GameCatalog.verticalBannerUrl(): String? = verticalBanner.getFullUrl()
+
+/**
+ * Creates an ImageRequest for the game's vertical banner.
+ * @param context The Android context for the request builder.
+ * @return An ImageRequest configured for the poster image, or null if not available.
+ */
+fun GameCatalog.verticalBannerImageRequest(context: Context): ImageRequest? {
+    val url = verticalBannerUrl() ?: return null
+    return ImageRequest.Builder(context)
+        .data(url)
+        .crossfade(true)
+        .build()
+}
+
