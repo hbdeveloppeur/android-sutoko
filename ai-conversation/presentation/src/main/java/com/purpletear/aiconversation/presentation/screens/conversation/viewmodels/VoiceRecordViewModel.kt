@@ -98,7 +98,6 @@ class VoiceRecordViewModel @Inject constructor(
     private suspend fun sendMessage(
         userName: String? = null,
         messages: List<Message>,
-        onSuccess: () -> Unit
     ) {
         val user = userRepository.observeUser().first()
         if (null == user) {
@@ -134,7 +133,6 @@ class VoiceRecordViewModel @Inject constructor(
                 )
             },
             onSuccess = {
-                onSuccess()
                 Log.d("ConversationViewModel", "onSuccess: message sent")
                 messageQueue.mark(state = MessageState.Sent)
             },
@@ -163,15 +161,18 @@ class VoiceRecordViewModel @Inject constructor(
             popUpInteractionUseCase(tag)
         }, onStream = { interaction ->
             if (interaction.event is PopUpUserInteraction.ConfirmText) {
-                val messagesToInsert = messageQueue.messages
+                // The server rejected these messages (e.g. username_required): they
+                // were never acked, so they are still in the queue. Resend them as
+                // fresh copies (same ids, so the ack still matches) with the name.
+                val messagesToResend = messageQueue.messages.value.map {
+                    it.copy(hiddenState = MessageState.Idle)
+                }
                 messageQueue.cancelTimer()
                 viewModelScope.launch {
                     sendMessage(
                         userName = (interaction.event as PopUpUserInteraction.ConfirmText).text,
-                        messages = messagesToInsert.value,
-                        onSuccess = {
-                            messageQueue.remove { m -> m.id in messagesToInsert.value.map { s -> s.id } }
-                        })
+                        messages = messagesToResend,
+                    )
                 }
             }
         }, onFailure = {
@@ -184,9 +185,7 @@ class VoiceRecordViewModel @Inject constructor(
         messageQueue.cancelTimer()
         messageQueue.startTimer { messages ->
             viewModelScope.launch {
-                sendMessage(messages = messages, onSuccess = {
-                    messageQueue.remove { m -> m.id in messages.map { s -> s.id } }
-                })
+                sendMessage(messages = messages)
             }
         }
     }

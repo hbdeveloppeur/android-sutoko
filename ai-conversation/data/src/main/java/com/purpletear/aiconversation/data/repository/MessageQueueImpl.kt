@@ -10,6 +10,10 @@ import kotlinx.coroutines.flow.update
 import purpletear.fr.purpleteartools.DelayHandler
 
 class MessageQueueImpl() : MessageQueue {
+    private companion object {
+        const val TAG = "AiConv"
+    }
+
     private var _mutableQueue: MutableStateFlow<List<Message>> = MutableStateFlow(listOf())
 
     override val messages: StateFlow<List<Message>>
@@ -26,6 +30,7 @@ class MessageQueueImpl() : MessageQueue {
         }
 
     override fun acknowledge(ids: List<String>) {
+        Log.d(TAG, "Queue: acknowledge ids=$ids (queue size=${_mutableQueue.value.size})")
         messages.value.forEachIndexed { index, message ->
             if (message.id in ids) {
                 message.acknowledge()
@@ -37,15 +42,15 @@ class MessageQueueImpl() : MessageQueue {
     }
 
     override fun cancelTimer() {
-        Log.d("MessageQueue", "canceled")
+        Log.d(TAG, "Queue: timer canceled")
         delayHandler.stop(waiterName)
     }
 
     override fun startTimer(onTick: (messages: List<Message>) -> Unit) {
-        Log.d("MessageQueue", "Waiter started")
+        Log.d(TAG, "Queue: timer started (${waiterDuration}ms, queue size=${_mutableQueue.value.size})")
         delayHandler.stop(waiterName)
         delayHandler.operation(waiterName, waiterDuration) {
-            Log.d("MessageQueue", "Waiter executed")
+            Log.d(TAG, "Queue: timer fired, queue size=${_mutableQueue.value.size}")
             if (_mutableQueue.value.isNotEmpty()) {
                 onTick(_mutableQueue.value.toList())
             }
@@ -53,9 +58,11 @@ class MessageQueueImpl() : MessageQueue {
     }
 
     override fun add(message: Message) {
+        Log.d(TAG, "Queue: add id=${message.id}")
         _mutableQueue.update {
             val list = it.toMutableList()
             list.add(message)
+            Log.d(TAG, "Queue: size after add=${list.size}")
             list
         }
     }
@@ -64,12 +71,13 @@ class MessageQueueImpl() : MessageQueue {
         _mutableQueue.update {
             val list = it.toMutableList()
             list.removeIf(predicate)
+            Log.d(TAG, "Queue: size after remove=${list.size} (was ${it.size})")
             list
         }
     }
 
     override fun clear() {
-        Log.d("MessageQueue", "Queue cleared")
+        Log.d(TAG, "Queue: cleared")
         _mutableQueue.update {
             listOf()
         }
@@ -84,6 +92,7 @@ class MessageQueueImpl() : MessageQueue {
     }
 
     override fun mark(state: MessageState) {
+        Log.d(TAG, "Queue: mark state=$state (queue size=${_mutableQueue.value.size})")
         _mutableQueue.update { messages ->
             messages.map { message ->
                 if (message.hiddenState !in setOf(MessageState.Sent)) {

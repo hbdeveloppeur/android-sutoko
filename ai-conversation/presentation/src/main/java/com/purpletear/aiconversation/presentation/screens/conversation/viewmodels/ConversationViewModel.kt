@@ -224,15 +224,18 @@ class ConversationViewModel @Inject constructor(
             popUpInteractionUseCase(tag)
         }, onStream = { interaction ->
             if (interaction.event is PopUpUserInteraction.ConfirmText) {
-                val messagesToInsert = messageQueue.messages
+                // The server rejected these messages (e.g. username_required): they
+                // were never acked, so they are still in the queue. Resend them as
+                // fresh copies (same ids, so the ack still matches) with the name.
+                val messagesToResend = messageQueue.messages.value.map {
+                    it.copy(hiddenState = MessageState.Idle)
+                }
                 messageQueue.cancelTimer()
                 viewModelScope.launch {
                     sendMessage(
                         userName = (interaction.event as PopUpUserInteraction.ConfirmText).text,
-                        messages = messagesToInsert.value,
-                        onSuccess = {
-                            messageQueue.remove { m -> m.id in messagesToInsert.value.map { s -> s.id } }
-                        })
+                        messages = messagesToResend,
+                    )
                 }
             }
         }, onFailure = {
@@ -627,6 +630,10 @@ class ConversationViewModel @Inject constructor(
 
     private fun acknowledgeMessages(ids: List<String>) {
         messageQueue.acknowledge(ids)
+        // Invariant: the queue holds outbound messages until the server acks them.
+        // Removal happens here, never on local send success (which only means the
+        // frame was queued by the socket, not accepted by the server).
+        messageQueue.remove { it.id in ids }
     }
 
     private suspend fun handleWebSocketMessage(it: WebSocketMessage) {
@@ -813,9 +820,7 @@ class ConversationViewModel @Inject constructor(
         messageQueue.cancelTimer()
         messageQueue.startTimer { messages ->
             viewModelScope.launch {
-                sendMessage(messages = messages, onSuccess = {
-                    messageQueue.remove { m -> m.id in messages.map { s -> s.id } }
-                })
+                sendMessage(messages = messages)
             }
         }
     }
@@ -823,7 +828,6 @@ class ConversationViewModel @Inject constructor(
     private suspend fun sendMessage(
         userName: String? = null,
         messages: List<Message>,
-        onSuccess: () -> Unit = {}
     ) {
         val messagesToSend =
             messages.filter {
@@ -881,7 +885,6 @@ class ConversationViewModel @Inject constructor(
                 )
             },
             onSuccess = {
-                onSuccess()
                 Log.d("ConversationViewModel", "onSuccess: message sent")
                 messageQueue.mark(state = MessageState.Sent)
             },
@@ -941,9 +944,7 @@ class ConversationViewModel @Inject constructor(
         messageQueue.cancelTimer()
         messageQueue.startTimer { messages ->
             viewModelScope.launch {
-                sendMessage(messages = messages, onSuccess = {
-                    messageQueue.remove { m -> m.id in messages.map { s -> s.id } }
-                })
+                sendMessage(messages = messages)
             }
         }
     }

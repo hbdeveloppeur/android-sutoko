@@ -1,5 +1,6 @@
 package com.purpletear.aiconversation.data.remote.websocket
 
+import android.util.Log
 import com.google.gson.Gson
 import com.google.gson.JsonParser
 import com.google.gson.JsonSyntaxException
@@ -44,6 +45,7 @@ class WebSocketDataSourceImpl(
         .build()
 
     private companion object {
+        const val TAG = "AiConv"
         const val DEFAULT_AUTH_TIMEOUT_MS = 10_000L
         const val PING_INTERVAL_SECONDS = 20L
     }
@@ -88,13 +90,23 @@ class WebSocketDataSourceImpl(
             )
             val socket = webSocket
             if (socket == null) {
+                Log.e(
+                    TAG,
+                    "WS >> send_message FAILED: socket is null (characterId=$characterId, userName=$userName)"
+                )
                 emit(Result.failure(UnableToReachServiceException()))
                 return@flow
             }
-            if (!socket.send(Gson().toJson(data))) {
+            val payload = Gson().toJson(data)
+            if (!socket.send(payload)) {
+                Log.e(
+                    TAG,
+                    "WS >> send_message FAILED: socket.send() returned false (queue full or closing)"
+                )
                 emit(Result.failure(UnableToReachServiceException()))
                 return@flow
             }
+            // NOTE: success here only means the frame was queued locally, NOT acked by the server.
             emit(Result.success(Unit))
         }
 
@@ -114,166 +126,172 @@ class WebSocketDataSourceImpl(
 
             override fun onMessage(webSocket: WebSocket, text: String) {
                 super.onMessage(webSocket, text)
+                Log.d(TAG, "WS << $text")
 
                 val action: WebSocketMessageType
                 try {
                     action = extractActionFromJson(text)
                 } catch (e: WebsocketMessageParserException) {
-                    e.printStackTrace()
+                    Log.e(TAG, "WS << DROPPED frame (cannot extract action): $text", e)
                     return
                 } catch (e: Exception) {
-                    e.printStackTrace()
+                    Log.e(TAG, "WS << DROPPED frame (unexpected error): $text", e)
                     return
                 }
 
                 try {
-                when (action) {
+                    when (action) {
 
-                    WebSocketMessageType.CONNECTED -> {
-                        // Server handshake frame sent on TCP connect, before authentication.
-                    }
+                        WebSocketMessageType.CONNECTED -> {
+                            // Server handshake frame sent on TCP connect, before authentication.
+                        }
 
-                    WebSocketMessageType.ERROR_CODE -> {
-                        trySend(
-                            WebSocketMessage.ErrorCode(
-                                websocketMessageParser.parseError(
-                                    text
+                        WebSocketMessageType.ERROR_CODE -> {
+                            trySend(
+                                WebSocketMessage.ErrorCode(
+                                    websocketMessageParser.parseError(
+                                        text
+                                    )
                                 )
                             )
-                        )
-                    }
+                        }
 
-                    WebSocketMessageType.MESSAGE_ACK -> {
-                        trySend(
-                            WebSocketMessage.MessagesAck(
-                                websocketMessageParser.parseMessagesAck(
-                                    text
+                        WebSocketMessageType.MESSAGE_ACK -> {
+                            trySend(
+                                WebSocketMessage.MessagesAck(
+                                    websocketMessageParser.parseMessagesAck(
+                                        text
+                                    )
                                 )
                             )
-                        )
-                    }
+                        }
 
-                    WebSocketMessageType.CHAT_MESSAGE -> {
-                        trySend(
-                            WebSocketMessage.ChatMessage(
-                                websocketMessageParser.parseMessage(
-                                    text
+                        WebSocketMessageType.CHAT_MESSAGE -> {
+                            trySend(
+                                WebSocketMessage.ChatMessage(
+                                    websocketMessageParser.parseMessage(
+                                        text
+                                    )
                                 )
                             )
-                        )
-                    }
+                        }
 
-                    WebSocketMessageType.INVITE_CHARACTERS -> {
-                        trySend(
-                            WebSocketMessage.InviteCharacters(
-                                websocketMessageParser.parseCharacters(
-                                    text
+                        WebSocketMessageType.INVITE_CHARACTERS -> {
+                            trySend(
+                                WebSocketMessage.InviteCharacters(
+                                    websocketMessageParser.parseCharacters(
+                                        text
+                                    )
                                 )
                             )
-                        )
-                    }
+                        }
 
-                    WebSocketMessageType.NEW_CHARACTER_STATUS -> {
-                        trySend(
-                            WebSocketMessage.CharacterNewStatus(
-                                websocketMessageParser.parseCharacterStatus(
-                                    text
+                        WebSocketMessageType.NEW_CHARACTER_STATUS -> {
+                            trySend(
+                                WebSocketMessage.CharacterNewStatus(
+                                    websocketMessageParser.parseCharacterStatus(
+                                        text
+                                    )
                                 )
                             )
-                        )
-                    }
+                        }
 
-                    WebSocketMessageType.NEW_BACKGROUND_IMAGE -> {
-                        trySend(
-                            WebSocketMessage.BackgroundImageUpdate(
-                                websocketMessageParser.parseBackgroundImageUpdateUrl(
-                                    text
+                        WebSocketMessageType.NEW_BACKGROUND_IMAGE -> {
+                            trySend(
+                                WebSocketMessage.BackgroundImageUpdate(
+                                    websocketMessageParser.parseBackgroundImageUpdateUrl(
+                                        text
+                                    )
                                 )
                             )
-                        )
-                    }
+                        }
 
-                    WebSocketMessageType.STORY_CHOICE -> {
-                        trySend(
-                            WebSocketMessage.ChatMessage(
-                                websocketMessageParser.parseStoryChoice(
-                                    text
+                        WebSocketMessageType.STORY_CHOICE -> {
+                            trySend(
+                                WebSocketMessage.ChatMessage(
+                                    websocketMessageParser.parseStoryChoice(
+                                        text
+                                    )
                                 )
                             )
-                        )
-                    }
+                        }
 
-                    WebSocketMessageType.CHAT_NARRATION -> {
-                        trySend(
-                            WebSocketMessage.ChatMessage(
-                                websocketMessageParser.parseMessage(
-                                    text
+                        WebSocketMessageType.CHAT_NARRATION -> {
+                            trySend(
+                                WebSocketMessage.ChatMessage(
+                                    websocketMessageParser.parseMessage(
+                                        text
+                                    )
                                 )
                             )
-                        )
-                    }
+                        }
 
-                    WebSocketMessageType.CHAT_MESSAGE_IMAGE -> {
-                        trySend(
-                            WebSocketMessage.ChatMessage(
-                                websocketMessageParser.parseImageMessage(
-                                    text
+                        WebSocketMessageType.CHAT_MESSAGE_IMAGE -> {
+                            trySend(
+                                WebSocketMessage.ChatMessage(
+                                    websocketMessageParser.parseImageMessage(
+                                        text
+                                    )
                                 )
                             )
-                        )
-                    }
+                        }
 
-                    WebSocketMessageType.CONVERSATION_MODE_UPDATE -> {
-                        trySend(
-                            WebSocketMessage.ConversationModeUpdate(
-                                websocketMessageParser.parseConversationMode(
-                                    text
+                        WebSocketMessageType.CONVERSATION_MODE_UPDATE -> {
+                            trySend(
+                                WebSocketMessage.ConversationModeUpdate(
+                                    websocketMessageParser.parseConversationMode(
+                                        text
+                                    )
                                 )
                             )
-                        )
-                    }
+                        }
 
-                    WebSocketMessageType.ERROR -> {
-                        trySend(WebSocketMessage.Error)
-                    }
+                        WebSocketMessageType.ERROR -> {
+                            trySend(WebSocketMessage.Error)
+                        }
 
-                    WebSocketMessageType.BLOCK -> {
-                        trySend(WebSocketMessage.Block)
-                    }
+                        WebSocketMessageType.BLOCK -> {
+                            trySend(WebSocketMessage.Block)
+                        }
 
-                    WebSocketMessageType.PING -> {
-                        trySend(WebSocketMessage.Ping)
-                    }
+                        WebSocketMessageType.PING -> {
+                            trySend(WebSocketMessage.Ping)
+                        }
 
-                    WebSocketMessageType.SEEN -> {
-                        trySend(WebSocketMessage.Seen)
-                    }
+                        WebSocketMessageType.SEEN -> {
+                            trySend(WebSocketMessage.Seen)
+                        }
 
-                    WebSocketMessageType.TYPING -> {
-                        trySend(WebSocketMessage.Typing)
-                    }
+                        WebSocketMessageType.TYPING -> {
+                            trySend(WebSocketMessage.Typing)
+                        }
 
 
-                    WebSocketMessageType.STOP_TYPING -> {
-                        trySend(WebSocketMessage.StopTyping)
-                    }
+                        WebSocketMessageType.STOP_TYPING -> {
+                            trySend(WebSocketMessage.StopTyping)
+                        }
 
-                    WebSocketMessageType.AUTHENTICATION_SUCCESS -> {
-                        _isConnected = true
-                        trySend(WebSocketMessage.AuthenticateSuccess)
-                    }
+                        WebSocketMessageType.AUTHENTICATION_SUCCESS -> {
+                            _isConnected = true
+                            trySend(WebSocketMessage.AuthenticateSuccess)
+                        }
 
-                    WebSocketMessageType.AUTHENTICATION_FAILURE -> {
-                        trySend(WebSocketMessage.AuthenticateFailure)
+                        WebSocketMessageType.AUTHENTICATION_FAILURE -> {
+                            trySend(WebSocketMessage.AuthenticateFailure)
+                        }
                     }
-                }
                 } catch (e: Exception) {
-                    e.printStackTrace()
+                    Log.e(
+                        TAG,
+                        "WS << DROPPED frame action=$action (parse/dispatch failed): $text",
+                        e
+                    )
                 }
             }
 
             override fun onFailure(webSocket: WebSocket, t: Throwable, response: Response?) {
                 super.onFailure(webSocket, t, response)
+                Log.e(TAG, "WS !! onFailure: ${t.message} (response=${response?.code})", t)
 
                 trySend(WebSocketMessage.Error)
                 _isConnected = false
@@ -298,6 +316,7 @@ class WebSocketDataSourceImpl(
         val authTimeout = launch {
             delay(authTimeoutMs)
             if (!_isConnected) {
+                Log.e(TAG, "WS !! auth timeout after ${authTimeoutMs}ms")
                 trySend(WebSocketMessage.Error)
             }
         }
@@ -311,6 +330,7 @@ class WebSocketDataSourceImpl(
             webSocket = null
         }
     }.catch {
+        Log.e(TAG, "WS !! connect flow exception: ${it.message}", it)
         emit(WebSocketMessage.Error)
     }
 
