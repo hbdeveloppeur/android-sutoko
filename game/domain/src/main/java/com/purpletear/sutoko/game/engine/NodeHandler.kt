@@ -27,7 +27,7 @@ interface NodeHandler {
      * @param node The node to execute
      * @param memory The game memory for read-only state inspection
      * @return HandlerScript containing:
-     *         - commands: sequence of Emit/Delay/AwaitInput to execute
+     *         - commands: sequence of Emit/Delay/AwaitTap/AwaitInput to execute
      *         - nextNodeId: explicit next node, or null to resolve via edges
      */
     fun buildScript(

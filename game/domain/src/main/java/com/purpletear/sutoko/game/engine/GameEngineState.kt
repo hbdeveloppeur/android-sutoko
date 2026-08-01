@@ -31,6 +31,16 @@ sealed class GameEngineState {
     ) : GameEngineState()
 
     /**
+     * Engine is parked waiting for the player to tap the screen to advance.
+     * Used for tap-to-continue pacing in narrative nodes.
+     */
+    @Keep
+    data class AwaitingTap(
+        val chapterCode: String,
+        val currentNodeId: String
+    ) : GameEngineState()
+
+    /**
      * Engine is parked on a manga page until the player opens and dismisses it.
      * Distinct from [AwaitingInput] so the choice UI is not shown. The next node is
      * resolved only when [GameEngine.resumeFromMangaPage] is called.

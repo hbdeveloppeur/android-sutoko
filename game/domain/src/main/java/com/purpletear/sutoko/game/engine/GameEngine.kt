@@ -378,6 +378,12 @@ class GameEngine @Inject constructor(
                 false
             }
 
+            is HandlerCommand.AwaitTap -> {
+                GameEngineLogger.d("CMD") { "AwaitTap at ${context.nodeId}" }
+                awaitTap(command, script, context)
+                false
+            }
+
             is HandlerCommand.AwaitMangaDismissal -> {
                 GameEngineLogger.d("CMD") { "AwaitMangaDismissal at ${context.nodeId}" }
                 awaitMangaDismissal(command, script, context)
@@ -402,6 +408,30 @@ class GameEngine @Inject constructor(
         }
 
         enterAwaitingInput(context, command.choices)
+    }
+
+    /**
+     * Handles the AwaitTap command: validates position, parks the engine so the player can tap
+     * to advance. The next node is intentionally NOT resolved here.
+     */
+    private fun awaitTap(
+        command: HandlerCommand.AwaitTap,
+        script: HandlerScript,
+        context: ExecutionContext
+    ) {
+        val commandIndex = script.commands.indexOf(command)
+
+        check(commandIndex == script.commands.lastIndex) {
+            "Invariant violation: AwaitTap must be the last command. " +
+                    "Found ${script.commands.size - commandIndex - 1} orphaned commands."
+        }
+
+        _state.value = GameEngineState.AwaitingTap(
+            chapterCode = context.graph.chapterCode,
+            currentNodeId = context.nodeId
+        )
+
+        GameEngineLogger.d("INPT") { "Parking for tap at ${context.nodeId}" }
     }
 
     /**
@@ -431,6 +461,38 @@ class GameEngine @Inject constructor(
 
         GameEngineLogger.d("INPT") {
             "Parking for manga page at ${context.nodeId} — next node deferred until dismiss"
+        }
+    }
+
+    /**
+     * Resumes execution after the player tapped the screen to advance.
+     *
+     * Resolves the next node via the normal navigation path (single edge, choice, chapter end,
+     * or error) without clearing the message history. No-op when the engine is not parked for a
+     * tap, so the UI can call it on every unconsumed tap without tracking which node is gating.
+     */
+    suspend fun advanceOnTap() {
+        inputMutex.withLock {
+            val currentState = state.value
+            if (currentState !is GameEngineState.AwaitingTap) {
+                GameEngineLogger.w("INPT") { "Ignoring advanceOnTap: engine is not awaiting tap (state=$currentState)" }
+                return@withLock
+            }
+
+            val graph = checkNotNull(currentGraph) {
+                "Precondition violation: currentGraph is null while advancing on tap"
+            }
+            val nodeId = currentState.currentNodeId
+
+            GameEngineLogger.d("INPT") { "Tap advance from $nodeId" }
+
+            _state.value = GameEngineState.Playing(
+                chapterCode = graph.chapterCode,
+                currentNodeId = nodeId
+            )
+
+            val ctx = prepareExecutionContext(nodeId) ?: return@withLock
+            navigateToNext(ctx, null)
         }
     }
 

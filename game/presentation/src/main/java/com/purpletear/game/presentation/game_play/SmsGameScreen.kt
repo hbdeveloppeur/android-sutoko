@@ -88,11 +88,15 @@ internal fun SmsGameScreen(
     onFakeNotificationDismissed: () -> Unit = {},
     onHoldPauseChanged: (Boolean) -> Unit = {},
     onImageViewerVisibilityChanged: (Boolean) -> Unit = {},
+    onAdvanceOnTap: () -> Unit = {},
 ) {
     var viewerState by remember { mutableStateOf(ImageViewerState()) }
     var mangaState by remember { mutableStateOf(MangaViewerState()) }
 
-    Screen(onHoldPauseChanged = onHoldPauseChanged) {
+    Screen(
+        onHoldPauseChanged = onHoldPauseChanged,
+        onAdvanceOnTap = onAdvanceOnTap,
+    ) {
         SceneComposable(
             scene = state.currentScene,
         )
@@ -305,12 +309,15 @@ private fun AnimatedChoicesBox(
 
 /**
  * Hold-to-pause: the engine's pacing freezes while a finger rests anywhere on the screen.
- * The detector consumes nothing, so scrolling, message clicks, and choice buttons keep
- * working; any release or cancellation (e.g. a scroll taking over) lifts the pause.
+ * Tap-to-advance: an unconsumed tap (down + up without the gesture being claimed by a child
+ * such as a button, scroll, or overlay) advances the story. The detector consumes nothing,
+ * so scrolling, message clicks, and choice buttons keep working; any release or cancellation
+ * (e.g. a scroll taking over) lifts the pause.
  */
 @Composable
 private fun Screen(
     onHoldPauseChanged: (Boolean) -> Unit = {},
+    onAdvanceOnTap: () -> Unit = {},
     content: @Composable BoxScope.() -> Unit
 ) {
     Box(
@@ -318,10 +325,13 @@ private fun Screen(
             .fillMaxSize()
             .pointerInput(Unit) {
                 awaitEachGesture {
-                    awaitFirstDown(requireUnconsumed = false)
+                    val down = awaitFirstDown(requireUnconsumed = false)
                     onHoldPauseChanged(true)
-                    waitForUpOrCancellation()
+                    val up = waitForUpOrCancellation()
                     onHoldPauseChanged(false)
+                    if (up != null && !down.isConsumed) {
+                        onAdvanceOnTap()
+                    }
                 }
             }
     ) {

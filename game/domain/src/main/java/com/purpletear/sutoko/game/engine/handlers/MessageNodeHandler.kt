@@ -99,7 +99,6 @@ class MessageNodeHandler @Inject constructor(
                 processedText,
                 messageId,
                 isUserChoice,
-                previousNode,
                 memory,
             )
 
@@ -121,30 +120,17 @@ class MessageNodeHandler @Inject constructor(
         text: String,
         messageId: String,
         isUserChoice: Boolean,
-        previousNode: Node?,
         memory: GameMemory,
     ): List<HandlerCommand> {
-        val previousNodeText = if (previousNode is Node.Message) {
-            previousNode.text
-        } else if (previousNode is Node.Info) {
-            previousNode.text
-        } else {
-            null
-        }
         if (isUserChoice) {
             GameEngineLogger.d("MSG") { "User choice → skipping SMS delays for ${node.id}" }
             return listOf(emitAddText(text, messageId, node.characterId, memory))
         }
 
         val commands = mutableListOf<HandlerCommand>()
-        previousNodeText?.let {
-            commands.add(HandlerCommand.Delay(determineReadingDuration(it)))
-        }
 
         if (node.isHesitating) {
-
             addHesitationScript(commands, messageId, node.characterId, memory)
-            commands.add(HandlerCommand.Delay(Random.nextLong(280, 2000)))
         }
 
         commands.add(emitAddTyping(messageId, node.characterId, memory))
@@ -153,10 +139,8 @@ class MessageNodeHandler @Inject constructor(
         val typingDelayMs = determineTypingDuration(node, text)
         commands.add(HandlerCommand.Delay(typingDelayMs))
 
-        if (node.seenMs > 0) {
-            commands.add(HandlerCommand.Delay(node.seenMs))
-        }
         commands.add(emitReplaceTypingWithText(text, messageId, node.characterId, memory))
+        commands.add(HandlerCommand.AwaitTap)
 
         return commands
     }
@@ -174,29 +158,10 @@ class MessageNodeHandler @Inject constructor(
             return listOf(emitAddText(text, messageId, node.characterId, memory))
         }
 
-        val commands = mutableListOf<HandlerCommand>()
-
-        when {
-            node.isAutoTiming -> {
-                val text = if (previousNode is Node.Message) {
-                    previousNode.text
-                } else if (previousNode is Node.Info) {
-                    previousNode.text
-                } else {
-                    null
-                }
-                text?.let {
-                    commands.add(HandlerCommand.Delay(determineReadingDuration(it)))
-                } ?: commands.add(HandlerCommand.Delay(IRL_AUTO_TIMING_DELAY_MS))
-            }
-
-            node.seenMs > 0 -> commands.add(HandlerCommand.Delay(node.seenMs))
-        }
-
-
-        commands.add(emitAddText(text, messageId, node.characterId, memory))
-
-        return commands
+        return listOf(
+            emitAddText(text, messageId, node.characterId, memory),
+            HandlerCommand.AwaitTap,
+        )
     }
 
     private fun addHesitationScript(
@@ -289,11 +254,6 @@ class MessageNodeHandler @Inject constructor(
     }
 
 
-    private fun determineReadingDuration(text: String): Long {
-        val baseDuration = text.length * READING_CHAR_DELAY_MS
-        return baseDuration.coerceIn(1000L, 3000L)
-    }
-
     private fun parseCommand(text: String): Command {
         return when {
             text.startsWith("[") && text.endsWith("]") -> Command.Skip
@@ -307,11 +267,9 @@ class MessageNodeHandler @Inject constructor(
     }
 
     private companion object {
-        private const val IRL_AUTO_TIMING_DELAY_MS = 2000L
         private const val HESITATION_DELAY_MIN_MS = 1000L
         private const val HESITATION_DELAY_MAX_EXCLUSIVE_MS = 3001L
         private const val TYPING_CHAR_DELAY_MS = 100L
-        private const val READING_CHAR_DELAY_MS = 100L
         private const val MIN_TYPING_DURATION_MS = 1000L
         private const val MAX_TYPING_DURATION_MS = 5000L
     }

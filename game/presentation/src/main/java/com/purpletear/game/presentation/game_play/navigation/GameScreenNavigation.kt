@@ -82,5 +82,6 @@ internal fun NavGraphBuilder.gameScreen(
         onFakeNotificationDismissed = viewModel::onFakeNotificationDismissed,
         onHoldPauseChanged = viewModel::onHoldPauseChanged,
         onImageViewerVisibilityChanged = viewModel::onImageViewerVisibilityChanged,
+        onAdvanceOnTap = viewModel::onAdvanceOnTap,
     )
 }

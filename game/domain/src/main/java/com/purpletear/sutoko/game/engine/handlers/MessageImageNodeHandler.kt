@@ -44,24 +44,14 @@ class MessageImageNodeHandler @Inject constructor() : NodeHandler {
     /**
      * Builds the command sequence for an image message.
      *
-     * SMS mode (default):
-     * 1. Delay(seenMs) - wait before showing typing
-     * 2. Emit(AddMessage) - show typing indicator
-     * 3. Delay(waitMs) - typing duration
-     * 4. Delete typing, add image message
-     *
-     * IRL mode:
-     * 1. Emit(AddMessage) - immediate display, no typing delays
+     * The image is shown immediately and the engine waits for a tap before continuing.
      */
     private fun buildImageCommands(
         node: Node.MessageImage,
     ): List<HandlerCommand> {
-        val commands = mutableListOf<HandlerCommand>()
         val messageId = UUID.randomUUID().toString()
 
-        commands.add(HandlerCommand.Delay(node.seenMs.coerceAtLeast(520)))
-
-        commands.add(
+        return listOf(
             HandlerCommand.Emit(
                 HandlerEffect.AddMessage(
                     GameMessageImage(
@@ -70,9 +60,8 @@ class MessageImageNodeHandler @Inject constructor() : NodeHandler {
                         characterId = node.characterId,
                     )
                 )
-            )
+            ),
+            HandlerCommand.AwaitTap,
         )
-
-        return commands
     }
 }

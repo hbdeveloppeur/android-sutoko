@@ -19,6 +19,7 @@ data class GameUiState(
     val messages: List<GameMessage> = emptyList(),
     val choices: List<HandlerEffect.ShowChoices.Choice> = emptyList(),
     val isAwaitingInput: Boolean = false,
+    val isAwaitingTap: Boolean = false,
     val isChoicesRevealed: Boolean = false,
     val currentScene: Scene? = null,
     val characters: Map<Int, Character> = emptyMap(),

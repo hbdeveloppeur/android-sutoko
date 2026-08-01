@@ -57,14 +57,9 @@ class InfoNodeHandler @Inject constructor(
         processedText: String,
         previousNode: Node?,
     ): List<HandlerCommand> {
-        val commands = mutableListOf<HandlerCommand>()
         val messageId = UUID.randomUUID().toString()
 
-        val isFirstNode = previousNode == null || previousNode is Node.Start
-        val initialDelayMs = if (isFirstNode) FIRST_INFO_DELAY_MS else INFO_DELAY_MS
-        commands.add(HandlerCommand.Delay(initialDelayMs))
-
-        commands.add(
+        return listOf(
             HandlerCommand.Emit(
                 HandlerEffect.AddMessage(
                     GameMessageInfo(
@@ -72,14 +67,8 @@ class InfoNodeHandler @Inject constructor(
                         text = processedText,
                     )
                 )
-            )
+            ),
+            HandlerCommand.AwaitTap,
         )
-
-        return commands
-    }
-
-    private companion object {
-        private const val FIRST_INFO_DELAY_MS = 280L
-        private const val INFO_DELAY_MS = 2000L
     }
 }

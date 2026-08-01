@@ -190,6 +190,9 @@ class GameEngineTest {
         assertTrue(engine.state.value is GameEngineState.AwaitingInput)
 
         engine.submitChoice("choiceA")
+        assertTrue(engine.state.value is GameEngineState.AwaitingTap)
+
+        engine.advanceOnTap()
         assertTrue(engine.state.value is GameEngineState.AwaitingInput)
 
         // Regression: a stale duplicate from the previous hub must not crash the engine.
@@ -436,6 +439,57 @@ class GameEngineTest {
         engine.initialize("game-1", graph)
 
         assertTrue(engine.state.value is GameEngineState.Ready)
+    }
+
+    @Test
+    fun `sms message - should park awaiting tap after text is shown`() = runBlocking {
+        val memory = createFakeGameMemory()
+        val engine = createEngine(memory = memory)
+        val graph = ChapterGraph(
+            chapterCode = "1A",
+            title = "Test",
+            nodes = mapOf(
+                "start" to Node.Start(id = "start"),
+                "msg" to Node.Message(id = "msg", text = "Hello", characterId = 1),
+                "end" to Node.End(id = "end")
+            ),
+            edges = listOf(
+                Edge(source = "start", target = "msg", type = EdgeType.NORMAL),
+                Edge(source = "msg", target = "end", type = EdgeType.NORMAL)
+            ),
+            startNodeId = "start"
+        )
+
+        engine.initialize("game-1", graph)
+        memory.set(GameMemory.TYPING_ANIMATION_KEY, "true")
+        engine.start()
+
+        assertTrue(engine.state.value is GameEngineState.AwaitingTap)
+        val textMessages = engine.messages.value.filterIsInstance<GameMessageText>()
+        assertTrue(textMessages.any { it.text == "Hello" })
+
+        engine.advanceOnTap()
+
+        assertTrue(engine.state.value is GameEngineState.ChapterFinished)
+    }
+
+    @Test
+    fun `advanceOnTap while not awaiting tap - should be ignored`() = runBlocking {
+        val engine = createEngine()
+        val graph = ChapterGraph(
+            chapterCode = "1A",
+            title = "Test",
+            nodes = mapOf("start" to Node.Start(id = "start")),
+            edges = emptyList(),
+            startNodeId = "start"
+        )
+
+        engine.initialize("game-1", graph)
+        engine.start()
+
+        assertTrue(engine.state.value !is GameEngineState.AwaitingTap)
+        engine.advanceOnTap()
+        assertTrue(engine.state.value !is GameEngineState.AwaitingTap)
     }
 
     @Test

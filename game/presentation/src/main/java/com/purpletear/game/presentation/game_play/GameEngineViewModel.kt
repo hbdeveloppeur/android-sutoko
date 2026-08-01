@@ -243,6 +243,7 @@ class GameEngineViewModel @Inject constructor(
                 choices = emptyList(),
                 isChoicesRevealed = false,
                 isAwaitingInput = false,
+                isAwaitingTap = false,
                 currentScene = null,
                 currentVocalUrl = null,
                 isVocalPlaying = false,
@@ -335,7 +336,11 @@ class GameEngineViewModel @Inject constructor(
         }
         when (engineState) {
             is GameEngineState.AwaitingInput -> {
-                updateState { it.copy(isAwaitingInput = true) }
+                updateState { it.copy(isAwaitingInput = true, isAwaitingTap = false) }
+            }
+
+            is GameEngineState.AwaitingTap -> {
+                updateState { it.copy(isAwaitingTap = true, isAwaitingInput = false) }
             }
 
             is GameEngineState.AwaitingMangaDismissal -> {
@@ -346,6 +351,7 @@ class GameEngineViewModel @Inject constructor(
                 updateState {
                     it.copy(
                         isAwaitingInput = false,
+                        isAwaitingTap = false,
                         choices = emptyList(),
                         isChoicesRevealed = false,
                         isMangaActive = false
@@ -357,6 +363,7 @@ class GameEngineViewModel @Inject constructor(
                 updateState {
                     it.copy(
                         isAwaitingInput = false,
+                        isAwaitingTap = false,
                         choices = emptyList(),
                         isChoicesRevealed = false,
                         isMangaActive = false
@@ -370,6 +377,7 @@ class GameEngineViewModel @Inject constructor(
                 updateState {
                     it.copy(
                         isAwaitingInput = false,
+                        isAwaitingTap = false,
                         choices = emptyList(),
                         isChoicesRevealed = false,
                         isMangaActive = false
@@ -682,6 +690,18 @@ class GameEngineViewModel @Inject constructor(
         updateState { it.copy(choices = emptyList()) }
         viewModelScope.launch {
             gameEngine.submitChoice(nextNodeId)
+        }
+    }
+
+    /**
+     * Called when the player taps a non-interactive area of the screen to advance the story.
+     * The engine no-ops when it is not parked for a tap, so the UI can call this on every
+     * unconsumed tap.
+     */
+    fun onAdvanceOnTap() {
+        if (!_uiState.value.isAwaitingTap) return
+        viewModelScope.launch {
+            gameEngine.advanceOnTap()
         }
     }
 

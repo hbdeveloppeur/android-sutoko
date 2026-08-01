@@ -15,7 +15,7 @@ class MangaPageNodeHandlerTest {
     private val handler = MangaPageNodeHandler(TextProcessorImpl())
 
     @Test
-    fun `substitutes prenom and emits one manga message after a delay`() {
+    fun `substitutes prenom and emits one manga message immediately`() {
         val memory = createFakeGameMemory().apply {
             set(GameMemory.HERO_NAME_KEY, "Léa")
         }
@@ -32,10 +32,8 @@ class MangaPageNodeHandlerTest {
 
         val script = handler.buildScript(node, memory)
 
-        assertEquals(3, script.commands.size)
-        val delay = script.commands[0] as HandlerCommand.Delay
-        assertEquals(520L, delay.millis) // seenMs 0 coerced to the minimum pre-show delay
-        val emit = script.commands[1] as HandlerCommand.Emit
+        assertEquals(2, script.commands.size)
+        val emit = script.commands[0] as HandlerCommand.Emit
         val added = (emit.effect as HandlerEffect.AddMessage).message as GameMessageMangaPage
         assertEquals("/tmp/games/game1/assets/page.webp", added.imageUrl)
         assertEquals(1, added.overlays.size)
@@ -43,7 +41,7 @@ class MangaPageNodeHandlerTest {
             "Au revoir Léa, sache que tu ne seras jamais seul",
             added.overlays[0].text
         )
-        assertEquals(HandlerCommand.AwaitMangaDismissal, script.commands[2])
+        assertEquals(HandlerCommand.AwaitMangaDismissal, script.commands[1])
     }
 
     @Test

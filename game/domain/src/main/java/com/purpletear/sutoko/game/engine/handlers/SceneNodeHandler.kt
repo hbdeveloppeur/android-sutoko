@@ -32,7 +32,7 @@ class SceneNodeHandler @Inject constructor() : NodeHandler {
                         sceneId = sceneNode.sceneId
                     ),
                 ),
-                HandlerCommand.Delay(3000)
+                HandlerCommand.AwaitTap,
             )
         )
     }

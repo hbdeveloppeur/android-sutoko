@@ -47,6 +47,19 @@ sealed class HandlerCommand {
     data class AwaitInput(val choices: List<HandlerEffect.ShowChoices.Choice>) : HandlerCommand()
 
     /**
+     * Halt execution and park the engine until the player taps the screen.
+     *
+     * Contract:
+     * - MUST be the last command in the script (enforced by the engine, like [AwaitInput]).
+     * - Halts the script: no further command runs and the engine does NOT navigate to the next node.
+     * - The engine transitions to [GameEngineState.AwaitingTap] and stays parked until
+     *   [GameEngine.advanceOnTap] is called, which then resolves the next node via the normal
+     *   navigation path.
+     */
+    @Keep
+    data object AwaitTap : HandlerCommand()
+
+    /**
      * Halt execution and park the engine until the player dismisses the manga page.
      *
      * Contract:
