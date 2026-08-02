@@ -175,6 +175,8 @@
     <string name="game_presentation_story_unavailable">Diese Geschichte ist nicht mehr verfügbar</string>
     <string name="game_presentation_error_purchase">Kauf fehlgeschlagen</string>
     <string name="game_presentation_error_download">Download fehlgeschlagen. Überprüfe deine Internetverbindung und versuche es erneut.</string>
+    <string name="game_presentation_error_download_forbidden">Dein Kauf konnte nicht bestätigt werden. Stelle den Kauf wieder her oder kontaktiere den Support.</string>
+    <string name="game_presentation_error_download_unknown">Download fehlgeschlagen. Bitte versuche es später erneut.</string>
     <string name="game_presentation_error_update">Update fehlgeschlagen</string>
     <string name="game_presentation_error_delete">Löschen fehlgeschlagen</string>
     <string name="game_presentation_error_restart">Spiel konnte nicht neu gestartet werden</string>

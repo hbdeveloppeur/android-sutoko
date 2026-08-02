@@ -47,7 +47,7 @@ class ChapterGraphRepositoryImpl @Inject constructor(
 
             val resolvedLanguage = ChapterLanguageResolver.resolve(language, availableLanguages)
             if (resolvedLanguage == null) {
-                emit(Result.failure(IllegalArgumentException("No chapter languages found in: ${chaptersRoot.absolutePath}")))
+                emit(Result.failure(IllegalArgumentException("No chapter language '$resolvedLanguage' found in: ${chaptersRoot.absolutePath}")))
                 return@flow
             }
 
@@ -99,9 +99,11 @@ class ChapterGraphRepositoryImpl @Inject constructor(
 
         } catch (e: Exception) {
             if (e is CancellationException) throw e
-            emit(Result.failure(
-                IllegalStateException("Failed to load chapter $chapterCode: ${e.message}", e)
-            ))
+            emit(
+                Result.failure(
+                    IllegalStateException("Failed to load chapter $chapterCode: ${e.message}", e)
+                )
+            )
         } finally {
             Trace.endSection()
         }

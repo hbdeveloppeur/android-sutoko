@@ -175,6 +175,8 @@
     <string name="game_presentation_story_unavailable">Cette histoire n\'est plus disponible</string>
     <string name="game_presentation_error_purchase">Échec de l\'achat</string>
     <string name="game_presentation_error_download">Échec du téléchargement. Vérifiez votre connexion internet et réessayez.</string>
+    <string name="game_presentation_error_download_forbidden">Impossible de vérifier votre achat. Restaurez votre achat ou contactez le support.</string>
+    <string name="game_presentation_error_download_unknown">Échec du téléchargement. Veuillez réessayer plus tard.</string>
     <string name="game_presentation_error_update">Échec de la mise à jour</string>
     <string name="game_presentation_error_delete">Échec de la suppression</string>
     <string name="game_presentation_error_restart">Échec du redémarrage du jeu</string>

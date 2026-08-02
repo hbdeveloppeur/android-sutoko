@@ -19,12 +19,13 @@ class GameLanguage {
          * @return String
          */
         fun determineLangDirectory(): String {
-            val code = Locale.getDefault().language.lowercase()
+            val locale = Locale.getDefault()
+            val code = locale.language.lowercase()
             return if (code.startsWith("fr")) {
                 "fr-FR"
             } else if(code.startsWith("de")) {
                 "de-DE"
-            } else if (code == "es" || code == "es_es" || code == "es_res") {
+            } else if ((code == "es" && locale.country.lowercase() == "es") || code == "es_es" || code == "es_res") {
                 "es-ES"
             } else if (code.startsWith("es")) {
                 "es-419"
@@ -37,12 +38,10 @@ class GameLanguage {
          */
         fun determinCode() : Code {
             return when (determineLangDirectory()) {
-                "de" -> Code.DE
-                "fr" -> Code.FR
-                "en" -> Code.EN
-                "jp" -> Code.JP
-                "es_es" -> Code.ES_ES
-                "es_al" -> Code.ES_419
+                "de-DE" -> Code.DE
+                "fr-FR" -> Code.FR
+                "es-ES" -> Code.ES_ES
+                "es-419" -> Code.ES_419
                 else -> Code.EN
             }
         }

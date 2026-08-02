@@ -175,6 +175,8 @@
     <string name="game_presentation_story_unavailable">Esta historia ya no está disponible</string>
     <string name="game_presentation_error_purchase">Error en la compra</string>
     <string name="game_presentation_error_download">Error en la descarga. Comprueba tu conexión a internet e inténtalo de nuevo.</string>
+    <string name="game_presentation_error_download_forbidden">No pudimos verificar tu compra. Restaura tu compra o contacta al soporte.</string>
+    <string name="game_presentation_error_download_unknown">Error en la descarga. Inténtalo de nuevo más tarde.</string>
     <string name="game_presentation_error_update">Error en la actualización</string>
     <string name="game_presentation_error_delete">Error al eliminar</string>
     <string name="game_presentation_error_restart">Error al reiniciar el juego</string>

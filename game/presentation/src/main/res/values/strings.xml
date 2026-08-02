@@ -175,6 +175,8 @@
     <string name="game_presentation_story_unavailable">This story is no longer available</string>
     <string name="game_presentation_error_purchase">Purchase failed</string>
     <string name="game_presentation_error_download">Download failed. Check your internet connection and try again.</string>
+    <string name="game_presentation_error_download_forbidden">We couldn\'t verify your purchase. Restore your purchase or contact support.</string>
+    <string name="game_presentation_error_download_unknown">Download failed. Please try again later.</string>
     <string name="game_presentation_error_update">Update failed</string>
     <string name="game_presentation_error_delete">Delete failed</string>
     <string name="game_presentation_error_restart">Failed to restart the game</string>

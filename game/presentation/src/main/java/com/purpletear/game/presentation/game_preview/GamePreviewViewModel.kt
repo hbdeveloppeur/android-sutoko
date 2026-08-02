@@ -664,7 +664,7 @@ class GamePreviewViewModel @Inject constructor(
                             error
                         ) { "onStartDownload() failed for gameId=$gameId" }
                         logger.exception(error) { "Download failed for gameId=$gameId" }
-                        sendEvent(GamePreviewEvent.ShowError(GameUiError.Download))
+                        sendEvent(GamePreviewEvent.ShowError(GameUiError.fromDownloadError(error)))
                     }
                     .collect { progress ->
                         GamePreviewLogger.d("DOWN") { "onStartDownload() progress=$progress for gameId=$gameId" }
@@ -674,7 +674,7 @@ class GamePreviewViewModel @Inject constructor(
             } catch (e: Exception) {
                 GamePreviewLogger.e("DOWN", e) { "onStartDownload() failed for gameId=$gameId" }
                 logger.exception(e) { "Download failed for gameId=$gameId" }
-                sendEvent(GamePreviewEvent.ShowError(GameUiError.Download))
+                sendEvent(GamePreviewEvent.ShowError(GameUiError.fromDownloadError(e)))
             }
         }
     }
