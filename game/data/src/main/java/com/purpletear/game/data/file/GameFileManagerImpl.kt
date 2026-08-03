@@ -1,6 +1,7 @@
 package com.purpletear.game.data.file
 
 import com.purpletear.game.data.provider.AndroidGamePathProvider
+import com.purpletear.sutoko.game.exception.GameDownloadForbiddenException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.withContext
@@ -65,6 +66,9 @@ class GameFileManagerImpl @Inject constructor(
 
             val responseCode = connection.responseCode
             if (responseCode !in 200..299) {
+                if (responseCode == java.net.HttpURLConnection.HTTP_FORBIDDEN) {
+                    throw GameDownloadForbiddenException()
+                }
                 val errorBody = connection.errorStream?.bufferedReader()?.use { it.readText() }
                 throw IOException("Download failed. HTTP $responseCode. Body: $errorBody")
             }

@@ -10,5 +10,6 @@ enum class GameMessageType {
     ChapterEnd,
     Image,
     Vocal,
+    AudioDialogue,
     MangaPage,
 }

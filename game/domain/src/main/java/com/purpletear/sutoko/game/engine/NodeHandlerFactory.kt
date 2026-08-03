@@ -11,6 +11,7 @@ import com.purpletear.sutoko.game.engine.handlers.InfoNodeHandler
 import com.purpletear.sutoko.game.engine.handlers.IntroSentenceNodeHandler
 import com.purpletear.sutoko.game.engine.handlers.MangaPageNodeHandler
 import com.purpletear.sutoko.game.engine.handlers.MemoryNodeHandler
+import com.purpletear.sutoko.game.engine.handlers.MessageAudioDialogueNodeHandler
 import com.purpletear.sutoko.game.engine.handlers.MessageImageNodeHandler
 import com.purpletear.sutoko.game.engine.handlers.MessageNodeHandler
 import com.purpletear.sutoko.game.engine.handlers.MessageThemeNodeHandler
@@ -49,6 +50,7 @@ class NodeHandlerFactory @Inject constructor(
     private val endHandler: EndNodeHandler,
     private val soundHandler: SoundNodeHandler,
     private val messageVocalHandler: MessageVocalNodeHandler,
+    private val messageAudioDialogueHandler: MessageAudioDialogueNodeHandler,
     private val introSentenceHandler: IntroSentenceNodeHandler,
     private val fakeNotificationHandler: FakeNotificationNodeHandler,
 ) {
@@ -73,6 +75,7 @@ class NodeHandlerFactory @Inject constructor(
         NodeType.END -> endHandler
         NodeType.SOUND -> soundHandler
         NodeType.MESSAGE_VOCAL -> messageVocalHandler
+        NodeType.MESSAGE_AUDIO_DIALOGUE -> messageAudioDialogueHandler
         NodeType.CODE -> codeHandler
         NodeType.INTRO_SENTENCE -> introSentenceHandler
         NodeType.FAKE_NOTIFICATION -> fakeNotificationHandler

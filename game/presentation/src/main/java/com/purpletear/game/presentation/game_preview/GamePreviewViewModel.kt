@@ -16,6 +16,7 @@ import com.purpletear.sutoko.core.domain.analytics.AnalyticsTracker
 import com.purpletear.sutoko.core.domain.logger.Logger
 import com.purpletear.sutoko.core.domain.logger.exception
 import com.purpletear.sutoko.domain.repository.UserRepository
+import com.purpletear.sutoko.game.exception.DownloadAlreadyInProgressException
 import com.purpletear.sutoko.game.model.Chapter
 import com.purpletear.sutoko.game.model.FriendzonedLegacyIds
 import com.purpletear.sutoko.game.model.UserRole
@@ -257,6 +258,7 @@ class GamePreviewViewModel @Inject constructor(
 
     private var coinGrantCheckDone = false
     private var coinGrantCheckJob: Job? = null
+    private var downloadJob: Job? = null
     private var initialLoadStarted = false
     private var recoveryAttempted = false
 
@@ -652,13 +654,22 @@ class GamePreviewViewModel @Inject constructor(
     }
 
     private fun onStartDownload() {
+        if (downloadJob?.isActive == true) {
+            GamePreviewLogger.d("DOWN") { "onStartDownload() ignored, already running for gameId=$gameId" }
+            return
+        }
         GamePreviewLogger.i("DOWN") { "onStartDownload() gameId=$gameId" }
-        viewModelScope.launch {
+        downloadJob = viewModelScope.launch {
             // The use case is suspend and can throw before returning its flow (game not
             // cached, download link fetch failed offline): .catch only covers collection.
             try {
                 downloadGameUseCase(gameId = gameId)
                     .catch { error ->
+                        if (error is DownloadAlreadyInProgressException) {
+                            // Benign: another collector is already downloading this game.
+                            GamePreviewLogger.d("DOWN") { "onStartDownload() duplicate ignored for gameId=$gameId" }
+                            return@catch
+                        }
                         GamePreviewLogger.e(
                             "DOWN",
                             error

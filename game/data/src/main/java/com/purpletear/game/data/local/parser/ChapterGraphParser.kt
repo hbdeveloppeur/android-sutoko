@@ -204,6 +204,22 @@ object ChapterGraphParser {
                 )
             }
 
+            "message-audio-dialogue" -> {
+                val storagePath =
+                    requireNotNull(data?.storagePath) { "message-audio-dialogue node ${dto.id} missing storagePath" }
+                val characterId =
+                    requireNotNull(data.characterId) { "message-audio-dialogue node ${dto.id} missing characterId" }
+                val text =
+                    requireNotNull(data.text) { "message-audio-dialogue node ${dto.id} missing text" }
+
+                Node.MessageAudioDialogue(
+                    id = dto.id,
+                    audioUrl = resolveSoundPath(storagePath, gameId, legacyId, pathProvider),
+                    characterId = characterId,
+                    text = text
+                )
+            }
+
             "code-message" -> Node.Code(
                 id = dto.id,
                 sentence = data?.text?.trim().orEmpty()

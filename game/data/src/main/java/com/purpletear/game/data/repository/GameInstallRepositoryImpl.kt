@@ -4,6 +4,7 @@ import com.purpletear.game.data.file.GameFileManager
 import com.purpletear.game.data.local.dao.GameInstallationDao
 import com.purpletear.game.data.local.entity.GameInstallEntity
 import com.purpletear.game.data.local.entity.toDomain
+import com.purpletear.sutoko.game.exception.DownloadAlreadyInProgressException
 import com.purpletear.sutoko.game.model.game.GameCatalog
 import com.purpletear.sutoko.game.model.game.GameInstall
 import com.purpletear.sutoko.game.repository.game.GameInstallRepository
@@ -54,7 +55,7 @@ class GameInstallRepositoryImpl @Inject constructor(
 
         activeDownloads.update { downloads ->
             if (downloads.containsKey(gameId)) {
-                throw IllegalStateException("Download already in progress")
+                throw DownloadAlreadyInProgressException("Download already in progress: $gameId")
             }
             downloads + (gameId to 0f)
         }

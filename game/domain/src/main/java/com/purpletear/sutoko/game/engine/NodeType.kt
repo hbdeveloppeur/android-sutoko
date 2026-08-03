@@ -23,6 +23,7 @@ enum class NodeType {
     END,
     SOUND,
     MESSAGE_VOCAL,
+    MESSAGE_AUDIO_DIALOGUE,
     CODE,
     INTRO_SENTENCE,
     FAKE_NOTIFICATION

@@ -9,6 +9,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.purpletear.game.presentation.R
 import com.purpletear.game.presentation.game_play.components.message.FadeInMessageContainer
+import com.purpletear.game.presentation.game_play.components.message.MessageAudioDialogue
 import com.purpletear.game.presentation.game_play.components.message.MessageChapterTrialFinished
 import com.purpletear.game.presentation.game_play.components.message.MessageImage
 import com.purpletear.game.presentation.game_play.components.message.MessageManga
@@ -21,6 +22,7 @@ import com.purpletear.game.presentation.game_play.components.message.MessageTypi
 import com.purpletear.game.presentation.game_play.components.message.MessageVocalDest
 import com.purpletear.sutoko.game.engine.GameMessage
 import com.purpletear.sutoko.game.engine.GameMessageType
+import com.purpletear.sutoko.game.engine.message.GameMessageAudioDialogue
 import com.purpletear.sutoko.game.engine.message.GameMessageImage
 import com.purpletear.sutoko.game.engine.message.GameMessageInfo
 import com.purpletear.sutoko.game.engine.message.GameMessageMangaPage
@@ -157,6 +159,21 @@ internal fun Message(
                         character = character!!,
                         isRightSide = isRightSide,
                         percent = percent,
+                        onClick = { onVocalClick(msg.audioUrl) }
+                    )
+                }
+
+                GameMessageType.AudioDialogue -> {
+                    assert(character != null)
+                    msg as GameMessageAudioDialogue
+                    val isThisPlaying = msg.audioUrl == currentVocalUrl && isVocalPlaying
+                    val percent = if (msg.audioUrl == currentVocalUrl) vocalProgress else 0f
+                    MessageAudioDialogue(
+                        character = character!!,
+                        text = msg.text,
+                        isPlaying = isThisPlaying,
+                        percent = percent,
+                        isRightSide = isRightSide,
                         onClick = { onVocalClick(msg.audioUrl) }
                     )
                 }

@@ -707,6 +707,7 @@ class GameEngine @Inject constructor(
         is Node.End -> handlerFactory.getHandler(NodeType.END)
         is Node.Sound -> handlerFactory.getHandler(NodeType.SOUND)
         is Node.MessageVocal -> handlerFactory.getHandler(NodeType.MESSAGE_VOCAL)
+        is Node.MessageAudioDialogue -> handlerFactory.getHandler(NodeType.MESSAGE_AUDIO_DIALOGUE)
         is Node.Code -> handlerFactory.getHandler(NodeType.CODE)
         is Node.IntroSentence -> handlerFactory.getHandler(NodeType.INTRO_SENTENCE)
         is Node.FakeNotification -> handlerFactory.getHandler(NodeType.FAKE_NOTIFICATION)

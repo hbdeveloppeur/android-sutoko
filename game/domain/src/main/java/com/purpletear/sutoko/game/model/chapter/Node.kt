@@ -141,6 +141,18 @@ sealed class Node {
         val characterId: Int,
     ) : Node()
 
+    /**
+     * A character speaking a dialogue with audio: same fields as [MessageVocal] plus the
+     * spoken [text], which the UI highlights letter-by-letter as the audio progresses.
+     */
+    @Keep
+    data class MessageAudioDialogue(
+        override val id: String,
+        val audioUrl: String,
+        val characterId: Int,
+        val text: String,
+    ) : Node()
+
     @Keep
     data class Code(
         override val id: String,
