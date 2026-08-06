@@ -94,6 +94,11 @@ class GameEngineViewModel @Inject constructor(
     }
     private val isTrial: Boolean =
         savedStateHandle.get<Boolean>(SmsGameRoutes.IS_TRIAL_ARG) ?: false
+    private val autoPlay: Boolean =
+        savedStateHandle.get<Boolean>(SmsGameRoutes.AUTO_PLAY_ARG) ?: false
+
+    /** Exposed so the cinematic screen can auto-skip when Kimi-cli is driving. */
+    val isAutoPlay: Boolean get() = BuildConfig.DEBUG && autoPlay
 
     private val _navigateToNextChapter = Channel<String>(Channel.BUFFERED)
     val navigateToNextChapter: Flow<String> = _navigateToNextChapter.receiveAsFlow()
@@ -161,6 +166,10 @@ class GameEngineViewModel @Inject constructor(
                 val characters = characterRepository.getAll().associateBy { it.id }
                 updateState {
                     it.copy(characters = characters)
+                }
+
+                if (BuildConfig.DEBUG && autoPlay) {
+                    StoryAutoPlayer(uiState, this@GameEngineViewModel).start()
                 }
             } finally {
                 Trace.endSection()
@@ -430,6 +439,7 @@ class GameEngineViewModel @Inject constructor(
 
             is HandlerEffect.ChangeChapter -> {
                 pendingChapterCode = effect.chapterCode
+                updateState { it.copy(isNextChapterAvailabilityResolved = false) }
                 checkNextChapterAvailability(effect.chapterCode)
             }
 
@@ -469,6 +479,7 @@ class GameEngineViewModel @Inject constructor(
             updateState {
                 it.copy(
                     isNextChapterAvailable = next?.available == true,
+                    isNextChapterAvailabilityResolved = true,
                     nextChapterReleaseDate = next?.releaseDate?.takeIf { date -> date > 0 },
                 )
             }

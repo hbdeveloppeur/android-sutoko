@@ -4,6 +4,7 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
@@ -43,7 +44,10 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.purpletear.game.presentation.R
@@ -75,6 +79,7 @@ private data class MangaViewerState(
 )
 
 @Composable
+@OptIn(ExperimentalComposeUiApi::class)
 internal fun SmsGameScreen(
     state: GameUiState,
     onNextChapterClick: () -> Unit = {},
@@ -136,6 +141,7 @@ internal fun SmsGameScreen(
                 .fillMaxSize()
                 .statusBarsPadding()
                 .navigationBarsPadding()
+                .semantics { testTagsAsResourceId = true }
         ) {
             LazyColumn(
                 state = listState,

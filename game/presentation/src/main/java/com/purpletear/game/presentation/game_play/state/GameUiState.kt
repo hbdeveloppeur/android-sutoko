@@ -35,6 +35,8 @@ data class GameUiState(
     val isLoadingStoryUpdates: Boolean = false,
     val isTrial: Boolean = false,
     val isNextChapterAvailable: Boolean = true,
+    /** False until the next-chapter availability check launched by ChangeChapter completes. */
+    val isNextChapterAvailabilityResolved: Boolean = false,
     val nextChapterReleaseDate: Long? = null,
     val gameLogoUrl: String? = null,
     val showNextChapterButton: Boolean = true,

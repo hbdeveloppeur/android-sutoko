@@ -133,6 +133,9 @@ class GameEngine @Inject constructor(
         GameEngineLogger.d("GAME") {
             "Initialized — gameId=$gameId, chapter=${graph.chapterCode}, number=${graph.chapterNumber}, startNode=${graph.startNodeId}"
         }
+        GameEngineLogger.kimi {
+            "ENGINE_INITIALIZED gameId=$gameId chapterCode=${graph.chapterCode} chapterNumber=${graph.chapterNumber} startNode=${graph.startNodeId}"
+        }
     }
 
     /**
@@ -159,6 +162,7 @@ class GameEngine @Inject constructor(
         parkedMangaNodeId = null
 
         GameEngineLogger.d("GAME") { "Starting chapter ${graph.chapterCode} at node $currentNodeId" }
+        GameEngineLogger.kimi { "CHAPTER_STARTED chapterCode=${graph.chapterCode} startNode=$currentNodeId" }
         executeNode(currentNodeId)
     }
 
@@ -570,6 +574,7 @@ class GameEngine @Inject constructor(
             }
 
             GameEngineLogger.d("INPT") { "Choice selected: $nextNodeId" }
+            GameEngineLogger.kimi { "CHOICE_SUBMITTED nextNodeId=$nextNodeId" }
 
             awaitingInput = false
             availableChoices = emptyList()
@@ -603,6 +608,7 @@ class GameEngine @Inject constructor(
 
             is HandlerEffect.ChangeChapter -> {
                 GameEngineLogger.d("FX") { "Change chapter: ${effect.chapterCode}" }
+                GameEngineLogger.kimi { "CHAPTER_CHANGE chapterCode=${effect.chapterCode}" }
                 memory.setCurrentChapter(effect.chapterCode)
                 memory.save()
                 _messages.value += GameMessageNextChapter()
@@ -614,6 +620,7 @@ class GameEngine @Inject constructor(
 
             is HandlerEffect.StoryFinished -> {
                 GameEngineLogger.i("FX") { "Story finished" }
+                GameEngineLogger.kimi { "STORY_FINISHED" }
                 _messages.value += GameMessageInfo("end_story", "Story finished!")
             }
 
@@ -657,6 +664,7 @@ class GameEngine @Inject constructor(
 
             is NodeResolver.ResolutionResult.NodeNextChapter -> {
                 GameEngineLogger.d("NAV") { "Chapter ${graph.chapterCode} finished at ${context.node.id}" }
+                GameEngineLogger.kimi { "CHAPTER_FINISHED chapterCode=${graph.chapterCode} node=${context.node.id}" }
                 _state.value = GameEngineState.ChapterFinished(graph.chapterCode)
             }
 
@@ -672,6 +680,7 @@ class GameEngine @Inject constructor(
 
             is NodeResolver.ResolutionResult.Error -> {
                 GameEngineLogger.e("NAV") { "Navigation error from ${context.node.id}: ${result.message}" }
+                GameEngineLogger.kimi { "ERROR type=NAV node=${context.node.id} message=${result.message}" }
                 _state.value = GameEngineState.Error(result.message)
             }
         }

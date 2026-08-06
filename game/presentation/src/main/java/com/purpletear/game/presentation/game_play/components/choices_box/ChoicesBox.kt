@@ -27,6 +27,7 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -162,9 +163,10 @@ fun ChoicesBox(
             Column(
                 Modifier.padding(vertical = 8.dp)
             ) {
-                choices.forEach { choice ->
+                choices.forEachIndexed { index, choice ->
                     ChoiceRow(
                         choice = choice,
+                        index = index,
                         textColor = colors.choice,
                         onClick = { onClickChoice(choice) }
                     )
@@ -177,6 +179,7 @@ fun ChoicesBox(
 @Composable
 private fun ChoiceRow(
     choice: HandlerEffect.ShowChoices.Choice,
+    index: Int,
     textColor: Color,
     modifier: Modifier = Modifier,
     onClick: () -> Unit = {}
@@ -186,6 +189,7 @@ private fun ChoiceRow(
     Box(
         modifier
             .fillMaxWidth()
+            .testTag("game_choice_${index}")
             .clickable(onClick = {
                 haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
                 onClick()
@@ -205,6 +209,7 @@ fun MakeAChoiceButton(
 
     Column(
         modifier = modifier
+            .testTag("game_make_a_choice_button")
             .clickable(
                 interactionSource = remember { MutableInteractionSource() },
                 indication = null,

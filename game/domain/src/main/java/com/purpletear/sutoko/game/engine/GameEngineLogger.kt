@@ -19,6 +19,7 @@ import com.purpletear.sutoko.game.BuildConfig
  * - [COND] bright cyan   — condition evaluation
  * - [MEM]  bright blue   — memory operations
  * - [INPT] bright magenta — input / choices
+ * - [KIMI] white          — machine-readable markers for Kimi-cli automation
  *
  * Warning and error lines keep their category but are tinted yellow/red.
  *
@@ -50,6 +51,7 @@ internal object GameEngineLogger {
         "COND" to "\u001B[96m", // bright cyan
         "MEM" to "\u001B[94m", // bright blue
         "INPT" to "\u001B[95m", // bright magenta
+        "KIMI" to "\u001B[97m", // white
     )
 
     fun d(category: String, message: () -> String) {
@@ -74,6 +76,16 @@ internal object GameEngineLogger {
         if (BuildConfig.DEBUG) {
             val suffix = throwable?.let { "\n${it.stackTraceToString()}" } ?: ""
             println(formatLine(category, "${message()}$suffix", forcedColor = RED))
+        }
+    }
+
+    /**
+     * Machine-readable markers for Kimi-cli / automation.
+     * Lines are intentionally simple (`KEY value pairs`) so host scripts can grep them.
+     */
+    fun kimi(message: () -> String) {
+        if (BuildConfig.DEBUG) {
+            println(formatLine("KIMI", message()))
         }
     }
 

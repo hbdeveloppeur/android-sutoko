@@ -34,6 +34,7 @@ class SmsGameActivity : ComponentActivity() {
         val gameId = args.gameId
         val chapterCode = args.chapterCode
         val isTrial = args.isTrial
+        val autoPlay = args.autoPlay
 
         enableEdgeToEdge()
         setContent {
@@ -68,6 +69,7 @@ class SmsGameActivity : ComponentActivity() {
                     SmsGameRoutes.game(
                         chapterCode = chapterCode,
                         isTrial = isTrial,
+                        autoPlay = autoPlay,
                     )
                 } else {
                     error("SmsGameActivity requires a chapterCode")
@@ -92,7 +94,11 @@ class SmsGameActivity : ComponentActivity() {
                         onNavigateToChapter = { chapterCode ->
                             fadeThenRun {
                                 navController.navigate(
-                                    SmsGameRoutes.game(chapterCode)
+                                    SmsGameRoutes.game(
+                                        chapterCode = chapterCode,
+                                        isTrial = isTrial,
+                                        autoPlay = autoPlay,
+                                    )
                                 ) {
                                     popUpTo(SmsGameRoutes.GAME) { inclusive = true }
                                 }
@@ -133,7 +139,7 @@ class SmsGameActivity : ComponentActivity() {
     }
 
     private fun extractArgs(): SmsGameActivityArgs {
-        return SmsGameActivityArgs.fromIntent(intent)
+        return SmsGameActivityArgs.fromIntentOrExtras(intent)
             ?: error("SmsGameActivityArgs required")
     }
 

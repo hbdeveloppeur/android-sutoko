@@ -38,6 +38,7 @@ internal fun NavGraphBuilder.cinematicScreen(
 
     CinematicScreen(
         body = state.cinematicBody,
+        autoSkip = viewModel.isAutoPlay,
         loadScene = viewModel::loadScene,
         onFinished = {
             viewModel.onCinematicFinished()

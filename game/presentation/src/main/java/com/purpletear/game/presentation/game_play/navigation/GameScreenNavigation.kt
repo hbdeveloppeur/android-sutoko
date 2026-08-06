@@ -40,6 +40,10 @@ internal fun NavGraphBuilder.gameScreen(
             type = NavType.BoolType
             defaultValue = false
         },
+        navArgument(SmsGameRoutes.AUTO_PLAY_ARG) {
+            type = NavType.BoolType
+            defaultValue = false
+        },
     )
 ) {
     val viewModel: GameEngineViewModel = hiltViewModel()

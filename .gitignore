@@ -3,7 +3,7 @@ docs/
 
 .vscode
 
-docs/Implementation.md
+scripts/kimi_play_story_documentation.md
 
 # Built application files
 *.apk

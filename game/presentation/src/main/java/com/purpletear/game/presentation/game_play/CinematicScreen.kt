@@ -26,6 +26,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -37,6 +38,7 @@ import com.purpletear.sutoko.game.model.scene.Scene
 import kotlinx.coroutines.delay
 
 private const val CINEMATIC_FADE_MS = 1000
+private const val CINEMATIC_AUTO_SKIP_MS = 600L
 private const val TAG = "CinematicScreen"
 
 /**
@@ -53,6 +55,7 @@ private const val TAG = "CinematicScreen"
 @Composable
 internal fun CinematicScreen(
     body: List<Node>,
+    autoSkip: Boolean = false,
     loadScene: suspend (Int) -> Scene?,
     onFinished: () -> Unit,
 ) {
@@ -78,6 +81,13 @@ internal fun CinematicScreen(
 
     BackHandler(enabled = !finished) {
         finishOnce()
+    }
+
+    if (autoSkip) {
+        LaunchedEffect(Unit) {
+            delay(CINEMATIC_AUTO_SKIP_MS)
+            finishOnce()
+        }
     }
 
     fun playSound(url: String, loop: Boolean) {
@@ -118,6 +128,7 @@ internal fun CinematicScreen(
                 fontSize = 14.sp,
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
+                    .testTag("game_cinematic_skip")
                     .clickable(
                         interactionSource = skipInteractionSource,
                         indication = null,

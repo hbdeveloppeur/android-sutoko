@@ -185,6 +185,42 @@ class ChapterGraphParserTest {
     }
 
     @Test
+    fun `memory-condition node without expectedValue falls back to memory initial value`() {
+        val memoryData = JsonObject().apply {
+            add("memory", JsonObject().apply {
+                addProperty("name", "Relation Ime")
+                addProperty("value", "0")
+                addProperty("chapterId", "canvas_1")
+            })
+        }
+        val nodes = listOf(
+            node("start-0", "start"),
+            node("memory-condition-1", "memory-condition-node", data = memoryData),
+            node("msg-a", "message", text = "A", characterId = 1),
+            node("msg-b", "message", text = "B", characterId = 1)
+        )
+        val edges = listOf(
+            edge("start-0", "memory-condition-1"),
+            edge("memory-condition-1", "msg-a", edgeType = "ConditionTrue"),
+            edge("memory-condition-1", "msg-b", edgeType = "ConditionFalse")
+        )
+
+        val graph = ChapterGraphParser.parse(
+            chapterCode = "2a",
+            metadata = ChapterMetadataDto(title = "Chapter 2A"),
+            nodeDtos = nodes,
+            edgeDtos = edges,
+            gameId = "game1",
+            legacyId = null,
+            pathProvider = pathProvider
+        )
+
+        val condition = graph.getNode("memory-condition-1") as Node.Condition
+        assertEquals("Relation Ime == 0", condition.expression)
+        assertEquals(2, graph.getNextEdges("memory-condition-1").size)
+    }
+
+    @Test
     fun `conditional edge pointing to ignore node is retargeted`() {
         val nodes = listOf(
             node("start-0", "start"),
@@ -894,6 +930,37 @@ class ChapterGraphParserTest {
         assertEquals(6000, node.durationMs)
         assertEquals(false, node.isAutoTiming)
         assertEquals(false, node.isHesitating)
+    }
+
+    @Test
+    fun `choice-action node is parsed as a player message and keeps the graph connected`() {
+        val nodes = listOf(
+            node("start-0", "start"),
+            node("message-1", "message", text = "Encore heureux", characterId = 78),
+            node("action-2", "choice-action", text = "Masser sa cheville", characterId = 78),
+            node("narration-3", "narration", text = "Vous vous asseyez")
+        )
+        val edges = listOf(
+            edge("start-0", "message-1"),
+            edge("message-1", "action-2"),
+            edge("action-2", "narration-3")
+        )
+
+        val graph = ChapterGraphParser.parse(
+            chapterCode = "6a",
+            metadata = ChapterMetadataDto(title = "Chapter 6A"),
+            nodeDtos = nodes,
+            edgeDtos = edges,
+            gameId = "game1",
+            legacyId = null,
+            pathProvider = pathProvider
+        )
+
+        val action = graph.getNode("action-2") as Node.Message
+        assertEquals("Masser sa cheville", action.text)
+        assertEquals(78, action.characterId)
+        assertEquals("action-2", graph.getNextEdges("message-1").first().target)
+        assertEquals("narration-3", graph.getNextEdges("action-2").first().target)
     }
 
     private fun node(

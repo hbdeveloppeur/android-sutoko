@@ -98,6 +98,21 @@ object ChapterGraphParser {
                 foregroundColor = data?.foregroundColor?.trim()?.takeIf { it.isNotEmpty() }
             )
 
+            // Legacy app: a choice_action phrase rendered inline icon buttons the player
+            // tapped to continue (see legacy Conversation.getChoicesAction). Canvas exports
+            // flatten it to a linear node (N-in/1-out, no icons, no branch) carrying the
+            // player's action label, so it maps to a message from the main character and
+            // keeps the standard tap-to-advance beat.
+            "choice-action" -> Node.Message(
+                id = dto.id,
+                text = data?.text.orEmpty(),
+                characterId = data?.characterId ?: -1,
+                waitMs = data?.wait ?: 0,
+                seenMs = data?.seen ?: 0,
+                isHesitating = data?.isHesitating ?: false,
+                isAutoTiming = data?.isAutoTiming ?: true
+            )
+
             "message-image" -> {
                 val imagePath = data?.storagePath ?: data?.image
                 require(imagePath != null) { "message-image node ${dto.id} missing storagePath or image" }
@@ -146,8 +161,9 @@ object ChapterGraphParser {
                 require(data?.memory != null) { "memory-condition-node ${dto.id} memory is null" }
                 val memory = data.memory
 
-                val expectedValue =
-                    requireNotNull(data.expectedValue) { "memory-condition-node ${dto.id} missing expectedValue" }
+                // Tolerate canvas exports missing expectedValue (one malformed node must not
+                // kill the whole chapter): fall back to the memory's initial value.
+                val expectedValue = data.expectedValue ?: memory.value
                 Node.Condition(
                     id = dto.id,
                     expression = "${memory.key} == $expectedValue"

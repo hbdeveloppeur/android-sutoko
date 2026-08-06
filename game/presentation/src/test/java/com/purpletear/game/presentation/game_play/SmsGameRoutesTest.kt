@@ -16,7 +16,7 @@ class SmsGameRoutesTest {
     @Test
     fun `game route without trial encodes isTrial false`() {
         assertEquals(
-            "game/play/1A?isTrial=false",
+            "game/play/1A?isTrial=false&autoPlay=false",
             SmsGameRoutes.game(chapterCode = "1A"),
         )
     }
@@ -24,7 +24,7 @@ class SmsGameRoutesTest {
     @Test
     fun `game route with trial encodes isTrial true`() {
         assertEquals(
-            "game/play/1A?isTrial=true",
+            "game/play/1A?isTrial=true&autoPlay=false",
             SmsGameRoutes.game(chapterCode = "1A", isTrial = true),
         )
     }
