@@ -158,7 +158,7 @@ class GameRepositoryImplSearchStoriesTest {
                         interactionCount = 0,
                         downloadCount = 0,
                         isCertified = false,
-                        status = "published",
+                        status = "online",
                         createdAt = 0L,
                         price = 0,
                         skuIdentifiers = emptyList(),
@@ -509,6 +509,35 @@ class GameRepositoryImplSearchStoriesTest {
         val catalogs = result.getOrThrow()
         assertEquals(1, catalogs.size)
         assertEquals("game-1", catalogs.first().id)
+        assertTrue(catalogs.first().isOnline)
+    }
+
+    @Test
+    fun `getOneUserGames marks story offline when status is not online`() = runTest {
+        val api = object : FakeGameApi() {
+            override suspend fun getOneUserGames(
+                userId: String,
+                page: Int,
+                limit: Int
+            ): Response<List<GameDto>> {
+                return Response.success(
+                    listOf(stubGameDto("game-draft").copy(status = "draft"))
+                )
+            }
+        }
+
+        val repository = GameRepositoryImpl(api, stubGameDao, stubUserRepository)
+
+        val result = repository.getOneUserGames(
+            userId = "user-1",
+            page = 1,
+            limit = 20,
+        )
+
+        assertTrue("Expected success but got $result", result.isSuccess)
+        val catalogs = result.getOrThrow()
+        assertEquals(1, catalogs.size)
+        assertEquals(false, catalogs.first().isOnline)
     }
 
     @Test
@@ -591,7 +620,7 @@ class GameRepositoryImplSearchStoriesTest {
         interactionCount = 0,
         downloadCount = 0,
         isCertified = false,
-        status = "published",
+        status = "online",
         createdAt = 0L,
         price = 0,
         skuIdentifiers = emptyList(),

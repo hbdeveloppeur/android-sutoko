@@ -20,7 +20,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 private const val USER_GAMES_PAGE_SIZE = 20
-private const val STATUS_PUBLISHED = "published"
+private const val STATUS_ONLINE = "online"
 
 @Singleton
 class GameRepositoryImpl @Inject constructor(
@@ -242,7 +242,7 @@ class GameRepositoryImpl @Inject constructor(
             // Only this endpoint returns the author's own stories, including offline ones.
             val catalogs = response.body().orEmpty().map { dto ->
                 dto.toDomain().toDomain().copy(
-                    isOnline = dto.status.equals(STATUS_PUBLISHED, ignoreCase = true)
+                    isOnline = STATUS_ONLINE.equals(dto.status, ignoreCase = true)
                 )
             }
             Result.success(catalogs)
