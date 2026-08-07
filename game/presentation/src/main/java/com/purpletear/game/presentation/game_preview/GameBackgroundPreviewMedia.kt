@@ -8,7 +8,9 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
@@ -24,8 +26,9 @@ import com.purpletear.game.presentation.R
 /**
  * A composable that displays a background media stack: video > image > scrim.
  *
- * When a [videoUrl] is provided, the image fades out to reveal the looping video.
- * When only an [imageUrl] is provided, the image is displayed with a static scrim.
+ * The video sits under the image. Once the video renders its first frame,
+ * the image fades out to reveal it (a crossfade, no black gap).
+ * If the video never starts, the image simply remains on screen.
  *
  * @param imageUrl Optional URL of the background image.
  * @param videoUrl Optional URL of the background video.
@@ -42,10 +45,12 @@ internal fun GameBackgroundPreviewMedia(
     fallbackPainter: Painter? = null,
 ) {
     val effectiveImageUrl = imageUrl?.takeIf { it.isNotBlank() }
-    val hasVideo = !videoUrl.isNullOrBlank()
+    val effectiveVideoUrl = videoUrl?.takeIf { it.isNotBlank() }
 
+    // Reset when the video changes; stays false if the video fails to start.
+    var videoStarted by remember(effectiveVideoUrl) { mutableStateOf(false) }
     val imageAlpha by animateFloatAsState(
-        targetValue = if (hasVideo) 0f else 1f,
+        targetValue = if (videoStarted) 0f else 1f,
         animationSpec = tween(durationMillis = 1500),
         label = "imageAlpha"
     )
@@ -54,9 +59,11 @@ internal fun GameBackgroundPreviewMedia(
     val errorPainter = remember { ColorPainter(Color.DarkGray) }
 
     Box(modifier = modifier.fillMaxSize()) {
-        if (hasVideo) {
+        // Video stays under the image; the image fade reveals it (no black gap).
+        effectiveVideoUrl?.let { url ->
             BackgroundMedia(
-                videoUrl = videoUrl!!,
+                videoUrl = url,
+                onFirstFrame = { videoStarted = true },
                 modifier = Modifier.fillMaxSize()
             )
         }
@@ -76,7 +83,7 @@ internal fun GameBackgroundPreviewMedia(
             )
         }
 
-        if (effectiveImageUrl == null && !hasVideo) {
+        if (effectiveImageUrl == null && effectiveVideoUrl == null) {
             fallbackPainter?.let { painter ->
                 Image(
                     painter = painter,

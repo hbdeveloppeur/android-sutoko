@@ -1,11 +1,10 @@
 package com.purpletear.game.presentation.game_preview
 
+import android.media.MediaPlayer
 import android.view.Gravity
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.widget.FrameLayout
 import android.widget.VideoView
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -23,24 +22,18 @@ import androidx.core.net.toUri
 /**
  * A background media component that displays a video
  * The component plays a video that loops
+ *
+ * @param videoUrl URL of the video to play.
+ * @param onFirstFrame Called once when the first video frame is rendered.
  */
 @Composable
 internal fun BackgroundMedia(
     videoUrl: String,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onFirstFrame: () -> Unit = {},
 ) {
-    // State to track if video has started
-    var videoStarted by remember { mutableStateOf(false) }
-
     // Remember the VideoView reference
     var videoView by remember { mutableStateOf<VideoView?>(null) }
-
-    // Animation for the black overlay
-    val blackOverlayAlpha by animateFloatAsState(
-        targetValue = if (videoStarted) 0f else 1f,
-        animationSpec = tween(durationMillis = 1500),
-        label = "blackOverlayAlpha"
-    )
 
     Box(
         modifier = modifier
@@ -105,8 +98,14 @@ internal fun BackgroundMedia(
 
                         // Start playing
                         start()
-                        // Set video started state to true
-                        videoStarted = true
+                    }
+                    // Notify only when the first frame is actually rendered,
+                    // so the caller can crossfade without a black gap.
+                    setOnInfoListener { _, what, _ ->
+                        if (what == MediaPlayer.MEDIA_INFO_VIDEO_RENDERING_START) {
+                            onFirstFrame()
+                        }
+                        false
                     }
                     setOnErrorListener { _, _, _ ->
                         true
@@ -118,16 +117,7 @@ internal fun BackgroundMedia(
                 videoView = newVideoView
                 frameLayout
             },
-            modifier = Modifier
-                .fillMaxSize()
-                .background(Color.Black)
-        )
-
-        // Black overlay that fades out when video starts
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(Color.Black.copy(blackOverlayAlpha))
+            modifier = Modifier.fillMaxSize()
         )
 
         // Clean up video resources when the composable leaves composition

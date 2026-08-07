@@ -2,12 +2,23 @@ This file list messages from our human testers - it's features or fixes to imple
 You will have to create a git branch if the current branch is main for that work and switch on
 it.
 
-## Problem 1 : In the section "My published stories" stories cannot be opened when online - even when online when you click open, an error message saying something like "story not online yet"
+## Problem 1 : GamePreview Background Image - Background Video weird switch.
 
-**FIXED** (branch `fix/published-stories-open-online`)
-Root cause: the app checked `GameDto.status == "published"`, but the backend returns
-`status: "online"` for published stories (verified against https://sutoko.com/portal/stories/*).
-`isOnline` was therefore always false and the open button always showed the
-"story not online yet" toast.
-Fix: `GameRepositoryImpl.getOneUserGames` now checks `status == "online"` (null-safe).
-Unit tests updated/added in `GameRepositoryImplSearchStoriesTest` (all pass, debug, no cache).
+If the Game has a Background Image and a Background video url:
+
+- Step 1: The background Image is loaded (good)
+- Step 2: The background image fades out (ugly choice)
+  Unpleasant black screen.
+- Step 3: The background video fades in ()
+  Sachant que souvent la background Image est la première frame de la video
+
+**FIXED** (branch `fix/game-preview-background-crossfade`):
+The video now loads *under* the image, and the image only fades out once the
+video's first frame is actually rendered (`MEDIA_INFO_VIDEO_RENDERING_START`).
+Result: a true crossfade from image to video — no black gap. If the video fails
+to start, the image simply stays on screen.
+Changed: `game/presentation/.../game_preview/BackgroundMedia.kt` (added
+`onFirstFrame` callback, removed internal black overlay fade) and
+`GameBackgroundPreviewMedia.kt` (image fade-out now driven by first-frame event).
+Validated with `:game:presentation:assembleDebug` and `testDebugUnitTest`
+(debug, `--no-build-cache`).
