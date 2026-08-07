@@ -503,8 +503,24 @@ class GamePreviewViewModel @Inject constructor(
                 )
             }
 
-            else -> navigateToPlay(requestNickName = true, isTrial = isTrial)
+            else -> {
+                // Trial bypasses the install gate (Purchase shows Try regardless of
+                // localVersion): without files on disk the chapter graph load fails.
+                // Download the archive first, then auto-play on completion.
+                if (isTrial && !isGameInstalled()) {
+                    GamePreviewLogger.i("NAV") { "onPlay() trial without local files, downloading first for gameId=$gameId" }
+                    onStartDownload(playTrialOnComplete = true)
+                } else {
+                    navigateToPlay(requestNickName = true, isTrial = isTrial)
+                }
+            }
         }
+    }
+
+    /** True once the game archive is on disk (any version). */
+    private fun isGameInstalled(): Boolean {
+        val item = (game.value as? GamePreviewUiState.Data)?.item ?: return false
+        return item.localVersion != null
     }
 
     private fun navigateToPlay(requestNickName: Boolean, isTrial: Boolean = false) {
@@ -670,20 +686,23 @@ class GamePreviewViewModel @Inject constructor(
         }
     }
 
-    private fun onStartDownload() {
+    private fun onStartDownload(playTrialOnComplete: Boolean = false) {
         if (downloadJob?.isActive == true) {
             GamePreviewLogger.d("DOWN") { "onStartDownload() ignored, already running for gameId=$gameId" }
             return
         }
         GamePreviewLogger.i("DOWN") { "onStartDownload() gameId=$gameId" }
         downloadJob = viewModelScope.launch {
+            var failed = false
             // The use case is suspend and can throw before returning its flow (game not
             // cached, download link fetch failed offline): .catch only covers collection.
             try {
                 downloadGameUseCase(gameId = gameId)
                     .catch { error ->
+                        failed = true
                         if (error is DownloadAlreadyInProgressException) {
                             // Benign: another collector is already downloading this game.
+                            // It owns the install, so never auto-play here.
                             GamePreviewLogger.d("DOWN") { "onStartDownload() duplicate ignored for gameId=$gameId" }
                             return@catch
                         }
@@ -700,9 +719,13 @@ class GamePreviewViewModel @Inject constructor(
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {
+                failed = true
                 GamePreviewLogger.e("DOWN", e) { "onStartDownload() failed for gameId=$gameId" }
                 logger.exception(e) { "Download failed for gameId=$gameId" }
                 sendEvent(GamePreviewEvent.ShowError(GameUiError.fromDownloadError(e)))
+            }
+            if (!failed && playTrialOnComplete) {
+                navigateToPlay(requestNickName = true, isTrial = true)
             }
         }
     }

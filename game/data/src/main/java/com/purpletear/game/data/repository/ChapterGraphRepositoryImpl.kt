@@ -47,7 +47,7 @@ class ChapterGraphRepositoryImpl @Inject constructor(
 
             val resolvedLanguage = ChapterLanguageResolver.resolve(language, availableLanguages)
             if (resolvedLanguage == null) {
-                emit(Result.failure(IllegalArgumentException("No chapter language '$resolvedLanguage' found in: ${chaptersRoot.absolutePath}")))
+                emit(Result.failure(IllegalArgumentException("No chapter language '$language' found in: ${chaptersRoot.absolutePath} (available: $availableLanguages)")))
                 return@flow
             }
 
