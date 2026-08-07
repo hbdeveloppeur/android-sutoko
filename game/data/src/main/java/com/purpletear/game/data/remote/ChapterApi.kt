@@ -3,6 +3,7 @@ package com.purpletear.game.data.remote
 import com.purpletear.game.data.remote.dto.ChapterDto
 import retrofit2.Response
 import retrofit2.http.GET
+import retrofit2.http.Header
 import retrofit2.http.POST
 import retrofit2.http.Path
 import retrofit2.http.Query
@@ -12,6 +13,7 @@ interface ChapterApi {
     suspend fun getChapters(
         @Path("storyId") storyId: String,
         @Query("langCode") langCode: String,
+        @Header("Authorization") authorization: String? = null,
     ): Response<List<ChapterDto>>
 
     @GET("chapter/{id}")

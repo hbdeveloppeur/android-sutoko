@@ -8,6 +8,8 @@ import com.purpletear.game.data.remote.dto.AuthorDto
 import com.purpletear.game.data.remote.dto.GameDto
 import com.purpletear.game.data.remote.dto.GameMetadataDto
 import com.purpletear.game.data.remote.dto.toDomain
+import com.purpletear.sutoko.domain.model.User
+import com.purpletear.sutoko.domain.repository.UserRepository
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
@@ -22,6 +24,14 @@ import retrofit2.Response
 import retrofit2.HttpException
 
 class GameRepositoryImplSearchStoriesTest {
+
+    private val stubUserRepository = object : UserRepository {
+        override fun observeUser(): Flow<User?> = flowOf(null)
+        override fun observeIsConnected(): Flow<Boolean> = flowOf(false)
+        override fun isConnected(): Result<Boolean> = Result.success(false)
+        override suspend fun connect(id: String, token: String): Result<Unit> = Result.success(Unit)
+        override suspend fun disconnect(): Result<Unit> = Result.success(Unit)
+    }
 
     private val stubGameDao = object : GameDao {
         override fun observeOfficialGames(): Flow<List<GameCatalogEntity>> = flowOf(emptyList())
@@ -47,7 +57,7 @@ class GameRepositoryImplSearchStoriesTest {
                 return Response.success(listOf(stubGameDto("game-1")))
             }
         }
-        val repository = GameRepositoryImpl(api, recordingDao)
+        val repository = GameRepositoryImpl(api, recordingDao, stubUserRepository)
 
         val result = repository.syncUserGames("fr-FR")
 
@@ -76,7 +86,7 @@ class GameRepositoryImplSearchStoriesTest {
                 }
             }
         }
-        val repository = GameRepositoryImpl(api, recordingDao)
+        val repository = GameRepositoryImpl(api, recordingDao, stubUserRepository)
         repository.syncUserGames("fr-FR")
 
         val result = repository.loadMoreUserGames("fr-FR")
@@ -100,7 +110,7 @@ class GameRepositoryImplSearchStoriesTest {
                 return Response.success(List(20) { index -> stubGameDto("game-page$page-$index") })
             }
         }
-        val repository = GameRepositoryImpl(api, recordingDao)
+        val repository = GameRepositoryImpl(api, recordingDao, stubUserRepository)
         repository.syncUserGames("fr-FR")
 
         val result = repository.loadMoreUserGames("fr-FR")
@@ -123,7 +133,7 @@ class GameRepositoryImplSearchStoriesTest {
                 Response.error(500, "Server error".toResponseBody(null))
             }
         }
-        val repository = GameRepositoryImpl(api, recordingDao)
+        val repository = GameRepositoryImpl(api, recordingDao, stubUserRepository)
         repository.syncUserGames("fr-FR")
 
         val result = repository.loadMoreUserGames("fr-FR")
@@ -178,7 +188,7 @@ class GameRepositoryImplSearchStoriesTest {
             )
         }
 
-        val repository = GameRepositoryImpl(api, stubGameDao)
+        val repository = GameRepositoryImpl(api, stubGameDao, stubUserRepository)
 
         val result = repository.searchStories(
             query = "search",
@@ -207,7 +217,7 @@ class GameRepositoryImplSearchStoriesTest {
             )
         }
 
-        val repository = GameRepositoryImpl(api, stubGameDao)
+        val repository = GameRepositoryImpl(api, stubGameDao, stubUserRepository)
 
         val result = repository.searchStories(
             query = "a",
@@ -232,7 +242,7 @@ class GameRepositoryImplSearchStoriesTest {
                 limit: Int
             ): Response<List<GameDto>> = Response.success(listOf(stubGameDto("game-1")))
         }
-        val repository = GameRepositoryImpl(api, recordingDao)
+        val repository = GameRepositoryImpl(api, recordingDao, stubUserRepository)
 
         val result = repository.searchStories(query = "search", languageTag = "fr-FR")
 
@@ -255,7 +265,7 @@ class GameRepositoryImplSearchStoriesTest {
                 "Server error".toResponseBody(null)
             )
         }
-        val repository = GameRepositoryImpl(api, recordingDao)
+        val repository = GameRepositoryImpl(api, recordingDao, stubUserRepository)
 
         val result = repository.searchStories(query = "search", languageTag = "fr-FR")
 
@@ -270,7 +280,7 @@ class GameRepositoryImplSearchStoriesTest {
         val api = object : FakeGameApi() {
             // getStory not overridden: any call fails the test via NotImplementedError
         }
-        val repository = GameRepositoryImpl(api, recordingDao)
+        val repository = GameRepositoryImpl(api, recordingDao, stubUserRepository)
 
         val result = repository.getGameCatalog("game-1", "fr-FR")
 
@@ -283,13 +293,17 @@ class GameRepositoryImplSearchStoriesTest {
     fun `getGameCatalog fetches remotely and persists on local miss`() = runTest {
         val recordingDao = RecordingGameDao()
         val api = object : FakeGameApi() {
-            override suspend fun getStory(gameId: String, languageCode: String): Response<GameDto> {
+            override suspend fun getStory(
+                gameId: String,
+                languageCode: String,
+                authorization: String?,
+            ): Response<GameDto> {
                 assertEquals("game-1", gameId)
                 assertEquals("fr-FR", languageCode)
                 return Response.success(stubGameDto("game-1"))
             }
         }
-        val repository = GameRepositoryImpl(api, recordingDao)
+        val repository = GameRepositoryImpl(api, recordingDao, stubUserRepository)
 
         val result = repository.getGameCatalog("game-1", "fr-FR")
 
@@ -303,10 +317,14 @@ class GameRepositoryImplSearchStoriesTest {
     fun `getGameCatalog returns success null on 404`() = runTest {
         val recordingDao = RecordingGameDao()
         val api = object : FakeGameApi() {
-            override suspend fun getStory(gameId: String, languageCode: String): Response<GameDto> =
+            override suspend fun getStory(
+                gameId: String,
+                languageCode: String,
+                authorization: String?,
+            ): Response<GameDto> =
                 Response.error(404, "story_not_found".toResponseBody(null))
         }
-        val repository = GameRepositoryImpl(api, recordingDao)
+        val repository = GameRepositoryImpl(api, recordingDao, stubUserRepository)
 
         val result = repository.getGameCatalog("game-1", "fr-FR")
 
@@ -319,10 +337,14 @@ class GameRepositoryImplSearchStoriesTest {
     fun `getGameCatalog returns failure with HttpException on 500`() = runTest {
         val recordingDao = RecordingGameDao()
         val api = object : FakeGameApi() {
-            override suspend fun getStory(gameId: String, languageCode: String): Response<GameDto> =
+            override suspend fun getStory(
+                gameId: String,
+                languageCode: String,
+                authorization: String?,
+            ): Response<GameDto> =
                 Response.error(500, "Server error".toResponseBody(null))
         }
-        val repository = GameRepositoryImpl(api, recordingDao)
+        val repository = GameRepositoryImpl(api, recordingDao, stubUserRepository)
 
         val result = repository.getGameCatalog("game-1", "fr-FR")
 
@@ -334,10 +356,14 @@ class GameRepositoryImplSearchStoriesTest {
     @Test
     fun `getGameCatalog rethrows CancellationException`() = runTest {
         val api = object : FakeGameApi() {
-            override suspend fun getStory(gameId: String, languageCode: String): Response<GameDto> =
+            override suspend fun getStory(
+                gameId: String,
+                languageCode: String,
+                authorization: String?,
+            ): Response<GameDto> =
                 throw CancellationException("cancelled")
         }
-        val repository = GameRepositoryImpl(api, stubGameDao)
+        val repository = GameRepositoryImpl(api, stubGameDao, stubUserRepository)
 
         try {
             repository.getGameCatalog("game-1", "fr-FR")
@@ -352,13 +378,17 @@ class GameRepositoryImplSearchStoriesTest {
         val recordingDao = RecordingGameDao()
         recordingDao.game = stubGameDto("game-1").toDomain().copy(version = 14)
         val api = object : FakeGameApi() {
-            override suspend fun getStory(gameId: String, languageCode: String): Response<GameDto> {
+            override suspend fun getStory(
+                gameId: String,
+                languageCode: String,
+                authorization: String?,
+            ): Response<GameDto> {
                 assertEquals("game-1", gameId)
                 assertEquals("fr-FR", languageCode)
                 return Response.success(stubGameDto("game-1").copy(version = 15))
             }
         }
-        val repository = GameRepositoryImpl(api, recordingDao)
+        val repository = GameRepositoryImpl(api, recordingDao, stubUserRepository)
 
         val result = repository.refreshGameCatalog("game-1", "fr-FR")
 
@@ -373,10 +403,14 @@ class GameRepositoryImplSearchStoriesTest {
         val recordingDao = RecordingGameDao()
         recordingDao.game = stubGameDto("game-1").toDomain()
         val api = object : FakeGameApi() {
-            override suspend fun getStory(gameId: String, languageCode: String): Response<GameDto> =
+            override suspend fun getStory(
+                gameId: String,
+                languageCode: String,
+                authorization: String?,
+            ): Response<GameDto> =
                 Response.error(404, "story_not_found".toResponseBody(null))
         }
-        val repository = GameRepositoryImpl(api, recordingDao)
+        val repository = GameRepositoryImpl(api, recordingDao, stubUserRepository)
 
         val result = repository.refreshGameCatalog("game-1", "fr-FR")
 
@@ -390,10 +424,14 @@ class GameRepositoryImplSearchStoriesTest {
         val recordingDao = RecordingGameDao()
         recordingDao.game = stubGameDto("game-1").toDomain()
         val api = object : FakeGameApi() {
-            override suspend fun getStory(gameId: String, languageCode: String): Response<GameDto> =
+            override suspend fun getStory(
+                gameId: String,
+                languageCode: String,
+                authorization: String?,
+            ): Response<GameDto> =
                 Response.error(500, "Server error".toResponseBody(null))
         }
-        val repository = GameRepositoryImpl(api, recordingDao)
+        val repository = GameRepositoryImpl(api, recordingDao, stubUserRepository)
 
         val result = repository.refreshGameCatalog("game-1", "fr-FR")
 
@@ -405,10 +443,14 @@ class GameRepositoryImplSearchStoriesTest {
     @Test
     fun `refreshGameCatalog rethrows CancellationException`() = runTest {
         val api = object : FakeGameApi() {
-            override suspend fun getStory(gameId: String, languageCode: String): Response<GameDto> =
+            override suspend fun getStory(
+                gameId: String,
+                languageCode: String,
+                authorization: String?,
+            ): Response<GameDto> =
                 throw CancellationException("cancelled")
         }
-        val repository = GameRepositoryImpl(api, stubGameDao)
+        val repository = GameRepositoryImpl(api, stubGameDao, stubUserRepository)
 
         try {
             repository.refreshGameCatalog("game-1", "fr-FR")
@@ -429,7 +471,7 @@ class GameRepositoryImplSearchStoriesTest {
             ): Response<List<GameDto>> = Response.success(null)
         }
 
-        val repository = GameRepositoryImpl(api, stubGameDao)
+        val repository = GameRepositoryImpl(api, stubGameDao, stubUserRepository)
 
         val result = repository.searchStories(
             query = "query",
@@ -455,7 +497,7 @@ class GameRepositoryImplSearchStoriesTest {
             }
         }
 
-        val repository = GameRepositoryImpl(api, stubGameDao)
+        val repository = GameRepositoryImpl(api, stubGameDao, stubUserRepository)
 
         val result = repository.getOneUserGames(
             userId = "user-1",
@@ -482,7 +524,7 @@ class GameRepositoryImplSearchStoriesTest {
             )
         }
 
-        val repository = GameRepositoryImpl(api, stubGameDao)
+        val repository = GameRepositoryImpl(api, stubGameDao, stubUserRepository)
 
         val result = repository.getOneUserGames(
             userId = "user-1",
@@ -507,7 +549,7 @@ class GameRepositoryImplSearchStoriesTest {
             ): Response<List<GameDto>> = Response.success(null)
         }
 
-        val repository = GameRepositoryImpl(api, stubGameDao)
+        val repository = GameRepositoryImpl(api, stubGameDao, stubUserRepository)
 
         val result = repository.getOneUserGames(
             userId = "user-1",
@@ -577,7 +619,10 @@ class GameRepositoryImplSearchStoriesTest {
     )
 
     private open class FakeGameApi : GameApi {
-        override suspend fun getOfficialGames(languageCode: String): List<GameDto> =
+        override suspend fun getOfficialGames(
+            languageCode: String,
+            authorization: String?,
+        ): List<GameDto> =
             throw NotImplementedError()
 
         override suspend fun getOneUserGames(
@@ -595,7 +640,8 @@ class GameRepositoryImplSearchStoriesTest {
         override suspend fun getDownloadLink(
             gameId: String,
             userId: String?,
-            userToken: String?
+            userToken: String?,
+            preview: Boolean?,
         ) = throw NotImplementedError()
 
         override suspend fun searchStories(
@@ -605,7 +651,11 @@ class GameRepositoryImplSearchStoriesTest {
             limit: Int
         ): Response<List<GameDto>> = throw NotImplementedError()
 
-        override suspend fun getStory(gameId: String, languageCode: String): Response<GameDto> =
+        override suspend fun getStory(
+            gameId: String,
+            languageCode: String,
+            authorization: String?,
+        ): Response<GameDto> =
             throw NotImplementedError()
     }
 }

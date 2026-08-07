@@ -8,6 +8,8 @@ import com.purpletear.game.data.local.entity.GameCatalogEntity
 import com.purpletear.game.data.local.entity.UserGameProgressEntity
 import com.purpletear.game.data.remote.ChapterApi
 import com.purpletear.game.data.remote.dto.ChapterDto
+import com.purpletear.sutoko.domain.model.User
+import com.purpletear.sutoko.domain.repository.UserRepository
 import com.purpletear.sutoko.game.model.game.GameMetadata
 import com.purpletear.sutoko.game.repository.FriendzonedProgressRepository
 import kotlinx.coroutines.flow.Flow
@@ -22,7 +24,11 @@ import retrofit2.Response
 class ChapterRepositoryImplFriendzonedTest {
 
     private class StubChapterApi : ChapterApi {
-        override suspend fun getChapters(storyId: String, langCode: String): Response<List<ChapterDto>> =
+        override suspend fun getChapters(
+            storyId: String,
+            langCode: String,
+            authorization: String?,
+        ): Response<List<ChapterDto>> =
             Response.success(emptyList())
 
         override suspend fun getChapter(id: Int, langCode: String): Response<ChapterDto> =
@@ -126,12 +132,20 @@ class ChapterRepositoryImplFriendzonedTest {
     private val userGameProgressDao = FakeUserGameProgressDao()
     private val gameDao = FakeGameDao()
     private val friendzonedProgressRepository = FakeFriendzonedProgressRepository()
+    private val stubUserRepository = object : UserRepository {
+        override fun observeUser(): Flow<User?> = MutableStateFlow(null)
+        override fun observeIsConnected(): Flow<Boolean> = MutableStateFlow(false)
+        override fun isConnected(): Result<Boolean> = Result.success(false)
+        override suspend fun connect(id: String, token: String): Result<Unit> = Result.success(Unit)
+        override suspend fun disconnect(): Result<Unit> = Result.success(Unit)
+    }
     private val repository = ChapterRepositoryImpl(
         api = StubChapterApi(),
         chapterDao = chapterDao,
         userGameProgressDao = userGameProgressDao,
         gameDao = gameDao,
         friendzonedProgressRepository = friendzonedProgressRepository,
+        userRepository = stubUserRepository,
     )
 
     private fun chapter(code: String, number: Int): ChapterEntity = ChapterEntity(

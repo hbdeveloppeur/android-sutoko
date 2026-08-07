@@ -36,7 +36,8 @@ class FakeGameRepository : GameRepository {
     override suspend fun getDownloadLink(
         gameId: String,
         userId: String?,
-        userToken: String?
+        userToken: String?,
+        preview: Boolean,
     ): Result<String> {
         return downloadLinks[gameId] ?: Result.failure(IllegalStateException("No download link set for $gameId"))
     }

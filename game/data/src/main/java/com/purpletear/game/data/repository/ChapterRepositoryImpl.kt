@@ -7,6 +7,7 @@ import com.purpletear.game.data.local.entity.toDomain
 import com.purpletear.game.data.local.entity.toEntity
 import com.purpletear.game.data.remote.ChapterApi
 import com.purpletear.game.data.remote.dto.toDomain
+import com.purpletear.sutoko.domain.repository.UserRepository
 import com.purpletear.sutoko.game.model.Chapter
 import com.purpletear.sutoko.game.model.FriendzonedLegacyIds
 import com.purpletear.sutoko.game.repository.ChapterRepository
@@ -17,6 +18,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
@@ -29,7 +31,12 @@ class ChapterRepositoryImpl @Inject constructor(
     private val userGameProgressDao: UserGameProgressDao,
     private val gameDao: GameDao,
     private val friendzonedProgressRepository: FriendzonedProgressRepository,
+    private val userRepository: UserRepository,
 ) : ChapterRepository {
+
+    /** Optional bearer token: admins also receive unreleased chapters. */
+    private suspend fun bearerToken(): String? =
+        userRepository.observeUser().firstOrNull()?.token?.let { "Bearer $it" }
 
     override fun getChapters(storyId: String): Flow<Result<List<Chapter>>> = flow {
         val dbChapters = chapterDao.getAllForStory(storyId).map { it.toDomain() }
@@ -38,8 +45,11 @@ class ChapterRepositoryImpl @Inject constructor(
         }
 
         try {
-            val response =
-                api.getChapters(storyId = storyId, langCode = Locale.getDefault().language)
+            val response = api.getChapters(
+                storyId = storyId,
+                langCode = Locale.getDefault().language,
+                authorization = bearerToken(),
+            )
             if (response.isSuccessful) {
                 val chapters = response.body()?.toDomain() ?: emptyList()
                 chapterDao.insertAll(chapters.map { it.toEntity() })

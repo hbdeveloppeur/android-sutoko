@@ -151,6 +151,22 @@ class GamePreviewViewModel @Inject constructor(
         )
 
     /**
+     * Set to true when the preview download fails: per backend contract, any
+     * error on the preview entry point means "hide the feature" and must never
+     * break the player flow.
+     */
+    private val previewFeatureHidden = MutableStateFlow(false)
+
+    /** The "Download preview" button is only offered to admins. */
+    val isPreviewVisible: StateFlow<Boolean> =
+        combine(isAdmin, previewFeatureHidden) { admin, hidden -> admin && !hidden }
+            .stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(7000),
+                initialValue = false,
+            )
+
+    /**
      * Server-confirmed entitlement for this story's SKUs (billing purchase,
      * coin grant or premium). Fail-closed: false until the server confirms.
      */
@@ -349,6 +365,7 @@ class GamePreviewViewModel @Inject constructor(
             GamePreviewAction.OnBuyConfirm -> onPurchase()
             GamePreviewAction.OnDownload -> onStartDownload()
             GamePreviewAction.OnUpdateGame -> onStartDownload()
+            GamePreviewAction.OnDownloadPreview -> onStartPreviewDownload()
             GamePreviewAction.OnUpdateApp -> sendEvent(GamePreviewEvent.OpenAppStore)
             GamePreviewAction.OnPlay -> onPlay()
             GamePreviewAction.OnTry -> onPlay(isTrial = true)
@@ -688,6 +705,46 @@ class GamePreviewViewModel @Inject constructor(
                 sendEvent(GamePreviewEvent.ShowError(GameUiError.fromDownloadError(e)))
             }
         }
+    }
+
+    /**
+     * Admin-only preview download: fetches the preview archive (all chapters,
+     * including unreleased ones). The install repository always re-downloads,
+     * so the version-keyed state never serves stale preview content.
+     * Any failure hides the feature silently (backend contract) — the player
+     * flow must never break.
+     */
+    private fun onStartPreviewDownload() {
+        if (downloadJob?.isActive == true) {
+            GamePreviewLogger.d("DOWN") { "onStartPreviewDownload() ignored, already running for gameId=$gameId" }
+            return
+        }
+        GamePreviewLogger.i("DOWN") { "onStartPreviewDownload() gameId=$gameId" }
+        downloadJob = viewModelScope.launch {
+            try {
+                downloadGameUseCase(gameId = gameId, preview = true)
+                    .catch { error ->
+                        if (error is DownloadAlreadyInProgressException) {
+                            GamePreviewLogger.d("DOWN") { "onStartPreviewDownload() duplicate ignored for gameId=$gameId" }
+                            return@catch
+                        }
+                        onPreviewDownloadFailure(error)
+                    }
+                    .collect { progress ->
+                        GamePreviewLogger.d("DOWN") { "onStartPreviewDownload() progress=$progress for gameId=$gameId" }
+                    }
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                onPreviewDownloadFailure(e)
+            }
+        }
+    }
+
+    private fun onPreviewDownloadFailure(error: Throwable) {
+        GamePreviewLogger.e("DOWN", error) { "preview download failed for gameId=$gameId, hiding feature" }
+        logger.exception(error) { "Preview download failed for gameId=$gameId" }
+        previewFeatureHidden.value = true
     }
 
     private fun onDeleteGame() {

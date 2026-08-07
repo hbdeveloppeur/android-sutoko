@@ -5,12 +5,14 @@ import com.purpletear.game.data.local.entity.toDomain
 import com.purpletear.game.data.remote.GameApi
 import com.purpletear.game.data.remote.dto.GameDto
 import com.purpletear.game.data.remote.dto.toDomain
+import com.purpletear.sutoko.domain.repository.UserRepository
 import com.purpletear.sutoko.game.exception.GameDownloadForbiddenException
 import com.purpletear.sutoko.game.model.game.GameCatalog
 import com.purpletear.sutoko.game.repository.game.GameRepository
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
 import retrofit2.HttpException
 import retrofit2.Response
@@ -24,6 +26,7 @@ private const val STATUS_PUBLISHED = "published"
 class GameRepositoryImpl @Inject constructor(
     private val api: GameApi,
     private val dao: GameDao,
+    private val userRepository: UserRepository,
 ) : GameRepository {
 
     private data class UserGamesPagination(
@@ -55,16 +58,26 @@ class GameRepositoryImpl @Inject constructor(
         }
     }
 
+    /**
+     * Optional bearer token of the logged-in user. Admins get extra content
+     * (unreleased stories/chapters) server-side; anonymous players are
+     * unaffected (null header is omitted by Retrofit).
+     */
+    private suspend fun bearerToken(): String? =
+        userRepository.observeUser().firstOrNull()?.token?.let { "Bearer $it" }
+
     override suspend fun getDownloadLink(
         gameId: String,
         userId: String?,
-        userToken: String?
+        userToken: String?,
+        preview: Boolean,
     ): Result<String> {
         return try {
             val response = api.getDownloadLink(
                 gameId = gameId,
                 userId = userId,
                 userToken = userToken,
+                preview = if (preview) true else null,
             )
             val url = response.link
             Result.success(url)
@@ -84,7 +97,7 @@ class GameRepositoryImpl @Inject constructor(
 
     override suspend fun syncOfficialGames(languageTag: String): Result<Unit> {
         return try {
-            val remote = api.getOfficialGames(languageTag)
+            val remote = api.getOfficialGames(languageTag, authorization = bearerToken())
             dao.replaceAllOfficial(remote.map { it.toDomain() })
             Result.success(Unit)
         } catch (e: CancellationException) {
@@ -188,7 +201,11 @@ class GameRepositoryImpl @Inject constructor(
      */
     private suspend fun fetchRemoteCatalog(id: String, languageTag: String): Result<GameCatalog?> {
         return try {
-            val response = api.getStory(gameId = id, languageCode = languageTag)
+            val response = api.getStory(
+                gameId = id,
+                languageCode = languageTag,
+                authorization = bearerToken(),
+            )
             if (response.code() == 404) {
                 return Result.success(null)
             }

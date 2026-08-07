@@ -125,6 +125,7 @@ fun GamePreview(
     val isUserConnected by viewModel.isUserConnected.collectAsStateWithLifecycle()
     val isOptionsVisible by viewModel.isOptionsVisible.collectAsStateWithLifecycle()
     val isAdmin by viewModel.isAdmin.collectAsStateWithLifecycle()
+    val isPreviewVisible by viewModel.isPreviewVisible.collectAsStateWithLifecycle()
     val isMenuSoundMuted by viewModel.isMenuSoundMuted.collectAsStateWithLifecycle()
     val isPurchasing by viewModel.isPurchasing.collectAsStateWithLifecycle()
     val isPurchaseLoading by viewModel.isPurchaseLoading.collectAsStateWithLifecycle()
@@ -523,6 +524,20 @@ fun GamePreview(
                                             drawableId = SutokoSharedElementsR.drawable.shared_elements_shared_ic_arrow_back_ios,
                                             scaleX = -1f,
                                         ),
+                                        background = Background.Solid(Color.White.copy(alpha = 0.12f)),
+                                    )
+                                }
+
+                                // Admin-only: downloads the preview archive (all chapters
+                                // incl. unreleased). Hidden permanently on any failure.
+                                if (isPreviewVisible) {
+                                    GamePreviewButton(
+                                        modifier = Modifier
+                                            .fillMaxWidth(),
+                                        title = stringResource(R.string.game_presentation_game_preview_download_preview),
+                                        onClick = {
+                                            viewModel.onAction(GamePreviewAction.OnDownloadPreview)
+                                        },
                                         background = Background.Solid(Color.White.copy(alpha = 0.12f)),
                                     )
                                 }

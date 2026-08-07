@@ -6,6 +6,7 @@ import com.purpletear.game.data.local.dao.GameDao
 import com.purpletear.game.data.local.dao.UserGameProgressDao
 import com.purpletear.game.data.remote.ChapterApi
 import com.purpletear.game.data.repository.ChapterRepositoryImpl
+import com.purpletear.sutoko.domain.repository.UserRepository
 import com.purpletear.sutoko.game.repository.ChapterRepository
 import com.purpletear.sutoko.game.repository.FriendzonedProgressRepository
 import dagger.Module
@@ -74,6 +75,7 @@ object ChapterDataModule {
         userGameProgressDao: UserGameProgressDao,
         gameDao: GameDao,
         friendzonedProgressRepository: FriendzonedProgressRepository,
+        userRepository: UserRepository,
     ): ChapterRepository {
         return ChapterRepositoryImpl(
             chapterApi,
@@ -81,6 +83,7 @@ object ChapterDataModule {
             userGameProgressDao,
             gameDao,
             friendzonedProgressRepository,
+            userRepository,
         )
     }
 }

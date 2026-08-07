@@ -180,6 +180,37 @@ class GamePreviewViewModelTest {
     }
 
     @Test
+    fun `preview button is only visible for administrators`() = runTest {
+        val viewModel = createViewModel()
+        backgroundScope.launch { viewModel.isPreviewVisible.collect { } }
+        advanceUntilIdle()
+        assertFalse(viewModel.isPreviewVisible.value)
+
+        userRoleRepository.set(UserRole.ADMINISTRATOR)
+        advanceUntilIdle()
+        assertTrue(viewModel.isPreviewVisible.value)
+    }
+
+    @Test
+    fun `preview download failure hides the preview button`() = runTest {
+        gameRepository.setGame(TestFixtures.GAME_ID, TestFixtures.gameCatalog())
+        gameRepository.setDownloadLink(
+            TestFixtures.GAME_ID,
+            Result.failure(IllegalStateException("access_denied")),
+        )
+        val viewModel = createViewModel(connectedUser = true)
+        backgroundScope.launch { viewModel.isPreviewVisible.collect { } }
+        backgroundScope.launch { viewModel.game.collect { } }
+        userRoleRepository.set(UserRole.ADMINISTRATOR)
+        advanceUntilIdle()
+        assertTrue(viewModel.isPreviewVisible.value)
+
+        viewModel.onAction(GamePreviewAction.OnDownloadPreview)
+        advanceUntilIdle()
+        assertFalse(viewModel.isPreviewVisible.value)
+    }
+
+    @Test
     fun `onAction OnToggleMenuSound toggles persisted muted state`() = runTest {
         val viewModel = createViewModel()
         backgroundScope.launch { viewModel.isMenuSoundMuted.collect { } }

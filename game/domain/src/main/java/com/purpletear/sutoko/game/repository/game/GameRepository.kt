@@ -11,7 +11,16 @@ interface GameRepository {
     fun observeUserGames(): Flow<List<GameCatalog>>
     fun observeGame(id: String): Flow<GameCatalog?>
 
-    suspend fun getDownloadLink(gameId: String, userId: String?, userToken: String?): Result<String>
+    /**
+     * @param preview Admin-only preview archive (all chapters incl. unreleased).
+     * Requires a valid admin [userToken]; [userId] is ignored in that case.
+     */
+    suspend fun getDownloadLink(
+        gameId: String,
+        userId: String?,
+        userToken: String?,
+        preview: Boolean = false,
+    ): Result<String>
     suspend fun syncOfficialGames(languageTag: String): Result<Unit>
     suspend fun syncUserGames(languageTag: String): Result<Unit>
 

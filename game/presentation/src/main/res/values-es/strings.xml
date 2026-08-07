@@ -201,6 +201,7 @@
     <string name="game_presentation_insufficient_funds_alert_description">No tienes suficientes monedas para comprar este artículo.</string>
     <string name="game_presentation_insufficient_funds_alert_button">Continuar</string>
     <string name="game_presentation_game_story_chapters_button_chapters">Capítulos</string>
+    <string name="game_presentation_game_preview_download_preview">Descargar vista previa</string>
     <string name="game_presentation_game_story_chapters_button_chapters_count">%1$d capítulos</string>
 
 </resources>

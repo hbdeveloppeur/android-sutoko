@@ -4,6 +4,7 @@ import com.purpletear.game.data.remote.dto.DownloadLinkResponseDto
 import com.purpletear.game.data.remote.dto.GameDto
 import retrofit2.Response
 import retrofit2.http.GET
+import retrofit2.http.Header
 import retrofit2.http.Path
 import retrofit2.http.Query
 
@@ -52,6 +53,7 @@ interface GameApi {
     suspend fun getStory(
         @Path("gameId") gameId: String,
         @Query("languageCode") languageCode: String,
+        @Header("Authorization") authorization: String? = null,
     ): Response<GameDto>
 
     /**
@@ -61,7 +63,10 @@ interface GameApi {
      * @return A Response containing a StoriesResponseDto with a list of GameDto objects in the "story" field.
      */
     @GET("portal/stories/official")
-    suspend fun getOfficialGames(@Query("languageCode") languageCode: String): List<GameDto>
+    suspend fun getOfficialGames(
+        @Query("languageCode") languageCode: String,
+        @Header("Authorization") authorization: String? = null,
+    ): List<GameDto>
 
     @GET("portal/user/{userId}/games")
     suspend fun getOneUserGames(
@@ -91,6 +96,8 @@ interface GameApi {
      * @param gameId The ID of the game to download
      * @param userId The ID of the user requesting the download
      * @param userToken The token of the user requesting the download
+     * @param preview Admin-only: download the preview archive (all chapters incl. unreleased).
+     * Requires a valid admin userToken; any error must be treated as "feature unavailable".
      * @return A Response containing a DownloadLinkResponseDto with the download link in the "link" field
      */
     @GET("api/story/{gameId}/download-link")
@@ -98,5 +105,6 @@ interface GameApi {
         @Path("gameId") gameId: String,
         @Query("userId") userId: String?,
         @Query("userToken") userToken: String?,
+        @Query("preview") preview: Boolean? = null,
     ): DownloadLinkResponseDto
 }

@@ -41,6 +41,8 @@ class CatalogSyncCoordinator @Inject constructor(
                 val catalogs = gameRepository.observeOfficialGames().first()
                 gameInstallRepository.ensureBuiltInGamesInstalled(catalogs)
             }
-            .onFailure { Log.w("CatalogSyncCoordinator", "Catalog sync failed", it) }
+            .onFailure {
+                Log.w("CatalogSyncCoordinator", "Catalog sync failed", it)
+            }
     }
 }
