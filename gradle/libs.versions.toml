@@ -1,6 +1,6 @@
 [versions]
 anrwatchdog = "1.4.0"
-agp = "8.5.2"
+agp = "8.10.1"
 kotlin = "2.0.21"
 accompanistInsets = "0.30.1"
 airbnb-lottie = "6.0.0"

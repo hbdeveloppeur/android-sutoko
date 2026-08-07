@@ -18,12 +18,12 @@ if (localPropertiesFile.exists()) {
 
 
 android {
-    compileSdk 35
+    compileSdk 36
 
     defaultConfig {
         applicationId "fr.purpletear.sutoko"
         minSdkVersion 24
-        targetSdk 35
+        targetSdk 36
         versionCode rootProject.versionCode
         versionName "Your New Turn"
         vectorDrawables.useSupportLibrary true

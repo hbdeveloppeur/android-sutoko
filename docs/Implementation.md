@@ -2,8 +2,19 @@ This file list messages from our human testers - it's features or fixes to imple
 You will have to create a git branch if the current branch is main for that work and switch on
 it.
 
-## Task 1 : Google sent us 3 messages ->
+## Task 1 : Google sent us 3 messages -> [DONE]
 
+Status (2026-08-07, branch `feat/target-sdk-36`):
+- Message 1 (target API 35): already satisfied.
+- Message 2 (Play Billing >= 8.0.0): already satisfied — `billing = "8.0.0"` in
+  `gradle/libs.versions.toml`, resolved as `billing-ktx:8.0.0` in `:platform:play`.
+- Message 3 (target API 36): implemented — `compileSdk`/`targetSdk` bumped 35 -> 36
+  in all 37 module build files; AGP unified at 8.10.1 (`agp` in libs.versions.toml,
+  duplicate `classpath libs.gradle` removed from root buildscript). Validated with
+  `./gradlew assembleDebug --no-build-cache` (BUILD SUCCESSFUL) and
+  `:platform:play:testDebugUnitTest` (BUILD SUCCESSFUL).
+
+Original messages:
 Message 1  : L'appli doit cibler Android 15 (niveau d'API 35) ou une version ultérieure
 Pour offrir une expérience sécurisée aux utilisateurs, Google Play exige que toutes les applis
 répondent aux exigences du niveau d'API cible.

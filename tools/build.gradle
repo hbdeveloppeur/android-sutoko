@@ -6,11 +6,11 @@ plugins {
 
 android {
     namespace 'purpletear.fr.purpleteartools'
-    compileSdk 35
+    compileSdk 36
 
     defaultConfig {
         minSdk 21
-        targetSdk 35
+        targetSdk 36
         consumerProguardFiles "consumer-rules.pro"
         multiDexEnabled true
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"

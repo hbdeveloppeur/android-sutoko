@@ -7,7 +7,7 @@ plugins {
 
 android {
     namespace = "com.purpletear.sutoko.analytics.data"
-    compileSdk = 35
+    compileSdk = 36
 
     defaultConfig {
         minSdk = 24
