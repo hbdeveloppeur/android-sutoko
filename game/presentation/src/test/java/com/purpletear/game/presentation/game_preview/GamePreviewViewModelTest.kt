@@ -24,6 +24,7 @@ import com.purpletear.game.presentation.game_preview.fakes.TestFixtures
 import com.purpletear.game.presentation.game_preview.handlers.GamePreviewPurchaseHandler
 import com.purpletear.game.presentation.model.GameUiError
 import com.purpletear.sutoko.domain.model.User
+import com.purpletear.sutoko.game.exception.GameDownloadForbiddenException
 import com.purpletear.sutoko.game.model.Chapter
 import com.purpletear.sutoko.game.model.UserRole
 import com.purpletear.sutoko.game.usecase.DownloadGameUseCase
@@ -193,7 +194,26 @@ class GamePreviewViewModelTest {
     }
 
     @Test
-    fun `preview download failure hides the preview button`() = runTest {
+    fun `preview download forbidden hides the preview button definitively`() = runTest {
+        gameRepository.setGame(TestFixtures.GAME_ID, TestFixtures.gameCatalog())
+        gameRepository.setDownloadLink(
+            TestFixtures.GAME_ID,
+            Result.failure(GameDownloadForbiddenException()),
+        )
+        val viewModel = createViewModel(connectedUser = true)
+        backgroundScope.launch { viewModel.isPreviewVisible.collect { } }
+        backgroundScope.launch { viewModel.game.collect { } }
+        userRoleRepository.set(UserRole.ADMINISTRATOR)
+        advanceUntilIdle()
+        assertTrue(viewModel.isPreviewVisible.value)
+
+        viewModel.onAction(GamePreviewAction.OnDownloadPreview)
+        advanceUntilIdle()
+        assertFalse(viewModel.isPreviewVisible.value)
+    }
+
+    @Test
+    fun `transient preview download failure keeps the button visible and shows an error`() = runTest {
         gameRepository.setGame(TestFixtures.GAME_ID, TestFixtures.gameCatalog())
         gameRepository.setDownloadLink(
             TestFixtures.GAME_ID,
@@ -206,9 +226,15 @@ class GamePreviewViewModelTest {
         advanceUntilIdle()
         assertTrue(viewModel.isPreviewVisible.value)
 
-        viewModel.onAction(GamePreviewAction.OnDownloadPreview)
+        viewModel.events.test {
+            viewModel.onAction(GamePreviewAction.OnDownloadPreview)
+            assertEquals(
+                GamePreviewEvent.ShowError(GameUiError.DownloadUnknown),
+                awaitItem(),
+            )
+        }
         advanceUntilIdle()
-        assertFalse(viewModel.isPreviewVisible.value)
+        assertTrue(viewModel.isPreviewVisible.value)
     }
 
     @Test

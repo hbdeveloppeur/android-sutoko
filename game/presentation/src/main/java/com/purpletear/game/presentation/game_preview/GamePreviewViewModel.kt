@@ -764,10 +764,22 @@ class GamePreviewViewModel @Inject constructor(
         }
     }
 
+    /**
+     * Only a definitive server "no" ([GameUiError.DownloadForbidden], HTTP 403)
+     * hides the feature, per backend contract. Transient failures (network,
+     * 5xx, user token not loaded yet) keep the button alive and surface an
+     * error toast, so a retry is one tap away - hiding on a flaky call made
+     * the feature look dead.
+     */
     private fun onPreviewDownloadFailure(error: Throwable) {
-        GamePreviewLogger.e("DOWN", error) { "preview download failed for gameId=$gameId, hiding feature" }
+        GamePreviewLogger.e("DOWN", error) { "preview download failed for gameId=$gameId" }
         logger.exception(error) { "Preview download failed for gameId=$gameId" }
-        previewFeatureHidden.value = true
+        val uiError = GameUiError.fromDownloadError(error)
+        if (uiError == GameUiError.DownloadForbidden) {
+            previewFeatureHidden.value = true
+        } else {
+            sendEvent(GamePreviewEvent.ShowError(uiError))
+        }
     }
 
     private fun onDeleteGame() {
