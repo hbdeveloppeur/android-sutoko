@@ -595,6 +595,14 @@ class Phrase : Parcelable {
     }
 
     /**
+     * Determines if the Phrase is a call to open the Play Store in-app review flow
+     * @return Boolean
+     */
+    fun isReviewRequest(): Boolean {
+        return sentence.replace(" ", "") == "[REVIEW]"
+    }
+
+    /**
      * Determines if the Phrase is a call to start the Bryan Game
      * @return Boolean
      */

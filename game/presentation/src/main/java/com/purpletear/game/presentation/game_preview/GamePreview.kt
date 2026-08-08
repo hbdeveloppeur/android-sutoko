@@ -530,7 +530,8 @@ fun GamePreview(
 
                                 // Admin-only: downloads the preview archive (all chapters
                                 // incl. unreleased). Hidden permanently on any failure.
-                                if (isPreviewVisible) {
+                                // Friendzoned games have no preview archive: never show it.
+                                if (isPreviewVisible && !isFriendzoned) {
                                     GamePreviewButton(
                                         modifier = Modifier
                                             .fillMaxWidth(),

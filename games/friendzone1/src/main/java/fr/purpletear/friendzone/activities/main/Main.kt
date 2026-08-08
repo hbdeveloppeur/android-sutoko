@@ -20,6 +20,7 @@ import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import com.bumptech.glide.Glide
 import com.example.sharedelements.SutokoSharedElementsData
+import com.google.android.play.core.review.ReviewManagerFactory
 import fr.purpletear.friendzone.Data
 import fr.purpletear.friendzone.R
 import fr.purpletear.friendzone.activities.game.Game
@@ -655,6 +656,11 @@ class Main : AppCompatActivity(), MainInterface {
             return
         }
 
+        if (DiscussionHandler.execute("Le serveur demande un avis", p.isReviewRequest())) {
+            requestInAppReview(p, isTest)
+            return
+        }
+
         if (DiscussionHandler.execute("Lancement du jeu contre Bryan", p.isSaveZoeGame())) {
             model.currentPhrase = model.getAnswer(p)
             val i = Intent(this@Main, Game::class.java)
@@ -825,6 +831,46 @@ class Main : AppCompatActivity(), MainInterface {
         i.visibility = View.INVISIBLE
     }
 
+
+    /**
+     * Launches the Google Play in-app review flow.
+     * The story is paused until the flow is dismissed; a safety timeout guarantees
+     * the continuation runs exactly once so the chapter can never freeze.
+     */
+    private fun requestInAppReview(p: Phrase, isTest: Boolean) {
+        var resumed = false
+
+        fun resume() {
+            if (resumed || isFinishing) {
+                return
+            }
+            resumed = true
+            discussForward(p, isTest)
+        }
+
+        if (isTest) {
+            resume()
+            return
+        }
+
+        val timeout = object : Runnable2("Delai de securite de la demande d'avis", 4000) {
+            override fun run() {
+                resume()
+            }
+        }
+        model.mh.push(timeout)
+        model.mh.run(timeout)
+
+        val reviewManager = ReviewManagerFactory.create(this)
+        reviewManager.requestReviewFlow().addOnCompleteListener { request ->
+            if (request.isSuccessful) {
+                reviewManager.launchReviewFlow(this, request.result)
+                    .addOnCompleteListener { resume() }
+            } else {
+                resume()
+            }
+        }
+    }
 
     /**
      * Testes all array of the current chapter

@@ -2,4 +2,4 @@ This file list messages from our human testers - it's features or fixes to imple
 You will have to create a git branch if the current branch is main for that work and switch on
 it.
 
-## Smart way to ask
+## We want to change the app icon.
