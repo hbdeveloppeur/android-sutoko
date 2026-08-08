@@ -57,6 +57,7 @@ import com.purpletear.game.presentation.game_play.components.choices_box.MakeACh
 import com.purpletear.game.presentation.game_play.components.image_viewer.ImageViewerOverlay
 import com.purpletear.game.presentation.game_play.components.image_viewer.SwipeToDismissDirection
 import com.purpletear.game.presentation.game_play.components.manga.MangaPageScreen
+import com.purpletear.game.presentation.game_play.components.visual_novel.VisualNovelOverlay
 import com.purpletear.game.presentation.game_play.mapper.Message
 import com.purpletear.game.presentation.game_play.mapper.characterId
 import com.purpletear.game.presentation.game_play.state.GameUiState
@@ -91,6 +92,8 @@ internal fun SmsGameScreen(
     onMangaPageDismissed: () -> Unit = {},
     onToggleChoicesDarkMode: () -> Unit = {},
     onFakeNotificationDismissed: () -> Unit = {},
+    onVisualNovelDismissed: () -> Unit = {},
+    onVisualNovelDialogSound: (String) -> Unit = {},
     onHoldPauseChanged: (Boolean) -> Unit = {},
     onImageViewerVisibilityChanged: (Boolean) -> Unit = {},
     onAdvanceOnTap: () -> Unit = {},
@@ -254,6 +257,22 @@ internal fun SmsGameScreen(
             }
         }
 
+        AnimatedVisibility(
+            visible = state.visualNovel != null,
+            enter = fadeIn(animationSpec = tween(durationMillis = VISUAL_NOVEL_FADE_DURATION_MS)),
+            exit = fadeOut(animationSpec = tween(durationMillis = VISUAL_NOVEL_FADE_DURATION_MS))
+        ) {
+            state.visualNovel?.let { visualNovel ->
+                key(visualNovel) {
+                    VisualNovelOverlay(
+                        visualNovel = visualNovel,
+                        onDismiss = onVisualNovelDismissed,
+                        onDialogSound = onVisualNovelDialogSound,
+                    )
+                }
+            }
+        }
+
         HoldPausedIndicator(visible = state.isHoldPaused)
 
         AnimatedVisibility(
@@ -278,6 +297,7 @@ internal fun SmsGameScreen(
 }
 
 private const val LOADING_FADE_DURATION_MS = 280
+private const val VISUAL_NOVEL_FADE_DURATION_MS = 400
 private const val CHOICE_FADE_DURATION_MS = 280
 
 @Composable

@@ -1,6 +1,7 @@
 package com.purpletear.sutoko.game.engine
 
 import androidx.annotation.Keep
+import com.purpletear.sutoko.game.model.chapter.Node
 
 /**
  * Effects returned by handlers that the engine applies to state.
@@ -185,6 +186,21 @@ sealed class HandlerEffect {
         val imageUrl: String?,
         val characterId: Int?,
         val durationMs: Long
+    ) : HandlerEffect()
+
+    /**
+     * Show the visual novel overlay over a dimmed scrim. Carries the full display payload;
+     * the presentation layer renders it, plays [sounds] on parallel channels, cycles [dialogs]
+     * on their own timing, and parks until the player dismisses the overlay (the engine is
+     * parked by a following [HandlerCommand.AwaitVisualNovelDismissal]).
+     */
+    @Keep
+    data class ShowVisualNovel(
+        val title: String?,
+        val layers: List<Node.VisualNovel.Layer>,
+        val dialogs: List<Node.VisualNovel.Dialog>,
+        val sounds: List<Node.VisualNovel.Sound>,
+        val theme: Node.VisualNovel.Theme,
     ) : HandlerEffect()
 
     /**

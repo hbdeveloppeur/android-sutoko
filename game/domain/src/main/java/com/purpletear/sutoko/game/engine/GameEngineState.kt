@@ -51,6 +51,17 @@ sealed class GameEngineState {
         val currentNodeId: String
     ) : GameEngineState()
 
+    /**
+     * Engine is parked on a visual novel overlay until the player dismisses it.
+     * Distinct from [AwaitingInput] so the choice UI is not shown. The next node is
+     * resolved only when [GameEngine.resumeFromVisualNovel] is called.
+     */
+    @Keep
+    data class AwaitingVisualNovelDismissal(
+        val chapterCode: String,
+        val currentNodeId: String
+    ) : GameEngineState()
+
     @Keep
     data class ChapterFinished(
         val chapterCode: String

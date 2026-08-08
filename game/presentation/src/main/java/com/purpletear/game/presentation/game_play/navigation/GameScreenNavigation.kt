@@ -84,6 +84,8 @@ internal fun NavGraphBuilder.gameScreen(
         onMangaPageDismissed = viewModel::onMangaPageDismissed,
         onToggleChoicesDarkMode = viewModel::onToggleChoicesDarkMode,
         onFakeNotificationDismissed = viewModel::onFakeNotificationDismissed,
+        onVisualNovelDismissed = viewModel::onVisualNovelDismissed,
+        onVisualNovelDialogSound = viewModel::playVisualNovelDialogSound,
         onHoldPauseChanged = viewModel::onHoldPauseChanged,
         onImageViewerVisibilityChanged = viewModel::onImageViewerVisibilityChanged,
         onAdvanceOnTap = viewModel::onAdvanceOnTap,

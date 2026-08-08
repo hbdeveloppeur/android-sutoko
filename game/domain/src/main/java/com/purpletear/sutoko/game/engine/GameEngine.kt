@@ -49,6 +49,7 @@ class GameEngine @Inject constructor(
     private var availableChoices: List<HandlerEffect.ShowChoices.Choice> = emptyList()
     private var previousNode: Node? = null
     private var parkedMangaNodeId: String? = null
+    private var parkedVisualNovelNodeId: String? = null
 
     /**
      * Resets the engine to a clean state.
@@ -62,6 +63,7 @@ class GameEngine @Inject constructor(
         currentGameId = null
         previousNode = null
         parkedMangaNodeId = null
+        parkedVisualNovelNodeId = null
         _state.value = GameEngineState.Idle
         _messages.value = emptyList()
         GameEngineLogger.d("GAME") { "Engine reset" }
@@ -160,6 +162,7 @@ class GameEngine @Inject constructor(
         availableChoices = emptyList()
         previousNode = null
         parkedMangaNodeId = null
+        parkedVisualNovelNodeId = null
 
         GameEngineLogger.d("GAME") { "Starting chapter ${graph.chapterCode} at node $currentNodeId" }
         GameEngineLogger.kimi { "CHAPTER_STARTED chapterCode=${graph.chapterCode} startNode=$currentNodeId" }
@@ -196,6 +199,7 @@ class GameEngine @Inject constructor(
         _messages.value = emptyList()
         previousNode = null
         parkedMangaNodeId = null
+        parkedVisualNovelNodeId = null
 
         _state.value = GameEngineState.Playing(
             chapterCode = graph.chapterCode,
@@ -393,6 +397,12 @@ class GameEngine @Inject constructor(
                 awaitMangaDismissal(command, script, context)
                 false
             }
+
+            is HandlerCommand.AwaitVisualNovelDismissal -> {
+                GameEngineLogger.d("CMD") { "AwaitVisualNovelDismissal at ${context.nodeId}" }
+                awaitVisualNovelDismissal(command, script, context)
+                false
+            }
         }
     }
 
@@ -523,6 +533,70 @@ class GameEngine @Inject constructor(
             GameEngineLogger.d("INPT") { "Manga page dismissed — resuming from $nodeId" }
 
             parkedMangaNodeId = null
+            isPaused = false
+            _state.value = GameEngineState.Playing(
+                chapterCode = graph.chapterCode,
+                currentNodeId = nodeId
+            )
+
+            val ctx = prepareExecutionContext(nodeId) ?: return@withLock
+            navigateToNext(ctx, null)
+        }
+    }
+
+    /**
+     * Handles the AwaitVisualNovelDismissal command: validates position, parks the engine, and
+     * records the node so [resumeFromVisualNovel] can resolve the next node later.
+     * The overlay payload has already been emitted by a preceding ShowVisualNovel effect, so it
+     * is visible while the engine is parked; the next node is intentionally NOT resolved here.
+     */
+    private fun awaitVisualNovelDismissal(
+        command: HandlerCommand.AwaitVisualNovelDismissal,
+        script: HandlerScript,
+        context: ExecutionContext
+    ) {
+        val commandIndex = script.commands.indexOf(command)
+
+        check(commandIndex == script.commands.lastIndex) {
+            "Invariant violation: AwaitVisualNovelDismissal must be the last command. " +
+                    "Found ${script.commands.size - commandIndex - 1} orphaned commands."
+        }
+
+        isPaused = true
+        parkedVisualNovelNodeId = context.nodeId
+        _state.value = GameEngineState.AwaitingVisualNovelDismissal(
+            chapterCode = context.graph.chapterCode,
+            currentNodeId = context.nodeId
+        )
+
+        GameEngineLogger.d("INPT") {
+            "Parking for visual novel at ${context.nodeId} — next node deferred until dismiss"
+        }
+    }
+
+    /**
+     * Resumes execution after the player dismissed the visual novel overlay.
+     *
+     * Resolves the next node via the normal navigation path (single edge, choice, chapter end,
+     * or error) without clearing the message history. No-op when the engine is not parked on a
+     * visual novel node, so the UI can call it on every overlay dismiss without tracking which
+     * one is gating.
+     */
+    suspend fun resumeFromVisualNovel() {
+        inputMutex.withLock {
+            val nodeId = parkedVisualNovelNodeId
+            if (nodeId == null || state.value !is GameEngineState.AwaitingVisualNovelDismissal) {
+                GameEngineLogger.d("INPT") { "resumeFromVisualNovel ignored — engine not parked on a visual novel" }
+                return@withLock
+            }
+
+            val graph = checkNotNull(currentGraph) {
+                "Precondition violation: currentGraph is null while resuming from visual novel"
+            }
+
+            GameEngineLogger.d("INPT") { "Visual novel dismissed — resuming from $nodeId" }
+
+            parkedVisualNovelNodeId = null
             isPaused = false
             _state.value = GameEngineState.Playing(
                 chapterCode = graph.chapterCode,
@@ -720,5 +794,6 @@ class GameEngine @Inject constructor(
         is Node.Code -> handlerFactory.getHandler(NodeType.CODE)
         is Node.IntroSentence -> handlerFactory.getHandler(NodeType.INTRO_SENTENCE)
         is Node.FakeNotification -> handlerFactory.getHandler(NodeType.FAKE_NOTIFICATION)
+        is Node.VisualNovel -> handlerFactory.getHandler(NodeType.VISUAL_NOVEL)
     }
 }

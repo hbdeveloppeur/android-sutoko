@@ -74,4 +74,20 @@ sealed class HandlerCommand {
      */
     @Keep
     data object AwaitMangaDismissal : HandlerCommand()
+
+    /**
+     * Halt execution and park the engine until the player dismisses the visual novel overlay.
+     *
+     * Contract:
+     * - MUST be the last command in the script (enforced by the engine, like [AwaitInput]).
+     * - Halts the script: no further command runs and the engine does NOT navigate to the next node.
+     * - The engine transitions to [GameEngineState.AwaitingVisualNovelDismissal] and stays parked
+     *   until [GameEngine.resumeFromVisualNovel] is called (triggered by the overlay dismiss),
+     *   which then resolves the next node via the normal navigation path.
+     *
+     * Carries no payload: the overlay content is the [HandlerEffect.ShowVisualNovel]
+     * already emitted by a preceding [Emit].
+     */
+    @Keep
+    data object AwaitVisualNovelDismissal : HandlerCommand()
 }

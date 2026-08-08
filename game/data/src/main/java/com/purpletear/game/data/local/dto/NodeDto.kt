@@ -63,6 +63,10 @@ data class NodeDataDto(
     val backgroundColor: String? = null,
     @SerializedName("foregroundColor")
     val foregroundColor: String? = null,
+    val layers: List<VisualNovelLayerDto>? = null,
+    val dialogs: List<VisualNovelDialogDto>? = null,
+    val sounds: List<VisualNovelSoundDto>? = null,
+    val theme: VisualNovelThemeDto? = null,
 )
 
 @Keep
@@ -72,6 +76,48 @@ data class MangaMessageDto(
     val x: Float? = null,
     val y: Float? = null,
     val w: Float? = null,
+)
+
+@Keep
+data class VisualNovelLayerDto(
+    @SerializedName("assetId")
+    val assetId: Int? = null,
+    @SerializedName("storagePath")
+    val storagePath: String? = null,
+    val type: String? = null,
+)
+
+@Keep
+data class VisualNovelDialogDto(
+    val text: String? = null,
+    /** Milliseconds the dialog stays visible; null for the last one (stays until dismiss). */
+    val duration: Double? = null,
+    /** Milliseconds to wait before this dialog appears. */
+    val delay: Double? = null,
+    @SerializedName("soundAssetId")
+    val soundAssetId: Int? = null,
+    @SerializedName("soundStoragePath")
+    val soundStoragePath: String? = null,
+    @SerializedName("soundName")
+    val soundName: String? = null,
+    @SerializedName("soundDurationMs")
+    val soundDurationMs: Long? = null,
+)
+
+@Keep
+data class VisualNovelSoundDto(
+    @SerializedName("assetId")
+    val assetId: Int? = null,
+    @SerializedName("storagePath")
+    val storagePath: String? = null,
+    val volume: Float? = null,
+    val loop: Boolean? = null,
+)
+
+@Keep
+data class VisualNovelThemeDto(
+    val color: String? = null,
+    val opacity: Float? = null,
 )
 
 @Keep

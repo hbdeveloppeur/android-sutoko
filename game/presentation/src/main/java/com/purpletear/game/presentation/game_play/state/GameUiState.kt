@@ -47,6 +47,21 @@ data class GameUiState(
     val isChoicesDarkMode: Boolean = true,
     val isHoldPaused: Boolean = false,
     val fakeNotification: FakeNotificationUi? = null,
+    val visualNovel: VisualNovelUi? = null,
+)
+
+/**
+ * Visual novel overlay payload: layered images/videos over a dimmed scrim, a glowing [title],
+ * and [dialogs] cycling on their own durations (a null duration stays until dismiss).
+ * Dismissing resumes the engine; sounds (handled by the ViewModel) fade out.
+ */
+@Keep
+data class VisualNovelUi(
+    val title: String?,
+    val layers: List<Node.VisualNovel.Layer>,
+    val dialogs: List<Node.VisualNovel.Dialog>,
+    val themeColorHex: String,
+    val themeOpacity: Float,
 )
 
 /**

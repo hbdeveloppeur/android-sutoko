@@ -191,6 +191,57 @@ sealed class Node {
         val isAutoTiming: Boolean = true,
         val isHesitating: Boolean = false,
     ) : Node()
+
+    /**
+     * A full-screen visual novel overlay: a rectangle stacking [layers] (images/videos,
+     * first at the bottom) over a 70% black scrim hiding the conversation, with a glowing
+     * [title] and [dialogs] that cycle on their own delays/durations (a null duration means
+     * the dialog stays until the overlay is dismissed). A dialog may carry a one-shot
+     * [Dialog.soundPath]: it plays when the dialog appears and the words are highlighted
+     * over the dialog duration. [sounds] play on parallel channels and fade out on dismiss.
+     * [theme] tints the gradient behind the texts. [delayMs] is the pre-show delay (mapped
+     * from authored `delay`; dialog delays/durations are authored in milliseconds).
+     */
+    @Keep
+    data class VisualNovel(
+        override val id: String,
+        val title: String?,
+        val layers: List<Layer>,
+        val dialogs: List<Dialog>,
+        val sounds: List<Sound>,
+        val theme: Theme,
+        val delayMs: Long = 0,
+    ) : Node() {
+        @Keep
+        data class Layer(
+            val path: String,
+            val assetId: Int? = null,
+            val isVideo: Boolean = false,
+        )
+
+        @Keep
+        data class Dialog(
+            val text: String,
+            val durationMs: Long? = null,
+            /** Delay before this dialog appears (after the previous one finished). */
+            val delayMs: Long = 0,
+            /** One-shot sound played when the dialog appears; drives the word highlighting. */
+            val soundPath: String? = null,
+        )
+
+        @Keep
+        data class Sound(
+            val path: String,
+            val volume: Float = 1f,
+            val loop: Boolean = false,
+        )
+
+        @Keep
+        data class Theme(
+            val colorHex: String = "#332F63",
+            val opacity: Float = 0.7f,
+        )
+    }
 }
 
 @Keep

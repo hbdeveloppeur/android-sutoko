@@ -14,6 +14,7 @@ import com.purpletear.game.presentation.BuildConfig
 import com.purpletear.game.presentation.R
 import com.purpletear.game.presentation.game_play.state.FakeNotificationUi
 import com.purpletear.game.presentation.game_play.state.GameUiState
+import com.purpletear.game.presentation.game_play.state.VisualNovelUi
 import com.purpletear.sutoko.core.domain.analytics.AnalyticsTracker
 import com.purpletear.sutoko.core.domain.logger.Logger
 import com.purpletear.sutoko.core.domain.logger.exception
@@ -22,6 +23,7 @@ import com.purpletear.sutoko.game.engine.GameEngineState
 import com.purpletear.sutoko.game.engine.GameMessage
 import com.purpletear.sutoko.game.engine.HandlerEffect
 import com.purpletear.sutoko.game.model.chapter.ChapterGraph
+import com.purpletear.sutoko.game.model.chapter.Node
 import com.purpletear.sutoko.game.model.chapter.extractCinematicBody
 import com.purpletear.sutoko.game.repository.ChapterRepository
 import com.purpletear.sutoko.game.repository.CharacterRepository
@@ -79,6 +81,15 @@ class GameEngineViewModel @Inject constructor(
 
     /** Non-looping sounds: each one gets its own player so effects can overlap. */
     private val oneShotSoundPlayers = mutableSetOf<MediaPlayer>()
+
+    /** Visual novel sounds: one player per authored sound, all fading out together on dismiss. */
+    private val visualNovelChannels = mutableListOf<VisualNovelChannel>()
+    private var visualNovelFadeJob: Job? = null
+
+    /** Visual novel dialog sounds: one-shots fired by the overlay as each dialog appears. */
+    private val visualNovelDialogPlayers = mutableSetOf<MediaPlayer>()
+
+    private data class VisualNovelChannel(val player: MediaPlayer, val volume: Float)
 
     private var vocalPlayer: MediaPlayer? = null
     private var vocalProgressJob: Job? = null
@@ -356,6 +367,11 @@ class GameEngineViewModel @Inject constructor(
                 updateState { it.copy(isMangaActive = true) }
             }
 
+            is GameEngineState.AwaitingVisualNovelDismissal -> {
+                // The overlay is driven by the ShowVisualNovel effect; nothing to flag here.
+                updateState { it.copy(isAwaitingInput = false, isAwaitingTap = false) }
+            }
+
             is GameEngineState.Playing -> {
                 updateState {
                     it.copy(
@@ -456,6 +472,8 @@ class GameEngineViewModel @Inject constructor(
 
             is HandlerEffect.ShowFakeNotification -> handleShowFakeNotification(effect)
 
+            is HandlerEffect.ShowVisualNovel -> handleShowVisualNovel(effect)
+
             else -> {
                 Log.d("GameEngine", "Received effect: ${effect::class.simpleName}")
             }
@@ -505,6 +523,8 @@ class GameEngineViewModel @Inject constructor(
         soundPlayer?.release()
         soundPlayer = null
         releaseOneShotSounds()
+        releaseVisualNovelSounds()
+        releaseVisualNovelDialogSounds()
         vocalPlayer?.release()
         vocalPlayer = null
         vocalProgressJob?.cancel()
@@ -676,6 +696,141 @@ class GameEngineViewModel @Inject constructor(
         updateState { it.copy(fakeNotification = null) }
     }
 
+    private fun handleShowVisualNovel(effect: HandlerEffect.ShowVisualNovel) {
+        updateState {
+            it.copy(
+                visualNovel = VisualNovelUi(
+                    title = effect.title,
+                    layers = effect.layers,
+                    dialogs = effect.dialogs,
+                    themeColorHex = effect.theme.colorHex,
+                    themeOpacity = effect.theme.opacity,
+                )
+            )
+        }
+        playVisualNovelSounds(effect.sounds)
+    }
+
+    /**
+     * Called when the player dismisses the visual novel overlay (dismiss button or back).
+     * Idempotent: clears the UI state first, fades the sounds out, then resumes the engine
+     * (which no-ops when it is not parked on a visual novel node).
+     */
+    fun onVisualNovelDismissed() {
+        if (_uiState.value.visualNovel == null) return
+        updateState { it.copy(visualNovel = null) }
+        fadeOutVisualNovelSounds()
+        releaseVisualNovelDialogSounds()
+        viewModelScope.launch { gameEngine.resumeFromVisualNovel() }
+    }
+
+    /**
+     * Plays the one-shot sound attached to a visual novel dialog (called by the overlay when
+     * the dialog appears). Fire-and-forget like [playOneShotSound], but with an async prepare
+     * because the path may be a remote URL when the media is not bundled in the archive.
+     */
+    fun playVisualNovelDialogSound(path: String) {
+        if (path.isBlank()) return
+        val player = try {
+            MediaPlayer().apply {
+                setDataSource(path)
+                setOnPreparedListener { it.start() }
+                setOnCompletionListener { mp ->
+                    visualNovelDialogPlayers.remove(mp)
+                    mp.release()
+                }
+                setOnErrorListener { mp, what, extra ->
+                    Log.e("GameEngine", "Failed to play visual novel dialog sound: $path (what=$what extra=$extra)")
+                    visualNovelDialogPlayers.remove(mp)
+                    mp.release()
+                    true
+                }
+                prepareAsync()
+            }
+        } catch (e: Exception) {
+            Log.e("GameEngine", "Failed to play visual novel dialog sound: $path", e)
+            return
+        }
+        visualNovelDialogPlayers += player
+    }
+
+    private fun releaseVisualNovelDialogSounds() {
+        visualNovelDialogPlayers.forEach { player ->
+            player.setOnPreparedListener(null)
+            player.setOnCompletionListener(null)
+            player.setOnErrorListener(null)
+            runCatching { player.stop() }
+            player.release()
+        }
+        visualNovelDialogPlayers.clear()
+    }
+
+    /**
+     * Every authored sound owns its player, so channels overlap freely and keep their own
+     * volume/loop settings. [fadeOutVisualNovelSounds] / [releaseVisualNovelSounds] cover teardown.
+     */
+    private fun playVisualNovelSounds(sounds: List<Node.VisualNovel.Sound>) {
+        releaseVisualNovelSounds()
+        sounds.forEach { sound ->
+            if (sound.path.isBlank()) return@forEach
+            val player = try {
+                MediaPlayer().apply {
+                    setDataSource(sound.path)
+                    isLooping = sound.loop
+                    setVolume(sound.volume, sound.volume)
+                    // Async prepare: sound.path may be a remote URL when the media is not
+                    // bundled in the archive, and a blocking prepare() would freeze the UI.
+                    setOnPreparedListener { it.start() }
+                    setOnErrorListener { mp, what, extra ->
+                        Log.e("GameEngine", "Failed to play visual novel sound: ${sound.path} (what=$what extra=$extra)")
+                        mp.release()
+                        true
+                    }
+                    prepareAsync()
+                }
+            } catch (e: Exception) {
+                Log.e("GameEngine", "Failed to play visual novel sound: ${sound.path}", e)
+                null
+            } ?: return@forEach
+            visualNovelChannels += VisualNovelChannel(player, sound.volume)
+        }
+    }
+
+    /** Stepped volume ramp to silence, then stop/release (GamePreviewMenuSoundEffect pattern). */
+    private fun fadeOutVisualNovelSounds() {
+        visualNovelFadeJob?.cancel()
+        val channels = visualNovelChannels.toList()
+        visualNovelChannels.clear()
+        if (channels.isEmpty()) return
+        visualNovelFadeJob = viewModelScope.launch {
+            val steps = (VISUAL_NOVEL_FADE_MS / VISUAL_NOVEL_FADE_STEP_MS).toInt()
+            repeat(steps) { step ->
+                val scale = 1f - (step + 1).toFloat() / steps
+                channels.forEach { channel ->
+                    runCatching {
+                        val volume = channel.volume * scale
+                        channel.player.setVolume(volume, volume)
+                    }
+                }
+                delay(VISUAL_NOVEL_FADE_STEP_MS)
+            }
+            channels.forEach { channel ->
+                runCatching { channel.player.stop() }
+                channel.player.release()
+            }
+        }
+    }
+
+    private fun releaseVisualNovelSounds() {
+        visualNovelFadeJob?.cancel()
+        visualNovelFadeJob = null
+        visualNovelChannels.forEach { channel ->
+            runCatching { channel.player.stop() }
+            channel.player.release()
+        }
+        visualNovelChannels.clear()
+    }
+
     private fun handleChangeScene(effect: HandlerEffect.ChangeScene) {
         viewModelScope.launch {
             val scene = getSceneUseCase(effect.sceneId)
@@ -736,7 +891,7 @@ class GameEngineViewModel @Inject constructor(
     fun onHoldPauseChanged(held: Boolean) {
         val state = _uiState.value
         if (isFingerHeld == held) return
-        if (held && (state.isAwaitingInput || state.isCinematicActive || state.isMangaActive)) return
+        if (held && (state.isAwaitingInput || state.isCinematicActive || state.isMangaActive || state.visualNovel != null)) return
         isFingerHeld = held
         applyTimingGate()
     }
@@ -863,6 +1018,8 @@ class GameEngineViewModel @Inject constructor(
     private companion object {
         const val CHOICES_PREFS_FILE = "SUTOKO_CHOICES_DARK_MODE"
         const val CHOICES_DARK_MODE_KEY = "enabled"
+        const val VISUAL_NOVEL_FADE_MS = 600L
+        const val VISUAL_NOVEL_FADE_STEP_MS = 50L
     }
 }
 

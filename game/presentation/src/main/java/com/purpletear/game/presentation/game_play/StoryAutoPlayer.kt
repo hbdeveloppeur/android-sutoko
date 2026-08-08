@@ -16,8 +16,8 @@ private const val KIMI_TAG = "KIMI"
  * Debug-only auto-driver for an SMS story session.
  *
  * When enabled, observes [GameUiState] and submits the first available choice, advances
- * tap-to-continue points, dismisses manga pages, skips cinematics, and clicks through to
- * the next chapter. It is intended for Kimi-cli / QA automation and is a no-op in release
+ * tap-to-continue points, dismisses manga pages and visual novel overlays, skips cinematics,
+ * and clicks through to the next chapter. It is intended for Kimi-cli / QA automation and is a no-op in release
  * builds.
  *
  * Reactions are plain sequential ifs (not a `when`): states such as awaiting-tap and
@@ -59,6 +59,7 @@ internal class StoryAutoPlayer(
         reactToChoices(state)
         reactToTap(state)
         reactToManga(state)
+        reactToVisualNovel(state)
         reactToCinematic(state)
         reactToChapterEnd(state)
     }
@@ -94,6 +95,13 @@ internal class StoryAutoPlayer(
         delay(AUTO_PLAY_CONTINUE_DELAY_MS)
         logKimi("MANGA_DISMISSED chapterCode=${state.chapterCode.orEmpty()}")
         viewModel.onMangaPageDismissed()
+    }
+
+    private suspend fun reactToVisualNovel(state: GameUiState) {
+        if (state.visualNovel == null) return
+        delay(AUTO_PLAY_CONTINUE_DELAY_MS)
+        logKimi("VISUAL_NOVEL_DISMISSED chapterCode=${state.chapterCode.orEmpty()}")
+        viewModel.onVisualNovelDismissed()
     }
 
     private suspend fun reactToCinematic(state: GameUiState) {

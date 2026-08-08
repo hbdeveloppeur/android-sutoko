@@ -20,6 +20,7 @@ import com.purpletear.sutoko.game.engine.handlers.SceneNodeHandler
 import com.purpletear.sutoko.game.engine.handlers.SoundNodeHandler
 import com.purpletear.sutoko.game.engine.handlers.StartNodeHandler
 import com.purpletear.sutoko.game.engine.handlers.TrophyNodeHandler
+import com.purpletear.sutoko.game.engine.handlers.VisualNovelNodeHandler
 import com.purpletear.sutoko.game.engine.handlers.createFakeGameMemory
 import com.purpletear.sutoko.game.engine.message.GameMessageText
 import com.purpletear.sutoko.game.repository.FakeCharacterRepository
@@ -135,7 +136,8 @@ class GameEngineStartFromNodeTest {
                 messageAudioDialogueHandler = MessageAudioDialogueNodeHandler(),
                 codeHandler = CodeNodeHandler(),
                 introSentenceHandler = IntroSentenceNodeHandler(),
-                fakeNotificationHandler = FakeNotificationNodeHandler()
+                fakeNotificationHandler = FakeNotificationNodeHandler(),
+                visualNovelHandler = VisualNovelNodeHandler(textProcessor)
             ),
             nodeResolver = nodeResolver,
             memory = memory,
