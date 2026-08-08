@@ -726,8 +726,8 @@ class GameEngineViewModel @Inject constructor(
 
     /**
      * Plays the one-shot sound attached to a visual novel dialog (called by the overlay when
-     * the dialog appears). Fire-and-forget like [playOneShotSound], but with an async prepare
-     * because the path may be a remote URL when the media is not bundled in the archive.
+     * the dialog appears). Fire-and-forget like [playOneShotSound]; the path is a local file
+     * bundled in the story's `assets/` directory, prepared asynchronously to stay non-blocking.
      */
     fun playVisualNovelDialogSound(path: String) {
         if (path.isBlank()) return
@@ -778,8 +778,8 @@ class GameEngineViewModel @Inject constructor(
                     setDataSource(sound.path)
                     isLooping = sound.loop
                     setVolume(sound.volume, sound.volume)
-                    // Async prepare: sound.path may be a remote URL when the media is not
-                    // bundled in the archive, and a blocking prepare() would freeze the UI.
+                    // Async prepare keeps the UI free even though the path is a local file
+                    // bundled in the story's assets/ directory.
                     setOnPreparedListener { it.start() }
                     setOnErrorListener { mp, what, extra ->
                         Log.e("GameEngine", "Failed to play visual novel sound: ${sound.path} (what=$what extra=$extra)")

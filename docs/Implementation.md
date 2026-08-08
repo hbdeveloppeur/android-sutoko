@@ -5,15 +5,30 @@ Do not touch :games:*
 
 You are an expert in UX/UI design.
 
-# Error in GamePreview: whatever we do sometimes clicking on "Download Preview" doesn't download it.
+# VisualNobel node fix required: the dialogs swap too fast creating a visual effect bug.
 
-**Status: FIXED** (branch `fix/game-preview-download-retry`)
+- DONE (branch `fix/visual-novel-dialog-swap`): dialogs now fade sequentially in
+  `VisualNovelOverlay.DialogText` — the current dialog fades out fully (300 ms), a 100 ms beat
+  holds on an empty dialog area, then the next dialog fades in. No more overlapping texts
+  mid-transition. Validated with `:game:presentation:assembleDebug --no-build-cache` (success).
 
-Root cause: any preview download failure (even transient: network timeout, 5xx, user token
-not yet loaded) permanently hid the button for the screen's lifetime, with zero user feedback.
-One flaky call made the feature look dead.
+# VisualNobel node: sound assets must load from the story directory "assets" (new bundled mechanism).
 
-Fix: `GamePreviewViewModel.onPreviewDownloadFailure` now only hides the feature on a definitive
-server 403 (`GameUiError.DownloadForbidden`, per backend contract). Transient failures keep the
-button visible and show an error toast, so retrying is one tap away.
-Validated: `:game:presentation:testDebugUnitTest` (102 tests, 0 failures, debug, no cache).
+- DONE (branch `fix/visual-novel-dialog-swap`): `parseVisualNovel` now resolves dialog
+  `soundPath` and ambient `sounds` through `ChapterGraphParser.resolveSoundPath()` — the same
+  mechanism as every other sound node: `<storyDir>/assets/<fileName>` first, legacy
+  `medias/sounds/` fallback, audio-extension guessing, always a local path (no more remote
+  URL fallback for sounds). Image/video layers keep the remote fallback. Stale "remote URL"
+  comments in `GameEngineViewModel` reworded. Tests updated in
+  `ChapterGraphParserVisualNovelTest` (8 tests). Validated with
+  `:game:data:testDebugUnitTest --no-build-cache` and `:game:presentation:assembleDebug
+  --no-build-cache` (both success).
+
+# VisualNobel node: remove the dismiss button, add a localized "Continuer >>" button under the card.
+
+- DONE (branch `fix/visual-novel-dialog-swap`): the top-right chevron `DismissButton` is gone.
+  A "Continue >>" text button (exact same affordance as CinematicScreen's "Skip >>": white 50%
+  alpha, 14sp, no ripple, 32x42dp touch padding, BottomCenter) now fades in under the card over
+  600 ms once the dialogs are done AND the 8 s minimum display delay has elapsed. Localized as
+  `game_presentation_visual_novel_continue` in en/fr/de/es. Scrim tap-to-dismiss unchanged.
+  Validated with `:game:presentation:assembleDebug --no-build-cache` (success).

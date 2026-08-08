@@ -20,7 +20,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -42,6 +41,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
@@ -68,13 +68,13 @@ private const val MAX_HEIGHT_FRACTION = 0.75f
 // Slightly above vertical center so the card feels higher on screen.
 private const val CARD_VERTICAL_BIAS = -0.15f
 private const val FRAME_ASPECT = 3f / 2f
-private const val DIALOG_FADE_MS = 400
-private const val DISMISS_FADE_IN_MS = 600
+private const val DIALOG_FADE_MS = 300
+// Beat on an empty dialog area between two dialogs, after the fade-out completes.
+private const val DIALOG_GAP_MS = 100L
+private const val CONTINUE_FADE_IN_MS = 600
 private const val DISMISS_MIN_DELAY_MS = 8_000L
-private const val DISMISS_BUTTON_ALPHA = 0f
 private val CornerRadius = 12.dp
 private val FallbackThemeColor = Color(0xFF332F63)
-private val DismissButtonSize = 18.dp
 private val UnspokenWordColor = Color.White.copy(alpha = 0.35f)
 
 @SuppressLint("UnusedBoxWithConstraintsScope")
@@ -98,7 +98,7 @@ internal fun VisualNovelOverlay(
         if (themeColor == Color.Black) Color.White else lerp(themeColor, Color.White, 0.62f)
     }
 
-    // The dismiss button fades in once the dialogs are done AND at least DISMISS_MIN_DELAY_MS
+    // The continue button fades in once the dialogs are done AND at least DISMISS_MIN_DELAY_MS
     // has elapsed: it must never appear earlier, whatever the authored dialog durations.
     var dialogsFinished by remember(visualNovel) { mutableStateOf(false) }
     var minDelayElapsed by remember(visualNovel) { mutableStateOf(false) }
@@ -106,7 +106,7 @@ internal fun VisualNovelOverlay(
         delay(DISMISS_MIN_DELAY_MS)
         minDelayElapsed = true
     }
-    val showDismiss = dialogsFinished && minDelayElapsed
+    val showContinue = dialogsFinished && minDelayElapsed
 
     Box(Modifier.fillMaxSize()) {
         Box(
@@ -114,11 +114,11 @@ internal fun VisualNovelOverlay(
                 .fillMaxSize()
                 .background(Color.Black.copy(alpha = SCRIM_ALPHA))
                 // Tapping outside the card dismisses the overlay, under the same conditions as
-                // the dismiss button (dialogs done AND minimum display delay elapsed).
+                // the continue button (dialogs done AND minimum display delay elapsed).
                 .clickable(
                     interactionSource = remember { MutableInteractionSource() },
                     indication = null,
-                    enabled = showDismiss,
+                    enabled = showContinue,
                     onClick = onDismiss
                 )
         )
@@ -205,26 +205,40 @@ internal fun VisualNovelOverlay(
                         onFinished = { dialogsFinished = true },
                     )
                 }
-
-                AnimatedVisibility(
-                    visible = showDismiss,
-                    enter = fadeIn(tween(DISMISS_FADE_IN_MS)),
-                    modifier = Modifier
-                        .align(Alignment.TopEnd)
-                        .padding(12.dp),
-                ) {
-                    DismissButton(onDismiss = onDismiss)
-                }
             }
         })
+
+        // "Continuer >>" under the card, fading in once the sequence is over (same affordance
+        // as the cinematic "Skip >>": dim white text, no ripple, generous touch padding).
+        AnimatedVisibility(
+            visible = showContinue,
+            enter = fadeIn(tween(CONTINUE_FADE_IN_MS)),
+            modifier = Modifier.align(Alignment.BottomCenter),
+        ) {
+            Text(
+                text = stringResource(R.string.game_presentation_visual_novel_continue),
+                color = Color.White.copy(alpha = 0.5f),
+                fontSize = 14.sp,
+                modifier = Modifier
+                    .testTag("visual_novel_continue")
+                    .clickable(
+                        interactionSource = remember { MutableInteractionSource() },
+                        indication = null,
+                        onClick = onDismiss,
+                    )
+                    .padding(horizontal = 32.dp, vertical = 42.dp),
+            )
+        }
     }
 }
 
 /**
  * Cycles through the dialogs: each one appears after its authored delay, holds for its authored
- * duration, then cross-fades to the next; the last dialog holds until the overlay is dismissed.
- * A dialog carrying a sound fires [onDialogSound] when it appears, and its words light up one
- * after another over its duration. [onFinished] fires once the last dialog is reached.
+ * duration, fades out fully, then the next fades in after a short beat on an empty dialog area
+ * (sequential fades: an overlapping cross-fade reads as a visual glitch). The last dialog holds
+ * until the overlay is dismissed. A dialog carrying a sound fires [onDialogSound] when it
+ * appears, and its words light up one after another over its duration. [onFinished] fires once
+ * the last dialog is reached.
  */
 @Composable
 private fun DialogText(
@@ -239,7 +253,8 @@ private fun DialogText(
         return
     }
 
-    // -1 means nothing is shown yet: the first dialog's authored delay is still running.
+    // -1 means nothing is shown: before the first dialog's delay, and during the beat
+    // between two dialogs while the previous one fades out.
     var dialogIndex by remember(visualNovel) { mutableIntStateOf(-1) }
     LaunchedEffect(dialogs) {
         for (index in dialogs.indices) {
@@ -249,6 +264,9 @@ private fun DialogText(
             if (index == dialogs.lastIndex) break
             val duration = dialogs[index].durationMs ?: break
             delay(duration)
+            // Fade the current dialog out fully and hold a beat before the next one appears.
+            dialogIndex = -1
+            delay(DIALOG_FADE_MS + DIALOG_GAP_MS)
         }
         if (dialogIndex == dialogs.lastIndex) onFinished()
     }
@@ -258,7 +276,7 @@ private fun DialogText(
         contentAlignment = Alignment.TopCenter,
     ) {
         // Invisible copies of every dialog reserve the height of the tallest one, so
-        // cross-fading between dialogs of different lengths never shifts the layout.
+        // fading between dialogs of different lengths never shifts the layout.
         dialogs.forEach { dialog ->
             Text(
                 text = dialog.text,
@@ -332,17 +350,3 @@ private fun highlightedWords(text: String, progress: Float): AnnotatedString {
     }
 }
 
-/** Small circular chevron button, top-right of the frame. */
-@Composable
-private fun DismissButton(onDismiss: () -> Unit, modifier: Modifier = Modifier) {
-    Icon(
-        painter = painterResource(R.drawable.game_arrow_carrot_right_alt),
-        contentDescription = null,
-        modifier = modifier
-            .size(DismissButtonSize)
-            .alpha(DISMISS_BUTTON_ALPHA)
-            .clickable(onClick = onDismiss)
-            .testTag("visual_novel_dismiss"),
-        tint = Color.Unspecified,
-    )
-}

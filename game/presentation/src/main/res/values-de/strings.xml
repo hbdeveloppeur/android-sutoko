@@ -169,6 +169,9 @@
     <!-- Cinematic -->
     <string name="game_presentation_cinematic_skip">Überspringen &gt;&gt;</string>
 
+    <!-- Visual novel -->
+    <string name="game_presentation_visual_novel_continue">Weiter &gt;&gt;</string>
+
     <!-- Game UI errors -->
     <string name="game_presentation_error_load_game">Die Geschichte konnte nicht geladen werden. Überprüfe deine Internetverbindung und versuche es erneut.</string>
     <string name="game_presentation_hold_paused">Pausiert</string>

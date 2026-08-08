@@ -169,6 +169,9 @@
     <!-- Cinematic -->
     <string name="game_presentation_cinematic_skip">Skip &gt;&gt;</string>
 
+    <!-- Visual novel -->
+    <string name="game_presentation_visual_novel_continue">Continue &gt;&gt;</string>
+
     <!-- Game UI errors -->
     <string name="game_presentation_error_load_game">Unable to load the story. Check your internet connection and try again.</string>
     <string name="game_presentation_hold_paused">Paused</string>

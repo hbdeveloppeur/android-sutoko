@@ -98,19 +98,12 @@ class ChapterGraphParserVisualNovelTest {
     }
 
     @Test
-    fun `visual-novel media falls back to remote URL when not bundled in the archive`() {
+    fun `visual-novel layers fall back to remote URL when not bundled in the archive`() {
         val data = gson.fromJson(
             """{
               "layers":[
                 {"assetId":11,"storagePath":"uploads/images/2026/08/bg.webp","type":"image"},
                 {"assetId":12,"storagePath":"uploads/videos/2026/08/rain.mp4","type":"video"}
-              ],
-              "sounds":[
-                {"assetId":21,"storagePath":"uploads/uploads/sounds/2026/08/wind.mp3","volume":1,"loop":false}
-              ],
-              "dialogs":[
-                {"text":"Écoute ça","duration":1301,
-                 "soundStoragePath":"uploads/uploads/sounds/2026/08/voice.mp3"}
               ]
             }""",
             JsonObject::class.java
@@ -120,11 +113,51 @@ class ChapterGraphParserVisualNovelTest {
 
         assertEquals("${SUTOKO_MEDIA_BASE_URL}uploads/images/2026/08/bg.webp", node.layers[0].path)
         assertEquals("${SUTOKO_MEDIA_BASE_URL}uploads/videos/2026/08/rain.mp4", node.layers[1].path)
-        assertEquals("${SUTOKO_MEDIA_BASE_URL}uploads/uploads/sounds/2026/08/wind.mp3", node.sounds[0].path)
-        assertEquals(
-            "${SUTOKO_MEDIA_BASE_URL}uploads/uploads/sounds/2026/08/voice.mp3",
-            node.dialogs[0].soundPath
+    }
+
+    @Test
+    fun `visual-novel sounds resolve to the bundled assets directory when missing`() {
+        // Like every other sound node: always a local assets/ path, subdirectories stripped,
+        // never a remote URL.
+        val assetsPath = gameAssetsDir().absolutePath
+        val data = gson.fromJson(
+            """{
+              "layers":[{"assetId":11,"storagePath":"./bg.webp","type":"image"}],
+              "sounds":[
+                {"assetId":21,"storagePath":"uploads/sounds/2026/08/wind.mp3","volume":1,"loop":false}
+              ],
+              "dialogs":[
+                {"text":"Écoute ça","duration":1301,
+                 "soundStoragePath":"uploads/sounds/2026/08/voice.mp3"}
+              ]
+            }""",
+            JsonObject::class.java
         )
+
+        val node = parse("vn-1", data).getNode("vn-1") as Node.VisualNovel
+
+        assertEquals("$assetsPath/wind.mp3", node.sounds[0].path)
+        assertEquals("$assetsPath/voice.mp3", node.dialogs[0].soundPath)
+    }
+
+    @Test
+    fun `visual-novel sounds fall back to the legacy medias-sounds directory`() {
+        val legacyDir = File(tempFolder.root, "game1/medias/sounds").apply { mkdirs() }
+        File(legacyDir, "wind.mp3").createNewFile()
+        File(legacyDir, "voice.mp3").createNewFile()
+        val data = gson.fromJson(
+            """{
+              "layers":[{"assetId":11,"storagePath":"./bg.webp","type":"image"}],
+              "sounds":[{"assetId":21,"storagePath":"./wind.mp3","volume":1,"loop":true}],
+              "dialogs":[{"text":"Écoute ça","soundStoragePath":"./voice.mp3"}]
+            }""",
+            JsonObject::class.java
+        )
+
+        val node = parse("vn-1", data).getNode("vn-1") as Node.VisualNovel
+
+        assertEquals(File(legacyDir, "wind.mp3").absolutePath, node.sounds[0].path)
+        assertEquals(File(legacyDir, "voice.mp3").absolutePath, node.dialogs[0].soundPath)
     }
 
     @Test

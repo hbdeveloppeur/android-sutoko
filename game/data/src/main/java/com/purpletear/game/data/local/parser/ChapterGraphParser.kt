@@ -347,9 +347,10 @@ object ChapterGraphParser {
     }
 
     /**
-     * Visual-novel media may be missing from the downloaded archive (the server export does
-     * not bundle those assets yet). Fall back to the remote media URL so the overlay can
-     * stream them; Coil, ExoPlayer and MediaPlayer all handle http(s) URIs.
+     * Visual-novel image/video layers may be missing from the downloaded archive. Fall back
+     * to the remote media URL so the overlay can stream them; Coil and ExoPlayer both handle
+     * http(s) URIs. Sounds don't use this: like every other sound node, they resolve through
+     * [resolveSoundPath] to the bundled `assets/` directory.
      */
     private fun resolveVisualNovelMediaPath(
         storagePath: String,
@@ -421,7 +422,7 @@ object ChapterGraphParser {
                     ?.takeIf { it.isNotEmpty() }
                     ?: return@mapNotNull null
                 val soundPath = dialog.soundStoragePath?.trim()?.takeIf { it.isNotEmpty() }
-                    ?.let { resolveVisualNovelMediaPath(it, gameId, legacyId, pathProvider) }
+                    ?.let { resolveSoundPath(it, gameId, legacyId, pathProvider) }
                 Node.VisualNovel.Dialog(
                     text = text,
                     // Durations are authored in milliseconds. When a sounded dialog has no
@@ -438,7 +439,7 @@ object ChapterGraphParser {
             .mapNotNull { sound ->
                 val path = sound.storagePath?.trim()?.takeIf { it.isNotEmpty() } ?: return@mapNotNull null
                 Node.VisualNovel.Sound(
-                    path = resolveVisualNovelMediaPath(path, gameId, legacyId, pathProvider),
+                    path = resolveSoundPath(path, gameId, legacyId, pathProvider),
                     volume = sound.volume?.coerceIn(0f, 1f) ?: 1f,
                     loop = sound.loop ?: false,
                 )
