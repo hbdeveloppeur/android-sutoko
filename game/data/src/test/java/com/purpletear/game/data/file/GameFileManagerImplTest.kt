@@ -3,12 +3,14 @@ package com.purpletear.game.data.file
 import com.purpletear.game.data.provider.AndroidGamePathProvider
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TemporaryFolder
 import java.io.BufferedReader
 import java.io.File
+import java.io.IOException
 import java.io.InputStreamReader
 import java.io.PrintWriter
 import java.net.ServerSocket
@@ -32,8 +34,8 @@ class GameFileManagerImplTest {
         val expectedGameDir = File(gamesDir, gameId)
         val scenesFile = File(expectedGameDir, "scenes/scenes.json")
         val archiveBytes = createZipArchiveBytes(
-            scenesFile.relativeTo(expectedGameDir).path,
-            "{}"
+            scenesFile.relativeTo(expectedGameDir).path to "{}",
+            "chapters/en/1a/nodes.json" to "[]"
         )
 
         val downloadUrl = startServer(archiveBytes)
@@ -60,7 +62,7 @@ class GameFileManagerImplTest {
         val pathProvider = FakeAndroidGamePathProvider(gamesDir)
         val fileManager = GameFileManagerImpl(pathProvider)
 
-        val archiveBytes = createZipArchiveBytes("../evil.json", "{}")
+        val archiveBytes = createZipArchiveBytes("../evil.json" to "{}")
         val downloadUrl = startServer(archiveBytes)
 
         var threw = false
@@ -77,14 +79,70 @@ class GameFileManagerImplTest {
         assertTrue("Expected SecurityException for path-traversing ZIP entry", threw)
     }
 
-    private fun startServer(body: ByteArray): String {
+    @Test
+    fun `downloadAndExtract rejects archive without chapter languages`() = runTest {
+        val gamesDir = temporaryFolder.newFolder("games")
+        val pathProvider = FakeAndroidGamePathProvider(gamesDir)
+        val fileManager = GameFileManagerImpl(pathProvider)
+        val gameId = "nochapters"
+
+        val archiveBytes = createZipArchiveBytes("scenes/scenes.json" to "{}")
+        val downloadUrl = startServer(archiveBytes)
+
+        var threw = false
+        try {
+            fileManager.downloadAndExtract(
+                gameId = gameId,
+                downloadUrl = downloadUrl,
+                onProgress = {}
+            )
+        } catch (e: IOException) {
+            threw = true
+        }
+
+        assertTrue("Expected IOException for archive without chapter languages", threw)
+        assertFalse(
+            "Broken archive must not be moved into the game directory",
+            File(gamesDir, gameId).exists()
+        )
+    }
+
+    @Test
+    fun `downloadAndExtract rejects truncated download`() = runTest {
+        val gamesDir = temporaryFolder.newFolder("games")
+        val pathProvider = FakeAndroidGamePathProvider(gamesDir)
+        val fileManager = GameFileManagerImpl(pathProvider)
+        val gameId = "truncated"
+
+        val archiveBytes = createZipArchiveBytes("chapters/en/1a/nodes.json" to "[]")
+        val downloadUrl = startServer(archiveBytes, reportedLength = archiveBytes.size + 1024)
+
+        var threw = false
+        try {
+            fileManager.downloadAndExtract(
+                gameId = gameId,
+                downloadUrl = downloadUrl,
+                onProgress = {}
+            )
+        } catch (e: IOException) {
+            threw = true
+        }
+
+        assertTrue("Expected IOException for truncated download", threw)
+        assertFalse(
+            "Truncated archive must not be moved into the game directory",
+            File(gamesDir, gameId).exists()
+        )
+    }
+
+    private fun startServer(body: ByteArray, reportedLength: Int = body.size): String {
         val server = ServerSocket(0)
         val port = server.localPort
 
         thread(isDaemon = true) {
             server.use { listener ->
                 listener.accept().use { socket ->
-                    serve(socket, body)
+                    serve(socket, body, reportedLength)
                 }
             }
         }
@@ -92,7 +150,7 @@ class GameFileManagerImplTest {
         return "http://127.0.0.1:$port/game.zip"
     }
 
-    private fun serve(socket: Socket, body: ByteArray) {
+    private fun serve(socket: Socket, body: ByteArray, reportedLength: Int) {
         socket.getInputStream().bufferedReader().use { reader ->
             socket.getOutputStream().use { output ->
                 readRequest(reader)
@@ -100,7 +158,7 @@ class GameFileManagerImplTest {
                 val writer = PrintWriter(output.bufferedWriter(), true)
                 writer.println("HTTP/1.1 200 OK")
                 writer.println("Content-Type: application/zip")
-                writer.println("Content-Length: ${body.size}")
+                writer.println("Content-Length: $reportedLength")
                 writer.println("Connection: close")
                 writer.println()
                 output.write(body)
@@ -116,13 +174,15 @@ class GameFileManagerImplTest {
         } while (line != null && line.isNotEmpty())
     }
 
-    private fun createZipArchiveBytes(entryName: String, content: String): ByteArray {
+    private fun createZipArchiveBytes(vararg entries: Pair<String, String>): ByteArray {
         val output = java.io.ByteArrayOutputStream()
         ZipOutputStream(output).use { zos ->
-            val entry = ZipEntry(entryName)
-            zos.putNextEntry(entry)
-            zos.write(content.toByteArray())
-            zos.closeEntry()
+            entries.forEach { (name, content) ->
+                val entry = ZipEntry(name)
+                zos.putNextEntry(entry)
+                zos.write(content.toByteArray())
+                zos.closeEntry()
+            }
         }
         return output.toByteArray()
     }

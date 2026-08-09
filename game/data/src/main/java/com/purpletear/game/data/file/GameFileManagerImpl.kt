@@ -73,12 +73,13 @@ class GameFileManagerImpl @Inject constructor(
                 throw IOException("Download failed. HTTP $responseCode. Body: $errorBody")
             }
 
-            val totalBytes = connection.contentLengthLong.takeIf { it > 0 } ?: 1L
+            val expectedBytes = connection.contentLengthLong
+            val totalBytes = expectedBytes.takeIf { it > 0 } ?: 1L
 
+            var copied = 0L
             connection.inputStream.use { input ->
                 archiveFile.outputStream().use { output ->
                     val buffer = ByteArray(DEFAULT_BUFFER_SIZE)
-                    var copied = 0L
 
                     while (coroutineContext.isActive) {
                         val bytes = input.read(buffer)
@@ -87,7 +88,7 @@ class GameFileManagerImpl @Inject constructor(
                         output.write(buffer, 0, bytes)
                         copied += bytes
 
-                        val progress = if (connection.contentLengthLong > 0) {
+                        val progress = if (expectedBytes > 0) {
                             copied.toFloat() / totalBytes.toFloat()
                         } else {
                             0f
@@ -104,10 +105,21 @@ class GameFileManagerImpl @Inject constructor(
                 throw CancellationException("Download cancelled")
             }
 
+            if (expectedBytes > 0 && copied != expectedBytes) {
+                throw IOException("Incomplete download for game $gameId: $copied/$expectedBytes bytes")
+            }
+
             extractZip(archiveFile, extractDir)
 
             if (!coroutineContext.isActive) {
                 throw CancellationException("Extraction cancelled")
+            }
+
+            // A playable game must ship at least one chapter language; anything else is a
+            // corrupt or truncated archive and must not be marked as installed.
+            val chaptersDir = File(extractDir, CHAPTERS_DIR)
+            if (chaptersDir.listFiles()?.any { it.isDirectory } != true) {
+                throw IOException("Invalid archive for game $gameId: no chapter languages found")
             }
 
             archiveFile.delete()
@@ -187,6 +199,6 @@ class GameFileManagerImpl @Inject constructor(
     companion object {
         private const val ARCHIVE_NAME = "archive.zip"
         private const val EXTRACTED_DIR = "extracted"
-        private const val SCENES_INDEX = "scenes/scenes.json"
+        private const val CHAPTERS_DIR = "chapters"
     }
 }

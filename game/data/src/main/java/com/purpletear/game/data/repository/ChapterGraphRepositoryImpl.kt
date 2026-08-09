@@ -4,6 +4,7 @@ import android.os.Trace
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.purpletear.game.data.local.dao.ChapterDao
+import com.purpletear.game.data.local.dao.GameInstallationDao
 import com.purpletear.game.data.local.dto.ChapterMetadataDto
 import com.purpletear.game.data.local.dto.EdgeDto
 import com.purpletear.game.data.local.dto.NodeDto
@@ -26,6 +27,7 @@ class ChapterGraphRepositoryImpl @Inject constructor(
     private val pathProvider: AndroidGamePathProvider,
     private val chapterDao: ChapterDao,
     private val gameRepository: GameRepository,
+    private val installDao: GameInstallationDao,
 ) : ChapterGraphRepository {
 
     private val gson = Gson()
@@ -47,6 +49,13 @@ class ChapterGraphRepositoryImpl @Inject constructor(
 
             val resolvedLanguage = ChapterLanguageResolver.resolve(language, availableLanguages)
             if (resolvedLanguage == null) {
+                if (gameDir.exists()) {
+                    // Broken install on disk (older builds could mark a corrupt archive as
+                    // installed): clear it so the UI falls back to Download instead of
+                    // failing on every play.
+                    runCatching { gameDir.deleteRecursively() }
+                    runCatching { installDao.deleteByGameId(gameId) }
+                }
                 emit(Result.failure(IllegalArgumentException("No chapter language '$language' found in: ${chaptersRoot.absolutePath} (available: $availableLanguages)")))
                 return@flow
             }
