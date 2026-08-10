@@ -146,7 +146,7 @@ object GameDatabaseMigrations {
      * Migration from version 18 to 19:
      * - Adds verticalBanner (nullable, JSON-encoded Asset) and cardLayout to the games
      *   catalog so stories can be showcased as portrait posters in a horizontally
-     *   scrollable row (Netflix-style). Existing games default to 'HORIZONTAL'.
+     *   scrollable row. Existing games default to 'HORIZONTAL'.
      */
     val MIGRATION_18_19 = object : Migration(18, 19) {
         override fun migrate(db: SupportSQLiteDatabase) {
@@ -155,6 +155,20 @@ object GameDatabaseMigrations {
             )
             db.execSQL(
                 "ALTER TABLE games ADD COLUMN cardLayout TEXT NOT NULL DEFAULT 'HORIZONTAL'"
+            )
+        }
+    }
+
+    /**
+     * Migration from version 19 to 20:
+     * - Adds officialOrder to the games catalog so the home screen can display
+     *   official stories in the same order returned by the server.
+     *   Existing games default to 0 and are tie-broken by id.
+     */
+    val MIGRATION_19_20 = object : Migration(19, 20) {
+        override fun migrate(db: SupportSQLiteDatabase) {
+            db.execSQL(
+                "ALTER TABLE games ADD COLUMN officialOrder INTEGER NOT NULL DEFAULT 0"
             )
         }
     }
@@ -168,5 +182,6 @@ object GameDatabaseMigrations {
         MIGRATION_16_17,
         MIGRATION_17_18,
         MIGRATION_18_19,
+        MIGRATION_19_20,
     )
 }

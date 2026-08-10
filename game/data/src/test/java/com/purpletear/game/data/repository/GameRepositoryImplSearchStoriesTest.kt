@@ -37,6 +37,7 @@ class GameRepositoryImplSearchStoriesTest {
         override fun observeOfficialGames(): Flow<List<GameCatalogEntity>> = flowOf(emptyList())
         override fun observeUserGames(): Flow<List<GameCatalogEntity>> = flowOf(emptyList())
         override fun observeGame(id: String): Flow<GameCatalogEntity?> = flowOf(null)
+        override suspend fun getByIds(ids: List<String>): List<GameCatalogEntity> = emptyList()
         override suspend fun deleteAllOfficial() {}
         override suspend fun deleteAllUserGames() {}
         override suspend fun upsertAll(entities: List<GameCatalogEntity>) {}
@@ -591,13 +592,19 @@ class GameRepositoryImplSearchStoriesTest {
     }
 
     private class RecordingGameDao : GameDao {
+        val replaceAllOfficialCalls = mutableListOf<List<GameCatalogEntity>>()
         val replaceAllUserGamesCalls = mutableListOf<List<GameCatalogEntity>>()
         val upsertAllCalls = mutableListOf<List<GameCatalogEntity>>()
         var game: GameCatalogEntity? = null
+        var storedGames: Map<String, GameCatalogEntity> = emptyMap()
 
         override fun observeOfficialGames(): Flow<List<GameCatalogEntity>> = flowOf(emptyList())
         override fun observeUserGames(): Flow<List<GameCatalogEntity>> = flowOf(emptyList())
         override fun observeGame(id: String): Flow<GameCatalogEntity?> = flowOf(game)
+
+        override suspend fun getByIds(ids: List<String>): List<GameCatalogEntity> =
+            ids.mapNotNull { storedGames[it] }
+
         override suspend fun deleteAllOfficial() {}
         override suspend fun deleteAllUserGames() {}
 
@@ -610,8 +617,81 @@ class GameRepositoryImplSearchStoriesTest {
         }
 
         override suspend fun replaceAllOfficial(entities: List<GameCatalogEntity>) {
-            // no-op for these tests
+            replaceAllOfficialCalls.add(entities)
         }
+    }
+
+    @Test
+    fun `searchStories preserves officialOrder and isOfficial of existing official story`() = runTest {
+        val recordingDao = RecordingGameDao()
+        recordingDao.storedGames = mapOf(
+            "game-1" to stubGameDto("game-1").toDomain()
+                .copy(isOfficial = true, officialOrder = 5)
+        )
+        val api = object : FakeGameApi() {
+            override suspend fun searchStories(
+                query: String,
+                languageCode: String,
+                page: Int,
+                limit: Int
+            ): Response<List<GameDto>> = Response.success(listOf(stubGameDto("game-1")))
+        }
+        val repository = GameRepositoryImpl(api, recordingDao, stubUserRepository)
+
+        val result = repository.searchStories(query = "search", languageTag = "fr-FR")
+
+        assertTrue(result.isSuccess)
+        val upserted = recordingDao.upsertAllCalls.first().first()
+        assertEquals("game-1", upserted.id)
+        assertTrue(upserted.isOfficial)
+        assertEquals(5, upserted.officialOrder)
+    }
+
+    @Test
+    fun `refreshGameCatalog preserves officialOrder and isOfficial of existing official story`() = runTest {
+        val recordingDao = RecordingGameDao()
+        recordingDao.storedGames = mapOf(
+            "game-1" to stubGameDto("game-1").toDomain()
+                .copy(isOfficial = true, officialOrder = 5)
+        )
+        val api = object : FakeGameApi() {
+            override suspend fun getStory(
+                gameId: String,
+                languageCode: String,
+                authorization: String?,
+            ): Response<GameDto> =
+                Response.success(stubGameDto("game-1").copy(version = 15))
+        }
+        val repository = GameRepositoryImpl(api, recordingDao, stubUserRepository)
+
+        val result = repository.refreshGameCatalog("game-1", "fr-FR")
+
+        assertTrue(result.isSuccess)
+        val upserted = recordingDao.upsertAllCalls.first().first()
+        assertEquals(15, upserted.version)
+        assertTrue(upserted.isOfficial)
+        assertEquals(5, upserted.officialOrder)
+    }
+
+    @Test
+    fun `refreshGameCatalog upserts unknown story with default order`() = runTest {
+        val recordingDao = RecordingGameDao()
+        val api = object : FakeGameApi() {
+            override suspend fun getStory(
+                gameId: String,
+                languageCode: String,
+                authorization: String?,
+            ): Response<GameDto> = Response.success(stubGameDto("game-new"))
+        }
+        val repository = GameRepositoryImpl(api, recordingDao, stubUserRepository)
+
+        val result = repository.refreshGameCatalog("game-new", "fr-FR")
+
+        assertTrue(result.isSuccess)
+        val upserted = recordingDao.upsertAllCalls.first().first()
+        assertEquals("game-new", upserted.id)
+        assertFalse(upserted.isOfficial)
+        assertEquals(0, upserted.officialOrder)
     }
 
     private fun stubGameDto(id: String): GameDto = GameDto(
@@ -646,6 +726,55 @@ class GameRepositoryImplSearchStoriesTest {
         userNickNameRequired = false,
         canvasTechnologyRequiredVersion = 1
     )
+
+    @Test
+    fun `syncOfficialGames fetches and persists games with api order`() = runTest {
+        val recordingDao = RecordingGameDao()
+        val api = object : FakeGameApi() {
+            override suspend fun getOfficialGames(
+                languageCode: String,
+                authorization: String?,
+            ): List<GameDto> {
+                assertEquals("fr-FR", languageCode)
+                return listOf(
+                    stubGameDto("game-first").copy(official = true),
+                    stubGameDto("game-second").copy(official = true),
+                    stubGameDto("game-third").copy(official = true),
+                )
+            }
+        }
+        val repository = GameRepositoryImpl(api, recordingDao, stubUserRepository)
+
+        val result = repository.syncOfficialGames("fr-FR")
+
+        assertTrue(result.isSuccess)
+        assertEquals(1, recordingDao.replaceAllOfficialCalls.size)
+        val persisted = recordingDao.replaceAllOfficialCalls.first()
+        assertEquals(3, persisted.size)
+        assertEquals("game-first", persisted[0].id)
+        assertEquals(0, persisted[0].officialOrder)
+        assertEquals("game-second", persisted[1].id)
+        assertEquals(1, persisted[1].officialOrder)
+        assertEquals("game-third", persisted[2].id)
+        assertEquals(2, persisted[2].officialOrder)
+    }
+
+    @Test
+    fun `syncOfficialGames returns failure on error`() = runTest {
+        val recordingDao = RecordingGameDao()
+        val api = object : FakeGameApi() {
+            override suspend fun getOfficialGames(
+                languageCode: String,
+                authorization: String?,
+            ): List<GameDto> = throw RuntimeException("network down")
+        }
+        val repository = GameRepositoryImpl(api, recordingDao, stubUserRepository)
+
+        val result = repository.syncOfficialGames("fr-FR")
+
+        assertTrue(result.isFailure)
+        assertTrue(recordingDao.replaceAllOfficialCalls.isEmpty())
+    }
 
     private open class FakeGameApi : GameApi {
         override suspend fun getOfficialGames(

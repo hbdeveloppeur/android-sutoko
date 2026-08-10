@@ -12,6 +12,12 @@ class CardLayoutTest {
     }
 
     @Test
+    fun `server values are case-insensitive`() {
+        assertEquals(CardLayout.HORIZONTAL, CardLayout.fromRaw("horizontal"))
+        assertEquals(CardLayout.VERTICAL, CardLayout.fromRaw("vertical"))
+    }
+
+    @Test
     fun `missing or unknown values fall back to HORIZONTAL`() {
         assertEquals(CardLayout.HORIZONTAL, CardLayout.fromRaw(null))
         assertEquals(CardLayout.HORIZONTAL, CardLayout.fromRaw(""))

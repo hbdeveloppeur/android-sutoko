@@ -30,11 +30,11 @@ import coil.request.ImageRequest
 import com.purpletear.game.presentation.R
 import com.purpletear.sutoko.game.model.game.GameCatalog
 
-/** Portrait poster aspect ratio (width / height), Netflix-style 2:3. */
+/** Portrait poster aspect ratio (width / height), 2:3. */
 private const val POSTER_ASPECT = 2f / 3f
 
 /**
- * Horizontally scrollable row of portrait story posters (Netflix-style).
+ * Horizontally scrollable row of portrait story posters.
  * Renders stories whose [GameCatalog.cardLayout] is VERTICAL.
  */
 @Composable
@@ -72,7 +72,7 @@ fun GamePosterCard(
 ) {
     Box(
         modifier = modifier
-            .width(172.dp)
+            .width(150.dp)
             .aspectRatio(POSTER_ASPECT)
             .clip(RoundedCornerShape(8.dp))
             .background(Color.Black.copy(alpha = 0.3f))

@@ -9,7 +9,7 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface GameDao {
-    @Query("SELECT * FROM games WHERE isOfficial = 1")
+    @Query("SELECT * FROM games WHERE isOfficial = 1 ORDER BY officialOrder ASC, id ASC")
     fun observeOfficialGames(): Flow<List<GameCatalogEntity>>
 
     @Query("SELECT * FROM games WHERE isOfficial = 0")
@@ -17,6 +17,9 @@ interface GameDao {
 
     @Query("SELECT * FROM games WHERE id = :id")
     fun observeGame(id: String): Flow<GameCatalogEntity?>
+
+    @Query("SELECT * FROM games WHERE id IN (:ids)")
+    suspend fun getByIds(ids: List<String>): List<GameCatalogEntity>
 
     // Never evict an installed or favorited game: the server listings are paginated
     // and a locally installed or favorited story may be absent from the fetched page(s).

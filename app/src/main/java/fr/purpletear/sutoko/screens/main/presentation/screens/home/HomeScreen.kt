@@ -132,20 +132,12 @@ private fun HomeContent(
             squareIcons = squareIcons,
             onStoryTap = onSquareStoryTap
         )
-
-        /* squareStoriesAsCardsSection(
-            squareStories = squareStories,
-            fullStories = fullStories,
-            favoriteIds = favoriteIds,
-            newChaptersSoonGameIds = newChaptersSoonGameIds,
-            onStoryTap = onFullStoryTap
-        ) */
-
-        /* verticalStoriesSection(
+        
+        verticalStoriesSection(
             verticalStories = verticalStories,
             favoriteIds = favoriteIds,
             onStoryTap = onFullStoryTap
-        )*/
+        )
 
         fullStoriesSection(
             fullStories = fullStories,

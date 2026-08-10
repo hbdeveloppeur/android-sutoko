@@ -12,12 +12,11 @@ import androidx.lifecycle.viewModelScope
 import com.example.sharedelements.Data
 import com.example.sharedelements.SutokoAppParams
 import com.example.sharedelements.utils.UiText
-import com.purpletear.sutoko.core.domain.analytics.AnalyticsTracker
 import com.purpletear.core.presentation.extensions.Resource
+import com.purpletear.sutoko.core.domain.analytics.AnalyticsTracker
 import com.purpletear.sutoko.domain.repository.UserRepository
 import com.purpletear.sutoko.game.model.game.CardLayout
 import com.purpletear.sutoko.game.model.game.GameCatalog
-import com.purpletear.sutoko.game.model.game.isPremium
 import com.purpletear.sutoko.game.repository.ChapterRepository
 import com.purpletear.sutoko.game.repository.game.FavoriteGamesRepository
 import com.purpletear.sutoko.game.usecase.GetChaptersUseCase
@@ -30,12 +29,10 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import fr.purpletear.sutoko.R
 import fr.purpletear.sutoko.friendzoned.FriendzonedGameRouter
 import fr.purpletear.sutoko.objects.CalendarEvent
-import fr.purpletear.sutoko.screens.main.presentation.screens.home.fakeVerticalStories
 import fr.purpletear.sutoko.symbols.SymbolsRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -135,7 +132,7 @@ class HomeScreenViewModel @Inject constructor(
     val fullStories: State<List<GameCatalog>>
         get() = _fullStories
 
-    /** Stories showcased as portrait posters in a horizontal row (Netflix-style). */
+    /** Stories showcased as portrait posters in a horizontal row. */
     private var _verticalStories: MutableState<List<GameCatalog>> =
         mutableStateOf(emptyList())
     val verticalStories: State<List<GameCatalog>>
@@ -173,17 +170,18 @@ class HomeScreenViewModel @Inject constructor(
         }
 
         // Derive square/full stories and main state from the observed games.
+        // The backend endpoint order is authoritative: no client-side re-sorting
+        // beyond the contractual friendzoned pinning (see sortForHome).
         viewModelScope.launch {
-            combine(games, favoriteIds) { gamesList, favorites -> gamesList to favorites }
-                .collect { (gamesList, favorites) ->
-                    val sorted = sortForHome(gamesList, favorites) + fakeVerticalStories()
-                    val (vertical, horizontal) =
-                        sorted.partition { it.cardLayout == CardLayout.VERTICAL }
-                    _verticalStories.value = vertical
-                    _squareStories.value = getSquareStories(horizontal) ?: emptyList()
-                    _fullStories.value = getFullWidthStories(horizontal, favorites)
-                    _state.value = _state.value.copy(initialStories = gamesList)
-                }
+            games.collect { gamesList ->
+                val sorted = sortForHome(gamesList)
+                val (vertical, horizontal) =
+                    sorted.partition { it.cardLayout == CardLayout.VERTICAL }
+                _verticalStories.value = vertical
+                _squareStories.value = getSquareStories(horizontal) ?: emptyList()
+                _fullStories.value = getFullWidthStories(horizontal)
+                _state.value = _state.value.copy(initialStories = gamesList)
+            }
         }
 
         // Warm the chapters cache once per game so the "new chapters soon" badge
@@ -236,30 +234,16 @@ class HomeScreenViewModel @Inject constructor(
 
     /**
      * Friendzoned games are contractually pinned to the first positions: the home screen
-     * always lists them as the 4 first games. Favorites rank first only within the
-     * remaining games. Catalog order is preserved within each group (stable sorts).
+     * always lists them as the 4 first games. Every other game keeps its backend
+     * endpoint order (the partition is stable).
      */
-    private fun sortForHome(
-        games: List<GameCatalog>,
-        favoriteIds: Set<String>,
-    ): List<GameCatalog> {
+    private fun sortForHome(games: List<GameCatalog>): List<GameCatalog> {
         val (friendzoned, others) = games.partition { it.isFriendzoned() }
-        return friendzoned + others.sortedByDescending { it.id in favoriteIds }
+        return friendzoned + others
     }
 
     private fun GameCatalog.isFriendzoned(): Boolean =
         legacyId?.let { FriendzonedGameRouter.loaderClassFor(it) != null } == true
-
-    private fun getSortedCards(
-        cards: Set<GameCatalog>,
-        favoriteIds: Set<String>,
-    ): List<GameCatalog> {
-        val cardsWithIndex = cards.mapIndexed { index, card -> Pair(index, card) }
-
-        return cardsWithIndex
-            .sortedWith(compareBy({ it.second.id !in favoriteIds }, { it.second.isPremium() }))
-            .map { it.second }
-    }
 
 
     /**
@@ -279,20 +263,16 @@ class HomeScreenViewModel @Inject constructor(
 
     /**
      * Returns a list of elements from the given list of `Card` objects starting at the fifth
-     * element. If the list has fewer than five elements, the entire list is returned.
+     * element, in backend endpoint order.
      *
      * @param stories a list of `Card` objects
      * @return List<Card>
      */
-    private fun getFullWidthStories(
-        stories: List<GameCatalog>,
-        favoriteIds: Set<String>,
-    ): List<GameCatalog> {
+    private fun getFullWidthStories(stories: List<GameCatalog>): List<GameCatalog> {
         if (stories.size < 4) {
             return stories
         }
-        val storiesToSort = stories.subList(4, stories.size)
-        return getSortedCards(storiesToSort.toSet(), favoriteIds)
+        return stories.subList(4, stories.size)
     }
 
     fun displayAiConversationCard(appParams: SutokoAppParams) {

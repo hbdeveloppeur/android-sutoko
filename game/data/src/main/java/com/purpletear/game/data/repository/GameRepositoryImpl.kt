@@ -1,6 +1,7 @@
 package com.purpletear.game.data.repository
 
 import com.purpletear.game.data.local.dao.GameDao
+import com.purpletear.game.data.local.entity.GameCatalogEntity
 import com.purpletear.game.data.local.entity.toDomain
 import com.purpletear.game.data.remote.GameApi
 import com.purpletear.game.data.remote.dto.GameDto
@@ -98,7 +99,10 @@ class GameRepositoryImpl @Inject constructor(
     override suspend fun syncOfficialGames(languageTag: String): Result<Unit> {
         return try {
             val remote = api.getOfficialGames(languageTag, authorization = bearerToken())
-            dao.replaceAllOfficial(remote.map { it.toDomain() })
+            val ordered = remote.mapIndexed { index, dto ->
+                dto.toDomain().copy(officialOrder = index)
+            }
+            dao.replaceAllOfficial(ordered)
             Result.success(Unit)
         } catch (e: CancellationException) {
             throw e
@@ -166,7 +170,7 @@ class GameRepositoryImpl @Inject constructor(
             val entities = response.body().orEmpty().map {
                 it.toDomain()
             }
-            dao.upsertAll(entities)
+            upsertPreservingOfficialOrder(entities)
             Result.success(entities.map { it.toDomain() })
         } catch (e: CancellationException) {
             throw e
@@ -214,13 +218,31 @@ class GameRepositoryImpl @Inject constructor(
             }
 
             val entity = response.body()?.toDomain() ?: return Result.success(null)
-            dao.upsertAll(listOf(entity))
+            upsertPreservingOfficialOrder(listOf(entity))
             Result.success(entity.toDomain())
         } catch (e: CancellationException) {
             throw e
         } catch (e: Exception) {
             Result.failure(e)
         }
+    }
+
+    /**
+     * Upserts fetched stories without clobbering the official catalog ordering:
+     * syncOfficialGames is the only writer of officialOrder, and an official
+     * story must not be demoted by endpoints that omit the `official` flag
+     * (search and single-story payloads are partial).
+     */
+    private suspend fun upsertPreservingOfficialOrder(entities: List<GameCatalogEntity>) {
+        if (entities.isEmpty()) return
+        val existing = dao.getByIds(entities.map { it.id }).associateBy { it.id }
+        dao.upsertAll(entities.map { entity ->
+            val current = existing[entity.id] ?: return@map entity
+            entity.copy(
+                isOfficial = current.isOfficial || entity.isOfficial,
+                officialOrder = current.officialOrder,
+            )
+        })
     }
 
     override suspend fun getOneUserGames(

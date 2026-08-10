@@ -107,6 +107,9 @@ class ChapterRepositoryImplFriendzonedTest {
 
         override fun observeGame(id: String): Flow<GameCatalogEntity?> = game
 
+        override suspend fun getByIds(ids: List<String>): List<GameCatalogEntity> =
+            game.value?.takeIf { it.id in ids }?.let { listOf(it) } ?: emptyList()
+
         override suspend fun deleteAllOfficial() = Unit
 
         override suspend fun deleteAllUserGames() = Unit

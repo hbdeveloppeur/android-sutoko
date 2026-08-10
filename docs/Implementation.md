@@ -5,4 +5,4 @@ Do not touch :games:*
 
 GamePreview navigation to SmsGameActivity
 
-# Issue 1 [DONE - fix/sms-game-overlay-first-node]: Too much animation - The black filter appearing disappear too early. It must disappear after the first node is played. 
+# Task 1: Make sure the GamePosterCard displays on the bottom of the card, the card title image (as in GameCard) the Image must display on bottom (y=75%)

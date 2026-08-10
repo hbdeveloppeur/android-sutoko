@@ -32,6 +32,7 @@ data class GameCatalogEntity(
     val author: Author? = null,
     val legacyId: Int? = null,
     val isOfficial: Boolean = false,
+    val officialOrder: Int = 0,
     val userNickNameRequired: Boolean = false,
     val canvasTechnologyRequiredVersion: Int = 1,
     val narrativeThemes: List<NarrativeTheme> = emptyList(),

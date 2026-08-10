@@ -57,3 +57,9 @@ Always build and test in **debug**, with **no cache**, when validating changes.
 Tell me the best possible **production-grade plan** and wait for my approval before starting
 implementation : Find the perfect equilibre between Leland Richardson, Uncle Bob, Gerard J.
 Holzmann, Dr. Barbara Liskov and Simon Brown.
+
+# Smart fast ways to debug
+
+Think about smart/fast ways to debug, for instance comparing an endpoint response and the current
+database you can build a temporary code that list the local data vs the endpoint. As long as it's
+not too tokens consuming.
