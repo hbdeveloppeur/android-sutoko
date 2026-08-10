@@ -7,7 +7,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -40,6 +40,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.sharedelements.theme.PlusJakartaSansFontFamily
 import com.purpletear.game.presentation.R
 import com.purpletear.sutoko.alert.presentation.SimpleAlertDialog
+import com.purpletear.sutoko.game.model.StoryAdvanceMode
 import com.purpletear.sutoko.game.model.UserRole
 
 private val OptionsBackground = Color(0xFF05070C)
@@ -56,7 +57,8 @@ private fun sanitizeChapterCodeInput(input: String): String {
 
 /**
  * Developer options of a story: set the current chapter by code, pick a role
- * (player/administrator), restart the story or delete its memories.
+ * (player/administrator), choose how the story advances, restart the story or
+ * delete its memories.
  * Style follows SutokoParamsScreen with smaller fonts.
  */
 @Composable
@@ -66,6 +68,7 @@ fun GamePreviewOptionsScreen(
     onBack: () -> Unit = {},
 ) {
     val role by viewModel.role.collectAsStateWithLifecycle()
+    val advanceMode by viewModel.advanceMode.collectAsStateWithLifecycle()
     val currentChapterCode by viewModel.currentChapterCode.collectAsStateWithLifecycle()
     val isFriendzoned by viewModel.isFriendzoned.collectAsStateWithLifecycle()
 
@@ -139,6 +142,20 @@ fun GamePreviewOptionsScreen(
             label = stringResource(R.string.game_presentation_options_role_administrator),
             selected = role == UserRole.ADMINISTRATOR,
             onClick = { viewModel.onRoleSelected(UserRole.ADMINISTRATOR) },
+        )
+
+        OptionsSectionLabel(text = stringResource(R.string.game_presentation_options_advance_section))
+        OptionsRow(
+            label = stringResource(R.string.game_presentation_options_advance_auto),
+            subtitle = stringResource(R.string.game_presentation_options_advance_auto_subtitle),
+            selected = advanceMode == StoryAdvanceMode.AUTO_PLAY,
+            onClick = { viewModel.onAdvanceModeSelected(StoryAdvanceMode.AUTO_PLAY) },
+        )
+        OptionsRow(
+            label = stringResource(R.string.game_presentation_options_advance_click),
+            subtitle = stringResource(R.string.game_presentation_options_advance_click_subtitle),
+            selected = advanceMode == StoryAdvanceMode.CLICK_TO_ADVANCE,
+            onClick = { viewModel.onAdvanceModeSelected(StoryAdvanceMode.CLICK_TO_ADVANCE) },
         )
 
         HorizontalDivider(
@@ -228,24 +245,35 @@ private fun OptionsSectionLabel(text: String) {
 @Composable
 private fun OptionsRow(
     label: String,
+    subtitle: String? = null,
     selected: Boolean = false,
     onClick: () -> Unit,
 ) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .height(48.dp)
+            .heightIn(min = 48.dp)
             .clickable(onClick = onClick)
-            .padding(horizontal = 18.dp),
+            .padding(horizontal = 18.dp, vertical = 6.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Text(
-            text = label,
-            color = Color.White,
-            fontSize = 12.sp,
-            fontFamily = PlusJakartaSansFontFamily,
-            modifier = Modifier.weight(1f),
-        )
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = label,
+                color = Color.White,
+                fontSize = 12.sp,
+                fontFamily = PlusJakartaSansFontFamily,
+            )
+            if (subtitle != null) {
+                Text(
+                    text = subtitle,
+                    color = Color.White.copy(alpha = 0.5f),
+                    fontSize = 11.sp,
+                    fontFamily = PlusJakartaSansFontFamily,
+                    modifier = Modifier.padding(top = 2.dp),
+                )
+            }
+        }
         if (selected) {
             Icon(
                 imageVector = Icons.Filled.Check,

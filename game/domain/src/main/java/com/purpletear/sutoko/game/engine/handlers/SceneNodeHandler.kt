@@ -32,8 +32,12 @@ class SceneNodeHandler @Inject constructor() : NodeHandler {
                         sceneId = sceneNode.sceneId
                     ),
                 ),
-                HandlerCommand.AwaitTap,
+                HandlerCommand.AwaitTap(SCENE_VIEW_DURATION_MS),
             )
         )
+    }
+
+    private companion object {
+        private const val SCENE_VIEW_DURATION_MS = 3000L
     }
 }

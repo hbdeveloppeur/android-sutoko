@@ -33,11 +33,15 @@ sealed class GameEngineState {
     /**
      * Engine is parked waiting for the player to tap the screen to advance.
      * Used for tap-to-continue pacing in narrative nodes.
+     *
+     * [autoAdvanceAfterMs] is the delay after which the driver (UI layer) is expected
+     * to advance on its own, so the story progresses without requiring a tap.
      */
     @Keep
     data class AwaitingTap(
         val chapterCode: String,
-        val currentNodeId: String
+        val currentNodeId: String,
+        val autoAdvanceAfterMs: Long
     ) : GameEngineState()
 
     /**

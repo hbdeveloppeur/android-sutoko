@@ -8,9 +8,11 @@ import com.purpletear.game.presentation.R
 import com.purpletear.sutoko.core.domain.logger.Logger
 import com.purpletear.sutoko.core.domain.logger.exception
 import com.purpletear.sutoko.game.model.FriendzonedLegacyIds
+import com.purpletear.sutoko.game.model.StoryAdvanceMode
 import com.purpletear.sutoko.game.model.UserRole
 import com.purpletear.sutoko.game.repository.ChapterRepository
 import com.purpletear.sutoko.game.repository.MemoryRepository
+import com.purpletear.sutoko.game.repository.StoryAdvanceModeRepository
 import com.purpletear.sutoko.game.repository.UserRoleRepository
 import com.purpletear.sutoko.game.repository.game.GameRepository
 import com.purpletear.sutoko.game.usecase.RestartGameUseCase
@@ -35,6 +37,7 @@ class GamePreviewOptionsViewModel @Inject constructor(
     private val restartGameUseCase: RestartGameUseCase,
     private val memoryRepository: MemoryRepository,
     private val userRoleRepository: UserRoleRepository,
+    private val storyAdvanceModeRepository: StoryAdvanceModeRepository,
     private val toastService: ToastService,
     private val logger: Logger,
 ) : ViewModel() {
@@ -47,6 +50,13 @@ class GamePreviewOptionsViewModel @Inject constructor(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(7000),
             initialValue = UserRole.PLAYER,
+        )
+
+    val advanceMode: StateFlow<StoryAdvanceMode> = storyAdvanceModeRepository.observe()
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(7000),
+            initialValue = StoryAdvanceMode.AUTO_PLAY,
         )
 
     /** Code of the current chapter, used to prefill the input. */
@@ -107,6 +117,12 @@ class GamePreviewOptionsViewModel @Inject constructor(
     fun onRoleSelected(role: UserRole) {
         viewModelScope.launch {
             userRoleRepository.set(role)
+        }
+    }
+
+    fun onAdvanceModeSelected(mode: StoryAdvanceMode) {
+        viewModelScope.launch {
+            storyAdvanceModeRepository.set(mode)
         }
     }
 

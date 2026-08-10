@@ -22,12 +22,14 @@ import com.purpletear.sutoko.game.engine.GameEngine
 import com.purpletear.sutoko.game.engine.GameEngineState
 import com.purpletear.sutoko.game.engine.GameMessage
 import com.purpletear.sutoko.game.engine.HandlerEffect
+import com.purpletear.sutoko.game.model.StoryAdvanceMode
 import com.purpletear.sutoko.game.model.chapter.ChapterGraph
 import com.purpletear.sutoko.game.model.chapter.Node
 import com.purpletear.sutoko.game.model.chapter.extractCinematicBody
 import com.purpletear.sutoko.game.repository.ChapterRepository
 import com.purpletear.sutoko.game.repository.CharacterRepository
 import com.purpletear.sutoko.game.repository.SceneRepository
+import com.purpletear.sutoko.game.repository.StoryAdvanceModeRepository
 import com.purpletear.sutoko.game.repository.game.GameRepository
 import com.purpletear.sutoko.game.service.MediaUrlResolver
 import com.purpletear.sutoko.game.usecase.GetSceneUseCase
@@ -40,12 +42,14 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import java.io.File
@@ -67,6 +71,7 @@ class GameEngineViewModel @Inject constructor(
     private val gameRepository: GameRepository,
     private val getSceneUseCase: GetSceneUseCase,
     private val mediaUrlResolver: MediaUrlResolver,
+    private val storyAdvanceModeRepository: StoryAdvanceModeRepository,
     private val makeToastService: MakeToastService,
     private val analyticsTracker: AnalyticsTracker,
     private val logger: Logger,
@@ -96,6 +101,13 @@ class GameEngineViewModel @Inject constructor(
 
     private var isFingerHeld = false
     private var isImageViewerOpen = false
+
+    /** Pending auto-advance past the current tap gate; cancelled as soon as the gate closes. */
+    private var autoAdvanceJob: Job? = null
+
+    /** Whether the story advances on its own past tap gates or waits for a player tap. */
+    private val advanceMode: StateFlow<StoryAdvanceMode> = storyAdvanceModeRepository.observe()
+        .stateIn(viewModelScope, SharingStarted.Eagerly, StoryAdvanceMode.AUTO_PLAY)
 
     private val gameId: String = checkNotNull(savedStateHandle["gameId"]) {
         "gameId is required"
@@ -154,6 +166,7 @@ class GameEngineViewModel @Inject constructor(
                 }
 
                 launch { gameEngine.state.collect { updateUiStateFromEngine(it) } }
+                launch { observeAdvanceMode() }
                 launch { gameEngine.messages.collect { updateMessages(it) } }
                 launch { gameEngine.effects.collect { handleEffect(it) } }
                 launch {
@@ -354,6 +367,13 @@ class GameEngineViewModel @Inject constructor(
         if (engineState is GameEngineState.ChapterFinished) {
             logChapterFinished(engineState.chapterCode)
         }
+        if (engineState is GameEngineState.AwaitingTap &&
+            advanceMode.value == StoryAdvanceMode.AUTO_PLAY
+        ) {
+            scheduleAutoAdvance(engineState)
+        } else {
+            autoAdvanceJob?.cancel()
+        }
         when (engineState) {
             is GameEngineState.AwaitingInput -> {
                 updateState { it.copy(isAwaitingInput = true, isAwaitingTap = false) }
@@ -408,6 +428,42 @@ class GameEngineViewModel @Inject constructor(
                         isMangaActive = false
                     )
                 }
+            }
+        }
+    }
+
+    /**
+     * Applies a mid-game [StoryAdvanceMode] change to a currently parked tap gate: turning
+     * AutoPlay off cancels the pending advance; turning it on schedules one if the engine is
+     * still waiting for a tap.
+     */
+    private suspend fun observeAdvanceMode() {
+        advanceMode.collect { mode ->
+            when (mode) {
+                StoryAdvanceMode.CLICK_TO_ADVANCE -> autoAdvanceJob?.cancel()
+                StoryAdvanceMode.AUTO_PLAY -> {
+                    val state = gameEngine.state.value
+                    if (state is GameEngineState.AwaitingTap) {
+                        scheduleAutoAdvance(state)
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Auto-advance driver: resumes the engine once the tap gate's pacing delay has elapsed,
+     * so the story progresses without requiring a tap. A player tap before the deadline wins:
+     * the state leaves AwaitingTap, this job is cancelled, and [GameEngine.advanceOnTap]
+     * no-ops otherwise. Uses the timing scheduler so hold-to-pause freezes the countdown too.
+     */
+    private fun scheduleAutoAdvance(state: GameEngineState.AwaitingTap) {
+        autoAdvanceJob?.cancel()
+        autoAdvanceJob = viewModelScope.launch {
+            timingScheduler.delay(state.autoAdvanceAfterMs)
+            val current = gameEngine.state.value
+            if (current is GameEngineState.AwaitingTap && current.currentNodeId == state.currentNodeId) {
+                gameEngine.advanceOnTap()
             }
         }
     }

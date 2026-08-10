@@ -61,7 +61,11 @@ class MessageImageNodeHandler @Inject constructor() : NodeHandler {
                     )
                 )
             ),
-            HandlerCommand.AwaitTap,
+            HandlerCommand.AwaitTap(IMAGE_VIEW_DURATION_MS),
         )
+    }
+
+    private companion object {
+        private const val IMAGE_VIEW_DURATION_MS = 2000L
     }
 }

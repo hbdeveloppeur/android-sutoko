@@ -68,7 +68,16 @@ class InfoNodeHandler @Inject constructor(
                     )
                 )
             ),
-            HandlerCommand.AwaitTap,
+            HandlerCommand.AwaitTap(determineReadingDuration(processedText)),
         )
+    }
+
+    private fun determineReadingDuration(text: String): Long {
+        val baseDuration = text.length * READING_CHAR_DELAY_MS
+        return baseDuration.coerceIn(1000L, 3000L)
+    }
+
+    private companion object {
+        private const val READING_CHAR_DELAY_MS = 100L
     }
 }

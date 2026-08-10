@@ -107,13 +107,14 @@ private fun SceneContent(
 
 @Composable
 private fun Filter(colorCode: String?, opacity: Int) {
-    colorCode?.let {
-        Box(
-            Modifier
-                .fillMaxSize()
-                .background(Color.parse(it).copy(alpha = (opacity * 0.01).toFloat()))
-        )
-    }
+    if (opacity <= 0) return
+    // filterOpacity alone means a black filter; filterColorCode only overrides the color.
+    val color = colorCode?.let { Color.parse(it) } ?: Color.Black
+    Box(
+        Modifier
+            .fillMaxSize()
+            .background(color.copy(alpha = (opacity.coerceAtMost(100) * 0.01).toFloat()))
+    )
 }
 
 

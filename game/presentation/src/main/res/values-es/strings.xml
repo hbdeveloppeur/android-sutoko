@@ -94,6 +94,11 @@
     <string name="game_presentation_options_role_section">Rol</string>
     <string name="game_presentation_options_role_player">Jugador</string>
     <string name="game_presentation_options_role_administrator">Administrador</string>
+    <string name="game_presentation_options_advance_section">Avance de la historia</string>
+    <string name="game_presentation_options_advance_auto">AutoPlay</string>
+    <string name="game_presentation_options_advance_auto_subtitle">La historia avanza sola después de cada mensaje.</string>
+    <string name="game_presentation_options_advance_click">Toca para avanzar</string>
+    <string name="game_presentation_options_advance_click_subtitle">Toca la pantalla para revelar cada mensaje a tu propio ritmo.</string>
     <string name="game_presentation_options_restart_story">Reiniciar la historia</string>
     <string name="game_presentation_options_delete_memories">Eliminar recuerdos</string>
     <string name="game_presentation_options_delete_memories_confirm_title">¿Eliminar recuerdos?</string>

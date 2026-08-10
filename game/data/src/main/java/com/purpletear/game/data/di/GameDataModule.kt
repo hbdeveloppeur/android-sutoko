@@ -29,6 +29,7 @@ import com.purpletear.game.data.repository.GameRepositoryImpl
 import com.purpletear.game.data.repository.MemoryRepositoryImpl
 import com.purpletear.game.data.repository.SceneRepositoryImpl
 import com.purpletear.game.data.repository.UserGameProgressRepositoryImpl
+import com.purpletear.game.data.repository.StoryAdvanceModeRepositoryImpl
 import com.purpletear.game.data.repository.UserRoleRepositoryImpl
 import com.purpletear.game.data.service.MediaUrlResolverImpl
 import com.purpletear.sutoko.game.engine.processing.TextProcessor
@@ -41,6 +42,7 @@ import com.purpletear.sutoko.game.repository.GamePreviewSoundRepository
 import com.purpletear.sutoko.game.repository.MemoryRepository
 import com.purpletear.sutoko.game.repository.SceneRepository
 import com.purpletear.sutoko.game.repository.UserGameProgressRepository
+import com.purpletear.sutoko.game.repository.StoryAdvanceModeRepository
 import com.purpletear.sutoko.game.repository.UserRoleRepository
 import com.purpletear.sutoko.game.repository.game.FavoriteGamesRepository
 import com.purpletear.sutoko.game.repository.game.GameInstallRepository
@@ -331,6 +333,10 @@ abstract class RepositoryModule {
     @Binds
     @Singleton
     abstract fun bindUserRoleRepository(impl: UserRoleRepositoryImpl): UserRoleRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindStoryAdvanceModeRepository(impl: StoryAdvanceModeRepositoryImpl): StoryAdvanceModeRepository
 
     @Binds
     @Singleton

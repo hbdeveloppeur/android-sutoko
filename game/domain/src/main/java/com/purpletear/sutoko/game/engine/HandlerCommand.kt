@@ -47,7 +47,8 @@ sealed class HandlerCommand {
     data class AwaitInput(val choices: List<HandlerEffect.ShowChoices.Choice>) : HandlerCommand()
 
     /**
-     * Halt execution and park the engine until the player taps the screen.
+     * Halt execution and park the engine until the player taps the screen, or until the
+     * auto-advance delay elapses.
      *
      * Contract:
      * - MUST be the last command in the script (enforced by the engine, like [AwaitInput]).
@@ -55,9 +56,17 @@ sealed class HandlerCommand {
      * - The engine transitions to [GameEngineState.AwaitingTap] and stays parked until
      *   [GameEngine.advanceOnTap] is called, which then resolves the next node via the normal
      *   navigation path.
+     * - [autoAdvanceAfterMs] is a pacing hint carried by the state: the driver (UI layer)
+     *   is expected to call [GameEngine.advanceOnTap] once this delay has elapsed, so the
+     *   story progresses without requiring a tap. A tap before the deadline simply skips
+     *   the wait. The engine itself owns no timer.
      */
     @Keep
-    data object AwaitTap : HandlerCommand()
+    data class AwaitTap(val autoAdvanceAfterMs: Long) : HandlerCommand() {
+        init {
+            require(autoAdvanceAfterMs >= 0) { "autoAdvanceAfterMs must be non-negative, was $autoAdvanceAfterMs" }
+        }
+    }
 
     /**
      * Halt execution and park the engine until the player dismisses the manga page.

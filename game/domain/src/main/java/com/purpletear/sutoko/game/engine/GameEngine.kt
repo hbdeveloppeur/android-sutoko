@@ -426,7 +426,8 @@ class GameEngine @Inject constructor(
 
     /**
      * Handles the AwaitTap command: validates position, parks the engine so the player can tap
-     * to advance. The next node is intentionally NOT resolved here.
+     * to advance, and exposes the auto-advance delay in the state so the driver can resume
+     * on its own once the delay elapses. The next node is intentionally NOT resolved here.
      */
     private fun awaitTap(
         command: HandlerCommand.AwaitTap,
@@ -442,10 +443,11 @@ class GameEngine @Inject constructor(
 
         _state.value = GameEngineState.AwaitingTap(
             chapterCode = context.graph.chapterCode,
-            currentNodeId = context.nodeId
+            currentNodeId = context.nodeId,
+            autoAdvanceAfterMs = command.autoAdvanceAfterMs
         )
 
-        GameEngineLogger.d("INPT") { "Parking for tap at ${context.nodeId}" }
+        GameEngineLogger.d("INPT") { "Parking for tap at ${context.nodeId} (auto-advance in ${command.autoAdvanceAfterMs}ms)" }
     }
 
     /**
@@ -479,7 +481,10 @@ class GameEngine @Inject constructor(
     }
 
     /**
-     * Resumes execution after the player tapped the screen to advance.
+     * Resumes execution from a tap gate.
+     *
+     * Called by the UI when the player taps the screen, or by the auto-advance driver once
+     * [GameEngineState.AwaitingTap.autoAdvanceAfterMs] has elapsed.
      *
      * Resolves the next node via the normal navigation path (single edge, choice, chapter end,
      * or error) without clearing the message history. No-op when the engine is not parked for a

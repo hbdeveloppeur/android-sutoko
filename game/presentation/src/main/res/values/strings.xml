@@ -94,6 +94,11 @@
     <string name="game_presentation_options_role_section">Role</string>
     <string name="game_presentation_options_role_player">Player</string>
     <string name="game_presentation_options_role_administrator">Administrator</string>
+    <string name="game_presentation_options_advance_section">Story advance</string>
+    <string name="game_presentation_options_advance_auto">AutoPlay</string>
+    <string name="game_presentation_options_advance_auto_subtitle">The story advances on its own after each message.</string>
+    <string name="game_presentation_options_advance_click">Click to advance</string>
+    <string name="game_presentation_options_advance_click_subtitle">Tap the screen to reveal each message at your own pace.</string>
     <string name="game_presentation_options_restart_story">Restart story</string>
     <string name="game_presentation_options_delete_memories">Delete memories</string>
     <string name="game_presentation_options_delete_memories_confirm_title">Delete memories?</string>

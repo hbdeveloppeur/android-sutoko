@@ -476,6 +476,34 @@ class GameEngineTest {
     }
 
     @Test
+    fun `sms message - awaiting tap state should carry an auto-advance reading delay`() = runBlocking {
+        val memory = createFakeGameMemory()
+        val engine = createEngine(memory = memory)
+        val graph = ChapterGraph(
+            chapterCode = "1A",
+            title = "Test",
+            nodes = mapOf(
+                "start" to Node.Start(id = "start"),
+                "msg" to Node.Message(id = "msg", text = "Hello", characterId = 1),
+                "end" to Node.End(id = "end")
+            ),
+            edges = listOf(
+                Edge(source = "start", target = "msg", type = EdgeType.NORMAL),
+                Edge(source = "msg", target = "end", type = EdgeType.NORMAL)
+            ),
+            startNodeId = "start"
+        )
+
+        engine.initialize("game-1", graph)
+        memory.set(GameMemory.TYPING_ANIMATION_KEY, "true")
+        engine.start()
+
+        val state = engine.state.value as GameEngineState.AwaitingTap
+        // "Hello" is 5 chars * 100ms, clamped to the 1000ms minimum.
+        assertEquals(1000L, state.autoAdvanceAfterMs)
+    }
+
+    @Test
     fun `advanceOnTap while not awaiting tap - should be ignored`() = runBlocking {
         val engine = createEngine()
         val graph = ChapterGraph(
