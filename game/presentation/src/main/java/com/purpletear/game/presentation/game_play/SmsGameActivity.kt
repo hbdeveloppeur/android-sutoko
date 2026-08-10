@@ -20,8 +20,10 @@ import com.purpletear.game.presentation.game_chapter_selection.chapterSelectionS
 import com.purpletear.game.presentation.game_play.navigation.cinematicScreen
 import com.purpletear.game.presentation.game_play.navigation.gameScreen
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withTimeoutOrNull
 
 @AndroidEntryPoint
 class SmsGameActivity : ComponentActivity() {
@@ -44,7 +46,12 @@ class SmsGameActivity : ComponentActivity() {
                 val overlayAlpha = remember { Animatable(1f) }
                 val scope = rememberCoroutineScope()
 
+                val firstContentPlayed = remember { CompletableDeferred<Unit>() }
+
+                // Keep the black overlay until the first node produces visible content.
+                // The timeout guards against a chapter that would never emit any.
                 LaunchedEffect(Unit) {
+                    withTimeoutOrNull(FIRST_CONTENT_TIMEOUT_MS) { firstContentPlayed.await() }
                     overlayAlpha.animateTo(
                         targetValue = 0f,
                         animationSpec = tween(
@@ -115,6 +122,9 @@ class SmsGameActivity : ComponentActivity() {
                         onNavigateToExit = {
                             fadeThenRun { finish() }
                         },
+                        onFirstContentPlayed = {
+                            firstContentPlayed.complete(Unit)
+                        },
                     )
 
                     cinematicScreen(
@@ -144,6 +154,8 @@ class SmsGameActivity : ComponentActivity() {
     }
 
     companion object {
+        private const val FIRST_CONTENT_TIMEOUT_MS = 10_000L
+
         fun intent(activity: Activity, args: SmsGameActivityArgs): Intent =
             SmsGameActivityArgs.toIntent(
                 Intent(activity, SmsGameActivity::class.java),

@@ -22,6 +22,7 @@ internal fun NavGraphBuilder.gameScreen(
     onNavigateToCinematic: () -> Unit,
     onNavigateToBuy: () -> Unit,
     onNavigateToExit: () -> Unit,
+    onFirstContentPlayed: () -> Unit = {},
 ) = composable(
     route = SmsGameRoutes.GAME,
     enterTransition = { fadeIn(tween(500, easing = FastOutSlowInEasing)) },
@@ -71,6 +72,13 @@ internal fun NavGraphBuilder.gameScreen(
         viewModel.navigateToExit.collect {
             onNavigateToExit()
         }
+    }
+
+    val firstContentVisible = state.messages.isNotEmpty() ||
+        state.visualNovel != null ||
+        state.fakeNotification != null
+    LaunchedEffect(firstContentVisible) {
+        if (firstContentVisible) onFirstContentPlayed()
     }
 
     SmsGameScreen(
