@@ -4,11 +4,9 @@ import com.google.gson.Gson
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import com.purpletear.game.data.local.dto.ChapterMetadataDto
-import com.purpletear.game.data.local.dto.EdgeDto
 import com.purpletear.game.data.local.dto.NodeDto
 import com.purpletear.sutoko.game.model.SUTOKO_MEDIA_BASE_URL
 import com.purpletear.sutoko.game.model.chapter.Node
-import com.purpletear.sutoko.game.provider.GamePathProvider
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
@@ -25,7 +23,7 @@ class ChapterGraphParserVisualNovelTest {
     @get:Rule
     val tempFolder = TemporaryFolder()
 
-    private val pathProvider by lazy { FakeGamePathProvider(tempFolder.root) }
+    private val pathProvider by lazy { FakeGamePathProvider(tempFolder.root.absolutePath) }
 
     private fun gameAssetsDir(): File =
         File(tempFolder.root, "game1/assets").apply { mkdirs() }
@@ -243,12 +241,4 @@ class ChapterGraphParserVisualNovelTest {
         pathProvider = pathProvider
     )
 
-    private fun edge(source: String, target: String): EdgeDto =
-        gson.fromJson("""{"source":"$source","target":"$target"}""", EdgeDto::class.java)
-
-    private class FakeGamePathProvider(private val root: File) : GamePathProvider {
-        override fun getStoriesDirectoryPath(): String = root.absolutePath
-        override fun getStoryDirectoryPath(storyId: String, legacyId: Int?): String =
-            File(root, "${legacyId ?: storyId}").absolutePath
-    }
 }

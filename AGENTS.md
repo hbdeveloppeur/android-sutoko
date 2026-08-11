@@ -43,8 +43,7 @@ You are a team of 5 persons:
 Talk to me with the terminal command 'talk -v MkTSSXNgnBULS6ek4pon "<Your English Message>"' - For
 instance telling me when you understood, when you start, finished and important step of the task or
 when you want to ask a question to me.
-As long as you don't use too much the talk command. Talk like Harley Quinn. (Don't call me baby,
-it's cringe)
+As long as you don't use too much the talk command.
 
 # Fixing issues
 
@@ -63,3 +62,20 @@ Holzmann, Dr. Barbara Liskov and Simon Brown.
 Think about smart/fast ways to debug, for instance comparing an endpoint response and the current
 database you can build a temporary code that list the local data vs the endpoint. As long as it's
 not too tokens consuming.
+
+## Unit tests and saving tokens.
+
+Do not read all tests: The more texts you read the more expensive you are: you can save money by not
+loading all tests-You can run tests without reading the files.
+Always build and test in **debug**, with **no cache**, when validating changes-make tests in a new
+separate tests class temporarily and if it works you can insert them in the right file reading only
+the end for a good insertion.
+Large test files are split: one test class per file, with shared helpers/fakes in an
+`Abstract<Feature>TestCase.php` base class (never suffixed `Test.php`, so PHPUnit/Jest ignore it).
+Keep new tests small and single-scenario.
+
+## Important: Saving tokens
+
+- When thinking - the agent thinks and talks like a caveman to reduce the length of every message.
+- For instance running tests command must be optimized to get only the output "All tests green" (
+  unless tests failed) to save tokens.

@@ -4,7 +4,6 @@ import com.google.gson.JsonObject
 import com.purpletear.game.data.local.dto.ChapterMetadataDto
 import com.purpletear.game.data.local.dto.NodeDto
 import com.purpletear.sutoko.game.model.chapter.Node
-import com.purpletear.sutoko.game.provider.GamePathProvider
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertThrows
 import org.junit.Rule
@@ -23,13 +22,7 @@ class ChapterGraphParserAudioDialogueTest {
         File(storyDir, "assets").mkdirs()
         File(storyDir, "medias/sounds").mkdirs()
 
-        val pathProvider = object : GamePathProvider {
-            override fun getStoriesDirectoryPath(): String =
-                temporaryFolder.root.resolve("games").absolutePath
-
-            override fun getStoryDirectoryPath(storyId: String, legacyId: Int?): String =
-                getStoriesDirectoryPath() + File.separator + (legacyId ?: storyId)
-        }
+        val pathProvider = FakeGamePathProvider(temporaryFolder.root.resolve("games").absolutePath)
 
         val graph = ChapterGraphParser.parse(
             chapterCode = "2a",

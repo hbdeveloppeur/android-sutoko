@@ -1,147 +1,17 @@
 package com.purpletear.game.data.repository
 
-import com.purpletear.game.data.local.dao.GameDao
-import com.purpletear.game.data.local.entity.GameCatalogEntity
-import com.purpletear.game.data.remote.GameApi
-import com.purpletear.game.data.remote.dto.AssetDto
-import com.purpletear.game.data.remote.dto.AuthorDto
 import com.purpletear.game.data.remote.dto.GameDto
 import com.purpletear.game.data.remote.dto.GameMetadataDto
 import com.purpletear.game.data.remote.dto.toDomain
-import com.purpletear.sutoko.domain.model.User
-import com.purpletear.sutoko.domain.repository.UserRepository
-import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import okhttp3.ResponseBody.Companion.toResponseBody
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
-import org.junit.Assert.fail
 import org.junit.Test
-import retrofit2.Response
 import retrofit2.HttpException
+import retrofit2.Response
 
 class GameRepositoryImplSearchStoriesTest {
-
-    private val stubUserRepository = object : UserRepository {
-        override fun observeUser(): Flow<User?> = flowOf(null)
-        override fun observeIsConnected(): Flow<Boolean> = flowOf(false)
-        override fun isConnected(): Result<Boolean> = Result.success(false)
-        override suspend fun connect(id: String, token: String): Result<Unit> = Result.success(Unit)
-        override suspend fun disconnect(): Result<Unit> = Result.success(Unit)
-    }
-
-    private val stubGameDao = object : GameDao {
-        override fun observeOfficialGames(): Flow<List<GameCatalogEntity>> = flowOf(emptyList())
-        override fun observeUserGames(): Flow<List<GameCatalogEntity>> = flowOf(emptyList())
-        override fun observeGame(id: String): Flow<GameCatalogEntity?> = flowOf(null)
-        override suspend fun getByIds(ids: List<String>): List<GameCatalogEntity> = emptyList()
-        override suspend fun deleteAllOfficial() {}
-        override suspend fun deleteAllUserGames() {}
-        override suspend fun upsertAll(entities: List<GameCatalogEntity>) {}
-    }
-
-    @Test
-    fun `syncUserGames fetches page 1 and replaces user games`() = runTest {
-        val recordingDao = RecordingGameDao()
-        val api = object : FakeGameApi() {
-            override suspend fun getUserGames(
-                languageCode: String,
-                page: Int,
-                limit: Int
-            ): Response<List<GameDto>> {
-                assertEquals("fr-FR", languageCode)
-                assertEquals(1, page)
-                assertEquals(20, limit)
-                return Response.success(listOf(stubGameDto("game-1")))
-            }
-        }
-        val repository = GameRepositoryImpl(api, recordingDao, stubUserRepository)
-
-        val result = repository.syncUserGames("fr-FR")
-
-        assertTrue(result.isSuccess)
-        assertEquals(1, recordingDao.replaceAllUserGamesCalls.size)
-        assertEquals(1, recordingDao.replaceAllUserGamesCalls.first().size)
-        assertEquals("game-1", recordingDao.replaceAllUserGamesCalls.first().first().id)
-        assertTrue(recordingDao.upsertAllCalls.isEmpty())
-    }
-
-    @Test
-    fun `loadMoreUserGames fetches next page and upserts`() = runTest {
-        val recordingDao = RecordingGameDao()
-        val api = object : FakeGameApi() {
-            var callCount = 0
-            override suspend fun getUserGames(
-                languageCode: String,
-                page: Int,
-                limit: Int
-            ): Response<List<GameDto>> {
-                callCount++
-                return when (page) {
-                    1 -> Response.success(List(20) { index -> stubGameDto("game-$index") })
-                    2 -> Response.success(listOf(stubGameDto("game-next")))
-                    else -> Response.success(emptyList())
-                }
-            }
-        }
-        val repository = GameRepositoryImpl(api, recordingDao, stubUserRepository)
-        repository.syncUserGames("fr-FR")
-
-        val result = repository.loadMoreUserGames("fr-FR")
-
-        assertTrue(result.isSuccess)
-        assertFalse(result.getOrThrow())
-        assertEquals(1, recordingDao.upsertAllCalls.size)
-        assertEquals(1, recordingDao.upsertAllCalls.first().size)
-        assertEquals("game-next", recordingDao.upsertAllCalls.first().first().id)
-    }
-
-    @Test
-    fun `loadMoreUserGames returns true when page is full`() = runTest {
-        val recordingDao = RecordingGameDao()
-        val api = object : FakeGameApi() {
-            override suspend fun getUserGames(
-                languageCode: String,
-                page: Int,
-                limit: Int
-            ): Response<List<GameDto>> {
-                return Response.success(List(20) { index -> stubGameDto("game-page$page-$index") })
-            }
-        }
-        val repository = GameRepositoryImpl(api, recordingDao, stubUserRepository)
-        repository.syncUserGames("fr-FR")
-
-        val result = repository.loadMoreUserGames("fr-FR")
-
-        assertTrue(result.isSuccess)
-        assertTrue(result.getOrThrow())
-    }
-
-    @Test
-    fun `loadMoreUserGames returns failure on error response`() = runTest {
-        val recordingDao = RecordingGameDao()
-        val api = object : FakeGameApi() {
-            override suspend fun getUserGames(
-                languageCode: String,
-                page: Int,
-                limit: Int
-            ): Response<List<GameDto>> = if (page == 1) {
-                Response.success(emptyList())
-            } else {
-                Response.error(500, "Server error".toResponseBody(null))
-            }
-        }
-        val repository = GameRepositoryImpl(api, recordingDao, stubUserRepository)
-        repository.syncUserGames("fr-FR")
-
-        val result = repository.loadMoreUserGames("fr-FR")
-
-        assertTrue(result.isFailure)
-        assertTrue(result.exceptionOrNull() is HttpException)
-    }
 
     @Test
     fun `searchStories returns mapped domain catalogs on success`() = runTest {
@@ -153,43 +23,19 @@ class GameRepositoryImplSearchStoriesTest {
                 limit: Int
             ): Response<List<GameDto>> = Response.success(
                 listOf(
-                    GameDto(
-                        id = "game-1",
-                        version = 1,
-                        interactionCount = 0,
-                        downloadCount = 0,
-                        isCertified = false,
-                        status = "online",
-                        createdAt = 0L,
-                        price = 0,
-                        skuIdentifiers = emptyList(),
-                        videoUrl = null,
-                        cachedChaptersCount = 5,
-                        bannerAsset = null,
-                        menuBackgroundAsset = null,
-                        titleAsset = null,
-                        logoAsset = null,
+                    stubGameDto("game-1").copy(
                         metadata = GameMetadataDto(
                             title = "Search Result",
                             description = null,
                             lang = "fr-FR",
                             catchingPhrase = null
-                        ),
-                        author = AuthorDto(
-                            displayName = "Author",
-                            avatarUrl = null,
-                            isCertified = false
-                        ),
-                        legacyId = null,
-                        official = false,
-                        userNickNameRequired = false,
-                        canvasTechnologyRequiredVersion = 1
+                        )
                     )
                 )
             )
         }
 
-        val repository = GameRepositoryImpl(api, stubGameDao, stubUserRepository)
+        val repository = gameRepository(api)
 
         val result = repository.searchStories(
             query = "search",
@@ -218,7 +64,7 @@ class GameRepositoryImplSearchStoriesTest {
             )
         }
 
-        val repository = GameRepositoryImpl(api, stubGameDao, stubUserRepository)
+        val repository = gameRepository(api)
 
         val result = repository.searchStories(
             query = "a",
@@ -243,7 +89,7 @@ class GameRepositoryImplSearchStoriesTest {
                 limit: Int
             ): Response<List<GameDto>> = Response.success(listOf(stubGameDto("game-1")))
         }
-        val repository = GameRepositoryImpl(api, recordingDao, stubUserRepository)
+        val repository = gameRepository(api, recordingDao)
 
         val result = repository.searchStories(query = "search", languageTag = "fr-FR")
 
@@ -266,199 +112,12 @@ class GameRepositoryImplSearchStoriesTest {
                 "Server error".toResponseBody(null)
             )
         }
-        val repository = GameRepositoryImpl(api, recordingDao, stubUserRepository)
+        val repository = gameRepository(api, recordingDao)
 
         val result = repository.searchStories(query = "search", languageTag = "fr-FR")
 
         assertTrue(result.isFailure)
         assertTrue(recordingDao.upsertAllCalls.isEmpty())
-    }
-
-    @Test
-    fun `getGameCatalog returns local catalog without api call`() = runTest {
-        val recordingDao = RecordingGameDao()
-        recordingDao.game = stubGameDto("game-1").toDomain()
-        val api = object : FakeGameApi() {
-            // getStory not overridden: any call fails the test via NotImplementedError
-        }
-        val repository = GameRepositoryImpl(api, recordingDao, stubUserRepository)
-
-        val result = repository.getGameCatalog("game-1", "fr-FR")
-
-        assertTrue("Expected success but got $result", result.isSuccess)
-        assertEquals("game-1", result.getOrThrow()?.id)
-        assertTrue(recordingDao.upsertAllCalls.isEmpty())
-    }
-
-    @Test
-    fun `getGameCatalog fetches remotely and persists on local miss`() = runTest {
-        val recordingDao = RecordingGameDao()
-        val api = object : FakeGameApi() {
-            override suspend fun getStory(
-                gameId: String,
-                languageCode: String,
-                authorization: String?,
-            ): Response<GameDto> {
-                assertEquals("game-1", gameId)
-                assertEquals("fr-FR", languageCode)
-                return Response.success(stubGameDto("game-1"))
-            }
-        }
-        val repository = GameRepositoryImpl(api, recordingDao, stubUserRepository)
-
-        val result = repository.getGameCatalog("game-1", "fr-FR")
-
-        assertTrue("Expected success but got $result", result.isSuccess)
-        assertEquals("game-1", result.getOrThrow()?.id)
-        assertEquals(1, recordingDao.upsertAllCalls.size)
-        assertEquals("game-1", recordingDao.upsertAllCalls.first().first().id)
-    }
-
-    @Test
-    fun `getGameCatalog returns success null on 404`() = runTest {
-        val recordingDao = RecordingGameDao()
-        val api = object : FakeGameApi() {
-            override suspend fun getStory(
-                gameId: String,
-                languageCode: String,
-                authorization: String?,
-            ): Response<GameDto> =
-                Response.error(404, "story_not_found".toResponseBody(null))
-        }
-        val repository = GameRepositoryImpl(api, recordingDao, stubUserRepository)
-
-        val result = repository.getGameCatalog("game-1", "fr-FR")
-
-        assertTrue("Expected success but got $result", result.isSuccess)
-        assertEquals(null, result.getOrThrow())
-        assertTrue(recordingDao.upsertAllCalls.isEmpty())
-    }
-
-    @Test
-    fun `getGameCatalog returns failure with HttpException on 500`() = runTest {
-        val recordingDao = RecordingGameDao()
-        val api = object : FakeGameApi() {
-            override suspend fun getStory(
-                gameId: String,
-                languageCode: String,
-                authorization: String?,
-            ): Response<GameDto> =
-                Response.error(500, "Server error".toResponseBody(null))
-        }
-        val repository = GameRepositoryImpl(api, recordingDao, stubUserRepository)
-
-        val result = repository.getGameCatalog("game-1", "fr-FR")
-
-        assertTrue("Expected failure but got $result", result.isFailure)
-        assertTrue(result.exceptionOrNull() is HttpException)
-        assertTrue(recordingDao.upsertAllCalls.isEmpty())
-    }
-
-    @Test
-    fun `getGameCatalog rethrows CancellationException`() = runTest {
-        val api = object : FakeGameApi() {
-            override suspend fun getStory(
-                gameId: String,
-                languageCode: String,
-                authorization: String?,
-            ): Response<GameDto> =
-                throw CancellationException("cancelled")
-        }
-        val repository = GameRepositoryImpl(api, stubGameDao, stubUserRepository)
-
-        try {
-            repository.getGameCatalog("game-1", "fr-FR")
-            fail("Expected CancellationException")
-        } catch (e: CancellationException) {
-            // expected
-        }
-    }
-
-    @Test
-    fun `refreshGameCatalog fetches remotely even when local catalog exists`() = runTest {
-        val recordingDao = RecordingGameDao()
-        recordingDao.game = stubGameDto("game-1").toDomain().copy(version = 14)
-        val api = object : FakeGameApi() {
-            override suspend fun getStory(
-                gameId: String,
-                languageCode: String,
-                authorization: String?,
-            ): Response<GameDto> {
-                assertEquals("game-1", gameId)
-                assertEquals("fr-FR", languageCode)
-                return Response.success(stubGameDto("game-1").copy(version = 15))
-            }
-        }
-        val repository = GameRepositoryImpl(api, recordingDao, stubUserRepository)
-
-        val result = repository.refreshGameCatalog("game-1", "fr-FR")
-
-        assertTrue("Expected success but got $result", result.isSuccess)
-        assertEquals(15, result.getOrThrow()?.version)
-        assertEquals(1, recordingDao.upsertAllCalls.size)
-        assertEquals(15, recordingDao.upsertAllCalls.first().first().version)
-    }
-
-    @Test
-    fun `refreshGameCatalog returns success null on 404 without persisting`() = runTest {
-        val recordingDao = RecordingGameDao()
-        recordingDao.game = stubGameDto("game-1").toDomain()
-        val api = object : FakeGameApi() {
-            override suspend fun getStory(
-                gameId: String,
-                languageCode: String,
-                authorization: String?,
-            ): Response<GameDto> =
-                Response.error(404, "story_not_found".toResponseBody(null))
-        }
-        val repository = GameRepositoryImpl(api, recordingDao, stubUserRepository)
-
-        val result = repository.refreshGameCatalog("game-1", "fr-FR")
-
-        assertTrue("Expected success but got $result", result.isSuccess)
-        assertEquals(null, result.getOrThrow())
-        assertTrue(recordingDao.upsertAllCalls.isEmpty())
-    }
-
-    @Test
-    fun `refreshGameCatalog returns failure with HttpException on 500 without persisting`() = runTest {
-        val recordingDao = RecordingGameDao()
-        recordingDao.game = stubGameDto("game-1").toDomain()
-        val api = object : FakeGameApi() {
-            override suspend fun getStory(
-                gameId: String,
-                languageCode: String,
-                authorization: String?,
-            ): Response<GameDto> =
-                Response.error(500, "Server error".toResponseBody(null))
-        }
-        val repository = GameRepositoryImpl(api, recordingDao, stubUserRepository)
-
-        val result = repository.refreshGameCatalog("game-1", "fr-FR")
-
-        assertTrue("Expected failure but got $result", result.isFailure)
-        assertTrue(result.exceptionOrNull() is HttpException)
-        assertTrue(recordingDao.upsertAllCalls.isEmpty())
-    }
-
-    @Test
-    fun `refreshGameCatalog rethrows CancellationException`() = runTest {
-        val api = object : FakeGameApi() {
-            override suspend fun getStory(
-                gameId: String,
-                languageCode: String,
-                authorization: String?,
-            ): Response<GameDto> =
-                throw CancellationException("cancelled")
-        }
-        val repository = GameRepositoryImpl(api, stubGameDao, stubUserRepository)
-
-        try {
-            repository.refreshGameCatalog("game-1", "fr-FR")
-            fail("Expected CancellationException")
-        } catch (e: CancellationException) {
-            // expected
-        }
     }
 
     @Test
@@ -472,7 +131,7 @@ class GameRepositoryImplSearchStoriesTest {
             ): Response<List<GameDto>> = Response.success(null)
         }
 
-        val repository = GameRepositoryImpl(api, stubGameDao, stubUserRepository)
+        val repository = gameRepository(api)
 
         val result = repository.searchStories(
             query = "query",
@@ -481,144 +140,6 @@ class GameRepositoryImplSearchStoriesTest {
 
         assertTrue(result.isSuccess)
         assertEquals(emptyList<GameDto>(), result.getOrThrow())
-    }
-
-    @Test
-    fun `getOneUserGames returns mapped domain catalogs on success`() = runTest {
-        val api = object : FakeGameApi() {
-            override suspend fun getOneUserGames(
-                userId: String,
-                page: Int,
-                limit: Int
-            ): Response<List<GameDto>> {
-                assertEquals("user-1", userId)
-                assertEquals(1, page)
-                assertEquals(20, limit)
-                return Response.success(listOf(stubGameDto("game-1")))
-            }
-        }
-
-        val repository = GameRepositoryImpl(api, stubGameDao, stubUserRepository)
-
-        val result = repository.getOneUserGames(
-            userId = "user-1",
-            page = 1,
-            limit = 20,
-        )
-
-        assertTrue("Expected success but got $result", result.isSuccess)
-        val catalogs = result.getOrThrow()
-        assertEquals(1, catalogs.size)
-        assertEquals("game-1", catalogs.first().id)
-        assertTrue(catalogs.first().isOnline)
-    }
-
-    @Test
-    fun `getOneUserGames marks story offline when status is not online`() = runTest {
-        val api = object : FakeGameApi() {
-            override suspend fun getOneUserGames(
-                userId: String,
-                page: Int,
-                limit: Int
-            ): Response<List<GameDto>> {
-                return Response.success(
-                    listOf(stubGameDto("game-draft").copy(status = "draft"))
-                )
-            }
-        }
-
-        val repository = GameRepositoryImpl(api, stubGameDao, stubUserRepository)
-
-        val result = repository.getOneUserGames(
-            userId = "user-1",
-            page = 1,
-            limit = 20,
-        )
-
-        assertTrue("Expected success but got $result", result.isSuccess)
-        val catalogs = result.getOrThrow()
-        assertEquals(1, catalogs.size)
-        assertEquals(false, catalogs.first().isOnline)
-    }
-
-    @Test
-    fun `getOneUserGames returns failure with HttpException on error response`() = runTest {
-        val api = object : FakeGameApi() {
-            override suspend fun getOneUserGames(
-                userId: String,
-                page: Int,
-                limit: Int
-            ): Response<List<GameDto>> = Response.error(
-                404,
-                "Not found".toResponseBody(null)
-            )
-        }
-
-        val repository = GameRepositoryImpl(api, stubGameDao, stubUserRepository)
-
-        val result = repository.getOneUserGames(
-            userId = "user-1",
-            page = 1,
-            limit = 20,
-        )
-
-        assertTrue("Expected failure but got $result", result.isFailure)
-        assertTrue(
-            "Expected HttpException but got ${result.exceptionOrNull()}",
-            result.exceptionOrNull() is HttpException
-        )
-    }
-
-    @Test
-    fun `getOneUserGames returns empty list when body is null`() = runTest {
-        val api = object : FakeGameApi() {
-            override suspend fun getOneUserGames(
-                userId: String,
-                page: Int,
-                limit: Int
-            ): Response<List<GameDto>> = Response.success(null)
-        }
-
-        val repository = GameRepositoryImpl(api, stubGameDao, stubUserRepository)
-
-        val result = repository.getOneUserGames(
-            userId = "user-1",
-            page = 1,
-            limit = 20,
-        )
-
-        assertTrue(result.isSuccess)
-        assertEquals(emptyList<GameDto>(), result.getOrThrow())
-    }
-
-    private class RecordingGameDao : GameDao {
-        val replaceAllOfficialCalls = mutableListOf<List<GameCatalogEntity>>()
-        val replaceAllUserGamesCalls = mutableListOf<List<GameCatalogEntity>>()
-        val upsertAllCalls = mutableListOf<List<GameCatalogEntity>>()
-        var game: GameCatalogEntity? = null
-        var storedGames: Map<String, GameCatalogEntity> = emptyMap()
-
-        override fun observeOfficialGames(): Flow<List<GameCatalogEntity>> = flowOf(emptyList())
-        override fun observeUserGames(): Flow<List<GameCatalogEntity>> = flowOf(emptyList())
-        override fun observeGame(id: String): Flow<GameCatalogEntity?> = flowOf(game)
-
-        override suspend fun getByIds(ids: List<String>): List<GameCatalogEntity> =
-            ids.mapNotNull { storedGames[it] }
-
-        override suspend fun deleteAllOfficial() {}
-        override suspend fun deleteAllUserGames() {}
-
-        override suspend fun upsertAll(entities: List<GameCatalogEntity>) {
-            upsertAllCalls.add(entities)
-        }
-
-        override suspend fun replaceAllUserGames(entities: List<GameCatalogEntity>) {
-            replaceAllUserGamesCalls.add(entities)
-        }
-
-        override suspend fun replaceAllOfficial(entities: List<GameCatalogEntity>) {
-            replaceAllOfficialCalls.add(entities)
-        }
     }
 
     @Test
@@ -636,7 +157,7 @@ class GameRepositoryImplSearchStoriesTest {
                 limit: Int
             ): Response<List<GameDto>> = Response.success(listOf(stubGameDto("game-1")))
         }
-        val repository = GameRepositoryImpl(api, recordingDao, stubUserRepository)
+        val repository = gameRepository(api, recordingDao)
 
         val result = repository.searchStories(query = "search", languageTag = "fr-FR")
 
@@ -645,175 +166,5 @@ class GameRepositoryImplSearchStoriesTest {
         assertEquals("game-1", upserted.id)
         assertTrue(upserted.isOfficial)
         assertEquals(5, upserted.officialOrder)
-    }
-
-    @Test
-    fun `refreshGameCatalog preserves officialOrder and isOfficial of existing official story`() = runTest {
-        val recordingDao = RecordingGameDao()
-        recordingDao.storedGames = mapOf(
-            "game-1" to stubGameDto("game-1").toDomain()
-                .copy(isOfficial = true, officialOrder = 5)
-        )
-        val api = object : FakeGameApi() {
-            override suspend fun getStory(
-                gameId: String,
-                languageCode: String,
-                authorization: String?,
-            ): Response<GameDto> =
-                Response.success(stubGameDto("game-1").copy(version = 15))
-        }
-        val repository = GameRepositoryImpl(api, recordingDao, stubUserRepository)
-
-        val result = repository.refreshGameCatalog("game-1", "fr-FR")
-
-        assertTrue(result.isSuccess)
-        val upserted = recordingDao.upsertAllCalls.first().first()
-        assertEquals(15, upserted.version)
-        assertTrue(upserted.isOfficial)
-        assertEquals(5, upserted.officialOrder)
-    }
-
-    @Test
-    fun `refreshGameCatalog upserts unknown story with default order`() = runTest {
-        val recordingDao = RecordingGameDao()
-        val api = object : FakeGameApi() {
-            override suspend fun getStory(
-                gameId: String,
-                languageCode: String,
-                authorization: String?,
-            ): Response<GameDto> = Response.success(stubGameDto("game-new"))
-        }
-        val repository = GameRepositoryImpl(api, recordingDao, stubUserRepository)
-
-        val result = repository.refreshGameCatalog("game-new", "fr-FR")
-
-        assertTrue(result.isSuccess)
-        val upserted = recordingDao.upsertAllCalls.first().first()
-        assertEquals("game-new", upserted.id)
-        assertFalse(upserted.isOfficial)
-        assertEquals(0, upserted.officialOrder)
-    }
-
-    private fun stubGameDto(id: String): GameDto = GameDto(
-        id = id,
-        version = 1,
-        interactionCount = 0,
-        downloadCount = 0,
-        isCertified = false,
-        status = "online",
-        createdAt = 0L,
-        price = 0,
-        skuIdentifiers = emptyList(),
-        videoUrl = null,
-        cachedChaptersCount = 5,
-        bannerAsset = null,
-        menuBackgroundAsset = null,
-        titleAsset = null,
-        logoAsset = null,
-        metadata = GameMetadataDto(
-            title = "Title",
-            description = null,
-            lang = "fr-FR",
-            catchingPhrase = null
-        ),
-        author = AuthorDto(
-            displayName = "Author",
-            avatarUrl = null,
-            isCertified = false
-        ),
-        legacyId = null,
-        official = false,
-        userNickNameRequired = false,
-        canvasTechnologyRequiredVersion = 1
-    )
-
-    @Test
-    fun `syncOfficialGames fetches and persists games with api order`() = runTest {
-        val recordingDao = RecordingGameDao()
-        val api = object : FakeGameApi() {
-            override suspend fun getOfficialGames(
-                languageCode: String,
-                authorization: String?,
-            ): List<GameDto> {
-                assertEquals("fr-FR", languageCode)
-                return listOf(
-                    stubGameDto("game-first").copy(official = true),
-                    stubGameDto("game-second").copy(official = true),
-                    stubGameDto("game-third").copy(official = true),
-                )
-            }
-        }
-        val repository = GameRepositoryImpl(api, recordingDao, stubUserRepository)
-
-        val result = repository.syncOfficialGames("fr-FR")
-
-        assertTrue(result.isSuccess)
-        assertEquals(1, recordingDao.replaceAllOfficialCalls.size)
-        val persisted = recordingDao.replaceAllOfficialCalls.first()
-        assertEquals(3, persisted.size)
-        assertEquals("game-first", persisted[0].id)
-        assertEquals(0, persisted[0].officialOrder)
-        assertEquals("game-second", persisted[1].id)
-        assertEquals(1, persisted[1].officialOrder)
-        assertEquals("game-third", persisted[2].id)
-        assertEquals(2, persisted[2].officialOrder)
-    }
-
-    @Test
-    fun `syncOfficialGames returns failure on error`() = runTest {
-        val recordingDao = RecordingGameDao()
-        val api = object : FakeGameApi() {
-            override suspend fun getOfficialGames(
-                languageCode: String,
-                authorization: String?,
-            ): List<GameDto> = throw RuntimeException("network down")
-        }
-        val repository = GameRepositoryImpl(api, recordingDao, stubUserRepository)
-
-        val result = repository.syncOfficialGames("fr-FR")
-
-        assertTrue(result.isFailure)
-        assertTrue(recordingDao.replaceAllOfficialCalls.isEmpty())
-    }
-
-    private open class FakeGameApi : GameApi {
-        override suspend fun getOfficialGames(
-            languageCode: String,
-            authorization: String?,
-        ): List<GameDto> =
-            throw NotImplementedError()
-
-        override suspend fun getOneUserGames(
-            userId: String,
-            page: Int,
-            limit: Int
-        ): Response<List<GameDto>> = throw NotImplementedError()
-
-        override suspend fun getUserGames(
-            languageCode: String,
-            page: Int,
-            limit: Int
-        ): Response<List<GameDto>> = throw NotImplementedError()
-
-        override suspend fun getDownloadLink(
-            gameId: String,
-            userId: String?,
-            userToken: String?,
-            preview: Boolean?,
-        ) = throw NotImplementedError()
-
-        override suspend fun searchStories(
-            query: String,
-            languageCode: String,
-            page: Int,
-            limit: Int
-        ): Response<List<GameDto>> = throw NotImplementedError()
-
-        override suspend fun getStory(
-            gameId: String,
-            languageCode: String,
-            authorization: String?,
-        ): Response<GameDto> =
-            throw NotImplementedError()
     }
 }

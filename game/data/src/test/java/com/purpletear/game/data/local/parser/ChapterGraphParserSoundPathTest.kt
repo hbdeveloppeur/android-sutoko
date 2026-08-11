@@ -4,7 +4,6 @@ import com.google.gson.JsonObject
 import com.purpletear.game.data.local.dto.ChapterMetadataDto
 import com.purpletear.game.data.local.dto.NodeDto
 import com.purpletear.sutoko.game.model.chapter.Node
-import com.purpletear.sutoko.game.provider.GamePathProvider
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
@@ -31,13 +30,7 @@ class ChapterGraphParserSoundPathTest {
             file.createNewFile()
         }
 
-        val pathProvider = object : GamePathProvider {
-            override fun getStoriesDirectoryPath(): String =
-                temporaryFolder.root.resolve("games").absolutePath
-
-            override fun getStoryDirectoryPath(storyId: String, legacyId: Int?): String =
-                getStoriesDirectoryPath() + File.separator + (legacyId ?: storyId)
-        }
+        val pathProvider = FakeGamePathProvider(temporaryFolder.root.resolve("games").absolutePath)
 
         val data = JsonObject().apply {
             addProperty("storagePath", "assets/$assetName")
