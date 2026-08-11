@@ -29,7 +29,8 @@ class SoundNodeHandler @Inject constructor() : NodeHandler {
                 HandlerCommand.Emit(
                     HandlerEffect.PlaySound(
                         soundUrl = soundNode.soundUrl,
-                        loop = soundNode.loop
+                        loop = soundNode.loop,
+                        volume = soundNode.volume
                     )
                 )
             )

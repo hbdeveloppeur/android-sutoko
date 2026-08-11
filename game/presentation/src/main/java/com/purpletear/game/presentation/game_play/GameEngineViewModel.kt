@@ -367,9 +367,7 @@ class GameEngineViewModel @Inject constructor(
         if (engineState is GameEngineState.ChapterFinished) {
             logChapterFinished(engineState.chapterCode)
         }
-        if (engineState is GameEngineState.AwaitingTap &&
-            advanceMode.value == StoryAdvanceMode.AUTO_PLAY
-        ) {
+        if (engineState is GameEngineState.AwaitingTap && shouldAutoAdvance(engineState)) {
             scheduleAutoAdvance(engineState)
         } else {
             autoAdvanceJob?.cancel()
@@ -433,20 +431,25 @@ class GameEngineViewModel @Inject constructor(
     }
 
     /**
+     * Whether a parked tap gate resolves on its own: always in auto-play mode, and for
+     * gates that declared [GameEngineState.AwaitingTap.requiresTap] = false (e.g. scene
+     * transitions), which auto-continue even in click-to-advance mode.
+     */
+    private fun shouldAutoAdvance(state: GameEngineState.AwaitingTap): Boolean =
+        advanceMode.value == StoryAdvanceMode.AUTO_PLAY || !state.requiresTap
+
+    /**
      * Applies a mid-game [StoryAdvanceMode] change to a currently parked tap gate: turning
-     * AutoPlay off cancels the pending advance; turning it on schedules one if the engine is
-     * still waiting for a tap.
+     * AutoPlay off cancels the pending advance (unless the gate never requires a tap);
+     * turning it on schedules one if the engine is still waiting for a tap.
      */
     private suspend fun observeAdvanceMode() {
-        advanceMode.collect { mode ->
-            when (mode) {
-                StoryAdvanceMode.CLICK_TO_ADVANCE -> autoAdvanceJob?.cancel()
-                StoryAdvanceMode.AUTO_PLAY -> {
-                    val state = gameEngine.state.value
-                    if (state is GameEngineState.AwaitingTap) {
-                        scheduleAutoAdvance(state)
-                    }
-                }
+        advanceMode.collect {
+            val state = gameEngine.state.value
+            if (state is GameEngineState.AwaitingTap && shouldAutoAdvance(state)) {
+                scheduleAutoAdvance(state)
+            } else {
+                autoAdvanceJob?.cancel()
             }
         }
     }
@@ -503,7 +506,7 @@ class GameEngineViewModel @Inject constructor(
 
             is HandlerEffect.PlayTypingSound -> playTypingSound()
 
-            is HandlerEffect.PlaySound -> playSound(effect.soundUrl, effect.loop)
+            is HandlerEffect.PlaySound -> playSound(effect.soundUrl, effect.loop, effect.volume)
 
             is HandlerEffect.PlayVocal -> playVocal(effect.audioUrl)
 
@@ -588,20 +591,21 @@ class GameEngineViewModel @Inject constructor(
         super.onCleared()
     }
 
-    private fun playSound(soundUrl: String, loop: Boolean) {
+    private fun playSound(soundUrl: String, loop: Boolean, volume: Float) {
         if (loop) {
-            playLoopingSound(soundUrl)
+            playLoopingSound(soundUrl, volume)
         } else {
-            playOneShotSound(soundUrl)
+            playOneShotSound(soundUrl, volume)
         }
     }
 
-    private fun playLoopingSound(soundUrl: String) {
+    private fun playLoopingSound(soundUrl: String, volume: Float) {
         soundPlayer?.release()
         soundPlayer = try {
             MediaPlayer().apply {
                 setDataSource(soundUrl)
                 isLooping = true
+                setVolume(volume, volume)
                 prepare()
                 start()
             }
@@ -616,10 +620,11 @@ class GameEngineViewModel @Inject constructor(
      * effects can overlap each other and the ambient loop. The player removes and
      * releases itself on completion; [releaseOneShotSounds] covers early teardown.
      */
-    private fun playOneShotSound(soundUrl: String) {
+    private fun playOneShotSound(soundUrl: String, volume: Float) {
         val player = try {
             MediaPlayer().apply {
                 setDataSource(soundUrl)
+                setVolume(volume, volume)
                 prepare()
             }
         } catch (e: Exception) {

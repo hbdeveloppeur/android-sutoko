@@ -131,7 +131,8 @@ sealed class Node {
     data class Sound(
         override val id: String,
         val soundUrl: String,
-        val loop: Boolean = false
+        val loop: Boolean = false,
+        val volume: Float = 1f
     ) : Node()
 
     @Keep

@@ -50,9 +50,14 @@ sealed class HandlerEffect {
 
     /**
      * Play a sound effect or music.
+     * [volume] is a 0..1 gain applied to both channels; defaults to full volume.
      */
     @Keep
-    data class PlaySound(val soundUrl: String, val loop: Boolean = false) : HandlerEffect()
+    data class PlaySound(
+        val soundUrl: String,
+        val loop: Boolean = false,
+        val volume: Float = 1f
+    ) : HandlerEffect()
 
     /**
      * Stop currently playing sound.

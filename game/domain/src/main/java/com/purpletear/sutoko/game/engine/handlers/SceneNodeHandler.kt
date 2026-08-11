@@ -32,7 +32,9 @@ class SceneNodeHandler @Inject constructor() : NodeHandler {
                         sceneId = sceneNode.sceneId
                     ),
                 ),
-                HandlerCommand.AwaitTap(SCENE_VIEW_DURATION_MS),
+                // Scene changes are atmospheric: they must auto-appear and continue even
+                // in click-to-advance mode, like sound nodes which carry no tap gate at all.
+                HandlerCommand.AwaitTap(SCENE_VIEW_DURATION_MS, requiresTap = false),
             )
         )
     }

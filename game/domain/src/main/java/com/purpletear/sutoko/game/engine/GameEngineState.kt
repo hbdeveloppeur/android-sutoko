@@ -36,12 +36,16 @@ sealed class GameEngineState {
      *
      * [autoAdvanceAfterMs] is the delay after which the driver (UI layer) is expected
      * to advance on its own, so the story progresses without requiring a tap.
+     *
+     * [requiresTap] mirrors [HandlerCommand.AwaitTap.requiresTap]: when false the gate
+     * auto-resolves after [autoAdvanceAfterMs] even in click-to-advance mode.
      */
     @Keep
     data class AwaitingTap(
         val chapterCode: String,
         val currentNodeId: String,
-        val autoAdvanceAfterMs: Long
+        val autoAdvanceAfterMs: Long,
+        val requiresTap: Boolean = true
     ) : GameEngineState()
 
     /**

@@ -60,9 +60,16 @@ sealed class HandlerCommand {
      *   is expected to call [GameEngine.advanceOnTap] once this delay has elapsed, so the
      *   story progresses without requiring a tap. A tap before the deadline simply skips
      *   the wait. The engine itself owns no timer.
+     * - [requiresTap] declares whether a tap is mandatory in click-to-advance mode. When
+     *   false (e.g. scene transitions), the driver must auto-advance after
+     *   [autoAdvanceAfterMs] regardless of the player's advance-mode setting; a tap still
+     *   skips the wait early.
      */
     @Keep
-    data class AwaitTap(val autoAdvanceAfterMs: Long) : HandlerCommand() {
+    data class AwaitTap(
+        val autoAdvanceAfterMs: Long,
+        val requiresTap: Boolean = true
+    ) : HandlerCommand() {
         init {
             require(autoAdvanceAfterMs >= 0) { "autoAdvanceAfterMs must be non-negative, was $autoAdvanceAfterMs" }
         }

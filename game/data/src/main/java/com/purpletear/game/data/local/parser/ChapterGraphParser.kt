@@ -213,7 +213,8 @@ object ChapterGraphParser {
                 Node.Sound(
                     id = id,
                     soundUrl = resolveSoundPath(storagePath, gameId, legacyId, pathProvider),
-                    loop = loop
+                    loop = loop,
+                    volume = data.volume?.coerceIn(0f, 1f) ?: 1f
                 )
             }
 

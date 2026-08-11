@@ -444,7 +444,8 @@ class GameEngine @Inject constructor(
         _state.value = GameEngineState.AwaitingTap(
             chapterCode = context.graph.chapterCode,
             currentNodeId = context.nodeId,
-            autoAdvanceAfterMs = command.autoAdvanceAfterMs
+            autoAdvanceAfterMs = command.autoAdvanceAfterMs,
+            requiresTap = command.requiresTap
         )
 
         GameEngineLogger.d("INPT") { "Parking for tap at ${context.nodeId} (auto-advance in ${command.autoAdvanceAfterMs}ms)" }
