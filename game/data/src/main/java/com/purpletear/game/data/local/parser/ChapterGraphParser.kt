@@ -54,7 +54,8 @@ object ChapterGraphParser {
         edgeDtos: List<EdgeDto>,
         gameId: String,
         legacyId: Int?,
-        pathProvider: GamePathProvider
+        pathProvider: GamePathProvider,
+        rightSideCharacterIds: List<Int> = emptyList()
     ): ChapterGraph {
         val (compactedNodeDtos, compactedEdgeDtos) =
             GraphCompactor.compact(nodeDtos, edgeDtos)
@@ -73,7 +74,8 @@ object ChapterGraphParser {
             title = metadata.title,
             nodes = nodes,
             edges = edges,
-            startNodeId = startNodeId
+            startNodeId = startNodeId,
+            rightSideCharacterIds = rightSideCharacterIds
         )
     }
 

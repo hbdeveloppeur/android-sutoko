@@ -9,7 +9,12 @@ data class ChapterGraph(
     val title: String,
     val nodes: Map<String, Node>,
     val edges: List<Edge>,
-    val startNodeId: String
+    val startNodeId: String,
+    /**
+     * Character ids whose messages render on the right side, declared by the chapter's
+     * `layout.json` (`sides.right`). Empty when the archive declares no layout.
+     */
+    val rightSideCharacterIds: List<Int> = emptyList()
 ) {
     fun getNode(id: String): Node? = nodes[id]
 

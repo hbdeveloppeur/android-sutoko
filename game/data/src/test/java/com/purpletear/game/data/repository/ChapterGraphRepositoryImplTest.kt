@@ -13,6 +13,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.test.runTest
+import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
@@ -72,6 +73,48 @@ class ChapterGraphRepositoryImplTest {
         assertNotNull(
             "Install record must be kept when nothing exists on disk",
             installDao.get(gameId)
+        )
+    }
+
+    @Test
+    fun `layout json right side character ids are carried into the graph`() = runTest {
+        val repository = repositoryWithChapter(
+            layoutJson = """{"sides":{"right":[7166]}}"""
+        )
+
+        val graph = repository.loadChapterGraph("game-layout", "1a", "en")
+            .first()
+            .getOrThrow()
+
+        assertEquals(listOf(7166), graph.rightSideCharacterIds)
+    }
+
+    @Test
+    fun `missing layout json yields empty right side character ids`() = runTest {
+        val repository = repositoryWithChapter(layoutJson = null)
+
+        val graph = repository.loadChapterGraph("game-layout", "1a", "en")
+            .first()
+            .getOrThrow()
+
+        assertTrue(graph.rightSideCharacterIds.isEmpty())
+    }
+
+    private fun repositoryWithChapter(layoutJson: String?): ChapterGraphRepositoryImpl {
+        val gamesDir = temporaryFolder.newFolder()
+        val chapterDir = File(gamesDir, "game-layout/chapters/en/1a")
+        check(chapterDir.mkdirs()) { "Failed to create $chapterDir" }
+        File(chapterDir, "nodes.json").writeText(
+            """[{"id":"start-0","type":"start","data":null}]"""
+        )
+        if (layoutJson != null) {
+            File(chapterDir, "layout.json").writeText(layoutJson)
+        }
+        return ChapterGraphRepositoryImpl(
+            pathProvider = FakeAndroidGamePathProvider(gamesDir),
+            chapterDao = FakeChapterDao(),
+            gameRepository = FakeGameRepository(),
+            installDao = FakeGameInstallationDao(),
         )
     }
 

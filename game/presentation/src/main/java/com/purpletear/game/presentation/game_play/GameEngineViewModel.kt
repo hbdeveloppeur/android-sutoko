@@ -140,6 +140,11 @@ class GameEngineViewModel @Inject constructor(
     private var pendingChapterCode: String? = null
     private var currentGraph: ChapterGraph? = null
 
+    // Right-side layout sources: the chapter archive's layout.json wins when it declares
+    // sides; the Room/API value is the fallback for archives without a layout.json.
+    private var archiveRightSideIds: Set<Int>? = null
+    private var roomRightSideIds: Set<Int> = emptySet()
+
     private val _uiState = MutableStateFlow(GameUiState())
     val uiState: StateFlow<GameUiState> = _uiState.asStateFlow()
 
@@ -206,6 +211,9 @@ class GameEngineViewModel @Inject constructor(
             .collectLatest { result ->
                 result.fold(
                     onSuccess = { graph ->
+                        archiveRightSideIds = graph.rightSideCharacterIds.toSet()
+                        publishRightSideIds()
+
                         val debugJumpNodeId = if (BuildConfig.DEBUG) {
                             SmsGameDebugNodeJumps.getNodeId(graph.chapterCode)
                         } else {
@@ -227,10 +235,25 @@ class GameEngineViewModel @Inject constructor(
     }
 
     /**
-     * Publishes the right-side character ids declared by the current chapter's layout
-     * (`layout.sides.right`). Emits an empty set while the chapter is unknown or declares
-     * no layout: the screen then falls back to the legacy main-character rule.
+     * Publishes the right-side character ids declared by the current chapter's layout.
+     * The archive's `layout.json` is authoritative when it declares sides; otherwise the
+     * Room/API value (`layout.sides.right`) is used. Emits an empty set when neither
+     * declares a layout: the screen then falls back to the legacy main-character rule.
      */
+    private fun publishRightSideIds() {
+        val archiveIds = archiveRightSideIds?.takeIf { it.isNotEmpty() }
+        val effective = archiveIds ?: roomRightSideIds
+        val source = when {
+            archiveIds != null -> "archive layout.json"
+            roomRightSideIds.isNotEmpty() -> "api/room"
+            else -> "none (legacy main-character rule)"
+        }
+        Log.d("GameEngine", "rightSideCharacterIds=$effective (source: $source)")
+        if (_uiState.value.rightSideCharacterIds != effective) {
+            updateState { it.copy(rightSideCharacterIds = effective) }
+        }
+    }
+
     private suspend fun observeChapterLayout(gameId: String, chapterCode: String) {
         chapterRepository.observeChapters(gameId)
             .catch { e ->
@@ -238,14 +261,12 @@ class GameEngineViewModel @Inject constructor(
                 emit(emptyList())
             }
             .collect { chapters ->
-                val rightSideIds = chapters
+                roomRightSideIds = chapters
                     .firstOrNull { it.normalizedCode == chapterCode.lowercase() }
                     ?.rightSideCharacterIds
                     .orEmpty()
                     .toSet()
-                if (_uiState.value.rightSideCharacterIds != rightSideIds) {
-                    updateState { it.copy(rightSideCharacterIds = rightSideIds) }
-                }
+                publishRightSideIds()
             }
     }
 

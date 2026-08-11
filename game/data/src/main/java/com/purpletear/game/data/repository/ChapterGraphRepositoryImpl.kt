@@ -3,10 +3,12 @@ package com.purpletear.game.data.repository
 import android.os.Trace
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
+import android.util.Log
 import com.purpletear.game.data.local.dao.ChapterDao
 import com.purpletear.game.data.local.dao.GameInstallationDao
 import com.purpletear.game.data.local.dto.ChapterMetadataDto
 import com.purpletear.game.data.local.dto.EdgeDto
+import com.purpletear.game.data.local.dto.LayoutDto
 import com.purpletear.game.data.local.dto.NodeDto
 import com.purpletear.game.data.local.parser.ChapterGraphParser
 import com.purpletear.game.data.provider.AndroidGamePathProvider
@@ -70,6 +72,7 @@ class ChapterGraphRepositoryImpl @Inject constructor(
             val metadataFile = File(chapterDir, "metadata.json")
             val nodesFile = File(chapterDir, "nodes.json")
             val edgesFile = File(chapterDir, "edges.json")
+            val layoutFile = File(chapterDir, "layout.json")
 
             if (!nodesFile.exists()) {
                 emit(Result.failure(IllegalArgumentException("Nodes file not found: ${nodesFile.absolutePath}")))
@@ -92,6 +95,13 @@ class ChapterGraphRepositoryImpl @Inject constructor(
                 emptyList()
             }
 
+            val layout: LayoutDto? = if (layoutFile.exists()) {
+                gson.fromJson(layoutFile.readText(), LayoutDto::class.java)
+            } else {
+                null
+            }
+            Log.d("ChapterGraph", "chapter=$chapterCode layout.json=${if (layoutFile.exists()) "found" else "missing"} rightSideIds=${layout?.sides?.right.orEmpty()}")
+
             val chapterNumber = chapterDao.getByStoryAndCode(gameId, chapterCode)?.number ?: 1
 
             val graph = ChapterGraphParser.parse(
@@ -102,7 +112,8 @@ class ChapterGraphRepositoryImpl @Inject constructor(
                 edgeDtos = edgeDtos,
                 gameId = gameId,
                 legacyId = legacyId,
-                pathProvider = pathProvider
+                pathProvider = pathProvider,
+                rightSideCharacterIds = layout?.sides?.right.orEmpty()
             )
             emit(Result.success(graph))
 
