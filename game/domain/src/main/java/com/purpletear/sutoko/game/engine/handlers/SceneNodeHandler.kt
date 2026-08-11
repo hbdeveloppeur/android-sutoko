@@ -40,6 +40,6 @@ class SceneNodeHandler @Inject constructor() : NodeHandler {
     }
 
     private companion object {
-        private const val SCENE_VIEW_DURATION_MS = 3000L
+        private const val SCENE_VIEW_DURATION_MS = 0L
     }
 }
