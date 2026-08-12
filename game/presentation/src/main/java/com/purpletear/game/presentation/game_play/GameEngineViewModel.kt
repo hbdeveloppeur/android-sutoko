@@ -943,11 +943,17 @@ class GameEngineViewModel @Inject constructor(
 
     /**
      * Called when the player taps a non-interactive area of the screen to advance the story.
-     * The engine no-ops when it is not parked for a tap, so the UI can call this on every
-     * unconsumed tap.
+     * While choices are pending, the tap opens the choice box instead, so the player is not
+     * forced to hit the MakeAChoiceButton. Scrolls, button taps and overlay taps consume the
+     * gesture before it reaches here. The engine no-ops when it is not parked for a tap.
      */
     fun onAdvanceOnTap() {
-        if (!_uiState.value.isAwaitingTap) return
+        val state = _uiState.value
+        if (state.isAwaitingInput) {
+            onRevealChoicesClicked()
+            return
+        }
+        if (!state.isAwaitingTap) return
         viewModelScope.launch {
             gameEngine.advanceOnTap()
         }

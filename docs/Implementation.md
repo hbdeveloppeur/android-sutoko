@@ -5,8 +5,8 @@ Do not touch :games:*
 
 You are an expert and smart UX/UI expert.
 
-# Fix: Layout side is not working well.
+# [DONE] Review: When the option "Make a choice" appears in the game we are forced to click the MakeAChoiceButton - we want that a progress click opens the choice box (do not conflict with scroll)
 
-Analyze the archives files at "/Users/hb/Temporaire/stories_qOVSbMIn022_archives_preview (4)
-/chapters/fr-FR/1a/layout.json" and find out why even though character must display messages on
-the right side in chapter 1a, it doesn't.
+Fixed in GameEngineViewModel.onAdvanceOnTap: a progress tap while isAwaitingInput now reveals
+the choice box (same as MakeAChoiceButton). Scroll, button and overlay taps consume the gesture
+before it reaches this handler, so no conflict.

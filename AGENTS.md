@@ -67,7 +67,8 @@ not too tokens consuming.
 
 Do not read all tests: The more texts you read the more expensive you are: you can save money by not
 loading all tests-You can run tests without reading the files.
-Always build and test in **debug**, with **no cache**, when validating changes-make tests in a new
+If not trivial, build and test in **debug**, with **no cache**, when validating changes-make tests
+in a new
 separate tests class temporarily and if it works you can insert them in the right file reading only
 the end for a good insertion.
 Large test files are split: one test class per file, with shared helpers/fakes in an

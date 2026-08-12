@@ -62,14 +62,14 @@ private fun Preview() {
     }
 }
 
-private val DefaultBubbleColor = Color(0x22FFFFFF)
+private val DefaultMeBubbleColor = Color(0xFF191919)
+private val DefaultDestBubbleColor = Color(0xFF3D4E5A)
 
 @Composable
 internal fun MessageText(
     modifier: Modifier = Modifier,
     text: String,
     character: Character,
-    /** Display side of the bubble; defaults to the legacy main-character rule. */
     isRightSide: Boolean = character.isMainCharacter,
     showHeader: Boolean = true,
     positionInGroup: MessagePositionInGroup = MessagePositionInGroup.SINGLE,
@@ -148,18 +148,18 @@ private fun MessageDest(
         MessageBubble(
             modifier = modifier,
             shape = shape,
-            backgroundColor = bubbleColor ?: DefaultBubbleColor
+            backgroundColor = bubbleColor ?: DefaultDestBubbleColor
         ) {
             Text(
                 modifier = Modifier
                     .padding(vertical = 6.dp)
                     .padding(horizontal = 8.dp),
                 text = text,
-                color = textColor ?: (character?.color?.toWhitenedComposeColor(fraction = 0.7f)
+                color = textColor ?: (character?.color?.toWhitenedComposeColor(fraction = 0.9f)
                     ?: Color.White),
                 fontFamily = WorkSansFontFamily,
                 fontWeight = FontWeight.Normal,
-                fontSize = 13.sp,
+                fontSize = 12.sp,
                 lineHeight = 16.sp,
             )
         }
@@ -204,18 +204,18 @@ private fun MessageMainCharacter(
         MessageBubble(
             modifier = modifier,
             shape = shape,
-            backgroundColor = bubbleColor ?: DefaultBubbleColor
+            backgroundColor = bubbleColor ?: DefaultMeBubbleColor
         ) {
             Text(
                 modifier = Modifier
                     .padding(vertical = 6.dp)
                     .padding(horizontal = 8.dp),
                 text = text,
-                color = textColor ?: (character?.color?.toWhitenedComposeColor(fraction = 0.8f)
+                color = textColor ?: (character?.color?.toWhitenedComposeColor(fraction = 0.95f)
                     ?: Color.White),
                 fontFamily = WorkSansFontFamily,
                 fontWeight = FontWeight.Normal,
-                fontSize = 13.sp,
+                fontSize = 12.sp,
                 lineHeight = 16.sp,
             )
         }

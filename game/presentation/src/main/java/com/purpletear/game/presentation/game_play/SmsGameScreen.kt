@@ -4,7 +4,6 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
@@ -39,12 +38,12 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTagsAsResourceId
@@ -161,9 +160,6 @@ internal fun SmsGameScreen(
                 ) { index, message ->
                     val characterId = message.characterId()
                     val character = characterId?.let { state.characters[it] }
-                    // When the chapter declares a layout, membership in rightSideCharacterIds
-                    // is the single source of truth (right if listed, left otherwise).
-                    // Otherwise fall back to the legacy main-character rule.
                     val isRightSide = if (state.rightSideCharacterIds.isNotEmpty()) {
                         characterId != null && characterId in state.rightSideCharacterIds
                     } else {
