@@ -58,7 +58,6 @@
     <string name="game_presentation_game_menu_confirm_order">Confirmer la commande</string>
     <string name="game_presentation_game_menu_coins">%1$d pièces</string>
     <string name="game_presentation_game_menu_download_game">Télécharger le jeu</string>
-    <string name="game_presentation_game_menu_download_size">10 Mo</string>
     <string name="game_presentation_game_menu_downloading">Téléchargement…</string>
     <string name="game_presentation_game_menu_download_progress">%.1f%%</string>
     <string name="game_presentation_game_menu_download_progress_percent">%d%%</string>

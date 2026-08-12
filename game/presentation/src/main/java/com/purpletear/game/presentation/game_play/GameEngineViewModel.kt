@@ -381,7 +381,8 @@ class GameEngineViewModel @Inject constructor(
             is HandlerEffect.PlaySound -> audio.playSound(
                 effect.soundUrl,
                 effect.loop,
-                effect.volume
+                effect.volume,
+                effect.delayMs
             )
 
             is HandlerEffect.PlayVocal -> audio.playVocal(effect.audioUrl)

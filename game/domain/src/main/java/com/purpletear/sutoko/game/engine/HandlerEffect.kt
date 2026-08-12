@@ -56,7 +56,9 @@ sealed class HandlerEffect {
     data class PlaySound(
         val soundUrl: String,
         val loop: Boolean = false,
-        val volume: Float = 1f
+        val volume: Float = 1f,
+        /** Non-blocking delay before playback; the engine does not wait on it. */
+        val delayMs: Long = 0,
     ) : HandlerEffect()
 
     /**

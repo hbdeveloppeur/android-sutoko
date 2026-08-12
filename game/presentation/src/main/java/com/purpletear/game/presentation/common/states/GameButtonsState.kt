@@ -126,7 +126,6 @@ internal fun GameActionState?.toButtonsState(
         right = infoRightButton(
             onAction = onAction,
             title = R.string.game_presentation_game_menu_download_game,
-            subtitle = R.string.game_presentation_game_menu_download_size,
             action = GamePreviewAction.OnDownload,
         ),
     )
@@ -137,7 +136,9 @@ internal fun GameActionState?.toButtonsState(
             title = StringResource(R.string.game_presentation_game_menu_downloading),
             subtitle = StringResource(
                 R.string.game_presentation_game_menu_download_progress_percent,
-                progress.toInt()
+                // progress is a 0f..1f fraction: scale it to a percent or the
+                // button would display "0%" for the whole download.
+                (progress * 100).toInt().coerceIn(0, 100)
             ),
             backgroundColor = InfoBlue,
         ),
@@ -242,13 +243,13 @@ private fun primaryRightButton(
 private fun infoRightButton(
     onAction: (GamePreviewAction) -> Unit,
     title: Int,
-    subtitle: Int,
+    subtitle: Int? = null,
     action: GamePreviewAction? = null,
     backgroundColor: Color = InfoBlue,
     weight: Float = 1f,
 ): ButtonUiState = ButtonUiState(
     title = StringResource(title),
-    subtitle = StringResource(subtitle),
+    subtitle = subtitle?.let { StringResource(it) },
     weight = weight,
     backgroundColor = backgroundColor,
     onClick = action?.let { { onAction(it) } },

@@ -132,7 +132,9 @@ sealed class Node {
         override val id: String,
         val soundUrl: String,
         val loop: Boolean = false,
-        val volume: Float = 1f
+        val volume: Float = 1f,
+        /** Non-blocking delay before playback; does not hold up the engine. */
+        val delayMs: Long = 0,
     ) : Node()
 
     @Keep

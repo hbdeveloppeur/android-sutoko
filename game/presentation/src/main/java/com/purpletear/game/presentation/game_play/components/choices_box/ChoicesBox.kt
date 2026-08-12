@@ -24,6 +24,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
@@ -128,6 +129,7 @@ fun ChoicesBox(
                 .fillMaxWidth(0.9f)
                 .widthIn(max = 300.dp)
                 .background(colors.background, shape = shape)
+                .clip(shape)
         ) {
             Row(
                 modifier = Modifier
@@ -158,7 +160,7 @@ fun ChoicesBox(
                 Modifier
                     .height(1.dp)
                     .fillMaxWidth()
-                    .background(colors.divider.copy(alpha = 0.4f))
+                    .background(colors.divider.copy(alpha = 0.7f))
             )
             Column(
                 Modifier.padding(vertical = 8.dp)

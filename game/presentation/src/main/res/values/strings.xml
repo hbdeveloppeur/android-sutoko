@@ -58,7 +58,6 @@
     <string name="game_presentation_game_menu_confirm_order">Confirm order</string>
     <string name="game_presentation_game_menu_coins">%1$d coins</string>
     <string name="game_presentation_game_menu_download_game">Download the game</string>
-    <string name="game_presentation_game_menu_download_size">10 Mo</string>
     <string name="game_presentation_game_menu_downloading">Downloading…</string>
     <string name="game_presentation_game_menu_download_progress">%.1f%%</string>
     <string name="game_presentation_game_menu_download_progress_percent">%d%%</string>

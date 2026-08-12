@@ -216,7 +216,8 @@ object ChapterGraphParser {
                     id = id,
                     soundUrl = resolveSoundPath(storagePath, gameId, legacyId, pathProvider),
                     loop = loop,
-                    volume = data.volume?.coerceIn(0f, 1f) ?: 1f
+                    volume = data.volume?.coerceIn(0f, 1f) ?: 1f,
+                    delayMs = data.delay?.takeIf { it >= 0 } ?: 0
                 )
             }
 

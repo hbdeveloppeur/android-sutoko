@@ -1,5 +1,6 @@
 package com.purpletear.game.presentation.common.states
 
+import com.example.sharedelements.utils.UiText
 import com.purpletear.game.presentation.game_preview.GamePreviewAction
 import com.purpletear.game.presentation.model.GameActionState
 import org.junit.Assert.assertEquals
@@ -84,5 +85,22 @@ class GameButtonsStateTest {
 
         assertTrue(buttons.right.isEnabled)
         assertNotNull(buttons.right.subtitle)
+    }
+
+    @Test
+    fun `Download - no size subtitle`() {
+        val buttons = buttonsFor(GameActionState.Download) {}
+
+        assertNull(buttons.right.subtitle)
+    }
+
+    @Test
+    fun `Downloading - fraction progress is displayed as a percent`() {
+        // progress is a 0f..1f fraction: the button must scale it, otherwise
+        // it displays "0%" for the entire download.
+        val buttons = buttonsFor(GameActionState.Downloading(0.42f)) {}
+
+        val subtitle = buttons.right.subtitle as UiText.StringResource
+        assertEquals(42, subtitle.args.first())
     }
 }

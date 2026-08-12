@@ -30,7 +30,8 @@ class SoundNodeHandler @Inject constructor() : NodeHandler {
                     HandlerEffect.PlaySound(
                         soundUrl = soundNode.soundUrl,
                         loop = soundNode.loop,
-                        volume = soundNode.volume
+                        volume = soundNode.volume,
+                        delayMs = soundNode.delayMs
                     )
                 )
             )

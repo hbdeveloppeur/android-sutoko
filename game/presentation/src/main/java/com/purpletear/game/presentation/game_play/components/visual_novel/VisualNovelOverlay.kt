@@ -62,13 +62,15 @@ import com.purpletear.game.presentation.game_play.state.VisualNovelUi
 import com.purpletear.sutoko.game.model.chapter.Node
 import kotlinx.coroutines.delay
 
-private const val SCRIM_ALPHA = 0.4f
+private const val SCRIM_ALPHA = 0.5f
 private const val MAX_WIDTH_FRACTION = 0.94f
 private const val MAX_HEIGHT_FRACTION = 0.75f
+
 // Slightly above vertical center so the card feels higher on screen.
 private const val CARD_VERTICAL_BIAS = -0.15f
 private const val FRAME_ASPECT = 3f / 2f
 private const val DIALOG_FADE_MS = 300
+
 // Beat on an empty dialog area between two dialogs, after the fade-out completes.
 private const val DIALOG_GAP_MS = 100L
 private const val CONTINUE_FADE_IN_MS = 600
@@ -126,87 +128,87 @@ internal fun VisualNovelOverlay(
         BoxWithConstraints(
             Modifier.align(BiasAlignment(0f, CARD_VERTICAL_BIAS)),
             content = {
-            val maxW = maxWidth * MAX_WIDTH_FRACTION
-            val maxH = maxHeight * MAX_HEIGHT_FRACTION
-            val frameWidth: Dp
-            val frameHeight: Dp
-            if (maxW / FRAME_ASPECT <= maxH) {
-                frameWidth = maxW
-                frameHeight = maxW / FRAME_ASPECT
-            } else {
-                frameHeight = maxH
-                frameWidth = maxH * FRAME_ASPECT
-            }
-
-            Box(
-                Modifier
-                    .size(frameWidth, frameHeight)
-                    .clip(RoundedCornerShape(CornerRadius))
-                    .background(Color.Black)
-            ) {
-                // Superposed layers, first in the list at the bottom.
-                visualNovel.layers.forEach { layer ->
-                    if (layer.isVideo) {
-                        VideoBackground(
-                            videoPath = layer.path,
-                            modifier = Modifier.fillMaxSize(),
-                        )
-                    } else {
-                        AsyncImage(
-                            model = ImageRequest.Builder(context)
-                                .data(layer.path)
-                                .crossfade(300)
-                                .build(),
-                            contentDescription = null,
-                            contentScale = ContentScale.Crop,
-                            modifier = Modifier.fillMaxSize(),
-                        )
-                    }
+                val maxW = maxWidth * MAX_WIDTH_FRACTION
+                val maxH = maxHeight * MAX_HEIGHT_FRACTION
+                val frameWidth: Dp
+                val frameHeight: Dp
+                if (maxW / FRAME_ASPECT <= maxH) {
+                    frameWidth = maxW
+                    frameHeight = maxW / FRAME_ASPECT
+                } else {
+                    frameHeight = maxH
+                    frameWidth = maxH * FRAME_ASPECT
                 }
 
-                // Bottom violet gradient behind the title and dialogs.
-                Image(
-                    painter = painterResource(R.drawable.game_presentation_gradient_violet),
-                    contentDescription = null,
-                    contentScale = ContentScale.FillBounds,
-                    modifier = Modifier
-                        .align(Alignment.BottomCenter)
-                        .fillMaxSize(),
-                )
-
-                Column(
-                    modifier = Modifier
-                        .align(Alignment.BottomCenter)
-                        .fillMaxWidth()
-                        .padding(horizontal = 24.dp, vertical = 24.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally,
+                Box(
+                    Modifier
+                        .size(frameWidth, frameHeight)
+                        .clip(RoundedCornerShape(CornerRadius))
+                        .background(Color.Black)
                 ) {
-                    visualNovel.title?.let { title ->
-                        Text(
-                            text = title,
-                            color = titleColor,
-                            fontFamily = CrimsonTextFontFamily,
-                            fontWeight = FontWeight.Normal,
-                            fontSize = 14.sp,
-                            textAlign = TextAlign.Center,
-                            style = TextStyle(
-                                shadow = Shadow(
-                                    color = Color(0xFFFF58E3).copy(alpha = 0.8f),
-                                    offset = Offset.Zero,
-                                    blurRadius = 20f,
-                                )
-                            ),
-                        )
+                    // Superposed layers, first in the list at the bottom.
+                    visualNovel.layers.forEach { layer ->
+                        if (layer.isVideo) {
+                            VideoBackground(
+                                videoPath = layer.path,
+                                modifier = Modifier.fillMaxSize(),
+                            )
+                        } else {
+                            AsyncImage(
+                                model = ImageRequest.Builder(context)
+                                    .data(layer.path)
+                                    .crossfade(300)
+                                    .build(),
+                                contentDescription = null,
+                                contentScale = ContentScale.Crop,
+                                modifier = Modifier.fillMaxSize(),
+                            )
+                        }
                     }
 
-                    DialogText(
-                        visualNovel = visualNovel,
-                        onDialogSound = onDialogSound,
-                        onFinished = { dialogsFinished = true },
+                    // Bottom violet gradient behind the title and dialogs.
+                    Image(
+                        painter = painterResource(R.drawable.game_presentation_gradient_violet),
+                        contentDescription = null,
+                        contentScale = ContentScale.FillBounds,
+                        modifier = Modifier
+                            .align(Alignment.BottomCenter)
+                            .fillMaxSize(),
                     )
+
+                    Column(
+                        modifier = Modifier
+                            .align(Alignment.BottomCenter)
+                            .fillMaxWidth()
+                            .padding(horizontal = 24.dp, vertical = 24.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                    ) {
+                        visualNovel.title?.let { title ->
+                            Text(
+                                text = title,
+                                color = titleColor,
+                                fontFamily = CrimsonTextFontFamily,
+                                fontWeight = FontWeight.Normal,
+                                fontSize = 14.sp,
+                                textAlign = TextAlign.Center,
+                                style = TextStyle(
+                                    shadow = Shadow(
+                                        color = Color(0xFFFF58E3).copy(alpha = 0.8f),
+                                        offset = Offset.Zero,
+                                        blurRadius = 20f,
+                                    )
+                                ),
+                            )
+                        }
+
+                        DialogText(
+                            visualNovel = visualNovel,
+                            onDialogSound = onDialogSound,
+                            onFinished = { dialogsFinished = true },
+                        )
+                    }
                 }
-            }
-        })
+            })
 
         // "Continuer >>" under the card, fading in once the sequence is over (same affordance
         // as the cinematic "Skip >>": dim white text, no ripple, generous touch padding).

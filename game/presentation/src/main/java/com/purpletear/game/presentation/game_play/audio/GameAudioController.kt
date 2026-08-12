@@ -68,7 +68,23 @@ class GameAudioController(
         }
     }
 
-    fun playSound(soundUrl: String, loop: Boolean, volume: Float) {
+    /** Pending delayed playbacks; cancelled on session teardown so sounds never fire late. */
+    private val delayedSoundJobs = mutableSetOf<Job>()
+
+    fun playSound(soundUrl: String, loop: Boolean, volume: Float, delayMs: Long = 0) {
+        if (delayMs <= 0) {
+            playSoundNow(soundUrl, loop, volume)
+            return
+        }
+        val job = scope.launch {
+            delay(delayMs)
+            playSoundNow(soundUrl, loop, volume)
+        }
+        delayedSoundJobs += job
+        job.invokeOnCompletion { delayedSoundJobs.remove(job) }
+    }
+
+    private fun playSoundNow(soundUrl: String, loop: Boolean, volume: Float) {
         if (loop) {
             playLoopingSound(soundUrl, volume)
         } else {
@@ -313,6 +329,9 @@ class GameAudioController(
      * the vocal state. Visual novel channels survive: their overlay outlives the reset.
      */
     fun releaseSessionSounds() {
+        delayedSoundJobs.forEach { it.cancel() }
+        delayedSoundJobs.clear()
+
         typingPlayer?.release()
         typingPlayer = null
 
