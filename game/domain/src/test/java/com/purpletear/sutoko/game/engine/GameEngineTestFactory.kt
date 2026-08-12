@@ -97,6 +97,29 @@ internal fun choiceGraph(
     startNodeId = "start"
 )
 
+internal fun actionChoiceGraph(
+    choiceAText: String = "Option A",
+    choiceBText: String = "(Ne rien dire)"
+): ChapterGraph = ChapterGraph(
+    chapterCode = "1A",
+    title = "Test",
+    nodes = mapOf(
+        "start" to Node.Start(id = "start"),
+        "choiceA" to Node.Message(id = "choiceA", text = choiceAText, characterId = 1),
+        "choiceB" to Node.Message(id = "choiceB", text = choiceBText, characterId = 1),
+        "after" to Node.Message(id = "after", text = "After action", characterId = 2),
+        "end" to Node.End(id = "end")
+    ),
+    edges = listOf(
+        Edge(source = "start", target = "choiceA", type = EdgeType.NORMAL),
+        Edge(source = "start", target = "choiceB", type = EdgeType.NORMAL),
+        Edge(source = "choiceA", target = "after", type = EdgeType.NORMAL),
+        Edge(source = "choiceB", target = "after", type = EdgeType.NORMAL),
+        Edge(source = "after", target = "end", type = EdgeType.NORMAL)
+    ),
+    startNodeId = "start"
+)
+
 internal fun messageGraph(
     text: String,
     isHesitating: Boolean = false

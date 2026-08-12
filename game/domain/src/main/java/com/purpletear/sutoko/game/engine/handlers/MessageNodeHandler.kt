@@ -88,6 +88,15 @@ class MessageNodeHandler @Inject constructor(
             return HandlerScript()
         }
 
+        // A choice whose trimmed text is wrapped in parentheses — e.g. "(Ne rien dire)" —
+        // is an action, not a spoken message: skip the node and continue right after it.
+        if (isUserChoice && isAction(processedText)) {
+            GameEngineLogger.d("MSG") {
+                "Action choice ${node.id} (\"$processedText\") — ignoring node and continuing"
+            }
+            return HandlerScript()
+        }
+
         GameEngineLogger.d("MSG") {
             "MessageText from character ${node.characterId}: \"$processedText\""
         }
@@ -264,6 +273,11 @@ class MessageNodeHandler @Inject constructor(
             text.startsWith("[") && text.endsWith("]") -> Command.Skip
             else -> Command.Message
         }
+    }
+
+    private fun isAction(text: String): Boolean {
+        val trimmed = text.trim()
+        return trimmed.startsWith("(") && trimmed.endsWith(")")
     }
 
     private sealed class Command {

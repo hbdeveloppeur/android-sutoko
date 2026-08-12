@@ -123,6 +123,52 @@ class GameEngineChoiceTest {
     }
 
     @Test
+    fun `submit action choice wrapped in parentheses - should not insert message and continue after the node`() = runBlocking {
+        val engine = createTestGameEngine()
+        val graph = actionChoiceGraph(choiceBText = "(Ne rien dire)")
+
+        engine.initialize("game-1", graph)
+        engine.start()
+        assertTrue(engine.state.value is GameEngineState.AwaitingInput)
+
+        engine.submitChoice("choiceB")
+
+        val texts = engine.messages.value.filterIsInstance<GameMessageText>().map { it.text }
+        assertTrue(texts.none { it.contains("Ne rien dire") })
+        assertTrue(texts.any { it == "After action" })
+    }
+
+    @Test
+    fun `submit action choice with surrounding whitespace - should be trimmed and ignored`() = runBlocking {
+        val engine = createTestGameEngine()
+        val graph = actionChoiceGraph(choiceBText = "  (Ne rien dire)  ")
+
+        engine.initialize("game-1", graph)
+        engine.start()
+        assertTrue(engine.state.value is GameEngineState.AwaitingInput)
+
+        engine.submitChoice("choiceB")
+
+        val texts = engine.messages.value.filterIsInstance<GameMessageText>().map { it.text }
+        assertTrue(texts.none { it.contains("Ne rien dire") })
+        assertTrue(texts.any { it == "After action" })
+    }
+
+    @Test
+    fun `submit regular choice - should still insert the choice as a message`() = runBlocking {
+        val engine = createTestGameEngine()
+        val graph = actionChoiceGraph()
+
+        engine.initialize("game-1", graph)
+        engine.start()
+
+        engine.submitChoice("choiceA")
+
+        val texts = engine.messages.value.filterIsInstance<GameMessageText>().map { it.text }
+        assertTrue(texts.any { it == "Option A" })
+    }
+
+    @Test
     fun `choice labels containing prenom - should be replaced with heroName`() = runBlocking {
         val memory = createFakeGameMemory()
         val engine = createTestGameEngine(memory = memory)
