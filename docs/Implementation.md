@@ -4,9 +4,6 @@ it.
 Do not touch :games:*
 
 You are an expert and smart UX/UI expert.
+This operation is done because we need to save tokens for our AI models-the files are too long.
 
-# [DONE] Review: When the option "Make a choice" appears in the game we are forced to click the MakeAChoiceButton - we want that a progress click opens the choice box (do not conflict with scroll)
-
-Fixed in GameEngineViewModel.onAdvanceOnTap: a progress tap while isAwaitingInput now reveals
-the choice box (same as MakeAChoiceButton). Scroll, button and overlay taps consume the gesture
-before it reaches this handler, so no conflict.
+# Do you agree, you and your team that GameEngineViewModel is way too huge? Make a plan to fix that.

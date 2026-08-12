@@ -1,7 +1,6 @@
 package com.purpletear.game.presentation.game_play
 
 import android.content.Context
-import android.media.MediaPlayer
 import android.os.Trace
 import android.util.Log
 import androidx.lifecycle.SavedStateHandle
@@ -12,6 +11,9 @@ import com.purpletear.game.data.infrastructure.SystemTimingScheduler
 import com.purpletear.game.debug.SmsGameDebugNodeJumps
 import com.purpletear.game.presentation.BuildConfig
 import com.purpletear.game.presentation.R
+import com.purpletear.game.presentation.game_play.audio.GameAudioController
+import com.purpletear.game.presentation.game_play.pacing.AutoAdvanceController
+import com.purpletear.game.presentation.game_play.pacing.TimingGate
 import com.purpletear.game.presentation.game_play.state.FakeNotificationUi
 import com.purpletear.game.presentation.game_play.state.GameUiState
 import com.purpletear.game.presentation.game_play.state.VisualNovelUi
@@ -22,9 +24,7 @@ import com.purpletear.sutoko.game.engine.GameEngine
 import com.purpletear.sutoko.game.engine.GameEngineState
 import com.purpletear.sutoko.game.engine.GameMessage
 import com.purpletear.sutoko.game.engine.HandlerEffect
-import com.purpletear.sutoko.game.model.StoryAdvanceMode
 import com.purpletear.sutoko.game.model.chapter.ChapterGraph
-import com.purpletear.sutoko.game.model.chapter.Node
 import com.purpletear.sutoko.game.model.chapter.extractCinematicBody
 import com.purpletear.sutoko.game.repository.ChapterRepository
 import com.purpletear.sutoko.game.repository.CharacterRepository
@@ -37,28 +37,25 @@ import com.purpletear.sutoko.game.usecase.LoadChapterGraphUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.receiveAsFlow
-import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
-import java.io.File
 import java.util.Locale
 import javax.inject.Inject
 
 /**
  * ViewModel for game engine interaction.
- * Manages the game engine state, messages, and effects during gameplay.
+ * Orchestrates the game session: chapter bootstrap, engine-state → UI-state mapping, effect
+ * dispatch and navigation. Media playback lives in [GameAudioController], auto-advance
+ * pacing in [AutoAdvanceController], and manual pacing freezes in [TimingGate].
  */
 @HiltViewModel
 class GameEngineViewModel @Inject constructor(
@@ -78,36 +75,6 @@ class GameEngineViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     @ApplicationContext private val context: Context,
 ) : ViewModel() {
-
-    private var typingPlayer: MediaPlayer? = null
-
-    /** Ambient/looping channel: a new looping sound replaces the previous one. */
-    private var soundPlayer: MediaPlayer? = null
-
-    /** Non-looping sounds: each one gets its own player so effects can overlap. */
-    private val oneShotSoundPlayers = mutableSetOf<MediaPlayer>()
-
-    /** Visual novel sounds: one player per authored sound, all fading out together on dismiss. */
-    private val visualNovelChannels = mutableListOf<VisualNovelChannel>()
-    private var visualNovelFadeJob: Job? = null
-
-    /** Visual novel dialog sounds: one-shots fired by the overlay as each dialog appears. */
-    private val visualNovelDialogPlayers = mutableSetOf<MediaPlayer>()
-
-    private data class VisualNovelChannel(val player: MediaPlayer, val volume: Float)
-
-    private var vocalPlayer: MediaPlayer? = null
-    private var vocalProgressJob: Job? = null
-
-    private var isFingerHeld = false
-    private var isImageViewerOpen = false
-
-    /** Pending auto-advance past the current tap gate; cancelled as soon as the gate closes. */
-    private var autoAdvanceJob: Job? = null
-
-    /** Whether the story advances on its own past tap gates or waits for a player tap. */
-    private val advanceMode: StateFlow<StoryAdvanceMode> = storyAdvanceModeRepository.observe()
-        .stateIn(viewModelScope, SharingStarted.Eagerly, StoryAdvanceMode.AUTO_PLAY)
 
     private val gameId: String = checkNotNull(savedStateHandle["gameId"]) {
         "gameId is required"
@@ -148,11 +115,20 @@ class GameEngineViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(GameUiState())
     val uiState: StateFlow<GameUiState> = _uiState.asStateFlow()
 
+    // Session controllers: plain classes on the ViewModel's scope, so their jobs and
+    // players die with the ViewModel. Declared after _uiState: their callbacks write to it.
+    private val audio = GameAudioController(context, viewModelScope)
+    private val autoAdvance =
+        AutoAdvanceController(gameEngine, timingScheduler, storyAdvanceModeRepository, viewModelScope)
+    private val timingGate = TimingGate(timingScheduler) { paused ->
+        updateState { it.copy(isHoldPaused = paused) }
+    }
+
     init {
         Trace.beginSection("GameEngineViewModel.init")
         // The scheduler is a process-wide @Singleton: never inherit a stale hold from a
         // previous session.
-        timingScheduler.setHoldPaused(false)
+        timingGate.reset()
         updateState {
             it.copy(
                 isTrial = isTrial,
@@ -171,9 +147,20 @@ class GameEngineViewModel @Inject constructor(
                 }
 
                 launch { gameEngine.state.collect { updateUiStateFromEngine(it) } }
-                launch { observeAdvanceMode() }
+                autoAdvance.start()
                 launch { gameEngine.messages.collect { updateMessages(it) } }
                 launch { gameEngine.effects.collect { handleEffect(it) } }
+                launch {
+                    audio.vocal.collect { vocal ->
+                        updateState {
+                            it.copy(
+                                currentVocalUrl = vocal.url,
+                                isVocalPlaying = vocal.isPlaying,
+                                vocalProgress = vocal.progress
+                            )
+                        }
+                    }
+                }
                 launch {
                     gameRepository.observeGame(gameId)
                         .catch { e -> logger.exception(e) { "observeGame logo failed" } }
@@ -271,24 +258,8 @@ class GameEngineViewModel @Inject constructor(
     }
 
     private fun resetForNewPlay() {
-        timingScheduler.setHoldPaused(false)
-        typingPlayer?.release()
-        typingPlayer = null
-
-        soundPlayer?.stop()
-        soundPlayer?.release()
-        soundPlayer = null
-        releaseOneShotSounds()
-
-        isFingerHeld = false
-        isImageViewerOpen = false
-
-        vocalPlayer?.setOnCompletionListener(null)
-        vocalPlayer?.release()
-        vocalPlayer = null
-        vocalProgressJob?.cancel()
-        vocalProgressJob = null
-
+        timingGate.reset()
+        audio.releaseSessionSounds()
         pendingChapterCode = null
 
         updateState {
@@ -298,11 +269,7 @@ class GameEngineViewModel @Inject constructor(
                 isChoicesRevealed = false,
                 isAwaitingInput = false,
                 isAwaitingTap = false,
-                currentScene = null,
-                currentVocalUrl = null,
-                isVocalPlaying = false,
-                vocalProgress = 0f,
-                isHoldPaused = false
+                currentScene = null
             )
         }
     }
@@ -388,11 +355,7 @@ class GameEngineViewModel @Inject constructor(
         if (engineState is GameEngineState.ChapterFinished) {
             logChapterFinished(engineState.chapterCode)
         }
-        if (engineState is GameEngineState.AwaitingTap && shouldAutoAdvance(engineState)) {
-            scheduleAutoAdvance(engineState)
-        } else {
-            autoAdvanceJob?.cancel()
-        }
+        autoAdvance.onEngineState(engineState)
         when (engineState) {
             is GameEngineState.AwaitingInput -> {
                 updateState { it.copy(isAwaitingInput = true, isAwaitingTap = false) }
@@ -451,47 +414,6 @@ class GameEngineViewModel @Inject constructor(
         }
     }
 
-    /**
-     * Whether a parked tap gate resolves on its own: always in auto-play mode, and for
-     * gates that declared [GameEngineState.AwaitingTap.requiresTap] = false (e.g. scene
-     * transitions), which auto-continue even in click-to-advance mode.
-     */
-    private fun shouldAutoAdvance(state: GameEngineState.AwaitingTap): Boolean =
-        advanceMode.value == StoryAdvanceMode.AUTO_PLAY || !state.requiresTap
-
-    /**
-     * Applies a mid-game [StoryAdvanceMode] change to a currently parked tap gate: turning
-     * AutoPlay off cancels the pending advance (unless the gate never requires a tap);
-     * turning it on schedules one if the engine is still waiting for a tap.
-     */
-    private suspend fun observeAdvanceMode() {
-        advanceMode.collect {
-            val state = gameEngine.state.value
-            if (state is GameEngineState.AwaitingTap && shouldAutoAdvance(state)) {
-                scheduleAutoAdvance(state)
-            } else {
-                autoAdvanceJob?.cancel()
-            }
-        }
-    }
-
-    /**
-     * Auto-advance driver: resumes the engine once the tap gate's pacing delay has elapsed,
-     * so the story progresses without requiring a tap. A player tap before the deadline wins:
-     * the state leaves AwaitingTap, this job is cancelled, and [GameEngine.advanceOnTap]
-     * no-ops otherwise. Uses the timing scheduler so hold-to-pause freezes the countdown too.
-     */
-    private fun scheduleAutoAdvance(state: GameEngineState.AwaitingTap) {
-        autoAdvanceJob?.cancel()
-        autoAdvanceJob = viewModelScope.launch {
-            timingScheduler.delay(state.autoAdvanceAfterMs)
-            val current = gameEngine.state.value
-            if (current is GameEngineState.AwaitingTap && current.currentNodeId == state.currentNodeId) {
-                gameEngine.advanceOnTap()
-            }
-        }
-    }
-
     private var lastLoggedFinishedChapter: String? = null
 
     /**
@@ -525,13 +447,13 @@ class GameEngineViewModel @Inject constructor(
 
             is HandlerEffect.ChangeScene -> handleChangeScene(effect)
 
-            is HandlerEffect.PlayTypingSound -> playTypingSound()
+            is HandlerEffect.PlayTypingSound -> audio.playTypingSound()
 
-            is HandlerEffect.PlaySound -> playSound(effect.soundUrl, effect.loop, effect.volume)
+            is HandlerEffect.PlaySound -> audio.playSound(effect.soundUrl, effect.loop, effect.volume)
 
-            is HandlerEffect.PlayVocal -> playVocal(effect.audioUrl)
+            is HandlerEffect.PlayVocal -> audio.playVocal(effect.audioUrl)
 
-            is HandlerEffect.StopSound -> stopSound()
+            is HandlerEffect.StopSound -> audio.stopSound()
 
             is HandlerEffect.ChangeChapter -> {
                 pendingChapterCode = effect.chapterCode
@@ -584,174 +506,15 @@ class GameEngineViewModel @Inject constructor(
         }
     }
 
-    private fun playTypingSound() {
-        typingPlayer?.release()
-        typingPlayer = MediaPlayer.create(context, R.raw.game_presentation_typing)?.apply {
-            setOnCompletionListener {
-                release()
-                typingPlayer = null
-            }
-            start()
-        }
-    }
-
     override fun onCleared() {
         Trace.beginSection("GameEngineViewModel.onCleared")
-        timingScheduler.setHoldPaused(false)
-        typingPlayer?.release()
-        typingPlayer = null
-        soundPlayer?.release()
-        soundPlayer = null
-        releaseOneShotSounds()
-        releaseVisualNovelSounds()
-        releaseVisualNovelDialogSounds()
-        vocalPlayer?.release()
-        vocalPlayer = null
-        vocalProgressJob?.cancel()
+        timingGate.reset()
+        audio.releaseAll()
         Trace.endSection()
         super.onCleared()
     }
 
-    private fun playSound(soundUrl: String, loop: Boolean, volume: Float) {
-        if (loop) {
-            playLoopingSound(soundUrl, volume)
-        } else {
-            playOneShotSound(soundUrl, volume)
-        }
-    }
-
-    private fun playLoopingSound(soundUrl: String, volume: Float) {
-        soundPlayer?.release()
-        soundPlayer = try {
-            MediaPlayer().apply {
-                setDataSource(soundUrl)
-                isLooping = true
-                setVolume(volume, volume)
-                prepare()
-                start()
-            }
-        } catch (e: Exception) {
-            Log.e("GameEngine", "Failed to play sound: $soundUrl", e)
-            null
-        }
-    }
-
-    /**
-     * Fire-and-forget playback: every one-shot sound owns its player, so several
-     * effects can overlap each other and the ambient loop. The player removes and
-     * releases itself on completion; [releaseOneShotSounds] covers early teardown.
-     */
-    private fun playOneShotSound(soundUrl: String, volume: Float) {
-        val player = try {
-            MediaPlayer().apply {
-                setDataSource(soundUrl)
-                setVolume(volume, volume)
-                prepare()
-            }
-        } catch (e: Exception) {
-            Log.e("GameEngine", "Failed to play sound: $soundUrl", e)
-            return
-        }
-        oneShotSoundPlayers += player
-        player.setOnCompletionListener { mp ->
-            oneShotSoundPlayers.remove(mp)
-            mp.release()
-        }
-        player.start()
-    }
-
-    private fun releaseOneShotSounds() {
-        oneShotSoundPlayers.forEach {
-            it.setOnCompletionListener(null)
-            it.release()
-        }
-        oneShotSoundPlayers.clear()
-    }
-
-    fun onVocalClicked(audioUrl: String) {
-        val state = _uiState.value
-        if (state.currentVocalUrl == audioUrl && state.isVocalPlaying) {
-            pauseVocal()
-        } else {
-            playVocal(audioUrl)
-        }
-    }
-
-    private fun pauseVocal() {
-        vocalPlayer?.pause()
-        vocalProgressJob?.cancel()
-        updateState { it.copy(isVocalPlaying = false) }
-    }
-
-    private fun playVocal(audioUrl: String) {
-        if (audioUrl.isBlank()) {
-            Log.e("GameEngine", "Cannot play vocal: audioUrl is blank")
-            return
-        }
-
-        if (!File(audioUrl).exists()) {
-            Log.e("GameEngine", "Cannot play vocal: file not found at $audioUrl")
-        }
-
-        vocalPlayer?.setOnCompletionListener(null)
-        vocalPlayer?.release()
-        vocalProgressJob?.cancel()
-
-        vocalPlayer = try {
-            MediaPlayer().apply {
-                setDataSource(audioUrl)
-                prepare()
-                setOnCompletionListener {
-                    if (vocalPlayer === this) {
-                        release()
-                        vocalPlayer = null
-                        vocalProgressJob?.cancel()
-                        updateState { state ->
-                            state.copy(isVocalPlaying = false, vocalProgress = 1f)
-                        }
-                    }
-                }
-                start()
-            }
-        } catch (e: Exception) {
-            Log.e("GameEngine", "Failed to play vocal: $audioUrl", e)
-            null
-        }
-
-        if (vocalPlayer != null) {
-            updateState {
-                it.copy(
-                    currentVocalUrl = audioUrl,
-                    isVocalPlaying = true,
-                    vocalProgress = 0f
-                )
-            }
-            startVocalProgressTracking()
-        }
-    }
-
-    private fun startVocalProgressTracking() {
-        vocalProgressJob?.cancel()
-        vocalProgressJob = viewModelScope.launch {
-            while (isActive) {
-                val player = vocalPlayer
-                val duration = player?.duration?.takeIf { it > 0 }
-                val position = player?.currentPosition?.takeIf { it >= 0 }
-                if (duration != null && position != null) {
-                    val progress = position.toFloat() / duration.toFloat()
-                    updateState { it.copy(vocalProgress = progress.coerceIn(0f, 1f)) }
-                }
-                delay(100)
-            }
-        }
-    }
-
-    private fun stopSound() {
-        soundPlayer?.stop()
-        soundPlayer?.release()
-        soundPlayer = null
-        releaseOneShotSounds()
-    }
+    fun onVocalClicked(audioUrl: String) = audio.toggleVocal(audioUrl)
 
     private fun handleShowFakeNotification(effect: HandlerEffect.ShowFakeNotification) {
         val avatarPath = effect.imageUrl
@@ -790,7 +553,7 @@ class GameEngineViewModel @Inject constructor(
                 )
             )
         }
-        playVisualNovelSounds(effect.sounds)
+        audio.playVisualNovelSounds(effect.sounds)
     }
 
     /**
@@ -801,117 +564,16 @@ class GameEngineViewModel @Inject constructor(
     fun onVisualNovelDismissed() {
         if (_uiState.value.visualNovel == null) return
         updateState { it.copy(visualNovel = null) }
-        fadeOutVisualNovelSounds()
-        releaseVisualNovelDialogSounds()
+        audio.fadeOutVisualNovelSounds()
+        audio.releaseVisualNovelDialogSounds()
         viewModelScope.launch { gameEngine.resumeFromVisualNovel() }
     }
 
     /**
      * Plays the one-shot sound attached to a visual novel dialog (called by the overlay when
-     * the dialog appears). Fire-and-forget like [playOneShotSound]; the path is a local file
-     * bundled in the story's `assets/` directory, prepared asynchronously to stay non-blocking.
+     * the dialog appears).
      */
-    fun playVisualNovelDialogSound(path: String) {
-        if (path.isBlank()) return
-        val player = try {
-            MediaPlayer().apply {
-                setDataSource(path)
-                setOnPreparedListener { it.start() }
-                setOnCompletionListener { mp ->
-                    visualNovelDialogPlayers.remove(mp)
-                    mp.release()
-                }
-                setOnErrorListener { mp, what, extra ->
-                    Log.e("GameEngine", "Failed to play visual novel dialog sound: $path (what=$what extra=$extra)")
-                    visualNovelDialogPlayers.remove(mp)
-                    mp.release()
-                    true
-                }
-                prepareAsync()
-            }
-        } catch (e: Exception) {
-            Log.e("GameEngine", "Failed to play visual novel dialog sound: $path", e)
-            return
-        }
-        visualNovelDialogPlayers += player
-    }
-
-    private fun releaseVisualNovelDialogSounds() {
-        visualNovelDialogPlayers.forEach { player ->
-            player.setOnPreparedListener(null)
-            player.setOnCompletionListener(null)
-            player.setOnErrorListener(null)
-            runCatching { player.stop() }
-            player.release()
-        }
-        visualNovelDialogPlayers.clear()
-    }
-
-    /**
-     * Every authored sound owns its player, so channels overlap freely and keep their own
-     * volume/loop settings. [fadeOutVisualNovelSounds] / [releaseVisualNovelSounds] cover teardown.
-     */
-    private fun playVisualNovelSounds(sounds: List<Node.VisualNovel.Sound>) {
-        releaseVisualNovelSounds()
-        sounds.forEach { sound ->
-            if (sound.path.isBlank()) return@forEach
-            val player = try {
-                MediaPlayer().apply {
-                    setDataSource(sound.path)
-                    isLooping = sound.loop
-                    setVolume(sound.volume, sound.volume)
-                    // Async prepare keeps the UI free even though the path is a local file
-                    // bundled in the story's assets/ directory.
-                    setOnPreparedListener { it.start() }
-                    setOnErrorListener { mp, what, extra ->
-                        Log.e("GameEngine", "Failed to play visual novel sound: ${sound.path} (what=$what extra=$extra)")
-                        mp.release()
-                        true
-                    }
-                    prepareAsync()
-                }
-            } catch (e: Exception) {
-                Log.e("GameEngine", "Failed to play visual novel sound: ${sound.path}", e)
-                null
-            } ?: return@forEach
-            visualNovelChannels += VisualNovelChannel(player, sound.volume)
-        }
-    }
-
-    /** Stepped volume ramp to silence, then stop/release (GamePreviewMenuSoundEffect pattern). */
-    private fun fadeOutVisualNovelSounds() {
-        visualNovelFadeJob?.cancel()
-        val channels = visualNovelChannels.toList()
-        visualNovelChannels.clear()
-        if (channels.isEmpty()) return
-        visualNovelFadeJob = viewModelScope.launch {
-            val steps = (VISUAL_NOVEL_FADE_MS / VISUAL_NOVEL_FADE_STEP_MS).toInt()
-            repeat(steps) { step ->
-                val scale = 1f - (step + 1).toFloat() / steps
-                channels.forEach { channel ->
-                    runCatching {
-                        val volume = channel.volume * scale
-                        channel.player.setVolume(volume, volume)
-                    }
-                }
-                delay(VISUAL_NOVEL_FADE_STEP_MS)
-            }
-            channels.forEach { channel ->
-                runCatching { channel.player.stop() }
-                channel.player.release()
-            }
-        }
-    }
-
-    private fun releaseVisualNovelSounds() {
-        visualNovelFadeJob?.cancel()
-        visualNovelFadeJob = null
-        visualNovelChannels.forEach { channel ->
-            runCatching { channel.player.stop() }
-            channel.player.release()
-        }
-        visualNovelChannels.clear()
-    }
+    fun playVisualNovelDialogSound(path: String) = audio.playVisualNovelDialogSound(path)
 
     private fun handleChangeScene(effect: HandlerEffect.ChangeScene) {
         viewModelScope.launch {
@@ -972,35 +634,22 @@ class GameEngineViewModel @Inject constructor(
 
     /**
      * Hold-to-pause: freezes the engine's pacing while the player keeps a finger on the
-     * screen, and resumes on release. The freeze happens inside the timing scheduler, so
-     * in-flight scripts are never dropped (unlike GameEngine.pause()). Ignored while the
-     * engine is not actively streaming messages (choices, cinematic, manga page).
+     * screen, and resumes on release. Ignored while the engine is not actively streaming
+     * messages (choices, cinematic, manga page, visual novel).
      */
     fun onHoldPauseChanged(held: Boolean) {
         val state = _uiState.value
-        if (isFingerHeld == held) return
+        if (timingGate.isFingerHeld == held) return
         if (held && (state.isAwaitingInput || state.isCinematicActive || state.isMangaActive || state.visualNovel != null)) return
-        isFingerHeld = held
-        applyTimingGate()
+        timingGate.setFingerHeld(held)
     }
 
     /**
      * Image viewer: freezes the engine's pacing while a message image or avatar is
-     * open fullscreen, and resumes on dismiss. Uses the same timing gate as
-     * hold-to-pause, so an in-flight delay keeps its remaining time instead of
-     * finishing behind the viewer. The two pause sources are combined, so lifting
-     * the finger does not resume the story while the viewer is still open.
+     * open fullscreen, and resumes on dismiss. Shares the timing gate with hold-to-pause.
      */
     fun onImageViewerVisibilityChanged(visible: Boolean) {
-        if (isImageViewerOpen == visible) return
-        isImageViewerOpen = visible
-        applyTimingGate()
-    }
-
-    private fun applyTimingGate() {
-        val paused = isFingerHeld || isImageViewerOpen
-        timingScheduler.setHoldPaused(paused)
-        updateState { it.copy(isHoldPaused = paused) }
+        timingGate.setImageViewerOpen(visible)
     }
 
     fun onRevealChoicesClicked() {
@@ -1106,9 +755,5 @@ class GameEngineViewModel @Inject constructor(
     private companion object {
         const val CHOICES_PREFS_FILE = "SUTOKO_CHOICES_DARK_MODE"
         const val CHOICES_DARK_MODE_KEY = "enabled"
-        const val VISUAL_NOVEL_FADE_MS = 600L
-        const val VISUAL_NOVEL_FADE_STEP_MS = 50L
     }
 }
-
-
