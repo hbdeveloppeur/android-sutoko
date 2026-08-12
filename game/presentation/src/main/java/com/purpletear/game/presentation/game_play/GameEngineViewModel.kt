@@ -12,9 +12,14 @@ import com.purpletear.game.debug.SmsGameDebugNodeJumps
 import com.purpletear.game.presentation.BuildConfig
 import com.purpletear.game.presentation.R
 import com.purpletear.game.presentation.game_play.audio.GameAudioController
+import com.purpletear.game.presentation.game_play.chapter.NextChapterController
+import com.purpletear.game.presentation.game_play.cinematic.CinematicCoordinator
+import com.purpletear.game.presentation.game_play.layout.RightSideLayoutResolver
 import com.purpletear.game.presentation.game_play.pacing.AutoAdvanceController
 import com.purpletear.game.presentation.game_play.pacing.TimingGate
+import com.purpletear.game.presentation.game_play.preferences.ChoicesDarkModeStore
 import com.purpletear.game.presentation.game_play.state.FakeNotificationUi
+import com.purpletear.game.presentation.game_play.state.GameEngineStateUiMapper
 import com.purpletear.game.presentation.game_play.state.GameUiState
 import com.purpletear.game.presentation.game_play.state.VisualNovelUi
 import com.purpletear.sutoko.core.domain.analytics.AnalyticsTracker
@@ -25,7 +30,6 @@ import com.purpletear.sutoko.game.engine.GameEngineState
 import com.purpletear.sutoko.game.engine.GameMessage
 import com.purpletear.sutoko.game.engine.HandlerEffect
 import com.purpletear.sutoko.game.model.chapter.ChapterGraph
-import com.purpletear.sutoko.game.model.chapter.extractCinematicBody
 import com.purpletear.sutoko.game.repository.ChapterRepository
 import com.purpletear.sutoko.game.repository.CharacterRepository
 import com.purpletear.sutoko.game.repository.SceneRepository
@@ -43,7 +47,6 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.receiveAsFlow
@@ -53,9 +56,7 @@ import javax.inject.Inject
 
 /**
  * ViewModel for game engine interaction.
- * Orchestrates the game session: chapter bootstrap, engine-state → UI-state mapping, effect
- * dispatch and navigation. Media playback lives in [GameAudioController], auto-advance
- * pacing in [AutoAdvanceController], and manual pacing freezes in [TimingGate].
+ * Orchestrates the game session.
  */
 @HiltViewModel
 class GameEngineViewModel @Inject constructor(
@@ -90,36 +91,47 @@ class GameEngineViewModel @Inject constructor(
     /** Exposed so the cinematic screen can auto-skip when Kimi-cli is driving. */
     val isAutoPlay: Boolean get() = BuildConfig.DEBUG && autoPlay
 
-    private val _navigateToNextChapter = Channel<String>(Channel.BUFFERED)
-    val navigateToNextChapter: Flow<String> = _navigateToNextChapter.receiveAsFlow()
-
-    private val _navigateToCinematic = Channel<Unit>(Channel.BUFFERED)
-    val navigateToCinematic: Flow<Unit> = _navigateToCinematic.receiveAsFlow()
-
     private val _navigateToBuy = Channel<Unit>(Channel.BUFFERED)
     val navigateToBuy: Flow<Unit> = _navigateToBuy.receiveAsFlow()
 
     private val _navigateToExit = Channel<Unit>(Channel.BUFFERED)
     val navigateToExit: Flow<Unit> = _navigateToExit.receiveAsFlow()
 
-    private var cinematicResumeNodeId: String? = null
+    private val rightSideLayout =
+        RightSideLayoutResolver(chapterRepository, logger) { ids, source ->
+            Log.d("GameEngine", "rightSideCharacterIds=$ids (source: $source)")
+        }
 
-    private var pendingChapterCode: String? = null
-    private var currentGraph: ChapterGraph? = null
-
-    // Right-side layout sources: the chapter archive's layout.json wins when it declares
-    // sides; the Room/API value is the fallback for archives without a layout.json.
-    private var archiveRightSideIds: Set<Int>? = null
-    private var roomRightSideIds: Set<Int> = emptySet()
+    private val choicesDarkModeStore = ChoicesDarkModeStore(context)
 
     private val _uiState = MutableStateFlow(GameUiState())
     val uiState: StateFlow<GameUiState> = _uiState.asStateFlow()
 
-    // Session controllers: plain classes on the ViewModel's scope, so their jobs and
-    // players die with the ViewModel. Declared after _uiState: their callbacks write to it.
+    private val nextChapter = NextChapterController(
+        gameId = gameId,
+        chapterRepository = chapterRepository,
+        logger = logger,
+        scope = viewModelScope,
+        updateState = ::updateState
+    )
+    val navigateToNextChapter: Flow<String> = nextChapter.navigateToNextChapter
+
+    private val cinematic = CinematicCoordinator(
+        gameEngine = gameEngine,
+        logger = logger,
+        scope = viewModelScope,
+        updateState = ::updateState
+    )
+    val navigateToCinematic: Flow<Unit> = cinematic.navigateToCinematic
+
     private val audio = GameAudioController(context, viewModelScope)
     private val autoAdvance =
-        AutoAdvanceController(gameEngine, timingScheduler, storyAdvanceModeRepository, viewModelScope)
+        AutoAdvanceController(
+            gameEngine,
+            timingScheduler,
+            storyAdvanceModeRepository,
+            viewModelScope
+        )
     private val timingGate = TimingGate(timingScheduler) { paused ->
         updateState { it.copy(isHoldPaused = paused) }
     }
@@ -132,7 +144,7 @@ class GameEngineViewModel @Inject constructor(
         updateState {
             it.copy(
                 isTrial = isTrial,
-                isChoicesDarkMode = readChoicesDarkMode()
+                isChoicesDarkMode = choicesDarkModeStore.read()
             )
         }
         viewModelScope.launch {
@@ -172,7 +184,10 @@ class GameEngineViewModel @Inject constructor(
                             }
                         }
                 }
-                launch { observeChapterLayout(gameId, chapterCode) }
+                launch {
+                    rightSideLayout.observeRoomLayout(gameId, chapterCode)
+                        .collect(::publishRightSideIds)
+                }
 
                 loadChapterGraphAndStartGame(gameId, chapterCode)
 
@@ -198,8 +213,7 @@ class GameEngineViewModel @Inject constructor(
             .collectLatest { result ->
                 result.fold(
                     onSuccess = { graph ->
-                        archiveRightSideIds = graph.rightSideCharacterIds.toSet()
-                        publishRightSideIds()
+                        publishRightSideIds(rightSideLayout.onGraphLoaded(graph))
 
                         val debugJumpNodeId = if (BuildConfig.DEBUG) {
                             SmsGameDebugNodeJumps.getNodeId(graph.chapterCode)
@@ -221,46 +235,16 @@ class GameEngineViewModel @Inject constructor(
             }
     }
 
-    /**
-     * Publishes the right-side character ids declared by the current chapter's layout.
-     * The archive's `layout.json` is authoritative when it declares sides; otherwise the
-     * Room/API value (`layout.sides.right`) is used. Emits an empty set when neither
-     * declares a layout: the screen then falls back to the legacy main-character rule.
-     */
-    private fun publishRightSideIds() {
-        val archiveIds = archiveRightSideIds?.takeIf { it.isNotEmpty() }
-        val effective = archiveIds ?: roomRightSideIds
-        val source = when {
-            archiveIds != null -> "archive layout.json"
-            roomRightSideIds.isNotEmpty() -> "api/room"
-            else -> "none (legacy main-character rule)"
+    private fun publishRightSideIds(rightSideIds: Set<Int>) {
+        if (_uiState.value.rightSideCharacterIds != rightSideIds) {
+            updateState { it.copy(rightSideCharacterIds = rightSideIds) }
         }
-        Log.d("GameEngine", "rightSideCharacterIds=$effective (source: $source)")
-        if (_uiState.value.rightSideCharacterIds != effective) {
-            updateState { it.copy(rightSideCharacterIds = effective) }
-        }
-    }
-
-    private suspend fun observeChapterLayout(gameId: String, chapterCode: String) {
-        chapterRepository.observeChapters(gameId)
-            .catch { e ->
-                logger.exception(e) { "chapter layout observation failed" }
-                emit(emptyList())
-            }
-            .collect { chapters ->
-                roomRightSideIds = chapters
-                    .firstOrNull { it.normalizedCode == chapterCode.lowercase() }
-                    ?.rightSideCharacterIds
-                    .orEmpty()
-                    .toSet()
-                publishRightSideIds()
-            }
     }
 
     private fun resetForNewPlay() {
         timingGate.reset()
         audio.releaseSessionSounds()
-        pendingChapterCode = null
+        nextChapter.reset()
 
         updateState {
             it.copy(
@@ -282,7 +266,7 @@ class GameEngineViewModel @Inject constructor(
         graph: ChapterGraph,
     ) {
         resetForNewPlay()
-        currentGraph = graph
+        cinematic.onGraphLoaded(graph)
 
         updateState {
             it.copy(
@@ -320,7 +304,7 @@ class GameEngineViewModel @Inject constructor(
         nodeId: String,
     ) {
         resetForNewPlay()
-        currentGraph = graph
+        cinematic.onGraphLoaded(graph)
 
         updateState {
             it.copy(
@@ -356,62 +340,7 @@ class GameEngineViewModel @Inject constructor(
             logChapterFinished(engineState.chapterCode)
         }
         autoAdvance.onEngineState(engineState)
-        when (engineState) {
-            is GameEngineState.AwaitingInput -> {
-                updateState { it.copy(isAwaitingInput = true, isAwaitingTap = false) }
-            }
-
-            is GameEngineState.AwaitingTap -> {
-                updateState { it.copy(isAwaitingTap = true, isAwaitingInput = false) }
-            }
-
-            is GameEngineState.AwaitingMangaDismissal -> {
-                updateState { it.copy(isMangaActive = true) }
-            }
-
-            is GameEngineState.AwaitingVisualNovelDismissal -> {
-                // The overlay is driven by the ShowVisualNovel effect; nothing to flag here.
-                updateState { it.copy(isAwaitingInput = false, isAwaitingTap = false) }
-            }
-
-            is GameEngineState.Playing -> {
-                updateState {
-                    it.copy(
-                        isAwaitingInput = false,
-                        isAwaitingTap = false,
-                        choices = emptyList(),
-                        isChoicesRevealed = false,
-                        isMangaActive = false
-                    )
-                }
-            }
-
-            is GameEngineState.Ready -> {
-                updateState {
-                    it.copy(
-                        isAwaitingInput = false,
-                        isAwaitingTap = false,
-                        choices = emptyList(),
-                        isChoicesRevealed = false,
-                        isMangaActive = false
-                    )
-                }
-            }
-
-            is GameEngineState.Idle,
-            is GameEngineState.ChapterFinished,
-            is GameEngineState.Error -> {
-                updateState {
-                    it.copy(
-                        isAwaitingInput = false,
-                        isAwaitingTap = false,
-                        choices = emptyList(),
-                        isChoicesRevealed = false,
-                        isMangaActive = false
-                    )
-                }
-            }
-        }
+        updateState { GameEngineStateUiMapper.map(it, engineState) }
     }
 
     private var lastLoggedFinishedChapter: String? = null
@@ -449,16 +378,18 @@ class GameEngineViewModel @Inject constructor(
 
             is HandlerEffect.PlayTypingSound -> audio.playTypingSound()
 
-            is HandlerEffect.PlaySound -> audio.playSound(effect.soundUrl, effect.loop, effect.volume)
+            is HandlerEffect.PlaySound -> audio.playSound(
+                effect.soundUrl,
+                effect.loop,
+                effect.volume
+            )
 
             is HandlerEffect.PlayVocal -> audio.playVocal(effect.audioUrl)
 
             is HandlerEffect.StopSound -> audio.stopSound()
 
             is HandlerEffect.ChangeChapter -> {
-                pendingChapterCode = effect.chapterCode
-                updateState { it.copy(isNextChapterAvailabilityResolved = false) }
-                checkNextChapterAvailability(effect.chapterCode)
+                nextChapter.onChapterChange(effect.chapterCode)
             }
 
             is HandlerEffect.ShowChoices -> {
@@ -470,7 +401,7 @@ class GameEngineViewModel @Inject constructor(
                 }
             }
 
-            is HandlerEffect.EnterCinematic -> enterCinematic(effect)
+            is HandlerEffect.EnterCinematic -> cinematic.handle(effect)
 
             is HandlerEffect.ShowFakeNotification -> handleShowFakeNotification(effect)
 
@@ -478,30 +409,6 @@ class GameEngineViewModel @Inject constructor(
 
             else -> {
                 Log.d("GameEngine", "Received effect: ${effect::class.simpleName}")
-            }
-        }
-    }
-
-    /**
-     * Resolves the availability of the next chapter targeted by a chapter change.
-     * Fail-closed: a missing chapter or a failed lookup is treated as unavailable
-     * (navigating there would be a dead end anyway).
-     */
-    private fun checkNextChapterAvailability(nextChapterCode: String) {
-        viewModelScope.launch {
-            val next = chapterRepository.observeChapters(gameId)
-                .catch { e ->
-                    logger.exception(e) { "next chapter availability check failed" }
-                    emit(emptyList())
-                }
-                .first()
-                .firstOrNull { it.normalizedCode == nextChapterCode.lowercase() }
-            updateState {
-                it.copy(
-                    isNextChapterAvailable = next?.available == true,
-                    isNextChapterAvailabilityResolved = true,
-                    nextChapterReleaseDate = next?.releaseDate?.takeIf { date -> date > 0 },
-                )
             }
         }
     }
@@ -532,11 +439,6 @@ class GameEngineViewModel @Inject constructor(
         }
     }
 
-    /**
-     * Called when the fake notification overlay has finished its exit animation.
-     * The notification is decorative: the engine resumes on its own timing, this only
-     * clears the UI state.
-     */
     fun onFakeNotificationDismissed() {
         updateState { it.copy(fakeNotification = null) }
     }
@@ -556,11 +458,6 @@ class GameEngineViewModel @Inject constructor(
         audio.playVisualNovelSounds(effect.sounds)
     }
 
-    /**
-     * Called when the player dismisses the visual novel overlay (dismiss button or back).
-     * Idempotent: clears the UI state first, fades the sounds out, then resumes the engine
-     * (which no-ops when it is not parked on a visual novel node).
-     */
     fun onVisualNovelDismissed() {
         if (_uiState.value.visualNovel == null) return
         updateState { it.copy(visualNovel = null) }
@@ -569,10 +466,6 @@ class GameEngineViewModel @Inject constructor(
         viewModelScope.launch { gameEngine.resumeFromVisualNovel() }
     }
 
-    /**
-     * Plays the one-shot sound attached to a visual novel dialog (called by the overlay when
-     * the dialog appears).
-     */
     fun playVisualNovelDialogSound(path: String) = audio.playVisualNovelDialogSound(path)
 
     private fun handleChangeScene(effect: HandlerEffect.ChangeScene) {
@@ -583,8 +476,7 @@ class GameEngineViewModel @Inject constructor(
     }
 
     fun onNextChapterClicked() {
-        if (!_uiState.value.isNextChapterAvailable) return
-        pendingChapterCode?.let { _navigateToNextChapter.trySend(it) }
+        nextChapter.onNextChapterClicked(_uiState.value.isNextChapterAvailable)
     }
 
     fun onBackClicked() {
@@ -603,12 +495,6 @@ class GameEngineViewModel @Inject constructor(
         }
     }
 
-    /**
-     * Called when the player taps a non-interactive area of the screen to advance the story.
-     * While choices are pending, the tap opens the choice box instead, so the player is not
-     * forced to hit the MakeAChoiceButton. Scrolls, button taps and overlay taps consume the
-     * gesture before it reaches here. The engine no-ops when it is not parked for a tap.
-     */
     fun onAdvanceOnTap() {
         val state = _uiState.value
         if (state.isAwaitingInput) {
@@ -621,22 +507,12 @@ class GameEngineViewModel @Inject constructor(
         }
     }
 
-    /**
-     * Called when the player dismisses the manga page (Close / back / tap-outside). Resumes the
-     * engine so the next node is resolved. Safe to call for any page dismiss: the engine no-ops
-     * when it is not parked on a manga page (e.g. re-opening a historical page).
-     */
     fun onMangaPageDismissed() {
         viewModelScope.launch {
             gameEngine.resumeFromMangaPage()
         }
     }
 
-    /**
-     * Hold-to-pause: freezes the engine's pacing while the player keeps a finger on the
-     * screen, and resumes on release. Ignored while the engine is not actively streaming
-     * messages (choices, cinematic, manga page, visual novel).
-     */
     fun onHoldPauseChanged(held: Boolean) {
         val state = _uiState.value
         if (timingGate.isFingerHeld == held) return
@@ -663,23 +539,11 @@ class GameEngineViewModel @Inject constructor(
     fun onToggleChoicesDarkMode() {
         val next = !_uiState.value.isChoicesDarkMode
         updateState { it.copy(isChoicesDarkMode = next) }
-        writeChoicesDarkMode(next)
-    }
-
-    private fun readChoicesDarkMode(): Boolean =
-        context.getSharedPreferences(CHOICES_PREFS_FILE, Context.MODE_PRIVATE)
-            .getBoolean(CHOICES_DARK_MODE_KEY, true)
-
-    private fun writeChoicesDarkMode(isDarkMode: Boolean) {
-        context.getSharedPreferences(CHOICES_PREFS_FILE, Context.MODE_PRIVATE)
-            .edit()
-            .putBoolean(CHOICES_DARK_MODE_KEY, isDarkMode)
-            .apply()
+        choicesDarkModeStore.write(next)
     }
 
     /**
-     * Loads a scene for the cinematic player. Delegates to the same use case the SMS engine uses,
-     * so `scene-node` frames render identically via `SceneComposable`.
+     * Loads a scene for the cinematic player.
      */
     suspend fun loadScene(sceneId: Int) = getSceneUseCase(sceneId)
 
@@ -687,73 +551,9 @@ class GameEngineViewModel @Inject constructor(
      * Called by `CinematicScreen` when the cinematic body is exhausted (or cancelled). Resumes the
      * SMS engine at the node after `[intro=end]` and clears the cinematic slice.
      */
-    fun onCinematicFinished() = resumeFromCinematic()
-
-    private fun resumeFromCinematic() {
-        val resumeNodeId = cinematicResumeNodeId
-        cinematicResumeNodeId = null
-        updateState { it.copy(cinematicBody = emptyList(), isCinematicActive = false) }
-
-        gameEngine.resume()
-
-        if (resumeNodeId != null) {
-            viewModelScope.launch { gameEngine.startFromNode(resumeNodeId) }
-        }
-    }
-
-    /**
-     * Reacts to the engine's [HandlerEffect.EnterCinematic]: extracts the linear body, publishes it
-     * for `CinematicScreen`, and requests navigation. On an invalid cinematic, logs and best-effort
-     * resumes normal traversal from the start marker's successor.
-     */
-    private fun enterCinematic(effect: HandlerEffect.EnterCinematic) {
-        val graph = currentGraph
-        if (graph == null) {
-            logger.exception(IllegalStateException("EnterCinematic with no currentGraph")) {
-                "Cannot enter cinematic: no graph loaded"
-            }
-            return
-        }
-
-        extractCinematicBody(graph, effect.startNodeId, effect.endNodeId).fold(
-            onSuccess = { body ->
-                val resumeNodeId = graph.singleSuccessor(effect.endNodeId)
-                assert(resumeNodeId == null || graph.getNode(resumeNodeId) != null) {
-                    "Cinematic resume node $resumeNodeId not found in ${graph.chapterCode}"
-                }
-                cinematicResumeNodeId = resumeNodeId
-                if (body.isEmpty()) {
-                    resumeFromCinematic()
-                } else {
-                    updateState { it.copy(cinematicBody = body, isCinematicActive = true) }
-                    _navigateToCinematic.trySend(Unit)
-                }
-            },
-            onFailure = { error ->
-                logger.exception(error) {
-                    "Invalid cinematic from ${effect.startNodeId}; skipping"
-                }
-                val fallback = graph.singleSuccessor(effect.startNodeId)
-                cinematicResumeNodeId = null
-                updateState { it.copy(cinematicBody = emptyList(), isCinematicActive = false) }
-                if (fallback != null) {
-                    viewModelScope.launch {
-                        gameEngine.resume()
-                        gameEngine.startFromNode(fallback)
-                    }
-                } else {
-                    gameEngine.resume()
-                }
-            }
-        )
-    }
+    fun onCinematicFinished() = cinematic.onCinematicFinished()
 
     private fun updateState(transform: (GameUiState) -> GameUiState) {
         _uiState.value = transform(_uiState.value)
-    }
-
-    private companion object {
-        const val CHOICES_PREFS_FILE = "SUTOKO_CHOICES_DARK_MODE"
-        const val CHOICES_DARK_MODE_KEY = "enabled"
     }
 }
