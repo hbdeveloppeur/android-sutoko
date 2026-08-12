@@ -10,30 +10,24 @@ import com.purpletear.sutoko.game.model.chapter.Node
 import javax.inject.Inject
 
 /**
- * Handler for sound nodes.
+ * Handler for stop-sound nodes.
  *
- * Emits a PlaySound effect to play a sound effect or ambient audio.
- * Supports looping via the node's loop flag.
+ * Emits a StopSound effect to fade out and clear the sound started by the
+ * targeted sound node. Clearing a sound that is not playing fails silently.
  */
-class SoundNodeHandler @Inject constructor() : NodeHandler {
+class StopSoundNodeHandler @Inject constructor() : NodeHandler {
     override fun buildScript(
         node: Node,
         memory: GameMemory
     ): HandlerScript {
-        val soundNode = node as? Node.Sound ?: return HandlerScript()
+        val stopSoundNode = node as? Node.StopSound ?: return HandlerScript()
 
-        GameEngineLogger.d("HAND") { "Sound ${soundNode.id}: ${soundNode.soundUrl} loop=${soundNode.loop}" }
+        GameEngineLogger.d("HAND") { "StopSound ${stopSoundNode.id}: target=${stopSoundNode.targetNodeId}" }
 
         return HandlerScript(
             commands = listOf(
                 HandlerCommand.Emit(
-                    HandlerEffect.PlaySound(
-                        nodeId = soundNode.id,
-                        soundUrl = soundNode.soundUrl,
-                        loop = soundNode.loop,
-                        volume = soundNode.volume,
-                        delayMs = soundNode.delayMs
-                    )
+                    HandlerEffect.StopSound(targetNodeId = stopSoundNode.targetNodeId)
                 )
             )
         )

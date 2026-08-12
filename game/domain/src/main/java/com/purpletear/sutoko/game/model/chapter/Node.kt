@@ -137,6 +137,16 @@ sealed class Node {
         val delayMs: Long = 0,
     ) : Node()
 
+    /**
+     * Fades out and clears the sound started by the [Sound] node [targetNodeId].
+     * Silently does nothing when that sound is not playing (finished, replaced, or never started).
+     */
+    @Keep
+    data class StopSound(
+        override val id: String,
+        val targetNodeId: String,
+    ) : Node()
+
     @Keep
     data class MessageVocal(
         override val id: String,

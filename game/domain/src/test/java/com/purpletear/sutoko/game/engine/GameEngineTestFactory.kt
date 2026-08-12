@@ -19,6 +19,7 @@ import com.purpletear.sutoko.game.engine.handlers.MessageVocalNodeHandler
 import com.purpletear.sutoko.game.engine.handlers.SceneNodeHandler
 import com.purpletear.sutoko.game.engine.handlers.SoundNodeHandler
 import com.purpletear.sutoko.game.engine.handlers.StartNodeHandler
+import com.purpletear.sutoko.game.engine.handlers.StopSoundNodeHandler
 import com.purpletear.sutoko.game.engine.handlers.TrophyNodeHandler
 import com.purpletear.sutoko.game.engine.handlers.VisualNovelNodeHandler
 import com.purpletear.sutoko.game.engine.handlers.createFakeGameMemory
@@ -54,6 +55,7 @@ internal fun createTestGameEngine(
             sceneHandler = SceneNodeHandler(),
             endHandler = EndNodeHandler(),
             soundHandler = SoundNodeHandler(),
+            stopSoundHandler = StopSoundNodeHandler(),
             messageVocalHandler = MessageVocalNodeHandler(),
             messageAudioDialogueHandler = MessageAudioDialogueNodeHandler(),
             codeHandler = CodeNodeHandler(),

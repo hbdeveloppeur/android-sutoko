@@ -47,6 +47,7 @@ private const val TAG = "CinematicScreen"
  * Walks the extracted linear [body] in order:
  *  - `Node.Scene`  → sets the background (reused `SceneComposable`) and advances immediately.
  *  - `Node.Sound`  → plays ambient audio on a dedicated player and advances immediately.
+ *  - `Node.StopSound` → clears the cinematic sound it targets (silent no-op otherwise) and advances.
  *  - `Node.IntroSentence` → fades the line in, holds it, fades it out, then advances.
  *
  * When the body is exhausted, [onFinished] is invoked exactly once so the caller can resume the SMS
@@ -65,6 +66,7 @@ internal fun CinematicScreen(
     val skipInteractionSource = remember { MutableInteractionSource() }
 
     val soundPlayer = remember { mutableStateOf<MediaPlayer?>(null) }
+    val soundNodeId = remember { mutableStateOf<String?>(null) }
     DisposableEffect(Unit) {
         onDispose {
             soundPlayer.value?.release()
@@ -90,19 +92,31 @@ internal fun CinematicScreen(
         }
     }
 
-    fun playSound(url: String, loop: Boolean) {
+    fun playSound(node: Node.Sound) {
         soundPlayer.value?.release()
+        soundNodeId.value = node.id
         soundPlayer.value = try {
             MediaPlayer().apply {
-                setDataSource(url)
-                isLooping = loop
+                setDataSource(node.soundUrl)
+                isLooping = node.loop
                 prepare()
                 start()
             }
         } catch (e: Exception) {
-            Log.e(TAG, "Failed to play cinematic sound: $url", e)
+            Log.e(TAG, "Failed to play cinematic sound: ${node.soundUrl}", e)
             null
         }
+    }
+
+    /** Clears the cinematic sound started by [targetNodeId]; silent no-op when it is not playing. */
+    fun stopSound(targetNodeId: String) {
+        if (soundNodeId.value != targetNodeId) return
+        soundPlayer.value?.let { player ->
+            runCatching { player.stop() }
+            player.release()
+        }
+        soundPlayer.value = null
+        soundNodeId.value = null
     }
 
     Box(
@@ -149,7 +163,12 @@ internal fun CinematicScreen(
             }
 
             is Node.Sound -> {
-                playSound(node.soundUrl, node.loop)
+                playSound(node)
+                index++
+            }
+
+            is Node.StopSound -> {
+                stopSound(node.targetNodeId)
                 index++
             }
 

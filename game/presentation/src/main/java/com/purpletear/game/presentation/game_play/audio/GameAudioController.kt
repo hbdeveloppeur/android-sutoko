@@ -36,11 +36,14 @@ class GameAudioController(
 ) {
     private var typingPlayer: MediaPlayer? = null
 
-    /** Ambient/looping channel: a new looping sound replaces the previous one. */
-    private var soundPlayer: MediaPlayer? = null
+    /**
+     * Sound-node channels keyed by the id of the sound node that started them, so a
+     * stop-sound node can fade out and clear its target. Looping sounds share a single
+     * ambient slot: a new looping sound replaces the previous one; one-shots overlap.
+     */
+    private val soundChannels = mutableMapOf<String, SoundChannel>()
 
-    /** Non-looping sounds: each one gets its own player so effects can overlap. */
-    private val oneShotSoundPlayers = mutableSetOf<MediaPlayer>()
+    private data class SoundChannel(val player: MediaPlayer, val volume: Float, val loop: Boolean)
 
     /** Visual novel sounds: one player per authored sound, all fading out together on dismiss. */
     private val visualNovelChannels = mutableListOf<VisualNovelChannel>()
@@ -68,33 +71,42 @@ class GameAudioController(
         }
     }
 
-    /** Pending delayed playbacks; cancelled on session teardown so sounds never fire late. */
-    private val delayedSoundJobs = mutableSetOf<Job>()
+    /** Pending delayed playbacks keyed by sound node id; cancelled on stop or session teardown. */
+    private val delayedSoundJobs = mutableMapOf<String, Job>()
 
-    fun playSound(soundUrl: String, loop: Boolean, volume: Float, delayMs: Long = 0) {
+    /** Fade-out jobs keyed by sound node id. */
+    private val fadeOutJobs = mutableMapOf<String, Job>()
+
+    fun playSound(nodeId: String, soundUrl: String, loop: Boolean, volume: Float, delayMs: Long = 0) {
+        delayedSoundJobs.remove(nodeId)?.cancel()
         if (delayMs <= 0) {
-            playSoundNow(soundUrl, loop, volume)
+            playSoundNow(nodeId, soundUrl, loop, volume)
             return
         }
         val job = scope.launch {
             delay(delayMs)
-            playSoundNow(soundUrl, loop, volume)
+            playSoundNow(nodeId, soundUrl, loop, volume)
         }
-        delayedSoundJobs += job
-        job.invokeOnCompletion { delayedSoundJobs.remove(job) }
+        delayedSoundJobs[nodeId] = job
+        job.invokeOnCompletion { delayedSoundJobs.remove(nodeId, job) }
     }
 
-    private fun playSoundNow(soundUrl: String, loop: Boolean, volume: Float) {
+    private fun playSoundNow(nodeId: String, soundUrl: String, loop: Boolean, volume: Float) {
+        fadeOutJobs.remove(nodeId)?.cancel()
+        soundChannels.remove(nodeId)?.let { releasePlayer(it.player) }
         if (loop) {
-            playLoopingSound(soundUrl, volume)
+            playLoopingSound(nodeId, soundUrl, volume)
         } else {
-            playOneShotSound(soundUrl, volume)
+            playOneShotSound(nodeId, soundUrl, volume)
         }
     }
 
-    private fun playLoopingSound(soundUrl: String, volume: Float) {
-        soundPlayer?.release()
-        soundPlayer = try {
+    private fun playLoopingSound(nodeId: String, soundUrl: String, volume: Float) {
+        // Ambient slot: a new looping sound replaces the previous one.
+        soundChannels.entries.filter { it.value.loop }.map { it.key }.forEach { key ->
+            soundChannels.remove(key)?.let { releasePlayer(it.player) }
+        }
+        val player = try {
             MediaPlayer().apply {
                 setDataSource(soundUrl)
                 isLooping = true
@@ -105,15 +117,16 @@ class GameAudioController(
         } catch (e: Exception) {
             Log.e("GameEngine", "Failed to play sound: $soundUrl", e)
             null
-        }
+        } ?: return
+        soundChannels[nodeId] = SoundChannel(player, volume, loop = true)
     }
 
     /**
      * Fire-and-forget playback: every one-shot sound owns its player, so several
      * effects can overlap each other and the ambient loop. The player removes and
-     * releases itself on completion; [releaseOneShotSounds] covers early teardown.
+     * releases itself on completion; [releaseSessionSounds] covers early teardown.
      */
-    private fun playOneShotSound(soundUrl: String, volume: Float) {
+    private fun playOneShotSound(nodeId: String, soundUrl: String, volume: Float) {
         val player = try {
             MediaPlayer().apply {
                 setDataSource(soundUrl)
@@ -124,27 +137,43 @@ class GameAudioController(
             Log.e("GameEngine", "Failed to play sound: $soundUrl", e)
             return
         }
-        oneShotSoundPlayers += player
+        val channel = SoundChannel(player, volume, loop = false)
+        soundChannels[nodeId] = channel
         player.setOnCompletionListener { mp ->
-            oneShotSoundPlayers.remove(mp)
+            soundChannels.remove(nodeId, channel)
             mp.release()
         }
         player.start()
     }
 
-    private fun releaseOneShotSounds() {
-        oneShotSoundPlayers.forEach {
-            it.setOnCompletionListener(null)
-            it.release()
+    /**
+     * Fades out and clears the sound started by [targetNodeId]. Silent no-op when no such
+     * sound is playing (already finished, replaced, never started, or still pending: a
+     * delayed playback for it is cancelled so it never fires).
+     */
+    fun stopSound(targetNodeId: String) {
+        delayedSoundJobs.remove(targetNodeId)?.cancel()
+        val channel = soundChannels.remove(targetNodeId) ?: return
+        val job = scope.launch {
+            val steps = (SOUND_FADE_MS / SOUND_FADE_STEP_MS).toInt()
+            repeat(steps) { step ->
+                val scale = 1f - (step + 1).toFloat() / steps
+                runCatching {
+                    val volume = channel.volume * scale
+                    channel.player.setVolume(volume, volume)
+                }
+                delay(SOUND_FADE_STEP_MS)
+            }
+            releasePlayer(channel.player)
         }
-        oneShotSoundPlayers.clear()
+        fadeOutJobs[targetNodeId] = job
+        job.invokeOnCompletion { fadeOutJobs.remove(targetNodeId, job) }
     }
 
-    fun stopSound() {
-        soundPlayer?.stop()
-        soundPlayer?.release()
-        soundPlayer = null
-        releaseOneShotSounds()
+    private fun releasePlayer(player: MediaPlayer) {
+        player.setOnCompletionListener(null)
+        runCatching { player.stop() }
+        player.release()
     }
 
     fun toggleVocal(audioUrl: String) {
@@ -329,16 +358,16 @@ class GameAudioController(
      * the vocal state. Visual novel channels survive: their overlay outlives the reset.
      */
     fun releaseSessionSounds() {
-        delayedSoundJobs.forEach { it.cancel() }
+        delayedSoundJobs.values.forEach { it.cancel() }
         delayedSoundJobs.clear()
+        fadeOutJobs.values.forEach { it.cancel() }
+        fadeOutJobs.clear()
 
         typingPlayer?.release()
         typingPlayer = null
 
-        soundPlayer?.stop()
-        soundPlayer?.release()
-        soundPlayer = null
-        releaseOneShotSounds()
+        soundChannels.values.forEach { releasePlayer(it.player) }
+        soundChannels.clear()
 
         vocalPlayer?.setOnCompletionListener(null)
         vocalPlayer?.release()
@@ -358,5 +387,7 @@ class GameAudioController(
     private companion object {
         const val VISUAL_NOVEL_FADE_MS = 600L
         const val VISUAL_NOVEL_FADE_STEP_MS = 50L
+        const val SOUND_FADE_MS = 600L
+        const val SOUND_FADE_STEP_MS = 50L
     }
 }

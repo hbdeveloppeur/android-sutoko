@@ -45,7 +45,7 @@ fun extractCinematicBody(
 
 /** Nodes that `CinematicScreen` knows how to render. */
 private val Node.isCinematicPlayable: Boolean
-    get() = this is Node.Scene || this is Node.Sound || this is Node.IntroSentence
+    get() = this is Node.Scene || this is Node.Sound || this is Node.StopSound || this is Node.IntroSentence
 
 /** Value-based extraction errors. They are carried inside [Result.failure], never thrown. */
 sealed class CinematicError(message: String) : IllegalArgumentException(message) {

@@ -221,6 +221,16 @@ object ChapterGraphParser {
                 )
             }
 
+            "stop-sound" -> {
+                // A stop-sound without a target is meaningless: drop it like any unknown node.
+                val targetNodeId = data?.targetNodeId?.trim()?.takeIf { it.isNotEmpty() }
+                    ?: return null
+                Node.StopSound(
+                    id = dto.id,
+                    targetNodeId = targetNodeId
+                )
+            }
+
             "message-vocal" -> {
                 val storagePath =
                     requireNotNull(data?.storagePath) { "message-vocal node ${dto.id} missing storagePath" }

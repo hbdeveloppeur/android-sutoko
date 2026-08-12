@@ -795,6 +795,7 @@ class GameEngine @Inject constructor(
         is Node.Scene -> handlerFactory.getHandler(NodeType.SCENE)
         is Node.End -> handlerFactory.getHandler(NodeType.END)
         is Node.Sound -> handlerFactory.getHandler(NodeType.SOUND)
+        is Node.StopSound -> handlerFactory.getHandler(NodeType.STOP_SOUND)
         is Node.MessageVocal -> handlerFactory.getHandler(NodeType.MESSAGE_VOCAL)
         is Node.MessageAudioDialogue -> handlerFactory.getHandler(NodeType.MESSAGE_AUDIO_DIALOGUE)
         is Node.Code -> handlerFactory.getHandler(NodeType.CODE)

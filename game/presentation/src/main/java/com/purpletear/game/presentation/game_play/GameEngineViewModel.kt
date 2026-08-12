@@ -379,6 +379,7 @@ class GameEngineViewModel @Inject constructor(
             is HandlerEffect.PlayTypingSound -> audio.playTypingSound()
 
             is HandlerEffect.PlaySound -> audio.playSound(
+                effect.nodeId,
                 effect.soundUrl,
                 effect.loop,
                 effect.volume,
@@ -387,7 +388,7 @@ class GameEngineViewModel @Inject constructor(
 
             is HandlerEffect.PlayVocal -> audio.playVocal(effect.audioUrl)
 
-            is HandlerEffect.StopSound -> audio.stopSound()
+            is HandlerEffect.StopSound -> audio.stopSound(effect.targetNodeId)
 
             is HandlerEffect.ChangeChapter -> {
                 nextChapter.onChapterChange(effect.chapterCode)

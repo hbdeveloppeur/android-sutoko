@@ -50,10 +50,13 @@ sealed class HandlerEffect {
 
     /**
      * Play a sound effect or music.
+     * [nodeId] is the id of the sound node that started playback; the sound engine keys
+     * the channel on it so a later [StopSound] can fade it out.
      * [volume] is a 0..1 gain applied to both channels; defaults to full volume.
      */
     @Keep
     data class PlaySound(
+        val nodeId: String,
         val soundUrl: String,
         val loop: Boolean = false,
         val volume: Float = 1f,
@@ -62,9 +65,11 @@ sealed class HandlerEffect {
     ) : HandlerEffect()
 
     /**
-     * Stop currently playing sound.
+     * Fade out and clear the sound started by the node [targetNodeId].
+     * Silent no-op when that sound is not playing.
      */
-    data object StopSound : HandlerEffect()
+    @Keep
+    data class StopSound(val targetNodeId: String) : HandlerEffect()
 
     /**
      * Show glitch effect on screen for thriller atmosphere.

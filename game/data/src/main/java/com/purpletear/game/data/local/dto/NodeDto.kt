@@ -48,6 +48,8 @@ data class NodeDataDto(
     val expectedValue: String? = null,
     @SerializedName("isLooping")
     val isLooping: Boolean? = null,
+    @SerializedName("targetNodeId")
+    val targetNodeId: String? = null,
     val volume: Float? = null,
     val alignment: String? = null,
     val delay: Long? = null,
