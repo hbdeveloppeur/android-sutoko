@@ -6,4 +6,4 @@ Do not touch :games:*
 You are an expert and smart UX/UI expert.
 This operation is done because we need to save tokens for our AI models-the files are too long.
 
-# Do you agree, you and your team that GameEngineViewModel is way too huge? Make a plan to fix that.
+# Do you agree, you and your team that GameEngineViewModel is way too huge? Fix that.
