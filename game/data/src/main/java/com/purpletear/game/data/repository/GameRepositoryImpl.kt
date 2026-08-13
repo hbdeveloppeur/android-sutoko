@@ -1,5 +1,6 @@
 package com.purpletear.game.data.repository
 
+import android.util.Log
 import com.purpletear.game.data.local.dao.GameDao
 import com.purpletear.game.data.local.entity.GameCatalogEntity
 import com.purpletear.game.data.local.entity.toDomain
@@ -22,6 +23,7 @@ import javax.inject.Singleton
 
 private const val USER_GAMES_PAGE_SIZE = 20
 private const val STATUS_ONLINE = "online"
+private const val TAG = "GameRepositoryImpl"
 
 @Singleton
 class GameRepositoryImpl @Inject constructor(
@@ -262,10 +264,15 @@ class GameRepositoryImpl @Inject constructor(
             }
 
             // Only this endpoint returns the author's own stories, including offline ones.
-            val catalogs = response.body().orEmpty().map { dto ->
-                dto.toDomain().toDomain().copy(
-                    isOnline = STATUS_ONLINE.equals(dto.status, ignoreCase = true)
-                )
+            // Map stories one by one: a single malformed payload must not kill the whole list.
+            val catalogs = response.body().orEmpty().mapNotNull { dto ->
+                runCatching {
+                    dto.toDomain().toDomain().copy(
+                        isOnline = STATUS_ONLINE.equals(dto.status, ignoreCase = true)
+                    )
+                }.onFailure { error ->
+                    Log.w(TAG, "Skipping malformed story id=${dto.id}", error)
+                }.getOrNull()
             }
             Result.success(catalogs)
         } catch (e: CancellationException) {
