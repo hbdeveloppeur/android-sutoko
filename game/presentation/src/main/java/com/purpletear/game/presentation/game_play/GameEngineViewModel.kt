@@ -29,6 +29,7 @@ import com.purpletear.sutoko.game.engine.GameEngine
 import com.purpletear.sutoko.game.engine.GameEngineState
 import com.purpletear.sutoko.game.engine.GameMessage
 import com.purpletear.sutoko.game.engine.HandlerEffect
+import com.purpletear.sutoko.game.model.StoryAdvanceMode
 import com.purpletear.sutoko.game.model.chapter.ChapterGraph
 import com.purpletear.sutoko.game.repository.ChapterRepository
 import com.purpletear.sutoko.game.repository.CharacterRepository
@@ -45,11 +46,13 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import java.util.Locale
 import javax.inject.Inject
@@ -136,6 +139,10 @@ class GameEngineViewModel @Inject constructor(
         updateState { it.copy(isHoldPaused = paused) }
     }
 
+    /** Whether the story advances on its own or waits for a player tap. */
+    private val advanceMode: StateFlow<StoryAdvanceMode> = storyAdvanceModeRepository.observe()
+        .stateIn(viewModelScope, SharingStarted.Eagerly, StoryAdvanceMode.AUTO_PLAY)
+
     init {
         Trace.beginSection("GameEngineViewModel.init")
         // The scheduler is a process-wide @Singleton: never inherit a stale hold from a
@@ -161,6 +168,12 @@ class GameEngineViewModel @Inject constructor(
                 launch { gameEngine.state.collect { updateUiStateFromEngine(it) } }
                 autoAdvance.start()
                 launch { gameEngine.messages.collect { updateMessages(it) } }
+                // Hold-to-pause only makes sense while the story moves on its own.
+                launch {
+                    advanceMode.collect {
+                        if (it == StoryAdvanceMode.CLICK_TO_ADVANCE) timingGate.setFingerHeld(false)
+                    }
+                }
                 launch { gameEngine.effects.collect { handleEffect(it) } }
                 launch {
                     audio.vocal.collect { vocal ->
@@ -518,6 +531,7 @@ class GameEngineViewModel @Inject constructor(
     fun onHoldPauseChanged(held: Boolean) {
         val state = _uiState.value
         if (timingGate.isFingerHeld == held) return
+        if (held && advanceMode.value == StoryAdvanceMode.CLICK_TO_ADVANCE) return
         if (held && (state.isAwaitingInput || state.isCinematicActive || state.isMangaActive || state.visualNovel != null)) return
         timingGate.setFingerHeld(held)
     }
