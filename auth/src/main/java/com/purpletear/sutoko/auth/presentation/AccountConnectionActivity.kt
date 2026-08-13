@@ -89,14 +89,7 @@ class AccountConnectionActivity : AppCompatActivity(), AccountConnectionCallBack
     private fun onLoginSuccess(isValidatedUser: Boolean) {
         this.model.connectionSuccess = true
         if (!isValidatedUser) {
-            displayPage(AccountConnectionActivityModel.Page.VALIDATE_MAIL_WAITING)
-            AccountFormHelper.clear(this, false)
-            AccountConnectionActivityGraphics.updateMailValidateText(
-                this,
-                model.currentPage,
-                AccountFormHelper.getMail(this)
-            )
-            manageValidationMailControlWindowFocusChanged(true)
+            showValidateMailWaitingPage()
         } else {
             // Quit + toast
             AccountConnectionActivityGraphics.setButtonLoading(this, true)
@@ -120,14 +113,19 @@ class AccountConnectionActivity : AppCompatActivity(), AccountConnectionCallBack
         if (isValidatedUser) {
             persistSession(token, uid, true)
         } else {
-            displayPage(AccountConnectionActivityModel.Page.VALIDATE_MAIL_WAITING)
-            AccountConnectionActivityGraphics.updateMailValidateText(
-                this,
-                model.currentPage,
-                AccountFormHelper.getMail(this)
-            )
-            manageValidationMailControlWindowFocusChanged(true)
+            showValidateMailWaitingPage()
         }
+    }
+
+    private fun showValidateMailWaitingPage() {
+        displayPage(AccountConnectionActivityModel.Page.VALIDATE_MAIL_WAITING)
+        AccountFormHelper.clear(this, false)
+        AccountConnectionActivityGraphics.updateMailValidateText(
+            this,
+            model.currentPage,
+            AccountFormHelper.getMail(this)
+        )
+        manageValidationMailControlWindowFocusChanged(true)
     }
 
     private fun onRequireFirebaseConversion() {
@@ -178,8 +176,14 @@ class AccountConnectionActivity : AppCompatActivity(), AccountConnectionCallBack
                     resultCode == AccountFormHelper.FormValidationCode.MAIL_NOT_VALIDATED
                 if (resultCode == AccountFormHelper.FormValidationCode.REQUIRE_FIREBASE_AUTH_CHECK) {
                     onRequireFirebaseConversion()
-                } else if (isSuccessful || userNotValidated) {
-                    persistSession(token, uid, !userNotValidated)
+                } else if (userNotValidated) {
+                    // Backend returns USER_NOT_VALIDATED with null token/uid: no session can be
+                    // persisted yet. Guide the user through mail validation instead of showing a
+                    // misleading generic network error.
+                    AccountConnectionActivityGraphics.setButtonLoading(this, false)
+                    showValidateMailWaitingPage()
+                } else if (isSuccessful) {
+                    persistSession(token, uid, true)
                 } else {
                     AccountConnectionActivityGraphics.setButtonLoading(this, false)
                     AccountFormHelper.displayError(this, resultCode)
