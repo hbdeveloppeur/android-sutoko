@@ -275,7 +275,7 @@ private fun LongButtonComposable(
                     onClick = onClick,
                     indication = ripple(),
                 )
-                .alpha(if (isLoading) 0.3f else 1f)
+                .alpha(if (isLoading || !isEnabled) 0.3f else 1f)
         ) {
             Column(
                 Modifier

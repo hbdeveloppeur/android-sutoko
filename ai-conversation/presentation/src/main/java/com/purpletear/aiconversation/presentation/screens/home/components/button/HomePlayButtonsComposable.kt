@@ -13,6 +13,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.purpletear.aiconversation.presentation.R
 import com.purpletear.aiconversation.presentation.component.button.ButtonComposable
 import com.purpletear.aiconversation.presentation.component.button.ButtonTheme
+import com.purpletear.aiconversation.presentation.screens.home.components.notice.AiFriendShutdownNoticeComposable
 import com.purpletear.aiconversation.presentation.screens.home.state.PlayabilityState
 import com.purpletear.aiconversation.presentation.screens.home.state.PlayabilityState.Loading
 import com.purpletear.aiconversation.presentation.screens.home.viewModels.AiConversationHomeViewModel
@@ -87,9 +88,12 @@ fun HomePlayButtonsComposable(
                 stringResource(R.string.ai_conversation_you_are_not_connected)
             },
             theme = ButtonTheme.Maroon(iconId = R.drawable.ai_conversation_presentation_cart),
+            isEnabled = true,
             onClick = {
                 viewModel.onBuyCoinsPressed()
             }
         )
+
+        AiFriendShutdownNoticeComposable()
     }
 }

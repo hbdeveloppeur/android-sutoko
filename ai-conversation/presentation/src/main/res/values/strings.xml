@@ -26,6 +26,9 @@
     <string name="ai_conversation_button_discuss_name">Discuss with %1$s</string>
     <string name="ai_conversation_button_buy_coins_title">Buy more messages</string>
     <string name="ai_conversation_button_buy_coins_subtitle">You have %1$s coins left</string>
+    <string name="ai_conversation_shutdown_notice_tag">OCTOBER 1ST</string>
+    <string name="ai_conversation_shutdown_notice_title">AI Friend is saying goodbye</string>
+    <string name="ai_conversation_shutdown_notice_message">Sutoko will stop the AI Friend feature on October 1st. Thank you for everything ❤️ We need to focus 100% on creating new stories rather than maintaining AI Friend. You can keep playing as long as you have coins — the feature will disappear as soon as you reach 0 or on October 1st.</string>
     <string name="ai_conversation_buy_coins">Buy coins</string>
 
     <!-- Character Creation -->

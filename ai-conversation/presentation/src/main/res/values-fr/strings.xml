@@ -26,6 +26,9 @@
     <string name="ai_conversation_button_discuss_name">Discuter avec %1$s</string>
     <string name="ai_conversation_button_buy_coins_title">Acheter plus de messages</string>
     <string name="ai_conversation_button_buy_coins_subtitle">Il vous reste %1$s pièces</string>
+    <string name="ai_conversation_shutdown_notice_tag">1ER OCTOBRE</string>
+    <string name="ai_conversation_shutdown_notice_title">AI Friend vous dit au revoir</string>
+    <string name="ai_conversation_shutdown_notice_message">Sutoko arrêtera la fonctionnalité AI Friend le 1er octobre. Merci pour tout ❤️ Nous devons nous concentrer à 100 % sur la création de nouvelles histoires plutôt que sur la maintenance d\'AI Friend. Vous pourrez continuer à jouer tant qu\'il vous reste des pièces — la fonctionnalité disparaîtra dès que vous atteindrez 0 ou le 1er octobre.</string>
     <string name="ai_conversation_buy_coins">Acheter des pièces</string>
 
     <!-- Création de personnage -->

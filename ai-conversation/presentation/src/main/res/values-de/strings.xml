@@ -26,6 +26,9 @@
     <string name="ai_conversation_button_discuss_name">Diskutiere mit %1$s</string>
     <string name="ai_conversation_button_buy_coins_title">Mehr Nachrichten kaufen</string>
     <string name="ai_conversation_button_buy_coins_subtitle">Sie haben noch %1$s Münzen</string>
+    <string name="ai_conversation_shutdown_notice_tag">1. OKTOBER</string>
+    <string name="ai_conversation_shutdown_notice_title">AI Friend verabschiedet sich</string>
+    <string name="ai_conversation_shutdown_notice_message">Sutoko wird die AI-Friend-Funktion am 1. Oktober einstellen. Danke für alles ❤️ Wir müssen uns zu 100 % auf neue Geschichten konzentrieren, statt AI Friend weiter zu pflegen. Du kannst weiterspielen, solange du Münzen hast — die Funktion verschwindet, sobald du 0 erreichst oder am 1. Oktober.</string>
     <string name="ai_conversation_buy_coins">Münzen kaufen</string>
 
     <!-- Charaktererstellung -->
