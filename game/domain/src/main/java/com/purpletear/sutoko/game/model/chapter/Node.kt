@@ -28,7 +28,23 @@ sealed class Node {
         val seenMs: Long = 0,
         val isHesitating: Boolean = false,
         val isAutoTiming: Boolean = true,
+        /**
+         * Optional visibility gate, only meaningful when this message is a choice option:
+         * the ChoicesBox shows the choice when [condition] is null or the memory value
+         * for [MessageCondition.key] equals [MessageCondition.expectedValue].
+         */
+        val condition: MessageCondition? = null,
     ) : Node()
+
+    /**
+     * Memory-backed visibility gate attached to a [Message] choice option.
+     * Evaluated as: memory[key] == expectedValue (a missing key never matches).
+     */
+    @Keep
+    data class MessageCondition(
+        val key: String,
+        val expectedValue: String,
+    )
 
     /**
      * Styling directive: updates the bubble background and text foreground colors of

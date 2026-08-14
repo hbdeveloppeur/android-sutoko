@@ -63,7 +63,7 @@ internal fun createTestGameEngine(
             fakeNotificationHandler = FakeNotificationNodeHandler(),
             visualNovelHandler = VisualNovelNodeHandler(textProcessor)
         ),
-        nodeResolver = NodeResolver(),
+        nodeResolver = NodeResolver(memory),
         memory = memory,
         timingScheduler = FakeTimingScheduler(),
         textProcessor = textProcessor,

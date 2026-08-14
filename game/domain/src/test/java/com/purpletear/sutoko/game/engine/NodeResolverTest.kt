@@ -1,5 +1,6 @@
 package com.purpletear.sutoko.game.engine
 
+import com.purpletear.sutoko.game.engine.handlers.createFakeGameMemory
 import com.purpletear.sutoko.game.model.chapter.ChapterGraph
 import com.purpletear.sutoko.game.model.chapter.Edge
 import com.purpletear.sutoko.game.model.chapter.EdgeType
@@ -10,7 +11,8 @@ import org.junit.Test
 
 class NodeResolverTest {
 
-    private val resolver = NodeResolver()
+    private val memory = createFakeGameMemory()
+    private val resolver = NodeResolver(memory)
 
     @Test
     fun `handler returns explicit next node - should use it`() {
@@ -157,6 +159,92 @@ class NodeResolverTest {
         assertEquals(2, choices.size)
     }
 
+    @Test
+    fun `choice with true condition - should be shown`() {
+        memory.set("hasGift", "yes")
+        val edges = listOf(
+            Edge(source = "msg1", target = "choiceA", type = EdgeType.NORMAL),
+            Edge(source = "msg1", target = "choiceB", type = EdgeType.NORMAL)
+        )
+        val nodes = mapOf(
+            "choiceA" to createMessageNode("choiceA", "Option A"),
+            "choiceB" to createMessageNode(
+                "choiceB", "Option B",
+                condition = Node.MessageCondition(key = "hasGift", expectedValue = "yes")
+            )
+        )
+        val graph = createGraph(edges, nodes)
+
+        val result = resolver.resolveNextNode(graph, createMessageNode("msg1"), null)
+
+        val choices = (result as NodeResolver.ResolutionResult.AwaitChoice).choices
+        assertEquals(2, choices.size)
+    }
+
+    @Test
+    fun `choice with false condition - should be hidden`() {
+        memory.set("hasGift", "no")
+        val edges = listOf(
+            Edge(source = "msg1", target = "choiceA", type = EdgeType.NORMAL),
+            Edge(source = "msg1", target = "choiceB", type = EdgeType.NORMAL)
+        )
+        val nodes = mapOf(
+            "choiceA" to createMessageNode("choiceA", "Option A"),
+            "choiceB" to createMessageNode(
+                "choiceB", "Option B",
+                condition = Node.MessageCondition(key = "hasGift", expectedValue = "yes")
+            )
+        )
+        val graph = createGraph(edges, nodes)
+
+        val result = resolver.resolveNextNode(graph, createMessageNode("msg1"), null)
+
+        val choices = (result as NodeResolver.ResolutionResult.AwaitChoice).choices
+        assertEquals(1, choices.size)
+        assertEquals("choiceA", choices[0].id)
+    }
+
+    @Test
+    fun `choice with condition on missing memory key - should be hidden`() {
+        val edges = listOf(
+            Edge(source = "msg1", target = "choiceA", type = EdgeType.NORMAL),
+            Edge(source = "msg1", target = "choiceB", type = EdgeType.NORMAL)
+        )
+        val nodes = mapOf(
+            "choiceA" to createMessageNode("choiceA", "Option A"),
+            "choiceB" to createMessageNode(
+                "choiceB", "Option B",
+                condition = Node.MessageCondition(key = "neverSet", expectedValue = "yes")
+            )
+        )
+        val graph = createGraph(edges, nodes)
+
+        val result = resolver.resolveNextNode(graph, createMessageNode("msg1"), null)
+
+        val choices = (result as NodeResolver.ResolutionResult.AwaitChoice).choices
+        assertEquals(1, choices.size)
+        assertEquals("choiceA", choices[0].id)
+    }
+
+    @Test
+    fun `all choices filtered out - should fall back to unfiltered list`() {
+        val edges = listOf(
+            Edge(source = "msg1", target = "choiceA", type = EdgeType.NORMAL),
+            Edge(source = "msg1", target = "choiceB", type = EdgeType.NORMAL)
+        )
+        val condition = Node.MessageCondition(key = "neverSet", expectedValue = "yes")
+        val nodes = mapOf(
+            "choiceA" to createMessageNode("choiceA", "Option A", condition = condition),
+            "choiceB" to createMessageNode("choiceB", "Option B", condition = condition)
+        )
+        val graph = createGraph(edges, nodes)
+
+        val result = resolver.resolveNextNode(graph, createMessageNode("msg1"), null)
+
+        val choices = (result as NodeResolver.ResolutionResult.AwaitChoice).choices
+        assertEquals(2, choices.size)
+    }
+
     private fun createGraph(
         edges: List<Edge> = emptyList(),
         nodes: Map<String, Node> = emptyMap()
@@ -170,11 +258,16 @@ class NodeResolverTest {
         )
     }
 
-    private fun createMessageNode(id: String, text: String = "Test message"): Node.Message {
+    private fun createMessageNode(
+        id: String,
+        text: String = "Test message",
+        condition: Node.MessageCondition? = null
+    ): Node.Message {
         return Node.Message(
             id = id,
             text = text,
-            characterId = 1
+            characterId = 1,
+            condition = condition
         )
     }
 }

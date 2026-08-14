@@ -40,7 +40,11 @@ internal fun parseNode(
             characterId = data?.characterId ?: -1,
             waitMs = data?.wait ?: 0,
             seenMs = data?.seen ?: 0,
-            isHesitating = data?.isHesitating ?: false
+            isHesitating = data?.isHesitating ?: false,
+            // Tolerate malformed conditions (missing key/value): no gate applied.
+            condition = data?.condition
+                ?.takeIf { !it.key.isNullOrBlank() && it.value != null }
+                ?.let { Node.MessageCondition(key = it.key!!, expectedValue = it.value!!) }
         )
 
         "message-theme" -> Node.MessageTheme(

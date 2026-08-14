@@ -64,6 +64,51 @@ class ChapterGraphParserConditionTest {
     }
 
     @Test
+    fun `message node with condition field parses into MessageCondition`() {
+        val messageData = JsonObject().apply {
+            addProperty("text", "Give the gift")
+            addProperty("characterId", 1)
+            add("condition", JsonObject().apply {
+                addProperty("key", "hasGift")
+                addProperty("value", "yes")
+            })
+        }
+        val nodes = listOf(
+            node("start-0", "start"),
+            node("msg-a", "message", data = messageData),
+            node("msg-b", "message", text = "B", characterId = 1)
+        )
+
+        val graph = parseGraph(nodes, emptyList())
+
+        val message = graph.getNode("msg-a") as Node.Message
+        assertEquals(
+            Node.MessageCondition(key = "hasGift", expectedValue = "yes"),
+            message.condition
+        )
+        assertNull((graph.getNode("msg-b") as Node.Message).condition)
+    }
+
+    @Test
+    fun `message node with malformed condition is parsed without gate`() {
+        val messageData = JsonObject().apply {
+            addProperty("text", "A")
+            addProperty("characterId", 1)
+            add("condition", JsonObject().apply {
+                addProperty("value", "yes")
+            })
+        }
+        val nodes = listOf(
+            node("start-0", "start"),
+            node("msg-a", "message", data = messageData)
+        )
+
+        val graph = parseGraph(nodes, emptyList())
+
+        assertNull((graph.getNode("msg-a") as Node.Message).condition)
+    }
+
+    @Test
     fun `conditional edge pointing to ignore node is retargeted`() {
         val nodes = listOf(
             node("start-0", "start"),

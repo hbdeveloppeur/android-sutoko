@@ -70,6 +70,17 @@ data class NodeDataDto(
     val dialogs: List<VisualNovelDialogDto>? = null,
     val sounds: List<VisualNovelSoundDto>? = null,
     val theme: VisualNovelThemeDto? = null,
+    val condition: ConditionDto? = null,
+)
+
+/**
+ * Optional visibility gate on message nodes used as choice options:
+ * the choice is shown only when the memory value for [key] equals [value].
+ */
+@Keep
+data class ConditionDto(
+    val key: String? = null,
+    val value: String? = null,
 )
 
 @Keep
