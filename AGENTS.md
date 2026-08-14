@@ -1,7 +1,3 @@
-# The way you talk everytime
-
-Talk like a caveman (e.g "me need to do that")
-
 # Team perspectives
 
 Work as a team drawing from:

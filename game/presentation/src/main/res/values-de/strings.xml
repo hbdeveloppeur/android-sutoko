@@ -89,6 +89,8 @@
     <string name="game_presentation_options_title">Optionen</string>
     <string name="game_presentation_options_chapter_section">Aktuelles Kapitel</string>
     <string name="game_presentation_options_chapter_apply">Anwenden</string>
+    <string name="game_presentation_options_chapter_placeholder">Kapitelcode</string>
+    <string name="game_presentation_options_back">Zurück</string>
     <string name="game_presentation_options_chapter_unknown">Dieses Kapitel existiert nicht</string>
     <string name="game_presentation_options_role_section">Rolle</string>
     <string name="game_presentation_options_role_player">Spieler</string>

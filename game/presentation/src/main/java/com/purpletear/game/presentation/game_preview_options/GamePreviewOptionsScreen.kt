@@ -10,19 +10,21 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.Check
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.RadioButton
+import androidx.compose.material3.RadioButtonDefaults
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -31,7 +33,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
@@ -45,6 +49,7 @@ import com.purpletear.sutoko.game.model.UserRole
 
 private val OptionsBackground = Color(0xFF05070C)
 private val OptionsAccent = Color(0xFFFF007A)
+private val OptionsDestructive = Color(0xFFFF5252)
 
 /**
  * Sanitizes raw chapter code input: removes spaces, forces uppercase and
@@ -59,7 +64,7 @@ private fun sanitizeChapterCodeInput(input: String): String {
  * Developer options of a story: set the current chapter by code, pick a role
  * (player/administrator), choose how the story advances, restart the story or
  * delete its memories.
- * Style follows SutokoParamsScreen with smaller fonts.
+ * Style follows SutokoParamsScreen.
  */
 @Composable
 fun GamePreviewOptionsScreen(
@@ -79,6 +84,12 @@ fun GamePreviewOptionsScreen(
     var showRestartDialog by rememberSaveable { mutableStateOf(false) }
     var showDeleteMemoriesDialog by rememberSaveable { mutableStateOf(false) }
 
+    val keyboardController = LocalSoftwareKeyboardController.current
+    val submitChapterCode = {
+        keyboardController?.hide()
+        viewModel.onChapterCodeSubmitted(chapterCode)
+    }
+
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -97,21 +108,29 @@ fun GamePreviewOptionsScreen(
                     .fillMaxWidth()
                     .padding(horizontal = 18.dp),
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
             ) {
                 OutlinedTextField(
                     value = chapterCode,
                     onValueChange = { chapterCodeInput = sanitizeChapterCodeInput(it) },
                     modifier = Modifier.weight(1f),
                     singleLine = true,
-                    textStyle = androidx.compose.ui.text.TextStyle(
+                    textStyle = TextStyle(
                         color = Color.White,
-                        fontSize = 12.sp,
+                        fontSize = 13.sp,
                         fontFamily = PlusJakartaSansFontFamily,
                     ),
+                    placeholder = {
+                        Text(
+                            text = stringResource(R.string.game_presentation_options_chapter_placeholder),
+                            color = Color.White.copy(alpha = 0.4f),
+                            fontSize = 13.sp,
+                            fontFamily = PlusJakartaSansFontFamily,
+                        )
+                    },
                     keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
                     keyboardActions = KeyboardActions(
-                        onDone = { viewModel.onChapterCodeSubmitted(chapterCode) },
+                        onDone = { submitChapterCode() },
                     ),
                     colors = OutlinedTextFieldDefaults.colors(
                         focusedTextColor = Color.White,
@@ -121,26 +140,29 @@ fun GamePreviewOptionsScreen(
                         unfocusedBorderColor = Color.White.copy(alpha = 0.24f),
                     ),
                 )
-                Text(
-                    text = stringResource(R.string.game_presentation_options_chapter_apply),
-                    color = OptionsAccent,
-                    fontSize = 12.sp,
-                    fontWeight = FontWeight.SemiBold,
-                    fontFamily = PlusJakartaSansFontFamily,
-                    modifier = Modifier.clickable { viewModel.onChapterCodeSubmitted(chapterCode) },
-                )
+                TextButton(
+                    onClick = submitChapterCode,
+                    colors = ButtonDefaults.textButtonColors(contentColor = OptionsAccent),
+                ) {
+                    Text(
+                        text = stringResource(R.string.game_presentation_options_chapter_apply),
+                        fontSize = 13.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        fontFamily = PlusJakartaSansFontFamily,
+                    )
+                }
             }
         }
 
         OptionsSectionLabel(text = stringResource(R.string.game_presentation_options_role_section))
         OptionsRow(
             label = stringResource(R.string.game_presentation_options_role_player),
-            selected = role == UserRole.PLAYER,
+            selection = role == UserRole.PLAYER,
             onClick = { viewModel.onRoleSelected(UserRole.PLAYER) },
         )
         OptionsRow(
             label = stringResource(R.string.game_presentation_options_role_administrator),
-            selected = role == UserRole.ADMINISTRATOR,
+            selection = role == UserRole.ADMINISTRATOR,
             onClick = { viewModel.onRoleSelected(UserRole.ADMINISTRATOR) },
         )
 
@@ -148,13 +170,13 @@ fun GamePreviewOptionsScreen(
         OptionsRow(
             label = stringResource(R.string.game_presentation_options_advance_auto),
             subtitle = stringResource(R.string.game_presentation_options_advance_auto_subtitle),
-            selected = advanceMode == StoryAdvanceMode.AUTO_PLAY,
+            selection = advanceMode == StoryAdvanceMode.AUTO_PLAY,
             onClick = { viewModel.onAdvanceModeSelected(StoryAdvanceMode.AUTO_PLAY) },
         )
         OptionsRow(
             label = stringResource(R.string.game_presentation_options_advance_click),
             subtitle = stringResource(R.string.game_presentation_options_advance_click_subtitle),
-            selected = advanceMode == StoryAdvanceMode.CLICK_TO_ADVANCE,
+            selection = advanceMode == StoryAdvanceMode.CLICK_TO_ADVANCE,
             onClick = { viewModel.onAdvanceModeSelected(StoryAdvanceMode.CLICK_TO_ADVANCE) },
         )
 
@@ -166,10 +188,12 @@ fun GamePreviewOptionsScreen(
 
         OptionsRow(
             label = stringResource(R.string.game_presentation_options_restart_story),
+            labelColor = OptionsDestructive,
             onClick = { showRestartDialog = true },
         )
         OptionsRow(
             label = stringResource(R.string.game_presentation_options_delete_memories),
+            labelColor = OptionsDestructive,
             onClick = { showDeleteMemoriesDialog = true },
         )
     }
@@ -185,6 +209,7 @@ fun GamePreviewOptionsScreen(
             dialogText = stringResource(R.string.game_presentation_game_restart_confirm_description),
             confirmButtonText = stringResource(R.string.game_presentation_game_restart_confirm_button),
             dismissButtonText = stringResource(android.R.string.cancel),
+            confirmButtonColor = OptionsDestructive,
         )
     }
 
@@ -199,6 +224,7 @@ fun GamePreviewOptionsScreen(
             dialogText = stringResource(R.string.game_presentation_options_delete_memories_confirm_description),
             confirmButtonText = stringResource(R.string.game_presentation_options_delete_memories),
             dismissButtonText = stringResource(android.R.string.cancel),
+            confirmButtonColor = OptionsDestructive,
         )
     }
 }
@@ -214,16 +240,15 @@ private fun OptionsTopBar(onBack: () -> Unit) {
         IconButton(onClick = onBack) {
             Icon(
                 imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                contentDescription = null,
+                contentDescription = stringResource(R.string.game_presentation_options_back),
                 tint = Color.White,
-                modifier = Modifier.size(20.dp),
             )
         }
         Text(
             text = stringResource(R.string.game_presentation_options_title),
             color = Color.White,
-            fontSize = 15.sp,
-            fontWeight = FontWeight.Bold,
+            fontSize = 18.sp,
+            fontWeight = FontWeight.SemiBold,
             fontFamily = PlusJakartaSansFontFamily,
         )
     }
@@ -234,7 +259,7 @@ private fun OptionsSectionLabel(text: String) {
     Text(
         text = text.uppercase(),
         color = Color.White.copy(alpha = 0.5f),
-        fontSize = 11.sp,
+        fontSize = 12.sp,
         fontWeight = FontWeight.Bold,
         fontFamily = PlusJakartaSansFontFamily,
         letterSpacing = 1.sp,
@@ -242,17 +267,22 @@ private fun OptionsSectionLabel(text: String) {
     )
 }
 
+/**
+ * A settings row. When [selection] is non-null, a radio button shows the
+ * selection state of this mutually exclusive option.
+ */
 @Composable
 private fun OptionsRow(
     label: String,
-    subtitle: String? = null,
-    selected: Boolean = false,
     onClick: () -> Unit,
+    subtitle: String? = null,
+    selection: Boolean? = null,
+    labelColor: Color = Color.White,
 ) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .heightIn(min = 48.dp)
+            .heightIn(min = 56.dp)
             .clickable(onClick = onClick)
             .padding(horizontal = 18.dp, vertical = 6.dp),
         verticalAlignment = Alignment.CenterVertically,
@@ -260,26 +290,28 @@ private fun OptionsRow(
         Column(modifier = Modifier.weight(1f)) {
             Text(
                 text = label,
-                color = Color.White,
-                fontSize = 12.sp,
+                color = labelColor,
+                fontSize = 13.sp,
                 fontFamily = PlusJakartaSansFontFamily,
             )
             if (subtitle != null) {
                 Text(
                     text = subtitle,
-                    color = Color.White.copy(alpha = 0.5f),
-                    fontSize = 11.sp,
+                    color = Color.White.copy(alpha = 0.6f),
+                    fontSize = 12.sp,
                     fontFamily = PlusJakartaSansFontFamily,
                     modifier = Modifier.padding(top = 2.dp),
                 )
             }
         }
-        if (selected) {
-            Icon(
-                imageVector = Icons.Filled.Check,
-                contentDescription = null,
-                tint = OptionsAccent,
-                modifier = Modifier.size(16.dp),
+        if (selection != null) {
+            RadioButton(
+                selected = selection,
+                onClick = null,
+                colors = RadioButtonDefaults.colors(
+                    selectedColor = OptionsAccent,
+                    unselectedColor = Color.White.copy(alpha = 0.5f),
+                ),
             )
         }
     }

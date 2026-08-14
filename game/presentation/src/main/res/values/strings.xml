@@ -89,6 +89,8 @@
     <string name="game_presentation_options_title">Options</string>
     <string name="game_presentation_options_chapter_section">Current chapter</string>
     <string name="game_presentation_options_chapter_apply">Apply</string>
+    <string name="game_presentation_options_chapter_placeholder">Chapter code</string>
+    <string name="game_presentation_options_back">Back</string>
     <string name="game_presentation_options_chapter_unknown">This chapter doesn\'t exist</string>
     <string name="game_presentation_options_role_section">Role</string>
     <string name="game_presentation_options_role_player">Player</string>
