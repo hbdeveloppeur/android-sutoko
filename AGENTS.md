@@ -58,6 +58,8 @@ When validation is needed, always build and test in **debug** with **no cache**.
 
 # Tests and token usage
 
+- Use subagents for exploration
+- Read files in ranges, prefer Grep over full reads, don't re-read files
 - Run tests without reading all test files.
 - Keep command output to `All tests green` unless failures need investigation.
 - For non-trivial changes, start with a small temporary, single-scenario test class.
