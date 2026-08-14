@@ -10,16 +10,22 @@ import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTagsAsResourceId
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
+import com.example.sharedelements.theme.SutokoTypography
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.purpletear.core.presentation.extensions.Resource
 import com.purpletear.game.presentation.game_catalog.GameCard
@@ -27,6 +33,7 @@ import com.purpletear.game.presentation.game_catalog.GamePosterRow
 import com.purpletear.game.presentation.game_catalog.GameSquares
 import com.purpletear.sutoko.game.model.game.GameCatalog
 import com.purpletear.sutoko.shop.domain.repository.model.Balance
+import fr.purpletear.sutoko.R
 import fr.purpletear.sutoko.screens.main.presentation.HomeScreenViewModel
 import fr.purpletear.sutoko.screens.main.presentation.MainScreenPages
 import fr.purpletear.sutoko.screens.main.presentation.screens.TopNavigation
@@ -132,7 +139,10 @@ private fun HomeContent(
             squareIcons = squareIcons,
             onStoryTap = onSquareStoryTap
         )
-        
+
+
+        releaseScheduleTitleSection(fullStories = fullStories)
+
         verticalStoriesSection(
             verticalStories = verticalStories,
             favoriteIds = favoriteIds,
@@ -233,6 +243,24 @@ private fun LazyListScope.verticalStoriesSection(
             stories = verticalStories,
             favoriteIds = favoriteIds,
             onTap = onStoryTap
+        )
+    }
+}
+
+@OptIn(ExperimentalFoundationApi::class)
+private fun LazyListScope.releaseScheduleTitleSection(fullStories: List<GameCatalog>) {
+    if (fullStories.isEmpty()) return
+
+    item(key = "release_schedule_title") {
+        Text(
+            text = stringResource(R.string.sutoko_main_section_title_release_schedule),
+            fontSize = 14.sp,
+            style = SutokoTypography.body1.copy(
+                fontWeight = FontWeight.Bold,
+                letterSpacing = 0.5.sp,
+                color = Color(0xFFFAFAFA)
+            ),
+            modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 8.dp)
         )
     }
 }

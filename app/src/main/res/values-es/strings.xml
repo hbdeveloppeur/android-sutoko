@@ -194,6 +194,7 @@
     <string name="sutoko_pass_premium">Pase premium</string>
     <string name="sutoko_main_section_title_games">Historias oficiales</string>
     <string name="sutoko_main_section_subtitle_games">%1$d Historias de aventuras</string>
+    <string name="sutoko_main_section_title_release_schedule">Un capítulo nuevo cada miércoles y jueves</string>
     <string name="sutoko_community_section_title_games">Juegos creados por jugadores</string>
     <string name="sutoko_community_section_subtitle_games">Clasificación</string>
     <string name="sutoko_user_story_publisher_conditions">He leído y acepto <a href="https://sutoko.app/terms-of-use">los términos de uso</a></string>

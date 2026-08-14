@@ -5,4 +5,4 @@ Do not touch :games:*
 Do never delete implementation.md.
 
 You are an expert and smart UX/UI expert.
-
+GamePreview Option screen has been made by a junior, fix the bad choices.
