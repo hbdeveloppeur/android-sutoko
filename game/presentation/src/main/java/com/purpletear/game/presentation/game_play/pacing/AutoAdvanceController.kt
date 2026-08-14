@@ -4,12 +4,9 @@ import com.purpletear.game.data.infrastructure.SystemTimingScheduler
 import com.purpletear.sutoko.game.engine.GameEngine
 import com.purpletear.sutoko.game.engine.GameEngineState
 import com.purpletear.sutoko.game.model.StoryAdvanceMode
-import com.purpletear.sutoko.game.repository.StoryAdvanceModeRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
 /**
@@ -22,15 +19,11 @@ import kotlinx.coroutines.launch
 class AutoAdvanceController(
     private val gameEngine: GameEngine,
     private val timingScheduler: SystemTimingScheduler,
-    storyAdvanceModeRepository: StoryAdvanceModeRepository,
+    private val advanceMode: StateFlow<StoryAdvanceMode>,
     private val scope: CoroutineScope,
 ) {
     /** Pending auto-advance past the current tap gate; cancelled as soon as the gate closes. */
     private var autoAdvanceJob: Job? = null
-
-    /** Whether the story advances on its own past tap gates or waits for a player tap. */
-    private val advanceMode: StateFlow<StoryAdvanceMode> = storyAdvanceModeRepository.observe()
-        .stateIn(scope, SharingStarted.Eagerly, StoryAdvanceMode.AUTO_PLAY)
 
     /**
      * Starts reacting to mid-game [StoryAdvanceMode] changes applied to a currently parked

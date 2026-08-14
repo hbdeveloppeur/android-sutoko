@@ -5,14 +5,14 @@ import kotlinx.coroutines.flow.Flow
 
 /**
  * Persists the user's [StoryAdvanceMode] across app restarts.
+ *
+ * The stored value is an explicit override: until the player picks a mode, callers resolve
+ * one with [StoryAdvanceMode.defaultFor] based on the story being played.
  */
 interface StoryAdvanceModeRepository {
-    /** Observes the current mode. Always emits, defaults to [StoryAdvanceMode.AUTO_PLAY]. */
-    fun observe(): Flow<StoryAdvanceMode>
+    /** Observes the explicitly chosen mode, or null when the player never picked one. */
+    fun observeExplicit(): Flow<StoryAdvanceMode?>
 
-    /** Returns the current mode, [StoryAdvanceMode.AUTO_PLAY] when never set. */
-    suspend fun get(): StoryAdvanceMode
-
-    /** Persists [mode]. */
+    /** Persists [mode] as the explicit player choice. */
     suspend fun set(mode: StoryAdvanceMode)
 }

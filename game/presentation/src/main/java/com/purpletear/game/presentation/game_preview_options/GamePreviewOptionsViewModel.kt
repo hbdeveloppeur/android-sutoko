@@ -22,6 +22,8 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
@@ -52,12 +54,23 @@ class GamePreviewOptionsViewModel @Inject constructor(
             initialValue = UserRole.PLAYER,
         )
 
-    val advanceMode: StateFlow<StoryAdvanceMode> = storyAdvanceModeRepository.observe()
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(7000),
-            initialValue = StoryAdvanceMode.AUTO_PLAY,
-        )
+    /**
+     * Effective mode for this story: the explicit player choice when one exists, otherwise
+     * the per-story default ([StoryAdvanceMode.defaultFor]).
+     */
+    val advanceMode: StateFlow<StoryAdvanceMode> = combine(
+        storyAdvanceModeRepository.observeExplicit(),
+        gameRepository.observeGame(gameId).catch { e ->
+            logger.exception(e) { "observeGame advance mode failed" }
+            emit(null)
+        },
+    ) { explicit, catalog ->
+        explicit ?: StoryAdvanceMode.defaultFor(catalog?.isOfficial == true)
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(7000),
+        initialValue = StoryAdvanceMode.AUTO_PLAY,
+    )
 
     /** Code of the current chapter, used to prefill the input. */
     val currentChapterCode: StateFlow<String> = chapterRepository.observeCurrentChapter(gameId)

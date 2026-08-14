@@ -51,6 +51,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -128,20 +129,33 @@ class GameEngineViewModel @Inject constructor(
     val navigateToCinematic: Flow<Unit> = cinematic.navigateToCinematic
 
     private val audio = GameAudioController(context, viewModelScope)
+
+    /**
+     * Whether the story advances on its own or waits for a player tap. Resolves the explicit
+     * player choice when one exists, otherwise the per-story default
+     * ([StoryAdvanceMode.defaultFor]). Starts on the safe side (never auto-advances) until the
+     * catalog row lands; a late flip is picked up by the collectors below.
+     */
+    private val advanceMode: StateFlow<StoryAdvanceMode> = combine(
+        storyAdvanceModeRepository.observeExplicit(),
+        gameRepository.observeGame(gameId).catch { e ->
+            logger.exception(e) { "observeGame advance mode failed" }
+            emit(null)
+        },
+    ) { explicit, catalog ->
+        explicit ?: StoryAdvanceMode.defaultFor(catalog?.isOfficial == true)
+    }.stateIn(viewModelScope, SharingStarted.Eagerly, StoryAdvanceMode.CLICK_TO_ADVANCE)
+
     private val autoAdvance =
         AutoAdvanceController(
             gameEngine,
             timingScheduler,
-            storyAdvanceModeRepository,
+            advanceMode,
             viewModelScope
         )
     private val timingGate = TimingGate(timingScheduler) { paused ->
         updateState { it.copy(isHoldPaused = paused) }
     }
-
-    /** Whether the story advances on its own or waits for a player tap. */
-    private val advanceMode: StateFlow<StoryAdvanceMode> = storyAdvanceModeRepository.observe()
-        .stateIn(viewModelScope, SharingStarted.Eagerly, StoryAdvanceMode.AUTO_PLAY)
 
     init {
         Trace.beginSection("GameEngineViewModel.init")
