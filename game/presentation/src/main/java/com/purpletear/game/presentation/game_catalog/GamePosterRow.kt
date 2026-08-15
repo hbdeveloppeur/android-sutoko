@@ -7,23 +7,18 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
@@ -32,6 +27,7 @@ import coil.request.ImageRequest
 import com.purpletear.game.presentation.R
 import com.purpletear.game.presentation.common.components.GameLogo
 import com.purpletear.sutoko.game.model.game.GameCatalog
+import com.purpletear.sutoko.game.model.game.isPremium
 import kotlin.math.roundToInt
 
 /** Portrait poster aspect ratio (width / height), 2:3. */
@@ -121,16 +117,9 @@ fun GamePosterCard(
             titleUrl = remember(gameCatalog.title) { gameCatalog.titleUrl() },
             modifier = Modifier.posterTitleRect(),
         )
-        if (isFavorite) {
-            Icon(
-                painter = painterResource(R.drawable.game_star_selected),
-                contentDescription = null,
-                tint = Color.White.copy(alpha = 0.6f),
-                modifier = Modifier
-                    .align(Alignment.TopEnd)
-                    .padding(10.dp)
-                    .size(14.dp),
-            )
-        }
+        CardCornerBadges(
+            isPremium = gameCatalog.isPremium(),
+            isFavorite = isFavorite,
+        )
     }
 }

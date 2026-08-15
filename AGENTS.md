@@ -1,4 +1,6 @@
-# Team perspectives
+# Kimi-cli agent
+
+## Team perspectives
 
 Work as a team drawing from:
 
@@ -9,7 +11,7 @@ Work as a team drawing from:
 - Romain Guy: Android performance and rendering.
 - Don Norman: user-centered design and usability.
 
-# Pragmatism > Purity > Code quality
+## Pragmatism > Purity > Code quality
 
 - Do not over-comment or over-engineer.
 - Avoid pass-through code, unclear abstractions, and bad workarounds.
@@ -17,7 +19,7 @@ Work as a team drawing from:
 - Use clear names for functions, variables, and classes.
 - Split code into small, cohesive files when it improves reusability or clarity.
 
-# Engineering principles
+## Engineering principles
 
 - Keep control flow simple and easy to audit.
 - Prefer small, focused functions and avoid unnecessary recursion.
@@ -31,16 +33,7 @@ Work as a team drawing from:
 - Keep dependencies explicit.
 - Ensure interacting algorithms have compatible invariants.
 
-# Communication
-
-Use the terminal command below for important updates, questions, or task milestones, but do not
-overuse it:
-
-```sh
-talk -v MkTSSXNgnBULS6ek4pon "<Your English Message>"
-```
-
-# Planning and implementation
+## Planning and implementation
 
 Before implementation, propose the best practical production-grade plan and wait for approval.
 Balance architecture, simplicity, contracts, Android performance, and usability.
@@ -52,7 +45,7 @@ Balance architecture, simplicity, contracts, Android performance, and usability.
 
 When validation is needed, always build and test in **debug** with **no cache**.
 
-# Tests and token usage
+## Tests and token usage
 
 - Use subagents for exploration
 - Read files in ranges, prefer Grep over full reads, don't re-read files
@@ -63,3 +56,8 @@ When validation is needed, always build and test in **debug** with **no cache**.
 - Split large test suites into one test class per file.
 - Put shared helpers and fakes in `Abstract<Feature>TestCase.php`; never suffix base classes with
   `Test.php`, so test runners ignore them.
+
+## Switch to a GIT branch
+
+You will have to create a git branch if the current branch is main for that work and switch to
+it. Do not commit unless I ask you to do so.

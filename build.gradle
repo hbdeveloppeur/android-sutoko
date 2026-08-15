@@ -69,7 +69,7 @@ tasks.register('cleanCache', Exec) {
 }
 
 ext {
-    versionCode = 139
+    versionCode = 140
     desugar_jdk_libs_version = "2.1.4"
     exoplayer_version = "2.18.5"
     gson_version = "2.10"
