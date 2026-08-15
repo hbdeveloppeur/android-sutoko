@@ -13,6 +13,12 @@ import kotlinx.coroutines.flow.Flow
 interface ShopRepository {
     fun observeBalance(): Flow<Balance>
 
+    /**
+     * Fetches the balance from the backend and caches it.
+     *
+     * A failed load never discards a previously loaded balance: the current
+     * value is kept and flagged with `Balance.loadFailed = true` instead.
+     */
     fun loadBalance(
         userId: String,
         userToken: String

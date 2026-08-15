@@ -14,9 +14,11 @@ class GameRepositoryImplOfficialGamesTest {
         val api = object : FakeGameApi() {
             override suspend fun getOfficialGames(
                 languageCode: String,
+                appVersionCode: Int,
                 authorization: String?,
             ): List<GameDto> {
                 assertEquals("fr-FR", languageCode)
+                assertEquals(STUB_VERSION_CODE, appVersionCode)
                 return listOf(
                     stubGameDto("game-first").copy(official = true),
                     stubGameDto("game-second").copy(official = true),
@@ -46,6 +48,7 @@ class GameRepositoryImplOfficialGamesTest {
         val api = object : FakeGameApi() {
             override suspend fun getOfficialGames(
                 languageCode: String,
+                appVersionCode: Int,
                 authorization: String?,
             ): List<GameDto> = throw RuntimeException("network down")
         }

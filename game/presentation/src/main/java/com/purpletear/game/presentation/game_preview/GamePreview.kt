@@ -114,6 +114,7 @@ fun GamePreview(
     onNavigateToGame: (String, Int?, Boolean, String?, Boolean) -> Unit = { _, _, _, _, _ -> },
     onNavigateToChapters: (String) -> Unit = {},
     onOpenAccountConnection: () -> Unit = {},
+    onOpenShop: () -> Unit = {},
     onOpenOptions: (String) -> Unit = {},
 ) {
     // Get the game from the ViewModel
@@ -292,6 +293,10 @@ fun GamePreview(
 
                             GamePreviewEvent.ShowAlreadyBoughtAlert -> {
                                 showAlreadyBoughtDialog = true
+                            }
+
+                            GamePreviewEvent.OpenShop -> {
+                                onOpenShop()
                             }
 
                             is GamePreviewEvent.ShowError -> Unit

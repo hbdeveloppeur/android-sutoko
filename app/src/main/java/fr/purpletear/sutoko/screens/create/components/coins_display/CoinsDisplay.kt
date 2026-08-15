@@ -32,7 +32,7 @@ private val BackgroundDiamond = Color(0xFF2E3A4F)
 
 @Composable
 internal fun CoinsDisplay(
-    amount: Int,
+    amount: Int?,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     @DrawableRes iconResId: Int = ShopR.drawable.shop_sutoko_item_coin,
@@ -62,7 +62,7 @@ internal fun CoinsDisplay(
             modifier = Modifier.size(16.dp)
         )
         Text(
-            text = amount.toString(),
+            text = amount?.toString() ?: "-",
             color = Color.White,
             fontFamily = Poppins,
             fontWeight = FontWeight.SemiBold,

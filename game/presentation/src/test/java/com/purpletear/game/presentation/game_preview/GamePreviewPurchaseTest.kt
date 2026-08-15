@@ -24,6 +24,7 @@ class GamePreviewPurchaseTest {
     private val userRepository get() = fixture.userRepository
     private val entitlementRepository get() = fixture.entitlementRepository
     private val buyStoryWithCoinsUseCase get() = fixture.buyStoryWithCoinsUseCase
+    private val shopRepository get() = fixture.shopRepository
 
     @Before
     fun setUp() = fixture.setUp()
@@ -76,6 +77,7 @@ class GamePreviewPurchaseTest {
 
         viewModel.events.test {
             viewModel.onAction(GamePreviewAction.OnBuy)
+            advanceUntilIdle()
             viewModel.onAction(GamePreviewAction.OnBuyConfirm)
             advanceUntilIdle()
 
@@ -243,6 +245,64 @@ class GamePreviewPurchaseTest {
             advanceUntilIdle()
 
             assertEquals(GamePreviewEvent.ShowAlreadyBoughtAlert, awaitItem())
+        }
+        assertFalse(viewModel.isPurchasing.value)
+    }
+
+    @Test
+    fun `onAction OnBuy with insufficient balance emits OpenShop and skips the purchase flow`() = runTest {
+        gameRepository.setGame(TestFixtures.GAME_ID, TestFixtures.gameCatalog(price = 100, skus = listOf("sku-1")))
+        shopRepository.balanceFlow.value = com.purpletear.sutoko.shop.domain.repository.model.Balance(coins = 50, diamonds = 0)
+        val viewModel = createViewModel(connectedUser = true)
+        activateStateFlows(backgroundScope, viewModel)
+        advanceUntilIdle()
+
+        viewModel.events.test {
+            viewModel.onAction(GamePreviewAction.OnBuy)
+            advanceUntilIdle()
+
+            assertEquals(GamePreviewEvent.OpenShop, awaitItem())
+        }
+        assertFalse(viewModel.isPurchasing.value)
+    }
+
+    @Test
+    fun `onAction OnBuyConfirm with insufficient balance emits OpenShop`() = runTest {
+        gameRepository.setGame(TestFixtures.GAME_ID, TestFixtures.gameCatalog(price = 100, skus = listOf("sku-1")))
+        shopRepository.balanceFlow.value = com.purpletear.sutoko.shop.domain.repository.model.Balance(coins = 150, diamonds = 0)
+        val viewModel = createViewModel(connectedUser = true)
+        activateStateFlows(backgroundScope, viewModel)
+        advanceUntilIdle()
+
+        viewModel.events.test {
+            viewModel.onAction(GamePreviewAction.OnBuy)
+            advanceUntilIdle()
+            assertTrue(viewModel.isPurchasing.value)
+
+            // The balance drops while the confirmation dialog is open.
+            shopRepository.balanceFlow.value = com.purpletear.sutoko.shop.domain.repository.model.Balance(coins = 10, diamonds = 0)
+            viewModel.onAction(GamePreviewAction.OnBuyConfirm)
+            advanceUntilIdle()
+
+            assertEquals(GamePreviewEvent.OpenShop, awaitItem())
+        }
+        assertFalse(viewModel.isPurchasing.value)
+    }
+
+    @Test
+    fun `coin purchase insufficient funds emits OpenShop`() = runTest {
+        gameRepository.setGame(TestFixtures.GAME_ID, TestFixtures.gameCatalog(price = 100, skus = listOf("sku-1")))
+        buyStoryWithCoinsUseCase.setResult("sku-1", Result.failure(com.purpletear.sutoko.shop.domain.error.BuyStoryError.InsufficientFunds()))
+        val viewModel = createViewModel(connectedUser = true)
+        activateStateFlows(backgroundScope, viewModel)
+        advanceUntilIdle()
+
+        viewModel.events.test {
+            viewModel.onAction(GamePreviewAction.OnBuy)
+            viewModel.onAction(GamePreviewAction.OnBuyConfirm)
+            advanceUntilIdle()
+
+            assertEquals(GamePreviewEvent.OpenShop, awaitItem())
         }
         assertFalse(viewModel.isPurchasing.value)
     }

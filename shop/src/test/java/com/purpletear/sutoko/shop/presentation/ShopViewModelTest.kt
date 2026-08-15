@@ -263,6 +263,26 @@ class ShopViewModelTest {
     }
 
     @Test
+    fun `buy success triggers a balance refresh`() = runTest(testDispatcher) {
+        fakeUserRepository.isConnectedFlow.value = true
+        fakeUserRepository.userFlow.value = User(id = "user-1", token = "token-1")
+        fakeShopRepository.packs = listOf(
+            ShopPack(coins = 100, diamonds = 100, sku = "low", type = CoinsPackType.Low),
+        )
+        fakePurchaseRepository.queryProductDetailsResult = mapOf(
+            "low" to Result.success(product("low", "$0.99")),
+        )
+
+        val viewModel = createViewModel()
+        advanceUntilIdle()
+
+        viewModel.onEvent(ShopEvent.BuyPack(CoinsPackType.Low))
+        advanceUntilIdle()
+
+        assertEquals(1, fakeShopRepository.loadBalanceCallCount)
+    }
+
+    @Test
     fun `retryBalanceLoad does nothing when balance has not failed`() = runTest(testDispatcher) {
         fakeUserRepository.isConnectedFlow.value = true
         fakeUserRepository.userFlow.value = User(id = "user-1", token = "token-1")

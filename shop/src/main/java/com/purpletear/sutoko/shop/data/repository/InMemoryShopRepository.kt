@@ -63,7 +63,9 @@ class InMemoryShopRepository @Inject constructor(
     }
 
     private suspend fun FlowCollector<Result<Unit>>.emitLoadFailure(error: Exception) {
-        _balance.value = Balance(coins = -1, diamonds = -1, loadFailed = true)
+        // Keep any previously loaded balance: a transient failure must not
+        // clobber values the user may still be looking at.
+        _balance.value = _balance.value.copy(loadFailed = true)
         emit(Result.failure(error))
     }
 

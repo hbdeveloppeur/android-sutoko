@@ -137,10 +137,29 @@ class InMemoryCoinPurchaseRepository @Inject constructor(
             gson.fromJson(errorBody, ShopErrorResponseDto::class.java)?.code
         }.getOrNull()
 
+        // Payment Required is reserved for exactly this case (RFC 9110); accept
+        // it regardless of the body so a code-less 402 still reads correctly.
+        if (code == HTTP_PAYMENT_REQUIRED) {
+            return BuyStoryError.InsufficientFunds()
+        }
+
+        // The exact backend code for a coin shortage is not contractual; accept
+        // every spelling variant rather than surfacing a raw unknown error.
+        val normalizedCode = errorCode?.lowercase()?.replace("_", "")?.replace("-", "")
+        if (normalizedCode != null &&
+            (normalizedCode.contains("insufficientfund") || normalizedCode.contains("notenoughcoin"))
+        ) {
+            return BuyStoryError.InsufficientFunds()
+        }
+
         return when (errorCode) {
             "ItemAlreadyOwnedError" -> BuyStoryError.AlreadyOwned()
             "ValidationError" -> BuyStoryError.NotPurchasable()
             else -> BuyStoryError.Unknown("HTTP $code: $errorBody")
         }
+    }
+
+    private companion object {
+        const val HTTP_PAYMENT_REQUIRED = 402
     }
 }

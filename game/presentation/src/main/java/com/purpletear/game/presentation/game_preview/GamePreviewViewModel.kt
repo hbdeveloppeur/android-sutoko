@@ -16,6 +16,7 @@ import com.purpletear.sutoko.core.domain.analytics.AnalyticsTracker
 import com.purpletear.sutoko.core.domain.logger.Logger
 import com.purpletear.sutoko.core.domain.logger.exception
 import com.purpletear.sutoko.domain.repository.UserRepository
+import com.purpletear.sutoko.game.BuildConfig
 import com.purpletear.sutoko.game.exception.DownloadAlreadyInProgressException
 import com.purpletear.sutoko.game.model.Chapter
 import com.purpletear.sutoko.game.model.FriendzonedLegacyIds
@@ -35,6 +36,7 @@ import com.purpletear.sutoko.game.usecase.SaveUserNickNameUseCase
 import com.purpletear.sutoko.game.usecase.UserNickNameSanitizer
 import com.purpletear.sutoko.shop.domain.error.BuyStoryError
 import com.purpletear.sutoko.shop.domain.repository.EntitlementRepository
+import com.purpletear.sutoko.shop.domain.repository.ShopRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -78,6 +80,7 @@ class GamePreviewViewModel @Inject constructor(
     private val userRoleRepository: UserRoleRepository,
     private val soundRepository: GamePreviewSoundRepository,
     private val entitlementRepository: EntitlementRepository,
+    private val shopRepository: ShopRepository,
     private val analyticsTracker: AnalyticsTracker,
     private val logger: Logger,
 ) : ViewModel() {
@@ -475,8 +478,32 @@ class GamePreviewViewModel @Inject constructor(
             sendEvent(GamePreviewEvent.OpenAccountConnection)
             return
         }
-        GamePreviewLogger.i("PUR") { "onBuy() starting purchase flow for gameId=$gameId" }
-        purchaseHandler.startPurchaseFlow()
+        viewModelScope.launch {
+            // Local gate first: a loaded balance holding fewer coins than the
+            // price never reaches the server - the user goes to the shop.
+            if (lacksCoins(currentGameItem?.price ?: 0)) {
+                GamePreviewLogger.i("PUR") { "onBuy() insufficient coins for gameId=$gameId" }
+                onInsufficientFunds()
+                return@launch
+            }
+            GamePreviewLogger.i("PUR") { "onBuy() starting purchase flow for gameId=$gameId" }
+            purchaseHandler.startPurchaseFlow()
+        }
+    }
+
+    /**
+     * True only when the balance is loaded and holds fewer coins than [price].
+     * An unloaded balance never blocks the flow: the server stays the fallback
+     * arbiter (see [BuyStoryError.InsufficientFunds]).
+     */
+    private suspend fun lacksCoins(price: Int): Boolean {
+        val balance = shopRepository.observeBalance().first()
+        return balance.isLoaded() && balance.coins < price
+    }
+
+    private fun onInsufficientFunds() {
+        toastService(R.string.game_presentation_insufficient_funds_alert_description)
+        sendEvent(GamePreviewEvent.OpenShop)
     }
 
     /**
@@ -488,6 +515,18 @@ class GamePreviewViewModel @Inject constructor(
      * gets an error toast - never a navigation.
      */
     private fun onPlay(isTrial: Boolean = false) {
+        // Runtime compatibility gate: the button state (GameActionState.UpdateApp)
+        // already hides Play/Try, but other entry points (deep links, chapter
+        // screen) reach this method directly - never launch an unsupported story.
+        val item = (game.value as? GamePreviewUiState.Data)?.item
+        if (item != null && item.canvasTechnologyRequiredVersion > BuildConfig.CANVAS_VERSION_COMPATIBILITY) {
+            GamePreviewLogger.w("NAV") {
+                "onPlay() aborted: gameId=$gameId requires canvas " +
+                        "v${item.canvasTechnologyRequiredVersion}, app supports v${BuildConfig.CANVAS_VERSION_COMPATIBILITY}"
+            }
+            sendEvent(GamePreviewEvent.OpenAppStore)
+            return
+        }
         val chapter = currentChapter.value
         when {
             chapter == null -> {
@@ -816,6 +855,14 @@ class GamePreviewViewModel @Inject constructor(
             mapOf("sku" to sku, "method" to "coins", "story_id" to gameId)
         )
         viewModelScope.launch {
+            // The balance may have dropped while the confirmation dialog was
+            // open: re-check before hitting the server.
+            if (lacksCoins(currentGameItem?.price ?: 0)) {
+                GamePreviewLogger.i("PUR") { "onPurchase() insufficient coins for sku=$sku" }
+                purchaseHandler.abortPurchaseFlow()
+                onInsufficientFunds()
+                return@launch
+            }
             purchaseHandler.confirmPurchase(sku)
                 .onSuccess {
                     GamePreviewLogger.i("PUR") { "onPurchase() succeeded for sku=$sku" }
@@ -839,6 +886,7 @@ class GamePreviewViewModel @Inject constructor(
                     logger.exception(error) { "Purchase failed for sku=$sku" }
                     when (error) {
                         is BuyStoryError.AlreadyOwned -> sendEvent(GamePreviewEvent.ShowAlreadyBoughtAlert)
+                        is BuyStoryError.InsufficientFunds -> onInsufficientFunds()
                         is BuyStoryError.NotPurchasable -> sendEvent(
                             GamePreviewEvent.ShowError(
                                 GameUiError.Purchase

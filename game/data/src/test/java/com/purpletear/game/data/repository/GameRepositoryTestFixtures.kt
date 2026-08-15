@@ -6,6 +6,7 @@ import com.purpletear.game.data.remote.GameApi
 import com.purpletear.game.data.remote.dto.AuthorDto
 import com.purpletear.game.data.remote.dto.GameDto
 import com.purpletear.game.data.remote.dto.GameMetadataDto
+import com.purpletear.sutoko.core.domain.helper.AppVersionProvider
 import com.purpletear.sutoko.domain.model.User
 import com.purpletear.sutoko.domain.repository.UserRepository
 import kotlinx.coroutines.flow.Flow
@@ -18,6 +19,12 @@ internal val stubUserRepository: UserRepository = object : UserRepository {
     override fun isConnected(): Result<Boolean> = Result.success(false)
     override suspend fun connect(id: String, token: String): Result<Unit> = Result.success(Unit)
     override suspend fun disconnect(): Result<Unit> = Result.success(Unit)
+}
+
+internal const val STUB_VERSION_CODE = 140
+
+internal val stubAppVersionProvider: AppVersionProvider = object : AppVersionProvider {
+    override fun getVersionCode(): Int = STUB_VERSION_CODE
 }
 
 internal val stubGameDao: GameDao = object : GameDao {
@@ -34,7 +41,8 @@ internal fun gameRepository(
     api: GameApi,
     dao: GameDao = stubGameDao,
     userRepository: UserRepository = stubUserRepository,
-): GameRepositoryImpl = GameRepositoryImpl(api, dao, userRepository)
+    appVersionProvider: AppVersionProvider = stubAppVersionProvider,
+): GameRepositoryImpl = GameRepositoryImpl(api, dao, userRepository, appVersionProvider)
 
 internal class RecordingGameDao : GameDao {
     val replaceAllOfficialCalls = mutableListOf<List<GameCatalogEntity>>()
@@ -69,6 +77,7 @@ internal class RecordingGameDao : GameDao {
 internal open class FakeGameApi : GameApi {
     override suspend fun getOfficialGames(
         languageCode: String,
+        appVersionCode: Int,
         authorization: String?,
     ): List<GameDto> =
         throw NotImplementedError()

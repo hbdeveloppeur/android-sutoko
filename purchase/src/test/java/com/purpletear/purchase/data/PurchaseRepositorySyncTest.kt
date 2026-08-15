@@ -33,7 +33,7 @@ class PurchaseRepositorySyncTest {
         val result = repository.syncPurchases()
 
         assertTrue(result.isSuccess)
-        val replaced = fakeDao.replaceAllCalls.single()
+        val replaced = fakeDao.reconcileCalls.single()
         assertTrue(replaced.single().backendRegistered)
     }
 
@@ -45,13 +45,15 @@ class PurchaseRepositorySyncTest {
         val result = repository.syncPurchases()
 
         assertTrue(result.isSuccess)
-        assertFalse(fakeDao.replaceAllCalls.single().single().backendRegistered)
+        assertFalse(fakeDao.reconcileCalls.single().single().backendRegistered)
     }
 
     @Test
     fun `syncPurchases replaces local table with billing receipts and removes stale SKUs`() =
         runTest {
-            fakeDao.upsert(entity(sku = "old-sku", purchaseToken = "token-old"))
+            fakeDao.upsert(
+                entity(sku = "old-sku", purchaseToken = "token-old", backendRegistered = true)
+            )
             fakeBilling.queryPurchasesResult =
                 listOf(receipt(sku = "new-sku", purchaseToken = "token-new"))
 
@@ -59,8 +61,24 @@ class PurchaseRepositorySyncTest {
 
             assertTrue(result.isSuccess)
             assertEquals(listOf("new-sku"), fakeDao.purchases.map { it.sku })
-            val replaced = fakeDao.replaceAllCalls.single()
+            val replaced = fakeDao.reconcileCalls.single()
             assertEquals("new-sku", replaced.single().sku)
+        }
+
+    @Test
+    fun `syncPurchases keeps unregistered purchases missing from the billing snapshot`() =
+        runTest {
+            // A consumed coins pack vanishes from Play's snapshot before the
+            // backend is notified; deleting the row would silently lose the credit.
+            fakeDao.upsert(entity(sku = "coins_pack_treasure", purchaseToken = "token-1"))
+            fakeBilling.queryPurchasesResult = emptyList()
+
+            val result = repository.syncPurchases()
+
+            assertTrue(result.isSuccess)
+            val surviving = fakeDao.purchases.single()
+            assertEquals("coins_pack_treasure", surviving.sku)
+            assertFalse(surviving.backendRegistered)
         }
 
     @Test
@@ -70,7 +88,7 @@ class PurchaseRepositorySyncTest {
         val result = repository.syncPurchases()
 
         assertTrue(result.isFailure)
-        assertTrue(fakeDao.replaceAllCalls.isEmpty())
+        assertTrue(fakeDao.reconcileCalls.isEmpty())
     }
 
     @Test
@@ -82,6 +100,6 @@ class PurchaseRepositorySyncTest {
 
         assertEquals(1, fakeBilling.reconcilePurchasesCallCount)
         assertEquals(1, fakeBilling.queryPurchasesCallCount)
-        assertEquals(1, fakeDao.replaceAllCalls.size)
+        assertEquals(1, fakeDao.reconcileCalls.size)
     }
 }

@@ -68,10 +68,10 @@ fun Connection(
             )
         )
 
-        if (isConnected && !balanceUnavailable) {
+        if (isConnected) {
             ConnectedView(
-                coins = coins,
-                diamonds = diamonds,
+                coins = coins.takeUnless { balanceUnavailable },
+                diamonds = diamonds.takeUnless { balanceUnavailable },
                 onClickCoins = onClickCoins,
                 onClickDiamonds = onClickDiamonds
             )
@@ -83,8 +83,8 @@ fun Connection(
 
 @Composable
 private fun ConnectedView(
-    coins: Int,
-    diamonds: Int,
+    coins: Int?,
+    diamonds: Int?,
     onClickCoins: () -> Unit,
     onClickDiamonds: () -> Unit
 ) {

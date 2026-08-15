@@ -289,6 +289,7 @@ class MainActivity @Inject constructor(
                                     )
                                 },
                                 onOpenAccountConnection = ::openConnectionPage,
+                                onOpenShop = ::startShop,
                                 onOpenOptions = { gameId ->
                                     navController.navigate(
                                         MainScreenPages.GamePreviewOptions.createRoute(gameId)

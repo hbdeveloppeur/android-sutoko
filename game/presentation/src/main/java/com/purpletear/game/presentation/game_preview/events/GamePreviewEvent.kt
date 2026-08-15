@@ -25,6 +25,9 @@ sealed interface GamePreviewEvent {
 
     data object ShowAlreadyBoughtAlert : GamePreviewEvent
 
+    /** Sent when the purchase fails because the user lacks coins: open the shop. */
+    data object OpenShop : GamePreviewEvent
+
     @Keep
     data class ShowError(val error: GameUiError) : GamePreviewEvent
 }

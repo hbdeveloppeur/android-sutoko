@@ -7,6 +7,7 @@ import com.purpletear.game.data.local.entity.toDomain
 import com.purpletear.game.data.remote.GameApi
 import com.purpletear.game.data.remote.dto.GameDto
 import com.purpletear.game.data.remote.dto.toDomain
+import com.purpletear.sutoko.core.domain.helper.AppVersionProvider
 import com.purpletear.sutoko.domain.repository.UserRepository
 import com.purpletear.sutoko.game.exception.GameDownloadForbiddenException
 import com.purpletear.sutoko.game.model.game.GameCatalog
@@ -30,6 +31,7 @@ class GameRepositoryImpl @Inject constructor(
     private val api: GameApi,
     private val dao: GameDao,
     private val userRepository: UserRepository,
+    private val appVersionProvider: AppVersionProvider,
 ) : GameRepository {
 
     private data class UserGamesPagination(
@@ -100,7 +102,11 @@ class GameRepositoryImpl @Inject constructor(
 
     override suspend fun syncOfficialGames(languageTag: String): Result<Unit> {
         return try {
-            val remote = api.getOfficialGames(languageTag, authorization = bearerToken())
+            val remote = api.getOfficialGames(
+                languageTag,
+                appVersionCode = appVersionProvider.getVersionCode(),
+                authorization = bearerToken(),
+            )
             val ordered = remote.mapIndexed { index, dto ->
                 dto.toDomain().copy(officialOrder = index)
             }

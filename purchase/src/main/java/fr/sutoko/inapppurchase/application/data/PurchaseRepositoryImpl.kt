@@ -228,7 +228,7 @@ class PurchaseRepositoryImpl @Inject constructor(
                 )
             }
 
-            purchaseDao.replaceAll(entities)
+            purchaseDao.reconcile(entities)
             Result.success(Unit)
         } catch (e: CancellationException) {
             throw e

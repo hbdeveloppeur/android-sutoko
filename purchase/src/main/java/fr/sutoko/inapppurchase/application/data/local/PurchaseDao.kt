@@ -39,12 +39,18 @@ interface PurchaseDao {
     @Query("DELETE FROM purchases WHERE sku = :sku")
     suspend fun deleteBySku(sku: String)
 
-    @Query("DELETE FROM purchases")
-    suspend fun deleteAll()
+    @Query("DELETE FROM purchases WHERE backendRegistered = 1 AND sku NOT IN (:skus)")
+    suspend fun deleteRegisteredMissingFrom(skus: List<String>)
 
+    /**
+     * Merges the Play Billing snapshot into the local table. Rows awaiting
+     * backend registration (`backendRegistered = 0`) are never deleted: a
+     * consumed coins pack disappears from the Play snapshot before the backend
+     * is notified, and deleting it would silently lose the credit.
+     */
     @Transaction
-    suspend fun replaceAll(entities: List<PurchaseEntity>) {
-        deleteAll()
+    suspend fun reconcile(entities: List<PurchaseEntity>) {
         upsertAll(entities)
+        deleteRegisteredMissingFrom(entities.map { it.sku })
     }
 }

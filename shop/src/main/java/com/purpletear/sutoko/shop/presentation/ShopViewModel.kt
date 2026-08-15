@@ -118,10 +118,19 @@ class ShopViewModel @Inject constructor(
      */
     fun retryBalanceLoad() {
         if (!balance.value.loadFailed) return
+        refreshBalance()
+    }
+
+    /**
+     * Refreshes the balance from the backend. Called after a successful
+     * purchase (covering the window until backend registration pushes the
+     * credited balance) and on manual retry after a failure.
+     */
+    private fun refreshBalance() {
         viewModelScope.launch {
             val user = userRepository.observeUser().firstOrNull() ?: return@launch
             shopRepository.loadBalance(user.id, user.token).collect { result ->
-                result.onFailure { Log.w("ShopViewModel", "Balance retry failed", it) }
+                result.onFailure { Log.w("ShopViewModel", "Balance refresh failed", it) }
             }
         }
     }
@@ -147,6 +156,7 @@ class ShopViewModel @Inject constructor(
         purchaseWithAuthCheckUseCase(sku = packItem.pack.sku)
             .onSuccess {
                 _purchaseEvents.emit(ShopPurchaseEvent.Success(packType))
+                refreshBalance()
             }
             .onFailure { error ->
                 val event = when {

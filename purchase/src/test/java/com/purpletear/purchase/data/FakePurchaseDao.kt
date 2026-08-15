@@ -16,7 +16,7 @@ class FakePurchaseDao : PurchaseDao {
 
     val purchases: List<PurchaseEntity> get() = _purchases.value
     val upsertedEntities = mutableListOf<PurchaseEntity>()
-    val replaceAllCalls = mutableListOf<List<PurchaseEntity>>()
+    val reconcileCalls = mutableListOf<List<PurchaseEntity>>()
     val markedBackendRegisteredSkus = mutableListOf<String>()
     val deletedSkus = mutableListOf<String>()
 
@@ -48,7 +48,8 @@ class FakePurchaseDao : PurchaseDao {
     }
 
     override suspend fun upsertAll(entities: List<PurchaseEntity>) {
-        _purchases.value = entities
+        val skus = entities.map { it.sku }.toSet()
+        _purchases.update { list -> list.filter { it.sku !in skus } + entities }
     }
 
     override fun observePurchaseCountForSkus(skus: List<String>): Flow<Int> =
@@ -59,12 +60,15 @@ class FakePurchaseDao : PurchaseDao {
         _purchases.update { list -> list.filter { it.sku != sku } }
     }
 
-    override suspend fun deleteAll() {
-        _purchases.value = emptyList()
+    override suspend fun deleteRegisteredMissingFrom(skus: List<String>) {
+        _purchases.update { list ->
+            list.filter { !it.backendRegistered || it.sku in skus }
+        }
     }
 
-    override suspend fun replaceAll(entities: List<PurchaseEntity>) {
-        replaceAllCalls += entities.toList()
-        _purchases.value = entities
+    override suspend fun reconcile(entities: List<PurchaseEntity>) {
+        reconcileCalls += entities.toList()
+        upsertAll(entities)
+        deleteRegisteredMissingFrom(entities.map { it.sku })
     }
 }

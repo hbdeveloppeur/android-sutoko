@@ -111,4 +111,28 @@ class CoinsPackPurchaseBackendRegistrarTest {
         assertTrue(result.isFailure)
         assertFalse(result.exceptionOrNull() is PurchaseRegistrationRejectedException)
     }
+
+    @Test
+    fun `register success with null body returns retryable failure without touching balance`() = runTest {
+        api.registerOrderResponse = Response.success(null)
+
+        val result = registrar.register("coins_pack_treasure", "token", "order-1")
+
+        assertTrue(result.isFailure)
+        assertFalse(result.exceptionOrNull() is PurchaseRegistrationRejectedException)
+        assertEquals(1, api.registerOrderCallCount)
+        val balance = shopRepository.observeBalance().first()
+        assertFalse(balance.isLoaded())
+    }
+
+    @Test
+    fun `register without user fails retryably after the session wait timeout`() = runTest {
+        userRepository.userFlow.value = null
+
+        val result = registrar.register("coins_pack_starter", "token", "order-1")
+
+        assertTrue(result.isFailure)
+        assertFalse(result.exceptionOrNull() is PurchaseRegistrationRejectedException)
+        assertEquals(0, api.registerOrderCallCount)
+    }
 }

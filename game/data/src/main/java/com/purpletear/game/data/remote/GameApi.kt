@@ -60,11 +60,14 @@ interface GameApi {
      * Get a list of all games.
      *
      * @param languageCode The language code for the games.
+     * @param appVersionCode The app's versionCode, so the server can tailor the
+     * catalog to this build (e.g. hide stories requiring a newer canvas).
      * @return A Response containing a StoriesResponseDto with a list of GameDto objects in the "story" field.
      */
     @GET("portal/stories/official")
     suspend fun getOfficialGames(
         @Query("languageCode") languageCode: String,
+        @Query("versionCode") appVersionCode: Int,
         @Header("Authorization") authorization: String? = null,
     ): List<GameDto>
 

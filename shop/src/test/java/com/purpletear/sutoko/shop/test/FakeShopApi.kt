@@ -28,6 +28,9 @@ class FakeShopApi : ShopApi {
 
     var registerOrderException: Exception? = null
 
+    var getBalanceResponse: Response<GetBalanceResponseDto> =
+        Response.success(GetBalanceResponseDto(CoinsBalanceDto(coins = 0, diamonds = 0)))
+
     var buyCatalogProductCallCount = 0
         private set
 
@@ -58,19 +61,24 @@ class FakeShopApi : ShopApi {
 
     override suspend fun getBalance(
         request: GetBalanceRequestDto
-    ): Response<GetBalanceResponseDto> = Response.success(
-        GetBalanceResponseDto(CoinsBalanceDto(coins = 0, diamonds = 0))
-    )
+    ): Response<GetBalanceResponseDto> = getBalanceResponse
 
-    fun setBuyError(code: Int, body: String) {
+    fun setBuyError(code: Int, body: String?) {
         buyCatalogProductResponse = Response.error(
             code,
-            body.toResponseBody()
+            (body ?: "").toResponseBody()
         )
     }
 
     fun setRegisterOrderError(code: Int, body: String = "{}") {
         registerOrderResponse = Response.error(
+            code,
+            body.toResponseBody()
+        )
+    }
+
+    fun setGetBalanceError(code: Int, body: String = "{}") {
+        getBalanceResponse = Response.error(
             code,
             body.toResponseBody()
         )

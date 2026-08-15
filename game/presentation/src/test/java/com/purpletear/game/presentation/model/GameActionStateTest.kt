@@ -54,9 +54,9 @@ class GameActionStateTest {
     }
 
     @Test
-    fun `unpurchased story requiring newer canvas technology - Purchase not UpdateApp`() {
-        // Ownership wins over the compatibility gate: the user buys first and
-        // the update wall appears right after purchase, before any download.
+    fun `unpurchased story requiring newer canvas technology - UpdateApp not Purchase`() {
+        // The compatibility gate wins over ownership: never sell or offer a
+        // trial for a story this app's canvas engine cannot run.
         val result = state(
             item(
                 isFree = false,
@@ -64,7 +64,7 @@ class GameActionStateTest {
                 canvasTechnologyRequiredVersion = BuildConfig.CANVAS_VERSION_COMPATIBILITY + 1,
             )
         )
-        assertTrue(result is GameActionState.Purchase)
+        assertEquals(GameActionState.UpdateApp, result)
     }
 
     @Test

@@ -109,6 +109,9 @@ android {
     }
 
     namespace 'fr.purpletear.sutoko'
+    testOptions {
+        unitTests.returnDefaultValues = true
+    }
     composeOptions {
         kotlinCompilerExtensionVersion '1.4.2'
     }

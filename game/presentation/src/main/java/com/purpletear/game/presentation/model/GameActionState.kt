@@ -66,6 +66,9 @@ fun GameItem.toGameActionState(
 
     isPending -> GameActionState.Pending
     downloadProgress != null -> GameActionState.Downloading(downloadProgress)
+    // Compatibility gate comes before Purchase: never let the user buy or try
+    // a story this app's canvas engine cannot run.
+    canvasTechnologyRequiredVersion > BuildConfig.CANVAS_VERSION_COMPATIBILITY -> GameActionState.UpdateApp
     !isFree && !isPurchased -> GameActionState.Purchase(
         chapterNumber = currentChapter?.number ?: -1,
         showTry = legacyId !in FRIENDZONED_LEGACY_IDS && (currentChapter?.number ?: 1) <= 1,
@@ -73,7 +76,6 @@ fun GameItem.toGameActionState(
         isUserConnected = isUserConnected,
     )
 
-    canvasTechnologyRequiredVersion > BuildConfig.CANVAS_VERSION_COMPATIBILITY -> GameActionState.UpdateApp
     localVersion == null -> GameActionState.Download
     localVersion != version -> GameActionState.UpdateGame
     isGameFinished -> GameActionState.GameFinished

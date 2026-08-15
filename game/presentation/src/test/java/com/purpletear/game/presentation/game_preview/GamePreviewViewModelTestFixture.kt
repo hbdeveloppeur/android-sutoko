@@ -13,6 +13,7 @@ import com.purpletear.game.presentation.game_preview.fakes.FakeEntitlementReposi
 import com.purpletear.game.presentation.game_preview.fakes.FakeLogger
 import com.purpletear.game.presentation.game_preview.fakes.FakeMediaUrlResolver
 import com.purpletear.game.presentation.game_preview.fakes.FakeMemoryRepository
+import com.purpletear.game.presentation.game_preview.fakes.FakeShopRepository
 import com.purpletear.game.presentation.game_preview.fakes.FakeToastService
 import com.purpletear.game.presentation.game_preview.fakes.FakeUserGameProgressRepository
 import com.purpletear.game.presentation.game_preview.fakes.FakeUserRepository
@@ -57,6 +58,7 @@ class GamePreviewViewModelTestFixture {
     val buyStoryWithCoinsUseCase = FakeBuyStoryWithCoinsUseCase()
     val purchaseHandler = GamePreviewPurchaseHandler(buyStoryWithCoinsUseCase)
     val entitlementRepository = FakeEntitlementRepository()
+    val shopRepository = FakeShopRepository()
 
     val getChaptersUseCase = GetChaptersUseCase(chapterRepository)
     val saveUserNickNameUseCase = SaveUserNickNameUseCase(userGameProgressRepository)
@@ -111,6 +113,7 @@ class GamePreviewViewModelTestFixture {
             userRoleRepository = userRoleRepository,
             soundRepository = soundRepository,
             entitlementRepository = entitlementRepository,
+            shopRepository = shopRepository,
             analyticsTracker = analyticsTracker,
             logger = logger,
         )

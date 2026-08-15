@@ -61,6 +61,26 @@ class InMemoryCoinPurchaseRepositoryTest {
     }
 
     @Test
+    fun `buyStoryWithCoins insufficient funds error returns InsufficientFunds`() = runTest {
+        api.setBuyError(400, "{\"code\":\"InsufficientFundsError\"}")
+
+        val result = repository.buyStoryWithCoins("sku-1", "user-1")
+
+        assertTrue(result.isFailure)
+        assertTrue(result.exceptionOrNull() is BuyStoryError.InsufficientFunds)
+    }
+
+    @Test
+    fun `buyStoryWithCoins http 402 returns InsufficientFunds regardless of body`() = runTest {
+        api.setBuyError(402, null)
+
+        val result = repository.buyStoryWithCoins("sku-1", "user-1")
+
+        assertTrue(result.isFailure)
+        assertTrue(result.exceptionOrNull() is BuyStoryError.InsufficientFunds)
+    }
+
+    @Test
     fun `isStoryGranted returns cached value without calling api`() = runTest {
         repository.addCachedSku("user-1", "sku-1")
 
