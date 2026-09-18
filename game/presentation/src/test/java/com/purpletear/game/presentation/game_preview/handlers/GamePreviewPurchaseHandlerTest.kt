@@ -3,6 +3,10 @@ package com.purpletear.game.presentation.game_preview.handlers
 import com.purpletear.game.presentation.game_preview.fakes.FakeBuyStoryWithCoinsUseCase
 import com.purpletear.sutoko.shop.domain.error.BuyStoryError
 import com.purpletear.sutoko.shop.domain.repository.model.Balance
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.CoroutineStart
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
@@ -55,4 +59,25 @@ class GamePreviewPurchaseHandlerTest {
         assertFalse(handler.isPurchasing.first())
         assertFalse(handler.isPurchaseLoading.first())
     }
+    @Test
+    fun `cancellation clears purchase state and permits retry`() = runTest {
+        val entered = CompletableDeferred<Unit>()
+        buyStoryWithCoinsUseCase.beforePurchase = {
+            entered.complete(Unit)
+            CompletableDeferred<Unit>().await()
+        }
+        handler.startPurchaseFlow()
+        val request = launch(start = CoroutineStart.UNDISPATCHED) {
+            handler.confirmPurchase("sku-1")
+        }
+        entered.await()
+        assertTrue(handler.isPurchaseLoading.value)
+        request.cancelAndJoin()
+        assertFalse(handler.isPurchaseLoading.value)
+        assertFalse(handler.isPurchasing.value)
+
+        buyStoryWithCoinsUseCase.beforePurchase = {}
+        assertTrue(handler.confirmPurchase("sku-1").isSuccess)
+    }
+
 }

@@ -3,6 +3,7 @@ package com.purpletear.game.presentation.game_preview.fakes
 import com.purpletear.sutoko.game.repository.FriendzonedProgressRepository
 
 class FakeFriendzonedProgressRepository : FriendzonedProgressRepository {
+    var saveNameError: Exception? = null
     var chapterCode: String = "1a"
     val resetLegacyIds = mutableListOf<Int>()
     val firstNames = mutableMapOf<Int, String>()
@@ -14,6 +15,7 @@ class FakeFriendzonedProgressRepository : FriendzonedProgressRepository {
     }
 
     override suspend fun setFirstName(legacyId: Int, name: String) {
+        saveNameError?.let { throw it }
         firstNames[legacyId] = name
     }
 }

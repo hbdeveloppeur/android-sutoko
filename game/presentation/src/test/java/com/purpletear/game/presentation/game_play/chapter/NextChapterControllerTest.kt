@@ -42,6 +42,8 @@ class NextChapterControllerTest {
         controller.navigateToNextChapter.test {
             controller.onNextChapterClicked(state.isNextChapterAvailable)
             assertEquals("2A", awaitItem())
+            controller.onNextChapterClicked(state.isNextChapterAvailable)
+            expectNoEvents()
         }
     }
 

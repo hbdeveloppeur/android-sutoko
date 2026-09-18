@@ -53,6 +53,8 @@ internal fun Message(
     onMangaClick: (imageUrl: String, overlays: List<GameMessageMangaPage.TextOverlay>) -> Unit = { _, _ -> },
     onNextChapterClick: () -> Unit = {},
     showNextChapterButton: Boolean = true,
+    requiresChapterAd: Boolean = false,
+    isChapterAdBusy: Boolean = false,
     isNextChapterAvailable: Boolean = true,
     nextChapterReleaseDate: Long? = null,
     nextChapterTitleRes: Int? = null,
@@ -61,7 +63,11 @@ internal fun Message(
     onBackClick: () -> Unit = {},
     onVocalClick: (String) -> Unit = {},
 ) {
-    FadeInMessageContainer(animate = isNewlyAdded, modifier = modifier) {
+    FadeInMessageContainer(
+        animate = isNewlyAdded,
+        modifier = modifier,
+        durationMillis = if (message.type == GameMessageType.Info) 180 else 250,
+    ) {
         Crossfade(
             targetState = message,
             animationSpec = tween(MESSAGE_CROSSFADE_DURATION_MS),
@@ -117,6 +123,8 @@ internal fun Message(
                             MessageNextChapter(
                                 title = title,
                                 showButton = showNextChapterButton,
+                                requiresAd = requiresChapterAd,
+                                isBusy = isChapterAdBusy,
                                 onClick = onNextChapterClick
                             )
                         }

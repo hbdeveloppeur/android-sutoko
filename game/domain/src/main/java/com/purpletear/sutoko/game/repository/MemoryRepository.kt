@@ -9,20 +9,20 @@ import kotlinx.coroutines.flow.Flow
  */
 interface MemoryRepository {
     /**
-     * Loads memories for a specific game up to and including the given chapter number.
+     * Loads the latest value of each memory written before the given chapter number.
      *
      * Memories written in [upToChapterNumber] or any later chapter are deleted first,
      * preventing stale state from future chapters from leaking into a replay.
      *
      * @param gameId The game identifier
-     * @param upToChapterNumber The inclusive upper chapter-number bound
+     * @param upToChapterNumber The chapter being started or replayed
      * @return Map of key-value pairs, each tagged with the chapter it was written in
      */
     suspend fun load(gameId: String, upToChapterNumber: Int): Map<String, MemoryEntry>
 
     /**
-     * Saves all memories for a specific game.
-     * Replaces any existing memories for this game.
+     * Saves the supplied memories, retaining values written in earlier chapters.
+     * Replaces only values with the same key and chapter number.
      *
      * @param gameId The game identifier
      * @param memories Map of key-value pairs to save, each tagged with its chapter number

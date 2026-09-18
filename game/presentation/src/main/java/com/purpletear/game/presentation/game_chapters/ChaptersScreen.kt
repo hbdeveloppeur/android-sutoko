@@ -29,6 +29,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -47,9 +48,13 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.repeatOnLifecycle
 import com.example.sharedelements.theme.PlusJakartaSansFontFamily
 import com.purpletear.game.presentation.R
+import com.purpletear.game.presentation.common.components.NickNameInputDialog
 import com.purpletear.game.presentation.game_preview.GameBackgroundPreviewMedia
 import com.purpletear.game.presentation.game_preview.components.GamePreviewGradients
 import com.purpletear.sutoko.alert.presentation.SimpleAlertDialog
@@ -71,13 +76,24 @@ fun ChaptersScreen(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val isRefreshing by viewModel.isRefreshing.collectAsStateWithLifecycle()
+    val isSelecting by viewModel.isSelecting.collectAsStateWithLifecycle()
+    val nickNameChapter by viewModel.nickNameChapter.collectAsStateWithLifecycle()
+    val isSavingNickName by viewModel.isSavingNickName.collectAsStateWithLifecycle()
     val data = uiState as? ChaptersUiState.Data
     var pendingChapter by remember { mutableStateOf<Chapter?>(null) }
+    val lifecycleOwner = LocalLifecycleOwner.current
+    val lifecycleState by lifecycleOwner.lifecycle.currentStateFlow.collectAsState()
 
-    LaunchedEffect(viewModel) {
-        viewModel.events.collect { event ->
-            when (event) {
-                is ChaptersEvent.OpenChapter -> onOpenChapter(event.chapterCode)
+    LaunchedEffect(lifecycleState, viewModel) {
+        if (lifecycleState == Lifecycle.State.RESUMED) viewModel.onResume()
+    }
+
+    LaunchedEffect(viewModel, lifecycleOwner) {
+        lifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+            viewModel.events.collect { event ->
+                when (event) {
+                    is ChaptersEvent.OpenChapter -> onOpenChapter(event.chapterCode)
+                }
             }
         }
     }
@@ -146,13 +162,14 @@ fun ChaptersScreen(
                                 currentChapterCode = state.currentChapterCode,
                                 isAdmin = state.isAdmin,
                                 onChapterClick = { chapter ->
-                                    val isCurrent =
-                                        chapter.normalizedCode == state.currentChapterCode
-                                    if (isCurrent || state.currentChapterCode == null) {
-                                        // Nothing to lose: open directly.
-                                        viewModel.onChapterSelected(chapter)
-                                    } else {
-                                        pendingChapter = chapter
+                                    if (!isSelecting && nickNameChapter == null) {
+                                        val isCurrent =
+                                            chapter.normalizedCode == state.currentChapterCode
+                                        if (isCurrent || state.currentChapterCode == null) {
+                                            viewModel.onChapterSelected(chapter)
+                                        } else {
+                                            pendingChapter = chapter
+                                        }
                                     }
                                 },
                             )
@@ -177,6 +194,14 @@ fun ChaptersScreen(
             dialogText = stringResource(R.string.game_presentation_game_chapters_goto_description),
             confirmButtonText = stringResource(R.string.game_presentation_game_chapters_continue),
             dismissButtonText = stringResource(android.R.string.cancel),
+        )
+    }
+
+    if (nickNameChapter != null) {
+        NickNameInputDialog(
+            onConfirm = viewModel::onNickNameConfirmed,
+            onDismiss = viewModel::onNickNameDismissed,
+            isSaving = isSavingNickName,
         )
     }
 }

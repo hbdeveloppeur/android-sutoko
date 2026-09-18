@@ -1,6 +1,7 @@
 package fr.purpletear.sutoko.screens
 
 import android.Manifest
+import android.app.ActivityOptions
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
@@ -13,6 +14,8 @@ import androidx.activity.compose.setContent
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
@@ -41,7 +44,6 @@ import androidx.navigation.navDeepLink
 import com.example.sharedelements.Data
 import com.example.sharedelements.SutokoAppParams
 import com.example.sharedelements.theme.SutokoTheme
-import com.example.sharedelements.utils.ActivityTransitionHelper
 import com.example.sharedelements.utils.UiText
 import com.purpletear.aiconversation.presentation.common.utils.executeFlowUseCase
 import com.purpletear.aiconversation.presentation.navigation.AiConversationRouteDestination
@@ -334,7 +336,20 @@ class MainActivity @Inject constructor(
                         }
 
                         // Sutoko - Home screen.
-                        composable(MainScreenPages.Home.route) {
+                        composable(
+                            MainScreenPages.Home.route,
+                            // Keep Home opaque underneath Preview, including a cancelled back swipe.
+                            exitTransition = {
+                                if (targetState.destination.route == MainScreenPages.GamePreview.route) {
+                                    ExitTransition.None
+                                } else null
+                            },
+                            popEnterTransition = {
+                                if (initialState.destination.route == MainScreenPages.GamePreview.route) {
+                                    EnterTransition.None
+                                } else null
+                            },
+                        ) {
                             viewModel.displayAiConversationCard(
                                 this@MainActivity.getAppParams(),
                             )
@@ -566,8 +581,7 @@ class MainActivity @Inject constructor(
         intent.putExtra("symbols", TableOfSymbols(legacyId) as Parcelable)
         intent.putExtra("granted", isGranted)
 
-        startActivity(intent)
-        ActivityTransitionHelper.overrideOpenTransition(this, 0, 0)
+        startActivity(intent, ActivityOptions.makeCustomAnimation(this, 0, 0).toBundle())
     }
 
     private fun startSmsGameActivity(
@@ -581,8 +595,7 @@ class MainActivity @Inject constructor(
             isTrial = isTrial,
         )
         val intent = SmsGameActivity.intent(this, args)
-        startActivity(intent)
-        ActivityTransitionHelper.overrideOpenTransition(this, 0, 0)
+        startActivity(intent, ActivityOptions.makeCustomAnimation(this, 0, 0).toBundle())
     }
 
     private fun registerLoginLauncher() {

@@ -59,6 +59,8 @@
     <string name="game_presentation_game_menu_coins">%1$d pièces</string>
     <string name="game_presentation_game_menu_download_game">Télécharger le jeu</string>
     <string name="game_presentation_game_menu_downloading">Téléchargement…</string>
+    <string name="game_presentation_game_menu_preparing_download">Préparation du téléchargement…</string>
+    <string name="game_presentation_game_menu_installing">Installation…</string>
     <string name="game_presentation_game_menu_download_progress">%.1f%%</string>
     <string name="game_presentation_game_menu_download_progress_percent">%d%%</string>
     <string name="game_presentation_game_menu_reload_game">Recharger le jeu</string>
@@ -151,6 +153,8 @@
     <string name="game_presentation_message_manga_prompt">Une page de manga vous attend</string>
     <string name="game_presentation_message_manga_open">Ouvrir</string>
     <string name="game_presentation_message_next_chapter_title">Fin du chapitre</string>
+    <string name="game_presentation_message_next_chapter_play_button">Aller au chapitre suivant</string>
+    <string name="game_presentation_message_next_chapter_unlock_button">Débloquer le chapitre suivant avec une pub</string>
     <string name="game_presentation_message_next_chapter_button">Chapitre suivant</string>
     <string name="game_presentation_message_trial_finished_title">Essai terminé</string>
     <string name="game_presentation_message_trial_finished_button">Acheter l\'histoire</string>
@@ -213,4 +217,8 @@
     <string name="game_presentation_game_preview_download_preview">Télécharger l’aperçu</string>
     <string name="game_presentation_game_story_chapters_button_chapters_count">%1$d chapitres</string>
 
+    <string name="game_presentation_error_nickname">Impossible de sauvegarder ou de charger votre nom. Veuillez réessayer.</string>
+    <string name="game_presentation_game_preview_retry">Réessayer</string>
+    <string name="game_presentation_game_preview_load_error">Impossible de charger cette histoire. Réessayez.</string>
+    <string name="game_presentation_game_preview_choose_chapter">Choisissez un chapitre disponible pour continuer.</string>
 </resources>

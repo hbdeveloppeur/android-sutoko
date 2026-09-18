@@ -69,6 +69,7 @@ dependencies {
     implementation(libs.androidx.appcompat)
     implementation(libs.android.material)
     testImplementation(libs.junit)
+    testImplementation(libs.robolectric)
     testImplementation(libs.kotlinx.coroutines.test)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

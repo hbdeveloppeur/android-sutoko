@@ -1,6 +1,8 @@
 package com.purpletear.sutoko.game.usecase
 
 import com.purpletear.sutoko.domain.repository.UserRepository
+import com.purpletear.sutoko.game.model.canAccessGameOptions
+import com.purpletear.sutoko.game.model.game.GameDownloadRequest
 import com.purpletear.sutoko.game.repository.game.GameInstallRepository
 import com.purpletear.sutoko.game.repository.game.GameRepository
 import kotlinx.coroutines.flow.Flow
@@ -30,28 +32,21 @@ class DownloadGameUseCase @Inject constructor(
     ): Flow<Float> {
         assert(gameId.isNotBlank(), { "gameId must not be blank" })
 
-        val user = userRepository.observeUser().firstOrNull()
-
-        if (preview) {
-            requireNotNull(user?.token) { "Preview download requires a logged-in user" }
+        return gameInstallRepository.download(gameId) {
+            val user = userRepository.observeUser().firstOrNull()
+            if (preview) {
+                check(user.canAccessGameOptions()) { "Preview download requires tester access" }
+            }
+            val game = gameRepository.observeGame(gameId).firstOrNull()
+                ?: throw IllegalArgumentException("Game not found: $gameId")
+            val downloadUrl = gameRepository.getDownloadLink(
+                gameId = gameId,
+                // Preview links only need the admin token, not the user id.
+                userId = if (preview) null else user?.id,
+                userToken = user?.token,
+                preview = preview,
+            ).getOrThrow()
+            GameDownloadRequest(downloadUrl, game.version.toString(), game.legacyId)
         }
-
-        val game = gameRepository.observeGame(gameId).firstOrNull()
-            ?: throw IllegalArgumentException("Game not found: $gameId")
-
-        val downloadUrl = gameRepository.getDownloadLink(
-            gameId = gameId,
-            // Preview links only need the admin token, not the user id.
-            userId = if (preview) null else user?.id,
-            userToken = user?.token,
-            preview = preview,
-        ).getOrThrow()
-
-        return gameInstallRepository.download(
-            gameId = gameId,
-            gameDownloadUrl = downloadUrl,
-            gameVersion = game.version.toString(),
-            legacyId = game.legacyId,
-        )
     }
 }

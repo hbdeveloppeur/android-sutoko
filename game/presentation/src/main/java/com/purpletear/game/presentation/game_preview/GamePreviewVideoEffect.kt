@@ -1,54 +1,39 @@
 package com.purpletear.game.presentation.game_preview
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.compose.LocalLifecycleOwner
-import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.runningFold
 
-private const val NAVIGATION_ENTER_DELAY_MS = 720L
+internal data class PreviewVideoPlaybackState(
+    val attachPlayer: Boolean = false,
+    val playWhenReady: Boolean = false,
+)
 
-/**
- * Tracks whether background video should be shown.
- *
- * Delays showing the video until the navigation enter animation has finished,
- * hides it while the screen is not RESUMED, and ensures it stops on dispose.
- */
+/** Navigation reaches RESUMED after its entrance; keep the paused frame during its exit. */
 @Composable
-internal fun rememberShowVideoAfterNavigation(
+internal fun rememberPreviewVideoPlayback(
     lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current,
-): Boolean {
-    var showVideo by remember { mutableStateOf(false) }
-
-    // Enter: delay to show video after navigation animation
-    LaunchedEffect(Unit) {
-        delay(NAVIGATION_ENTER_DELAY_MS)
-        showVideo = true
+): PreviewVideoPlaybackState {
+    val playback = remember(lifecycleOwner) {
+        previewVideoPlayback(lifecycleOwner.lifecycle.currentStateFlow)
     }
-
-    // Exit: hide video as soon as screen is not RESUMED
-    val lifecycleState by lifecycleOwner.lifecycle.currentStateFlow.collectAsState()
-    LaunchedEffect(lifecycleState) {
-        if (lifecycleState != Lifecycle.State.RESUMED) {
-            showVideo = false
-        } else {
-            delay(NAVIGATION_ENTER_DELAY_MS)
-            showVideo = true
-        }
-    }
-
-    DisposableEffect(Unit) {
-        onDispose {
-            showVideo = false
-        }
-    }
-
-    return showVideo
+    return playback.collectAsState(initial = PreviewVideoPlaybackState()).value
 }
+
+internal fun previewVideoPlayback(
+    lifecycleStates: Flow<Lifecycle.State>,
+): Flow<PreviewVideoPlaybackState> = lifecycleStates
+    .runningFold(PreviewVideoPlaybackState()) { playback, lifecycleState ->
+        val resumed = lifecycleState == Lifecycle.State.RESUMED
+        PreviewVideoPlaybackState(
+            attachPlayer = playback.attachPlayer || resumed,
+            playWhenReady = resumed,
+        )
+    }
+    .distinctUntilChanged()

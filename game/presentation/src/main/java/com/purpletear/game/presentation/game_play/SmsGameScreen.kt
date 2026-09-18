@@ -60,6 +60,7 @@ import com.purpletear.game.presentation.game_play.components.visual_novel.Visual
 import com.purpletear.game.presentation.game_play.mapper.Message
 import com.purpletear.game.presentation.game_play.mapper.characterId
 import com.purpletear.game.presentation.game_play.state.GameUiState
+import com.purpletear.sutoko.game.model.scene.Scene
 import com.purpletear.sutoko.game.engine.HandlerEffect
 import com.purpletear.sutoko.game.engine.message.GameMessageMangaPage
 import kotlinx.coroutines.flow.first
@@ -82,6 +83,7 @@ private data class MangaViewerState(
 @OptIn(ExperimentalComposeUiApi::class)
 internal fun SmsGameScreen(
     state: GameUiState,
+    onSceneReady: (Scene) -> Unit = {},
     onNextChapterClick: () -> Unit = {},
     onBackClick: () -> Unit = {},
     onVocalClick: (String) -> Unit = {},
@@ -106,6 +108,7 @@ internal fun SmsGameScreen(
     ) {
         SceneComposable(
             scene = state.currentScene,
+            onSceneReady = onSceneReady,
         )
 
         val listState = rememberSaveable(saver = LazyListState.Saver) { LazyListState() }
@@ -113,11 +116,7 @@ internal fun SmsGameScreen(
         val messages = remember(state.messages) { state.messages.asReversed() }
 
 
-        val newestMessageId = messages.firstOrNull()?.id
-        var previousNewestMessageId by remember { mutableStateOf<String?>(null) }
-        LaunchedEffect(newestMessageId) {
-            previousNewestMessageId = newestMessageId
-        }
+        val initialMessageIds = remember { messages.map { it.id }.toSet() }
 
         var wasScrollable by rememberSaveable { mutableStateOf(false) }
 
@@ -171,7 +170,7 @@ internal fun SmsGameScreen(
                         nextMessage = messages.getOrNull(index - 1),
                         character = character,
                         isRightSide = isRightSide,
-                        isNewlyAdded = message.id == newestMessageId && message.id != previousNewestMessageId,
+                        isNewlyAdded = message.id !in initialMessageIds,
                         currentVocalUrl = state.currentVocalUrl,
                         isVocalPlaying = state.isVocalPlaying,
                         vocalProgress = state.vocalProgress,
@@ -194,6 +193,8 @@ internal fun SmsGameScreen(
                         },
                         onNextChapterClick = onNextChapterClick,
                         showNextChapterButton = state.showNextChapterButton,
+                        requiresChapterAd = state.requiresChapterAd,
+                        isChapterAdBusy = state.isChapterAdBusy,
                         nextChapterTitleRes = state.nextChapterTitleRes,
                         isTrial = state.isTrial,
                         isNextChapterAvailable = state.isNextChapterAvailable,
@@ -211,6 +212,7 @@ internal fun SmsGameScreen(
                     .padding(bottom = 12.dp)
                     .alpha(if (state.isAwaitingInput) 1f else 0f),
                 onClick = onRevealChoicesClicked,
+                enabled = state.isAwaitingInput,
             )
         }
 

@@ -1,5 +1,6 @@
 package fr.sutoko.inapppurchase.application.domain.coordinator
 
+import android.os.SystemClock
 import android.util.Log
 import fr.sutoko.inapppurchase.application.domain.PurchaseBackendRegistrar
 import fr.sutoko.inapppurchase.application.domain.PurchaseRegistrationRejectedException
@@ -31,6 +32,7 @@ class PurchaseBackendRegistrationCoordinator @Inject constructor(
     fun start(scope: CoroutineScope) {
         scope.launch {
             purchaseRepository.observeUnregisteredPurchases().collect { purchases ->
+                Log.d("PayFlow", "coordinator queue: ${purchases.map { "${it.sku} order=${it.orderId}" }}")
                 purchases.forEach { purchase ->
                     registerWithRetry(purchase)
                 }
@@ -61,7 +63,15 @@ class PurchaseBackendRegistrationCoordinator @Inject constructor(
             }
 
             val results = supportedRegistrars.map { registrar ->
-                registrar.register(purchase.sku, purchase.purchaseToken, purchase.orderId)
+                val attemptStartedAt = SystemClock.elapsedRealtime()
+                val result = registrar.register(purchase.sku, purchase.purchaseToken, purchase.orderId)
+                Log.d(
+                    "PayFlow",
+                    "registrar ${registrar::class.simpleName} ${purchase.sku} took " +
+                        "${SystemClock.elapsedRealtime() - attemptStartedAt}ms success=${result.isSuccess} " +
+                        "err=${result.exceptionOrNull()?.message}"
+                )
+                result
             }
 
             val rejection = results.firstNotNullOfOrNull { result ->

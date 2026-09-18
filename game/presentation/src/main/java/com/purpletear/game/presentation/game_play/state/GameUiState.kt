@@ -2,6 +2,7 @@ package com.purpletear.game.presentation.game_play.state
 
 import androidx.annotation.Keep
 import androidx.annotation.StringRes
+import com.purpletear.sutoko.game.engine.GameEngineState
 import com.purpletear.sutoko.game.engine.GameMessage
 import com.purpletear.sutoko.game.engine.HandlerEffect
 import com.purpletear.sutoko.game.model.chapter.Node
@@ -21,6 +22,7 @@ data class GameUiState(
     val isAwaitingInput: Boolean = false,
     val isAwaitingTap: Boolean = false,
     val isChoicesRevealed: Boolean = false,
+    val choiceState: GameEngineState.AwaitingInput? = null,
     val currentScene: Scene? = null,
     val characters: Map<Int, Character> = emptyMap(),
     val rightSideCharacterIds: Set<Int> = emptySet(),
@@ -28,12 +30,15 @@ data class GameUiState(
     val isVocalPlaying: Boolean = false,
     val vocalProgress: Float = 0f,
     val isLoadingStoryUpdates: Boolean = false,
+    val hasLoadError: Boolean = false,
     val isTrial: Boolean = false,
     val isNextChapterAvailable: Boolean = true,
     val isNextChapterAvailabilityResolved: Boolean = false,
     val nextChapterReleaseDate: Long? = null,
     val gameLogoUrl: String? = null,
     val showNextChapterButton: Boolean = true,
+    val requiresChapterAd: Boolean = false,
+    val isChapterAdBusy: Boolean = false,
     @StringRes val nextChapterTitleRes: Int? = null,
     val cinematicBody: List<Node> = emptyList(),
     val isCinematicActive: Boolean = false,

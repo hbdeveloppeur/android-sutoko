@@ -51,8 +51,8 @@ class ChapterRepositoryImpl @Inject constructor(
                 authorization = bearerToken(),
             )
             if (response.isSuccessful) {
-                val chapters = response.body()?.toDomain() ?: emptyList()
-                chapterDao.insertAll(chapters.map { it.toEntity() })
+                val chapters = requireNotNull(response.body()) { "Missing chapter list" }.toDomain()
+                chapterDao.replaceAllForStory(storyId, chapters.map { it.toEntity() })
                 val freshDbChapters = chapterDao.getAllForStory(storyId).map { it.toDomain() }
                 emit(Result.success(freshDbChapters))
             } else if (dbChapters.isEmpty()) {
@@ -133,6 +133,7 @@ class ChapterRepositoryImpl @Inject constructor(
         return userGameProgressDao.observe(gameId)
             .flatMapLatest { progress ->
                 val code = progress?.currentChapterCode ?: DEFAULT_CHAPTER_CODE
+                // A removed chapter needs explicit player recovery, never an implicit restart.
                 chapterDao.observeByStoryAndCode(gameId, code)
             }
             .map { it?.toDomain() }

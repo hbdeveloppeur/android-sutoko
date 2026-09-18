@@ -67,6 +67,64 @@ class ChapterGraphParserBlankNodeTest {
     }
 
     @Test
+    fun `blank narration feeding a choice fanout is spliced so choices stay reachable`() {
+        val nodes = listOf(
+            node("start-0", "start"),
+            node(
+                "moon-1",
+                "message",
+                text = "On a juste une vieille radio, mais on ne l'a jamais utilisée",
+                characterId = 1
+            ),
+            node("narration-2", "narration", text = ""),
+            node("choice-a", "message", text = "Merci Moon pour votre accueil", characterId = 0),
+            node("choice-b", "message", text = "On mange bientôt?", characterId = 0),
+            node("choice-c", "message", text = "Troisième option", characterId = 0)
+        )
+        val edges = listOf(
+            edge("start-0", "moon-1"),
+            edge("moon-1", "narration-2"),
+            edge("narration-2", "choice-a"),
+            edge("narration-2", "choice-b"),
+            edge("narration-2", "choice-c")
+        )
+
+        val graph = parseGraph(nodes, edges, chapterCode = "3")
+
+        assertNull("blank narration should be removed", graph.getNode("narration-2"))
+        assertEquals(
+            "choices must be re-attached to the message feeding the blank narration",
+            setOf("choice-a", "choice-b", "choice-c"),
+            graph.getNextEdges("moon-1").map { it.target }.toSet()
+        )
+    }
+
+    @Test
+    fun `blank narration chain reaching a choice fanout is spliced transitively`() {
+        val nodes = listOf(
+            node("start-0", "start"),
+            node("narration-1", "narration", text = "Narration"),
+            node("narration-2", "narration", text = ""),
+            node("choice-a", "message", text = "A", characterId = 0),
+            node("choice-b", "message", text = "B", characterId = 0)
+        )
+        val edges = listOf(
+            edge("start-0", "narration-1"),
+            edge("narration-1", "narration-2"),
+            edge("narration-2", "choice-a"),
+            edge("narration-2", "choice-b")
+        )
+
+        val graph = parseGraph(nodes, edges, chapterCode = "3")
+
+        assertNull(graph.getNode("narration-2"))
+        assertEquals(
+            setOf("choice-a", "choice-b"),
+            graph.getNextEdges("narration-1").map { it.target }.toSet()
+        )
+    }
+
+    @Test
     fun `chained blank narration nodes are all bypassed transitively`() {
         val nodes = listOf(
             node("start-0", "start"),

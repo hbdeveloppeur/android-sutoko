@@ -1,10 +1,15 @@
 package com.purpletear.game.presentation.game_play.navigation
 
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.getValue
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -12,9 +17,12 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavType
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
+import com.purpletear.sutoko.game.model.scene.Scene
 import com.purpletear.game.presentation.game_play.GameEngineViewModel
 import com.purpletear.game.presentation.game_play.SmsGameRoutes
 import com.purpletear.game.presentation.game_play.SmsGameScreen
+import com.purpletear.game.presentation.game_play.GameContentReadiness
+import com.purpletear.game.presentation.game_play.contentReadiness
 
 internal fun NavGraphBuilder.gameScreen(
     gameId: String,
@@ -22,11 +30,18 @@ internal fun NavGraphBuilder.gameScreen(
     onNavigateToCinematic: () -> Unit,
     onNavigateToBuy: () -> Unit,
     onNavigateToExit: () -> Unit,
-    onFirstContentPlayed: () -> Unit = {},
+    onFirstContentPlayed: (String) -> Unit = {},
+    onLoadError: (String) -> Unit = {},
 ) = composable(
     route = SmsGameRoutes.GAME,
-    enterTransition = { fadeIn(tween(500, easing = FastOutSlowInEasing)) },
-    exitTransition = { fadeOut(tween(360, easing = FastOutSlowInEasing)) },
+    enterTransition = {
+        if (initialState.destination.route == SmsGameRoutes.GAME) EnterTransition.None
+        else fadeIn(tween(500, easing = FastOutSlowInEasing))
+    },
+    exitTransition = {
+        if (targetState.destination.route == SmsGameRoutes.GAME) ExitTransition.None
+        else fadeOut(tween(360, easing = FastOutSlowInEasing))
+    },
     popEnterTransition = { fadeIn(tween(500, easing = FastOutSlowInEasing)) },
     popExitTransition = { fadeOut(tween(360, easing = FastOutSlowInEasing)) },
     arguments = listOf(
@@ -46,9 +61,15 @@ internal fun NavGraphBuilder.gameScreen(
             defaultValue = false
         },
     )
-) {
+) { entry ->
+    val chapterCode = requireNotNull(entry.arguments?.getString("chapterCode"))
     val viewModel: GameEngineViewModel = hiltViewModel()
     val state by viewModel.uiState.collectAsStateWithLifecycle()
+    val context = androidx.compose.ui.platform.LocalContext.current
+    val activity = remember(context) {
+        generateSequence(context) { (it as? android.content.ContextWrapper)?.baseContext }
+            .filterIsInstance<android.app.Activity>().firstOrNull()
+    }
 
     LaunchedEffect(viewModel) {
         viewModel.navigateToNextChapter.collect { chapterCode ->
@@ -74,16 +95,20 @@ internal fun NavGraphBuilder.gameScreen(
         }
     }
 
-    val firstContentVisible = state.messages.isNotEmpty() ||
-        state.visualNovel != null ||
-        state.fakeNotification != null
-    LaunchedEffect(firstContentVisible) {
-        if (firstContentVisible) onFirstContentPlayed()
+    var readyScene by remember(viewModel) { mutableStateOf<Scene?>(null) }
+    val contentReadiness = state.contentReadiness(sceneReady = state.currentScene == null || readyScene == state.currentScene)
+    LaunchedEffect(viewModel, contentReadiness) {
+        when (contentReadiness) {
+            GameContentReadiness.Ready -> onFirstContentPlayed(chapterCode)
+            GameContentReadiness.Failed -> onLoadError(chapterCode)
+            GameContentReadiness.Waiting -> Unit
+        }
     }
 
     SmsGameScreen(
         state = state,
-        onNextChapterClick = viewModel::onNextChapterClicked,
+        onSceneReady = { readyScene = it },
+        onNextChapterClick = { viewModel.onNextChapterClicked(activity) },
         onBackClick = viewModel::onBackClicked,
         onVocalClick = viewModel::onVocalClicked,
         onChoiceSelected = viewModel::onChoiceSelected,

@@ -1,11 +1,15 @@
 package com.purpletear.game.data.repository
 
+import androidx.room.Room
+import com.purpletear.game.data.database.GameDatabase
 import com.purpletear.game.data.local.dao.ChapterDao
 import com.purpletear.game.data.local.dao.GameInstallationDao
 import com.purpletear.game.data.local.entity.ChapterEntity
 import com.purpletear.game.data.local.entity.GameInstallEntity
+import com.purpletear.game.data.local.entity.MemoryEntity
 import com.purpletear.game.data.provider.AndroidGamePathProvider
 import com.purpletear.sutoko.game.model.game.GameCatalog
+import com.purpletear.sutoko.game.model.chapter.GameMemory
 import com.purpletear.sutoko.game.repository.game.GameRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -21,12 +25,49 @@ import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TemporaryFolder
+import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
+import org.robolectric.RuntimeEnvironment
+import org.robolectric.annotation.Config
 import java.io.File
 
+@RunWith(RobolectricTestRunner::class)
+@Config(manifest = Config.NONE, sdk = [28])
 class ChapterGraphRepositoryImplTest {
 
     @get:Rule
     val temporaryFolder = TemporaryFolder()
+
+    @Test
+    fun `lowercase resume keeps the chapter number and earlier decisions`() = runTest {
+        val database = Room.inMemoryDatabaseBuilder(
+            RuntimeEnvironment.getApplication(), GameDatabase::class.java,
+        ).allowMainThreadQueries().build()
+        try {
+            database.chapterDao().insert(
+                ChapterEntity(id = "chapter-2", story = "game-layout", code = "2A", number = 2),
+            )
+            val decision = MemoryEntity("game-layout", "trusted_friend", "true", 1)
+            database.memoryDao().insert(decision)
+            val repository = repositoryWithChapter(
+                chapterCode = "2a", chapterDao = database.chapterDao(),
+            )
+
+            val graph = repository.loadChapterGraph("game-layout", "2a", "en").first().getOrThrow()
+            val memory = GameMemory(
+                MemoryRepositoryImpl(database.memoryDao()),
+                UserGameProgressRepositoryImpl(database.userGameProgressDao()),
+            )
+            memory.load("game-layout", graph.chapterNumber)
+
+            assertEquals(2, graph.chapterNumber)
+            assertEquals("2A", graph.chapterCode)
+            assertEquals("true", memory.state.value["trusted_friend"])
+            assertEquals(listOf(decision), database.memoryDao().getAllForGameUpToChapter("game-layout", 2))
+        } finally {
+            database.close()
+        }
+    }
 
     @Test
     fun `broken install on disk is cleared when no chapter language is found`() = runTest {
@@ -100,9 +141,32 @@ class ChapterGraphRepositoryImplTest {
         assertTrue(graph.rightSideCharacterIds.isEmpty())
     }
 
-    private fun repositoryWithChapter(layoutJson: String?): ChapterGraphRepositoryImpl {
+    @Test
+    fun `missing chapter metadata fails instead of loading with chapter one memories`() = runTest {
+        val repository = repositoryWithChapter(chapterCode = "2a", chapterDao = FakeChapterDao())
+
+        val result = repository.loadChapterGraph("game-layout", "2a", "en").first()
+
+        assertTrue(result.isFailure)
+        assertTrue(result.exceptionOrNull()?.message.orEmpty().contains("Chapter metadata not found"))
+    }
+
+    @Test
+    fun `invalid chapter number is rejected before the engine can load memories`() = runTest {
+        val repository = repositoryWithChapter(
+            chapterDao = FakeChapterDao(ChapterEntity(code = "1A", number = 0)),
+        )
+
+        assertTrue(repository.loadChapterGraph("game-layout", "1a", "en").first().isFailure)
+    }
+
+    private fun repositoryWithChapter(
+        layoutJson: String? = null,
+        chapterCode: String = "1a",
+        chapterDao: ChapterDao = FakeChapterDao(ChapterEntity(code = "1A", number = 1)),
+    ): ChapterGraphRepositoryImpl {
         val gamesDir = temporaryFolder.newFolder()
-        val chapterDir = File(gamesDir, "game-layout/chapters/en/1a")
+        val chapterDir = File(gamesDir, "game-layout/chapters/en/$chapterCode")
         check(chapterDir.mkdirs()) { "Failed to create $chapterDir" }
         File(chapterDir, "nodes.json").writeText(
             """[{"id":"start-0","type":"start","data":null}]"""
@@ -112,7 +176,7 @@ class ChapterGraphRepositoryImplTest {
         }
         return ChapterGraphRepositoryImpl(
             pathProvider = FakeAndroidGamePathProvider(gamesDir),
-            chapterDao = FakeChapterDao(),
+            chapterDao = chapterDao,
             gameRepository = FakeGameRepository(),
             installDao = FakeGameInstallationDao(),
         )
@@ -162,7 +226,7 @@ class ChapterGraphRepositoryImplTest {
         ): Result<List<GameCatalog>> = error("unused")
     }
 
-    private class FakeChapterDao : ChapterDao {
+    private class FakeChapterDao(private val chapter: ChapterEntity? = null) : ChapterDao {
         override suspend fun getAllForStory(storyId: String): List<ChapterEntity> = emptyList()
         override fun observeAllForStory(storyId: String): Flow<List<ChapterEntity>> =
             flowOf(emptyList())
@@ -173,7 +237,8 @@ class ChapterGraphRepositoryImplTest {
         override suspend fun deleteAllForStory(storyId: String) = Unit
         override suspend fun deleteById(id: String) = Unit
         override suspend fun getCountForStory(storyId: String): Int = 0
-        override suspend fun getByStoryAndCode(storyId: String, code: String): ChapterEntity? = null
+        override suspend fun getByStoryAndCode(storyId: String, code: String): ChapterEntity? =
+            chapter?.takeIf { it.code.equals(code, ignoreCase = true) }
         override fun observeByStoryAndCode(storyId: String, code: String): Flow<ChapterEntity?> =
             flowOf(null)
 

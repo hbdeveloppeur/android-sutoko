@@ -10,10 +10,12 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -23,7 +25,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 internal fun SmsGameNavHost(
     navController: NavHostController,
     startDestination: String,
-    overlayAlpha: Float,
+    overlayAlpha: () -> Float,
     builder: NavGraphBuilder.() -> Unit,
 ) {
     Box(Modifier.fillMaxSize()) {
@@ -41,11 +43,14 @@ internal fun SmsGameNavHost(
             exitTransition = { fadeOut(tween(500, easing = FastOutSlowInEasing)) },
             builder = builder,
         )
-        if (overlayAlpha > 0f) {
+        val isOverlayVisible by remember(overlayAlpha) {
+            derivedStateOf { overlayAlpha() > 0f }
+        }
+        if (isOverlayVisible) {
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .alpha(overlayAlpha)
+                    .graphicsLayer { alpha = overlayAlpha() }
                     .background(Color.Black)
             )
         }

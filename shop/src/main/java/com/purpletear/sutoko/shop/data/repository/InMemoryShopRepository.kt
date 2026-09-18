@@ -1,5 +1,6 @@
 package com.purpletear.sutoko.shop.data.repository
 
+import android.util.Log
 import com.purpletear.sutoko.shop.data.remote.GetBalanceRequestDto
 import com.purpletear.sutoko.shop.data.remote.ShopApi
 import com.purpletear.sutoko.shop.domain.repository.ShopRepository
@@ -30,6 +31,7 @@ class InMemoryShopRepository @Inject constructor(
     }
 
     override fun updateBalance(balance: Balance) {
+        Log.d("PayFlow", "updateBalance coins=${balance.coins} diamonds=${balance.diamonds}")
         _balance.value = balance
     }
 

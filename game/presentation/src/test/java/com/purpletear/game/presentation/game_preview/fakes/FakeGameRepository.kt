@@ -7,11 +7,14 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.CompletableDeferred
 
 class FakeGameRepository : GameRepository {
     private val games = mutableMapOf<String, MutableStateFlow<GameCatalog?>>()
     private val errors = mutableMapOf<String, Throwable>()
     private val downloadLinks = mutableMapOf<String, Result<String>>()
+    var downloadLinkGate: CompletableDeferred<Unit>? = null
+    var catalogGate: CompletableDeferred<Unit>? = null
 
     fun setGame(id: String, catalog: GameCatalog?) {
         games.getOrPut(id) { MutableStateFlow(null) }.value = catalog
@@ -39,6 +42,7 @@ class FakeGameRepository : GameRepository {
         userToken: String?,
         preview: Boolean,
     ): Result<String> {
+        downloadLinkGate?.await()
         return downloadLinks[gameId] ?: Result.failure(IllegalStateException("No download link set for $gameId"))
     }
 
@@ -48,6 +52,7 @@ class FakeGameRepository : GameRepository {
 
     override suspend fun getGameCatalog(id: String, languageTag: String): Result<GameCatalog?> {
         getGameCatalogCalls++
+        catalogGate?.await()
         val result = getGameCatalogResult ?: return Result.success(games[id]?.value)
         // Mimic the real repository: a found catalog is persisted, so observeGame re-emits.
         result.getOrNull()?.let { setGame(id, it) }

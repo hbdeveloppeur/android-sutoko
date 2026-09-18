@@ -2,6 +2,7 @@ package com.purpletear.game.presentation.game_chapters
 
 import androidx.lifecycle.SavedStateHandle
 import com.purpletear.game.presentation.game_preview.fakes.FakeChapterRepository
+import com.purpletear.game.presentation.game_preview.fakes.FakeFriendzonedProgressRepository
 import com.purpletear.game.presentation.game_preview.fakes.FakeGameRepository
 import com.purpletear.game.presentation.game_preview.fakes.FakeLogger
 import com.purpletear.game.presentation.game_preview.fakes.FakeMediaUrlResolver
@@ -12,7 +13,12 @@ import com.purpletear.game.presentation.game_preview.fakes.FakeUserRoleRepositor
 import com.purpletear.game.presentation.game_preview.fakes.TestFixtures
 import com.purpletear.sutoko.game.model.Chapter
 import com.purpletear.sutoko.game.model.UserRole
+import com.purpletear.sutoko.game.model.UserGameProgress
+import com.purpletear.sutoko.game.model.chapter.MemoryEntry
 import com.purpletear.sutoko.game.usecase.GetChaptersUseCase
+import com.purpletear.sutoko.game.usecase.PrepareGameLaunchUseCase
+import com.purpletear.sutoko.game.usecase.SaveUserNickNameUseCase
+import com.purpletear.sutoko.game.repository.GameProgressTransaction
 import com.purpletear.sutoko.game.usecase.SelectChapterUseCase
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
@@ -48,6 +54,7 @@ class ChaptersViewModelTest {
     @Before
     fun setUp() {
         Dispatchers.setMain(testDispatcher)
+        gameRepository.setGame(TestFixtures.GAME_ID, TestFixtures.gameCatalog(userNickNameRequired = false))
     }
 
     @After
@@ -62,7 +69,9 @@ class ChaptersViewModelTest {
             gameRepository = gameRepository,
             mediaUrlResolver = mediaUrlResolver,
             chapterRepository = chapterRepository,
-            selectChapterUseCase = SelectChapterUseCase(progressRepository, memoryRepository),
+            selectChapterUseCase = SelectChapterUseCase(progressRepository, GameProgressTransaction { it() }),
+            prepareGameLaunchUseCase = PrepareGameLaunchUseCase(progressRepository, FakeFriendzonedProgressRepository()),
+            saveUserNickNameUseCase = SaveUserNickNameUseCase(progressRepository),
             userRoleRepository = userRoleRepository,
             toastService = toastService,
             logger = logger,
@@ -209,6 +218,33 @@ class ChaptersViewModelTest {
         advanceUntilIdle()
 
         assertTrue(events.isEmpty())
+        assertTrue(toastService.shownMessages.isEmpty())
+    }
+
+    @Test
+    fun `selecting the current chapter opens it without erasing earlier decisions`() = runTest {
+        val current = Chapter(id = "chapter-3", number = 3, code = "3A", available = true)
+        chapterRepository.setChapters(TestFixtures.GAME_ID, Result.success(listOf(current)))
+        chapterRepository.setCurrentChapter(TestFixtures.GAME_ID, current)
+        progressRepository.save(
+            UserGameProgress(
+                gameId = TestFixtures.GAME_ID,
+                currentChapterCode = "3A",
+                normalizedChapterCode = "3a",
+            )
+        )
+        val decisions = mapOf("trusted_friend" to MemoryEntry("true", 1))
+        memoryRepository.save(TestFixtures.GAME_ID, decisions)
+        val viewModel = createViewModel()
+        backgroundScope.launch { viewModel.uiState.collect { } }
+        advanceUntilIdle()
+
+        viewModel.events.test {
+            viewModel.onChapterSelected(current)
+            assertEquals(ChaptersEvent.OpenChapter("3a"), awaitItem())
+        }
+
+        assertEquals(decisions, memoryRepository.load(TestFixtures.GAME_ID, 3))
         assertTrue(toastService.shownMessages.isEmpty())
     }
 

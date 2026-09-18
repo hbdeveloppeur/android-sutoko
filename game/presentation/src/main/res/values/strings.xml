@@ -59,6 +59,8 @@
     <string name="game_presentation_game_menu_coins">%1$d coins</string>
     <string name="game_presentation_game_menu_download_game">Download the game</string>
     <string name="game_presentation_game_menu_downloading">Downloading…</string>
+    <string name="game_presentation_game_menu_preparing_download">Preparing download…</string>
+    <string name="game_presentation_game_menu_installing">Installing…</string>
     <string name="game_presentation_game_menu_download_progress">%.1f%%</string>
     <string name="game_presentation_game_menu_download_progress_percent">%d%%</string>
     <string name="game_presentation_game_menu_reload_game">Reload the game</string>
@@ -151,6 +153,8 @@
     <string name="game_presentation_message_manga_prompt">A manga page is waiting for you</string>
     <string name="game_presentation_message_manga_open">Open</string>
     <string name="game_presentation_message_next_chapter_title">End of chapter</string>
+    <string name="game_presentation_message_next_chapter_play_button">Go to next chapter</string>
+    <string name="game_presentation_message_next_chapter_unlock_button">Unlock the next chapter with an Ad</string>
     <string name="game_presentation_message_next_chapter_button">Next chapter</string>
     <string name="game_presentation_message_trial_finished_title">Trial finished</string>
     <string name="game_presentation_message_trial_finished_button">Buy the story</string>
@@ -213,4 +217,8 @@
     <string name="game_presentation_game_preview_download_preview">Download preview</string>
     <string name="game_presentation_game_story_chapters_button_chapters_count">%1$d chapters</string>
 
+    <string name="game_presentation_error_nickname">Unable to save or load your name. Please try again.</string>
+    <string name="game_presentation_game_preview_retry">Retry</string>
+    <string name="game_presentation_game_preview_load_error">Could not load this story. Try again.</string>
+    <string name="game_presentation_game_preview_choose_chapter">Choose an available chapter to continue.</string>
 </resources>

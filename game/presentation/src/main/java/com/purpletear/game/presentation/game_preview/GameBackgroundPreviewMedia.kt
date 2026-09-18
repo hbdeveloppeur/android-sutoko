@@ -1,6 +1,7 @@
 package com.purpletear.game.presentation.game_preview
 
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.snap
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -8,12 +9,13 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.painter.ColorPainter
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
@@ -47,57 +49,68 @@ internal fun GameBackgroundPreviewMedia(
     val effectiveImageUrl = imageUrl?.takeIf { it.isNotBlank() }
     val effectiveVideoUrl = videoUrl?.takeIf { it.isNotBlank() }
 
-    // Reset when the video changes; stays false if the video fails to start.
-    var videoStarted by remember(effectiveVideoUrl) { mutableStateOf(false) }
-    val imageAlpha by animateFloatAsState(
-        targetValue = if (videoStarted) 0f else 1f,
-        animationSpec = tween(durationMillis = 1500),
-        label = "imageAlpha"
-    )
-
     val context = LocalContext.current
     val errorPainter = remember { ColorPainter(Color.DarkGray) }
+    val coverPainter = fallbackPainter ?: errorPainter
+    val imageRequest = remember(context, effectiveImageUrl) {
+        ImageRequest.Builder(context)
+            .data(effectiveImageUrl)
+            .crossfade(true)
+            .build()
+    }
 
-    Box(modifier = modifier.fillMaxSize()) {
-        // Video stays under the image; the image fade reveals it (no black gap).
-        effectiveVideoUrl?.let { url ->
-            BackgroundMedia(
-                videoUrl = url,
-                onFirstFrame = { videoStarted = true },
-                modifier = Modifier.fillMaxSize()
-            )
-        }
+    key(effectiveVideoUrl) {
+        var videoStarted by remember { mutableStateOf(false) }
+        val coverAlpha = animateFloatAsState(
+            targetValue = if (videoStarted) 0f else 1f,
+            animationSpec = if (videoStarted) tween(durationMillis = 500) else snap(),
+            label = "previewMediaCoverAlpha",
+        )
 
-        effectiveImageUrl?.let { url ->
-            AsyncImage(
-                model = ImageRequest.Builder(context)
-                    .data(url)
-                    .crossfade(true)
-                    .build(),
-                contentDescription = stringResource(R.string.game_presentation_game_preview_background_description),
-                contentScale = ContentScale.Crop,
-                error = errorPainter,
+        Box(modifier = modifier.fillMaxSize()) {
+            effectiveVideoUrl?.let { url ->
+                val playback = rememberPreviewVideoPlayback()
+                if (playback.attachPlayer) {
+                    BackgroundMedia(
+                        videoUrl = url,
+                        playWhenReady = playback.playWhenReady,
+                        onFirstFrame = { videoStarted = true },
+                        onError = { videoStarted = false },
+                        modifier = Modifier.fillMaxSize(),
+                    )
+                }
+            }
+
+            Box(
+                modifier = Modifier.fillMaxSize().graphicsLayer {
+                    // Restore an opaque cover immediately on failure; only revealing video fades.
+                    alpha = if (videoStarted) coverAlpha.value else 1f
+                },
+            ) {
+                if (effectiveImageUrl != null) {
+                    AsyncImage(
+                        model = imageRequest,
+                        contentDescription = stringResource(R.string.game_presentation_game_preview_background_description),
+                        contentScale = ContentScale.Crop,
+                        placeholder = coverPainter,
+                        error = coverPainter,
+                        modifier = Modifier.fillMaxSize(),
+                    )
+                } else {
+                    Image(
+                        painter = coverPainter,
+                        contentDescription = stringResource(R.string.game_presentation_game_preview_background_description),
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier.fillMaxSize(),
+                    )
+                }
+            }
+
+            Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .alpha(imageAlpha)
+                    .background(Color.Black.copy(alpha = overlayAlpha)),
             )
         }
-
-        if (effectiveImageUrl == null && effectiveVideoUrl == null) {
-            fallbackPainter?.let { painter ->
-                Image(
-                    painter = painter,
-                    contentDescription = stringResource(R.string.game_presentation_game_preview_background_description),
-                    contentScale = ContentScale.Crop,
-                    modifier = Modifier.fillMaxSize()
-                )
-            }
-        }
-
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(Color.Black.copy(alpha = overlayAlpha))
-        )
     }
 }

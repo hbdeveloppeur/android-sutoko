@@ -45,7 +45,7 @@ class GameMemory @Inject constructor(
 
     /**
      * Loads memories from repository for the specified game, keeping only state from
-     * chapters up to and including [chapterNumber]. Memories written in this chapter
+     * chapters before [chapterNumber]. Memories written in this chapter
      * or any later chapter are deleted first to prevent overlap when replaying.
      *
      * Clears any existing in-memory state first.

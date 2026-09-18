@@ -7,6 +7,10 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
 class FakeUserGameProgressRepository : UserGameProgressRepository {
+    var beforeSave: suspend () -> Unit = {}
+    var saveCalls = 0
+    var saveError: Exception? = null
+    var getError: Exception? = null
     private val storage = mutableMapOf<String, MutableStateFlow<UserGameProgress>>()
 
     override fun observe(gameId: String): Flow<UserGameProgress> {
@@ -14,10 +18,14 @@ class FakeUserGameProgressRepository : UserGameProgressRepository {
     }
 
     override suspend fun get(gameId: String): UserGameProgress {
+        getError?.let { throw it }
         return storage.getOrPut(gameId) { MutableStateFlow(UserGameProgress(gameId = gameId)) }.value
     }
 
     override suspend fun save(progress: UserGameProgress) {
+        saveCalls++
+        beforeSave()
+        saveError?.let { throw it }
         storage.getOrPut(progress.gameId) { MutableStateFlow(progress) }.value = progress
     }
 

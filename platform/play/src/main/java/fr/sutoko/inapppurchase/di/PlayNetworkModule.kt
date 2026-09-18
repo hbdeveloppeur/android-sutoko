@@ -16,7 +16,7 @@ import javax.inject.Singleton
 @InstallIn(SingletonComponent::class)
 object PlayNetworkModule {
 
-    private const val VERIFICATION_BASE_URL = "http://162.19.94.164:4001/"
+    private const val VERIFICATION_BASE_URL = "https://catalog-shop.sutoko.app/validator/"
 
     @Provides
     @Singleton

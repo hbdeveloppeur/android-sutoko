@@ -57,12 +57,13 @@ private val SubtleText = Color(0xFFB0B0B0)
 fun NickNameInputDialog(
     onConfirm: (String?) -> Unit,
     onDismiss: () -> Unit,
+    isSaving: Boolean = false,
 ) {
     val name = remember { mutableStateOf("") }
     val showError = remember { mutableStateOf(false) }
 
     Dialog(
-        onDismissRequest = onDismiss,
+        onDismissRequest = { if (!isSaving) onDismiss() },
         properties = DialogProperties(usePlatformDefaultWidth = false)
     ) {
         Surface(
@@ -101,6 +102,7 @@ fun NickNameInputDialog(
                         )
                     },
                     singleLine = true,
+                    enabled = !isSaving,
                     isError = showError.value,
                     supportingText = if (showError.value) {
                         {
@@ -139,7 +141,7 @@ fun NickNameInputDialog(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End),
                 ) {
-                    TextButton(onClick = onDismiss) {
+                    TextButton(onClick = onDismiss, enabled = !isSaving) {
                         Text(
                             text = stringResource(android.R.string.cancel),
                             color = SubtleText,
@@ -150,6 +152,7 @@ fun NickNameInputDialog(
                     }
 
                     Button(
+                        enabled = !isSaving,
                         onClick = {
                             val trimmed = name.value.trim()
                             if (trimmed.isEmpty()) {

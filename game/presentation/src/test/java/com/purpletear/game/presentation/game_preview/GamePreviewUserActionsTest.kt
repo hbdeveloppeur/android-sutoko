@@ -63,6 +63,17 @@ class GamePreviewUserActionsTest {
     }
 
     @Test
+    fun `direct preview action cannot start a player download`() = runTest {
+        gameRepository.setGame(TestFixtures.GAME_ID, TestFixtures.gameCatalog())
+        val viewModel = createViewModel(connectedUser = true)
+        activateStateFlows(backgroundScope, viewModel)
+        advanceUntilIdle()
+        viewModel.onAction(GamePreviewAction.OnDownloadPreview)
+        advanceUntilIdle()
+        assertEquals(0, fixture.gameInstallRepository.downloadCalls)
+    }
+
+    @Test
     fun `administrator role is exposed as isAdmin`() = runTest {
         val viewModel = createViewModel()
         backgroundScope.launch { viewModel.isAdmin.collect { } }
@@ -94,6 +105,7 @@ class GamePreviewUserActionsTest {
             Result.failure(GameDownloadForbiddenException()),
         )
         val viewModel = createViewModel(connectedUser = true)
+        userRepository.setUser(User(id = "8be954c7a18f4e7cba9c", token = "tester-token"))
         backgroundScope.launch { viewModel.isPreviewVisible.collect { } }
         backgroundScope.launch { viewModel.game.collect { } }
         userRoleRepository.set(UserRole.ADMINISTRATOR)
@@ -113,6 +125,7 @@ class GamePreviewUserActionsTest {
             Result.failure(IllegalStateException("access_denied")),
         )
         val viewModel = createViewModel(connectedUser = true)
+        userRepository.setUser(User(id = "8be954c7a18f4e7cba9c", token = "tester-token"))
         backgroundScope.launch { viewModel.isPreviewVisible.collect { } }
         backgroundScope.launch { viewModel.game.collect { } }
         userRoleRepository.set(UserRole.ADMINISTRATOR)

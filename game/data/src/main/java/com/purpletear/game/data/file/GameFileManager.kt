@@ -1,10 +1,12 @@
 package com.purpletear.game.data.file
 
+import com.purpletear.sutoko.game.model.game.GameDownloadState
+
 interface GameFileManager {
     suspend fun downloadAndExtract(
         gameId: String,
         downloadUrl: String,
-        onProgress: suspend (Float) -> Unit,
+        onState: suspend (GameDownloadState) -> Unit,
         legacyId: Int? = null,
     ): String
 

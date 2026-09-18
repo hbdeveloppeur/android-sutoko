@@ -1,5 +1,6 @@
 package fr.sutoko.inapppurchase.billing
 
+import android.util.Log
 import retrofit2.HttpException
 import java.io.IOException
 import javax.inject.Inject
@@ -36,11 +37,13 @@ internal class NetworkPurchaseVerifier @Inject constructor(
                 )
             }
         } catch (e: HttpException) {
+            Log.w("PayFlow", "verify HTTP error, lenient-pass: ${e.code()}")
             VerificationResult(
                 verified = true,
                 message = "Verification server returned ${e.code()}"
             )
         } catch (e: IOException) {
+            Log.w("PayFlow", "verify network error, lenient-pass: ${e::class.simpleName} ${e.message}")
             VerificationResult(
                 verified = true,
                 message = e.message ?: "Verification request failed"

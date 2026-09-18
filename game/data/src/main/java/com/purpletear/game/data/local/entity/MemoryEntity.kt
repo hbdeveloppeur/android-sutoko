@@ -6,10 +6,9 @@ import androidx.room.Entity
 
 /**
  * Room entity for storing game memory variables.
- * Each row represents one key-value pair for a specific game.
+ * Each row retains a key-value pair at the chapter in which it was written.
  *
- * Composite primary key: (gameId, key) - allows multiple games to have
- * the same memory key without collision.
+ * Composite primary key: (gameId, key, chapterNumber) preserves earlier chapter values.
  *
  * The [chapterNumber] column records the chapter in which the memory was written.
  * It is used to discard stale state when the user replays an earlier chapter.
@@ -19,7 +18,7 @@ import androidx.room.Entity
 @Keep
 @Entity(
     tableName = "game_memories",
-    primaryKeys = ["gameId", "key"]
+    primaryKeys = ["gameId", "key", "chapterNumber"]
 )
 data class MemoryEntity(
     val gameId: String,

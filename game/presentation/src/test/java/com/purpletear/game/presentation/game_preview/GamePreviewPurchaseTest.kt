@@ -223,6 +223,7 @@ class GamePreviewPurchaseTest {
 
         viewModel.events.test {
             viewModel.onAction(GamePreviewAction.OnBuy)
+            advanceUntilIdle()
             viewModel.onAction(GamePreviewAction.OnBuyConfirm)
             advanceUntilIdle()
 
@@ -241,6 +242,7 @@ class GamePreviewPurchaseTest {
 
         viewModel.events.test {
             viewModel.onAction(GamePreviewAction.OnBuy)
+            advanceUntilIdle()
             viewModel.onAction(GamePreviewAction.OnBuyConfirm)
             advanceUntilIdle()
 
@@ -299,6 +301,7 @@ class GamePreviewPurchaseTest {
 
         viewModel.events.test {
             viewModel.onAction(GamePreviewAction.OnBuy)
+            advanceUntilIdle()
             viewModel.onAction(GamePreviewAction.OnBuyConfirm)
             advanceUntilIdle()
 
@@ -317,6 +320,7 @@ class GamePreviewPurchaseTest {
 
         viewModel.events.test {
             viewModel.onAction(GamePreviewAction.OnBuy)
+            advanceUntilIdle()
             viewModel.onAction(GamePreviewAction.OnBuyConfirm)
             advanceUntilIdle()
 

@@ -79,6 +79,8 @@ dependencies {
     val composeBom = platform(libs.compose.bom)
     implementation(composeBom)
     androidTestImplementation(composeBom)
+    androidTestImplementation("androidx.compose.ui:ui-test-junit4:1.7.8")
+    debugImplementation("androidx.compose.ui:ui-test-manifest:1.7.8")
     implementation(libs.androidx.material3)
     implementation(libs.material.compose)
     implementation(libs.compose.ui.tooling.preview)

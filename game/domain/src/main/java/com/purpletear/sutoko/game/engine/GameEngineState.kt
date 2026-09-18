@@ -27,7 +27,10 @@ sealed class GameEngineState {
     @Keep
     data class AwaitingInput(
         val chapterCode: String,
-        val currentNodeId: String
+        val currentNodeId: String,
+        val choices: List<HandlerEffect.ShowChoices.Choice> = emptyList(),
+        // True only when a manual advance reached this hub before another playback gate.
+        val isUserInitiated: Boolean = false
     ) : GameEngineState()
 
     /**

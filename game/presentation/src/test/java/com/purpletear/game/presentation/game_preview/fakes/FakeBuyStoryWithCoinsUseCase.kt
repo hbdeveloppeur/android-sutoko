@@ -7,6 +7,9 @@ class FakeBuyStoryWithCoinsUseCase : BuyStoryWithCoinsUseCase(
     coinPurchaseRepository = FakeCoinPurchaseRepository(),
     userRepository = FakeUserRepository(),
 ) {
+    var beforePurchase: suspend () -> Unit = {}
+    val calls = mutableListOf<String>()
+
     private val results = mutableMapOf<String, Result<Balance>>()
 
     fun setResult(sku: String, result: Result<Balance>) {
@@ -14,6 +17,8 @@ class FakeBuyStoryWithCoinsUseCase : BuyStoryWithCoinsUseCase(
     }
 
     override suspend fun invoke(sku: String): Result<Balance> {
+        calls += sku
+        beforePurchase()
         return results[sku] ?: Result.success(Balance(coins = 0, diamonds = 0))
     }
 }

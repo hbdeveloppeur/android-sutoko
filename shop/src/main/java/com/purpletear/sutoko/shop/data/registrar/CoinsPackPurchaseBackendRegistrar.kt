@@ -1,5 +1,7 @@
 package com.purpletear.sutoko.shop.data.registrar
 
+import android.os.SystemClock
+import android.util.Log
 import com.purpletear.sutoko.domain.repository.UserRepository
 import com.purpletear.sutoko.shop.data.remote.RegisterOrderRequestDto
 import com.purpletear.sutoko.shop.data.remote.ShopApi
@@ -54,6 +56,7 @@ class CoinsPackPurchaseBackendRegistrar @Inject constructor(
         }
 
         return try {
+            val requestStartedAt = SystemClock.elapsedRealtime()
             val response = shopApi.registerOrder(
                 RegisterOrderRequestDto(
                     purchaseToken = purchaseToken,
@@ -63,6 +66,10 @@ class CoinsPackPurchaseBackendRegistrar @Inject constructor(
                 )
             )
             val code = response.code()
+            Log.d(
+                "PayFlow",
+                "order/register sku=$sku code=$code took ${SystemClock.elapsedRealtime() - requestStartedAt}ms"
+            )
             when {
                 response.isSuccessful -> {
                     val body = response.body()

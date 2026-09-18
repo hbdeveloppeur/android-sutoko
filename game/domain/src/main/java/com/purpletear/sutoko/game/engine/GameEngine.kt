@@ -45,6 +45,7 @@ class GameEngine @Inject constructor(
     private val inputMutex = Mutex()
     @Volatile
     private var isPaused = false
+    private var userInitiatedAdvance = false
     private var awaitingInput = false
     private var availableChoices: List<HandlerEffect.ShowChoices.Choice> = emptyList()
     private var previousNode: Node? = null
@@ -491,7 +492,7 @@ class GameEngine @Inject constructor(
      * or error) without clearing the message history. No-op when the engine is not parked for a
      * tap, so the UI can call it on every unconsumed tap without tracking which node is gating.
      */
-    suspend fun advanceOnTap() {
+    suspend fun advanceOnTap(isUserInitiated: Boolean = false) {
         inputMutex.withLock {
             val currentState = state.value
             if (currentState !is GameEngineState.AwaitingTap) {
@@ -512,7 +513,13 @@ class GameEngine @Inject constructor(
             )
 
             val ctx = prepareExecutionContext(nodeId) ?: return@withLock
-            navigateToNext(ctx, null)
+            userInitiatedAdvance = isUserInitiated
+            try {
+                navigateToNext(ctx, null)
+            } finally {
+                // Intent belongs only to this advance, never to a later message gate.
+                userInitiatedAdvance = false
+            }
         }
     }
 
@@ -620,7 +627,9 @@ class GameEngine @Inject constructor(
     ) {
         _state.value = GameEngineState.AwaitingInput(
             chapterCode = context.graph.chapterCode,
-            currentNodeId = context.nodeId
+            currentNodeId = context.nodeId,
+            choices = choices,
+            isUserInitiated = userInitiatedAdvance
         )
 
         awaitingInput = true

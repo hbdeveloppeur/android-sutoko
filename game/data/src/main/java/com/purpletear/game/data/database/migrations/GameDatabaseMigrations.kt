@@ -173,6 +173,28 @@ object GameDatabaseMigrations {
         }
     }
 
+    val MIGRATION_20_21 = object : Migration(20, 21) {
+        override fun migrate(db: SupportSQLiteDatabase) {
+            db.execSQL(
+                """
+                CREATE TABLE game_memories_new (
+                    gameId TEXT NOT NULL,
+                    `key` TEXT NOT NULL,
+                    value TEXT NOT NULL,
+                    chapterNumber INTEGER NOT NULL DEFAULT 2147483647,
+                    PRIMARY KEY(gameId, `key`, chapterNumber)
+                )
+                """.trimIndent()
+            )
+            db.execSQL(
+                "INSERT INTO game_memories_new (gameId, `key`, value, chapterNumber) " +
+                    "SELECT gameId, `key`, value, chapterNumber FROM game_memories"
+            )
+            db.execSQL("DROP TABLE game_memories")
+            db.execSQL("ALTER TABLE game_memories_new RENAME TO game_memories")
+        }
+    }
+
     val ALL: Array<Migration> = arrayOf(
         MIGRATION_6_7,
         MIGRATION_10_11,
@@ -183,5 +205,6 @@ object GameDatabaseMigrations {
         MIGRATION_17_18,
         MIGRATION_18_19,
         MIGRATION_19_20,
+        MIGRATION_20_21,
     )
 }

@@ -2,6 +2,7 @@ package com.purpletear.game.data.file
 
 import com.purpletear.game.data.provider.AndroidGamePathProvider
 import com.purpletear.sutoko.game.exception.GameDownloadForbiddenException
+import com.purpletear.sutoko.game.model.game.GameDownloadState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.withContext
@@ -42,7 +43,7 @@ class GameFileManagerImpl @Inject constructor(
     override suspend fun downloadAndExtract(
         gameId: String,
         downloadUrl: String,
-        onProgress: suspend (Float) -> Unit,
+        onState: suspend (GameDownloadState) -> Unit,
         legacyId: Int?,
     ): String = withContext(Dispatchers.IO) {
         val gameDir = getGameDir(gameId, legacyId)
@@ -75,6 +76,7 @@ class GameFileManagerImpl @Inject constructor(
 
             val expectedBytes = connection.contentLengthLong
             val totalBytes = expectedBytes.takeIf { it > 0 } ?: 1L
+            onState(GameDownloadState.Downloading(if (expectedBytes > 0) 0f else null))
 
             var copied = 0L
             connection.inputStream.use { input ->
@@ -91,10 +93,10 @@ class GameFileManagerImpl @Inject constructor(
                         val progress = if (expectedBytes > 0) {
                             copied.toFloat() / totalBytes.toFloat()
                         } else {
-                            0f
+                            null
                         }
 
-                        onProgress(progress.coerceIn(0f, 0.99f))
+                        onState(GameDownloadState.Downloading(progress?.coerceIn(0f, 1f)))
                     }
                 }
             }
@@ -109,6 +111,7 @@ class GameFileManagerImpl @Inject constructor(
                 throw IOException("Incomplete download for game $gameId: $copied/$expectedBytes bytes")
             }
 
+            onState(GameDownloadState.Installing)
             extractZip(archiveFile, extractDir)
 
             if (!coroutineContext.isActive) {
@@ -144,7 +147,10 @@ class GameFileManagerImpl @Inject constructor(
 
     override suspend fun deleteGame(gameId: String, legacyId: Int?) {
         withContext(Dispatchers.IO) {
-            getGameDir(gameId, legacyId).deleteRecursively()
+            val directory = getGameDir(gameId, legacyId)
+            if (directory.exists() && !directory.deleteRecursively()) {
+                throw IOException("Failed to delete game directory: ${directory.name}")
+            }
         }
     }
 

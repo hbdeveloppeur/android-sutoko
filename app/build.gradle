@@ -17,11 +17,15 @@ if (localPropertiesFile.exists()) {
 }
 
 
+def admobAppId = providers.gradleProperty("ADMOB_APP_ID").orNull ?: localProperties.getProperty("ADMOB_APP_ID", "")
+def admobChapterUnitId = providers.gradleProperty("ADMOB_REWARDED_CHAPTER_UNIT_ID").orNull ?: localProperties.getProperty("ADMOB_REWARDED_CHAPTER_UNIT_ID", "")
+
 android {
     compileSdk 36
 
     defaultConfig {
         applicationId "fr.purpletear.sutoko"
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         minSdkVersion 24
         targetSdk 36
         versionCode rootProject.versionCode
@@ -53,6 +57,8 @@ android {
 
     buildTypes {
         release {
+            manifestPlaceholders.admobAppId = admobAppId
+            buildConfigField("String", "ADMOB_REWARDED_CHAPTER_UNIT_ID", "\"${admobChapterUnitId}\"")
             def releaseStoreFile = localProperties.get("storeFile")
             if (releaseStoreFile != null && !releaseStoreFile.isEmpty()) {
                 signingConfig signingConfigs.release
@@ -71,6 +77,8 @@ android {
         }
 
         debug {
+            manifestPlaceholders.admobAppId = "ca-app-pub-3940256099942544~3347511713"
+            buildConfigField("String", "ADMOB_REWARDED_CHAPTER_UNIT_ID", '"ca-app-pub-3940256099942544/5224354917"')
             minifyEnabled false
             shrinkResources false
             multiDexEnabled true
@@ -130,6 +138,7 @@ dependencies {
     implementation project(path: ':shared-elements')
     implementation platform(libs.firebase.bom)
     implementation libs.user.messaging.platform
+    implementation libs.google.mobile.ads
     implementation("com.google.protobuf:protobuf-javalite") {
         version {
             strictly '3.21.7'
@@ -263,6 +272,9 @@ dependencies {
     }
 
     debugImplementation libs.androidx.ui.tooling
+    androidTestImplementation libs.androidx.junit
+    androidTestImplementation "androidx.test:runner:1.6.1"
+    androidTestImplementation "androidx.test.uiautomator:uiautomator:2.3.0"
 
     implementation project(path: ':games:friendzone1')
     implementation project(path: ':games:friendzone2')
@@ -293,4 +305,18 @@ def archiveReleaseMapping = tasks.register('archiveReleaseMapping', Copy) {
 }
 tasks.matching { it.name == 'minifyReleaseWithR8' }.configureEach {
     finalizedBy archiveReleaseMapping
+}
+
+// Missing production IDs must never silently ship Google test inventory.
+def validateReleaseAdMob = tasks.register("validateReleaseAdMob") {
+    doLast {
+        if (!(admobAppId ==~ /ca-app-pub-\d{16}~\d{10}/) ||
+                !(admobChapterUnitId ==~ /ca-app-pub-\d{16}\/\d{10}/) ||
+                admobAppId.contains("3940256099942544") || admobChapterUnitId.contains("3940256099942544")) {
+            throw new GradleException("Set production ADMOB_APP_ID and ADMOB_REWARDED_CHAPTER_UNIT_ID in local.properties or Gradle properties before building release.")
+        }
+    }
+}
+tasks.configureEach {
+    if (name == "preReleaseBuild") dependsOn(validateReleaseAdMob)
 }

@@ -1,0 +1,4 @@
+<resources>
+    <string name="sutoko_ad_privacy_options">Datenschutz für Werbung</string>
+    <string name="sutoko_ad_privacy_error">Die Datenschutzeinstellungen sind nicht verfügbar. Bitte versuche es erneut.</string>
+</resources>

@@ -7,6 +7,8 @@ import androidx.datastore.preferences.core.PreferenceDataStoreFactory
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.emptyPreferences
 import androidx.room.Room
+import androidx.room.withTransaction
+import com.purpletear.sutoko.game.repository.GameProgressTransaction
 import com.purpletear.game.data.database.GameDatabase
 import com.purpletear.game.data.database.migrations.GameDatabaseMigrations
 import com.purpletear.game.data.file.GameFileManager
@@ -66,6 +68,12 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 object GameDataModule {
+
+    @Provides
+    @Singleton
+    fun provideGameProgressTransaction(database: GameDatabase): GameProgressTransaction =
+        GameProgressTransaction { block -> database.withTransaction { block() } }
+
 
     /**
      * Provides the GameDatabase instance.

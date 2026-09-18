@@ -12,6 +12,47 @@ import org.junit.Test
 class GameEngineStateUiMapperTest {
 
     @Test
+    fun `manual arrival reveals choices even after intermediate playing state`() {
+        val choices = listOf(HandlerEffect.ShowChoices.Choice(id = "a", text = "Yes"))
+        val playing = GameEngineStateUiMapper.map(
+            GameUiState(), GameEngineState.Playing("1A", "message")
+        )
+        val mapped = GameEngineStateUiMapper.map(
+            playing, GameEngineState.AwaitingInput("1A", "hub", choices, isUserInitiated = true)
+        )
+        assertEquals(choices, mapped.choices)
+        assertTrue(mapped.isChoicesRevealed)
+    }
+
+    @Test
+    fun `automatic arrival keeps choices hidden`() {
+        val mapped = GameEngineStateUiMapper.map(
+            GameUiState(isChoicesRevealed = true),
+            GameEngineState.AwaitingInput("1A", "hub")
+        )
+        assertFalse(mapped.isChoicesRevealed)
+    }
+
+    @Test
+    fun `repeated input state preserves explicit hide and reveal`() {
+        val input = GameEngineState.AwaitingInput("1A", "hub", isUserInitiated = true)
+        val arrived = GameEngineStateUiMapper.map(GameUiState(), input)
+        val hidden = arrived.copy(isChoicesRevealed = false)
+        assertFalse(GameEngineStateUiMapper.map(hidden, input).isChoicesRevealed)
+        val revealed = hidden.copy(isChoicesRevealed = true)
+        assertTrue(GameEngineStateUiMapper.map(revealed, input).isChoicesRevealed)
+    }
+
+    @Test
+    fun `new choice hub does not inherit previous reveal`() {
+        val previous = GameEngineStateUiMapper.map(
+            GameUiState(), GameEngineState.AwaitingInput("1A", "hub1", isUserInitiated = true)
+        )
+        val mapped = GameEngineStateUiMapper.map(previous, GameEngineState.AwaitingInput("1A", "hub2"))
+        assertFalse(mapped.isChoicesRevealed)
+    }
+
+    @Test
     fun `awaiting input enables input and disables tap`() {
         val state = GameUiState(isAwaitingTap = true)
 

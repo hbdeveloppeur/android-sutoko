@@ -2,6 +2,9 @@ package com.purpletear.game.presentation.game_preview
 
 import app.cash.turbine.test
 import com.purpletear.game.presentation.game_preview.fakes.TestFixtures
+import com.purpletear.game.presentation.model.GameUiError
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceUntilIdle
@@ -49,19 +52,20 @@ class GamePreviewCatalogStateTest {
     }
 
     @Test
-    fun `game emits NotFound when catalog is null`() = runTest {
+    fun `missing cache stays Loading before recovery`() = runTest {
         gameRepository.setGame(TestFixtures.GAME_ID, null)
         val viewModel = createViewModel()
 
         viewModel.game.test {
-            skipItems(1) // Loading
-            assertEquals(GamePreviewUiState.NotFound, awaitItem())
+            assertEquals(GamePreviewUiState.Loading, awaitItem())
+            runCurrent()
+            expectNoEvents()
         }
         assertTrue(logger.warnings.isEmpty())
     }
 
     @Test
-    fun `game emits NotFound after start logs warning`() = runTest {
+    fun `game emits NotFound only after remote confirms absence`() = runTest {
         gameRepository.setGame(TestFixtures.GAME_ID, null)
         val viewModel = createViewModel()
 
@@ -71,7 +75,7 @@ class GamePreviewCatalogStateTest {
             advanceUntilIdle()
             assertEquals(GamePreviewUiState.NotFound, awaitItem())
         }
-        assertTrue(logger.warnings.any { it.message.contains("not found locally") })
+        assertEquals(1, gameRepository.getGameCatalogCalls)
     }
 
     @Test
@@ -91,7 +95,7 @@ class GamePreviewCatalogStateTest {
     }
 
     @Test
-    fun `NotFound recovery failure keeps NotFound and attempts repository once`() = runTest {
+    fun `recovery failure emits Error and attempts repository once`() = runTest {
         gameRepository.setGame(TestFixtures.GAME_ID, null)
         gameRepository.getGameCatalogResult = Result.failure(RuntimeException("network"))
         val viewModel = createViewModel()
@@ -100,11 +104,43 @@ class GamePreviewCatalogStateTest {
             skipItems(1) // Loading
             viewModel.start()
             advanceUntilIdle()
-            assertEquals(GamePreviewUiState.NotFound, awaitItem())
+            assertEquals(GamePreviewUiState.Error(GameUiError.Load), awaitItem())
             expectNoEvents()
         }
         assertEquals(1, gameRepository.getGameCatalogCalls)
-        assertTrue(logger.warnings.any { it.message.contains("remote recovery failed") })
+        assertTrue(logger.exceptions.any { it.throwable.message == "network" })
+    }
+
+    @Test
+    fun `catalog removed after loading is recovered once per removal`() = runTest {
+        val catalog = TestFixtures.gameCatalog()
+        gameRepository.setGame(TestFixtures.GAME_ID, catalog)
+        val viewModel = createViewModel()
+        activateStateFlows(backgroundScope, viewModel)
+        viewModel.start()
+        advanceUntilIdle()
+        assertTrue(viewModel.game.value is GamePreviewUiState.Data)
+
+        val gate = CompletableDeferred<Unit>()
+        gameRepository.catalogGate = gate
+        gameRepository.getGameCatalogResult = Result.success(catalog)
+        gameRepository.setGame(TestFixtures.GAME_ID, null)
+        advanceUntilIdle()
+        assertEquals(1, gameRepository.getGameCatalogCalls)
+        assertEquals(GamePreviewUiState.Loading, viewModel.game.value)
+
+        gate.complete(Unit)
+        advanceUntilIdle()
+        assertTrue(viewModel.game.value is GamePreviewUiState.Data)
+
+        gameRepository.getGameCatalogResult = Result.success(null)
+        gameRepository.setGame(TestFixtures.GAME_ID, null)
+        advanceUntilIdle()
+        assertEquals(GamePreviewUiState.NotFound, viewModel.game.value)
+        assertEquals(2, gameRepository.getGameCatalogCalls)
+        viewModel.start()
+        advanceUntilIdle()
+        assertEquals(2, gameRepository.getGameCatalogCalls)
     }
 
     @Test
@@ -184,4 +220,51 @@ class GamePreviewCatalogStateTest {
         assertEquals(2, gameRepository.refreshGameCatalogCalls)
         assertFalse(viewModel.isRefreshing.value)
     }
+    @Test
+    fun `repeated start loads once while explicit refresh still reloads`() = runTest {
+        gameRepository.setGame(TestFixtures.GAME_ID, TestFixtures.gameCatalog())
+        val viewModel = createViewModel()
+        activateStateFlows(backgroundScope, viewModel)
+
+        viewModel.start()
+        viewModel.start()
+        advanceUntilIdle()
+        viewModel.start()
+        advanceUntilIdle()
+        assertEquals(1, gameRepository.refreshGameCatalogCalls)
+
+        viewModel.refresh()
+        advanceUntilIdle()
+        assertEquals(2, gameRepository.refreshGameCatalogCalls)
+    }
+
+    @Test
+    fun `remote recovery remains Loading until the request answers`() = runTest {
+        val gate = CompletableDeferred<Unit>()
+        gameRepository.catalogGate = gate
+        gameRepository.getGameCatalogResult = Result.success(TestFixtures.gameCatalog())
+        val vm = createViewModel()
+        activateStateFlows(backgroundScope, vm)
+        vm.start()
+        runCurrent()
+        assertEquals(GamePreviewUiState.Loading, vm.game.value)
+        gate.complete(Unit)
+        advanceUntilIdle()
+        assertTrue(vm.game.value is GamePreviewUiState.Data)
+    }
+
+    @Test
+    fun `retry restarts an observation that previously failed`() = runTest {
+        gameRepository.setError(TestFixtures.GAME_ID, IllegalStateException("database unavailable"))
+        val vm = createViewModel()
+        activateStateFlows(backgroundScope, vm)
+        vm.start()
+        runCurrent()
+        assertEquals(GamePreviewUiState.Error(GameUiError.Load), vm.game.value)
+        gameRepository.setGame(TestFixtures.GAME_ID, TestFixtures.gameCatalog())
+        vm.refresh()
+        advanceUntilIdle()
+        assertTrue(vm.game.value is GamePreviewUiState.Data)
+    }
+
 }

@@ -9,6 +9,8 @@ import com.purpletear.sutoko.core.domain.logger.Logger
 import com.purpletear.sutoko.core.domain.logger.exception
 import com.purpletear.sutoko.game.model.FriendzonedLegacyIds
 import com.purpletear.sutoko.game.model.StoryAdvanceMode
+import com.purpletear.sutoko.domain.repository.UserRepository
+import com.purpletear.sutoko.game.model.canAccessGameOptions
 import com.purpletear.sutoko.game.model.UserRole
 import com.purpletear.sutoko.game.repository.ChapterRepository
 import com.purpletear.sutoko.game.repository.MemoryRepository
@@ -39,6 +41,7 @@ class GamePreviewOptionsViewModel @Inject constructor(
     private val restartGameUseCase: RestartGameUseCase,
     private val memoryRepository: MemoryRepository,
     private val userRoleRepository: UserRoleRepository,
+    private val userRepository: UserRepository,
     private val storyAdvanceModeRepository: StoryAdvanceModeRepository,
     private val toastService: ToastService,
     private val logger: Logger,
@@ -46,6 +49,10 @@ class GamePreviewOptionsViewModel @Inject constructor(
 
     private val gameId: String =
         checkNotNull(savedStateHandle["gameId"]) { "gameId required in SavedStateHandle" }
+
+    val canAccessOptions: StateFlow<Boolean> = userRepository.observeUser()
+        .map { it.canAccessGameOptions() }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(7000), false)
 
     val role: StateFlow<UserRole> = userRoleRepository.observe()
         .stateIn(
@@ -112,6 +119,7 @@ class GamePreviewOptionsViewModel @Inject constructor(
         val code = rawCode.trim()
         if (code.isEmpty() || actionJob?.isActive == true) return
         actionJob = viewModelScope.launch {
+            if (!userRepository.observeUser().first().canAccessGameOptions()) return@launch
             val chapter = chapterRepository.observeChapters(gameId).first()
                 .firstOrNull { it.normalizedCode == code.lowercase() }
             if (chapter == null) {
@@ -129,12 +137,14 @@ class GamePreviewOptionsViewModel @Inject constructor(
 
     fun onRoleSelected(role: UserRole) {
         viewModelScope.launch {
+            if (!userRepository.observeUser().first().canAccessGameOptions()) return@launch
             userRoleRepository.set(role)
         }
     }
 
     fun onAdvanceModeSelected(mode: StoryAdvanceMode) {
         viewModelScope.launch {
+            if (!userRepository.observeUser().first().canAccessGameOptions()) return@launch
             storyAdvanceModeRepository.set(mode)
         }
     }
@@ -142,6 +152,7 @@ class GamePreviewOptionsViewModel @Inject constructor(
     fun onRestartConfirmed() {
         if (actionJob?.isActive == true) return
         actionJob = viewModelScope.launch {
+            if (!userRepository.observeUser().first().canAccessGameOptions()) return@launch
             restartGameUseCase(gameId, legacyId = legacyId.value)
                 .onSuccess { toastService(R.string.game_presentation_game_restart_success) }
                 .onFailure { error ->
@@ -154,6 +165,7 @@ class GamePreviewOptionsViewModel @Inject constructor(
     fun onDeleteMemoriesConfirmed() {
         if (actionJob?.isActive == true) return
         actionJob = viewModelScope.launch {
+            if (!userRepository.observeUser().first().canAccessGameOptions()) return@launch
             try {
                 memoryRepository.delete(gameId)
                 toastService(R.string.game_presentation_options_delete_memories_success)

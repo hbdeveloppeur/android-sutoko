@@ -4,6 +4,7 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Transaction
 import com.purpletear.game.data.local.entity.MemoryEntity
 import kotlinx.coroutines.flow.Flow
 
@@ -16,13 +17,32 @@ interface MemoryDao {
     /**
      * Gets all memories for a specific game up to and including the given chapter number.
      */
-    @Query("SELECT * FROM game_memories WHERE gameId = :gameId AND chapterNumber <= :upToChapterNumber")
+    @Query("""
+        SELECT memory.* FROM game_memories AS memory
+        WHERE memory.gameId = :gameId AND memory.chapterNumber = (
+            SELECT MAX(history.chapterNumber) FROM game_memories AS history
+            WHERE history.gameId = memory.gameId AND history.key = memory.key
+                AND history.chapterNumber <= :upToChapterNumber
+        )
+    """)
     suspend fun getAllForGameUpToChapter(gameId: String, upToChapterNumber: Int): List<MemoryEntity>
 
+    @Transaction
+    suspend fun loadBeforeChapter(gameId: String, chapterNumber: Int): List<MemoryEntity> {
+        deleteFromChapter(gameId, chapterNumber)
+        return getAllForGameUpToChapter(gameId, chapterNumber)
+    }
+
     /**
-     * Observes all memories for a specific game.
+     * Observes the latest value of each memory for a specific game.
      */
-    @Query("SELECT * FROM game_memories WHERE gameId = :gameId")
+    @Query("""
+        SELECT memory.* FROM game_memories AS memory
+        WHERE memory.gameId = :gameId AND memory.chapterNumber = (
+            SELECT MAX(history.chapterNumber) FROM game_memories AS history
+            WHERE history.gameId = memory.gameId AND history.key = memory.key
+        )
+    """)
     fun observeAllForGame(gameId: String): Flow<List<MemoryEntity>>
 
     /**

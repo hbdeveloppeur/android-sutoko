@@ -102,11 +102,14 @@ class ChapterGraphRepositoryImpl @Inject constructor(
             }
             Log.d("ChapterGraph", "chapter=$chapterCode layout.json=${if (layoutFile.exists()) "found" else "missing"} rightSideIds=${layout?.sides?.right.orEmpty()}")
 
-            val chapterNumber = chapterDao.getByStoryAndCode(gameId, chapterCode)?.number ?: 1
+            val chapter = requireNotNull(chapterDao.getByStoryAndCode(gameId, chapterCode)) {
+                "Chapter metadata not found for story $gameId and chapter $chapterCode"
+            }
+            require(chapter.number > 0) { "Invalid chapter number for $chapterCode: ${chapter.number}" }
 
             val graph = ChapterGraphParser.parse(
                 chapterCode = chapterCode,
-                chapterNumber = chapterNumber,
+                chapterNumber = chapter.number,
                 metadata = metadata,
                 nodeDtos = nodeDtos,
                 edgeDtos = edgeDtos,

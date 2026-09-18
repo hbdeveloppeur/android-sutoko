@@ -26,6 +26,10 @@
         tools:ignore="GoogleAppIndexingWarning"
         tools:replace="android:icon,android:theme,android:name,android:label">
 
+        <meta-data
+            android:name="com.google.android.gms.ads.APPLICATION_ID"
+            android:value="${admobAppId}" />
+
         <service
             android:name=".fcm.MyFirebaseMessagingService"
             android:exported="false"

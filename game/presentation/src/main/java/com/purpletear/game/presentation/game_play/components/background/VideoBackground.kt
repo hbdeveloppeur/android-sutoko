@@ -51,9 +51,12 @@ fun VideoBackground(
     Box(modifier = modifier) {
         AndroidView(
             factory = { ctx ->
-                (LayoutInflater.from(ctx)
-                    .inflate(R.layout.game_presentation_video_background, null, false) as PlayerView).apply {
-                    player = exoPlayer
+                LayoutInflater.from(ctx)
+                    .inflate(R.layout.game_presentation_video_background, null, false) as PlayerView
+            },
+            update = { view ->
+                if (view.player !== exoPlayer) {
+                    view.player = exoPlayer
                 }
             },
             modifier = Modifier.fillMaxSize()

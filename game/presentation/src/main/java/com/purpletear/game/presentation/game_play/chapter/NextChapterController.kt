@@ -37,7 +37,10 @@ class NextChapterController(
 
     fun onNextChapterClicked(isAvailable: Boolean) {
         if (!isAvailable) return
-        pendingChapterCode?.let { _navigateToNextChapter.trySend(it) }
+        val chapterCode = pendingChapterCode ?: return
+        if (_navigateToNextChapter.trySend(chapterCode).isSuccess) {
+            pendingChapterCode = null
+        }
     }
 
     fun reset() {

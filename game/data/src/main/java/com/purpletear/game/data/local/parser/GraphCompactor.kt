@@ -19,17 +19,25 @@ internal object GraphCompactor {
             return nodeDtos to edgeDtos
         }
 
+        // Only ignored nodes keep the "fan-out drops incoming edges" semantics;
+        // blank narrations/intro-sentences with fan-out are spliced instead so
+        // the choice hub they feed stays reachable.
+        val splicedFanOutIds = nodeDtos
+            .filter { it.id in bypassedNodeIds && it.type != "ignore" }
+            .map { it.id }
+            .toSet()
+
         val bypassTargets = bypassedNodeIds.associateWith { id ->
-            resolveBypassTarget(id, bypassedNodeIds, edgeDtos)
+            resolveBypassTargets(id, bypassedNodeIds, splicedFanOutIds, edgeDtos)
         }
 
-        val compactedEdges = edgeDtos.mapNotNull { edge ->
+        val compactedEdges = edgeDtos.flatMap { edge ->
             when {
-                edge.source in bypassedNodeIds -> null
+                edge.source in bypassedNodeIds -> emptyList()
                 edge.target in bypassedNodeIds ->
-                    bypassTargets[edge.target]?.let { edge.copy(target = it) }
+                    bypassTargets[edge.target].orEmpty().map { edge.copy(target = it) }
 
-                else -> edge
+                else -> listOf(edge)
             }
         }
 
@@ -38,22 +46,41 @@ internal object GraphCompactor {
     }
 
     /**
-     * Walks the outgoing chain of a bypassed node until the first non-bypassed node.
-     * Returns null on dead ends (zero/multiple outgoing edges) and on cycles.
+     * Walks the outgoing chains of a bypassed node until every path reaches a
+     * non-bypassed node. A bypassed node that fans out (e.g. an empty narration
+     * feeding a choice hub) is spliced: each incoming edge is retargeted to all
+     * of its reachable successors. Fan-out on nodes outside [splicedFanOutIds]
+     * (ignored nodes) resolves to null. Returns null when no successor is
+     * reachable (dead end) and skips cycles.
      */
-    private fun resolveBypassTarget(
+    private fun resolveBypassTargets(
         startId: String,
         bypassedNodeIds: Set<String>,
+        splicedFanOutIds: Set<String>,
         edgeDtos: List<EdgeDto>
-    ): String? {
+    ): List<String>? {
         val visited = mutableSetOf<String>()
-        var current = startId
-        while (current in bypassedNodeIds && visited.add(current)) {
+        val targets = mutableListOf<String>()
+        val seenTargets = mutableSetOf<String>()
+        val queue = ArrayDeque(listOf(startId))
+        while (queue.isNotEmpty()) {
+            val current = queue.removeFirst()
+            if (current !in bypassedNodeIds) {
+                if (seenTargets.add(current)) targets.add(current)
+                continue
+            }
+            if (!visited.add(current)) continue
             val outgoing = edgeDtos.filter { it.source == current }
-            if (outgoing.size != 1) return null
-            current = outgoing.first().target
+            when (outgoing.size) {
+                0 -> return null
+                1 -> queue.add(outgoing.first().target)
+                else -> {
+                    if (current !in splicedFanOutIds) return null
+                    outgoing.forEach { queue.add(it.target) }
+                }
+            }
         }
-        return current.takeIf { it !in bypassedNodeIds }
+        return targets.takeIf { it.isNotEmpty() }
     }
 
     private fun NodeDto.isBypassed(edgeDtos: List<EdgeDto>): Boolean = when (type) {

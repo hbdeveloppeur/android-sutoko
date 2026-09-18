@@ -29,6 +29,7 @@ internal data class ButtonUiState(
     val backgroundColor: Color = RightButtonBackground,
     val isEnabled: Boolean = true,
     val isLoading: Boolean = false,
+    val progress: Float? = null,
     val icon: Icon? = null,
     val onClick: (() -> Unit)? = null,
 )
@@ -130,16 +131,26 @@ internal fun GameActionState?.toButtonsState(
         ),
     )
 
+    GameActionState.PreparingDownload -> GameButtonsState(
+        right = downloadActivityButton(R.string.game_presentation_game_menu_preparing_download),
+    )
+
+    GameActionState.Installing -> GameButtonsState(
+        right = downloadActivityButton(R.string.game_presentation_game_menu_installing),
+    )
+
     is GameActionState.Downloading -> GameButtonsState(
         right = ButtonUiState(
             weight = 1f,
             title = StringResource(R.string.game_presentation_game_menu_downloading),
-            subtitle = StringResource(
-                R.string.game_presentation_game_menu_download_progress_percent,
-                // progress is a 0f..1f fraction: scale it to a percent or the
-                // button would display "0%" for the whole download.
-                (progress * 100).toInt().coerceIn(0, 100)
-            ),
+            subtitle = progress?.let {
+                StringResource(
+                    R.string.game_presentation_game_menu_download_progress_percent,
+                    (it * 100).toInt().coerceIn(0, 100)
+                )
+            },
+            progress = progress,
+            isLoading = progress == null,
             backgroundColor = InfoBlue,
         ),
     )
@@ -174,6 +185,13 @@ internal fun GameActionState?.toButtonsState(
         ),
     )
 }
+
+private fun downloadActivityButton(title: Int) = ButtonUiState(
+    weight = 1f,
+    title = StringResource(title),
+    backgroundColor = InfoBlue,
+    isLoading = true,
+)
 
 private fun deleteLeftButton(
     onAction: (GamePreviewAction) -> Unit,

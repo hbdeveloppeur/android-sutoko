@@ -1,37 +1,34 @@
 package com.purpletear.game.presentation.game_play.components.message
 
-import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
+import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-
-private const val FADE_IN_DURATION_MS = 250
-private const val FADE_OUT_DURATION_MS = 200
+import androidx.compose.ui.graphics.graphicsLayer
 
 @Composable
 internal fun FadeInMessageContainer(
     animate: Boolean,
     modifier: Modifier = Modifier,
-    content: @Composable () -> Unit
+    durationMillis: Int = 250,
+    content: @Composable () -> Unit,
 ) {
-    var visible by remember { mutableStateOf(!animate) }
-    LaunchedEffect(animate) {
-        if (animate) visible = true
+    var hasAppeared by rememberSaveable { mutableStateOf(false) }
+    val shouldAnimate = animate && !hasAppeared
+    val alpha = remember { Animatable(if (shouldAnimate) 0f else 1f) }
+    LaunchedEffect(Unit) {
+        hasAppeared = true
+        if (shouldAnimate) alpha.animateTo(1f, tween(durationMillis))
     }
 
-    AnimatedVisibility(
-        visible = visible,
-        modifier = modifier,
-        enter = fadeIn(animationSpec = tween(FADE_IN_DURATION_MS)),
-        exit = fadeOut(animationSpec = tween(FADE_OUT_DURATION_MS))
-    ) {
+    Box(modifier.graphicsLayer { this.alpha = alpha.value }) {
         content()
     }
 }

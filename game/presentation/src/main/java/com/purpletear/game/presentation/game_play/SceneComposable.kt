@@ -31,9 +31,11 @@ private const val FILTER_FADE_DURATION: Int = 1200
 @Composable
 internal fun SceneComposable(
     scene: Scene?,
+    onSceneReady: (Scene) -> Unit = {},
 ) {
     var displayedScene by remember { mutableStateOf<Scene?>(null) }
     var filterIsVisible by remember { mutableStateOf(true) }
+    var isOpeningScene by remember { mutableStateOf(true) }
 
     LaunchedEffect(scene) {
         if (null == scene) {
@@ -42,7 +44,10 @@ internal fun SceneComposable(
             return@LaunchedEffect
         }
         filterIsVisible = true
-        delay(FILTER_FADE_DURATION.toLong())
+        if (displayedScene != null) {
+            isOpeningScene = false
+            delay(FILTER_FADE_DURATION.toLong())
+        }
         displayedScene = scene
     }
 
@@ -50,10 +55,11 @@ internal fun SceneComposable(
         scene = displayedScene,
         onLoaded = {
             filterIsVisible = false
+            displayedScene?.let(onSceneReady)
         }
     )
 
-    MainFilter(isVisible = filterIsVisible)
+    MainFilter(isVisible = filterIsVisible, exitDurationMillis = if (isOpeningScene) 0 else FILTER_FADE_DURATION)
 }
 
 @Composable
@@ -63,12 +69,17 @@ private fun SceneContent(
 ) {
     when (scene?.configuration?.backgroundType) {
         BackgroundType.VIDEO -> {
-            val fullPath = scene.configuration.resolvedPath ?: return
+            val fullPath = scene.configuration.resolvedPath
+            if (fullPath == null) {
+                LaunchedEffect(scene) { onLoaded() }
+                return
+            }
             VideoBackground(
                 videoPath = fullPath,
                 onStarted = onLoaded,
                 onError = { error ->
                     Log.e("VideoBackground", "Failed to load video: $fullPath", error)
+                    onLoaded()
                 }
             )
 
@@ -78,12 +89,17 @@ private fun SceneContent(
         }
 
         BackgroundType.IMAGE -> {
-            val fullPath = scene.configuration.resolvedPath ?: return
+            val fullPath = scene.configuration.resolvedPath
+            if (fullPath == null) {
+                LaunchedEffect(scene) { onLoaded() }
+                return
+            }
             ImageBackground(
                 imagePath = fullPath,
-                onStarted = onLoaded,
+                onLoaded = onLoaded,
                 onError = { error ->
                     Log.e("ImageBackground", "Failed to load image: $fullPath", error)
+                    onLoaded()
                 }
             )
 
@@ -93,14 +109,14 @@ private fun SceneContent(
         }
 
         BackgroundType.COLOR -> {
-            onLoaded()
+            LaunchedEffect(scene) { onLoaded() }
             val filterColor = scene.configuration.filterColorCode
             val filterOpacity = scene.configuration.filterOpacity
             Filter(colorCode = filterColor, opacity = filterOpacity)
         }
 
         else -> {
-
+            if (scene != null) LaunchedEffect(scene) { onLoaded() }
         }
     }
 }
@@ -119,11 +135,11 @@ private fun Filter(colorCode: String?, opacity: Int) {
 
 
 @Composable
-private fun MainFilter(isVisible: Boolean) {
+private fun MainFilter(isVisible: Boolean, exitDurationMillis: Int) {
     AnimatedVisibility(
         visible = isVisible,
         enter = fadeIn(tween(durationMillis = FILTER_FADE_DURATION)),
-        exit = fadeOut(tween(durationMillis = FILTER_FADE_DURATION)),
+        exit = fadeOut(tween(durationMillis = exitDurationMillis)),
     )
     {
 

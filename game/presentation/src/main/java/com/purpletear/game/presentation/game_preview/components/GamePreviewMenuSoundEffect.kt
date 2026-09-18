@@ -1,15 +1,21 @@
 package com.purpletear.game.presentation.game_preview.components
 
-import android.media.AudioAttributes
-import android.media.MediaPlayer
+import android.content.Context
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.media3.common.AudioAttributes
+import androidx.media3.common.C
+import androidx.media3.common.MediaItem
+import androidx.media3.common.PlaybackException
+import androidx.media3.common.Player
+import androidx.media3.exoplayer.ExoPlayer
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -18,12 +24,7 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-/**
- * Plays the story's menu ambience on the GamePreview screen while [muted] is
- * false and the screen is resumed. Fades in over 1s up to 70% volume, loops
- * with a 5s pause between loops, and fades out over 1s when paused, muted or
- * leaving the screen.
- */
+/** Resumed menu ambience with audio focus, volume fades and a pause between loops. */
 @Composable
 fun GamePreviewMenuSoundEffect(
     soundUrl: String?,
@@ -31,12 +32,11 @@ fun GamePreviewMenuSoundEffect(
 ) {
     if (soundUrl.isNullOrBlank()) return
 
+    val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
-    val lifecycleState by lifecycleOwner.lifecycle.currentStateFlow
-        .collectAsStateWithLifecycle()
-
-    val player = remember(soundUrl) {
-        GamePreviewMenuSoundPlayer(soundUrl)
+    val lifecycleState by lifecycleOwner.lifecycle.currentStateFlow.collectAsState()
+    val player = remember(context, soundUrl) {
+        GamePreviewMenuSoundPlayer(context.applicationContext, soundUrl)
     }
     DisposableEffect(player) {
         onDispose { player.release() }
@@ -46,50 +46,48 @@ fun GamePreviewMenuSoundEffect(
     }
 }
 
-/**
- * Small MediaPlayer wrapper for the preview menu ambience. All public calls
- * are main-thread; callbacks arrive on the main thread because the player is
- * created on it. [release] is terminal and idempotent.
- */
-private class GamePreviewMenuSoundPlayer(
-    soundUrl: String,
-) {
+private class GamePreviewMenuSoundPlayer(context: Context, soundUrl: String) {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
-    private val player = MediaPlayer()
+    private val player = ExoPlayer.Builder(context).build()
     private var fadeJob: Job? = null
     private var loopJob: Job? = null
-    private var volume = 0f
     private var released = false
-    private var prepared = false
     private var wantsPlaying = false
 
     init {
         player.setAudioAttributes(
             AudioAttributes.Builder()
-                .setUsage(AudioAttributes.USAGE_MEDIA)
-                .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
-                .build()
+                .setUsage(C.USAGE_MEDIA)
+                .setContentType(C.AUDIO_CONTENT_TYPE_MUSIC)
+                .build(),
+            true,
         )
-        player.setOnPreparedListener {
-            prepared = true
-            if (wantsPlaying) startPlayback()
-        }
-        player.setOnCompletionListener { scheduleNextLoop() }
-        player.setOnErrorListener { _, _, _ ->
-            release()
-            true
-        }
-        runCatching {
-            player.setDataSource(soundUrl)
-            player.prepareAsync()
-        }.onFailure { release() }
+        player.setHandleAudioBecomingNoisy(true)
+        player.volume = 0f
+        player.addListener(object : Player.Listener {
+            override fun onPlaybackStateChanged(playbackState: Int) {
+                if (playbackState == Player.STATE_ENDED) scheduleNextLoop()
+            }
+
+            override fun onPlayWhenReadyChanged(playWhenReady: Boolean, reason: Int) {
+                if (!playWhenReady && (
+                        reason == Player.PLAY_WHEN_READY_CHANGE_REASON_AUDIO_FOCUS_LOSS ||
+                            reason == Player.PLAY_WHEN_READY_CHANGE_REASON_AUDIO_BECOMING_NOISY
+                        )) {
+                    loopJob?.cancel()
+                    fadeJob?.cancel()
+                }
+            }
+
+            override fun onPlayerError(error: PlaybackException) = release()
+        })
+        player.setMediaItem(MediaItem.fromUri(soundUrl))
+        player.prepare()
     }
 
-    /** Idempotent: only state transitions trigger fades. */
     fun setPlaying(playing: Boolean) {
         if (released || wantsPlaying == playing) return
         wantsPlaying = playing
-        if (!prepared) return
         if (playing) startPlayback() else stopPlayback()
     }
 
@@ -97,12 +95,13 @@ private class GamePreviewMenuSoundPlayer(
         if (released) return
         released = true
         scope.cancel()
-        runCatching { player.release() }
+        player.release()
     }
 
     private fun startPlayback() {
         loopJob?.cancel()
-        runCatching { if (!player.isPlaying) player.start() }
+        if (player.playbackState == Player.STATE_ENDED) player.seekTo(0)
+        player.play()
         fadeTo(MAX_VOLUME)
     }
 
@@ -111,17 +110,18 @@ private class GamePreviewMenuSoundPlayer(
         fadeJob?.cancel()
         fadeJob = scope.launch {
             fadeStep(0f)
-            runCatching { if (player.isPlaying) player.pause() }
+            player.pause()
         }
     }
 
     private fun scheduleNextLoop() {
-        volume = 0f
-        applyVolume()
+        fadeJob?.cancel()
+        player.volume = 0f
+        loopJob?.cancel()
         loopJob = scope.launch {
             delay(LOOP_GAP_MS)
-            if (released || !wantsPlaying) return@launch
-            startPlayback()
+            // Focus loss or disconnected headphones must not restart playback.
+            if (wantsPlaying && player.playWhenReady) startPlayback()
         }
     }
 
@@ -131,18 +131,12 @@ private class GamePreviewMenuSoundPlayer(
     }
 
     private suspend fun fadeStep(target: Float) {
-        val start = volume
-        val steps = (FADE_DURATION_MS / FADE_STEP_MS).toInt().coerceAtLeast(1)
+        val start = player.volume
+        val steps = (FADE_DURATION_MS / FADE_STEP_MS).toInt()
         repeat(steps) { i ->
-            volume = start + (target - start) * (i + 1) / steps
-            applyVolume()
+            player.volume = start + (target - start) * (i + 1) / steps
             delay(FADE_STEP_MS)
         }
-    }
-
-    private fun applyVolume() {
-        if (released) return
-        runCatching { player.setVolume(volume, volume) }
     }
 
     private companion object {

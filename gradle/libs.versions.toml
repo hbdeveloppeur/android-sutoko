@@ -53,6 +53,7 @@ kittinunf-fuel = "2.3.1"
 work-runtime = "2.9.1"
 startupRuntime = "1.2.0"
 userMessagingPlatform = "3.1.0"
+googleMobileAds = "24.9.0"
 media3Ui = "1.5.1"
 media3Exoplayer = "1.5.1"
 runtime = "1.7.6"
@@ -183,6 +184,7 @@ accompanist-systemuicontroller = { group = "com.google.accompanist", name = "acc
 androidx-constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "androidx-constraintlayout" }
 
 
+google-mobile-ads = { module = "com.google.android.gms:play-services-ads", version.ref = "googleMobileAds" }
 user-messaging-platform = { module = "com.google.android.ump:user-messaging-platform", version.ref = "userMessagingPlatform" }
 
 androidx-media3-ui = { group = "androidx.media3", name = "media3-ui", version.ref = "media3Ui" }

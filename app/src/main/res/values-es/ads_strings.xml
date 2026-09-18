@@ -1,0 +1,4 @@
+<resources>
+    <string name="sutoko_ad_privacy_options">Privacidad de los anuncios</string>
+    <string name="sutoko_ad_privacy_error">La configuración de privacidad no está disponible. Inténtalo de nuevo.</string>
+</resources>

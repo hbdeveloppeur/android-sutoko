@@ -1,6 +1,8 @@
 package com.purpletear.sutoko.game.repository.game
 
 import com.purpletear.sutoko.game.model.game.GameCatalog
+import com.purpletear.sutoko.game.model.game.GameDownloadRequest
+import com.purpletear.sutoko.game.model.game.GameDownloadState
 import com.purpletear.sutoko.game.model.game.GameInstall
 import kotlinx.coroutines.flow.Flow
 
@@ -13,6 +15,14 @@ interface GameInstallRepository {
         gameVersion: String,
         legacyId: Int? = null,
     ): Flow<Float>
+
+    /** Owns preparation, transfer, installation, and a retained terminal outcome. */
+    fun download(
+        gameId: String,
+        resolveRequest: suspend () -> GameDownloadRequest,
+    ): Flow<Float>
+
+    fun observeDownloadState(gameId: String): Flow<GameDownloadState?>
 
     fun observeDownloadProgress(gameId: String): Flow<Float?>
     fun observeDownloadProgresses(): Flow<Map<String, Float>>

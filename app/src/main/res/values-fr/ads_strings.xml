@@ -1,0 +1,4 @@
+<resources>
+    <string name="sutoko_ad_privacy_options">Confidentialité des annonces</string>
+    <string name="sutoko_ad_privacy_error">Les paramètres de confidentialité sont indisponibles. Veuillez réessayer.</string>
+</resources>

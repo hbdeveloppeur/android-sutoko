@@ -102,5 +102,17 @@ class GameButtonsStateTest {
 
         val subtitle = buttons.right.subtitle as UiText.StringResource
         assertEquals(42, subtitle.args.first())
+        assertEquals(0.42f, buttons.right.progress)
+        assertFalse(buttons.right.isLoading)
+    }
+
+    @Test
+    fun `unknown download and installation show activity without a misleading percentage`() {
+        listOf(GameActionState.PreparingDownload, GameActionState.Downloading(null), GameActionState.Installing).forEach { state ->
+            val button = buttonsFor(state) {}.right
+            assertTrue(button.isLoading)
+            assertNull(button.progress)
+            assertNull(button.subtitle)
+        }
     }
 }

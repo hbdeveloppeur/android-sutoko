@@ -18,8 +18,7 @@ class MemoryRepositoryImpl @Inject constructor(
 ) : MemoryRepository {
 
     override suspend fun load(gameId: String, upToChapterNumber: Int): Map<String, MemoryEntry> {
-        memoryDao.deleteFromChapter(gameId, upToChapterNumber)
-        return memoryDao.getAllForGameUpToChapter(gameId, upToChapterNumber)
+        return memoryDao.loadBeforeChapter(gameId, upToChapterNumber)
             .associate { it.key to MemoryEntry(it.value, it.chapterNumber) }
     }
 

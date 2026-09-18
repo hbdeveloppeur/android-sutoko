@@ -4,6 +4,7 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Transaction
 import com.purpletear.game.data.local.entity.ChapterEntity
 import kotlinx.coroutines.flow.Flow
 
@@ -21,6 +22,17 @@ interface ChapterDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertAll(chapters: List<ChapterEntity>)
 
+    @Transaction
+    suspend fun replaceAllForStory(storyId: String, chapters: List<ChapterEntity>) {
+        require(chapters.all { it.story == storyId }) { "Chapter belongs to another story" }
+        require(chapters.map { it.id }.toSet().size == chapters.size) { "Duplicate chapter id" }
+        require(chapters.map { it.code.lowercase() }.toSet().size == chapters.size) {
+            "Duplicate chapter code"
+        }
+        deleteAllForStory(storyId)
+        insertAll(chapters)
+    }
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(chapter: ChapterEntity)
 
@@ -33,10 +45,10 @@ interface ChapterDao {
     @Query("SELECT COUNT(*) FROM chapters WHERE story = :storyId")
     suspend fun getCountForStory(storyId: String): Int
 
-    @Query("SELECT * FROM chapters WHERE story = :storyId AND code = :code LIMIT 1")
+    @Query("SELECT * FROM chapters WHERE story = :storyId AND code = :code COLLATE NOCASE LIMIT 1")
     suspend fun getByStoryAndCode(storyId: String, code: String): ChapterEntity?
 
-    @Query("SELECT * FROM chapters WHERE story = :storyId AND code = :code LIMIT 1")
+    @Query("SELECT * FROM chapters WHERE story = :storyId AND code = :code COLLATE NOCASE LIMIT 1")
     fun observeByStoryAndCode(storyId: String, code: String): Flow<ChapterEntity?>
 
     @Query("SELECT DISTINCT story FROM chapters WHERE releaseDate > :nowSeconds")

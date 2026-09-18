@@ -1,5 +1,6 @@
 package fr.sutoko.inapppurchase.application.data
 
+import android.util.Log
 import com.purpletear.sutoko.core.domain.analytics.AnalyticsTracker
 import fr.sutoko.inapppurchase.application.data.local.PurchaseDao
 import fr.sutoko.inapppurchase.application.data.local.PurchaseEntity
@@ -164,6 +165,7 @@ class PurchaseRepositoryImpl @Inject constructor(
                 backendRegistered = false,
             )
         )
+        Log.d("PayFlow", "savePurchase sku=$sku order=${receipt.orderId} token=${receipt.purchaseToken.take(12)}…")
     }
 
     override suspend fun queryProductDetails(sku: String): Result<Product> =

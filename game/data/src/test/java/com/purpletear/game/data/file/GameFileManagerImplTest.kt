@@ -1,6 +1,7 @@
 package com.purpletear.game.data.file
 
 import com.purpletear.game.data.provider.AndroidGamePathProvider
+import com.purpletear.sutoko.game.model.game.GameDownloadState
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -39,12 +40,12 @@ class GameFileManagerImplTest {
         )
 
         val downloadUrl = startServer(archiveBytes)
-        val progressValues = mutableListOf<Float>()
+        val states = mutableListOf<GameDownloadState>()
 
         val returnedPath = fileManager.downloadAndExtract(
             gameId = gameId,
             downloadUrl = downloadUrl,
-            onProgress = { progressValues.add(it) }
+            onState = { states.add(it) }
         )
 
         assertEquals(expectedGameDir.absolutePath, returnedPath)
@@ -52,8 +53,10 @@ class GameFileManagerImplTest {
             "Expected scenes index at ${scenesFile.absolutePath}",
             scenesFile.exists()
         )
+        val progressValues = states.filterIsInstance<GameDownloadState.Downloading>().mapNotNull { it.progress }
         assertTrue(progressValues.isNotEmpty())
-        assertTrue(progressValues.all { it in 0f..0.99f })
+        assertEquals(1f, progressValues.last())
+        assertEquals(GameDownloadState.Installing, states.last())
     }
 
     @Test
@@ -70,7 +73,7 @@ class GameFileManagerImplTest {
             fileManager.downloadAndExtract(
                 gameId = "evil",
                 downloadUrl = downloadUrl,
-                onProgress = {}
+                onState = {}
             )
         } catch (e: SecurityException) {
             threw = true
@@ -94,7 +97,7 @@ class GameFileManagerImplTest {
             fileManager.downloadAndExtract(
                 gameId = gameId,
                 downloadUrl = downloadUrl,
-                onProgress = {}
+                onState = {}
             )
         } catch (e: IOException) {
             threw = true
@@ -122,7 +125,7 @@ class GameFileManagerImplTest {
             fileManager.downloadAndExtract(
                 gameId = gameId,
                 downloadUrl = downloadUrl,
-                onProgress = {}
+                onState = {}
             )
         } catch (e: IOException) {
             threw = true
@@ -135,7 +138,26 @@ class GameFileManagerImplTest {
         )
     }
 
-    private fun startServer(body: ByteArray, reportedLength: Int = body.size): String {
+    @Test
+    fun `download without content length stays indeterminate until installation`() = runTest {
+        val gamesDir = temporaryFolder.newFolder("unknown-size")
+        val fileManager = GameFileManagerImpl(FakeAndroidGamePathProvider(gamesDir))
+        val archiveBytes = createZipArchiveBytes("chapters/en/1a/nodes.json" to "[]")
+        val states = mutableListOf<GameDownloadState>()
+
+        fileManager.downloadAndExtract(
+            gameId = "game",
+            downloadUrl = startServer(archiveBytes, reportedLength = null),
+            onState = { states.add(it) },
+        )
+
+        val transferStates = states.filterIsInstance<GameDownloadState.Downloading>()
+        assertTrue(transferStates.isNotEmpty())
+        assertTrue(transferStates.all { it.progress == null })
+        assertEquals(GameDownloadState.Installing, states.last())
+    }
+
+    private fun startServer(body: ByteArray, reportedLength: Int? = body.size): String {
         val server = ServerSocket(0)
         val port = server.localPort
 
@@ -150,7 +172,7 @@ class GameFileManagerImplTest {
         return "http://127.0.0.1:$port/game.zip"
     }
 
-    private fun serve(socket: Socket, body: ByteArray, reportedLength: Int) {
+    private fun serve(socket: Socket, body: ByteArray, reportedLength: Int?) {
         socket.getInputStream().bufferedReader().use { reader ->
             socket.getOutputStream().use { output ->
                 readRequest(reader)
@@ -158,7 +180,7 @@ class GameFileManagerImplTest {
                 val writer = PrintWriter(output.bufferedWriter(), true)
                 writer.println("HTTP/1.1 200 OK")
                 writer.println("Content-Type: application/zip")
-                writer.println("Content-Length: $reportedLength")
+                if (reportedLength != null) writer.println("Content-Length: $reportedLength")
                 writer.println("Connection: close")
                 writer.println()
                 output.write(body)

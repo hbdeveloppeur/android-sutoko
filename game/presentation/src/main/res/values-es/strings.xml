@@ -59,6 +59,8 @@
     <string name="game_presentation_game_menu_coins">%1$d monedas</string>
     <string name="game_presentation_game_menu_download_game">Descargar el juego</string>
     <string name="game_presentation_game_menu_downloading">Descargando…</string>
+    <string name="game_presentation_game_menu_preparing_download">Preparando descarga…</string>
+    <string name="game_presentation_game_menu_installing">Instalando…</string>
     <string name="game_presentation_game_menu_download_progress">%.1f%%</string>
     <string name="game_presentation_game_menu_download_progress_percent">%d%%</string>
     <string name="game_presentation_game_menu_reload_game">Recargar el juego</string>
@@ -151,6 +153,8 @@
     <string name="game_presentation_message_manga_prompt">Te espera una página de manga</string>
     <string name="game_presentation_message_manga_open">Abrir</string>
     <string name="game_presentation_message_next_chapter_title">Fin del capítulo</string>
+    <string name="game_presentation_message_next_chapter_play_button">Ir al siguiente capítulo</string>
+    <string name="game_presentation_message_next_chapter_unlock_button">Desbloquear el siguiente capítulo con un anuncio</string>
     <string name="game_presentation_message_next_chapter_button">Próximo capítulo</string>
     <string name="game_presentation_message_trial_finished_title">Prueba terminada</string>
     <string name="game_presentation_message_trial_finished_button">Comprar la historia</string>

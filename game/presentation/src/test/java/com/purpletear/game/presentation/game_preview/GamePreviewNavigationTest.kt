@@ -6,6 +6,7 @@ import com.purpletear.game.presentation.game_preview.events.GamePreviewEvent
 import com.purpletear.game.presentation.game_preview.fakes.TestFixtures
 import com.purpletear.sutoko.game.model.Chapter
 import com.purpletear.sutoko.game.model.UserRole
+import com.purpletear.sutoko.game.model.game.GameDownloadState
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
@@ -94,6 +95,8 @@ class GamePreviewNavigationTest {
                 assertTrue(event.isTrial)
                 assertEquals("1a", event.chapterCode)
             }
+            val game = (expectMostRecentItem() as GamePreviewUiState.Data).item
+            assertEquals(GameDownloadState.Completed(game.version), game.downloadState)
         }
     }
 

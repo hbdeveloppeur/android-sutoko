@@ -1,137 +1,102 @@
 package com.purpletear.game.presentation.game_preview
 
-import android.media.MediaPlayer
-import android.view.Gravity
-import android.view.ViewGroup.LayoutParams.MATCH_PARENT
-import android.widget.FrameLayout
-import android.widget.VideoView
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
+import android.view.LayoutInflater
+import android.view.View
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.viewinterop.AndroidView
-import androidx.core.net.toUri
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.media3.common.AudioAttributes
+import androidx.media3.common.MediaItem
+import androidx.media3.common.PlaybackException
+import androidx.media3.common.Player
+import androidx.media3.exoplayer.ExoPlayer
+import androidx.media3.ui.PlayerView
+import com.purpletear.game.presentation.R
 
-/**
- * A background media component that displays a video
- * The component plays a video that loops
- *
- * @param videoUrl URL of the video to play.
- * @param onFirstFrame Called once when the first video frame is rendered.
- */
+/** Silent, cropped background video. TextureView participates in Compose transitions. */
 @Composable
 internal fun BackgroundMedia(
     videoUrl: String,
     modifier: Modifier = Modifier,
+    playWhenReady: Boolean = true,
     onFirstFrame: () -> Unit = {},
+    onError: () -> Unit = {},
 ) {
-    // Remember the VideoView reference
-    var videoView by remember { mutableStateOf<VideoView?>(null) }
+    val context = LocalContext.current
+    val lifecycle = LocalLifecycleOwner.current.lifecycle
+    val currentOnFirstFrame by rememberUpdatedState(onFirstFrame)
+    val currentOnError by rememberUpdatedState(onError)
+    val currentPlayWhenReady by rememberUpdatedState(playWhenReady)
+    var playbackPosition by rememberSaveable(videoUrl) { mutableLongStateOf(0L) }
+    val player = remember(context, videoUrl) {
+        ExoPlayer.Builder(context).build().apply {
+            setAudioAttributes(AudioAttributes.DEFAULT, false)
+            volume = 0f
+            repeatMode = Player.REPEAT_MODE_ONE
+            setMediaItem(MediaItem.fromUri(videoUrl))
+            seekTo(playbackPosition)
+        }
+    }
 
-    Box(
-        modifier = modifier
-            .fillMaxSize()
-            .background(Color.Black)
-    ) {
+    AndroidView(
+        factory = { viewContext ->
+            (LayoutInflater.from(viewContext)
+                .inflate(R.layout.game_presentation_video_background, null, false) as PlayerView).apply {
+                importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO
+            }
+        },
+        update = { it.player = player },
+        onRelease = { it.player = null },
+        modifier = modifier.fillMaxSize(),
+    )
 
-        // Video player
-        AndroidView(
-            factory = { ctx ->
-                // Create a FrameLayout to hold the VideoView
-                val frameLayout = FrameLayout(ctx).apply {
-                    layoutParams = FrameLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT)
-                }
+    DisposableEffect(player) {
+        val listener = object : Player.Listener {
+            override fun onRenderedFirstFrame() = currentOnFirstFrame()
 
-                // Create a VideoView programmatically with a custom layout approach to match ContentScale.Crop
-                val newVideoView = VideoView(ctx).apply {
-                    // Initially set to MATCH_PARENT to fill the container
-                    layoutParams = FrameLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT).apply {
-                        gravity = Gravity.CENTER
-                    }
+            override fun onPlayerError(error: PlaybackException) = currentOnError()
+        }
+        player.addListener(listener)
+        onDispose {
+            playbackPosition = player.currentPosition.coerceAtLeast(0L)
+            player.removeListener(listener)
+            player.release()
+        }
+    }
 
-                    setVideoURI(videoUrl.toUri())
-                    setOnPreparedListener { mediaPlayer ->
-                        // Set looping
-                        mediaPlayer.isLooping = true
-
-                        // Mute the video
-                        mediaPlayer.setVolume(0f, 0f)
-
-                        // Get video dimensions
-                        val videoWidth = mediaPlayer.videoWidth
-                        val videoHeight = mediaPlayer.videoHeight
-
-                        if (videoWidth > 0 && videoHeight > 0) {
-                            // Get the parent frame layout dimensions
-                            post {
-                                val parentWidth = (parent as FrameLayout).width
-                                val parentHeight = (parent as FrameLayout).height
-
-                                if (parentWidth > 0 && parentHeight > 0) {
-                                    // Calculate the scaling factors
-                                    val scaleX = parentWidth.toFloat() / videoWidth.toFloat()
-                                    val scaleY = parentHeight.toFloat() / videoHeight.toFloat()
-
-                                    // Use the larger scale to ensure the video fills the container (similar to ContentScale.Crop)
-                                    val scale = maxOf(scaleX, scaleY)
-
-                                    // Calculate new dimensions that maintain aspect ratio while filling the container
-                                    val scaledWidth = (videoWidth * scale).toInt()
-                                    val scaledHeight = (videoHeight * scale).toInt()
-
-                                    // Update layout params to maintain aspect ratio while filling the container
-                                    layoutParams =
-                                        FrameLayout.LayoutParams(scaledWidth, scaledHeight)
-                                            .apply {
-                                                gravity = Gravity.CENTER
-                                            }
-                                }
-                            }
-                        }
-
-                        // Start playing
-                        start()
-                    }
-                    // Notify only when the first frame is actually rendered,
-                    // so the caller can crossfade without a black gap.
-                    setOnInfoListener { _, what, _ ->
-                        if (what == MediaPlayer.MEDIA_INFO_VIDEO_RENDERING_START) {
-                            onFirstFrame()
-                        }
-                        false
-                    }
-                    setOnErrorListener { _, _, _ ->
-                        true
-                    }
-                }
-
-                // Add VideoView to FrameLayout and store reference
-                frameLayout.addView(newVideoView)
-                videoView = newVideoView
-                frameLayout
-            },
-            modifier = Modifier.fillMaxSize()
-        )
-
-        // Clean up video resources when the composable leaves composition
-        DisposableEffect(Unit) {
-            onDispose {
-                // Clean up video resources
-                videoView?.let {
-                    if (it.isPlaying) {
-                        it.stopPlayback()
-                    }
-                    it.suspend()
-                }
-                videoView = null
+    DisposableEffect(player, lifecycle) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_PAUSE) {
+                playbackPosition = player.currentPosition.coerceAtLeast(0L)
+                player.pause()
+            }
+            if (event == Lifecycle.Event.ON_RESUME && currentPlayWhenReady) {
+                if (player.playbackState == Player.STATE_IDLE) player.prepare()
+                player.play()
             }
         }
+        lifecycle.addObserver(observer)
+        onDispose { lifecycle.removeObserver(observer) }
+    }
+
+    LaunchedEffect(player, playWhenReady, lifecycle) {
+        val playing = playWhenReady && lifecycle.currentState == Lifecycle.State.RESUMED
+        if (playing && player.playbackState == Player.STATE_IDLE) {
+            player.prepare()
+        }
+        player.playWhenReady = playing
     }
 }

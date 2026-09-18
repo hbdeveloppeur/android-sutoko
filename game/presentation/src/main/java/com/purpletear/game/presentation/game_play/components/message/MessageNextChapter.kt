@@ -18,11 +18,9 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.example.sharedelements.theme.CrimsonTextFontFamily
 import com.purpletear.game.debug.PreviewOverlayWrapper
 import com.purpletear.game.presentation.R
-import com.purpletear.game.presentation.common.components.SimpleButton
 
 @Preview
 @Composable
@@ -44,14 +42,15 @@ private fun Preview() {
 internal fun MessageNextChapter(
     modifier: Modifier = Modifier,
     title: String = stringResource(R.string.game_presentation_message_next_chapter_title),
-    buttonText: String = stringResource(R.string.game_presentation_message_next_chapter_button),
     showButton: Boolean = true,
+    requiresAd: Boolean = false,
+    isBusy: Boolean = false,
     onClick: () -> Unit = {},
 ) {
     val haptic = LocalHapticFeedback.current
     val hapticClick = {
         haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-        onClick()
+        if (!isBusy) onClick()
     }
 
     Column(
@@ -66,14 +65,17 @@ internal fun MessageNextChapter(
             color = Color.White,
             fontFamily = CrimsonTextFontFamily
         )
-        if (showButton) {
-            SimpleButton(
-                modifier = Modifier.testTag("game_next_chapter_button"),
-                text = buttonText,
-                fontSize = 11.sp,
+        if (showButton && isBusy) {
+            androidx.compose.material3.CircularProgressIndicator(color = Color.White)
+        } else if (showButton && requiresAd) {
+            UnlockNextChapterButton(
+                modifier = Modifier.testTag("game_next_chapter_ads_button"),
                 onClick = hapticClick,
-                horizontalPadding = 14.dp,
-                verticalPadding = 6.dp,
+            )
+        } else if (showButton) {
+            PlayNextChapterButton(
+                modifier = Modifier.testTag("game_next_chapter_button"),
+                onClick = hapticClick,
             )
         }
     }

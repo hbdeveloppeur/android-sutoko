@@ -3,6 +3,8 @@ package com.purpletear.game.presentation.game_play.components.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
@@ -18,16 +20,18 @@ import java.io.File
  *
  * @param imagePath The absolute path to the image file
  * @param modifier The modifier to be applied to the component
- * @param onStarted Callback invoked when image starts loading successfully
+ * @param onLoaded Callback invoked when the image has loaded successfully
  * @param onError Callback invoked when image loading fails, with the error details
  */
 @Composable
 fun ImageBackground(
     imagePath: String,
     modifier: Modifier = Modifier,
-    onStarted: () -> Unit = {},
+    onLoaded: () -> Unit = {},
     onError: (Throwable) -> Unit = {}
 ) {
+    val loadedCallback by rememberUpdatedState(onLoaded)
+    val errorCallback by rememberUpdatedState(onError)
     val context = LocalContext.current
     val file = File(imagePath)
 
@@ -36,9 +40,9 @@ fun ImageBackground(
             .data(if (file.exists()) file else imagePath)
             .crossfade(false)
             .listener(
-                onStart = { onStarted() },
+                onSuccess = { _, _ -> loadedCallback() },
                 onError = { _, result ->
-                    onError(result.throwable)
+                    errorCallback(result.throwable)
                 }
             )
             .build()

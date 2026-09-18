@@ -19,10 +19,10 @@ import com.purpletear.sutoko.domain.repository.UserRepository
 import com.purpletear.sutoko.game.BuildConfig
 import com.purpletear.sutoko.game.exception.DownloadAlreadyInProgressException
 import com.purpletear.sutoko.game.model.Chapter
-import com.purpletear.sutoko.game.model.FriendzonedLegacyIds
+import com.purpletear.sutoko.game.model.canAccessGameOptions
 import com.purpletear.sutoko.game.model.UserRole
+import com.purpletear.sutoko.game.model.game.GameDownloadState
 import com.purpletear.sutoko.game.repository.ChapterRepository
-import com.purpletear.sutoko.game.repository.FriendzonedProgressRepository
 import com.purpletear.sutoko.game.repository.GamePreviewSoundRepository
 import com.purpletear.sutoko.game.repository.UserRoleRepository
 import com.purpletear.sutoko.game.repository.game.FavoriteGamesRepository
@@ -33,7 +33,7 @@ import com.purpletear.sutoko.game.usecase.DownloadGameUseCase
 import com.purpletear.sutoko.game.usecase.GetChaptersUseCase
 import com.purpletear.sutoko.game.usecase.RestartGameUseCase
 import com.purpletear.sutoko.game.usecase.SaveUserNickNameUseCase
-import com.purpletear.sutoko.game.usecase.UserNickNameSanitizer
+import com.purpletear.sutoko.game.usecase.PrepareGameLaunchUseCase
 import com.purpletear.sutoko.shop.domain.error.BuyStoryError
 import com.purpletear.sutoko.shop.domain.repository.EntitlementRepository
 import com.purpletear.sutoko.shop.domain.repository.ShopRepository
@@ -50,6 +50,7 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
@@ -58,20 +59,22 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import java.util.Locale
 import javax.inject.Inject
 
 @HiltViewModel
 class GamePreviewViewModel @Inject constructor(
-    savedStateHandle: SavedStateHandle,
+    private val savedStateHandle: SavedStateHandle,
     private val gameRepository: GameRepository,
     private val favoriteGamesRepository: FavoriteGamesRepository,
     private val chapterRepository: ChapterRepository,
-    private val friendzonedProgressRepository: FriendzonedProgressRepository,
     private val gameInstallRepository: GameInstallRepository,
     private val mediaUrlResolver: MediaUrlResolver,
     private val getChaptersUseCase: GetChaptersUseCase,
     private val saveUserNickNameUseCase: SaveUserNickNameUseCase,
+    private val prepareGameLaunchUseCase: PrepareGameLaunchUseCase,
     private val toastService: ToastService,
     private val restartGameUseCase: RestartGameUseCase,
     private val downloadGameUseCase: DownloadGameUseCase,
@@ -93,14 +96,26 @@ class GamePreviewViewModel @Inject constructor(
     }
 
     private val currentChapterRefreshTicks = MutableStateFlow(0)
+    private val observationRefreshTicks = MutableStateFlow(0)
+    private val catalogLoadState = MutableStateFlow<GamePreviewUiState>(GamePreviewUiState.Loading)
+    private val downloadRequested = MutableStateFlow(false)
+    private val _isLoadingChapters = MutableStateFlow(true)
+    val isLoadingChapters = _isLoadingChapters.asStateFlow()
+    private var playNavigationPending = false
 
     fun onResume() {
+        playNavigationPending = false
         currentChapterRefreshTicks.value += 1
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
     val currentChapter: StateFlow<Chapter?> = currentChapterRefreshTicks
-        .flatMapLatest { chapterRepository.observeCurrentChapter(gameId) }
+        .flatMapLatest {
+            chapterRepository.observeCurrentChapter(gameId).catch { error ->
+                logger.exception(error) { "Failed to observe current chapter for gameId=$gameId" }
+                emit(null)
+            }
+        }
         .onEach { chapter ->
             GamePreviewLogger.d("OBS") {
                 chapter?.let {
@@ -115,13 +130,25 @@ class GamePreviewViewModel @Inject constructor(
         )
 
     /**
-     * Number of released chapters actually stored locally. The catalog's
-     * chaptersCount is a server-side cached value that can be stale, so the
-     * real chapters win once loaded. Null until the local store holds at
-     * least one chapter: callers then fall back to the catalog count.
+     * Number of distinct released chapter numbers; alternatives count once.
+     * Null while loading an empty local store, so no unverified catalog count is shown.
      */
-    val releasedChaptersCount: StateFlow<Int?> = chapterRepository.observeChapters(gameId)
-        .map { chapters -> chapters.takeIf { it.isNotEmpty() }?.count { it.available } }
+    @OptIn(ExperimentalCoroutinesApi::class)
+    val releasedChaptersCount: StateFlow<Int?> = observationRefreshTicks.flatMapLatest {
+        combine(
+            chapterRepository.observeChapters(gameId),
+            _isLoadingChapters,
+        ) { chapters, loading ->
+            if (chapters.isEmpty() && loading) null else chapters.asSequence()
+                .filter { it.available }
+                .map { it.number }
+                .distinct()
+                .count()
+        }.catch { error ->
+            logger.exception(error) { "Failed to observe released chapters for gameId=$gameId" }
+            emit(null)
+        }
+    }
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(7000),
@@ -137,7 +164,7 @@ class GamePreviewViewModel @Inject constructor(
 
     /** The story options entry point is only offered to the tester account. */
     val isOptionsVisible: StateFlow<Boolean> = userRepository.observeUser()
-        .map { it?.id == OPTIONS_ACCESS_UID }
+        .map { it.canAccessGameOptions() }
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(7000),
@@ -174,10 +201,16 @@ class GamePreviewViewModel @Inject constructor(
      * coin grant or premium). Fail-closed: false until the server confirms.
      */
     @OptIn(ExperimentalCoroutinesApi::class)
-    val isEntitled: StateFlow<Boolean> = gameRepository.observeGame(id = gameId)
-        .flatMapLatest { catalog ->
-            if (catalog == null || catalog.skus.isEmpty()) flowOf(false)
-            else entitlementRepository.observeIsGranted(catalog.skus)
+    val isEntitled: StateFlow<Boolean> = observationRefreshTicks
+        .flatMapLatest {
+            gameRepository.observeGame(id = gameId)
+                .flatMapLatest { catalog ->
+                    if (catalog == null || catalog.skus.isEmpty()) flowOf(false)
+                    else entitlementRepository.observeIsGranted(catalog.skus)
+                }.catch { error ->
+                    logger.exception(error) { "Failed to observe entitlement for gameId=$gameId" }
+                    emit(false)
+                }
         }
         .distinctUntilChanged()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(7000), false)
@@ -186,31 +219,33 @@ class GamePreviewViewModel @Inject constructor(
     private data class GameObservation(
         val catalog: com.purpletear.sutoko.game.model.game.GameCatalog?,
         val install: com.purpletear.sutoko.game.model.game.GameInstall?,
-        val downloadProgress: Float?,
+        val downloadState: GameDownloadState?,
     )
 
-    val game: StateFlow<GamePreviewUiState> = combine(
+    @OptIn(ExperimentalCoroutinesApi::class)
+    val game: StateFlow<GamePreviewUiState> = observationRefreshTicks.flatMapLatest { combine(
         combine(
             gameRepository.observeGame(id = gameId),
             gameInstallRepository.observeInstall(gameId = gameId),
-            gameInstallRepository.observeDownloadProgress(gameId),
-        ) { catalog, install, downloadProgress ->
+            gameInstallRepository.observeDownloadState(gameId),
+        ) { catalog, install, downloadState ->
             GameObservation(
                 catalog = catalog,
                 install = install,
-                downloadProgress = downloadProgress,
+                downloadState = downloadState,
             )
         },
         isEntitled,
         favoriteGamesRepository.observeFavoriteIds(),
-    ) { observation, isEntitled, favoriteIds ->
+        catalogLoadState,
+    ) { observation, isEntitled, favoriteIds, loadState ->
         when {
             observation.catalog != null -> {
                 GamePreviewLogger.d("OBS") {
                     "game emitted Data: gameId=$gameId, title=${observation.catalog.title}, " +
                             "chapters=${observation.catalog.chaptersCount}, " +
                             "isPurchased=$isEntitled, " +
-                            "downloadProgress=${observation.downloadProgress}"
+                            "downloadState=${observation.downloadState}"
                 }
                 GamePreviewUiState.Data(
                     item = GameItem(
@@ -223,29 +258,20 @@ class GamePreviewViewModel @Inject constructor(
                         menuBackgroundUrl = mediaUrlResolver.resolveBannerUrl(observation.catalog.menuBackground?.storagePath),
                         authorAvatarUrl = mediaUrlResolver.resolveBannerUrl(observation.catalog.author?.avatarUrl),
                         titleUrl = mediaUrlResolver.resolveBannerUrl(observation.catalog.title?.storagePath),
-                        downloadProgress = observation.downloadProgress,
+                        downloadState = observation.downloadState,
                         isFavorite = gameId in favoriteIds,
                     ),
                     gameCatalog = observation.catalog,
                 )
             }
 
-            else -> {
-                GamePreviewLogger.w("OBS") { "game emitted NotFound for gameId=$gameId" }
-                if (initialLoadStarted) {
-                    logger.warning(
-                        message = "Preview story not found locally for gameId=$gameId",
-                        data = mapOf("gameId" to gameId)
-                    )
-                }
-                GamePreviewUiState.NotFound
-            }
+            else -> loadState
         }
     }.catch { error ->
         GamePreviewLogger.e("OBS", error) { "game observation failed for gameId=$gameId" }
         logger.exception(error) { "Failed to observe game state for gameId=$gameId" }
         emit(GamePreviewUiState.Error(GameUiError.Load))
-    }.stateIn(
+    } }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(7000),
         initialValue = GamePreviewUiState.Loading,
@@ -275,21 +301,30 @@ class GamePreviewViewModel @Inject constructor(
     private val _isRefreshing = MutableStateFlow(false)
     val isRefreshing: StateFlow<Boolean> = _isRefreshing.asStateFlow()
 
-    private var coinGrantCheckDone = false
-    private var coinGrantCheckJob: Job? = null
+    private val grantRefreshTicks = MutableStateFlow(0)
+    private var purchaseJob: Job? = null
     private var downloadJob: Job? = null
+    private var deleteJob: Job? = null
+    private var navigationJob: Job? = null
     private var initialLoadStarted = false
-    private var recoveryAttempted = false
+    private val catalogLoadMutex = Mutex()
 
     private val _events = MutableSharedFlow<GamePreviewEvent>(extraBufferCapacity = 1)
     val events = _events.asSharedFlow()
 
+    val unlockFeedbackPending: StateFlow<Boolean> =
+        savedStateHandle.getStateFlow("unlockFeedbackPending", false)
+
+    fun onUnlockFeedbackShown() {
+        savedStateHandle["unlockFeedbackPending"] = false
+    }
+
     /**
-     * Triggers the initial data load. Must be called by the UI once the screen
-     * is attached. [loadChapters] is idempotent, so calling this again after a
-     * configuration change is safe.
+     * Starts loading and observation once per ViewModel, including when the UI reattaches.
+     * Explicit reloads use [refresh].
      */
     fun start() {
+        if (initialLoadStarted) return
         GamePreviewLogger.i("LIFE") { "start() called for gameId=$gameId" }
         initialLoadStarted = true
         analyticsTracker.logEvent("story_preview_view", mapOf("story_id" to gameId))
@@ -297,68 +332,55 @@ class GamePreviewViewModel @Inject constructor(
             loadChapters()
         }
         viewModelScope.launch {
-            recoverMissingCatalogOnNotFound()
+            recoverLostCatalog()
         }
         viewModelScope.launch {
-            refreshCatalogOnDataLoad()
+            loadCatalog()
         }
         viewModelScope.launch {
             syncCoinPurchaseGrantOnDataLoad()
         }
     }
 
-    /**
-     * Waits for the first Data state, then refreshes the catalog row remotely so
-     * the observed catalog (including the admin version badge) converges to the
-     * server state. A missing catalog is the recovery path's job, not ours.
-     */
-    private suspend fun refreshCatalogOnDataLoad() {
-        game.first { it is GamePreviewUiState.Data }
-        refreshCatalogFromRemote()
-    }
-
-    /**
-     * Best-effort remote refresh of this story's catalog row. Failures are
-     * non-fatal: the cached row keeps feeding the UI.
-     */
-    private suspend fun refreshCatalogFromRemote() {
-        gameRepository.refreshGameCatalog(gameId, Locale.getDefault().toLanguageTag())
-            .onSuccess { catalog ->
-                GamePreviewLogger.i("SYNC") { "catalog refresh ${if (catalog != null) "updated" else "found no story"} for gameId=$gameId" }
+    @OptIn(ExperimentalCoroutinesApi::class)
+    private suspend fun recoverLostCatalog() {
+        var wasPresent = false
+        observationRefreshTicks.flatMapLatest {
+            gameRepository.observeGame(gameId).catch { error ->
+                logger.exception(error) { "Failed to observe catalog removal for gameId=$gameId" }
             }
-            .onFailure { error ->
-                GamePreviewLogger.w("SYNC") { "catalog refresh failed for gameId=$gameId: ${error.message}" }
-            }
-    }
-
-    /**
-     * One-shot remote recovery: waits for the first NotFound, then fetches the
-     * catalog remotely once. On success the Room upsert makes [game] re-emit
-     * Data reactively; no manual state mutation here.
-     */
-    private suspend fun recoverMissingCatalogOnNotFound() {
-        game.first { it is GamePreviewUiState.NotFound }
-        attemptCatalogRecovery()
-    }
-
-    private suspend fun attemptCatalogRecovery() {
-        if (recoveryAttempted) {
-            GamePreviewLogger.d("SYNC") { "catalog recovery already attempted for gameId=$gameId" }
-            return
+        }.map { it != null }.distinctUntilChanged().collect { present ->
+            val wasRemoved = wasPresent && !present
+            wasPresent = present
+            if (wasRemoved) loadCatalog(onlyIfMissing = true)
         }
-        recoveryAttempted = true
-        GamePreviewLogger.i("SYNC") { "catalog recovery started for gameId=$gameId" }
-        gameRepository.getGameCatalog(gameId, Locale.getDefault().toLanguageTag())
-            .onSuccess { catalog ->
-                GamePreviewLogger.i("SYNC") { "catalog recovery ${if (catalog != null) "succeeded" else "found no story"} for gameId=$gameId" }
+    }
+
+    private suspend fun loadCatalog(onlyIfMissing: Boolean = false) = catalogLoadMutex.withLock {
+        try {
+            val cached = gameRepository.observeGame(gameId).first()
+            if (onlyIfMissing && cached != null) return@withLock
+            catalogLoadState.value = GamePreviewUiState.Loading
+            val result = if (cached == null) {
+                gameRepository.getGameCatalog(gameId, Locale.getDefault().toLanguageTag())
+            } else {
+                gameRepository.refreshGameCatalog(gameId, Locale.getDefault().toLanguageTag())
             }
-            .onFailure { error ->
-                GamePreviewLogger.e("SYNC", error) { "catalog recovery failed for gameId=$gameId" }
-                logger.warning(
-                    message = "Preview story remote recovery failed for gameId=$gameId",
-                    data = mapOf("gameId" to gameId)
-                )
-            }
+            catalogLoadState.value = result.fold(
+                onSuccess = { catalog ->
+                    if (catalog == null) GamePreviewUiState.NotFound else GamePreviewUiState.Loading
+                },
+                onFailure = { error ->
+                    logger.exception(error) { "Failed to refresh catalog for gameId=$gameId" }
+                    GamePreviewUiState.Error(GameUiError.Load)
+                },
+            )
+        } catch (error: CancellationException) {
+            throw error
+        } catch (error: Exception) {
+            logger.exception(error) { "Failed to load catalog for gameId=$gameId" }
+            catalogLoadState.value = GamePreviewUiState.Error(GameUiError.Load)
+        }
     }
 
     fun onAction(action: GamePreviewAction) {
@@ -368,7 +390,7 @@ class GamePreviewViewModel @Inject constructor(
             GamePreviewAction.OnBuyConfirm -> onPurchase()
             GamePreviewAction.OnDownload -> onStartDownload()
             GamePreviewAction.OnUpdateGame -> onStartDownload()
-            GamePreviewAction.OnDownloadPreview -> onStartPreviewDownload()
+            GamePreviewAction.OnDownloadPreview -> if (isAdmin.value) onStartDownload(preview = true)
             GamePreviewAction.OnUpdateApp -> sendEvent(GamePreviewEvent.OpenAppStore)
             GamePreviewAction.OnPlay -> onPlay()
             GamePreviewAction.OnTry -> onPlay(isTrial = true)
@@ -408,34 +430,18 @@ class GamePreviewViewModel @Inject constructor(
      * (see GameDao).
      */
     fun refresh() {
-        if (_isRefreshing.value) {
-            GamePreviewLogger.d("LIFE") { "refresh() ignored: already refreshing for gameId=$gameId" }
-            return
-        }
-        GamePreviewLogger.i("LIFE") { "refresh() started for gameId=$gameId" }
+        if (!_isRefreshing.compareAndSet(false, true)) return
         viewModelScope.launch {
-            _isRefreshing.value = true
             try {
-                // Explicit user refresh grants one extra recovery attempt.
-                if (game.value is GamePreviewUiState.NotFound) {
-                    recoveryAttempted = false
-                    attemptCatalogRecovery()
-                }
-                // Explicit user refresh also grants a fresh coin grant check round.
-                coinGrantCheckDone = false
-                triggerCoinGrantCheck()
-                if (game.value is GamePreviewUiState.Data) {
-                    refreshCatalogFromRemote()
-                }
-                val chaptersOk = loadChapters()
-                if (!chaptersOk) {
-                    GamePreviewLogger.w("SYNC") { "refresh() failed for gameId=$gameId" }
+                observationRefreshTicks.value += 1
+                currentChapterRefreshTicks.value += 1
+                grantRefreshTicks.value += 1
+                loadCatalog()
+                if (!loadChapters()) {
                     logger.warning(
                         message = "Preview refresh failed for gameId=$gameId",
-                        data = mapOf("gameId" to gameId)
+                        data = mapOf("gameId" to gameId),
                     )
-                } else {
-                    GamePreviewLogger.i("LIFE") { "refresh() completed for gameId=$gameId" }
                 }
             } finally {
                 _isRefreshing.value = false
@@ -443,7 +449,11 @@ class GamePreviewViewModel @Inject constructor(
         }
     }
 
+    private val _isSavingNickName = MutableStateFlow(false)
+    val isSavingNickName = _isSavingNickName.asStateFlow()
+
     fun onNickNameConfirmed(name: String?, isTrial: Boolean) {
+        if (!_isSavingNickName.compareAndSet(false, true)) return
         GamePreviewLogger.d("NAV") {
             "onNickNameConfirmed() gameId=$gameId, isTrial=$isTrial, name=${
                 name?.take(
@@ -452,24 +462,17 @@ class GamePreviewViewModel @Inject constructor(
             }"
         }
         viewModelScope.launch {
-            val saveResult = saveUserNickNameUseCase(gameId, name)
-            saveFriendzonedFirstName(name, saveResult.isSuccess)
-            navigateToPlay(requestNickName = false, isTrial = isTrial)
+            try {
+                val saveResult = saveUserNickNameUseCase(gameId, name)
+                if (saveResult.isFailure) {
+                    sendEvent(GamePreviewEvent.ShowError(GameUiError.NickName))
+                    return@launch
+                }
+                navigateToPlay(requestNickName = false, isTrial = isTrial)?.join()
+            } finally {
+                _isSavingNickName.value = false
+            }
         }
-    }
-
-    /**
-     * Friendzoned games read the player name from their own `TableOfSymbols`
-     * store, not from the Room hero name, so mirror the confirmed nickname
-     * there. No-op for standard games or when the nickname was rejected.
-     */
-    private suspend fun saveFriendzonedFirstName(name: String?, saved: Boolean) {
-        if (!saved) return
-        val legacyId = currentGameItem?.legacyId
-        if (!FriendzonedLegacyIds.isFriendzoned(legacyId)) return
-        val firstName = name?.let { UserNickNameSanitizer.sanitize(it) }
-            ?: SaveUserNickNameUseCase.DEFAULT_HERO_NAME
-        friendzonedProgressRepository.setFirstName(legacyId!!, firstName)
     }
 
     private fun onBuy() {
@@ -515,6 +518,7 @@ class GamePreviewViewModel @Inject constructor(
      * gets an error toast - never a navigation.
      */
     private fun onPlay(isTrial: Boolean = false) {
+        if (playNavigationPending || navigationJob?.isActive == true || deleteJob?.isActive == true) return
         // Runtime compatibility gate: the button state (GameActionState.UpdateApp)
         // already hides Play/Try, but other entry points (deep links, chapter
         // screen) reach this method directly - never launch an unsupported story.
@@ -556,18 +560,19 @@ class GamePreviewViewModel @Inject constructor(
         }
     }
 
-    /** True once the game archive is on disk (any version). */
+    /** Trials must use the same current archive as full gameplay. */
     private fun isGameInstalled(): Boolean {
         val item = (game.value as? GamePreviewUiState.Data)?.item ?: return false
-        return item.localVersion != null
+        return item.localVersion == item.version
     }
 
-    private fun navigateToPlay(requestNickName: Boolean, isTrial: Boolean = false) {
+    private fun navigateToPlay(requestNickName: Boolean, isTrial: Boolean = false): Job? {
+        if (playNavigationPending || navigationJob?.isActive == true) return null
         val data = game.value as? GamePreviewUiState.Data ?: run {
             GamePreviewLogger.w("NAV") { "navigateToPlay() ignored: no data for gameId=$gameId" }
-            return
+            return null
         }
-        viewModelScope.launch {
+        navigationJob = viewModelScope.launch {
             // Boundary invariant: PlayGame requires a chapter downstream
             // (SmsGameActivity crashes without one), so never emit it without.
             val chapter = currentChapter.value ?: run {
@@ -579,8 +584,16 @@ class GamePreviewViewModel @Inject constructor(
                 sendEvent(GamePreviewEvent.ShowError(GameUiError.Load))
                 return@launch
             }
-            val needsNickName = data.gameCatalog.userNickNameRequired &&
-                    chapter.number == 1 && requestNickName
+            if (!chapter.available && userRoleRepository.get() != UserRole.ADMINISTRATOR) {
+                toastService(R.string.game_presentation_game_preview_next_chapter, chapter.formatReleaseDate())
+                return@launch
+            }
+            val needsNickName = prepareGameLaunchUseCase(data.gameCatalog, requestNickName)
+                .getOrElse { error ->
+                    logger.exception(error) { "Could not prepare nickname for gameId=$gameId" }
+                    sendEvent(GamePreviewEvent.ShowError(GameUiError.NickName))
+                    return@launch
+                }
 
             GamePreviewLogger.i("NAV") {
                 "navigateToPlay() gameId=$gameId, isTrial=$isTrial, " +
@@ -590,6 +603,7 @@ class GamePreviewViewModel @Inject constructor(
             if (needsNickName) {
                 sendEvent(GamePreviewEvent.RequestNickName(isTrial = isTrial))
             } else {
+                playNavigationPending = true
                 if (isTrial) {
                     analyticsTracker.logEvent(
                         "trial_start",
@@ -610,6 +624,7 @@ class GamePreviewViewModel @Inject constructor(
                 )
             }
         }
+        return navigationJob
     }
 
     private fun sendEvent(event: GamePreviewEvent) {
@@ -617,7 +632,9 @@ class GamePreviewViewModel @Inject constructor(
         if (event is GamePreviewEvent.ShowError) {
             toastService(event.error.stringRes)
         }
-        _events.tryEmit(event)
+        viewModelScope.launch {
+            _events.emit(event)
+        }
     }
 
     override fun onCleared() {
@@ -625,180 +642,96 @@ class GamePreviewViewModel @Inject constructor(
         super.onCleared()
     }
 
-    /** @return false when the chapters load reports a failure. */
     private suspend fun loadChapters(): Boolean {
-        GamePreviewLogger.d("CHAP") { "loadChapters() started for gameId=$gameId" }
+        _isLoadingChapters.value = true
         var success = true
-        getChaptersUseCase(gameId)
-            .collect { result ->
+        try {
+            getChaptersUseCase(gameId).collect { result ->
                 result.onSuccess { chapters ->
-                    GamePreviewLogger.i("CHAP") {
-                        "loadChapters() received ${chapters.size} chapter(s) for gameId=$gameId"
-                    }
                     if (chapters.isEmpty()) {
-                        GamePreviewLogger.w("CHAP") { "loadChapters() returned empty chapter list for gameId=$gameId" }
                         logger.warning(
                             message = "Preview loaded empty chapter list for gameId=$gameId",
-                            data = mapOf("gameId" to gameId)
+                            data = mapOf("gameId" to gameId),
                         )
                     }
-                }
-                result.onFailure { error ->
+                }.onFailure { error ->
                     success = false
-                    GamePreviewLogger.e(
-                        "CHAP",
-                        error
-                    ) { "loadChapters() failed for gameId=$gameId" }
                     logger.exception(error) { "Failed to load chapters for gameId=$gameId" }
                     sendEvent(GamePreviewEvent.ShowError(GameUiError.Load))
                 }
             }
-        GamePreviewLogger.d("CHAP") { "loadChapters() finished with success=$success for gameId=$gameId" }
+        } catch (error: CancellationException) {
+            throw error
+        } catch (error: Exception) {
+            success = false
+            logger.exception(error) { "Failed to load chapters for gameId=$gameId" }
+            sendEvent(GamePreviewEvent.ShowError(GameUiError.Load))
+        } finally {
+            _isLoadingChapters.value = false
+        }
         return success
     }
 
-    /**
-     * Reactive healing: coin purchase grants live in memory only, so whenever
-     * the screen shows an unbought paid story while the user is connected, we
-     * ask the server. Combining with [isUserConnected] re-triggers the check
-     * when the user connects after the data has loaded.
-     */
+    private data class GrantCheck(
+        val userId: String,
+        val skus: List<String>,
+        val refresh: Int,
+    )
+
     private suspend fun syncCoinPurchaseGrantOnDataLoad() {
-        GamePreviewLogger.d("PUR") { "syncCoinPurchaseGrantOnDataLoad() started for gameId=$gameId" }
-        combine(game, isUserConnected, ::Pair).collect {
-            triggerCoinGrantCheck()
-        }
-    }
-
-    /**
-     * Single entry point for the coin grant check. Guards against re-entrance:
-     * at most one check job in flight, and a definitive server answer
-     * ([coinGrantCheckDone]) stops further checks until [refresh].
-     */
-    private fun triggerCoinGrantCheck() {
-        val data = game.value as? GamePreviewUiState.Data ?: return
-        if (coinGrantCheckDone || coinGrantCheckJob?.isActive == true ||
-            !isUserConnected.value || data.item.isPurchased || data.gameCatalog.skus.isEmpty()
-        ) {
-            GamePreviewLogger.d("PUR") {
-                "coin grant check skipped for gameId=$gameId: " +
-                        "done=$coinGrantCheckDone, inFlight=${coinGrantCheckJob?.isActive == true}, " +
-                        "connected=${isUserConnected.value}, " +
-                        "isPurchased=${data.item.isPurchased}, hasSkus=${data.gameCatalog.skus.isNotEmpty()}"
+        combine(game, userRepository.observeUser(), grantRefreshTicks) { state, user, refresh ->
+            val data = state as? GamePreviewUiState.Data
+            if (user == null || data == null || data.item.isPurchased || data.gameCatalog.skus.isEmpty()) {
+                null
+            } else {
+                GrantCheck(user.id, data.gameCatalog.skus.distinct().sorted(), refresh)
             }
-            return
+        }.distinctUntilChanged().collectLatest { check ->
+            if (check != null) attemptCoinGrantCheck(check.skus)
         }
-        coinGrantCheckJob = viewModelScope.launch { attemptCoinGrantCheck(data.gameCatalog.skus) }
     }
 
-    /**
-     * Bounded retry: transient failures (network, 5xx, user-not-loaded-yet)
-     * get up to [MAX_GRANT_CHECK_ATTEMPTS] attempts with linear backoff. Only
-     * a definitive server answer marks [coinGrantCheckDone]; after exhausting
-     * the attempts we give up silently — pull-to-refresh grants a fresh round.
-     */
     private suspend fun attemptCoinGrantCheck(skus: List<String>) {
-        var attempt = 0
-        while (attempt < MAX_GRANT_CHECK_ATTEMPTS && !coinGrantCheckDone) {
-            attempt++
-            GamePreviewLogger.i("PUR") { "coin grant check attempt $attempt/$MAX_GRANT_CHECK_ATTEMPTS for gameId=$gameId" }
-            entitlementRepository.refreshGrant(skus)
-                .onSuccess { granted ->
-                    coinGrantCheckDone = true
-                    GamePreviewLogger.i("PUR") { "coin grant check answered granted=$granted for gameId=$gameId" }
-                }
-                .onFailure { error ->
-                    GamePreviewLogger.e(
-                        "PUR",
-                        error
-                    ) { "coin grant check attempt $attempt failed for gameId=$gameId" }
-                    if (attempt == MAX_GRANT_CHECK_ATTEMPTS) {
-                        logger.warning(
-                            message = "Coin purchase grant check gave up after $MAX_GRANT_CHECK_ATTEMPTS attempts for gameId=$gameId",
-                            data = mapOf("gameId" to gameId),
-                        )
-                    }
-                }
-            if (!coinGrantCheckDone && attempt < MAX_GRANT_CHECK_ATTEMPTS) {
-                delay(GRANT_CHECK_RETRY_DELAY_MS * attempt)
+        repeat(MAX_GRANT_CHECK_ATTEMPTS) { attempt ->
+            val result = entitlementRepository.refreshGrant(skus)
+            if (result.isSuccess) return
+            if (attempt == MAX_GRANT_CHECK_ATTEMPTS - 1) {
+                logger.warning(
+                    message = "Coin purchase grant check gave up after $MAX_GRANT_CHECK_ATTEMPTS attempts for gameId=$gameId",
+                    data = mapOf("gameId" to gameId),
+                )
+            } else {
+                delay(GRANT_CHECK_RETRY_DELAY_MS * (attempt + 1))
             }
         }
     }
 
-    private fun onStartDownload(playTrialOnComplete: Boolean = false) {
-        if (downloadJob?.isActive == true) {
-            GamePreviewLogger.d("DOWN") { "onStartDownload() ignored, already running for gameId=$gameId" }
-            return
-        }
-        GamePreviewLogger.i("DOWN") { "onStartDownload() gameId=$gameId" }
+    private fun onStartDownload(playTrialOnComplete: Boolean = false, preview: Boolean = false) {
+        if (downloadRequested.value || downloadJob?.isActive == true || deleteJob?.isActive == true) return
+        downloadRequested.value = true
         downloadJob = viewModelScope.launch {
-            var failed = false
-            // The use case is suspend and can throw before returning its flow (game not
-            // cached, download link fetch failed offline): .catch only covers collection.
             try {
-                downloadGameUseCase(gameId = gameId)
-                    .catch { error ->
-                        failed = true
-                        if (error is DownloadAlreadyInProgressException) {
-                            // Benign: another collector is already downloading this game.
-                            // It owns the install, so never auto-play here.
-                            GamePreviewLogger.d("DOWN") { "onStartDownload() duplicate ignored for gameId=$gameId" }
-                            return@catch
-                        }
-                        GamePreviewLogger.e(
-                            "DOWN",
-                            error
-                        ) { "onStartDownload() failed for gameId=$gameId" }
-                        logger.exception(error) { "Download failed for gameId=$gameId" }
-                        sendEvent(GamePreviewEvent.ShowError(GameUiError.fromDownloadError(error)))
-                    }
-                    .collect { progress ->
-                        GamePreviewLogger.d("DOWN") { "onStartDownload() progress=$progress for gameId=$gameId" }
-                    }
-            } catch (e: CancellationException) {
-                throw e
-            } catch (e: Exception) {
-                failed = true
-                GamePreviewLogger.e("DOWN", e) { "onStartDownload() failed for gameId=$gameId" }
-                logger.exception(e) { "Download failed for gameId=$gameId" }
-                sendEvent(GamePreviewEvent.ShowError(GameUiError.fromDownloadError(e)))
+                if (preview && userRoleRepository.get() != UserRole.ADMINISTRATOR) return@launch
+                downloadGameUseCase(gameId = gameId, preview = preview).collect { progress ->
+                    GamePreviewLogger.d("DOWN") { "Download progress=$progress for gameId=$gameId" }
+                }
+            } catch (error: CancellationException) {
+                throw error
+            } catch (error: DownloadAlreadyInProgressException) {
+                return@launch
+            } catch (error: Exception) {
+                if (preview) {
+                    onPreviewDownloadFailure(error)
+                } else {
+                    logger.exception(error) { "Download failed for gameId=$gameId" }
+                    sendEvent(GamePreviewEvent.ShowError(GameUiError.fromDownloadError(error)))
+                }
+                return@launch
+            } finally {
+                downloadRequested.value = false
             }
-            if (!failed && playTrialOnComplete) {
+            if (playTrialOnComplete) {
                 navigateToPlay(requestNickName = true, isTrial = true)
-            }
-        }
-    }
-
-    /**
-     * Admin-only preview download: fetches the preview archive (all chapters,
-     * including unreleased ones). The install repository always re-downloads,
-     * so the version-keyed state never serves stale preview content.
-     * Any failure hides the feature silently (backend contract) — the player
-     * flow must never break.
-     */
-    private fun onStartPreviewDownload() {
-        if (downloadJob?.isActive == true) {
-            GamePreviewLogger.d("DOWN") { "onStartPreviewDownload() ignored, already running for gameId=$gameId" }
-            return
-        }
-        GamePreviewLogger.i("DOWN") { "onStartPreviewDownload() gameId=$gameId" }
-        downloadJob = viewModelScope.launch {
-            try {
-                downloadGameUseCase(gameId = gameId, preview = true)
-                    .catch { error ->
-                        if (error is DownloadAlreadyInProgressException) {
-                            GamePreviewLogger.d("DOWN") { "onStartPreviewDownload() duplicate ignored for gameId=$gameId" }
-                            return@catch
-                        }
-                        onPreviewDownloadFailure(error)
-                    }
-                    .collect { progress ->
-                        GamePreviewLogger.d("DOWN") { "onStartPreviewDownload() progress=$progress for gameId=$gameId" }
-                    }
-            } catch (e: CancellationException) {
-                throw e
-            } catch (e: Exception) {
-                onPreviewDownloadFailure(e)
             }
         }
     }
@@ -822,24 +755,23 @@ class GamePreviewViewModel @Inject constructor(
     }
 
     private fun onDeleteGame() {
-        GamePreviewLogger.i("DOWN") { "onDeleteGame() gameId=$gameId" }
-        viewModelScope.launch {
-            gameInstallRepository.deleteGame(gameId)
-                .onSuccess {
-                    GamePreviewLogger.i("DOWN") { "onDeleteGame() succeeded for gameId=$gameId" }
-                }
-                .onFailure { error ->
-                    GamePreviewLogger.e(
-                        "DOWN",
-                        error
-                    ) { "onDeleteGame() failed for gameId=$gameId" }
-                    logger.exception(error) { "Delete failed for gameId=$gameId" }
-                    sendEvent(GamePreviewEvent.ShowError(GameUiError.Delete))
-                }
+        if (downloadRequested.value || downloadJob?.isActive == true || deleteJob?.isActive == true) return
+        val legacyId = currentGameItem?.legacyId
+        deleteJob = viewModelScope.launch {
+            try {
+                gameInstallRepository.deleteGame(gameId, legacyId).getOrThrow()
+            } catch (error: CancellationException) {
+                throw error
+            } catch (error: Exception) {
+                logger.exception(error) { "Delete failed for gameId=$gameId" }
+                sendEvent(GamePreviewEvent.ShowError(GameUiError.Delete))
+            }
         }
     }
 
     private fun onPurchase() {
+        if (purchaseJob?.isActive == true || !purchaseHandler.isPurchasing.value) return
+
         val sku = currentGameItem?.skuIdentifiers?.firstOrNull()
         if (sku == null) {
             GamePreviewLogger.w("PUR") { "onPurchase() no SKU for gameId=$gameId" }
@@ -854,7 +786,7 @@ class GamePreviewViewModel @Inject constructor(
             "purchase_initiated",
             mapOf("sku" to sku, "method" to "coins", "story_id" to gameId)
         )
-        viewModelScope.launch {
+        purchaseJob = viewModelScope.launch {
             // The balance may have dropped while the confirmation dialog was
             // open: re-check before hitting the server.
             if (lacksCoins(currentGameItem?.price ?: 0)) {
@@ -870,6 +802,7 @@ class GamePreviewViewModel @Inject constructor(
                         "purchase_completed",
                         mapOf("sku" to sku, "method" to "coins", "story_id" to gameId)
                     )
+                    savedStateHandle["unlockFeedbackPending"] = true
                     sendEvent(GamePreviewEvent.PurchaseSuccess)
                 }
                 .onFailure { error ->
@@ -920,7 +853,6 @@ class GamePreviewViewModel @Inject constructor(
     }
 
     private companion object {
-        const val OPTIONS_ACCESS_UID = "8be954c7a18f4e7cba9c"
         const val MAX_GRANT_CHECK_ATTEMPTS = 3
         const val GRANT_CHECK_RETRY_DELAY_MS = 1_000L
     }

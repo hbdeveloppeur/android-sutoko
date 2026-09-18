@@ -1,13 +1,12 @@
 package com.purpletear.game.presentation.game_preview.components
 
-import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.layout.Box
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import com.example.sharedelements.components.AnimatedGradientBorderBox
 
 /**
@@ -23,22 +22,14 @@ internal fun GamePreviewUnlockAnimation(
     isVisible: Boolean = false,
     animationDurationMillis: Int = 500
 ) {
-    // Animate the alpha value based on isVisible parameter
-    val alpha by animateFloatAsState(
-        targetValue = if (isVisible) 1f else 0f,
-        animationSpec = tween(durationMillis = animationDurationMillis),
-        label = "visibilityAnimation"
-    )
-
-    Box(
-        Modifier
-            .fillMaxSize()
-            .then(modifier)
+    AnimatedVisibility(
+        visible = isVisible,
+        modifier = modifier.fillMaxSize(),
+        enter = fadeIn(tween(animationDurationMillis)),
+        exit = fadeOut(tween(animationDurationMillis)),
     ) {
         AnimatedGradientBorderBox(
-            modifier = Modifier
-                .fillMaxSize()
-                .alpha(alpha),
+            modifier = Modifier.fillMaxSize(),
         )
     }
 }

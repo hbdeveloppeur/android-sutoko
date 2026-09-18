@@ -1,0 +1,4 @@
+<resources>
+    <string name="sutoko_ad_privacy_options">Ad privacy settings</string>
+    <string name="sutoko_ad_privacy_error">Privacy settings are unavailable. Please try again.</string>
+</resources>

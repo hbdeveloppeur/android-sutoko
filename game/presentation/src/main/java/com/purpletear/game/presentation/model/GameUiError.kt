@@ -18,6 +18,10 @@ sealed interface GameUiError {
         override val stringRes = R.string.game_presentation_error_load_game
     }
 
+    data object NickName : GameUiError {
+        override val stringRes = R.string.game_presentation_error_nickname
+    }
+
     data object Purchase : GameUiError {
         override val stringRes = R.string.game_presentation_error_purchase
     }

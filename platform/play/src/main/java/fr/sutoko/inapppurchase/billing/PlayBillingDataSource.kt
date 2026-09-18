@@ -1,7 +1,9 @@
 package fr.sutoko.inapppurchase.billing
 
 import android.app.Activity
+import android.os.SystemClock
 import android.os.Trace
+import android.util.Log
 import com.android.billingclient.api.AcknowledgePurchaseParams
 import com.android.billingclient.api.BillingClient
 import com.android.billingclient.api.BillingClientStateListener
@@ -39,6 +41,8 @@ import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicReference
 import javax.inject.Inject
 import javax.inject.Singleton
+
+private const val TAG = "PayFlow"
 
 @Singleton
 internal class PlayBillingDataSource @Inject constructor(
@@ -99,6 +103,7 @@ internal class PlayBillingDataSource @Inject constructor(
                  * Play can redeliver purchases, pending purchases can complete later,
                  * and the app process can die during the purchase flow.
                  */
+                Log.d(TAG, "onPurchasesUpdated OK: ${purchases.map { "${it.orderId} state=${it.purchaseState}" }}")
                 applicationScope.launch {
                     val results = purchases.flatMap { purchase ->
                         processPurchaseSafely(purchase, shouldVerify = true)
@@ -370,7 +375,8 @@ internal class PlayBillingDataSource @Inject constructor(
         purchase: Purchase,
         shouldVerify: Boolean = true,
     ): List<PurchaseResult> {
-        return try {
+        val startedAt = SystemClock.elapsedRealtime()
+        val results = try {
             processPurchase(purchase, shouldVerify)
         } catch (e: CancellationException) {
             throw e
@@ -385,6 +391,12 @@ internal class PlayBillingDataSource @Inject constructor(
                 )
             )
         }
+        Log.d(
+            TAG,
+            "processPurchaseSafely ${purchase.orderId} took ${SystemClock.elapsedRealtime() - startedAt}ms " +
+                "results=${results.map { it::class.simpleName }}"
+        )
+        return results
     }
 
     private suspend fun processPurchase(
@@ -424,7 +436,13 @@ internal class PlayBillingDataSource @Inject constructor(
 
                     products.forEach { (_, product) ->
                         val receipt = purchase.toReceipt(product)
+                        val verifyStartedAt = SystemClock.elapsedRealtime()
                         val verification = verifier.verify(receipt, product)
+                        Log.d(
+                            TAG,
+                            "verify ${product.sku} took ${SystemClock.elapsedRealtime() - verifyStartedAt}ms " +
+                                "verified=${verification.verified} msg=${verification.message}"
+                        )
 
                         if (!verification.verified) {
                             verificationFailures += PurchaseResult.Failed(
@@ -452,7 +470,9 @@ internal class PlayBillingDataSource @Inject constructor(
 
                 when (distinctKinds.single()) {
                     ProductKind.CONSUMABLE -> {
+                        val consumeStartedAt = SystemClock.elapsedRealtime()
                         consumePurchaseInternal(purchase.purchaseToken)
+                        Log.d(TAG, "consume took ${SystemClock.elapsedRealtime() - consumeStartedAt}ms")
                     }
 
                     ProductKind.NON_CONSUMABLE,

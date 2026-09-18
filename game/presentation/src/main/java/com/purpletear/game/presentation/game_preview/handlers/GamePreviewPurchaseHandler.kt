@@ -28,14 +28,16 @@ class GamePreviewPurchaseHandler @Inject constructor(
     }
 
     fun abortPurchaseFlow() {
-        reset()
+        _isPurchasing.value = false
     }
 
     suspend fun confirmPurchase(sku: String): Result<Unit> {
         _isPurchaseLoading.value = true
-        return buyStoryWithCoinsUseCase(sku)
-            .map { }
-            .also { reset() }
+        return try {
+            buyStoryWithCoinsUseCase(sku).map { }
+        } finally {
+            reset()
+        }
     }
 
     private fun reset() {

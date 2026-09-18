@@ -57,9 +57,9 @@ fun GamePreviewFavoriteButton(
             ) {
                 haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
                 scope.launch {
-                    scale.animateTo(1f, tween(durationMillis = 120, easing = FastOutSlowInEasing))
+                    scale.animateTo(0.8f, tween(durationMillis = 120, easing = FastOutSlowInEasing))
                     scale.animateTo(
-                        0.8f,
+                        1f,
                         spring(
                             dampingRatio = Spring.DampingRatioMediumBouncy,
                             stiffness = Spring.StiffnessMedium,

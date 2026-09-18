@@ -13,6 +13,8 @@ import androidx.navigation.NavDeepLink
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 
+private const val NAVIGATION_ANIMATION_DURATION_MS = 300
+
 fun NavGraphBuilder.animatedComposable(
     route: String,
     arguments: List<NamedNavArgument> = emptyList(),
@@ -27,45 +29,44 @@ fun NavGraphBuilder.animatedComposable(
             slideIntoContainer(
                 towards = AnimatedContentTransitionScope.SlideDirection.Left,
                 animationSpec = tween(
-                    durationMillis = 760,
+                    durationMillis = NAVIGATION_ANIMATION_DURATION_MS,
                     easing = FastOutSlowInEasing
                 ),
-                initialOffset = { fullSize -> fullSize / 4 }     // move the whole width in from the right
+                initialOffset = { fullSize -> fullSize / 4 }
             ) + fadeIn(
-                animationSpec = tween(760, easing = FastOutSlowInEasing)
+                animationSpec = tween(NAVIGATION_ANIMATION_DURATION_MS, easing = FastOutSlowInEasing)
             )
         },
         exitTransition = {
             slideOutOfContainer(
-                towards = AnimatedContentTransitionScope.SlideDirection.Right,
+                towards = AnimatedContentTransitionScope.SlideDirection.Left,
                 animationSpec = tween(
-                    durationMillis = 760,
+                    durationMillis = NAVIGATION_ANIMATION_DURATION_MS,
                     easing = FastOutSlowInEasing
                 ),
                 targetOffset = { fullSize -> fullSize / 4 }
             ) + fadeOut(
-                animationSpec = tween(760, easing = FastOutSlowInEasing)
+                animationSpec = tween(NAVIGATION_ANIMATION_DURATION_MS, easing = FastOutSlowInEasing)
             )
         },
         popEnterTransition = {
             slideIntoContainer(
-                towards = AnimatedContentTransitionScope.SlideDirection.Left,
-                animationSpec = tween(760, easing = FastOutSlowInEasing),
+                towards = AnimatedContentTransitionScope.SlideDirection.Right,
+                animationSpec = tween(NAVIGATION_ANIMATION_DURATION_MS, easing = FastOutSlowInEasing),
                 initialOffset = { fullSize -> fullSize / 4 }
             ) + fadeIn(
-                animationSpec = tween(760, easing = FastOutSlowInEasing)
+                animationSpec = tween(NAVIGATION_ANIMATION_DURATION_MS, easing = FastOutSlowInEasing)
             )
         },
         popExitTransition = {
             slideOutOfContainer(
                 towards = AnimatedContentTransitionScope.SlideDirection.Right,
-                animationSpec = tween(760, easing = FastOutSlowInEasing),
+                animationSpec = tween(NAVIGATION_ANIMATION_DURATION_MS, easing = FastOutSlowInEasing),
                 targetOffset = { fullSize -> fullSize / 4 }
             ) + fadeOut(
-                animationSpec = tween(760, easing = FastOutSlowInEasing)
+                animationSpec = tween(NAVIGATION_ANIMATION_DURATION_MS, easing = FastOutSlowInEasing)
             )
         },
         content = content,
     )
 }
-

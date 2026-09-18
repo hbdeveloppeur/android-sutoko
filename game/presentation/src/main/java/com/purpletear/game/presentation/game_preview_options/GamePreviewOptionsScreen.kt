@@ -72,6 +72,7 @@ fun GamePreviewOptionsScreen(
     modifier: Modifier = Modifier,
     onBack: () -> Unit = {},
 ) {
+    val canAccessOptions by viewModel.canAccessOptions.collectAsStateWithLifecycle()
     val role by viewModel.role.collectAsStateWithLifecycle()
     val advanceMode by viewModel.advanceMode.collectAsStateWithLifecycle()
     val currentChapterCode by viewModel.currentChapterCode.collectAsStateWithLifecycle()
@@ -98,6 +99,7 @@ fun GamePreviewOptionsScreen(
             .navigationBarsPadding(),
     ) {
         OptionsTopBar(onBack = onBack)
+        if (!canAccessOptions) return@Column
 
         // Friendzoned games manage their own progress: chapter switching here
         // would write a store they never read, so the section is hidden.

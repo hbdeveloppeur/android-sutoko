@@ -1,12 +1,35 @@
 package com.purpletear.game.presentation.model
 
 import com.purpletear.sutoko.game.model.Chapter
+import com.purpletear.sutoko.game.model.game.GameDownloadState
 import com.purpletear.sutoko.game.BuildConfig
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class GameActionStateTest {
+
+    @Test
+    fun `completed download uses installed version before database observation catches up`() {
+        val game = item(localVersion = 1, version = 2, downloadProgress = 0.99f)
+            .copy(downloadState = GameDownloadState.Completed(2))
+        assertEquals(GameActionState.Play(1), state(game))
+    }
+
+    @Test
+    fun `download preparation unknown transfer and installation have distinct action states`() {
+        val game = item()
+        assertEquals(GameActionState.PreparingDownload, state(game.copy(downloadState = GameDownloadState.Preparing)))
+        assertEquals(GameActionState.Downloading(null), state(game.copy(downloadState = GameDownloadState.Downloading(null))))
+        assertEquals(GameActionState.Installing, state(game.copy(downloadState = GameDownloadState.Installing)))
+    }
+
+    @Test
+    fun `failed and cancelled transfers restore the available action instead of stale progress`() {
+        val game = item(downloadProgress = 0.99f)
+        assertEquals(GameActionState.Download, state(game.copy(downloadState = GameDownloadState.Failed)))
+        assertEquals(GameActionState.Download, state(game.copy(downloadState = GameDownloadState.Cancelled)))
+    }
 
     private fun item(
         isFree: Boolean = true,

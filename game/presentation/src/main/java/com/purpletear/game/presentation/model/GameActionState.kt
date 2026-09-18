@@ -2,6 +2,7 @@ package com.purpletear.game.presentation.model
 
 import com.purpletear.sutoko.game.BuildConfig
 import com.purpletear.sutoko.game.model.Chapter
+import com.purpletear.sutoko.game.model.game.GameDownloadState
 
 /**
  * Legacy integer IDs of the built-in Friendzoned games. These run in their own
@@ -17,7 +18,9 @@ sealed class GameActionState {
     data object UpdateApp : GameActionState()
     data object UpdateGame : GameActionState()
     data object Download : GameActionState()
-    data class Downloading(val progress: Float) : GameActionState()
+    data object PreparingDownload : GameActionState()
+    data class Downloading(val progress: Float?) : GameActionState()
+    data object Installing : GameActionState()
     /**
      * @property chapterNumber current chapter, or -1 while no chapter is
      * loaded yet: the Try button then stays visible but disabled (same
@@ -65,7 +68,10 @@ fun GameItem.toGameActionState(
     )
 
     isPending -> GameActionState.Pending
-    downloadProgress != null -> GameActionState.Downloading(downloadProgress)
+    downloadState is GameDownloadState.Preparing -> GameActionState.PreparingDownload
+    downloadState is GameDownloadState.Downloading -> GameActionState.Downloading(downloadState.progress)
+    downloadState is GameDownloadState.Installing -> GameActionState.Installing
+    downloadState == null && downloadProgress != null -> GameActionState.Downloading(downloadProgress)
     // Compatibility gate comes before Purchase: never let the user buy or try
     // a story this app's canvas engine cannot run.
     canvasTechnologyRequiredVersion > BuildConfig.CANVAS_VERSION_COMPATIBILITY -> GameActionState.UpdateApp
@@ -76,8 +82,8 @@ fun GameItem.toGameActionState(
         isUserConnected = isUserConnected,
     )
 
-    localVersion == null -> GameActionState.Download
-    localVersion != version -> GameActionState.UpdateGame
+    ((downloadState as? GameDownloadState.Completed)?.version ?: localVersion) == null -> GameActionState.Download
+    ((downloadState as? GameDownloadState.Completed)?.version ?: localVersion) != version -> GameActionState.UpdateGame
     isGameFinished -> GameActionState.GameFinished
     else -> GameActionState.Play(
         chapterNumber = currentChapter?.number ?: -1,

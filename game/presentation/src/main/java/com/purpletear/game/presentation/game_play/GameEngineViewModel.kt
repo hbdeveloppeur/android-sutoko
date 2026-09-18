@@ -1,5 +1,15 @@
 package com.purpletear.game.presentation.game_play
 
+import android.app.Activity
+import com.purpletear.game.presentation.game_play.ads.ChapterAdAvailability
+import com.purpletear.game.presentation.game_play.ads.ChapterAdEligibility
+import com.purpletear.game.presentation.game_play.ads.ChapterAdGateway
+import com.purpletear.game.presentation.game_play.ads.ChapterAdResult
+import com.purpletear.game.presentation.game_play.ads.ChapterAdCooldown
+import com.purpletear.game.presentation.game_play.ads.ChapterAdTransition
+import kotlinx.coroutines.withTimeoutOrNull
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.delay
 import android.content.Context
 import android.os.Trace
 import android.util.Log
@@ -43,7 +53,6 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -77,6 +86,9 @@ class GameEngineViewModel @Inject constructor(
     private val makeToastService: MakeToastService,
     private val analyticsTracker: AnalyticsTracker,
     private val logger: Logger,
+    private val chapterAds: ChapterAdGateway,
+    private val chapterAdCooldown: ChapterAdCooldown,
+    private val chapterAdEligibility: ChapterAdEligibility,
     savedStateHandle: SavedStateHandle,
     @ApplicationContext private val context: Context,
 ) : ViewModel() {
@@ -110,6 +122,11 @@ class GameEngineViewModel @Inject constructor(
 
     private val _uiState = MutableStateFlow(GameUiState())
     val uiState: StateFlow<GameUiState> = _uiState.asStateFlow()
+
+    private val adTransition = ChapterAdTransition()
+
+    private val adEligible = chapterAdEligibility.observe(gameId)
+        .stateIn(viewModelScope, SharingStarted.Eagerly, false)
 
     private val nextChapter = NextChapterController(
         gameId = gameId,
@@ -158,6 +175,21 @@ class GameEngineViewModel @Inject constructor(
     }
 
     init {
+        viewModelScope.launch {
+            adEligible.collect { eligible -> if (eligible) chapterAds.preload() }
+        }
+        viewModelScope.launch {
+            combine(adEligible, chapterAds.availability) { eligible, availability ->
+                eligible && availability != ChapterAdAvailability.UNAVAILABLE
+            }.collectLatest { eligible ->
+                val remaining = chapterAdCooldown.remainingMillis()
+                updateState { it.copy(requiresChapterAd = eligible && remaining == 0L) }
+                if (eligible && remaining > 0L) {
+                    delay(remaining)
+                    updateState { it.copy(requiresChapterAd = true) }
+                }
+            }
+        }
         Trace.beginSection("GameEngineViewModel.init")
         // The scheduler is a process-wide @Singleton: never inherit a stale hold from a
         // previous session.
@@ -216,8 +248,6 @@ class GameEngineViewModel @Inject constructor(
                         .collect(::publishRightSideIds)
                 }
 
-                loadChapterGraphAndStartGame(gameId, chapterCode)
-
                 preloadScenes.join()
                 preloadCharacters.join()
 
@@ -225,6 +255,8 @@ class GameEngineViewModel @Inject constructor(
                 updateState {
                     it.copy(characters = characters)
                 }
+
+                loadChapterGraphAndStartGame(gameId, chapterCode)
 
                 if (BuildConfig.DEBUG && autoPlay) {
                     StoryAutoPlayer(uiState, this@GameEngineViewModel).start()
@@ -256,6 +288,7 @@ class GameEngineViewModel @Inject constructor(
                     },
                     onFailure = { error ->
                         logger.exception(error) { "Failed to load chapter $chapterCode" }
+                        updateState { it.copy(hasLoadError = true) }
                         makeToastService(R.string.game_presentation_error_load_game)
                     }
                 )
@@ -278,8 +311,10 @@ class GameEngineViewModel @Inject constructor(
                 messages = emptyList(),
                 choices = emptyList(),
                 isChoicesRevealed = false,
+                choiceState = null,
                 isAwaitingInput = false,
                 isAwaitingTap = false,
+                hasLoadError = false,
                 currentScene = null
             )
         }
@@ -302,6 +337,7 @@ class GameEngineViewModel @Inject constructor(
                 messages = emptyList(),
                 choices = emptyList(),
                 isChoicesRevealed = false,
+                choiceState = null,
                 isAwaitingInput = false,
                 isLoadingStoryUpdates = true
             )
@@ -309,18 +345,18 @@ class GameEngineViewModel @Inject constructor(
 
         viewModelScope.launch {
             try {
-                delay(1000)
-                updateState { it.copy(isLoadingStoryUpdates = false) }
-                delay(280)
-
                 gameEngine.initialize(gameId, graph)
+                updateState { it.copy(isLoadingStoryUpdates = false) }
                 gameEngine.start()
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {
                 logger.exception(e) { "startGame failed for ${graph.chapterCode}" }
+                updateState { it.copy(hasLoadError = true) }
                 if (BuildConfig.DEBUG) throw e
                 makeToastService(R.string.game_presentation_error_load_game)
+            } finally {
+                updateState { it.copy(isLoadingStoryUpdates = false) }
             }
         }
     }
@@ -340,6 +376,7 @@ class GameEngineViewModel @Inject constructor(
                 messages = emptyList(),
                 choices = emptyList(),
                 isChoicesRevealed = false,
+                choiceState = null,
                 isAwaitingInput = false,
                 isLoadingStoryUpdates = false
             )
@@ -421,14 +458,8 @@ class GameEngineViewModel @Inject constructor(
                 nextChapter.onChapterChange(effect.chapterCode)
             }
 
-            is HandlerEffect.ShowChoices -> {
-                updateState {
-                    it.copy(
-                        choices = effect.choices,
-                        isChoicesRevealed = false
-                    )
-                }
-            }
+            // Choices and their arrival intent are delivered atomically by AwaitingInput.
+            is HandlerEffect.ShowChoices -> Unit
 
             is HandlerEffect.EnterCinematic -> cinematic.handle(effect)
 
@@ -504,8 +535,52 @@ class GameEngineViewModel @Inject constructor(
         }
     }
 
-    fun onNextChapterClicked() {
-        nextChapter.onNextChapterClicked(_uiState.value.isNextChapterAvailable)
+    fun onNextChapterClicked(activity: Activity? = null) {
+        val state = _uiState.value
+        if (!state.isNextChapterAvailable || !state.isNextChapterAvailabilityResolved) return
+        if (!adTransition.begin()) return
+        updateState { it.copy(isChapterAdBusy = true) }
+        fun finish(result: ChapterAdResult) {
+            adTransition.finish(result, chapterAdCooldown::recordReward) {
+                analyticsTracker.logEvent("chapter_ad_continue", mapOf(
+                    "game_id" to gameId,
+                    "result" to result.name.lowercase(),
+                    "ad_required" to state.requiresChapterAd,
+                ))
+                nextChapter.onNextChapterClicked(_uiState.value.isNextChapterAvailable)
+            }
+            updateState { it.copy(isChapterAdBusy = false) }
+            if (result == ChapterAdResult.DISMISSED && adEligible.value) chapterAds.preload()
+        }
+        if (!state.requiresChapterAd || !adEligible.value || activity == null ||
+            chapterAdCooldown.remainingMillis() > 0L) {
+            finish(ChapterAdResult.UNAVAILABLE)
+            return
+        }
+        viewModelScope.launch {
+            try {
+                if (!chapterAdEligibility.mayShow(gameId) || !adEligible.value ||
+                    activity.isFinishing || activity.isDestroyed) {
+                    finish(ChapterAdResult.UNAVAILABLE)
+                } else {
+                    val availability = withTimeoutOrNull(5_000L) {
+                        chapterAds.availability.first { it != ChapterAdAvailability.LOADING }
+                    }
+                    if (availability != ChapterAdAvailability.READY || !adEligible.value ||
+                        activity.isFinishing || activity.isDestroyed) {
+                        finish(ChapterAdResult.UNAVAILABLE)
+                    } else {
+                        audio.releaseSessionSounds()
+                        chapterAds.show(activity, ::finish)
+                    }
+                }
+            } catch (error: CancellationException) {
+                throw error
+            } catch (error: Exception) {
+                logger.exception(error) { "Chapter ad unavailable" }
+                finish(ChapterAdResult.UNAVAILABLE)
+            }
+        }
     }
 
     fun onBackClicked() {
@@ -525,14 +600,14 @@ class GameEngineViewModel @Inject constructor(
     }
 
     fun onAdvanceOnTap() {
-        val state = _uiState.value
-        if (state.isAwaitingInput) {
+        val state = gameEngine.state.value
+        if (state is GameEngineState.AwaitingInput) {
             onRevealChoicesClicked()
             return
         }
-        if (!state.isAwaitingTap) return
+        if (state !is GameEngineState.AwaitingTap) return
         viewModelScope.launch {
-            gameEngine.advanceOnTap()
+            gameEngine.advanceOnTap(isUserInitiated = true)
         }
     }
 
@@ -559,7 +634,8 @@ class GameEngineViewModel @Inject constructor(
     }
 
     fun onRevealChoicesClicked() {
-        updateState { it.copy(isChoicesRevealed = true) }
+        val state = gameEngine.state.value as? GameEngineState.AwaitingInput ?: return
+        updateState { GameEngineStateUiMapper.map(it, state).copy(isChoicesRevealed = true) }
     }
 
     fun onHideChoicesClicked() {

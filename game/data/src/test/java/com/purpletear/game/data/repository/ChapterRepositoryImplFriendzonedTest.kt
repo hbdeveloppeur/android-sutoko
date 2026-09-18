@@ -63,10 +63,10 @@ class ChapterRepositoryImplFriendzonedTest {
             chapters.value.count { it.story == storyId }
 
         override suspend fun getByStoryAndCode(storyId: String, code: String): ChapterEntity? =
-            chapters.value.firstOrNull { it.story == storyId && it.code == code }
+            chapters.value.firstOrNull { it.story == storyId && it.code.equals(code, ignoreCase = true) }
 
         override fun observeByStoryAndCode(storyId: String, code: String): Flow<ChapterEntity?> =
-            chapters.map { list -> list.firstOrNull { it.story == storyId && it.code == code } }
+            chapters.map { list -> list.firstOrNull { it.story == storyId && it.code.equals(code, ignoreCase = true) } }
 
         override fun observeStoryIdsWithUpcomingChapters(nowSeconds: Long): Flow<List<String>> =
             kotlinx.coroutines.flow.flowOf(emptyList())

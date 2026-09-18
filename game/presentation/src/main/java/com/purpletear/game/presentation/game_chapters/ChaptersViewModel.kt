@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.purpletear.core.presentation.services.ToastService
 import com.purpletear.game.presentation.R
+import com.purpletear.game.presentation.model.GameUiError
 import com.purpletear.sutoko.core.domain.logger.Logger
 import com.purpletear.sutoko.core.domain.logger.exception
 import com.purpletear.sutoko.game.model.Chapter
@@ -15,10 +16,12 @@ import com.purpletear.sutoko.game.repository.UserRoleRepository
 import com.purpletear.sutoko.game.repository.game.GameRepository
 import com.purpletear.sutoko.game.service.MediaUrlResolver
 import com.purpletear.sutoko.game.usecase.GetChaptersUseCase
+import com.purpletear.sutoko.game.usecase.PrepareGameLaunchUseCase
+import com.purpletear.sutoko.game.usecase.SaveUserNickNameUseCase
 import com.purpletear.sutoko.game.usecase.SelectChapterUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.Job
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -28,6 +31,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
@@ -60,10 +64,12 @@ sealed interface ChaptersEvent {
 class ChaptersViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val getChaptersUseCase: GetChaptersUseCase,
-    gameRepository: GameRepository,
+    private val gameRepository: GameRepository,
     mediaUrlResolver: MediaUrlResolver,
     chapterRepository: ChapterRepository,
     private val selectChapterUseCase: SelectChapterUseCase,
+    private val prepareGameLaunchUseCase: PrepareGameLaunchUseCase,
+    private val saveUserNickNameUseCase: SaveUserNickNameUseCase,
     private val userRoleRepository: UserRoleRepository,
     private val toastService: ToastService,
     private val logger: Logger,
@@ -118,7 +124,20 @@ class ChaptersViewModel @Inject constructor(
     private val _events = Channel<ChaptersEvent>(Channel.BUFFERED)
     val events: Flow<ChaptersEvent> = _events.receiveAsFlow()
 
-    private var selectJob: Job? = null
+    private val _isSelecting = MutableStateFlow(false)
+    val isSelecting: StateFlow<Boolean> = _isSelecting.asStateFlow()
+
+    private val _nickNameChapter = MutableStateFlow<Chapter?>(null)
+    val nickNameChapter: StateFlow<Chapter?> = _nickNameChapter.asStateFlow()
+
+    private val _isSavingNickName = MutableStateFlow(false)
+    val isSavingNickName: StateFlow<Boolean> = _isSavingNickName.asStateFlow()
+
+    private var navigationPending = false
+
+    fun onResume() {
+        navigationPending = false
+    }
 
     /**
      * Re-fetches this story's chapters from the network; the fresh result flows
@@ -137,14 +156,66 @@ class ChaptersViewModel @Inject constructor(
     fun onChapterSelected(chapter: Chapter) {
         val isAdmin = (uiState.value as? ChaptersUiState.Data)?.isAdmin == true
         if (!chapter.available && !isAdmin) return
-        if (selectJob?.isActive == true) return
-        selectJob = viewModelScope.launch {
-            selectChapterUseCase(gameId, chapter.code)
-                .onSuccess { _events.send(ChaptersEvent.OpenChapter(chapter.normalizedCode)) }
-                .onFailure { error ->
-                    logger.exception(error) { "Failed to select chapter ${chapter.code} for gameId=$gameId" }
-                    toastService(R.string.game_presentation_game_chapters_select_error)
-                }
+        if (navigationPending || _nickNameChapter.value != null ||
+            !_isSelecting.compareAndSet(false, true)
+        ) return
+        viewModelScope.launch {
+            try {
+                prepareAndOpenChapter(chapter, requestNickName = true)
+            } finally {
+                _isSelecting.value = false
+            }
         }
+    }
+
+    fun onNickNameDismissed() {
+        if (!_isSavingNickName.value) _nickNameChapter.value = null
+    }
+
+    fun onNickNameConfirmed(name: String?) {
+        val chapter = _nickNameChapter.value ?: return
+        if (navigationPending || !_isSavingNickName.compareAndSet(false, true)) return
+        viewModelScope.launch {
+            try {
+                saveUserNickNameUseCase(gameId, name).getOrElse { error ->
+                    showNickNameError(error)
+                    return@launch
+                }
+                prepareAndOpenChapter(chapter, requestNickName = false)
+            } finally {
+                _isSavingNickName.value = false
+            }
+        }
+    }
+
+    private suspend fun prepareAndOpenChapter(chapter: Chapter, requestNickName: Boolean) {
+        try {
+            if (!chapter.available && userRoleRepository.get() != UserRole.ADMINISTRATOR) return
+            val catalog = gameRepository.observeGame(gameId).firstOrNull()
+                ?: error("Game not found: $gameId")
+            val needsNickName = prepareGameLaunchUseCase(catalog, requestNickName)
+                .getOrElse { error ->
+                    showNickNameError(error)
+                    return
+                }
+            if (needsNickName) {
+                _nickNameChapter.value = chapter
+                return
+            }
+            selectChapterUseCase(gameId, chapter.code).getOrThrow()
+            _nickNameChapter.value = null
+            navigationPending = true
+            _events.send(ChaptersEvent.OpenChapter(chapter.normalizedCode))
+        } catch (error: CancellationException) {
+            throw error
+        } catch (error: Exception) {
+            logger.exception(error) { "Failed to select chapter ${chapter.code} for gameId=$gameId" }
+            toastService(R.string.game_presentation_game_chapters_select_error)
+        }
+    }
+
+    private fun showNickNameError(error: Throwable) {
+        logger.exception(error) { "Could not prepare nickname for gameId=$gameId" }
+        toastService(GameUiError.NickName.stringRes)
     }
 }

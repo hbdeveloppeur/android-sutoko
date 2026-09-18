@@ -24,6 +24,7 @@ import com.purpletear.sutoko.domain.model.User
 import com.purpletear.sutoko.game.usecase.DownloadGameUseCase
 import com.purpletear.sutoko.game.usecase.GetChaptersUseCase
 import com.purpletear.sutoko.game.usecase.RestartGameUseCase
+import com.purpletear.sutoko.game.usecase.PrepareGameLaunchUseCase
 import com.purpletear.sutoko.game.usecase.SaveUserNickNameUseCase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -100,11 +101,11 @@ class GamePreviewViewModelTestFixture {
             gameRepository = gameRepository,
             favoriteGamesRepository = favoriteGamesRepository,
             chapterRepository = chapterRepository,
-            friendzonedProgressRepository = friendzonedProgressRepository,
             gameInstallRepository = gameInstallRepository,
             mediaUrlResolver = mediaUrlResolver,
             getChaptersUseCase = getChaptersUseCase,
             saveUserNickNameUseCase = saveUserNickNameUseCase,
+            prepareGameLaunchUseCase = PrepareGameLaunchUseCase(userGameProgressRepository, friendzonedProgressRepository),
             toastService = toastService,
             restartGameUseCase = restartGameUseCase,
             downloadGameUseCase = downloadGameUseCase,

@@ -3,6 +3,7 @@ package com.purpletear.game.presentation.model
 import androidx.annotation.Keep
 import com.purpletear.sutoko.game.model.Author
 import com.purpletear.sutoko.game.model.game.GameCatalog
+import com.purpletear.sutoko.game.model.game.GameDownloadState
 import com.purpletear.sutoko.game.model.game.GameInstall
 import com.purpletear.sutoko.game.model.game.NarrativeTheme
 
@@ -33,6 +34,7 @@ data class GameItem(
     val price: Int = 0,
     val isFavorite: Boolean = false,
     val isOnline: Boolean = true,
+    val downloadState: GameDownloadState? = null,
 ) {
     constructor(
         catalog: GameCatalog,
@@ -45,14 +47,16 @@ data class GameItem(
         authorAvatarUrl: String? = null,
         downloadProgress: Float? = null,
         isFavorite: Boolean = false,
+        downloadState: GameDownloadState? = null,
     ) : this(
         id = catalog.id,
         title = catalog.metadata.title,
         version = catalog.version,
         skuIdentifiers = catalog.skus,
         isPurchased = isPurchased,
-        localVersion = install?.localVersion,
+        localVersion = (downloadState as? GameDownloadState.Completed)?.version ?: install?.localVersion,
         downloadProgress = downloadProgress,
+        downloadState = downloadState,
         menuBackgroundUrl = menuBackgroundUrl,
         videoUrl = catalog.videoUrl,
         menuSoundUrl = catalog.menuSoundUrl,

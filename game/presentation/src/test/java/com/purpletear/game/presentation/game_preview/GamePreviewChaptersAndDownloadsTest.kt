@@ -163,4 +163,26 @@ class GamePreviewChaptersAndDownloadsTest {
             assertEquals(2, awaitItem())
         }
     }
+
+    @Test
+    fun `releasedChaptersCount counts alternatives once after filtering availability`() = runTest {
+        val viewModel = createViewModel()
+
+        viewModel.releasedChaptersCount.test {
+            assertEquals(null, awaitItem())
+            chapterRepository.setChapters(
+                TestFixtures.GAME_ID,
+                Result.success(
+                    listOf(
+                        Chapter(id = "12A", number = 12, alternative = "A", available = false),
+                        Chapter(id = "12B", number = 12, alternative = "B", available = true),
+                        Chapter(id = "13A", number = 13, alternative = "A", available = true),
+                        Chapter(id = "13B", number = 13, alternative = "B", available = true),
+                        Chapter(id = "14A", number = 14, alternative = "A", available = false),
+                    ),
+                ),
+            )
+            assertEquals(2, awaitItem())
+        }
+    }
 }

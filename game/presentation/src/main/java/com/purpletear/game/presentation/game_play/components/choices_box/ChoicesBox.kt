@@ -205,20 +205,23 @@ private fun ChoiceRow(
 @Composable
 fun MakeAChoiceButton(
     onClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true
 ) {
     val haptic = LocalHapticFeedback.current
 
     Column(
         modifier = modifier
             .testTag("game_make_a_choice_button")
-            .clickable(
-                interactionSource = remember { MutableInteractionSource() },
-                indication = null,
-                onClick = {
-                    haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
-                    onClick()
-                }
+            .then(
+                if (enabled) Modifier.clickable(
+                    interactionSource = remember { MutableInteractionSource() },
+                    indication = null,
+                    onClick = {
+                        haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                        onClick()
+                    }
+                ) else Modifier
             )
             .padding(vertical = 12.dp),
         horizontalAlignment = Alignment.CenterHorizontally

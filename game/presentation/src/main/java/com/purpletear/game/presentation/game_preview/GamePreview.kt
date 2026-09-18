@@ -11,12 +11,16 @@ import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
@@ -25,6 +29,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -51,14 +56,18 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.input.pointer.PointerEventPass
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -99,13 +108,14 @@ import com.purpletear.game.presentation.model.formatNarrativeThemes
 import com.purpletear.game.presentation.model.toGameActionState
 import com.purpletear.sutoko.alert.presentation.SimpleAlertDialog
 import com.purpletear.sutoko.game.model.FriendzonedLegacyIds
+import com.purpletear.sutoko.game.model.game.GameDownloadState
 import kotlinx.coroutines.delay
 import com.example.sharedelements.R as SutokoSharedElementsR
 
 /**
  * A preview screen that displays detailed game information
  */
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 fun GamePreview(
     modifier: Modifier = Modifier,
@@ -122,6 +132,7 @@ fun GamePreview(
     val gameItem: GameItem? = (state as? GamePreviewUiState.Data)?.item
 
     val currentChapter by viewModel.currentChapter.collectAsStateWithLifecycle()
+    val isLoadingChapters by viewModel.isLoadingChapters.collectAsStateWithLifecycle()
     val isUserPremium by viewModel.isUserPremium.collectAsStateWithLifecycle()
     val isUserConnected by viewModel.isUserConnected.collectAsStateWithLifecycle()
     val isOptionsVisible by viewModel.isOptionsVisible.collectAsStateWithLifecycle()
@@ -133,23 +144,46 @@ fun GamePreview(
     val isRefreshing by viewModel.isRefreshing.collectAsStateWithLifecycle()
     val releasedChaptersCount by viewModel.releasedChaptersCount.collectAsStateWithLifecycle()
 
-    val showVideo = rememberShowVideoAfterNavigation()
-
     val transitionAlpha = remember { Animatable(0f) }
     var isFadingToGame by remember { mutableStateOf(false) }
+    var pendingPlay by remember { mutableStateOf<GamePreviewEvent.PlayGame?>(null) }
+    var navigationDispatched by remember { mutableStateOf(false) }
     var showAuthorAvatar by remember { mutableStateOf(false) }
 
     val lifecycleOwner = LocalLifecycleOwner.current
     val lifecycleState by lifecycleOwner.lifecycle.currentStateFlow.collectAsState()
     LaunchedEffect(lifecycleState) {
         if (lifecycleState == Lifecycle.State.RESUMED) {
-            transitionAlpha.snapTo(0f)
-            isFadingToGame = false
             // Friendzoned games may have advanced their own progress while
             // this screen sat in the back stack: refresh the current chapter.
             viewModel.onResume()
         }
     }
+
+    LaunchedEffect(lifecycleState, pendingPlay) {
+        if (lifecycleState != Lifecycle.State.RESUMED) {
+            return@LaunchedEffect
+        }
+        if (navigationDispatched) {
+            transitionAlpha.animateTo(0f, tween(250, easing = FastOutSlowInEasing))
+            pendingPlay = null
+            navigationDispatched = false
+            isFadingToGame = false
+            return@LaunchedEffect
+        }
+        val event = pendingPlay ?: return@LaunchedEffect
+        isFadingToGame = true
+        transitionAlpha.animateTo(
+            targetValue = 1f,
+            animationSpec = tween(durationMillis = 500, easing = FastOutSlowInEasing),
+        )
+        navigationDispatched = true
+        onNavigateToGame(
+            event.gameId, event.legacyId, event.isPurchased, event.chapterCode, event.isTrial,
+        )
+    }
+
+    BackHandler(enabled = isFadingToGame) {}
 
     Surface(
         modifier = modifier
@@ -157,21 +191,29 @@ fun GamePreview(
     ) {
         PullToRefreshBox(
             isRefreshing = isRefreshing,
-            onRefresh = { viewModel.refresh() },
-            modifier = Modifier.fillMaxSize(),
+            onRefresh = { if (!isFadingToGame) viewModel.refresh() },
+            modifier = Modifier.fillMaxSize().then(
+                if (isFadingToGame) Modifier.pointerInput(Unit) {
+                    awaitPointerEventScope {
+                        while (true) {
+                            awaitPointerEvent(PointerEventPass.Initial).changes.forEach { it.consume() }
+                        }
+                    }
+                } else Modifier
+            ).then(if (isFadingToGame) Modifier.clearAndSetSemantics {} else Modifier),
         ) {
             Box(
                 modifier = Modifier
                     .fillMaxSize()
                     .background(Color.Black)
             ) {
-                // Background media: image always, video only after navigation animation
+                // Media owns playback eligibility and preserves its last frame during navigation.
                 when (val currentState = state) {
                     is GamePreviewUiState.Data -> {
                         GameBackgroundPreviewMedia(
                             imageUrl = currentState.item.menuBackgroundUrl?.takeIf { it.isNotBlank() },
-                            videoUrl = currentState.item.videoUrl.takeIf { showVideo && it?.isNotBlank() == true },
-                            fallbackPainter = fallbackBackgroundPainter.takeIf { currentState.item.videoUrl.isNullOrBlank() },
+                            videoUrl = currentState.item.videoUrl,
+                            fallbackPainter = fallbackBackgroundPainter,
                             modifier = Modifier.fillMaxSize()
                         )
                         GamePreviewMenuSoundEffect(
@@ -194,9 +236,10 @@ fun GamePreview(
                     }
 
                     GamePreviewUiState.NotFound -> {
-                        Box(
+                        Column(
                             modifier = Modifier.fillMaxSize(),
-                            contentAlignment = Alignment.Center,
+                            verticalArrangement = Arrangement.Center,
+                            horizontalAlignment = Alignment.CenterHorizontally,
                         ) {
                             Text(
                                 text = stringResource(R.string.game_presentation_story_unavailable),
@@ -206,10 +249,30 @@ fun GamePreview(
                                 textAlign = TextAlign.Center,
                                 modifier = Modifier.padding(24.dp),
                             )
+                            GamePreviewButton(
+                                title = stringResource(R.string.game_presentation_game_preview_retry),
+                                onClick = viewModel::refresh,
+                                modifier = Modifier.padding(horizontal = 32.dp),
+                            )
                         }
                     }
 
-                    is GamePreviewUiState.Error -> { /* Black background from parent Box */
+                    is GamePreviewUiState.Error -> {
+                        Column(
+                            modifier = Modifier.fillMaxSize().padding(horizontal = 32.dp),
+                            verticalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterVertically),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                        ) {
+                            Text(
+                                text = stringResource(R.string.game_presentation_game_preview_load_error),
+                                color = Color.White,
+                                textAlign = TextAlign.Center,
+                            )
+                            GamePreviewButton(
+                                title = stringResource(R.string.game_presentation_game_preview_retry),
+                                onClick = viewModel::refresh,
+                            )
+                        }
                     }
                 }
 
@@ -218,13 +281,16 @@ fun GamePreview(
                 val screenWidth = configuration.screenWidthDp
                 val screenHeight = configuration.screenHeightDp
 
-                GamePreviewGradients(
-                    screenWidth = screenWidth,
-                    screenHeight = screenHeight
-                )
+                if (gameItem != null) {
+                    GamePreviewGradients(
+                        screenWidth = screenWidth,
+                        screenHeight = screenHeight
+                    )
+                }
 
-                val animationDuration = 5250L
-                var unlockAnimationIsVisible by remember { mutableStateOf(false) }
+                val unlockFeedbackPending by viewModel.unlockFeedbackPending.collectAsStateWithLifecycle()
+                val unlockAnimationIsVisible = unlockFeedbackPending &&
+                    lifecycleState == Lifecycle.State.RESUMED && !isFadingToGame
                 var showRestartDialog by remember { mutableStateOf(false) }
                 var showAlreadyBoughtDialog by remember { mutableStateOf(false) }
                 // Non-null => the nickname dialog is visible; the Boolean carries the trial
@@ -234,49 +300,39 @@ fun GamePreview(
                 val haptic = LocalHapticFeedback.current
 
                 var wasDownloading by remember { mutableStateOf(false) }
-                val downloadProgress = gameItem?.downloadProgress
-                LaunchedEffect(downloadProgress) {
-                    if (downloadProgress != null) {
-                        wasDownloading = true
-                    } else if (wasDownloading) {
+                val downloadState = gameItem?.downloadState
+                LaunchedEffect(downloadState) {
+                    if (downloadState is GameDownloadState.Completed && wasDownloading) {
                         haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
-                        wasDownloading = false
                     }
+                    wasDownloading = downloadState is GameDownloadState.Preparing ||
+                        downloadState is GameDownloadState.Downloading ||
+                        downloadState is GameDownloadState.Installing
                 }
 
                 LaunchedEffect(Unit) {
                     viewModel.start()
                 }
 
-                LaunchedEffect(Unit) {
+                LaunchedEffect(unlockAnimationIsVisible) {
+                    if (unlockAnimationIsVisible) {
+                        delay(3000L)
+                        viewModel.onUnlockFeedbackShown()
+                    }
+                }
+
+                LaunchedEffect(viewModel) {
                     viewModel.events.collect { event ->
                         when (event) {
-                            GamePreviewEvent.PurchaseSuccess -> {
-                                unlockAnimationIsVisible = true
-                                delay(animationDuration)
-                                unlockAnimationIsVisible = false
-                            }
+                            GamePreviewEvent.PurchaseSuccess -> Unit
 
                             GamePreviewEvent.OpenAppStore -> {
                                 context.openAppInStore()
                             }
 
                             is GamePreviewEvent.PlayGame -> {
-                                isFadingToGame = true
-                                transitionAlpha.animateTo(
-                                    targetValue = 1f,
-                                    animationSpec = tween(
-                                        durationMillis = 500,
-                                        easing = FastOutSlowInEasing,
-                                    ),
-                                )
-                                onNavigateToGame(
-                                    event.gameId,
-                                    event.legacyId,
-                                    event.isPurchased,
-                                    event.chapterCode,
-                                    event.isTrial,
-                                )
+                                nickNameDialogIsTrial = null
+                                if (pendingPlay == null && !navigationDispatched) pendingPlay = event
                             }
 
                             is GamePreviewEvent.RequestNickName -> {
@@ -306,10 +362,11 @@ fun GamePreview(
 
                 GamePreviewUnlockAnimation(isVisible = unlockAnimationIsVisible)
 
+                val isSavingNickName by viewModel.isSavingNickName.collectAsStateWithLifecycle()
                 nickNameDialogIsTrial?.let { isTrial ->
                     NickNameInputDialog(
+                        isSaving = isSavingNickName,
                         onConfirm = {
-                            nickNameDialogIsTrial = null
                             viewModel.onNickNameConfirmed(it, isTrial)
                         },
                         onDismiss = { nickNameDialogIsTrial = null },
@@ -340,212 +397,227 @@ fun GamePreview(
                     )
                 }
 
-                BoxWithConstraints(Modifier.fillMaxSize()) {
-                    val viewportHeight = this.maxHeight
-                    Column(
-                        Modifier
-                            .fillMaxSize()
-                            .verticalScroll(rememberScrollState())
-                    ) {
+                if (gameItem != null) {
+                    BoxWithConstraints(Modifier.fillMaxSize()) {
+                        val viewportHeight = this.maxHeight
                         Column(
                             Modifier
-                                .fillMaxWidth()
-                                .heightIn(min = viewportHeight)
-                                .navigationBarsPadding()
-                                .statusBarsPadding()
-                                .padding(vertical = 30.dp, horizontal = 16.dp)
-                                .padding(bottom = 12.dp),
-                            verticalArrangement = Arrangement.spacedBy(26.dp)
+                                .fillMaxSize()
+                                .verticalScroll(rememberScrollState())
                         ) {
-                            gameItem?.let { game ->
-                                GameLogo(
-                                    titleUrl = game.titleUrl,
-                                    contentDescription = game.title,
-                                    modifier = Modifier
-                                        .padding(top = 40.dp)
-                                        .align(Alignment.CenterHorizontally)
-                                        .fillMaxWidth(0.8f)
-                                        .heightIn(max = 140.dp),
-                                )
-                            }
-
-                            // Push remaining space
-                            Spacer(modifier = Modifier.weight(1f))
-
                             Column(
-                                verticalArrangement = Arrangement.spacedBy(6.dp),
+                                Modifier
+                                    .fillMaxWidth()
+                                    .heightIn(min = viewportHeight)
+                                    .navigationBarsPadding()
+                                    .statusBarsPadding()
+                                    .padding(vertical = 30.dp, horizontal = 16.dp)
+                                    .padding(bottom = 12.dp),
+                                verticalArrangement = Arrangement.spacedBy(26.dp)
                             ) {
-
-                                currentChapter?.let { chapter ->
-                                    GamePreviewChapterTitle(
-                                        text = stringResource(
-                                            R.string.game_presentation_game_preview_chapter_title,
-                                            chapter.number,
-                                            chapter.title
-                                        )
+                                gameItem?.let { game ->
+                                    GameLogo(
+                                        titleUrl = game.titleUrl,
+                                        contentDescription = game.title,
+                                        modifier = Modifier
+                                            .padding(top = 40.dp)
+                                            .align(Alignment.CenterHorizontally)
+                                            .fillMaxWidth(0.8f)
+                                            .heightIn(max = 140.dp),
                                     )
                                 }
-                                    ?: GamePreviewChapterTitle(text = stringResource(R.string.game_presentation_game_preview_loading_chapter))
 
-                                val unavailableChapter =
-                                    currentChapter?.takeIf { !it.available && !isAdmin }
-                                if (unavailableChapter != null) {
-                                    GamePreviewUnavailable(
-                                        chapter = unavailableChapter
-                                    )
-                                } else if (gameItem != null) {
-                                    GamePreviewCategories(
-                                        categories = formatNarrativeThemes(
-                                            gameItem.narrativeThemes,
-                                            stringResource(R.string.game_presentation_game_card_genre_fallback)
-                                        )
-                                    )
-                                }
-                            }
+                                // Push remaining space
+                                Spacer(modifier = Modifier.weight(1f))
 
-                            if (gameItem != null && !gameItem.isOfficial) {
-                                gameItem.author?.let { author ->
-                                    Row(
-                                        horizontalArrangement = Arrangement.spacedBy(4.dp),
-                                        verticalAlignment = Alignment.CenterVertically,
-                                    ) {
-                                        Text(
-                                            text = stringResource(R.string.game_presentation_game_preview_written_by),
-                                            color = Color.White.copy(alpha = 0.6f),
-                                            fontSize = 12.sp,
-                                            fontFamily = PlusJakartaSansFontFamily,
-                                        )
-                                        gameItem.authorAvatarUrl?.let { avatarUrl ->
-                                            val avatarDescription =
-                                                stringResource(R.string.game_presentation_game_preview_author_avatar)
-                                            Avatar(
-                                                modifier = Modifier
-                                                    .background(Color.White, CircleShape)
-                                                    .clip(CircleShape)
-                                                    .clickable { showAuthorAvatar = true }
-                                                    .semantics {
-                                                        contentDescription = avatarDescription
-                                                    },
-                                                size = 22.dp,
-                                                borderWidth = 1.4.dp,
-                                                borderColor = Color.White,
-                                                imageModel = avatarUrl,
+                                Column(
+                                    verticalArrangement = Arrangement.spacedBy(6.dp),
+                                ) {
+
+                                    currentChapter?.let { chapter ->
+                                        GamePreviewChapterTitle(
+                                            text = stringResource(
+                                                R.string.game_presentation_game_preview_chapter_title,
+                                                chapter.number,
+                                                chapter.title
                                             )
-                                        }
-
-                                        Text(
-                                            text = author.displayName,
-                                            color = Color.White,
-                                            fontWeight = FontWeight.Bold,
-                                            fontSize = 12.sp,
-                                            fontFamily = PlusJakartaSansFontFamily,
                                         )
-                                        if (!author.isCertified) {
-                                            CertifiedIcon(Color(0xFF2799D7))
+                                    }
+                                        ?: GamePreviewChapterTitle(text = stringResource(
+                                            if (isLoadingChapters) R.string.game_presentation_game_preview_loading_chapter
+                                            else R.string.game_presentation_game_preview_choose_chapter
+                                        ))
+
+                                    val unavailableChapter =
+                                        currentChapter?.takeIf { !it.available && !isAdmin }
+                                    if (unavailableChapter != null) {
+                                        GamePreviewUnavailable(
+                                            chapter = unavailableChapter
+                                        )
+                                    } else if (gameItem != null) {
+                                        GamePreviewCategories(
+                                            categories = formatNarrativeThemes(
+                                                gameItem.narrativeThemes,
+                                                stringResource(R.string.game_presentation_game_card_genre_fallback)
+                                            )
+                                        )
+                                    }
+                                }
+
+                                if (gameItem != null && !gameItem.isOfficial) {
+                                    gameItem.author?.let { author ->
+                                        Row(
+                                            horizontalArrangement = Arrangement.spacedBy(4.dp),
+                                            verticalAlignment = Alignment.CenterVertically,
+                                        ) {
+                                            Text(
+                                                text = stringResource(R.string.game_presentation_game_preview_written_by),
+                                                color = Color.White.copy(alpha = 0.6f),
+                                                fontSize = 12.sp,
+                                                fontFamily = PlusJakartaSansFontFamily,
+                                            )
+                                            gameItem.authorAvatarUrl?.let { avatarUrl ->
+                                                val avatarDescription =
+                                                    stringResource(R.string.game_presentation_game_preview_author_avatar)
+                                                Avatar(
+                                                    modifier = Modifier
+                                                        .background(Color.White, CircleShape)
+                                                        .clip(CircleShape)
+                                                        .clickable { showAuthorAvatar = true }
+                                                        .semantics {
+                                                            contentDescription = avatarDescription
+                                                        },
+                                                    size = 22.dp,
+                                                    borderWidth = 1.4.dp,
+                                                    borderColor = Color.White,
+                                                    imageModel = avatarUrl,
+                                                )
+                                            }
+
+                                            Text(
+                                                text = author.displayName,
+                                                color = Color.White,
+                                                fontWeight = FontWeight.Bold,
+                                                fontSize = 12.sp,
+                                                fontFamily = PlusJakartaSansFontFamily,
+                                            )
+                                            if (author.isCertified) {
+                                                CertifiedIcon(Color(0xFF2799D7))
+                                            }
                                         }
                                     }
                                 }
-                            }
 
-                            Row(
-                                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                            ) {
+                                FlowRow(
+                                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                                ) {
 
-                                if (gameItem != null) {
-                                    GamePreviewLabel(
-                                        text = stringResource(
-                                            if (gameItem.isFree) R.string.game_presentation_game_preview_free else R.string.game_presentation_game_preview_premium
-                                        ),
-                                        borderColor = Background.Gradient(colors = PremiumLabelGradient)
-                                    )
+                                    if (gameItem != null) {
+                                        GamePreviewLabel(
+                                            text = stringResource(
+                                                if (gameItem.isFree) R.string.game_presentation_game_preview_free else R.string.game_presentation_game_preview_premium
+                                            ),
+                                            borderColor = Background.Gradient(colors = PremiumLabelGradient)
+                                        )
+                                    }
+
+                                    if (isUserPremium) {
+                                        GamePreviewLabel(
+                                            text = stringResource(R.string.game_presentation_game_preview_premium_active),
+                                            borderColor = Background.Gradient(colors = PremiumActiveLabelGradient)
+                                        )
+                                    }
+
+                                    if (gameItem?.isPurchased == true) {
+                                        GamePreviewLabel(
+                                            text = stringResource(R.string.game_presentation_game_preview_unlocked),
+                                            textColor = Color(0xFFADFFA1),
+                                            borderColor = Background.Gradient(colors = UnlockedLabelGradient)
+                                        )
+                                    }
+
+                                    if (gameItem?.isOfficial == false) {
+                                        GamePreviewLabel(
+                                            text = stringResource(R.string.game_presentation_game_preview_community)
+                                        )
+                                    }
                                 }
 
-                                if (isUserPremium) {
-                                    GamePreviewLabel(
-                                        text = stringResource(R.string.game_presentation_game_preview_premium_active),
-                                        borderColor = Background.Gradient(colors = PremiumActiveLabelGradient)
-                                    )
-                                }
-
-                                if (gameItem?.isPurchased == true) {
-                                    GamePreviewLabel(
-                                        text = stringResource(R.string.game_presentation_game_preview_unlocked),
-                                        textColor = Color(0xFFADFFA1),
-                                        borderColor = Background.Gradient(colors = UnlockedLabelGradient)
-                                    )
-                                }
-
-                                if (gameItem?.isOfficial == false) {
-                                    GamePreviewLabel(
-                                        text = stringResource(R.string.game_presentation_game_preview_community)
-                                    )
-                                }
-                            }
-
-                            GamePreviewDescription(
-                                modifier = Modifier.alpha(
-                                    if (gameItem?.description.isNullOrBlank()) 0f else 1f
-                                ),
-                                avatarUrl = gameItem?.logoUrl ?: "",
-                                description = gameItem?.description ?: "",
-                            )
-
-
-                            val gameActionState = gameItem?.toGameActionState(
-                                isPurchasing = isPurchasing,
-                                isPurchaseLoading = isPurchaseLoading,
-                                currentChapter = currentChapter,
-                                isUserConnected = isUserConnected,
-                            )
-
-                            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                                GameActionButtons(
-                                    gameActionState = gameActionState,
-                                    onAction = viewModel::onAction,
+                                GamePreviewDescription(
+                                    avatarUrl = gameItem?.logoUrl ?: "",
+                                    description = gameItem?.description ?: "",
                                 )
 
-                                // The catalog count is a server-side cached value
-                                // that can be stale; real loaded chapters win.
-                                val chaptersCount = releasedChaptersCount
-                                    ?: (state as? GamePreviewUiState.Data)?.gameCatalog?.chaptersCount
-                                    ?: 0
-                                // Friendzoned games manage their own progress: chapter
-                                // switching from the preview would have no effect on them.
-                                val isFriendzoned =
-                                    FriendzonedLegacyIds.isFriendzoned(gameItem?.legacyId)
-                                if (gameActionState is GameActionState.Play && chaptersCount > 0 && !isFriendzoned) {
-                                    GamePreviewButton(
-                                        modifier = Modifier
-                                            .fillMaxWidth(),
-                                        title = stringResource(R.string.game_presentation_game_story_chapters_button_chapters),
-                                        subtitle = stringResource(
-                                            R.string.game_presentation_game_story_chapters_button_chapters_count,
-                                            chaptersCount,
-                                        ),
-                                        onClick = {
-                                            gameItem.let { onNavigateToChapters(it.id) }
-                                        },
-                                        icon = Image(
-                                            drawableId = SutokoSharedElementsR.drawable.shared_elements_shared_ic_arrow_back_ios,
-                                            scaleX = -1f,
-                                        ),
-                                        background = Background.Solid(Color.White.copy(alpha = 0.12f)),
-                                    )
-                                }
 
-                                // Admin-only: downloads the preview archive (all chapters
-                                // incl. unreleased). Hidden permanently on any failure.
-                                // Friendzoned games have no preview archive: never show it.
-                                if (isPreviewVisible && !isFriendzoned) {
-                                    GamePreviewButton(
-                                        modifier = Modifier
-                                            .fillMaxWidth(),
-                                        title = stringResource(R.string.game_presentation_game_preview_download_preview),
-                                        onClick = {
-                                            viewModel.onAction(GamePreviewAction.OnDownloadPreview)
-                                        },
-                                        background = Background.Solid(Color.White.copy(alpha = 0.12f)),
+                                val gameActionState = gameItem?.toGameActionState(
+                                    isPurchasing = isPurchasing,
+                                    isPurchaseLoading = isPurchaseLoading,
+                                    currentChapter = currentChapter,
+                                    isUserConnected = isUserConnected,
+                                )
+
+                                Column {
+                                    GameActionButtons(
+                                        gameActionState = gameActionState,
+                                        onAction = viewModel::onAction,
+                                        enabled = !isFadingToGame,
                                     )
+
+                                    val chaptersCount = releasedChaptersCount
+                                    // Friendzoned games manage their own progress: chapter
+                                    // switching from the preview would have no effect on them.
+                                    val isFriendzoned =
+                                        FriendzonedLegacyIds.isFriendzoned(gameItem?.legacyId)
+                                    val showChapters = gameActionState is GameActionState.Play &&
+                                        (chaptersCount == null || chaptersCount > 0) && !isFriendzoned
+                                    AnimatedVisibility(
+                                        visible = showChapters,
+                                        enter = fadeIn(tween(180)) + expandVertically(tween(240), expandFrom = Alignment.Top),
+                                        exit = fadeOut(tween(120)) + shrinkVertically(tween(240), shrinkTowards = Alignment.Top),
+                                    ) {
+                                        Column {
+                                            Spacer(Modifier.height(12.dp))
+                                            GamePreviewButton(
+                                                modifier = Modifier
+                                                    .fillMaxWidth(),
+                                                title = stringResource(R.string.game_presentation_game_story_chapters_button_chapters),
+                                                subtitle = chaptersCount?.let { count ->
+                                                    stringResource(
+                                                        R.string.game_presentation_game_story_chapters_button_chapters_count,
+                                                        count,
+                                                    )
+                                                },
+                                                onClick = {
+                                                    if (showChapters && lifecycleState == Lifecycle.State.RESUMED) {
+                                                        onNavigateToChapters(gameItem.id)
+                                                    }
+                                                },
+                                                isEnabled = showChapters && !isFadingToGame,
+                                                icon = Image(
+                                                    drawableId = SutokoSharedElementsR.drawable.shared_elements_shared_ic_arrow_back_ios,
+                                                    scaleX = -1f,
+                                                ),
+                                                background = Background.Solid(Color.White.copy(alpha = 0.12f)),
+                                            )
+                                        }
+                                    }
+
+                                    // Admin-only: downloads the preview archive (all chapters
+                                    // incl. unreleased). Hidden permanently on any failure.
+                                    // Friendzoned games have no preview archive: never show it.
+                                    if (isPreviewVisible && !isFriendzoned) {
+                                        Spacer(Modifier.height(12.dp))
+                                        GamePreviewButton(
+                                            modifier = Modifier
+                                                .fillMaxWidth(),
+                                            title = stringResource(R.string.game_presentation_game_preview_download_preview),
+                                            onClick = {
+                                                viewModel.onAction(GamePreviewAction.OnDownloadPreview)
+                                            },
+                                            background = Background.Solid(Color.White.copy(alpha = 0.12f)),
+                                        )
+                                    }
                                 }
                             }
                         }
@@ -598,7 +670,9 @@ fun GamePreview(
                         )
                         if (isOptionsVisible) {
                             GamePreviewOptionsButton(
-                                onClick = { onOpenOptions(game.id) },
+                                onClick = {
+                                    if (lifecycleState == Lifecycle.State.RESUMED) onOpenOptions(game.id)
+                                },
                             )
                         }
                     }
@@ -612,11 +686,11 @@ fun GamePreview(
                     )
                 }
 
-                if (isFadingToGame || transitionAlpha.value > 0f) {
+                if (isFadingToGame) {
                     Box(
                         modifier = Modifier
                             .fillMaxSize()
-                            .alpha(transitionAlpha.value)
+                            .graphicsLayer { alpha = transitionAlpha.value }
                             .background(Color.Black)
                     )
                 }
