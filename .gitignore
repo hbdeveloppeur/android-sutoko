@@ -113,6 +113,9 @@ fastlane/readme.md
 app/release/extracted_aab/BUNDLE-METADATA/com.android.tools.build.obfuscation/proguard.map
 >>>>>>> feature/change-story-preview
 scripts/results/
+scripts/home_screen_loop_test.sh
+
+gamepreview-fixes.csv
 
 # R8 mapping archive (too large for git, keep locally + Crashlytics/Play Console)
 mapping-archive/
