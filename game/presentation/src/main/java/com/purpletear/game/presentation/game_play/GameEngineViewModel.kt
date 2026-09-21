@@ -607,7 +607,7 @@ class GameEngineViewModel @Inject constructor(
         }
         if (state !is GameEngineState.AwaitingTap) return
         viewModelScope.launch {
-            gameEngine.advanceOnTap(isUserInitiated = true)
+            gameEngine.advanceOnTap(isUserInitiated = true, expectedGate = state)
         }
     }
 

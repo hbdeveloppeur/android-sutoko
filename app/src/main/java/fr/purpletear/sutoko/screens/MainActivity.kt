@@ -109,7 +109,8 @@ class MainActivity @Inject constructor(
     private lateinit var loginLauncher: ActivityResultLauncher<Intent>
     private lateinit var optionsLauncher: ActivityResultLauncher<Intent>
     private lateinit var userStoryLauncher: ActivityResultLauncher<Intent>
-    private val viewModel: HomeScreenViewModel by viewModels()
+    private val homeViewModel = viewModels<HomeScreenViewModel>()
+    private val viewModel: HomeScreenViewModel by homeViewModel
     private var shopActivityLauncher: ActivityResultLauncher<Intent> =
         registerLaunchForResultShopActivity()
 
@@ -165,10 +166,11 @@ class MainActivity @Inject constructor(
 
 
     override fun onDestroy() {
-        // Remove all observers to prevent memory leaks
-        viewModel.toast.removeObservers(this)
-        viewModel.saveSymbols.removeObservers(this)
-        viewModel.navigateToShop.removeObservers(this)
+        if (homeViewModel.isInitialized()) {
+            viewModel.toast.removeObservers(this)
+            viewModel.saveSymbols.removeObservers(this)
+            viewModel.navigateToShop.removeObservers(this)
+        }
 
         super.onDestroy()
     }
@@ -189,6 +191,13 @@ class MainActivity @Inject constructor(
     @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        // A launcher entry can be added above an existing game after a non-launcher start.
+        if (!isTaskRoot && intent.action == Intent.ACTION_MAIN &&
+            intent.hasCategory(Intent.CATEGORY_LAUNCHER)
+        ) {
+            finish()
+            return
+        }
         WindowCompat.setDecorFitsSystemWindows(window, false)
         registerOptionsLauncher()
         registerUserStoryLauncher()

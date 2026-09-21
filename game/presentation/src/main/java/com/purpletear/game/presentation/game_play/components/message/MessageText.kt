@@ -150,16 +150,9 @@ private fun MessageDest(
             shape = shape,
             backgroundColor = bubbleColor ?: DefaultDestBubbleColor
         ) {
-            Text(
-                modifier = Modifier
-                    .padding(vertical = 6.dp)
-                    .padding(horizontal = 8.dp),
+            MessageBubbleText(
                 text = text,
                 color = textColor ?: Color.White,
-                fontFamily = WorkSansFontFamily,
-                fontWeight = FontWeight.Normal,
-                fontSize = 12.sp,
-                lineHeight = 16.sp,
             )
         }
     }
@@ -205,16 +198,9 @@ private fun MessageMainCharacter(
             shape = shape,
             backgroundColor = bubbleColor ?: DefaultMeBubbleColor
         ) {
-            Text(
-                modifier = Modifier
-                    .padding(vertical = 6.dp)
-                    .padding(horizontal = 8.dp),
+            MessageBubbleText(
                 text = text,
                 color = textColor ?: Color.White,
-                fontFamily = WorkSansFontFamily,
-                fontWeight = FontWeight.Normal,
-                fontSize = 12.sp,
-                lineHeight = 16.sp,
             )
         }
     }
@@ -326,6 +312,5 @@ private fun messageBubbleShape(
         }
     }
 }
-
 
 

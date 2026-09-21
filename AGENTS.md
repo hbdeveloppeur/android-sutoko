@@ -1,4 +1,4 @@
-# Kimi-cli agent
+You are not allowed to go inside :games:*
 
 ## Team perspectives
 
@@ -57,7 +57,6 @@ When validation is needed, always build and test in **debug** with **no cache**.
 - Put shared helpers and fakes in `Abstract<Feature>TestCase.php`; never suffix base classes with
   `Test.php`, so test runners ignore them.
 
-## Switch to a GIT branch
+## Switch to a new GIT branch for this work.
 
-You will have to create a git branch if the current branch is main for that work and switch to
-it. Do not commit unless I ask you to do so.
+If the current branch is not main or origin, you will have to validate it to main first. Then you will have to create from main to a new branch for this work.

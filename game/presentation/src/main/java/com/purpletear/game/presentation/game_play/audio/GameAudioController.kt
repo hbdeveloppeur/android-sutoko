@@ -1,6 +1,8 @@
 package com.purpletear.game.presentation.game_play.audio
 
 import android.content.Context
+import android.media.AudioAttributes
+import android.media.SoundPool
 import android.media.MediaPlayer
 import android.util.Log
 import com.purpletear.game.presentation.R
@@ -34,7 +36,9 @@ class GameAudioController(
     private val context: Context,
     private val scope: CoroutineScope,
 ) {
-    private var typingPlayer: MediaPlayer? = null
+    private var typingPool: SoundPool? = null
+    private var typingSoundId = 0
+    private var typingSoundReady = false
 
     /**
      * Sound-node channels keyed by the id of the sound node that started them, so a
@@ -61,14 +65,26 @@ class GameAudioController(
     val vocal: StateFlow<VocalPlayback> = _vocal.asStateFlow()
 
     fun playTypingSound() {
-        typingPlayer?.release()
-        typingPlayer = MediaPlayer.create(context, R.raw.game_presentation_typing)?.apply {
-            setOnCompletionListener {
-                release()
-                typingPlayer = null
-            }
-            start()
+        val existing = typingPool
+        if (existing != null) {
+            if (typingSoundReady) existing.play(typingSoundId, 1f, 1f, 1, 0, 1f)
+            return
         }
+        val pool = SoundPool.Builder()
+            .setMaxStreams(1)
+            .setAudioAttributes(AudioAttributes.Builder()
+                .setUsage(AudioAttributes.USAGE_GAME)
+                .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+                .build())
+            .build()
+        typingPool = pool
+        pool.setOnLoadCompleteListener { loadedPool, soundId, status ->
+            if (typingPool === loadedPool && status == 0) {
+                typingSoundReady = true
+                loadedPool.play(soundId, 1f, 1f, 1, 0, 1f)
+            }
+        }
+        typingSoundId = pool.load(context, R.raw.game_presentation_typing, 1)
     }
 
     /** Pending delayed playbacks keyed by sound node id; cancelled on stop or session teardown. */
@@ -95,55 +111,35 @@ class GameAudioController(
         fadeOutJobs.remove(nodeId)?.cancel()
         soundChannels.remove(nodeId)?.let { releasePlayer(it.player) }
         if (loop) {
-            playLoopingSound(nodeId, soundUrl, volume)
-        } else {
-            playOneShotSound(nodeId, soundUrl, volume)
-        }
-    }
-
-    private fun playLoopingSound(nodeId: String, soundUrl: String, volume: Float) {
-        // Ambient slot: a new looping sound replaces the previous one.
-        soundChannels.entries.filter { it.value.loop }.map { it.key }.forEach { key ->
-            soundChannels.remove(key)?.let { releasePlayer(it.player) }
-        }
-        val player = try {
-            MediaPlayer().apply {
-                setDataSource(soundUrl)
-                isLooping = true
-                setVolume(volume, volume)
-                prepare()
-                start()
+            soundChannels.entries.filter { it.value.loop }.map { it.key }.forEach { key ->
+                fadeOutJobs.remove(key)?.cancel()
+                soundChannels.remove(key)?.let { releasePlayer(it.player) }
             }
-        } catch (e: Exception) {
-            Log.e("GameEngine", "Failed to play sound: $soundUrl", e)
-            null
-        } ?: return
-        soundChannels[nodeId] = SoundChannel(player, volume, loop = true)
-    }
-
-    /**
-     * Fire-and-forget playback: every one-shot sound owns its player, so several
-     * effects can overlap each other and the ambient loop. The player removes and
-     * releases itself on completion; [releaseSessionSounds] covers early teardown.
-     */
-    private fun playOneShotSound(nodeId: String, soundUrl: String, volume: Float) {
-        val player = try {
-            MediaPlayer().apply {
-                setDataSource(soundUrl)
-                setVolume(volume, volume)
-                prepare()
-            }
-        } catch (e: Exception) {
-            Log.e("GameEngine", "Failed to play sound: $soundUrl", e)
-            return
         }
-        val channel = SoundChannel(player, volume, loop = false)
+        val player = MediaPlayer()
+        val channel = SoundChannel(player, volume, loop)
         soundChannels[nodeId] = channel
-        player.setOnCompletionListener { mp ->
+        try {
+            player.setDataSource(soundUrl)
+            player.isLooping = loop
+            player.setVolume(volume, volume)
+            player.setOnPreparedListener { prepared ->
+                if (soundChannels[nodeId] === channel) prepared.start()
+            }
+            player.setOnCompletionListener {
+                if (soundChannels.remove(nodeId, channel)) releasePlayer(it)
+            }
+            player.setOnErrorListener { failed, what, extra ->
+                Log.e("GameEngine", "Failed to play sound: $soundUrl (what=$what extra=$extra)")
+                if (soundChannels.remove(nodeId, channel)) releasePlayer(failed)
+                true
+            }
+            player.prepareAsync()
+        } catch (e: Exception) {
             soundChannels.remove(nodeId, channel)
-            mp.release()
+            releasePlayer(player)
+            Log.e("GameEngine", "Failed to play sound: $soundUrl", e)
         }
-        player.start()
     }
 
     /**
@@ -154,24 +150,29 @@ class GameAudioController(
     fun stopSound(targetNodeId: String) {
         delayedSoundJobs.remove(targetNodeId)?.cancel()
         val channel = soundChannels.remove(targetNodeId) ?: return
-        val job = scope.launch {
-            val steps = (SOUND_FADE_MS / SOUND_FADE_STEP_MS).toInt()
-            repeat(steps) { step ->
-                val scale = 1f - (step + 1).toFloat() / steps
-                runCatching {
-                    val volume = channel.volume * scale
-                    channel.player.setVolume(volume, volume)
+        val job = scope.launch(start = kotlinx.coroutines.CoroutineStart.UNDISPATCHED) {
+            try {
+                val steps = (SOUND_FADE_MS / SOUND_FADE_STEP_MS).toInt()
+                repeat(steps) { step ->
+                    val scale = 1f - (step + 1).toFloat() / steps
+                    runCatching {
+                        val volume = channel.volume * scale
+                        channel.player.setVolume(volume, volume)
+                    }
+                    delay(SOUND_FADE_STEP_MS)
                 }
-                delay(SOUND_FADE_STEP_MS)
+            } finally {
+                releasePlayer(channel.player)
             }
-            releasePlayer(channel.player)
         }
         fadeOutJobs[targetNodeId] = job
         job.invokeOnCompletion { fadeOutJobs.remove(targetNodeId, job) }
     }
 
     private fun releasePlayer(player: MediaPlayer) {
+        player.setOnPreparedListener(null)
         player.setOnCompletionListener(null)
+        player.setOnErrorListener(null)
         runCatching { player.stop() }
         player.release()
     }
@@ -201,32 +202,44 @@ class GameAudioController(
             Log.e("GameEngine", "Cannot play vocal: file not found at $audioUrl")
         }
 
-        vocalPlayer?.setOnCompletionListener(null)
-        vocalPlayer?.release()
+        vocalPlayer?.let(::releasePlayer)
         vocalProgressJob?.cancel()
-
-        vocalPlayer = try {
-            MediaPlayer().apply {
-                setDataSource(audioUrl)
-                prepare()
-                setOnCompletionListener {
-                    if (vocalPlayer === this) {
-                        release()
-                        vocalPlayer = null
-                        vocalProgressJob?.cancel()
-                        _vocal.value = _vocal.value.copy(isPlaying = false, progress = 1f)
-                    }
+        val player = MediaPlayer()
+        vocalPlayer = player
+        _vocal.value = VocalPlayback(url = audioUrl)
+        try {
+            player.setDataSource(audioUrl)
+            player.setOnPreparedListener { prepared ->
+                if (vocalPlayer === prepared) {
+                    prepared.start()
+                    _vocal.value = VocalPlayback(url = audioUrl, isPlaying = true)
+                    startVocalProgressTracking()
                 }
-                start()
             }
+            player.setOnCompletionListener { completed ->
+                if (vocalPlayer === completed) {
+                    vocalPlayer = null
+                    vocalProgressJob?.cancel()
+                    releasePlayer(completed)
+                    _vocal.value = _vocal.value.copy(isPlaying = false, progress = 1f)
+                }
+            }
+            player.setOnErrorListener { failed, what, extra ->
+                Log.e("GameEngine", "Failed to play vocal: $audioUrl (what=$what extra=$extra)")
+                if (vocalPlayer === failed) {
+                    vocalPlayer = null
+                    vocalProgressJob?.cancel()
+                    releasePlayer(failed)
+                    _vocal.value = VocalPlayback()
+                }
+                true
+            }
+            player.prepareAsync()
         } catch (e: Exception) {
+            vocalPlayer = null
+            releasePlayer(player)
+            _vocal.value = VocalPlayback()
             Log.e("GameEngine", "Failed to play vocal: $audioUrl", e)
-            null
-        }
-
-        if (vocalPlayer != null) {
-            _vocal.value = VocalPlayback(url = audioUrl, isPlaying = true, progress = 0f)
-            startVocalProgressTracking()
         }
     }
 
@@ -358,19 +371,20 @@ class GameAudioController(
      * the vocal state. Visual novel channels survive: their overlay outlives the reset.
      */
     fun releaseSessionSounds() {
-        delayedSoundJobs.values.forEach { it.cancel() }
+        delayedSoundJobs.values.toList().forEach { it.cancel() }
         delayedSoundJobs.clear()
-        fadeOutJobs.values.forEach { it.cancel() }
+        fadeOutJobs.values.toList().forEach { it.cancel() }
         fadeOutJobs.clear()
 
-        typingPlayer?.release()
-        typingPlayer = null
+        typingPool?.release()
+        typingPool = null
+        typingSoundReady = false
+        typingSoundId = 0
 
         soundChannels.values.forEach { releasePlayer(it.player) }
         soundChannels.clear()
 
-        vocalPlayer?.setOnCompletionListener(null)
-        vocalPlayer?.release()
+        vocalPlayer?.let(::releasePlayer)
         vocalPlayer = null
         vocalProgressJob?.cancel()
         vocalProgressJob = null
@@ -387,7 +401,7 @@ class GameAudioController(
     private companion object {
         const val VISUAL_NOVEL_FADE_MS = 600L
         const val VISUAL_NOVEL_FADE_STEP_MS = 50L
-        const val SOUND_FADE_MS = 600L
+        const val SOUND_FADE_MS = 1800L
         const val SOUND_FADE_STEP_MS = 50L
     }
 }

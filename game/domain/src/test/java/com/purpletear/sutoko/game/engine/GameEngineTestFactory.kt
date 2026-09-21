@@ -24,6 +24,7 @@ import com.purpletear.sutoko.game.engine.handlers.TrophyNodeHandler
 import com.purpletear.sutoko.game.engine.handlers.VisualNovelNodeHandler
 import com.purpletear.sutoko.game.engine.handlers.createFakeGameMemory
 import com.purpletear.sutoko.game.engine.processing.TextProcessorImpl
+import com.purpletear.sutoko.game.engine.timing.TimingScheduler
 import com.purpletear.sutoko.game.engine.timing.FakeTimingScheduler
 import com.purpletear.sutoko.game.model.chapter.ChapterGraph
 import com.purpletear.sutoko.game.model.chapter.Edge
@@ -35,7 +36,8 @@ import com.purpletear.sutoko.game.repository.FakeCharacterRepository
 
 internal fun createTestGameEngine(
     memory: GameMemory = createFakeGameMemory(),
-    characterRepository: CharacterRepository = FakeCharacterRepository()
+    characterRepository: CharacterRepository = FakeCharacterRepository(),
+    timingScheduler: TimingScheduler = FakeTimingScheduler()
 ): GameEngine {
     val textProcessor = TextProcessorImpl()
     return GameEngine(
@@ -65,7 +67,7 @@ internal fun createTestGameEngine(
         ),
         nodeResolver = NodeResolver(memory),
         memory = memory,
-        timingScheduler = FakeTimingScheduler(),
+        timingScheduler = timingScheduler,
         textProcessor = textProcessor,
         characterRepository = characterRepository
     )

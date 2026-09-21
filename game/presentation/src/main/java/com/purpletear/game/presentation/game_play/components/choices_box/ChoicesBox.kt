@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -25,8 +26,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
@@ -198,7 +202,17 @@ private fun ChoiceRow(
             })
             .padding(vertical = 14.dp, horizontal = 16.dp)
     ) {
-        Text(text = choice.text, color = textColor)
+        Text(
+            text = choice.text,
+            color = textColor,
+            style = LocalTextStyle.current.copy(
+                shadow = Shadow(
+                    color = Color(0xFF007EFF).copy(alpha = 0.18f),
+                    offset = Offset.Zero,
+                    blurRadius = with(LocalDensity.current) { 3.dp.toPx() }
+                )
+            )
+        )
     }
 }
 

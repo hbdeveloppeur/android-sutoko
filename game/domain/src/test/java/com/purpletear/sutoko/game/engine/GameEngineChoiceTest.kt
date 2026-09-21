@@ -155,6 +155,23 @@ class GameEngineChoiceTest {
     }
 
     @Test
+    fun `submit choice starting with action group - should insert text without the group`() = runBlocking {
+        val engine = createTestGameEngine()
+        val graph = actionChoiceGraph(choiceBText = "(soupir) Salut !")
+
+        engine.initialize("game-1", graph)
+        engine.start()
+        assertTrue(engine.state.value is GameEngineState.AwaitingInput)
+
+        engine.submitChoice("choiceB")
+
+        val texts = engine.messages.value.filterIsInstance<GameMessageText>().map { it.text }
+        assertTrue(texts.none { it.contains("soupir") })
+        assertTrue(texts.any { it == "Salut !" })
+        assertTrue(texts.any { it == "After action" })
+    }
+
+    @Test
     fun `submit regular choice - should still insert the choice as a message`() = runBlocking {
         val engine = createTestGameEngine()
         val graph = actionChoiceGraph()

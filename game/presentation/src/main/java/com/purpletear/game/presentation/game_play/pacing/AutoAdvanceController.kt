@@ -70,7 +70,7 @@ class AutoAdvanceController(
             timingScheduler.delay(state.autoAdvanceAfterMs)
             val current = gameEngine.state.value
             if (current is GameEngineState.AwaitingTap && current.currentNodeId == state.currentNodeId) {
-                gameEngine.advanceOnTap()
+                gameEngine.advanceOnTap(expectedGate = state)
             }
         }
     }

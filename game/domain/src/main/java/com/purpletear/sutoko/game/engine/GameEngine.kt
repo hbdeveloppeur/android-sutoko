@@ -492,8 +492,14 @@ class GameEngine @Inject constructor(
      * or error) without clearing the message history. No-op when the engine is not parked for a
      * tap, so the UI can call it on every unconsumed tap without tracking which node is gating.
      */
-    suspend fun advanceOnTap(isUserInitiated: Boolean = false) {
+    suspend fun advanceOnTap(
+        isUserInitiated: Boolean = false,
+        expectedGate: GameEngineState.AwaitingTap? = state.value as? GameEngineState.AwaitingTap,
+    ) {
+        if (expectedGate == null) return
         inputMutex.withLock {
+            // A queued request belongs to the gate the caller actually observed.
+            if (state.value !== expectedGate) return@withLock
             val currentState = state.value
             if (currentState !is GameEngineState.AwaitingTap) {
                 GameEngineLogger.w("INPT") { "Ignoring advanceOnTap: engine is not awaiting tap (state=$currentState)" }

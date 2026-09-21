@@ -4,6 +4,7 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.foundation.interaction.collectIsDraggedAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
@@ -36,7 +37,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -44,6 +44,7 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTagsAsResourceId
@@ -63,8 +64,6 @@ import com.purpletear.game.presentation.game_play.state.GameUiState
 import com.purpletear.sutoko.game.model.scene.Scene
 import com.purpletear.sutoko.game.engine.HandlerEffect
 import com.purpletear.sutoko.game.engine.message.GameMessageMangaPage
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.withTimeoutOrNull
 
 private data class ImageViewerState(
     val imageModel: Any? = null,
@@ -118,23 +117,11 @@ internal fun SmsGameScreen(
 
         val initialMessageIds = remember { messages.map { it.id }.toSet() }
 
-        var wasScrollable by rememberSaveable { mutableStateOf(false) }
+        val isDragging by listState.interactionSource.collectIsDraggedAsState()
 
-        LaunchedEffect(messages.firstOrNull()?.id) {
-            if (messages.isEmpty() || listState.isScrollInProgress) return@LaunchedEffect
-
-            withTimeoutOrNull(200) {
-                snapshotFlow { listState.layoutInfo.visibleItemsInfo }
-                    .first { infos -> infos.any { it.index == 0 && it.size > 0 } }
-            }
-
-            val isScrollable = listState.canScrollBackward || listState.canScrollForward
-            if (!wasScrollable && isScrollable) {
-                listState.scrollToItem(0)
-            } else {
-                listState.animateScrollToItem(0)
-            }
-            wasScrollable = isScrollable
+        LaunchedEffect(messages.firstOrNull()) {
+            if (messages.isEmpty() || isDragging) return@LaunchedEffect
+            listState.animateScrollToItem(0)
         }
 
         Column(
@@ -149,7 +136,8 @@ internal fun SmsGameScreen(
                 reverseLayout = true,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .weight(1f),
+                    .weight(1f)
+                    .testTag("game_messages"),
                 verticalArrangement = Arrangement.spacedBy(8.dp),
                 contentPadding = PaddingValues(vertical = 16.dp),
             ) {

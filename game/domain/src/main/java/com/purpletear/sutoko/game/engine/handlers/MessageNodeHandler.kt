@@ -97,15 +97,19 @@ class MessageNodeHandler @Inject constructor(
             return HandlerScript()
         }
 
+        // A choice starting with a stage direction — e.g. "(soupir) Salut !" — is
+        // inserted without the leading parenthetical group.
+        val displayText = if (isUserChoice) stripLeadingAction(processedText) else processedText
+
         GameEngineLogger.d("MSG") {
-            "MessageText from character ${node.characterId}: \"$processedText\""
+            "MessageText from character ${node.characterId}: \"$displayText\""
         }
 
         val messageId = UUID.randomUUID().toString()
         val commands = when (mode) {
             ConversationMode.SMS -> buildSmsScript(
                 node,
-                processedText,
+                displayText,
                 messageId,
                 isUserChoice,
                 memory,
@@ -113,7 +117,7 @@ class MessageNodeHandler @Inject constructor(
 
             ConversationMode.IRL -> buildIrlScript(
                 node,
-                processedText,
+                displayText,
                 messageId,
                 previousNode,
                 isUserChoice,
@@ -278,6 +282,14 @@ class MessageNodeHandler @Inject constructor(
     private fun isAction(text: String): Boolean {
         val trimmed = text.trim()
         return trimmed.startsWith("(") && trimmed.endsWith(")")
+    }
+
+    private fun stripLeadingAction(text: String): String {
+        val trimmed = text.trim()
+        if (!trimmed.startsWith("(")) return trimmed
+        val closingIndex = trimmed.indexOf(')')
+        if (closingIndex == -1) return trimmed
+        return trimmed.substring(closingIndex + 1).trim()
     }
 
     private sealed class Command {
