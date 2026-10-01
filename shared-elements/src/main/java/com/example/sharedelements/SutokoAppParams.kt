@@ -69,10 +69,6 @@ class SutokoAppParams() : Parcelable, Serializable {
             return field
         }
 
-    @PropertyName(Data.FIREBASE_APP_PARAMS_KEY_AI_CONVERSATION_AVAILABILITY)
-    @get:PropertyName(Data.FIREBASE_APP_PARAMS_KEY_AI_CONVERSATION_AVAILABILITY)
-    var aiConversationAvailability: Boolean = true
-
     override fun describeContents() = 0
 
 
@@ -110,7 +106,7 @@ class SutokoAppParams() : Parcelable, Serializable {
         termOfUseUrl = `in`.readString() ?: ""
         slectedSku = `in`.readString() ?: ""
         myOrdersHeaderbackgroundUrl = `in`.readString() ?: ""
-        aiConversationAvailability = `in`.readByte() == 1.toByte()
+        `in`.readByte() // Reserved byte for compatibility with older saved app parameters.
 
     }
 
@@ -128,6 +124,6 @@ class SutokoAppParams() : Parcelable, Serializable {
         dest.writeString(termOfUseUrl)
         dest.writeString(slectedSku)
         dest.writeString(myOrdersHeaderbackgroundUrl)
-        dest.writeByte(if (aiConversationAvailability) 1 else 0)
+        dest.writeByte(1) // Keep the reserved byte in the parcel layout.
     }
 }

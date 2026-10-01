@@ -2,6 +2,7 @@ package com.purpletear.game.presentation.game_catalog
 
 import android.content.Context
 import coil.request.ImageRequest
+import com.purpletear.game.presentation.common.storyImageCrossfadeMillis
 import com.purpletear.sutoko.game.model.game.GameCatalog
 import com.purpletear.sutoko.game.model.getFullUrl
 
@@ -20,7 +21,7 @@ fun GameCatalog.bannerImageRequest(context: Context): ImageRequest? {
     val url = bannerUrl() ?: return null
     return ImageRequest.Builder(context)
         .data(url)
-        .crossfade(true)
+        .crossfade(context.storyImageCrossfadeMillis())
         .build()
 }
 
@@ -45,7 +46,7 @@ fun GameCatalog.verticalBannerImageRequest(context: Context): ImageRequest? {
     val url = verticalBannerUrl() ?: return null
     return ImageRequest.Builder(context)
         .data(url)
-        .crossfade(true)
+        .crossfade(context.storyImageCrossfadeMillis())
         .build()
 }
 

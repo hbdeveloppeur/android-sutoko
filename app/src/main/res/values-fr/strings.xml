@@ -378,9 +378,6 @@ Entrez votre pseudo pour le classement!</string>
     <string name="sutoko_params_themes_flavor">Thèmes favoris et genre</string>
     <string name="sutoko_flavor_saved">Paramètres enregistrés avec succès</string>
     <string name="sutoko_functionality_maintenance">Fonctionnalité en maintenance, réessayez plus tard.</string>
-    <string name="app_ai_conversation_card_title">Téléphone à messages IA</string>
-    <string name="app_ai_conversation_card_subtitle">Parlez à Eva avec vos propres messages.</string>
-    <string name="app_ai_conversation_card_tag">Jouez avec des jetons Messages</string>
     <string name="app_game_access_denied">Vous ne possédez pas %1$s.</string>
 
     <!-- Create Page -->
@@ -400,4 +397,7 @@ Entrez votre pseudo pour le classement!</string>
     <string name="create_story_page_back_content_description">Retour</string>
     <string name="sutoko_built_by_instagram_description">Ouvrir HocineHope sur Instagram</string>
 
+    <string name="sutoko_home_catalog_error">Impossible de charger les histoires. Vérifiez votre connexion.</string>
+    <string name="sutoko_home_catalog_empty">Aucune histoire disponible pour le moment.</string>
+    <string name="sutoko_home_catalog_retry">Réessayer</string>
 </resources>

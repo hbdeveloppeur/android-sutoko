@@ -101,20 +101,22 @@ fun GamePosterCard(
             .width(120.dp)
             .aspectRatio(POSTER_ASPECT)
             .clip(RoundedCornerShape(8.dp))
-            .background(Color.Black.copy(alpha = 0.3f))
+            .background(Color.White.copy(alpha = 0.06f))
             .semantics { contentDescription = gameCatalog.metadata.title }
             .clickable { onTap(gameCatalog) }
     ) {
         val context = LocalContext.current
         AsyncImage(
             modifier = Modifier.fillMaxSize(),
-            model = gameCatalog.verticalBannerImageRequest(context)
-                ?: ImageRequest.Builder(context).build(),
+            model = remember(context, gameCatalog.verticalBanner) {
+                gameCatalog.verticalBannerImageRequest(context) ?: ImageRequest.Builder(context).build()
+            },
             contentScale = ContentScale.Crop,
             contentDescription = null,
         )
         GameLogo(
             titleUrl = remember(gameCatalog.title) { gameCatalog.titleUrl() },
+            title = gameCatalog.metadata.title,
             modifier = Modifier.posterTitleRect(),
         )
         CardCornerBadges(

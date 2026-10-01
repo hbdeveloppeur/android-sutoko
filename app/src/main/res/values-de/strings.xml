@@ -381,9 +381,6 @@ Geben Sie Ihren Benutzernamen für die Rangliste ein!</string>
     <string name="sutoko_functionality_maintenance">Funktion in Wartung, versuchen Sie es später noch einmal</string>
     <string name="create_page_section_title_my_stories">Meine veröffentlichten Geschichten</string>
     <string name="create_page_story_not_online">Diese Geschichte ist noch nicht online. Sie kann geöffnet werden, sobald sie veröffentlicht ist.</string>
-    <string name="app_ai_conversation_card_title">KI-Texting-Telefon</string>
-    <string name="app_ai_conversation_card_subtitle">Sprich mit Eva mit deinen eigenen Nachrichten.</string>
-    <string name="app_ai_conversation_card_tag">Spiele mit Nachrichten-Münzen</string>
     <string name="app_game_access_denied">Du besitzt %1$s nicht.</string>
 
     <!-- Create Page -->
@@ -401,4 +398,7 @@ Geben Sie Ihren Benutzernamen für die Rangliste ein!</string>
     <string name="create_story_page_back_content_description">Zurück</string>
     <string name="sutoko_built_by_instagram_description">HocineHope auf Instagram öffnen</string>
     
+    <string name="sutoko_home_catalog_error">Die Geschichten konnten nicht geladen werden. Prüfe deine Verbindung.</string>
+    <string name="sutoko_home_catalog_empty">Es sind noch keine Geschichten verfügbar.</string>
+    <string name="sutoko_home_catalog_retry">Erneut versuchen</string>
 </resources>

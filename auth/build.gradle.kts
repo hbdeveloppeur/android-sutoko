@@ -47,7 +47,6 @@ android {
 }
 
 dependencies {
-    implementation(project(":ai-conversation:core"))
     implementation(project(":tools"))
     implementation(project(":shared-elements"))
     implementation(project(":core:domain"))

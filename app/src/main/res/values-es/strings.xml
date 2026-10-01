@@ -379,9 +379,6 @@ Buena suerte :D</string>
     <string name="sutoko_params_themes_flavor">Temas favoritos y género</string>
     <string name="sutoko_flavor_saved">Ajustes guardados correctamente</string>
     <string name="sutoko_functionality_maintenance">Función en mantenimiento, intenta de nuevo más tarde</string>
-    <string name="app_ai_conversation_card_title">Teléfono de mensajes IA</string>
-    <string name="app_ai_conversation_card_subtitle">Habla con Eva con tus propios mensajes.</string>
-    <string name="app_ai_conversation_card_tag">Juega con Monedas de Mensajes</string>
     <string name="app_game_access_denied">No posees \"%1$s\".</string>
     
 
@@ -402,4 +399,7 @@ Buena suerte :D</string>
     <string name="create_story_page_url_hint">Abre en tu ordenador</string>
     <string name="create_story_page_back_content_description">Atrás</string>
 
+    <string name="sutoko_home_catalog_error">No se pudieron cargar las historias. Comprueba tu conexión.</string>
+    <string name="sutoko_home_catalog_empty">Todavía no hay historias disponibles.</string>
+    <string name="sutoko_home_catalog_retry">Volver a intentar</string>
 </resources>

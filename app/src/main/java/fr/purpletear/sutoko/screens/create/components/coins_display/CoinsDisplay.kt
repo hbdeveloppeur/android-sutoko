@@ -38,6 +38,7 @@ internal fun CoinsDisplay(
     @DrawableRes iconResId: Int = ShopR.drawable.shop_sutoko_item_coin,
     borderColor: Color = CoinGold,
     backgroundColor: Color = BackgroundDark,
+    enabled: Boolean = true,
 ) {
     val shape = RoundedCornerShape(24.dp)
 
@@ -47,6 +48,7 @@ internal fun CoinsDisplay(
             .border(1.dp, borderColor, shape)
             .background(backgroundColor)
             .clickable(
+                enabled = enabled,
                 interactionSource = remember { MutableInteractionSource() },
                 indication = null,
                 onClick = onClick

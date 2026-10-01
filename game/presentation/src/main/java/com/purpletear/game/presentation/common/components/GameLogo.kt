@@ -15,6 +15,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
+import com.purpletear.game.presentation.common.storyImageCrossfadeMillis
 
 /**
  * Displays the game's logo (title asset), scaled to fit without distortion.
@@ -42,10 +43,10 @@ internal fun GameLogo(
         return
     }
     val context = LocalContext.current
-    val request = remember(titleUrl) {
+    val request = remember(context, titleUrl) {
         ImageRequest.Builder(context)
             .data(titleUrl)
-            .crossfade(true)
+            .crossfade(context.storyImageCrossfadeMillis())
             .build()
     }
     AsyncImage(

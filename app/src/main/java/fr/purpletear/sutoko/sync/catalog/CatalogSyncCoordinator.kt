@@ -6,7 +6,11 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import com.purpletear.sutoko.game.repository.game.GameInstallRepository
 import com.purpletear.sutoko.game.repository.game.GameRepository
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import java.util.Locale
@@ -24,6 +28,10 @@ class CatalogSyncCoordinator @Inject constructor(
     private val gameInstallRepository: GameInstallRepository,
 ) {
 
+    private val syncMutex = Mutex()
+    private val _status = MutableStateFlow(CatalogSyncStatus.Loading)
+    val status = _status.asStateFlow()
+
     fun start(lifecycle: Lifecycle, scope: CoroutineScope) {
         lifecycle.addObserver(
             object : DefaultLifecycleObserver {
@@ -34,15 +42,28 @@ class CatalogSyncCoordinator @Inject constructor(
         )
     }
 
-    private suspend fun sync() {
-        val languageTag = Locale.getDefault().toLanguageTag()
-        gameRepository.syncOfficialGames(languageTag)
-            .onSuccess {
+    suspend fun sync() {
+        if (!syncMutex.tryLock()) return
+        try {
+            _status.value = CatalogSyncStatus.Loading
+            val languageTag = Locale.getDefault().toLanguageTag()
+            val result = gameRepository.syncOfficialGames(languageTag)
+            _status.value = if (result.isSuccess) CatalogSyncStatus.Ready else CatalogSyncStatus.Failed
+            result.onSuccess {
                 val catalogs = gameRepository.observeOfficialGames().first()
                 gameInstallRepository.ensureBuiltInGamesInstalled(catalogs)
-            }
-            .onFailure {
+            }.onFailure {
                 Log.w("CatalogSyncCoordinator", "Catalog sync failed", it)
             }
+        } catch (cancelled: CancellationException) {
+            throw cancelled
+        } catch (error: Exception) {
+            Log.w("CatalogSyncCoordinator", "Catalog sync failed", error)
+        } finally {
+            if (_status.value == CatalogSyncStatus.Loading) _status.value = CatalogSyncStatus.Failed
+            syncMutex.unlock()
+        }
     }
 }
+
+enum class CatalogSyncStatus { Loading, Ready, Failed }

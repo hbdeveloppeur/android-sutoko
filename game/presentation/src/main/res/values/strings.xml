@@ -221,4 +221,5 @@
     <string name="game_presentation_game_preview_retry">Retry</string>
     <string name="game_presentation_game_preview_load_error">Could not load this story. Try again.</string>
     <string name="game_presentation_game_preview_choose_chapter">Choose an available chapter to continue.</string>
+    <string name="game_presentation_catalog_loading">Loading stories</string>
 </resources>

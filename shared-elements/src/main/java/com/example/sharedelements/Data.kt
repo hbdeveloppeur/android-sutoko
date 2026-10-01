@@ -30,8 +30,6 @@ class Data {
             "myOrdersHeaderbackgroundUrl"
         const val FIREBASE_APP_PARAMS_KEY_SHOP_HEADER_BACKGROUND_URL: String =
             "shopHeaderBackgroundUrl"
-        const val FIREBASE_APP_PARAMS_KEY_AI_CONVERSATION_AVAILABILITY: String =
-            "aiConversationAvailabilityV3"
 
 
         /**

@@ -125,29 +125,6 @@ fun BottomNavigation(
                     }
                 )
 
-                // Companion (AI Conversation) Tab
-                NavButton(
-                    modifier = Modifier.weight(1f),
-                    icon = Icon.Image(
-                        R.drawable.compagnon,
-                        offsetY = 0,
-                    ),
-                    iconHeight = 26.dp,
-                    label = BottomNavItem.Companion.title,
-                    isSelected = currentRoute == BottomNavItem.Companion.route,
-                    onPress = {
-                        if (currentRoute != BottomNavItem.Companion.route) {
-                            navController.navigate(BottomNavItem.Companion.route) {
-                                popUpTo(navController.graph.startDestinationId) {
-                                    saveState = true
-                                }
-                                launchSingleTop = true
-                                restoreState = true
-                            }
-                        }
-                    }
-                )
-
                 // Shop Button (always 100% alpha, external navigation)
                 ShopButton(
                     modifier = Modifier.weight(1f),

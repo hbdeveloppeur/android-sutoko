@@ -2,10 +2,6 @@ package fr.purpletear.sutoko.fcm
 
 import android.util.Log
 import com.google.firebase.messaging.FirebaseMessagingService
-import com.google.firebase.messaging.RemoteMessage
-import com.purpletear.aiconversation.domain.enums.ContentType
-import com.purpletear.aiconversation.domain.messaging.ImageGenerationRequestMessageHandler
-import com.purpletear.aiconversation.domain.messaging.NewCharacterMessageHandler
 import com.purpletear.sutoko.domain.repository.UserConfigRepository
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CancellationException
@@ -21,37 +17,9 @@ import javax.inject.Inject
 class MyFirebaseMessagingService : FirebaseMessagingService() {
 
     @Inject
-    lateinit var imageGenerationRequestMessageHandler: ImageGenerationRequestMessageHandler
-
-    @Inject
-    lateinit var newCharacterMessageHandler: NewCharacterMessageHandler
-
-    @Inject
     lateinit var userConfigRepository: UserConfigRepository
 
     private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
-
-    override fun onMessageReceived(remoteMessage: RemoteMessage) {
-        super.onMessageReceived(remoteMessage)
-
-        when (remoteMessage.data["contentType"]) {
-            ContentType.ImageGenerationRequest.code -> {
-                serviceScope.launch {
-                    imageGenerationRequestMessageHandler.handleMessage(remoteMessage.data)
-                }
-            }
-
-            ContentType.CharacterMessage.code -> {
-                serviceScope.launch {
-                    newCharacterMessageHandler.handleMessage(remoteMessage.data)
-                }
-            }
-
-            else -> {
-                Log.d(TAG, "Unhandled contentType: ${remoteMessage.data["contentType"]}")
-            }
-        }
-    }
 
     override fun onNewToken(token: String) {
         super.onNewToken(token)

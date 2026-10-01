@@ -10,12 +10,10 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.sharedelements.Data
-import com.example.sharedelements.SutokoAppParams
 import com.example.sharedelements.utils.UiText
 import com.purpletear.core.presentation.extensions.Resource
 import com.purpletear.sutoko.core.domain.analytics.AnalyticsTracker
 import com.purpletear.sutoko.domain.repository.UserRepository
-import com.purpletear.sutoko.game.model.game.CardLayout
 import com.purpletear.sutoko.game.model.game.GameCatalog
 import com.purpletear.sutoko.game.repository.ChapterRepository
 import com.purpletear.sutoko.game.repository.game.FavoriteGamesRepository
@@ -26,15 +24,16 @@ import com.purpletear.sutoko.notification.usecase.SetCurrentScreenUseCase
 import com.purpletear.sutoko.shop.domain.repository.ShopRepository
 import com.purpletear.sutoko.shop.domain.repository.model.Balance
 import dagger.hilt.android.lifecycle.HiltViewModel
-import fr.purpletear.sutoko.R
 import fr.purpletear.sutoko.friendzoned.FriendzonedGameRouter
 import fr.purpletear.sutoko.objects.CalendarEvent
 import fr.purpletear.sutoko.symbols.SymbolsRepository
+import fr.purpletear.sutoko.sync.catalog.CatalogSyncCoordinator
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import purpletear.fr.purpleteartools.TableOfSymbols
@@ -53,6 +52,7 @@ class HomeScreenViewModel @Inject constructor(
     private val favoriteGamesRepository: FavoriteGamesRepository,
     private val chapterRepository: ChapterRepository,
     private val getChaptersUseCase: GetChaptersUseCase,
+    private val catalogSyncCoordinator: CatalogSyncCoordinator,
 ) : ViewModel(), LifecycleObserver {
 
     val balance: StateFlow<Resource<Balance>> = shopRepository.observeBalance()
@@ -63,19 +63,19 @@ class HomeScreenViewModel @Inject constructor(
             initialValue = Resource.Loading(),
         )
 
-    val isConnected: StateFlow<Boolean> = userRepository.observeIsConnected()
+    val isConnected: StateFlow<Boolean?> = userRepository.observeIsConnected()
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(7000),
-            initialValue = false,
+            initialValue = null,
         )
 
     // Observe official games from the repository cache; sync is handled by CatalogSyncCoordinator
-    private val games: StateFlow<List<GameCatalog>> = observeOfficialGamesUseCase()
-        .stateIn(
+    private val games = observeOfficialGamesUseCase()
+        .shareIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(7000),
-            initialValue = emptyList(),
+            replay = 1,
         )
 
     val favoriteIds: StateFlow<Set<String>> = favoriteGamesRepository.observeFavoriteIds()
@@ -108,36 +108,16 @@ class HomeScreenViewModel @Inject constructor(
             return _state
         }
 
-    private var _squareStories: MutableState<List<GameCatalog>> =
-        mutableStateOf(emptyList())
-    val squareStories: State<List<GameCatalog>>
-        get() = _squareStories
+    private val _catalog = mutableStateOf(HomeCatalogState())
+    val catalog: State<HomeCatalogState> = _catalog
+    val catalogSyncStatus = catalogSyncCoordinator.status
 
-    private var _squareIcons: MutableState<Map<Int, Int?>> =
-        mutableStateOf(emptyMap())
-    val squareIcons: State<Map<Int, Int?>>
-        get() = _squareIcons
-
-    private var _aiConversationMessageCount: MutableState<Int?> = mutableStateOf(null)
-    val aiConversationMessageCount: State<Int?>
-        get() = _aiConversationMessageCount
-
-    private var _displayAiConversationCard: MutableState<Boolean> = mutableStateOf(true)
-    val displayAiConversationCard: State<Boolean>
-        get() = _displayAiConversationCard
-
-
-    private var _fullStories: MutableState<List<GameCatalog>> =
-        mutableStateOf(emptyList())
-    val fullStories: State<List<GameCatalog>>
-        get() = _fullStories
-
-    /** Stories showcased as portrait posters in a horizontal row. */
-    private var _verticalStories: MutableState<List<GameCatalog>> =
-        mutableStateOf(emptyList())
-    val verticalStories: State<List<GameCatalog>>
-        get() = _verticalStories
-
+    val squareIcons: Map<Int, Int?> = mapOf(
+        159 to com.example.sharedelements.R.drawable.shared_elements_logo_card_159,
+        161 to com.example.sharedelements.R.drawable.shared_elements_logo_card_161,
+        162 to com.example.sharedelements.R.drawable.shared_elements_logo_card_162,
+        163 to com.example.sharedelements.R.drawable.shared_elements_logo_card_163,
+    )
 
     val saveSymbols: MutableLiveData<TableOfSymbols> by lazy {
         MutableLiveData<TableOfSymbols>()
@@ -174,12 +154,7 @@ class HomeScreenViewModel @Inject constructor(
         // beyond the contractual friendzoned pinning (see sortForHome).
         viewModelScope.launch {
             games.collect { gamesList ->
-                val sorted = sortForHome(gamesList)
-                val (vertical, horizontal) =
-                    sorted.partition { it.cardLayout == CardLayout.VERTICAL }
-                _verticalStories.value = vertical
-                _squareStories.value = getSquareStories(horizontal) ?: emptyList()
-                _fullStories.value = getFullWidthStories(horizontal)
+                _catalog.value = HomeCatalogState.fromGames(sortForHome(gamesList))
                 _state.value = _state.value.copy(initialStories = gamesList)
             }
         }
@@ -197,14 +172,10 @@ class HomeScreenViewModel @Inject constructor(
             }
         }
 
-        this._squareIcons = mutableStateOf(
-            mapOf(
-                159 to com.example.sharedelements.R.drawable.shared_elements_logo_card_159,
-                161 to com.example.sharedelements.R.drawable.shared_elements_logo_card_161,
-                162 to com.example.sharedelements.R.drawable.shared_elements_logo_card_162,
-                163 to com.example.sharedelements.R.drawable.shared_elements_logo_card_163,
-            )
-        )
+    }
+
+    fun retryCatalog() {
+        viewModelScope.launch { catalogSyncCoordinator.sync() }
     }
 
     fun onResume() {
@@ -246,48 +217,8 @@ class HomeScreenViewModel @Inject constructor(
         legacyId?.let { FriendzonedGameRouter.loaderClassFor(it) != null } == true
 
 
-    /**
-     * Returns a list of the first four elements in the given list of `Card` objects, or `null` if
-     * the list has fewer than four elements.
-     *
-     * @param stories a list of `Card` objects
-     * @return List<Card>?
-     */
-    private fun getSquareStories(stories: List<GameCatalog>): List<GameCatalog>? {
-        if (stories.size < 4) {
-            return null
-        }
-        return stories.subList(0, 4)
-    }
-
-
-    /**
-     * Returns a list of elements from the given list of `Card` objects starting at the fifth
-     * element, in backend endpoint order.
-     *
-     * @param stories a list of `Card` objects
-     * @return List<Card>
-     */
-    private fun getFullWidthStories(stories: List<GameCatalog>): List<GameCatalog> {
-        if (stories.size < 4) {
-            return stories
-        }
-        return stories.subList(4, stories.size)
-    }
-
-    fun displayAiConversationCard(appParams: SutokoAppParams) {
-        _displayAiConversationCard.value = appParams.aiConversationAvailability
-    }
-
-
     fun onEvent(event: MainEvents) {
         when (event) {
-
-            is MainEvents.TapAiConversationMenu -> {
-                if (!this._displayAiConversationCard.value) {
-                    toast.value = UiText.StringResource(R.string.sutoko_functionality_maintenance)
-                }
-            }
 
             is MainEvents.OnFlavorModalDismissed -> {
                 // this._displayUserFlavorsSettings.value = false

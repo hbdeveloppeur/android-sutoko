@@ -33,15 +33,12 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.purpletear.aiconversation.presentation.screens.home.AiConversationHomeScreen
-import com.purpletear.aiconversation.presentation.screens.home.viewModels.AiConversationHomeViewModel
 import fr.purpletear.sutoko.R
 import fr.purpletear.sutoko.screens.create.CreatePageComposable
 import fr.purpletear.sutoko.screens.main.presentation.HomeScreenViewModel
@@ -154,19 +151,6 @@ fun MainScreen(
                     )
                 }
 
-                composable(
-                    route = BottomNavItem.Companion.route,
-                    enterTransition = { EnterTransition.None },
-                    exitTransition = { ExitTransition.None },
-                    popEnterTransition = { EnterTransition.None },
-                    popExitTransition = { ExitTransition.None }
-                ) {
-                    val aiConversationViewModel: AiConversationHomeViewModel = hiltViewModel()
-                    AiConversationHomeScreen(
-                        navController = mainNavController,
-                        viewModel = aiConversationViewModel
-                    )
-                }
             }
 
             BottomNavigation(

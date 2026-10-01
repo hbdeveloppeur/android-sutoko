@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.key
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -32,6 +33,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
+import com.purpletear.game.presentation.common.storyImageCrossfadeMillis
 import com.purpletear.sutoko.game.model.game.GameCatalog
 import com.example.sharedelements.R as SharedR
 
@@ -59,15 +61,17 @@ fun GameSquares(
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             stories.forEach { card ->
-                GameSquare(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .weight(1f)
-                        .padding(1.dp),
-                    card = card,
-                    onTap = onTap,
-                    icon = icons[card.legacyId]
-                )
+                key(card.id) {
+                    GameSquare(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .weight(1f)
+                            .padding(1.dp),
+                        card = card,
+                        onTap = onTap,
+                        icon = icons[card.legacyId]
+                    )
+                }
             }
         }
     }
@@ -82,7 +86,10 @@ private fun GameSquare(
     viewModel: GameSquareViewModel = remember { GameSquareViewModel() },
     icon: Int? = null,
 ) {
-    // The GameSquare composable uses the ViewModel from the parent GameSquares composable
+    val context = LocalContext.current
+    val imageRequest = remember(context, card.logo) {
+        ImageRequest.Builder(context).data(viewModel.getLogoUrl(card)).crossfade(context.storyImageCrossfadeMillis()).build()
+    }
     Box(
         modifier = modifier.clickable(
             indication = null,
@@ -101,16 +108,11 @@ private fun GameSquare(
                     )
                     .size(70.dp)
                     .clip(RoundedCornerShape(12.dp))
-                    .background(Color.Gray.copy(0.3f))
+                    .background(Color.White.copy(alpha = 0.06f))
             ) {
                 AsyncImage(
                     modifier = Modifier.matchParentSize(),
-                    model = ImageRequest.Builder(LocalContext.current)
-                        .data(
-                            viewModel.getLogoUrl(gameCatalog = card)
-                        )
-                        .crossfade(true)
-                        .build(),
+                    model = imageRequest,
                     contentDescription = null,
                     contentScale = ContentScale.Crop
                 )

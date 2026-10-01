@@ -221,4 +221,5 @@
     <string name="game_presentation_game_preview_retry">Réessayer</string>
     <string name="game_presentation_game_preview_load_error">Impossible de charger cette histoire. Réessayez.</string>
     <string name="game_presentation_game_preview_choose_chapter">Choisissez un chapitre disponible pour continuer.</string>
+    <string name="game_presentation_catalog_loading">Chargement des histoires</string>
 </resources>

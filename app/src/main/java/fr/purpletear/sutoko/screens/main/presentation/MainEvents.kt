@@ -4,7 +4,6 @@ import androidx.annotation.Keep
 
 sealed class MainEvents {
 
-    object TapAiConversationMenu : MainEvents()
     object OnFlavorModalDismissed : MainEvents()
     data object TapShop : MainEvents()
 

@@ -33,10 +33,6 @@ include ':games:friendzone3'
 include ':games:friendzone4'
 include ':platform:play'
 include ':purchase'
-include ':ai-conversation:core'
-include ':ai-conversation:domain'
-include ':ai-conversation:data'
-include ':ai-conversation:presentation'
 include ':auth'
 include ':core:presentation'
 include ':popup:data'
@@ -62,10 +58,6 @@ include ':analytics:data'
 
 project(":platform:play").projectDir = new File(rootDir, "platform/play")
 project(":purchase").projectDir = new File(rootDir, "purchase")
-project(":ai-conversation:core").projectDir = new File(rootDir, "ai-conversation/core")
-project(":ai-conversation:domain").projectDir = new File(rootDir, "ai-conversation/domain")
-project(":ai-conversation:data").projectDir = new File(rootDir, "ai-conversation/data")
-project(":ai-conversation:presentation").projectDir = new File(rootDir, "ai-conversation/presentation")
 project(":popup:domain").projectDir = new File(rootDir, "popup/domain")
 project(":popup:data").projectDir = new File(rootDir, "popup/data")
 project(":popup:presentation").projectDir = new File(rootDir, "popup/presentation")

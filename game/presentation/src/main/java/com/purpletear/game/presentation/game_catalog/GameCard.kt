@@ -82,7 +82,7 @@ fun GameCard(
         modifier = modifier
             .fillMaxWidth()
             .aspectRatio(GAME_CARD_ASPECT)
-            .background(Color.Black.copy(alpha = 0.3f))
+            .background(Color.White.copy(alpha = 0.06f))
             // The subtitle must never paint over neighbouring UI (long labels, e.g. German).
             .clipToBounds()
             .semantics(mergeDescendants = true) { contentDescription = description }
@@ -91,13 +91,15 @@ fun GameCard(
         val context = LocalContext.current
         AsyncImage(
             modifier = Modifier.fillMaxSize(),
-            model = gameCatalog.bannerImageRequest(context)
-                ?: ImageRequest.Builder(context).build(),
+            model = remember(context, gameCatalog.banner) {
+                gameCatalog.bannerImageRequest(context) ?: ImageRequest.Builder(context).build()
+            },
             contentScale = ContentScale.Fit,
             contentDescription = null,
         )
         GameLogo(
             titleUrl = remember(gameCatalog.title) { gameCatalog.titleUrl() },
+            title = gameCatalog.metadata.title,
             modifier = Modifier.titleRect(),
         )
         if (hasNewChaptersSoon) {

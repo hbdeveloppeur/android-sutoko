@@ -21,7 +21,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
 import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
 import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
@@ -41,22 +40,9 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import androidx.navigation.navDeepLink
-import com.example.sharedelements.Data
 import com.example.sharedelements.SutokoAppParams
 import com.example.sharedelements.theme.SutokoTheme
 import com.example.sharedelements.utils.UiText
-import com.purpletear.aiconversation.presentation.common.utils.executeFlowUseCase
-import com.purpletear.aiconversation.presentation.navigation.AiConversationRouteDestination
-import com.purpletear.aiconversation.presentation.screens.character.add_character.AddCharacterScreen
-import com.purpletear.aiconversation.presentation.screens.character.add_character.viewmodels.AddCharacterViewModel
-import com.purpletear.aiconversation.presentation.screens.conversation.ConversationScreen
-import com.purpletear.aiconversation.presentation.screens.conversation.viewmodels.ConversationViewModel
-import com.purpletear.aiconversation.presentation.screens.conversation.viewmodels.VoiceRecordViewModel
-import com.purpletear.aiconversation.presentation.screens.home.AiConversationHomeScreen
-import com.purpletear.aiconversation.presentation.screens.home.viewModels.AiConversationHomeViewModel
-import com.purpletear.aiconversation.presentation.screens.image_viewer.ImageViewerScreen
-import com.purpletear.aiconversation.presentation.screens.media.image_generator.ImageGeneratorScreen
-import com.purpletear.aiconversation.presentation.screens.shopDialog.MessagesCoinsDialogComposable
 import com.purpletear.game.presentation.game_play.SmsGameActivity
 import com.purpletear.game.presentation.game_play.SmsGameActivityArgs
 import com.purpletear.game.presentation.game_chapters.ChaptersScreen
@@ -70,9 +56,7 @@ import com.purpletear.sutoko.auth.coordinator.AuthCoordinator
 import com.purpletear.sutoko.auth.coordinator.AuthEvent
 import com.purpletear.sutoko.auth.presentation.AccountConnectionActivity
 import com.purpletear.sutoko.auth.presentation.AccountConnectionActivityModel
-import com.purpletear.sutoko.notification.sealed.Screen
 import com.purpletear.sutoko.notification.usecase.ObserveNotificationRequestUseCase
-import com.purpletear.sutoko.notification.usecase.SetCurrentScreenUseCase
 import com.purpletear.sutoko.permission.domain.repository.PermissionRepository
 import com.purpletear.sutoko.permission.domain.sealed.Permission
 import com.purpletear.sutoko.popup.presentation.PopUpComposable
@@ -81,8 +65,9 @@ import dagger.hilt.android.AndroidEntryPoint
 import fr.purpletear.sutoko.R
 import fr.purpletear.sutoko.friendzoned.FriendzonedGameRouter
 import fr.purpletear.sutoko.helpers.GdprConsentHelper
+import fr.purpletear.sutoko.helpers.executeFlowUseCase
 import fr.purpletear.sutoko.helpers.NotificationHelper
-import fr.purpletear.sutoko.popup.domain.PopUpIconUrl
+import fr.purpletear.sutoko.popup.domain.PopUpIconDrawable
 import fr.purpletear.sutoko.popup.domain.PopUpUserInteraction
 import fr.purpletear.sutoko.popup.domain.SutokoPopUp
 import fr.purpletear.sutoko.popup.domain.usecase.GetPopUpInteractionUseCase
@@ -100,7 +85,6 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import purpletear.fr.purpleteartools.TableOfSymbols
 import javax.inject.Inject
-import com.purpletear.aiconversation.presentation.R as AiConversationR
 
 @AndroidEntryPoint
 class MainActivity @Inject constructor(
@@ -134,10 +118,6 @@ class MainActivity @Inject constructor(
 
     @Inject
     lateinit var observeNotificationRequestUseCase: ObserveNotificationRequestUseCase
-
-    @Inject
-    lateinit var setCurrentScreenUseCase: SetCurrentScreenUseCase
-
 
     private fun observeAuthEvents() {
         lifecycleScope.launch {
@@ -207,33 +187,17 @@ class MainActivity @Inject constructor(
                 DisposableEffect(lifecycleOwner) {
                     val job = lifecycleOwner.lifecycleScope.launch {
                         lifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                            _newDestination.collect {
-                                it?.let {
-                                    navController.navigate(it)
+                            _newDestination.collect { destination ->
+                                destination?.let {
                                     _newDestination.value = null
+                                    if (navController.graph.findNode(it) != null) {
+                                        navController.navigate(it)
+                                    }
                                 }
                             }
                         }
                     }
                     onDispose { job.cancel() }
-                }
-
-                LaunchedEffect(navController) {
-                    navController.addOnDestinationChangedListener { _, destination, arguments ->
-                        val characterId = arguments?.getInt("character_id")
-                        val screen = when (destination.route) {
-                            AiConversationRouteDestination.Conversation.route -> {
-                                characterId?.let {
-                                    Screen.Conversation(characterId = it)
-                                } ?: Screen.Unspecified
-                            }
-
-                            else -> {
-                                Screen.Unspecified
-                            }
-                        }
-                        setCurrentScreenUseCase(screen)
-                    }
                 }
 
                 Box(Modifier.fillMaxSize()) {
@@ -350,10 +314,6 @@ class MainActivity @Inject constructor(
                                 } else null
                             },
                         ) {
-                            viewModel.displayAiConversationCard(
-                                this@MainActivity.getAppParams(),
-                            )
-
                             MainScreen(
                                 viewModel = viewModel,
                                 size = widthSizeClass,
@@ -376,73 +336,12 @@ class MainActivity @Inject constructor(
                             )
                         }
 
-                        // Sutoko - Ai Conversation - Home screen.
-                        animatedComposable(
-                            route = AiConversationRouteDestination.Home.route,
-                        ) {
-                            val viewModel: AiConversationHomeViewModel = hiltViewModel()
-                            AiConversationHomeScreen(
-                                navController = navController,
-                                viewModel = viewModel
-                            )
-                        }
-
-                        // Sutoko - Ai Conversation - Add character screen.
-                        animatedComposable(AiConversationRouteDestination.AddCharacter.route) { backStackEntry ->
-                            val savedStateHandle =
-                                navController.currentBackStackEntry?.savedStateHandle
-                            val viewModel: AddCharacterViewModel = hiltViewModel(backStackEntry)
-                            LaunchedEffect(Unit) {
-                                viewModel.bindNavigationChanges(savedStateHandle = savedStateHandle)
-                            }
-                            AddCharacterScreen(
-                                viewModel,
-                                navController = navController
-                            )
-                        }
-
-                        // Sutoko - Ai Conversation - Conversation screen.
-                        animatedComposable(
-                            route = AiConversationRouteDestination.Conversation.route,
-                            arguments = listOf(AiConversationRouteDestination.Conversation.namedNavArgument!!)
-                        ) {
-                            val savedStateHandle =
-                                navController.currentBackStackEntry?.savedStateHandle
-                            val viewModel: ConversationViewModel = hiltViewModel()
-                            val voiceRecordViewModel: VoiceRecordViewModel = hiltViewModel()
-                            LaunchedEffect(Unit) {
-                                viewModel.bindNavigationChanges(savedStateHandle = savedStateHandle)
-                                voiceRecordViewModel.microphonePermissionRequired.observe(
-                                    this@MainActivity,
-                                    audioPermissionObserver
-                                )
-                            }
-                            ConversationScreen(
-                                viewModel = viewModel,
-                                voiceRecordViewModel = voiceRecordViewModel,
-                                navController = navController
-                            )
-                        }
-
-                        animatedComposable(AiConversationRouteDestination.GenerateImage.route) { _ ->
-                            ImageGeneratorScreen(
-                                viewModel = hiltViewModel(),
-                                navController = navController
-                            )
-                        }
-
-                        animatedComposable(AiConversationRouteDestination.ImageViewer().route) { backStackEntry ->
-                            ImageViewerScreen(url = backStackEntry.arguments?.getString("url")!!)
-                        }
-
                         animatedComposable(MainScreenPages.CreateStory.route) {
                             CreateStoryPage(
                                 onBackPressed = { navController.popBackStack() }
                             )
                         }
                     }
-
-                    MessagesCoinsDialogComposable()
 
                     PopUpComposable()
                 }
@@ -454,10 +353,6 @@ class MainActivity @Inject constructor(
 
     private val toasterObserver = Observer<UiText.StringResource> { text ->
         Toast.makeText(applicationContext, getString(text.id), Toast.LENGTH_SHORT).show()
-    }
-
-    private val audioPermissionObserver = Observer<Unit> {
-        requestPermissionLauncher.launch(Manifest.permission.RECORD_AUDIO)
     }
 
     override fun onResume() {
@@ -506,11 +401,11 @@ class MainActivity @Inject constructor(
             ) {
                 val tag = showPopUpUseCase(
                     popUp = SutokoPopUp(
-                        title = UiText.StringResource(AiConversationR.string.ai_conversation_confirm_delete_title),
-                        icon = PopUpIconUrl("https://data.sutoko.app/resources/sutoko-ai/image/background_waiting_screen.jpg"),
+                        title = UiText.StringResource(R.string.notified_when_releases),
+                        icon = PopUpIconDrawable(R.drawable.book_notification_on),
                         iconHeight = 68.dp,
                         buttonText = UiText.StringResource(R.string.sutoko_continue),
-                        description = UiText.DynamicText("Eva is able to send notification"),
+                        description = UiText.StringResource(R.string.sutoko_be_notified),
                     )
                 )
 
@@ -561,18 +456,6 @@ class MainActivity @Inject constructor(
     private fun onAccountPressed() {
         val intent = Intent(this, AccountActivity::class.java)
         this.startActivity(intent)
-    }
-
-    private fun getAppParams(): SutokoAppParams {
-        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            intent.getParcelableExtra(
-                Data.Companion.Extra.APP_PARAMS.id,
-                SutokoAppParams::class.java
-            ) ?: SutokoAppParams()
-        } else {
-            @Suppress("DEPRECATION")
-            intent.getParcelableExtra(Data.Companion.Extra.APP_PARAMS.id) ?: SutokoAppParams()
-        }
     }
 
     private fun startFriendzoned(legacyId: Int, isGranted: Boolean) {

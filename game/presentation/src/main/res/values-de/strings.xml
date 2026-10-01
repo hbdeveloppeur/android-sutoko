@@ -217,4 +217,5 @@
     <string name="game_presentation_game_preview_download_preview">Vorschau herunterladen</string>
     <string name="game_presentation_game_story_chapters_button_chapters_count">%1$d Kapitel</string>
 
+    <string name="game_presentation_catalog_loading">Geschichten werden geladen</string>
 </resources>
