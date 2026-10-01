@@ -17,7 +17,6 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.Placeable
 import androidx.compose.ui.layout.layout
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
@@ -32,12 +31,10 @@ import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import coil.compose.AsyncImage
-import coil.request.ImageRequest
 import com.example.sharedelements.theme.CrimsonTextFontFamily
 import com.purpletear.game.presentation.BuildConfig
 import com.purpletear.game.presentation.R
-import com.purpletear.game.presentation.common.components.GameLogo
+import com.purpletear.game.presentation.common.components.StoryArtwork
 import com.purpletear.sutoko.game.model.game.GameCatalog
 import com.purpletear.sutoko.game.model.game.isPremium
 import kotlin.math.abs
@@ -88,29 +85,24 @@ fun GameCard(
             .semantics(mergeDescendants = true) { contentDescription = description }
             .clickable { onTap(gameCatalog) }
     ) {
-        val context = LocalContext.current
-        AsyncImage(
+        StoryArtwork(
+            imageUrl = remember(gameCatalog.banner) { gameCatalog.bannerUrl() },
             modifier = Modifier.fillMaxSize(),
-            model = remember(context, gameCatalog.banner) {
-                gameCatalog.bannerImageRequest(context) ?: ImageRequest.Builder(context).build()
-            },
             contentScale = ContentScale.Fit,
-            contentDescription = null,
-        )
-        GameLogo(
             titleUrl = remember(gameCatalog.title) { gameCatalog.titleUrl() },
             title = gameCatalog.metadata.title,
-            modifier = Modifier.titleRect(),
-        )
-        if (hasNewChaptersSoon) {
-            NewChaptersSoonSubtitle(label = newChaptersSoonLabel)
-        } else {
-            Themes(themes = themes)
+            titleModifier = Modifier.titleRect(),
+        ) {
+            if (hasNewChaptersSoon) {
+                NewChaptersSoonSubtitle(label = newChaptersSoonLabel)
+            } else {
+                Themes(themes = themes)
+            }
+            CardCornerBadges(
+                isPremium = gameCatalog.isPremium(),
+                isFavorite = isFavorite,
+            )
         }
-        CardCornerBadges(
-            isPremium = gameCatalog.isPremium(),
-            isFavorite = isFavorite,
-        )
     }
 }
 

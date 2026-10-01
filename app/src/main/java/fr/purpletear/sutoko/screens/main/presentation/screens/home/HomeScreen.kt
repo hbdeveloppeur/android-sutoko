@@ -47,7 +47,8 @@ import fr.purpletear.sutoko.screens.main.presentation.HomeScreenViewModel
 import fr.purpletear.sutoko.screens.main.presentation.MainScreenPages
 import fr.purpletear.sutoko.screens.main.presentation.screens.TopNavigation
 import fr.purpletear.sutoko.screens.main.presentation.screens.home.components.HomeEntrance
-import fr.purpletear.sutoko.screens.main.presentation.screens.home.components.rememberHomeContentEntrance
+import fr.purpletear.sutoko.screens.main.presentation.screens.home.components.rememberHomeEntrance
+import fr.purpletear.sutoko.screens.main.presentation.screens.home.components.rememberHomeLoadingVisible
 import fr.purpletear.sutoko.sync.catalog.CatalogSyncStatus
 
 /**
@@ -128,8 +129,11 @@ internal fun HomeContent(
     onFullStoryTap: (GameCatalog) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val animateContent = rememberHomeContentEntrance(catalog.hasStories)
     val isLoading = !catalog.isCacheLoaded || (!catalog.hasStories && catalogSyncStatus == CatalogSyncStatus.Loading)
+    val showLoading = rememberHomeLoadingVisible(isLoading)
+    val animateHeader = rememberHomeEntrance(ready = true)
+    val animateLoading = rememberHomeEntrance(ready = showLoading)
+    val animateContent = rememberHomeEntrance(ready = !isLoading)
     LazyColumn(
         state = scrollState,
         modifier = modifier
@@ -138,6 +142,7 @@ internal fun HomeContent(
             .statusBarsPadding()
     ) {
         topNavigationSection(
+            animate = animateHeader,
             balance = coinsBalance,
             isConnected = isConnected,
             onAccountButtonPressed = onAccountButtonPressed,
@@ -148,20 +153,32 @@ internal fun HomeContent(
         )
 
         if (isLoading) {
-            item(key = "square_stories", contentType = "squares") { GameSquaresPlaceholder(Modifier.testTag("home_catalog_loading")) }
-            releaseScheduleTitleSection(visible = true, animate = false)
-            item(key = "vertical_stories", contentType = "posters") {
-                GamePosterRowPlaceholder(Modifier.padding(vertical = 8.dp))
-            }
-            items(2, key = { "loading_card_$it" }, contentType = { "card" }) {
-                GameCardPlaceholder()
+            if (showLoading) {
+                item(key = "square_stories", contentType = "squares") {
+                    HomeEntrance(animate = animateLoading, delayMillis = 40) {
+                        GameSquaresPlaceholder(Modifier.testTag("home_catalog_loading"))
+                    }
+                }
+                releaseScheduleTitleSection(visible = true, animate = animateLoading)
+                item(key = "vertical_stories", contentType = "posters") {
+                    HomeEntrance(animate = animateLoading, delayMillis = 120) {
+                        GamePosterRowPlaceholder(Modifier.padding(vertical = 8.dp))
+                    }
+                }
+                items(2, key = { "loading_card_$it" }, contentType = { "card" }) { index ->
+                    HomeEntrance(animate = animateLoading, delayMillis = 160 + index * 40) {
+                        GameCardPlaceholder()
+                    }
+                }
             }
         } else if (!catalog.hasStories) {
             item(key = "catalog_status") {
-                CatalogStatus(
-                    failed = catalogSyncStatus == CatalogSyncStatus.Failed,
-                    onRetry = onRetryCatalog,
-                )
+                HomeEntrance(animate = animateContent, delayMillis = 40) {
+                    CatalogStatus(
+                        failed = catalogSyncStatus == CatalogSyncStatus.Failed,
+                        onRetry = onRetryCatalog,
+                    )
+                }
             }
         } else {
             squareStoriesSection(
@@ -191,6 +208,7 @@ internal fun HomeContent(
 }
 
 private fun LazyListScope.topNavigationSection(
+    animate: Boolean,
     balance: Resource<Balance>,
     isConnected: Boolean?,
     onAccountButtonPressed: () -> Unit,
@@ -200,20 +218,22 @@ private fun LazyListScope.topNavigationSection(
     onOptionsButtonPressed: () -> Unit
 ) {
     item(key = "top_navigation", contentType = "navigation") {
-        TopNavigation(
-            modifier = Modifier
-                .padding(top = 12.dp)
-                .padding(horizontal = 16.dp)
-                .padding(bottom = 8.dp)
-                .padding(start = 8.dp),
-            balance = balance,
-            isConnected = isConnected,
-            onAccountButtonPressed = onAccountButtonPressed,
-            onSignInButtonPressed = onSignInButtonPressed,
-            onCoinsButtonPressed = onCoinsButtonPressed,
-            onDiamondsButtonPressed = onDiamondsButtonPressed,
-            onOptionsButtonPressed = onOptionsButtonPressed
-        )
+        HomeEntrance(animate = animate) {
+            TopNavigation(
+                modifier = Modifier
+                    .padding(top = 12.dp)
+                    .padding(horizontal = 16.dp)
+                    .padding(bottom = 8.dp)
+                    .padding(start = 8.dp),
+                balance = balance,
+                isConnected = isConnected,
+                onAccountButtonPressed = onAccountButtonPressed,
+                onSignInButtonPressed = onSignInButtonPressed,
+                onCoinsButtonPressed = onCoinsButtonPressed,
+                onDiamondsButtonPressed = onDiamondsButtonPressed,
+                onOptionsButtonPressed = onOptionsButtonPressed
+            )
+        }
     }
 }
 
@@ -225,7 +245,7 @@ private fun LazyListScope.squareStoriesSection(
 ) {
     if (squareStories.isEmpty()) return
     item(key = "square_stories", contentType = "squares") {
-        HomeEntrance(animate = animate) {
+        HomeEntrance(animate = animate, delayMillis = 40) {
             GameSquares(stories = squareStories, icons = squareIcons, onTap = onStoryTap)
         }
     }
@@ -240,7 +260,7 @@ private fun LazyListScope.verticalStoriesSection(
     if (verticalStories.isEmpty()) return
 
     item(key = "vertical_stories", contentType = "posters") {
-        HomeEntrance(animate = animate, delayMillis = 60) {
+        HomeEntrance(animate = animate, delayMillis = 120) {
             GamePosterRow(
                 modifier = Modifier.padding(vertical = 8.dp),
                 stories = verticalStories,
@@ -254,7 +274,7 @@ private fun LazyListScope.verticalStoriesSection(
 private fun LazyListScope.releaseScheduleTitleSection(visible: Boolean, animate: Boolean) {
     if (!visible) return
     item(key = "release_schedule_title", contentType = "title") {
-        HomeEntrance(animate = animate, delayMillis = 30) {
+        HomeEntrance(animate = animate, delayMillis = 80) {
             Text(
                 text = stringResource(R.string.sutoko_main_section_title_release_schedule),
                 fontSize = 14.sp,
@@ -288,7 +308,7 @@ private fun LazyListScope.fullStoriesSection(
     ) { index, item ->
         HomeEntrance(
             animate = animate,
-            delayMillis = 80 + index.coerceAtMost(2) * 30,
+            delayMillis = 160 + index.coerceAtMost(2) * 40,
             modifier = Modifier.animateItem(fadeInSpec = null, fadeOutSpec = null),
         ) {
             GameCard(

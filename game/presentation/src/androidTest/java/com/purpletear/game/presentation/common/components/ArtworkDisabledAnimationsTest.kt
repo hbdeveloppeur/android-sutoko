@@ -1,4 +1,4 @@
-package fr.purpletear.sutoko.screens.main.presentation.screens.home
+package com.purpletear.game.presentation.common.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -14,7 +14,6 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import fr.purpletear.sutoko.screens.main.presentation.screens.home.components.HomeEntrance
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
@@ -22,17 +21,17 @@ import org.junit.runner.RunWith
 
 @OptIn(ExperimentalTestApi::class)
 @RunWith(AndroidJUnit4::class)
-class HomeDisabledAnimationsTest {
+class ArtworkDisabledAnimationsTest {
     @get:Rule val compose = createComposeRule(object : MotionDurationScale {
         override val scaleFactor = 0f
     })
 
     @Test
-    fun disabledAnimationsSkipBothTheFadeAndTheStagger() {
+    fun reducedMotionSkipsTheFadeAndArtworkCoordinationWait() {
         compose.mainClock.autoAdvance = false
         compose.setContent {
             Box(Modifier.size(100.dp).background(Color.Black).testTag("surface")) {
-                HomeEntrance(animate = true, delayMillis = 240) {
+                ArtworkReveal(isReady = false, isCached = false) {
                     Box(Modifier.size(100.dp).background(Color.White))
                 }
             }
@@ -40,6 +39,6 @@ class HomeDisabledAnimationsTest {
         compose.mainClock.advanceTimeByFrame()
         compose.mainClock.advanceTimeByFrame()
         val pixels = compose.onNodeWithTag("surface").captureToImage().toPixelMap()
-        assertTrue("Disabled animations left content hidden", pixels[pixels.width / 2, pixels.height / 2].red > 0.99f)
+        assertTrue("Reduced motion left artwork hidden", pixels[pixels.width / 2, pixels.height / 2].red > 0.99f)
     }
 }

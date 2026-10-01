@@ -1,3 +1,4 @@
+AGENTS.md
 docs/
 .sutori-cbac9-firebase-adminsdk-ox8bj-c27b27ee70.json
 Implementation.md
@@ -116,3 +117,7 @@ scripts/results/
 
 # R8 mapping archive (too large for git, keep locally + Crashlytics/Play Console)
 mapping-archive/
+
+# Local harness files
+harness*
+.harness*

@@ -1,7 +1,7 @@
 package fr.purpletear.sutoko.screens.main.presentation.screens.home.components
 
 import androidx.compose.animation.core.Animatable
-import androidx.compose.animation.core.LinearOutSlowInEasing
+import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.Composable
@@ -11,17 +11,23 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.unit.dp
 
 /** Only the first composed viewport participates, not later scrolls or return navigation. */
 @Composable
-internal fun rememberHomeContentEntrance(hasStories: Boolean): Boolean {
-    var hasRevealedStories by rememberSaveable { mutableStateOf(false) }
-    val animate = hasStories && !hasRevealedStories
-    LaunchedEffect(hasStories) {
-        if (hasStories) hasRevealedStories = true
+internal fun rememberHomeEntrance(ready: Boolean): Boolean {
+    var hasRevealed by rememberSaveable { mutableStateOf(false) }
+    val animate = ready && !hasRevealed
+    LaunchedEffect(ready) {
+        if (ready && !hasRevealed) {
+            // Lazy items compose during measurement, after the parent effect starts.
+            // Leave the window open through that first layout before consuming it.
+            withFrameNanos { }
+            withFrameNanos { }
+            hasRevealed = true
+        }
     }
     return animate
 }
@@ -40,16 +46,15 @@ internal fun HomeEntrance(
             progress.animateTo(
                 1f,
                 tween(
-                    durationMillis = 260,
-                    delayMillis = delayMillis.coerceIn(0, 120),
-                    easing = LinearOutSlowInEasing,
+                    durationMillis = 420,
+                    delayMillis = delayMillis.coerceIn(0, 240),
+                    easing = FastOutSlowInEasing,
                 ),
             )
         }
     }
     Box(modifier.graphicsLayer {
         alpha = progress.value
-        translationY = (1f - progress.value) * 8.dp.toPx()
     }) {
         content()
     }

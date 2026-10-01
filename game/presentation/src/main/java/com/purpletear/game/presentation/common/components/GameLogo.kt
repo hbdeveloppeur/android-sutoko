@@ -13,6 +13,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.sp
+import coil.decode.DataSource
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.purpletear.game.presentation.common.storyImageCrossfadeMillis
@@ -27,6 +28,7 @@ internal fun GameLogo(
     modifier: Modifier = Modifier,
     contentDescription: String? = null,
     title: String? = contentDescription,
+    onImageSettled: (fromMemoryCache: Boolean) -> Unit = {},
 ) {
     var imageFailed by remember(titleUrl) { mutableStateOf(false) }
     if (titleUrl.isNullOrBlank() || imageFailed) {
@@ -54,6 +56,10 @@ internal fun GameLogo(
         model = request,
         contentScale = ContentScale.Fit,
         contentDescription = contentDescription,
-        onError = { imageFailed = true },
+        onSuccess = { onImageSettled(it.result.dataSource == DataSource.MEMORY_CACHE) },
+        onError = {
+            imageFailed = true
+            onImageSettled(false)
+        },
     )
 }

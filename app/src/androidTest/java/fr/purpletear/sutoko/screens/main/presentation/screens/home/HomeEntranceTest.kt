@@ -2,6 +2,7 @@ package fr.purpletear.sutoko.screens.main.presentation.screens.home
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
@@ -18,7 +19,7 @@ import androidx.compose.ui.test.performScrollToIndex
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import fr.purpletear.sutoko.screens.main.presentation.screens.home.components.HomeEntrance
-import fr.purpletear.sutoko.screens.main.presentation.screens.home.components.rememberHomeContentEntrance
+import fr.purpletear.sutoko.screens.main.presentation.screens.home.components.rememberHomeEntrance
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
@@ -32,7 +33,7 @@ class HomeEntranceTest {
     fun entranceFadesWithoutChangingLayoutHeight() {
         compose.mainClock.autoAdvance = false
         compose.setContent {
-            val animate = rememberHomeContentEntrance(hasStories = true)
+            val animate = rememberHomeEntrance(ready = true)
             Box(Modifier.size(100.dp).background(Color.Black).testTag("surface")) {
                 HomeEntrance(animate = animate, modifier = Modifier.testTag("entrance")) {
                     Box(Modifier.size(100.dp).background(Color.White))
@@ -54,7 +55,7 @@ class HomeEntranceTest {
         val visible = mutableStateOf(true)
         compose.mainClock.autoAdvance = false
         compose.setContent {
-            val animate = rememberHomeContentEntrance(hasStories = true)
+            val animate = rememberHomeEntrance(ready = true)
             Box(Modifier.size(100.dp).background(Color.Black).testTag("surface")) {
                 if (visible.value) HomeEntrance(animate = animate) {
                     Box(Modifier.size(100.dp).background(Color.White))
@@ -73,7 +74,7 @@ class HomeEntranceTest {
     fun offscreenItemsAreImmediatelyVisibleWhenScrolledIntoView() {
         compose.mainClock.autoAdvance = false
         compose.setContent {
-            val animate = rememberHomeContentEntrance(hasStories = true)
+            val animate = rememberHomeEntrance(ready = true)
             LazyColumn(Modifier.height(100.dp).testTag("list")) {
                 items(20, key = { it }) { index ->
                     HomeEntrance(animate = animate) {
@@ -93,7 +94,7 @@ class HomeEntranceTest {
         compose.mainClock.autoAdvance = false
         val restoration = StateRestorationTester(compose)
         restoration.setContent {
-            val animate = rememberHomeContentEntrance(hasStories = true)
+            val animate = rememberHomeEntrance(ready = true)
             Box(Modifier.size(100.dp).background(Color.Black).testTag("surface")) {
                 HomeEntrance(animate = animate) {
                     Box(Modifier.size(100.dp).background(Color.White))
@@ -111,7 +112,7 @@ class HomeEntranceTest {
         val loaded = mutableStateOf(false)
         compose.mainClock.autoAdvance = false
         compose.setContent {
-            val animate = rememberHomeContentEntrance(hasStories = loaded.value)
+            val animate = rememberHomeEntrance(ready = loaded.value)
             Box(Modifier.size(100.dp).background(Color.Black).testTag("surface")) {
                 if (loaded.value) HomeEntrance(animate = animate) {
                     Box(Modifier.size(100.dp).background(Color.White))
@@ -125,6 +126,51 @@ class HomeEntranceTest {
         assertTrue("First loaded content did not fade: $during", during > 0.05f && during < 0.99f)
         compose.mainClock.advanceTimeBy(400)
         assertTrue(brightness("surface") > 0.99f)
+    }
+
+    @Test
+    fun initialLazyViewportHasAPerceptibleFadeEvenWithCachedContent() {
+        compose.mainClock.autoAdvance = false
+        compose.setContent {
+            val animate = rememberHomeEntrance(ready = true)
+            LazyColumn(Modifier.size(100.dp).background(Color.Black).testTag("surface")) {
+                item {
+                    HomeEntrance(animate = animate) {
+                        Box(Modifier.size(100.dp).background(Color.White))
+                    }
+                }
+            }
+        }
+        compose.mainClock.advanceTimeBy(120)
+        val opacity = brightness("surface")
+        assertTrue("Cached lazy content should still be fading at 120 ms: $opacity", opacity > 0.05f && opacity < 0.5f)
+        compose.mainClock.advanceTimeBy(500)
+        assertTrue(brightness("surface") > 0.99f)
+    }
+
+    @Test
+    fun sectionsFadeInWithAGentleStagger() {
+        compose.mainClock.autoAdvance = false
+        compose.setContent {
+            Column {
+                Box(Modifier.size(100.dp).background(Color.Black).testTag("first")) {
+                    HomeEntrance(animate = true) {
+                        Box(Modifier.size(100.dp).background(Color.White))
+                    }
+                }
+                Box(Modifier.size(100.dp).background(Color.Black).testTag("later")) {
+                    HomeEntrance(animate = true, delayMillis = 160) {
+                        Box(Modifier.size(100.dp).background(Color.White))
+                    }
+                }
+            }
+        }
+        compose.mainClock.advanceTimeBy(120)
+        assertTrue("First section should be fading", brightness("first") in 0.05f..0.5f)
+        assertTrue("Later section should not appear all at once", brightness("later") < 0.01f)
+        compose.mainClock.advanceTimeBy(540)
+        assertTrue(brightness("first") > 0.99f)
+        assertTrue(brightness("later") > 0.99f)
     }
 
     private fun brightness(tag: String): Float {

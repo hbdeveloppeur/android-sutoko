@@ -16,16 +16,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.layout
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
-import coil.compose.AsyncImage
-import coil.request.ImageRequest
-import com.purpletear.game.presentation.R
-import com.purpletear.game.presentation.common.components.GameLogo
+import com.purpletear.game.presentation.common.components.StoryArtwork
 import com.purpletear.sutoko.game.model.game.GameCatalog
 import com.purpletear.sutoko.game.model.game.isPremium
 import kotlin.math.roundToInt
@@ -105,23 +100,17 @@ fun GamePosterCard(
             .semantics { contentDescription = gameCatalog.metadata.title }
             .clickable { onTap(gameCatalog) }
     ) {
-        val context = LocalContext.current
-        AsyncImage(
+        StoryArtwork(
+            imageUrl = remember(gameCatalog.verticalBanner) { gameCatalog.verticalBannerUrl() },
             modifier = Modifier.fillMaxSize(),
-            model = remember(context, gameCatalog.verticalBanner) {
-                gameCatalog.verticalBannerImageRequest(context) ?: ImageRequest.Builder(context).build()
-            },
-            contentScale = ContentScale.Crop,
-            contentDescription = null,
-        )
-        GameLogo(
             titleUrl = remember(gameCatalog.title) { gameCatalog.titleUrl() },
             title = gameCatalog.metadata.title,
-            modifier = Modifier.posterTitleRect(),
-        )
-        CardCornerBadges(
-            isPremium = gameCatalog.isPremium(),
-            isFavorite = isFavorite,
-        )
+            titleModifier = Modifier.posterTitleRect(),
+        ) {
+            CardCornerBadges(
+                isPremium = gameCatalog.isPremium(),
+                isFavorite = isFavorite,
+            )
+        }
     }
 }
