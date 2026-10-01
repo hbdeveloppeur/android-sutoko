@@ -10,6 +10,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toPixelMap
 import androidx.compose.ui.test.captureToImage
+import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.junit4.createComposeRule
@@ -25,6 +26,7 @@ import com.purpletear.sutoko.game.model.game.GameMetadata
 import com.purpletear.sutoko.shop.domain.repository.model.Balance
 import fr.purpletear.sutoko.R
 import fr.purpletear.sutoko.screens.main.presentation.HomeCatalogState
+import fr.purpletear.sutoko.screens.main.presentation.screens.HeaderLogoTestTag
 import fr.purpletear.sutoko.sync.catalog.CatalogSyncStatus
 import org.junit.Assert.assertTrue
 import org.junit.Assert.assertEquals
@@ -102,17 +104,19 @@ class HomeContentTest {
         val storyBoundsBefore = compose.onNodeWithText("Story 1").fetchSemanticsNode().boundsInRoot
         compose.mainClock.advanceTimeBy(120)
         val storyDuring = brightestPixel("Story 1")
-        val headerDuring = brightestPixel("Sutoko")
+        val headerDuring = brightestPixel(compose.onNodeWithTag(HeaderLogoTestTag))
         assertTrue("Cached stories popped in instead of fading: $storyDuring", storyDuring in 0.02f..0.5f)
         assertTrue("Header popped in instead of fading: $headerDuring", headerDuring in 0.02f..0.4f)
         compose.mainClock.advanceTimeBy(600)
         assertTrue(brightestPixel("Story 1") > 0.99f)
-        assertTrue(brightestPixel("Sutoko") > 0.65f)
+        assertTrue(brightestPixel(compose.onNodeWithTag(HeaderLogoTestTag)) > 0.65f)
         assertEquals(storyBoundsBefore, compose.onNodeWithText("Story 1").fetchSemanticsNode().boundsInRoot)
     }
 
-    private fun brightestPixel(text: String): Float {
-        val pixels = compose.onNodeWithText(text).captureToImage().toPixelMap()
+    private fun brightestPixel(text: String): Float = brightestPixel(compose.onNodeWithText(text))
+
+    private fun brightestPixel(node: SemanticsNodeInteraction): Float {
+        val pixels = node.captureToImage().toPixelMap()
         var brightest = 0f
         for (y in 0 until pixels.height) {
             for (x in 0 until pixels.width) brightest = maxOf(brightest, pixels[x, y].red)

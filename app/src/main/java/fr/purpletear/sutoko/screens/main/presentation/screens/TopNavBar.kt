@@ -4,18 +4,19 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.requiredWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.Text
@@ -29,6 +30,8 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.PlatformTextStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
@@ -36,7 +39,6 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.sharedelements.theme.SutokoTypography
 import com.purpletear.core.presentation.extensions.Resource
 import com.purpletear.sutoko.shop.domain.repository.model.Balance
 import fr.purpletear.sutoko.R
@@ -46,6 +48,7 @@ import com.example.sharedelements.R as SharedElementsR
 
 const val ParamsTestTag = "ParamsTestTag"
 const val AccountTestTag = "AccountTestTag"
+const val HeaderLogoTestTag = "HeaderLogoTestTag"
 
 @Composable
 fun TopNavigation(
@@ -67,30 +70,40 @@ fun TopNavigation(
             .heightIn(min = 48.dp)
     ) {
 
-        Column(
-            modifier = Modifier.padding(bottom = 8.dp),
-            verticalArrangement = Arrangement.spacedBy(2.dp)
+        val logoDescription = stringResource(R.string.sutoko_logo_content_description)
+        BoxWithConstraints(
+            modifier = Modifier
+                .weight(1f)
+                .padding(bottom = 8.dp)
+                .height(43.dp)
         ) {
-            Text(
-                text = "Sutoko",
-                color = Color.White.copy(alpha = 0.7f),
-                style = SutokoTypography.h1,
-                fontSize = 18.sp,
-            )
-            val painter = painterResource(R.drawable.sutoko_your_turn_logo)
-            val intrinsicSize = painter.intrinsicSize
-            val ratio = intrinsicSize.width / intrinsicSize.height
-
-            Image(
-                painter = painter,
-                contentDescription = stringResource(R.string.sutoko_logo_content_description),
-                contentScale = ContentScale.Fit,
+            val logoWidth = minOf(maxWidth, 104.dp)
+            val logoScale = logoWidth / 104.dp
+            Box(
                 modifier = Modifier
-                    .height(16.dp)
-                    .aspectRatio(ratio)
-            )
+                    .size(width = logoWidth, height = 43.dp)
+                    .testTag(HeaderLogoTestTag)
+                    .semantics { contentDescription = logoDescription }
+            ) {
+                val painter = painterResource(R.drawable.sutoko_halloween_header)
+                val ratio = painter.intrinsicSize.width / painter.intrinsicSize.height
+
+                // Match the preview's artwork bounds without reserving its transparent halo.
+                Image(
+                    painter = painter,
+                    contentDescription = null,
+                    contentScale = ContentScale.Fit,
+                    modifier = Modifier
+                        .wrapContentSize(Alignment.TopStart, unbounded = true)
+                        .requiredWidth(160.86.dp * logoScale)
+                        .aspectRatio(ratio)
+                        .offset(
+                            x = (-30.86).dp * logoScale,
+                            y = 43.dp * (1f - logoScale) / 2 - 3.72.dp * logoScale
+                        )
+                )
+            }
         }
-        Spacer(Modifier.weight(1f))
 
 
         // Account: icon when connected, localized Sign in button otherwise
