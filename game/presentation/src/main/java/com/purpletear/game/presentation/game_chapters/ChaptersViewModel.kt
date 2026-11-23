@@ -10,9 +10,7 @@ import com.purpletear.game.presentation.model.GameUiError
 import com.purpletear.sutoko.core.domain.logger.Logger
 import com.purpletear.sutoko.core.domain.logger.exception
 import com.purpletear.sutoko.game.model.Chapter
-import com.purpletear.sutoko.game.model.UserRole
 import com.purpletear.sutoko.game.repository.ChapterRepository
-import com.purpletear.sutoko.game.repository.UserRoleRepository
 import com.purpletear.sutoko.game.repository.game.GameRepository
 import com.purpletear.sutoko.game.service.MediaUrlResolver
 import com.purpletear.sutoko.game.usecase.GetChaptersUseCase
@@ -47,8 +45,6 @@ sealed interface ChaptersUiState {
         /** Normalized code of the chapter the user is currently playing, null when never started. */
         val currentChapterCode: String?,
         val backgroundUrl: String?,
-        /** Administrators can see and select chapters that are not released yet. */
-        val isAdmin: Boolean = false,
     ) : ChaptersUiState
 
     data object Error : ChaptersUiState
@@ -70,7 +66,6 @@ class ChaptersViewModel @Inject constructor(
     private val selectChapterUseCase: SelectChapterUseCase,
     private val prepareGameLaunchUseCase: PrepareGameLaunchUseCase,
     private val saveUserNickNameUseCase: SaveUserNickNameUseCase,
-    private val userRoleRepository: UserRoleRepository,
     private val toastService: ToastService,
     private val logger: Logger,
 ) : ViewModel() {
@@ -96,15 +91,13 @@ class ChaptersViewModel @Inject constructor(
         },
         gameRepository.observeGame(gameId),
         chapterRepository.observeCurrentChapter(gameId),
-        userRoleRepository.observe(),
-    ) { chaptersResult, catalog, currentChapter, role ->
+    ) { chaptersResult, catalog, currentChapter ->
         chaptersResult.fold(
             onSuccess = { chapters ->
                 ChaptersUiState.Data(
                     chapters = chapters.sortedBy { it.number },
                     currentChapterCode = currentChapter?.normalizedCode,
                     backgroundUrl = mediaUrlResolver.resolveBannerUrl(catalog?.menuBackground?.storagePath),
-                    isAdmin = role == UserRole.ADMINISTRATOR,
                 )
             },
             onFailure = { error ->
@@ -151,11 +144,10 @@ class ChaptersViewModel @Inject constructor(
 
     /**
      * Moves the user's progress to [chapter] then asks the screen to open the game there.
-     * Locked chapters (unless administrator) and concurrent selections are ignored.
+     * Locked chapters and concurrent selections are ignored.
      */
     fun onChapterSelected(chapter: Chapter) {
-        val isAdmin = (uiState.value as? ChaptersUiState.Data)?.isAdmin == true
-        if (!chapter.available && !isAdmin) return
+        if (!chapter.available) return
         if (navigationPending || _nickNameChapter.value != null ||
             !_isSelecting.compareAndSet(false, true)
         ) return
@@ -190,7 +182,7 @@ class ChaptersViewModel @Inject constructor(
 
     private suspend fun prepareAndOpenChapter(chapter: Chapter, requestNickName: Boolean) {
         try {
-            if (!chapter.available && userRoleRepository.get() != UserRole.ADMINISTRATOR) return
+            if (!chapter.available) return
             val catalog = gameRepository.observeGame(gameId).firstOrNull()
                 ?: error("Game not found: $gameId")
             val needsNickName = prepareGameLaunchUseCase(catalog, requestNickName)

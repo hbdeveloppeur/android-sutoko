@@ -15,6 +15,8 @@
 
     <!-- AllowBackup is needed to true -->
     <application
+        android:fullBackupContent="@xml/statistics_backup_rules"
+        android:dataExtractionRules="@xml/statistics_data_extraction_rules"
         android:name=".Application"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -43,9 +45,6 @@
             android:name=".screens.themes_flavors_settings.ThemesFlavorActivity"
             android:exported="false"
             android:label="@string/title_activity_themes_flavor" />
-        <activity
-            android:name=".screens.account.AccountActivity"
-            android:exported="false" />
 
         <activity
             android:name=".screens.MainActivity"
@@ -75,10 +74,10 @@
 
         <activity
             android:name="com.purpletear.game.presentation.game_play.SmsGameActivity"
-            android:exported="true"
+            android:exported="false"
             android:launchMode="singleTop"
             android:screenOrientation="portrait"
-            android:theme="@style/SmsGame"
+            android:theme="@style/game_presentation_SmsGame"
             android:windowSoftInputMode="adjustResize"
             android:enableOnBackInvokedCallback="true"
             tools:ignore="LockedOrientationActivity">

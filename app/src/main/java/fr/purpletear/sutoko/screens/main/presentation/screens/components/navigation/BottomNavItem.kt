@@ -9,6 +9,12 @@ sealed class BottomNavItem(val title: Int, val icon: Int, val route: String) {
         "home"
     )
 
+    data object Calendar : BottomNavItem(
+        R.string.coming_soon,
+        R.drawable.ic_apps,
+        "calendar"
+    )
+
     data object Create : BottomNavItem(
         R.string.sutoko_create,
         R.drawable.sutoko_add_magic,

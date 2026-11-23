@@ -1,17 +1,16 @@
 package friendzone3.purpletear.fr.friendzon3;
 
+import com.purpletear.ads.ChapterBreakGate;
+
 import android.content.Intent;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Parcelable;
-import android.widget.ProgressBar;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.sharedelements.SutokoSharedElementsData;
-import com.example.sharedelements.utils.ActivityTransitionHelper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,7 +24,7 @@ public class Load extends AppCompatActivity {
     public boolean hasSeenCinematic;
     public boolean hasSeenPoetry;
     public TableOfSymbols symbols;
-    private boolean stop = false;
+    private ChapterBreakGate adGate;
 
     private boolean isPremiumGame = false;
 
@@ -45,8 +44,9 @@ public class Load extends AppCompatActivity {
         hasSeenCinematic = false;
         hasSeenPoetry = false;
         setContentView(R.layout.fz3_activity_load);
-        changeColorSpinner();
         navigator = new NavigationHandler();
+        adGate = new ChapterBreakGate(this, savedInstanceState, 159,
+                getIntent().getBooleanExtra("granted", false) || isPremiumGame || SutokoSharedElementsData.INSTANCE.getSHOULD_FORCE_CHAPTER(), this::navigate);
     }
 
     @Override
@@ -55,7 +55,6 @@ public class Load extends AppCompatActivity {
 
 
         if (resultCode == RESULT_CANCELED) {
-            stop = true;
             finish();
             return;
         }
@@ -70,15 +69,16 @@ public class Load extends AppCompatActivity {
                 symbols = data.getParcelableExtra("symbols");
             }
         }
+        adGate.childReturned(data, symbols.getChapterNumber());
     }
 
     @Override
     protected void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
+        adGate.save(outState);
         outState.putParcelable("symbols", symbols);
         outState.putBoolean("hasSeenCinematic", hasSeenCinematic);
         outState.putBoolean("hasSeenPoetry", hasSeenPoetry);
-        outState.putBoolean("stop", stop);
         outState.putBoolean("isPremiumGame", this.isPremiumGame);
     }
 
@@ -88,8 +88,7 @@ public class Load extends AppCompatActivity {
         hasSeenPoetry = savedInstanceState.getBoolean("hasSeenPoetry");
         hasSeenCinematic = savedInstanceState.getBoolean("hasSeenCinematic");
         symbols = savedInstanceState.getParcelable("symbols");
-        stop = savedInstanceState.getBoolean("stop");
-        isPremiumGame = savedInstanceState.getBoolean("isPremium");
+        isPremiumGame = savedInstanceState.getBoolean("isPremiumGame");
     }
 
     @Override
@@ -98,25 +97,6 @@ public class Load extends AppCompatActivity {
         Std.debug("Load.onStart");
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-        if (stop) {
-            stop = false;
-            return;
-        }
-        navigate();
-    }
-
-    /**
-     * Changes the color of the central progress spinner
-     */
-    private void changeColorSpinner() {
-
-        ((ProgressBar) findViewById(R.id.load_progressbar))
-                .getIndeterminateDrawable()
-                .setColorFilter(Color.WHITE, android.graphics.PorterDuff.Mode.SRC_IN);
-    }
 
 
     private boolean needsToWatchCinematic() {
@@ -173,7 +153,6 @@ public class Load extends AppCompatActivity {
         i.putExtra("symbols", (Parcelable) symbols);
 
         startActivityForResult(i, navigator.getDestination().ordinal());
-        ActivityTransitionHelper.overrideOpenTransition(this, com.example.sharedelements.R.anim.game_launch_fade_in, com.example.sharedelements.R.anim.game_launch_fade_out);
     }
 
 }

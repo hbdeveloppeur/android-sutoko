@@ -1,5 +1,6 @@
 package com.purpletear.game.presentation.game_play
 
+import com.purpletear.ads.ReaderAds
 import android.app.Activity
 import android.content.Intent
 import android.os.Build
@@ -9,9 +10,6 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.animation.core.Animatable
-import androidx.compose.animation.core.FastOutSlowInEasing
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.LaunchedEffect
@@ -21,7 +19,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.pointerInput
@@ -32,23 +29,41 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.compose.rememberNavController
 import com.example.sharedelements.theme.SutokoTheme
 import com.purpletear.game.presentation.BuildConfig
+import com.purpletear.game.presentation.R
 import com.purpletear.game.presentation.game_chapter_selection.chapterSelectionScreen
 import com.purpletear.game.presentation.game_play.navigation.cinematicScreen
 import com.purpletear.game.presentation.game_play.navigation.gameScreen
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.sync.Mutex
 
 @AndroidEntryPoint
 class SmsGameActivity : ComponentActivity() {
+
+    override fun dispatchTouchEvent(event: android.view.MotionEvent): Boolean {
+        ReaderAds.onInput(this, event)
+        return super.dispatchTouchEvent(event)
+    }
+
+    override fun dispatchKeyEvent(event: android.view.KeyEvent): Boolean {
+        ReaderAds.onInput(this, event)
+        return super.dispatchKeyEvent(event)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         Trace.beginSection("SmsGameActivity.onCreate")
         super.onCreate(savedInstanceState)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-            overrideActivityTransition(OVERRIDE_TRANSITION_OPEN, 0, 0)
-            overrideActivityTransition(OVERRIDE_TRANSITION_CLOSE, 0, 0)
+            overrideActivityTransition(
+                OVERRIDE_TRANSITION_OPEN,
+                R.anim.game_presentation_fade_in,
+                R.anim.game_presentation_fade_out,
+            )
+            overrideActivityTransition(
+                OVERRIDE_TRANSITION_CLOSE,
+                R.anim.game_presentation_fade_in,
+                R.anim.game_presentation_fade_out,
+            )
         }
 
         val args = extractArgs()
@@ -56,14 +71,15 @@ class SmsGameActivity : ComponentActivity() {
         val chapterCode = args.chapterCode
         val isTrial = args.isTrial
         val autoPlay = args.autoPlay
+        if (!isTrial && !(BuildConfig.DEBUG && autoPlay)) ReaderAds.track(this, gameId)
 
         enableEdgeToEdge()
         setContent {
             SutokoTheme {
 
                 val navController = rememberNavController()
-                val overlayAlpha = remember { Animatable(1f) }
-                val readOverlayAlpha = remember { { overlayAlpha.value } }
+                val transition = remember { GameFadeTransition() }
+                val readOverlayAlpha = remember { { transition.alpha } }
                 val scope = rememberCoroutineScope()
 
                 var contentRequest by remember {
@@ -71,11 +87,9 @@ class SmsGameActivity : ComponentActivity() {
                 }
                 var showLoading by remember { mutableStateOf(false) }
                 var hasLoadError by remember { mutableStateOf(false) }
-                var isTransitioning by remember { mutableStateOf(false) }
-                val transitionMutex = remember { Mutex() }
                 val lifecycleOwner = LocalLifecycleOwner.current
                 val hideGameInput by remember {
-                    derivedStateOf { isTransitioning || overlayAlpha.value > 0f || hasLoadError }
+                    derivedStateOf { transition.blocksInput || hasLoadError }
                 }
 
                 LaunchedEffect(contentRequest, lifecycleOwner) {
@@ -91,12 +105,8 @@ class SmsGameActivity : ComponentActivity() {
                             showLoading = false
                             if (!ready) {
                                 hasLoadError = true
-                            } else if (!isTransitioning && !hasLoadError && !isFinishing) {
-                                withFrameNanos { }
-                                overlayAlpha.animateTo(
-                                    targetValue = 0f,
-                                    animationSpec = tween(300, easing = FastOutSlowInEasing),
-                                )
+                            } else if (!hasLoadError && !isFinishing) {
+                                transition.reveal()
                             }
                         } finally {
                             loadingIndicator.cancel()
@@ -108,24 +118,15 @@ class SmsGameActivity : ComponentActivity() {
                 val fadeThenRun = remember(scope) {
                     { block: suspend () -> Unit ->
                         scope.launch {
-                            if (!transitionMutex.tryLock()) return@launch
-                            try {
-                                if (isFinishing) return@launch
-                                isTransitioning = true
-                                overlayAlpha.animateTo(1f, tween(300, easing = FastOutSlowInEasing))
+                            if (isFinishing) return@launch
+                            transition.fadeThroughBlack {
                                 block()
-                                if (!isFinishing && !hasLoadError) {
-                                    withFrameNanos { }
-                                    overlayAlpha.animateTo(0f, tween(400, easing = FastOutSlowInEasing))
-                                }
-                            } finally {
-                                isTransitioning = false
-                                transitionMutex.unlock()
+                                !isFinishing && !hasLoadError
                             }
                         }
                     }
                 }
-                BackHandler(enabled = isTransitioning) { }
+                BackHandler(enabled = transition.blocksInput && !hasLoadError) { }
 
                 val startDestination = if (chapterCode != null) {
                     SmsGameRoutes.game(
@@ -240,13 +241,17 @@ class SmsGameActivity : ComponentActivity() {
         super.finish()
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
             @Suppress("DEPRECATION")
-            overridePendingTransition(0, 0)
+            overridePendingTransition(R.anim.game_presentation_fade_in, R.anim.game_presentation_fade_out)
         }
     }
 
     private fun extractArgs(): SmsGameActivityArgs {
-        return SmsGameActivityArgs.fromIntentOrExtras(intent)
-            ?: error("SmsGameActivityArgs required")
+        val args = if (BuildConfig.DEBUG) {
+            SmsGameActivityArgs.fromIntentOrExtras(intent)
+        } else {
+            SmsGameActivityArgs.fromIntent(intent)
+        }
+        return requireNotNull(args) { "SmsGameActivityArgs required" }
     }
 
     companion object {

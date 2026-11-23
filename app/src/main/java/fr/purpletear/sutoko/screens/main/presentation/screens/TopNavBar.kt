@@ -1,22 +1,15 @@
 package fr.purpletear.sutoko.screens.main.presentation.screens
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.requiredWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
-import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.Text
@@ -26,12 +19,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.PlatformTextStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
@@ -47,15 +37,18 @@ import com.example.sharedelements.R as SharedElementsR
 
 
 const val ParamsTestTag = "ParamsTestTag"
-const val AccountTestTag = "AccountTestTag"
 const val HeaderLogoTestTag = "HeaderLogoTestTag"
+
+internal val MainTopNavigationPadding = Modifier
+    .padding(top = 12.dp)
+    .padding(horizontal = 16.dp)
+    .padding(bottom = 8.dp)
 
 @Composable
 fun TopNavigation(
     modifier: Modifier = Modifier,
     balance: Resource<Balance>,
     isConnected: Boolean?,
-    onAccountButtonPressed: () -> Unit,
     onSignInButtonPressed: () -> Unit,
     onCoinsButtonPressed: () -> Unit,
     onDiamondsButtonPressed: () -> Unit,
@@ -70,61 +63,12 @@ fun TopNavigation(
             .heightIn(min = 48.dp)
     ) {
 
-        val logoDescription = stringResource(R.string.sutoko_logo_content_description)
-        BoxWithConstraints(
-            modifier = Modifier
-                .weight(1f)
-                .padding(bottom = 8.dp)
-                .height(43.dp)
-        ) {
-            val logoWidth = minOf(maxWidth, 104.dp)
-            val logoScale = logoWidth / 104.dp
-            Box(
-                modifier = Modifier
-                    .size(width = logoWidth, height = 43.dp)
-                    .testTag(HeaderLogoTestTag)
-                    .semantics { contentDescription = logoDescription }
-            ) {
-                val painter = painterResource(R.drawable.sutoko_halloween_header)
-                val ratio = painter.intrinsicSize.width / painter.intrinsicSize.height
-
-                // Match the preview's artwork bounds without reserving its transparent halo.
-                Image(
-                    painter = painter,
-                    contentDescription = null,
-                    contentScale = ContentScale.Fit,
-                    modifier = Modifier
-                        .wrapContentSize(Alignment.TopStart, unbounded = true)
-                        .requiredWidth(160.86.dp * logoScale)
-                        .aspectRatio(ratio)
-                        .offset(
-                            x = (-30.86).dp * logoScale,
-                            y = 43.dp * (1f - logoScale) / 2 - 3.72.dp * logoScale
-                        )
-                )
-            }
+        Box(modifier = Modifier.weight(1f).padding(bottom = 3.dp)) {
+            SnowflakeHeaderLogo(modifier = Modifier.testTag(HeaderLogoTestTag))
         }
 
 
-        // Account: icon when connected, localized Sign in button otherwise
-        if (isConnected == null) {
-            Box(Modifier.size(20.dp).background(Color.White.copy(alpha = 0.06f), RoundedCornerShape(10.dp)))
-        } else if (isConnected) {
-            Image(
-                modifier = Modifier
-                    .size(20.dp)
-                    .padding(end = 2.dp)
-                    .testTag(AccountTestTag)
-                    .clickable(
-                        interactionSource = remember { MutableInteractionSource() },
-                        indication = null
-                    ) {
-                        onAccountButtonPressed()
-                    },
-                painter = painterResource(R.drawable.sutoko_ic_account),
-                contentDescription = null
-            )
-        } else {
+        if (isConnected == false) {
             TextButton(
                 onClick = onSignInButtonPressed,
                 shape = RoundedCornerShape(18.dp),

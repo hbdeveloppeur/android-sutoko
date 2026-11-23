@@ -19,18 +19,17 @@ import com.purpletear.sutoko.domain.repository.UserRepository
 import com.purpletear.sutoko.game.BuildConfig
 import com.purpletear.sutoko.game.exception.DownloadAlreadyInProgressException
 import com.purpletear.sutoko.game.model.Chapter
-import com.purpletear.sutoko.game.model.canAccessGameOptions
-import com.purpletear.sutoko.game.model.UserRole
 import com.purpletear.sutoko.game.model.game.GameDownloadState
 import com.purpletear.sutoko.game.repository.ChapterRepository
 import com.purpletear.sutoko.game.repository.GamePreviewSoundRepository
-import com.purpletear.sutoko.game.repository.UserRoleRepository
 import com.purpletear.sutoko.game.repository.game.FavoriteGamesRepository
 import com.purpletear.sutoko.game.repository.game.GameInstallRepository
 import com.purpletear.sutoko.game.repository.game.GameRepository
 import com.purpletear.sutoko.game.service.MediaUrlResolver
 import com.purpletear.sutoko.game.usecase.DownloadGameUseCase
 import com.purpletear.sutoko.game.usecase.GetChaptersUseCase
+import com.purpletear.sutoko.game.usecase.RestartChapterUseCase
+import com.purpletear.sutoko.game.model.FriendzonedLegacyIds
 import com.purpletear.sutoko.game.usecase.RestartGameUseCase
 import com.purpletear.sutoko.game.usecase.SaveUserNickNameUseCase
 import com.purpletear.sutoko.game.usecase.PrepareGameLaunchUseCase
@@ -77,15 +76,16 @@ class GamePreviewViewModel @Inject constructor(
     private val prepareGameLaunchUseCase: PrepareGameLaunchUseCase,
     private val toastService: ToastService,
     private val restartGameUseCase: RestartGameUseCase,
+    private val restartChapterUseCase: RestartChapterUseCase,
     private val downloadGameUseCase: DownloadGameUseCase,
     private val purchaseHandler: GamePreviewPurchaseHandler,
     private val userRepository: UserRepository,
-    private val userRoleRepository: UserRoleRepository,
     private val soundRepository: GamePreviewSoundRepository,
     private val entitlementRepository: EntitlementRepository,
     private val shopRepository: ShopRepository,
     private val analyticsTracker: AnalyticsTracker,
     private val logger: Logger,
+    private val chapterStatistics: com.purpletear.sutoko.core.domain.analytics.ChapterStatistics = com.purpletear.sutoko.core.domain.analytics.ChapterStatistics.None,
 ) : ViewModel() {
 
     private val gameId: String =
@@ -102,6 +102,11 @@ class GamePreviewViewModel @Inject constructor(
     private val _isLoadingChapters = MutableStateFlow(true)
     val isLoadingChapters = _isLoadingChapters.asStateFlow()
     private var playNavigationPending = false
+    private var statisticsPreviewRecorded = false
+    private fun statisticsEngine(): String = if(currentGameItem?.legacyId in setOf(162,161,159,163)) "friendzoned" else "sms"
+    private fun statisticsGameId(): String = if(statisticsEngine()=="friendzoned") currentGameItem!!.legacyId.toString() else gameId
+    private fun statisticsLanguage(): String = ((game.value as? GamePreviewUiState.Data)?.gameCatalog?.metadata?.lang ?: Locale.getDefault().toLanguageTag())
+
 
     fun onResume() {
         playNavigationPending = false
@@ -161,40 +166,6 @@ class GamePreviewViewModel @Inject constructor(
             started = SharingStarted.WhileSubscribed(7000),
             initialValue = userRepository.isConnected().getOrDefault(false),
         )
-
-    /** The story options entry point is only offered to the tester account. */
-    val isOptionsVisible: StateFlow<Boolean> = userRepository.observeUser()
-        .map { it.canAccessGameOptions() }
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(7000),
-            initialValue = false,
-        )
-
-    /** Administrators bypass chapter availability rules (unreleased chapters). */
-    val isAdmin: StateFlow<Boolean> = userRoleRepository.observe()
-        .map { it == UserRole.ADMINISTRATOR }
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(7000),
-            initialValue = false,
-        )
-
-    /**
-     * Set to true when the preview download fails: per backend contract, any
-     * error on the preview entry point means "hide the feature" and must never
-     * break the player flow.
-     */
-    private val previewFeatureHidden = MutableStateFlow(false)
-
-    /** The "Download preview" button is only offered to admins. */
-    val isPreviewVisible: StateFlow<Boolean> =
-        combine(isAdmin, previewFeatureHidden) { admin, hidden -> admin && !hidden }
-            .stateIn(
-                scope = viewModelScope,
-                started = SharingStarted.WhileSubscribed(7000),
-                initialValue = false,
-            )
 
     /**
      * Server-confirmed entitlement for this story's SKUs (billing purchase,
@@ -298,6 +269,15 @@ class GamePreviewViewModel @Inject constructor(
     private val currentGameItem: GameItem?
         get() = (game.value as? GamePreviewUiState.Data)?.item
 
+    private val _isRestarting = MutableStateFlow(false)
+    val isRestarting: StateFlow<Boolean> = _isRestarting.asStateFlow()
+    private val _restartResult = MutableStateFlow<GamePreviewRestartResult?>(null)
+    val restartResult: StateFlow<GamePreviewRestartResult?> = _restartResult.asStateFlow()
+
+    fun clearRestartResult() {
+        _restartResult.value = null
+    }
+
     private val _isRefreshing = MutableStateFlow(false)
     val isRefreshing: StateFlow<Boolean> = _isRefreshing.asStateFlow()
 
@@ -328,6 +308,14 @@ class GamePreviewViewModel @Inject constructor(
         GamePreviewLogger.i("LIFE") { "start() called for gameId=$gameId" }
         initialLoadStarted = true
         analyticsTracker.logEvent("story_preview_view", mapOf("story_id" to gameId))
+        viewModelScope.launch {
+            game.collect { state ->
+                if(state is GamePreviewUiState.Data && !statisticsPreviewRecorded) {
+                    statisticsPreviewRecorded=true
+                    chapterStatistics.preview(statisticsEngine(),statisticsGameId(),statisticsLanguage())
+                }
+            }
+        }
         viewModelScope.launch {
             loadChapters()
         }
@@ -390,12 +378,26 @@ class GamePreviewViewModel @Inject constructor(
             GamePreviewAction.OnBuyConfirm -> onPurchase()
             GamePreviewAction.OnDownload -> onStartDownload()
             GamePreviewAction.OnUpdateGame -> onStartDownload()
-            GamePreviewAction.OnDownloadPreview -> if (isAdmin.value) onStartDownload(preview = true)
             GamePreviewAction.OnUpdateApp -> sendEvent(GamePreviewEvent.OpenAppStore)
             GamePreviewAction.OnPlay -> onPlay()
             GamePreviewAction.OnTry -> onPlay(isTrial = true)
             GamePreviewAction.OnRestart -> sendEvent(GamePreviewEvent.ShowRestartDialog)
             GamePreviewAction.OnRestartConfirm -> onRestartGame()
+            is GamePreviewAction.OnRestartFromOptions -> {
+                when (action.target) {
+                    GamePreviewRestartTarget.CHAPTER -> onRestartChapter(fromOptions = true)
+                    GamePreviewRestartTarget.GAME -> {
+                        val item = currentGameItem
+                        if (item != null && !FriendzonedLegacyIds.isFriendzoned(item.legacyId)) {
+                            onRestartGame(fromOptions = true)
+                        }
+                    }
+                }
+            }
+            GamePreviewAction.OnRestartChapter -> {
+                if (canRestartChapter()) sendEvent(GamePreviewEvent.ShowRestartChapterDialog)
+            }
+            GamePreviewAction.OnRestartChapterConfirm -> onRestartChapter()
             GamePreviewAction.OnDelete -> onDeleteGame()
             GamePreviewAction.OnToggleFavorite -> onToggleFavorite()
             GamePreviewAction.OnToggleMenuSound -> onToggleMenuSound()
@@ -512,12 +514,13 @@ class GamePreviewViewModel @Inject constructor(
     /**
      * Single gatekeeper for starting the game, trial included. An unreleased
      * chapter no longer disables the Play button: tapping it surfaces the same
-     * message as GamePreviewUnavailable as a toast instead. Administrators
-     * bypass the check. A null chapter (not loaded yet) is a dead end: the
+     * message as GamePreviewUnavailable as a toast instead. A null chapter
+     * (not loaded yet) is a dead end: the
      * buttons are disabled in that state, and any programmatic attempt only
      * gets an error toast - never a navigation.
      */
     private fun onPlay(isTrial: Boolean = false) {
+        if (_isRestarting.value) return
         if (playNavigationPending || navigationJob?.isActive == true || deleteJob?.isActive == true) return
         // Runtime compatibility gate: the button state (GameActionState.UpdateApp)
         // already hides Play/Try, but other entry points (deep links, chapter
@@ -538,7 +541,7 @@ class GamePreviewViewModel @Inject constructor(
                 sendEvent(GamePreviewEvent.ShowError(GameUiError.Load))
             }
 
-            !chapter.available && !isAdmin.value -> {
+            !chapter.available -> {
                 GamePreviewLogger.d("NAV") { "onPlay() chapter ${chapter.number} unavailable for gameId=$gameId" }
                 toastService(
                     R.string.game_presentation_game_preview_next_chapter,
@@ -584,7 +587,7 @@ class GamePreviewViewModel @Inject constructor(
                 sendEvent(GamePreviewEvent.ShowError(GameUiError.Load))
                 return@launch
             }
-            if (!chapter.available && userRoleRepository.get() != UserRole.ADMINISTRATOR) {
+            if (!chapter.available) {
                 toastService(R.string.game_presentation_game_preview_next_chapter, chapter.formatReleaseDate())
                 return@launch
             }
@@ -604,6 +607,7 @@ class GamePreviewViewModel @Inject constructor(
                 sendEvent(GamePreviewEvent.RequestNickName(isTrial = isTrial))
             } else {
                 playNavigationPending = true
+                chapterStatistics.playClicked(statisticsEngine(),statisticsGameId(),statisticsLanguage(),isTrial)
                 if (isTrial) {
                     analyticsTracker.logEvent(
                         "trial_start",
@@ -706,13 +710,12 @@ class GamePreviewViewModel @Inject constructor(
         }
     }
 
-    private fun onStartDownload(playTrialOnComplete: Boolean = false, preview: Boolean = false) {
+    private fun onStartDownload(playTrialOnComplete: Boolean = false) {
         if (downloadRequested.value || downloadJob?.isActive == true || deleteJob?.isActive == true) return
         downloadRequested.value = true
         downloadJob = viewModelScope.launch {
             try {
-                if (preview && userRoleRepository.get() != UserRole.ADMINISTRATOR) return@launch
-                downloadGameUseCase(gameId = gameId, preview = preview).collect { progress ->
+                downloadGameUseCase(gameId = gameId).collect { progress ->
                     GamePreviewLogger.d("DOWN") { "Download progress=$progress for gameId=$gameId" }
                 }
             } catch (error: CancellationException) {
@@ -720,12 +723,8 @@ class GamePreviewViewModel @Inject constructor(
             } catch (error: DownloadAlreadyInProgressException) {
                 return@launch
             } catch (error: Exception) {
-                if (preview) {
-                    onPreviewDownloadFailure(error)
-                } else {
-                    logger.exception(error) { "Download failed for gameId=$gameId" }
-                    sendEvent(GamePreviewEvent.ShowError(GameUiError.fromDownloadError(error)))
-                }
+                logger.exception(error) { "Download failed for gameId=$gameId" }
+                sendEvent(GamePreviewEvent.ShowError(GameUiError.fromDownloadError(error)))
                 return@launch
             } finally {
                 downloadRequested.value = false
@@ -733,24 +732,6 @@ class GamePreviewViewModel @Inject constructor(
             if (playTrialOnComplete) {
                 navigateToPlay(requestNickName = true, isTrial = true)
             }
-        }
-    }
-
-    /**
-     * Only a definitive server "no" ([GameUiError.DownloadForbidden], HTTP 403)
-     * hides the feature, per backend contract. Transient failures (network,
-     * 5xx, user token not loaded yet) keep the button alive and surface an
-     * error toast, so a retry is one tap away - hiding on a flaky call made
-     * the feature look dead.
-     */
-    private fun onPreviewDownloadFailure(error: Throwable) {
-        GamePreviewLogger.e("DOWN", error) { "preview download failed for gameId=$gameId" }
-        logger.exception(error) { "Preview download failed for gameId=$gameId" }
-        val uiError = GameUiError.fromDownloadError(error)
-        if (uiError == GameUiError.DownloadForbidden) {
-            previewFeatureHidden.value = true
-        } else {
-            sendEvent(GamePreviewEvent.ShowError(uiError))
         }
     }
 
@@ -832,23 +813,69 @@ class GamePreviewViewModel @Inject constructor(
         }
     }
 
-    private fun onRestartGame() {
+    private fun canRestartChapter(): Boolean = currentGameItem?.let {
+        !FriendzonedLegacyIds.isFriendzoned(it.legacyId) &&
+            currentChapter.value?.available == true &&
+            !playNavigationPending && navigationJob?.isActive != true
+    } == true
+
+    private fun onRestartChapter(fromOptions: Boolean = false) {
+        if (!canRestartChapter() || !_isRestarting.compareAndSet(false, true)) return
+        val chapter = checkNotNull(currentChapter.value)
+        if (fromOptions) clearRestartResult()
+        viewModelScope.launch {
+            try {
+                restartChapterUseCase(gameId, chapter)
+                    .onSuccess {
+                        currentChapterRefreshTicks.value += 1
+                        if (fromOptions) {
+                            _restartResult.value = GamePreviewRestartResult.Success(GamePreviewRestartTarget.CHAPTER)
+                        } else {
+                            toastService(R.string.game_presentation_chapter_restart_success)
+                        }
+                    }
+                    .onFailure { error ->
+                        logger.exception(error) { "Chapter restart failed for gameId=$gameId" }
+                        if (fromOptions) {
+                            _restartResult.value = GamePreviewRestartResult.Failure(GamePreviewRestartTarget.CHAPTER)
+                        } else {
+                            toastService(R.string.game_presentation_chapter_restart_error)
+                        }
+                    }
+            } finally {
+                _isRestarting.value = false
+            }
+        }
+    }
+
+    private fun onRestartGame(fromOptions: Boolean = false) {
+        if (playNavigationPending || navigationJob?.isActive == true || !_isRestarting.compareAndSet(false, true)) return
+        if (fromOptions) clearRestartResult()
         GamePreviewLogger.i("LIFE") { "onRestartGame() gameId=$gameId" }
         viewModelScope.launch {
-            restartGameUseCase(gameId, legacyId = currentGameItem?.legacyId)
-                .onSuccess {
-                    GamePreviewLogger.i("LIFE") { "onRestartGame() succeeded for gameId=$gameId" }
-                    currentChapterRefreshTicks.value += 1
-                    toastService(R.string.game_presentation_game_restart_success)
-                }
-                .onFailure { error ->
-                    GamePreviewLogger.e(
-                        "LIFE",
-                        error
-                    ) { "onRestartGame() failed for gameId=$gameId" }
-                    logger.exception(error) { "Restart failed for gameId=$gameId" }
-                    sendEvent(GamePreviewEvent.ShowError(GameUiError.Restart))
-                }
+            try {
+                restartGameUseCase(gameId, legacyId = currentGameItem?.legacyId)
+                    .onSuccess {
+                        GamePreviewLogger.i("LIFE") { "onRestartGame() succeeded for gameId=$gameId" }
+                        chapterStatistics.restarted(statisticsEngine(),statisticsGameId(),statisticsLanguage())
+                        currentChapterRefreshTicks.value += 1
+                        if (fromOptions) {
+                            _restartResult.value = GamePreviewRestartResult.Success(GamePreviewRestartTarget.GAME)
+                        } else {
+                            toastService(R.string.game_presentation_game_restart_success)
+                        }
+                    }
+                    .onFailure { error ->
+                        logger.exception(error) { "Restart failed for gameId=$gameId" }
+                        if (fromOptions) {
+                            _restartResult.value = GamePreviewRestartResult.Failure(GamePreviewRestartTarget.GAME)
+                        } else {
+                            sendEvent(GamePreviewEvent.ShowError(GameUiError.Restart))
+                        }
+                    }
+            } finally {
+                _isRestarting.value = false
+            }
         }
     }
 

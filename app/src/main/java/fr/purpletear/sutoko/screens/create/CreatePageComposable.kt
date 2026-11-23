@@ -4,11 +4,13 @@ import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -29,6 +31,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.Dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.purpletear.game.presentation.game_catalog.GameCardCompact
@@ -46,13 +49,13 @@ import fr.purpletear.sutoko.screens.main.presentation.screens.TopNavigation
 internal fun CreatePageComposable(
     modifier: Modifier = Modifier,
     viewModel: CreateViewModel = hiltViewModel(),
-    onAccountPressed: () -> Unit = {},
     onSignInPressed: () -> Unit = {},
     onOptionsPressed: () -> Unit = {},
     onCoinsPressed: () -> Unit = {},
     onDiamondsPressed: () -> Unit = {},
     onCreateStoryPressed: () -> Unit = {},
     openGame: (GameItem) -> Unit = {},
+    bottomContentPadding: Dp = 0.dp,
 ) {
     var isMyStoriesExpanded by remember { mutableStateOf(false) }
     val isRefreshing by remember { mutableStateOf(false) }
@@ -81,9 +84,11 @@ internal fun CreatePageComposable(
                 .pullRefresh(pullRefreshState)
         ) {
             LazyColumn(
+                contentPadding = PaddingValues(bottom = bottomContentPadding),
                 modifier = Modifier
                     .fillMaxSize()
                     .statusBarsPadding()
+                    .navigationBarsPadding()
                     .imePadding()
                     .padding(top = 12.dp)
                     .pointerInput(Unit) {
@@ -92,12 +97,9 @@ internal fun CreatePageComposable(
             ) {
                 item {
                     TopNavigation(
-                        modifier = Modifier
-                            .padding(horizontal = 16.dp)
-                            .padding(start = 8.dp),
+                        modifier = Modifier.padding(horizontal = 16.dp),
                         balance = balance.value,
                         isConnected = isConnected.value,
-                        onAccountButtonPressed = onAccountPressed,
                         onSignInButtonPressed = onSignInPressed,
                         onCoinsButtonPressed = onCoinsPressed,
                         onDiamondsButtonPressed = onDiamondsPressed,
@@ -181,6 +183,7 @@ internal fun CreatePageComposable(
 
                 item(key = "search_box") {
                     SearchBox(
+                        initialText = viewModel.searchQuery,
                         modifier = Modifier
                             .animateItem()
                             .padding(horizontal = 16.dp)

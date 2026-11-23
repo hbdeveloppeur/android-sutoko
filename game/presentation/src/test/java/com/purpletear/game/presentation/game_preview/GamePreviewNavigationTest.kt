@@ -5,7 +5,6 @@ import com.purpletear.game.presentation.R
 import com.purpletear.game.presentation.game_preview.events.GamePreviewEvent
 import com.purpletear.game.presentation.game_preview.fakes.TestFixtures
 import com.purpletear.sutoko.game.model.Chapter
-import com.purpletear.sutoko.game.model.UserRole
 import com.purpletear.sutoko.game.model.game.GameDownloadState
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flowOf
@@ -28,7 +27,6 @@ class GamePreviewNavigationTest {
     private val gameRepository get() = fixture.gameRepository
     private val chapterRepository get() = fixture.chapterRepository
     private val gameInstallRepository get() = fixture.gameInstallRepository
-    private val userRoleRepository get() = fixture.userRoleRepository
     private val toastService get() = fixture.toastService
 
     @Before
@@ -162,31 +160,26 @@ class GamePreviewNavigationTest {
     }
 
     @Test
-    fun `onAction OnPlay with unavailable chapter as admin still navigates`() = runTest {
-        val viewModel = createViewModel()
+    fun `tester account cannot bypass chapter availability`() = runTest {
+        fixture.userRepository.setUser(com.purpletear.sutoko.domain.model.User("8be954c7a18f4e7cba9c", "tester-token"))
         gameRepository.setGame(TestFixtures.GAME_ID, TestFixtures.gameCatalog())
         chapterRepository.setCurrentChapter(
             TestFixtures.GAME_ID,
-            Chapter(number = 2, code = "1B", releaseDate = System.currentTimeMillis() / 1000 + 86_400),
+            Chapter(number = 2, code = "2A", releaseDate = Long.MAX_VALUE),
         )
-        userRoleRepository.set(UserRole.ADMINISTRATOR)
-        backgroundScope.launch { viewModel.currentChapter.collect { } }
-        backgroundScope.launch { viewModel.isAdmin.collect { } }
+        val viewModel = createViewModel()
+        fixture.activateStateFlows(backgroundScope, viewModel)
+        backgroundScope.launch { viewModel.currentChapter.collect {} }
+        advanceUntilIdle()
 
-        viewModel.game.test {
-            skipItems(1) // Loading
-            assertTrue(awaitItem() is GamePreviewUiState.Data)
+        viewModel.events.test {
+            viewModel.onAction(GamePreviewAction.OnPlay)
+            viewModel.onAction(GamePreviewAction.OnTry)
             advanceUntilIdle()
-
-            viewModel.events.test {
-                viewModel.onAction(GamePreviewAction.OnPlay)
-                advanceUntilIdle()
-
-                val event = awaitItem()
-                assertTrue(event is GamePreviewEvent.PlayGame)
-            }
+            expectNoEvents()
         }
-        assertTrue(toastService.shownMessages.isEmpty())
+        assertTrue(toastService.shownMessages.contains(R.string.game_presentation_game_preview_next_chapter))
+        assertEquals(0, gameInstallRepository.downloadCalls)
     }
 
     @Test

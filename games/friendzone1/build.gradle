@@ -57,6 +57,8 @@ android {
 }
 
 dependencies {
+    implementation project(':analytics:data')
+    implementation project(":ads")
     implementation fileTree(include: ['*.jar'], dir: 'libs')
     implementation "androidx.appcompat:appcompat:$appcompat_version"
     implementation "com.google.android.material:material:$google_android_material_version"

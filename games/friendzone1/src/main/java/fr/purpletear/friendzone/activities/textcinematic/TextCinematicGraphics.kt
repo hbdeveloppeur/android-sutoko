@@ -13,13 +13,11 @@ import fr.purpletear.friendzone.R
 import fr.purpletear.friendzone.tables.Character
 import fr.purpletear.friendzone.tables.Language
 import purpletear.fr.purpleteartools.Animation
-import purpletear.fr.purpleteartools.MemoryHandler
+import purpletear.fr.purpleteartools.CinematicScheduler
 import purpletear.fr.purpleteartools.Runnable2
 import purpletear.fr.purpleteartools.Std
 
-class TextCinematicGraphics {
-    // Manages handlers
-    var mh = MemoryHandler()
+class TextCinematicGraphics(private val scheduler: CinematicScheduler) {
     private var isFirstImage : Boolean = true
     private var isFirstText : Boolean  = true
 
@@ -52,8 +50,7 @@ class TextCinematicGraphics {
             }
         }
 
-        mh.push(runnable)
-        mh.run(runnable)
+        scheduler.schedule(runnable.duration, runnable)
     }
 
     /**
@@ -72,8 +69,7 @@ class TextCinematicGraphics {
             }
         }
 
-        mh.push(runnable)
-        mh.run(runnable)
+        scheduler.schedule(runnable.duration, runnable)
     }
 
     /**
@@ -124,8 +120,7 @@ class TextCinematicGraphics {
             }
         }
 
-        mh.push(runnable)
-        mh.run(runnable)
+        scheduler.schedule(runnable.duration, runnable)
     }
 
     companion object {

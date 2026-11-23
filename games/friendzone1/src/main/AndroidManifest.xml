@@ -29,22 +29,22 @@
         <activity
             android:name=".activities.load.Load"
             android:screenOrientation="portrait"
-            android:theme="@style/MenuTheme" />
+            android:theme="@style/Friendzoned1ChapterTheme" />
 
         <activity
             android:name=".activities.main.Main"
             android:screenOrientation="portrait"
-            android:theme="@style/MenuTheme" />
+            android:theme="@style/Friendzoned1ChapterTheme" />
 
         <activity
             android:name=".activities.game.Game"
             android:screenOrientation="portrait"
-            android:theme="@style/MenuTheme" />
+            android:theme="@style/Friendzoned1ChapterTheme" />
 
         <activity
             android:name=".activities.textcinematic.TextCinematic"
             android:screenOrientation="portrait"
-            android:theme="@style/MenuTheme" />
+            android:theme="@style/Friendzoned1ChapterTheme" />
 
 
         <uses-library

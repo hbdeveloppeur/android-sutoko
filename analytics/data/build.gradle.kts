@@ -8,9 +8,11 @@ plugins {
 android {
     namespace = "com.purpletear.sutoko.analytics.data"
     compileSdk = 36
+    buildFeatures { buildConfig = true }
 
     defaultConfig {
         minSdk = 24
+        targetSdk = 36
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles("consumer-rules.pro")
@@ -46,6 +48,9 @@ android {
 dependencies {
     implementation(project(":core:domain"))
 
+    implementation(libs.androidx.work.runtime)
+    implementation(libs.okhttp3)
+    implementation(libs.kotlinx.coroutines.android)
     implementation(libs.androidx.ktx)
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.analytics.ktx)

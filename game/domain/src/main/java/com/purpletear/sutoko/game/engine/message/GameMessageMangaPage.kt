@@ -1,5 +1,6 @@
 package com.purpletear.sutoko.game.engine.message
 
+import androidx.annotation.Keep
 import com.purpletear.sutoko.game.engine.GameMessage
 import com.purpletear.sutoko.game.engine.GameMessageType
 
@@ -11,6 +12,7 @@ import com.purpletear.sutoko.game.engine.GameMessageType
  * [TextOverlay] is the UI-facing overlay model; the authoring/parsed equivalent is
  * `Node.MangaPage.MangaMessage`.
  */
+@Keep
 class GameMessageMangaPage(
     id: String,
     val imageUrl: String,
@@ -19,6 +21,7 @@ class GameMessageMangaPage(
     id = id,
     type = GameMessageType.MangaPage,
 ) {
+    @Keep
     data class TextOverlay(
         val text: String,
         val size: Float,

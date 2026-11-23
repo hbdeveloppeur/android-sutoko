@@ -1,5 +1,9 @@
 package friendzone3.purpletear.fr.friendzon3;
 
+import com.purpletear.sutoko.analytics.data.statistics.LegacyChapterReports;
+
+import com.purpletear.ads.ReaderAds;
+
 import android.content.Intent;
 import android.graphics.drawable.AnimationDrawable;
 import android.graphics.drawable.GradientDrawable;
@@ -8,6 +12,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.Parcelable;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -15,6 +20,10 @@ import android.widget.VideoView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowCompat;
+import androidx.core.view.WindowInsetsCompat;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -72,8 +81,21 @@ public class MainActivity extends AppCompatActivity implements PhraseCallBack {
     private RequestManager requestManager;
 
     @Override
+    public boolean dispatchTouchEvent(android.view.MotionEvent event) {
+        ReaderAds.onInput(this, event);
+        return super.dispatchTouchEvent(event);
+    }
+
+    @Override
+    public boolean dispatchKeyEvent(android.view.KeyEvent event) {
+        ReaderAds.onInput(this, event);
+        return super.dispatchKeyEvent(event);
+    }
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        if (!SutokoSharedElementsData.INSTANCE.getSHOULD_FORCE_CHAPTER()) ReaderAds.track(this, ReaderAds.legacyKey(159));
 
 
         Std.debug("MainActivity.onCreate");
@@ -84,8 +106,14 @@ public class MainActivity extends AppCompatActivity implements PhraseCallBack {
             return;
         }
         support = getSupport();
+        WindowCompat.setDecorFitsSystemWindows(getWindow(), false);
         setContentView(determineLayout());
+        applyConversationInsets();
         load();
+        if (!com.example.sharedelements.SutokoSharedElementsData.INSTANCE.getSHOULD_FORCE_CHAPTER()) {
+            LegacyChapterReports.entered(this,159,friendzone3.purpletear.fr.friendzon3.config.Language.INSTANCE.determineLangDirectory(),chapter.getDiscussion().symbols.getChapterCode());
+            LegacyChapterReports.observe(this,159,friendzone3.purpletear.fr.friendzon3.config.Language.INSTANCE.determineLangDirectory(),chapter.getDiscussion().symbols.getChapterCode());
+        }
         graphics();
         descriptionOnCreate();
     }
@@ -100,6 +128,22 @@ public class MainActivity extends AppCompatActivity implements PhraseCallBack {
         ends.add("9c");
         ends.add("9d");
         return ends.contains(code.toLowerCase());
+    }
+
+    private void applyConversationInsets() {
+        View root = ((ViewGroup) findViewById(android.R.id.content)).getChildAt(0);
+        ViewCompat.setOnApplyWindowInsetsListener(root, (view, windowInsets) -> {
+            Insets insets = windowInsets.getInsets(
+                    WindowInsetsCompat.Type.systemBars() | WindowInsetsCompat.Type.displayCutout());
+            ViewGroup.MarginLayoutParams params = (ViewGroup.MarginLayoutParams) view.getLayoutParams();
+            if (params.leftMargin != insets.left || params.topMargin != insets.top
+                    || params.rightMargin != insets.right || params.bottomMargin != insets.bottom) {
+                params.setMargins(insets.left, insets.top, insets.right, insets.bottom);
+                view.setLayoutParams(params);
+            }
+            return WindowInsetsCompat.CONSUMED;
+        });
+        ViewCompat.requestApplyInsets(root);
     }
 
     @Override
@@ -174,6 +218,7 @@ public class MainActivity extends AppCompatActivity implements PhraseCallBack {
     @Override
     protected void onDestroy() {
         Std.debug("MainActivity.onDestroy");
+        sh.clear();
         if (sp != null) {
             sp.kill();
         }
@@ -625,6 +670,7 @@ public class MainActivity extends AppCompatActivity implements PhraseCallBack {
         }
 
         if (DiscussionHandler.execute("Demande de lancement d'un chapitre", p.isNextChapter())) {
+            if (!com.example.sharedelements.SutokoSharedElementsData.INSTANCE.getSHOULD_FORCE_CHAPTER()) LegacyChapterReports.completed(this,159,friendzone3.purpletear.fr.friendzon3.config.Language.INSTANCE.determineLangDirectory(),chapter.getDiscussion().symbols.getChapterCode());
             final String chapterCode = p.code.replace(" ", "").toLowerCase().replace("chapter_", "")
                     .replace("]", "");
             adapter.insertPhrase(new Phrase() {{
@@ -641,7 +687,7 @@ public class MainActivity extends AppCompatActivity implements PhraseCallBack {
                     chapter.getDiscussion().symbols.save(MainActivity.this);
                     Intent intent = new Intent();
                     intent.putExtra("symbols", (Parcelable) chapter.getDiscussion().symbols);
-                    setResult(RESULT_OK, intent);
+                    setResult(RESULT_OK, ReaderAds.chapterResult(intent));
                     // preventPause = true;
                     finish();
                 }

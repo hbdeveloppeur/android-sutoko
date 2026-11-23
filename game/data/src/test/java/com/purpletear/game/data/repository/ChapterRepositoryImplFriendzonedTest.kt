@@ -26,7 +26,7 @@ class ChapterRepositoryImplFriendzonedTest {
     private class StubChapterApi : ChapterApi {
         override suspend fun getChapters(
             storyId: String,
-            langCode: String,
+            languageCode: String,
             authorization: String?,
         ): Response<List<ChapterDto>> =
             Response.success(emptyList())

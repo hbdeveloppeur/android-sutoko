@@ -21,6 +21,11 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
 import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
@@ -37,12 +42,14 @@ import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import androidx.navigation.compose.rememberNavController
+import androidx.navigation.compose.currentBackStackEntryAsState
+import fr.purpletear.sutoko.screens.main.presentation.rememberMainNavController
 import androidx.navigation.navArgument
 import androidx.navigation.navDeepLink
 import com.example.sharedelements.SutokoAppParams
 import com.example.sharedelements.theme.SutokoTheme
 import com.example.sharedelements.utils.UiText
+import com.purpletear.game.presentation.R as GamePresentationR
 import com.purpletear.game.presentation.game_play.SmsGameActivity
 import com.purpletear.game.presentation.game_play.SmsGameActivityArgs
 import com.purpletear.game.presentation.game_chapters.ChaptersScreen
@@ -50,8 +57,6 @@ import com.purpletear.game.presentation.game_chapters.ChaptersViewModel
 import com.purpletear.game.presentation.game_preview.GamePreview
 import com.purpletear.game.presentation.game_preview.GamePreviewDeepLink
 import com.purpletear.game.presentation.game_preview.GamePreviewViewModel
-import com.purpletear.game.presentation.game_preview_options.GamePreviewOptionsScreen
-import com.purpletear.game.presentation.game_preview_options.GamePreviewOptionsViewModel
 import com.purpletear.sutoko.auth.coordinator.AuthCoordinator
 import com.purpletear.sutoko.auth.coordinator.AuthEvent
 import com.purpletear.sutoko.auth.presentation.AccountConnectionActivity
@@ -72,13 +77,13 @@ import fr.purpletear.sutoko.popup.domain.PopUpUserInteraction
 import fr.purpletear.sutoko.popup.domain.SutokoPopUp
 import fr.purpletear.sutoko.popup.domain.usecase.GetPopUpInteractionUseCase
 import fr.purpletear.sutoko.popup.domain.usecase.ShowPopUpUseCase
-import fr.purpletear.sutoko.screens.account.AccountActivity
 import fr.purpletear.sutoko.screens.create.CreateStoryPage
 import fr.purpletear.sutoko.screens.main.presentation.HomeScreenViewModel
 import fr.purpletear.sutoko.screens.main.presentation.MainScreenPages
 import fr.purpletear.sutoko.screens.main.presentation.screens.MainScreen
 import fr.purpletear.sutoko.screens.params.SutokoParamsActivity
 import fr.purpletear.sutoko.screens.splashscreen.SplashScreen
+import fr.purpletear.sutoko.screens.splashscreen.SplashSnowOverlay
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.update
@@ -148,7 +153,6 @@ class MainActivity @Inject constructor(
         // Remove all observers to prevent memory leaks
         viewModel.toast.removeObservers(this)
         viewModel.saveSymbols.removeObservers(this)
-        viewModel.navigateToShop.removeObservers(this)
 
         super.onDestroy()
     }
@@ -175,12 +179,11 @@ class MainActivity @Inject constructor(
         registerLoginLauncher()
         load()
         observeAuthEvents()
-        GdprConsentHelper.requestConsentIfRequired(this)
-
         setContent {
             SutokoTheme {
                 val widthSizeClass = calculateWindowSizeClass(this).widthSizeClass
-                val navController = rememberNavController().also { navController = it }
+                val navController = rememberMainNavController().also { navController = it }
+                var showSplashExit by remember { mutableStateOf(false) }
 
                 val lifecycleOwner = LocalLifecycleOwner.current
 
@@ -207,13 +210,25 @@ class MainActivity @Inject constructor(
                         // startDestination = MainScreenPages.Create.route,
                     ) {
 
-                        composable(MainScreenPages.SplashScreen.route) {
+                        composable(
+                            MainScreenPages.SplashScreen.route,
+                            exitTransition = {
+                                if (targetState.destination.route == MainScreenPages.Home.route) {
+                                    ExitTransition.None
+                                } else null
+                            },
+                        ) {
                             SplashScreen(
+                                shouldFinishSound = {
+                                    navController.currentDestination?.route == MainScreenPages.Home.route
+                                },
                                 onNavigateToMain = {
-                                    navController.navigate(MainScreenPages.Home.route) {
-                                        // Keeps the stack clean
-                                        popUpTo(MainScreenPages.SplashScreen.route) {
-                                            inclusive = true
+                                    if (navController.currentDestination?.route == MainScreenPages.SplashScreen.route) {
+                                        showSplashExit = true
+                                        navController.navigate(MainScreenPages.Home.route) {
+                                            popUpTo(MainScreenPages.SplashScreen.route) {
+                                                inclusive = true
+                                            }
                                         }
                                     }
                                 }
@@ -256,25 +271,6 @@ class MainActivity @Inject constructor(
                                 },
                                 onOpenAccountConnection = ::openConnectionPage,
                                 onOpenShop = ::startShop,
-                                onOpenOptions = { gameId ->
-                                    navController.navigate(
-                                        MainScreenPages.GamePreviewOptions.createRoute(gameId)
-                                    )
-                                },
-                            )
-                        }
-
-                        // Sutoko - Game preview options screen (tester account only).
-                        animatedComposable(
-                            route = MainScreenPages.GamePreviewOptions.route,
-                            arguments = listOf(
-                                navArgument("gameId") { type = NavType.StringType }
-                            )
-                        ) {
-                            val optionsViewModel: GamePreviewOptionsViewModel = hiltViewModel()
-                            GamePreviewOptionsScreen(
-                                viewModel = optionsViewModel,
-                                onBack = { navController.popBackStack() },
                             )
                         }
 
@@ -302,6 +298,11 @@ class MainActivity @Inject constructor(
                         // Sutoko - Home screen.
                         composable(
                             MainScreenPages.Home.route,
+                            enterTransition = {
+                                if (initialState.destination.route == MainScreenPages.SplashScreen.route) {
+                                    EnterTransition.None
+                                } else null
+                            },
                             // Keep Home opaque underneath Preview, including a cancelled back swipe.
                             exitTransition = {
                                 if (targetState.destination.route == MainScreenPages.GamePreview.route) {
@@ -317,11 +318,11 @@ class MainActivity @Inject constructor(
                             MainScreen(
                                 viewModel = viewModel,
                                 size = widthSizeClass,
-                                onAccountPressed = ::onAccountPressed,
                                 onSignInPressed = ::openConnectionPage,
                                 onOptionsPressed = ::onOptionsPressed,
                                 onDiamondsPressed = ::onDiamondPressed,
                                 onCoinsPressed = ::onCoinsPressed,
+                                onShopPressed = ::startShop,
                                 onGamePressed = { gameId ->
                                     navController.navigate(
                                         MainScreenPages.GamePreview.createRoute(
@@ -343,12 +344,28 @@ class MainActivity @Inject constructor(
                         }
                     }
 
+                    val backStackEntry by navController.currentBackStackEntryAsState()
+                    val route = backStackEntry?.destination?.route ?: navController.currentDestination?.route
+                    LaunchedEffect(route) {
+                        if (route != MainScreenPages.SplashScreen.route && route != MainScreenPages.Home.route) {
+                            showSplashExit = false
+                        }
+                    }
+                    val fadingOut = showSplashExit && route == MainScreenPages.Home.route
+                    if (route == MainScreenPages.SplashScreen.route || fadingOut) {
+                        SplashSnowOverlay(fadingOut = fadingOut) { showSplashExit = false }
+                    }
+
                     PopUpComposable()
                 }
             }
         }
 
         this.observers()
+        // Consent dialogs must not touch the decor while Compose installs its content.
+        window.decorView.post {
+            if (!isFinishing && !isDestroyed) GdprConsentHelper.requestConsentIfRequired(this)
+        }
     }
 
     private val toasterObserver = Observer<UiText.StringResource> { text ->
@@ -445,17 +462,6 @@ class MainActivity @Inject constructor(
             }
         }
         viewModel.saveSymbols.observe(this, saveSymbolsObserver)
-
-        val navigateToShopObserver = Observer<Unit> {
-            this.startShop()
-        }
-
-        viewModel.navigateToShop.observe(this, navigateToShopObserver)
-    }
-
-    private fun onAccountPressed() {
-        val intent = Intent(this, AccountActivity::class.java)
-        this.startActivity(intent)
     }
 
     private fun startFriendzoned(legacyId: Int, isGranted: Boolean) {
@@ -464,7 +470,7 @@ class MainActivity @Inject constructor(
         intent.putExtra("symbols", TableOfSymbols(legacyId) as Parcelable)
         intent.putExtra("granted", isGranted)
 
-        startActivity(intent, ActivityOptions.makeCustomAnimation(this, 0, 0).toBundle())
+        startActivity(intent)
     }
 
     private fun startSmsGameActivity(
@@ -478,7 +484,12 @@ class MainActivity @Inject constructor(
             isTrial = isTrial,
         )
         val intent = SmsGameActivity.intent(this, args)
-        startActivity(intent, ActivityOptions.makeCustomAnimation(this, 0, 0).toBundle())
+        val animation = ActivityOptions.makeCustomAnimation(
+            this,
+            GamePresentationR.anim.game_presentation_fade_in,
+            GamePresentationR.anim.game_presentation_fade_out,
+        )
+        startActivity(intent, animation.toBundle())
     }
 
     private fun registerLoginLauncher() {

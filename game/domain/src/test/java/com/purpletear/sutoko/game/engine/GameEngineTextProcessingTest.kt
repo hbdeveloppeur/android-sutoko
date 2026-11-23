@@ -3,11 +3,14 @@ package com.purpletear.sutoko.game.engine
 import com.purpletear.sutoko.game.engine.handlers.createFakeGameMemory
 import com.purpletear.sutoko.game.engine.message.GameMessageInfo
 import com.purpletear.sutoko.game.engine.message.GameMessageText
+import com.purpletear.sutoko.game.engine.message.GameMessageTyping
 import com.purpletear.sutoko.game.model.chapter.ChapterGraph
 import com.purpletear.sutoko.game.model.chapter.Edge
 import com.purpletear.sutoko.game.model.chapter.EdgeType
+import com.purpletear.sutoko.game.model.chapter.GameMemory
 import com.purpletear.sutoko.game.model.chapter.Node
 import kotlinx.coroutines.runBlocking
+import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
@@ -84,5 +87,49 @@ class GameEngineTextProcessingTest {
 
         val textMessages = engine.messages.value.filterIsInstance<GameMessageText>()
         assertTrue(textMessages.isEmpty())
+    }
+
+    @Test
+    fun `automatic SMS message removes the action before replacing typing`() = runBlocking {
+        val memory = createFakeGameMemory()
+        val engine = createTestGameEngine(memory = memory)
+        engine.initialize("game-1", messageGraph(text = "  (mentir) je vais bien  "))
+        memory.set(GameMemory.TYPING_ANIMATION_KEY, "true")
+        engine.start()
+
+        assertEquals("je vais bien", engine.messages.value.filterIsInstance<GameMessageText>().single().text)
+        assertTrue(engine.messages.value.none { it is GameMessageTyping })
+    }
+
+    @Test
+    fun `automatic IRL message removes the leading action`() = runBlocking {
+        val engine = createTestGameEngine()
+        engine.initialize("game-1", messageGraph(text = "(mentir) je vais bien"))
+        engine.start()
+
+        assertEquals("je vais bien", engine.messages.value.filterIsInstance<GameMessageText>().single().text)
+    }
+
+    @Test
+    fun `automatic action-only message emits neither blank text nor typing`() = runBlocking {
+        val memory = createFakeGameMemory()
+        val engine = createTestGameEngine(memory = memory)
+        engine.initialize("game-1", messageGraph(text = "  (Ne rien dire)  "))
+        memory.set(GameMemory.TYPING_ANIMATION_KEY, "true")
+        engine.start()
+
+        assertTrue(engine.messages.value.none { it is GameMessageText || it is GameMessageTyping })
+        assertTrue(engine.state.value !is GameEngineState.AwaitingTap)
+    }
+
+    @Test
+    fun `message preserves ordinary parentheses and unmatched opening parentheses`() = runBlocking {
+        for (text in listOf("je vais bien (vraiment)", "(mentir je vais bien")) {
+            val engine = createTestGameEngine()
+            engine.initialize("game-1", messageGraph(text = text))
+            engine.start()
+
+            assertEquals(text, engine.messages.value.filterIsInstance<GameMessageText>().single().text)
+        }
     }
 }

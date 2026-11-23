@@ -22,6 +22,7 @@ import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
+import purpletear.fr.purpleteartools.GameLanguage
 import java.util.Locale
 import javax.inject.Inject
 
@@ -47,7 +48,7 @@ class ChapterRepositoryImpl @Inject constructor(
         try {
             val response = api.getChapters(
                 storyId = storyId,
-                langCode = Locale.getDefault().language,
+                languageCode = GameLanguage.determineLangDirectory(),
                 authorization = bearerToken(),
             )
             if (response.isSuccessful) {

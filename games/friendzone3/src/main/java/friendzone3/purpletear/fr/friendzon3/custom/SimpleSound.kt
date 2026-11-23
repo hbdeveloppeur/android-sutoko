@@ -2,6 +2,7 @@ package friendzone3.purpletear.fr.friendzon3.custom
 
 import android.app.Activity
 import android.media.MediaPlayer
+import friendzone3.purpletear.fr.friendzon3.Data
 import android.util.Log
 import java.io.IOException
 
@@ -23,27 +24,21 @@ class SimpleSound {
         }
         stop(true)
 
+        val prepared = MediaPlayer()
         try {
-            val fd = activity.assets.openFd("sound/$name.mp3")
-
-            player = MediaPlayer()
+            Data.setSoundSource(activity, prepared, name)
+            prepared.isLooping = isLooping
+            prepared.setOnCompletionListener { if (!isLooping) stop(true) }
+            prepared.prepare()
+            player = prepared
             currentSoundName = name
             currentMsPosition = 0
-            player!!.isLooping = isLooping
-            player!!.setDataSource(fd.fileDescriptor, fd.startOffset, fd.length)
-            player!!.prepare()
-            player!!.setOnPreparedListener {
-                play(at)
-            }
-            player!!.setOnCompletionListener {
-                if (!isLooping) {
-                    stop(true)
-                }
-            }
-
+            play(at)
         } catch (e: IOException) {
+            prepared.release()
+            player = null
             currentSoundName = ""
-            return
+            Log.e("Friendzoned3Audio", "Cannot load sound $name", e)
         }
     }
 

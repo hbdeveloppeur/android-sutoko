@@ -16,6 +16,15 @@ public class SinglePlayer {
     private Sound sound;
     private boolean isPlaying = false;
 
+    public void release() {
+        isPlaying = false;
+        if (sound != null && sound.mp != null) {
+            // Completion already releases the player and clears its name.
+            if (!sound.name.isEmpty()) sound.mp.release();
+            sound = null;
+        }
+    }
+
     public void kill() {
         isPlaying = false;
         if(sound == null)
@@ -74,7 +83,7 @@ public class SinglePlayer {
                     isPlaying = false;
                     sound.name = "";
                     mp.release();
-                    new Handler().post(r);
+                    if (r != null) new Handler().post(r);
 
                 }
             });

@@ -87,23 +87,7 @@ class AudioCinematicGraphics {
         v.setVisibility(isVisible ? View.VISIBLE : View.INVISIBLE);
     }
 
-    /**
-     * Updates the progressbar
-     *
-     * @param bg       View
-     * @param bar      View
-     * @param time     int
-     * @param duration int
-     */
-    void updateProgressBar(View bg, View bar, int time, int duration) {
-        int percent = (int) Maths.percent(time, duration);
-        if (!(bar.getLayoutParams() instanceof ViewGroup.MarginLayoutParams)) {
-            throw new IllegalArgumentException();
-        }
-        ViewGroup.LayoutParams p = bar.getLayoutParams();
-        p.width = bg.getWidth() * percent / 100;
-        bar.setLayoutParams(p);
-    }
+
 
     /**
      * Fades the filter view out

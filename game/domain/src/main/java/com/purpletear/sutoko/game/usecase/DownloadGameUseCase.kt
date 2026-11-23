@@ -1,7 +1,6 @@
 package com.purpletear.sutoko.game.usecase
 
 import com.purpletear.sutoko.domain.repository.UserRepository
-import com.purpletear.sutoko.game.model.canAccessGameOptions
 import com.purpletear.sutoko.game.model.game.GameDownloadRequest
 import com.purpletear.sutoko.game.repository.game.GameInstallRepository
 import com.purpletear.sutoko.game.repository.game.GameRepository
@@ -20,31 +19,19 @@ class DownloadGameUseCase @Inject constructor(
     private val userRepository: UserRepository,
 ) {
 
-    /**
-     * @param preview Admin-only: download the preview archive (all chapters,
-     * including unreleased ones). Requires a logged-in admin; the download
-     * always re-downloads (no version cache) since preview builds never bump
-     * the story version.
-     */
     suspend operator fun invoke(
         gameId: String,
-        preview: Boolean = false,
     ): Flow<Float> {
         assert(gameId.isNotBlank(), { "gameId must not be blank" })
 
         return gameInstallRepository.download(gameId) {
             val user = userRepository.observeUser().firstOrNull()
-            if (preview) {
-                check(user.canAccessGameOptions()) { "Preview download requires tester access" }
-            }
             val game = gameRepository.observeGame(gameId).firstOrNull()
                 ?: throw IllegalArgumentException("Game not found: $gameId")
             val downloadUrl = gameRepository.getDownloadLink(
                 gameId = gameId,
-                // Preview links only need the admin token, not the user id.
-                userId = if (preview) null else user?.id,
+                userId = user?.id,
                 userToken = user?.token,
-                preview = preview,
             ).getOrThrow()
             GameDownloadRequest(downloadUrl, game.version.toString(), game.legacyId)
         }

@@ -28,22 +28,22 @@
             android:name=".Load"
             android:launchMode="singleTop"
             android:screenOrientation="portrait"
-            android:theme="@style/Theme.AppCompat.NoActionBar" />
+            android:theme="@style/Friendzoned3ChapterTheme" />
         <activity
             android:name=".MainActivity"
             android:launchMode="singleTop"
             android:noHistory="false"
             android:screenOrientation="portrait"
-            android:theme="@style/Theme.AppCompat.NoActionBar" />
+            android:theme="@style/Friendzoned3ChapterTheme" />
         <activity
             android:name=".textcinematic.TextCinematic"
             android:configChanges="orientation"
             android:screenOrientation="portrait"
-            android:theme="@style/Theme.AppCompat.NoActionBar" />
+            android:theme="@style/Friendzoned3ChapterTheme" />
         <activity
             android:name=".PoeticActivity"
             android:screenOrientation="portrait"
-            android:theme="@style/Theme.AppCompat.NoActionBar" />
+            android:theme="@style/Friendzoned3ChapterTheme" />
         <activity
             android:name=".Phone"
             android:noHistory="true"
@@ -56,7 +56,7 @@
         <activity
             android:name=".End"
             android:screenOrientation="portrait"
-            android:theme="@style/Theme.AppCompat.NoActionBar" />
+            android:theme="@style/Friendzoned3ChapterTheme" />
     </application>
 
 </manifest>

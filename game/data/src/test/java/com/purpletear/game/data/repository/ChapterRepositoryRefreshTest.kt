@@ -29,6 +29,7 @@ import org.robolectric.RuntimeEnvironment
 import org.robolectric.annotation.Config
 import retrofit2.Response
 import java.io.IOException
+import java.util.Locale
 
 @RunWith(RobolectricTestRunner::class)
 @Config(manifest = Config.NONE, sdk = [28])
@@ -37,6 +38,7 @@ class ChapterRepositoryRefreshTest {
     private lateinit var repository: ChapterRepositoryImpl
     private var response: Response<List<ChapterDto>> = Response.success(emptyList())
     private var networkFailure: IOException? = null
+    private var requestedLanguageCode: String? = null
     private val progress = UserGameProgressEntity(
         gameId = STORY_ID, currentChapterCode = "2a", normalizedChapterCode = "2a", heroName = "Alex",
     )
@@ -50,8 +52,9 @@ class ChapterRepositoryRefreshTest {
         repository = ChapterRepositoryImpl(
             api = object : ChapterApi {
                 override suspend fun getChapters(
-                    storyId: String, langCode: String, authorization: String?,
+                    storyId: String, languageCode: String, authorization: String?,
                 ): Response<List<ChapterDto>> {
+                    requestedLanguageCode = languageCode
                     networkFailure?.let { throw it }
                     return response
                 }
@@ -82,6 +85,27 @@ class ChapterRepositoryRefreshTest {
 
     @After
     fun tearDown() = database.close()
+
+    @Test
+    fun `chapter refresh sends the supported regional language tag`() = runBlocking {
+        val originalLocale = Locale.getDefault()
+        try {
+            for ((locale, expected) in listOf(
+                Locale("es", "ES") to "es-ES",
+                Locale("es", "MX") to "es-419",
+                Locale("es", "AR") to "es-419",
+                Locale("fr", "FR") to "fr-FR",
+                Locale("en", "US") to "en-GB",
+                Locale("de", "DE") to "de-DE",
+            )) {
+                Locale.setDefault(locale)
+                repository.getChapters(STORY_ID).toList().last().getOrThrow()
+                assertEquals(expected, requestedLanguageCode)
+            }
+        } finally {
+            Locale.setDefault(originalLocale)
+        }
+    }
 
     @Test
     fun `authoritative refresh removes absent chapters without rewriting player progress`() = runBlocking {

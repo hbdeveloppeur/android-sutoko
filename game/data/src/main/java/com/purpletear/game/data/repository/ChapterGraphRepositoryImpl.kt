@@ -118,7 +118,7 @@ class ChapterGraphRepositoryImpl @Inject constructor(
                 pathProvider = pathProvider,
                 rightSideCharacterIds = layout?.sides?.right.orEmpty()
             )
-            emit(Result.success(graph))
+            emit(Result.success(graph.copy(languageCode = resolvedLanguage)))
 
         } catch (e: Exception) {
             if (e is CancellationException) throw e

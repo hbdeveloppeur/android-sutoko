@@ -5,6 +5,7 @@ import com.purpletear.sutoko.game.engine.GameEngine
 import com.purpletear.sutoko.game.engine.GameEngineState
 import com.purpletear.sutoko.game.model.StoryAdvanceMode
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -66,12 +67,18 @@ class AutoAdvanceController(
      */
     private fun scheduleAutoAdvance(state: GameEngineState.AwaitingTap) {
         autoAdvanceJob?.cancel()
-        autoAdvanceJob = scope.launch {
+        val countdown = scope.launch(start = CoroutineStart.LAZY) {
             timingScheduler.delay(state.autoAdvanceAfterMs)
+            // Only the countdown is cancellable. State changes during advanceOnTap must
+            // not cancel the script (or checkpoint write) that this coroutine executes.
+            autoAdvanceJob = null
             val current = gameEngine.state.value
             if (current is GameEngineState.AwaitingTap && current.currentNodeId == state.currentNodeId) {
                 gameEngine.advanceOnTap()
             }
         }
+        // Register before starting: zero-duration scene gates may execute immediately.
+        autoAdvanceJob = countdown
+        countdown.start()
     }
 }

@@ -43,9 +43,6 @@
     <string name="game_presentation_game_preview_author_avatar">Author avatar, tap to enlarge</string>
     <string name="game_presentation_game_preview_background_description">Background</string>
     <string name="game_presentation_game_preview_avatar_description">Avatar</string>
-    <string name="game_presentation_game_preview_current_version">Current version: %1$d</string>
-    <string name="game_presentation_game_preview_current_version_up_to_date">Current version: %1$d (Up to date)</string>
-    <string name="game_presentation_game_preview_available_version">Available version: %1$d</string>
 
     <!-- Game menu state -->
     <string name="game_presentation_game_menu_play">Play</string>
@@ -87,27 +84,6 @@
     <string name="game_presentation_game_delete_error">Failed to delete the game</string>
     <string name="game_presentation_game_restart_success">Game restart</string>
     <string name="game_presentation_game_restart_error">Failed to restart the game</string>
-    <string name="game_presentation_game_preview_options">Story options</string>
-    <string name="game_presentation_options_title">Options</string>
-    <string name="game_presentation_options_chapter_section">Current chapter</string>
-    <string name="game_presentation_options_chapter_apply">Apply</string>
-    <string name="game_presentation_options_chapter_placeholder">Chapter code</string>
-    <string name="game_presentation_options_back">Back</string>
-    <string name="game_presentation_options_chapter_unknown">This chapter doesn\'t exist</string>
-    <string name="game_presentation_options_role_section">Role</string>
-    <string name="game_presentation_options_role_player">Player</string>
-    <string name="game_presentation_options_role_administrator">Administrator</string>
-    <string name="game_presentation_options_advance_section">Story advance</string>
-    <string name="game_presentation_options_advance_auto">AutoPlay</string>
-    <string name="game_presentation_options_advance_auto_subtitle">The story advances on its own after each message.</string>
-    <string name="game_presentation_options_advance_click">Click to advance</string>
-    <string name="game_presentation_options_advance_click_subtitle">Tap the screen to reveal each message at your own pace.</string>
-    <string name="game_presentation_options_restart_story">Restart story</string>
-    <string name="game_presentation_options_delete_memories">Delete memories</string>
-    <string name="game_presentation_options_delete_memories_confirm_title">Delete memories?</string>
-    <string name="game_presentation_options_delete_memories_confirm_description">This will delete all saved memories for the current game. Your progress is kept. Do you want to continue?</string>
-    <string name="game_presentation_options_delete_memories_success">Memories deleted</string>
-    <string name="game_presentation_options_delete_memories_error">Failed to delete memories</string>
     <string name="game_presentation_game_redownload_started">Game redownload started</string>
     <string name="game_presentation_game_redownload_completed">Game redownload completed</string>
     <string name="game_presentation_game_redownload_error">Failed to redownload the game</string>
@@ -154,7 +130,6 @@
     <string name="game_presentation_message_manga_open">Open</string>
     <string name="game_presentation_message_next_chapter_title">End of chapter</string>
     <string name="game_presentation_message_next_chapter_play_button">Go to next chapter</string>
-    <string name="game_presentation_message_next_chapter_unlock_button">Unlock the next chapter with an Ad</string>
     <string name="game_presentation_message_next_chapter_button">Next chapter</string>
     <string name="game_presentation_message_trial_finished_title">Trial finished</string>
     <string name="game_presentation_message_trial_finished_button">Buy the story</string>
@@ -214,7 +189,6 @@
     <string name="game_presentation_insufficient_funds_alert_description">You don\'t have enough coins to buy this item.</string>
     <string name="game_presentation_insufficient_funds_alert_button">Continue</string>
     <string name="game_presentation_game_story_chapters_button_chapters">Chapters</string>
-    <string name="game_presentation_game_preview_download_preview">Download preview</string>
     <string name="game_presentation_game_story_chapters_button_chapters_count">%1$d chapters</string>
 
     <string name="game_presentation_error_nickname">Unable to save or load your name. Please try again.</string>
@@ -222,4 +196,28 @@
     <string name="game_presentation_game_preview_load_error">Could not load this story. Try again.</string>
     <string name="game_presentation_game_preview_choose_chapter">Choose an available chapter to continue.</string>
     <string name="game_presentation_catalog_loading">Loading stories</string>
+    <string name="game_presentation_game_preview_options">Game options</string>
+    <string name="game_presentation_options_title">Options</string>
+    <string name="game_presentation_options_back">Back</string>
+    <string name="game_presentation_options_restart_game">Restart the game</string>
+    <string name="game_presentation_options_restart_chapter">Restart the chapter</string>
+    <string name="game_presentation_chapter_restart_confirm_title">Restart the chapter?</string>
+    <string name="game_presentation_chapter_restart_confirm_description">This will restart the current chapter from the beginning. Your choices from earlier chapters and your name will be kept. Do you want to continue?</string>
+    <string name="game_presentation_chapter_restart_success">Chapter restarted</string>
+    <string name="game_presentation_chapter_restart_error">Failed to restart the chapter</string>
+    <string name="game_presentation_options_close">Close options</string>
+    <string name="game_presentation_options_chapter_loading">Loading your chapter…</string>
+    <string name="game_presentation_options_chapter_missing">No saved chapter is available. You can restart the story instead.</string>
+    <string name="game_presentation_options_chapter_unavailable">This chapter is not available yet. You can restart the story from chapter 1.</string>
+    <string name="game_presentation_options_chapter_summary">Replay from the beginning. Earlier choices and your name stay.</string>
+    <string name="game_presentation_options_game_summary">Start over at chapter 1. All choices in this story are reset.</string>
+    <string name="game_presentation_options_chapter_number">Chapter %1$d</string>
+    <string name="game_presentation_options_confirm_chapter">Restart chapter %1$d?</string>
+    <string name="game_presentation_options_confirm_chapter_detail">Your reading position and choices in this chapter will be cleared. Your earlier choices and your name stay.</string>
+    <string name="game_presentation_options_confirm_game_detail">Start over at chapter 1. Your reading progress and choices will be cleared. Your purchases and downloads stay.</string>
+    <string name="game_presentation_options_restart_failed">Couldn\'t restart. Please try again.</string>
+    <string name="game_presentation_options_restarting">Restarting…</string>
+    <string name="game_presentation_options_retry_restart">Try again</string>
+    <string name="game_presentation_options_chapter_restarted">Chapter restarted. Ready to replay.</string>
+    <string name="game_presentation_options_game_restarted">Story restarted from chapter 1.</string>
 </resources>

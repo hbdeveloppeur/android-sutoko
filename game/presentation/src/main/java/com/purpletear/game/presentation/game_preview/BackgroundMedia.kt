@@ -28,7 +28,7 @@ import com.purpletear.game.presentation.R
 
 /** Silent, cropped background video. TextureView participates in Compose transitions. */
 @Composable
-internal fun BackgroundMedia(
+fun BackgroundMedia(
     videoUrl: String,
     modifier: Modifier = Modifier,
     playWhenReady: Boolean = true,

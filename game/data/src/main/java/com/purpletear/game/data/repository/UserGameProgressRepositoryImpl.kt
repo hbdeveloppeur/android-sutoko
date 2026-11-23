@@ -29,7 +29,8 @@ class UserGameProgressRepositoryImpl @Inject constructor(
             gameId = progress.gameId,
             currentChapterCode = progress.currentChapterCode,
             normalizedChapterCode = progress.normalizedChapterCode,
-            heroName = progress.heroName
+            heroName = progress.heroName,
+            checkpoint = progress.checkpoint,
         )
         userGameProgressDao.save(entity)
     }

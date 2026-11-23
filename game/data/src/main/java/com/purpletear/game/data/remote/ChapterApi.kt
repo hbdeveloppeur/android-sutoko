@@ -12,7 +12,7 @@ interface ChapterApi {
     @GET("story/{storyId}/chapters")
     suspend fun getChapters(
         @Path("storyId") storyId: String,
-        @Query("langCode") langCode: String,
+        @Query("languageCode") languageCode: String,
         @Header("Authorization") authorization: String? = null,
     ): Response<List<ChapterDto>>
 

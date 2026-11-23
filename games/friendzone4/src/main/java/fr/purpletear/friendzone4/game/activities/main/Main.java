@@ -1,5 +1,9 @@
 package fr.purpletear.friendzone4.game.activities.main;
 
+import com.purpletear.sutoko.analytics.data.statistics.LegacyChapterReports;
+
+import com.purpletear.ads.ReaderAds;
+
 import android.animation.ValueAnimator;
 import android.content.Context;
 import android.content.Intent;
@@ -10,12 +14,17 @@ import android.os.Parcelable;
 import android.os.VibrationEffect;
 import android.os.Vibrator;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.VideoView;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowCompat;
+import androidx.core.view.WindowInsetsCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
@@ -66,11 +75,46 @@ public class Main extends AppCompatActivity implements MainInterface {
     Timer timer = new Timer();
 
     @Override
+    public boolean dispatchTouchEvent(android.view.MotionEvent event) {
+        ReaderAds.onInput(this, event);
+        return super.dispatchTouchEvent(event);
+    }
+
+    @Override
+    public boolean dispatchKeyEvent(android.view.KeyEvent event) {
+        ReaderAds.onInput(this, event);
+        return super.dispatchKeyEvent(event);
+    }
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        if (!SutokoSharedElementsData.INSTANCE.getSHOULD_FORCE_CHAPTER()) ReaderAds.track(this, ReaderAds.legacyKey(163));
+        WindowCompat.setDecorFitsSystemWindows(getWindow(), false);
         setContentView(R.layout.fz4_activity_main);
+        applyConversationInsets();
         load();
+        if (!com.example.sharedelements.SutokoSharedElementsData.INSTANCE.getSHOULD_FORCE_CHAPTER()) {
+            LegacyChapterReports.entered(this,163,purpletear.fr.purpleteartools.GameLanguage.Companion.determineLangDirectory(),model.getTableOfSymbols().getChapterCode());
+            LegacyChapterReports.observe(this,163,purpletear.fr.purpleteartools.GameLanguage.Companion.determineLangDirectory(),model.getTableOfSymbols().getChapterCode());
+        }
         listeners();
+    }
+
+    private void applyConversationInsets() {
+        View root = ((ViewGroup) findViewById(android.R.id.content)).getChildAt(0);
+        ViewCompat.setOnApplyWindowInsetsListener(root, (view, windowInsets) -> {
+            Insets insets = windowInsets.getInsets(
+                    WindowInsetsCompat.Type.systemBars() | WindowInsetsCompat.Type.displayCutout());
+            ViewGroup.MarginLayoutParams params = (ViewGroup.MarginLayoutParams) view.getLayoutParams();
+            if (params.leftMargin != insets.left || params.topMargin != insets.top
+                    || params.rightMargin != insets.right || params.bottomMargin != insets.bottom) {
+                params.setMargins(insets.left, insets.top, insets.right, insets.bottom);
+                view.setLayoutParams(params);
+            }
+            return WindowInsetsCompat.CONSUMED;
+        });
+        ViewCompat.requestApplyInsets(root);
     }
 
     @Override
@@ -422,6 +466,7 @@ public class Main extends AppCompatActivity implements MainInterface {
         }
 
         if (DiscussionHandler.execute("Fin du jeu", p.isEnd())) {
+            if (!SutokoSharedElementsData.INSTANCE.getSHOULD_FORCE_CHAPTER()) LegacyChapterReports.completed(this,163,purpletear.fr.purpleteartools.GameLanguage.Companion.determineLangDirectory(),model.getTableOfSymbols().getChapterCode());
             model.getParams().setChapterCode(p.getNextChapter().toLowerCase());
             model.getTableOfSymbols().setChapterCode(p.getNextChapter().toLowerCase());
             model.getParams().save(Main.this);
@@ -435,6 +480,7 @@ public class Main extends AppCompatActivity implements MainInterface {
         }
 
         if (DiscussionHandler.execute("Lancement d'un nouveau chapitre", p.isNextChapter())) {
+            if (!com.example.sharedelements.SutokoSharedElementsData.INSTANCE.getSHOULD_FORCE_CHAPTER()) LegacyChapterReports.completed(this,163,purpletear.fr.purpleteartools.GameLanguage.Companion.determineLangDirectory(),model.getTableOfSymbols().getChapterCode());
             final String chapter = p.getNextChapter();
             model.getAdapter().insertPhrase(p, Phrase.Type.nextChapter);
             Runnable2 runnable = new Runnable2("Nouveau chapitre", Phrase.nextChapterDelay()) {
@@ -452,7 +498,7 @@ public class Main extends AppCompatActivity implements MainInterface {
                             model.getTableOfSymbols().setChapterCode(chapter);
                             model.getParams().save(Main.this);
                             model.getTableOfSymbols().save(Main.this);
-                            setResult(RESULT_OK, new Intent()
+                            setResult(RESULT_OK, ReaderAds.chapterResult(new Intent())
                                     .putExtra("params", (Parcelable) model.getParams())
                                     .putExtra("symbols", (Parcelable) model.getTableOfSymbols())
                             );

@@ -1,12 +1,14 @@
 package fr.purpletear.sutoko.screens.main.presentation.screens.home
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.LazyListState
@@ -27,6 +29,7 @@ import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
@@ -45,6 +48,7 @@ import fr.purpletear.sutoko.R
 import fr.purpletear.sutoko.screens.main.presentation.HomeCatalogState
 import fr.purpletear.sutoko.screens.main.presentation.HomeScreenViewModel
 import fr.purpletear.sutoko.screens.main.presentation.MainScreenPages
+import fr.purpletear.sutoko.screens.main.presentation.screens.MainTopNavigationPadding
 import fr.purpletear.sutoko.screens.main.presentation.screens.TopNavigation
 import fr.purpletear.sutoko.screens.main.presentation.screens.home.components.HomeEntrance
 import fr.purpletear.sutoko.screens.main.presentation.screens.home.components.rememberHomeEntrance
@@ -60,12 +64,12 @@ import fr.purpletear.sutoko.sync.catalog.CatalogSyncStatus
 @Composable
 fun HomeScreen(
     mainNavController: NavController,
-    onAccountPressed: () -> Unit,
     onSignInPressed: () -> Unit,
     onOptionsPressed: () -> Unit,
     onCoinsPressed: () -> Unit,
     onDiamondsPressed: () -> Unit,
-    viewModel: HomeScreenViewModel
+    viewModel: HomeScreenViewModel,
+    bottomContentPadding: Dp = 0.dp,
 ) {
     val scrollState = rememberLazyListState()
     val systemUiController = rememberSystemUiController()
@@ -91,7 +95,6 @@ fun HomeScreen(
         newChaptersSoonGameIds = newChaptersSoonGameIds.value,
         coinsBalance = balance.value,
         isConnected = isConnected.value,
-        onAccountButtonPressed = onAccountPressed,
         onSignInButtonPressed = onSignInPressed,
         onCoinsButtonPressed = onCoinsPressed,
         onDiamondsButtonPressed = onDiamondsPressed,
@@ -101,7 +104,8 @@ fun HomeScreen(
         },
         onFullStoryTap = { card ->
             mainNavController.navigate(MainScreenPages.GamePreview.createRoute(card.id))
-        }
+        },
+        bottomContentPadding = bottomContentPadding,
     )
 }
 
@@ -120,14 +124,14 @@ internal fun HomeContent(
     newChaptersSoonGameIds: Set<String>,
     coinsBalance: Resource<Balance>,
     isConnected: Boolean?,
-    onAccountButtonPressed: () -> Unit,
     onSignInButtonPressed: () -> Unit,
     onCoinsButtonPressed: () -> Unit,
     onDiamondsButtonPressed: () -> Unit,
     onOptionsButtonPressed: () -> Unit,
     onSquareStoryTap: (GameCatalog) -> Unit,
     onFullStoryTap: (GameCatalog) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    bottomContentPadding: Dp = 0.dp,
 ) {
     val isLoading = !catalog.isCacheLoaded || (!catalog.hasStories && catalogSyncStatus == CatalogSyncStatus.Loading)
     val showLoading = rememberHomeLoadingVisible(isLoading)
@@ -136,16 +140,17 @@ internal fun HomeContent(
     val animateContent = rememberHomeEntrance(ready = !isLoading)
     LazyColumn(
         state = scrollState,
+        contentPadding = PaddingValues(bottom = bottomContentPadding),
         modifier = modifier
             .semantics { testTagsAsResourceId = true }
             .testTag("home_screen")
             .statusBarsPadding()
+            .navigationBarsPadding()
     ) {
         topNavigationSection(
             animate = animateHeader,
             balance = coinsBalance,
             isConnected = isConnected,
-            onAccountButtonPressed = onAccountButtonPressed,
             onSignInButtonPressed = onSignInButtonPressed,
             onCoinsButtonPressed = onCoinsButtonPressed,
             onDiamondsButtonPressed = onDiamondsButtonPressed,
@@ -211,7 +216,6 @@ private fun LazyListScope.topNavigationSection(
     animate: Boolean,
     balance: Resource<Balance>,
     isConnected: Boolean?,
-    onAccountButtonPressed: () -> Unit,
     onSignInButtonPressed: () -> Unit,
     onCoinsButtonPressed: () -> Unit,
     onDiamondsButtonPressed: () -> Unit,
@@ -220,14 +224,9 @@ private fun LazyListScope.topNavigationSection(
     item(key = "top_navigation", contentType = "navigation") {
         HomeEntrance(animate = animate) {
             TopNavigation(
-                modifier = Modifier
-                    .padding(top = 12.dp)
-                    .padding(horizontal = 16.dp)
-                    .padding(bottom = 8.dp)
-                    .padding(start = 8.dp),
+                modifier = MainTopNavigationPadding,
                 balance = balance,
                 isConnected = isConnected,
-                onAccountButtonPressed = onAccountButtonPressed,
                 onSignInButtonPressed = onSignInButtonPressed,
                 onCoinsButtonPressed = onCoinsButtonPressed,
                 onDiamondsButtonPressed = onDiamondsButtonPressed,

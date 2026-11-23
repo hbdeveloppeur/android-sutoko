@@ -1,15 +1,8 @@
 package com.purpletear.game.presentation.game_play
 
 import android.app.Activity
-import com.purpletear.game.presentation.game_play.ads.ChapterAdAvailability
-import com.purpletear.game.presentation.game_play.ads.ChapterAdEligibility
-import com.purpletear.game.presentation.game_play.ads.ChapterAdGateway
-import com.purpletear.game.presentation.game_play.ads.ChapterAdResult
-import com.purpletear.game.presentation.game_play.ads.ChapterAdCooldown
+import com.purpletear.ads.ChapterInterstitials
 import com.purpletear.game.presentation.game_play.ads.ChapterAdTransition
-import kotlinx.coroutines.withTimeoutOrNull
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.delay
 import android.content.Context
 import android.os.Trace
 import android.util.Log
@@ -33,6 +26,7 @@ import com.purpletear.game.presentation.game_play.state.GameEngineStateUiMapper
 import com.purpletear.game.presentation.game_play.state.GameUiState
 import com.purpletear.game.presentation.game_play.state.VisualNovelUi
 import com.purpletear.sutoko.core.domain.analytics.AnalyticsTracker
+import com.purpletear.sutoko.core.domain.analytics.ChapterStatistics
 import com.purpletear.sutoko.core.domain.logger.Logger
 import com.purpletear.sutoko.core.domain.logger.exception
 import com.purpletear.sutoko.game.engine.GameEngine
@@ -86,11 +80,10 @@ class GameEngineViewModel @Inject constructor(
     private val makeToastService: MakeToastService,
     private val analyticsTracker: AnalyticsTracker,
     private val logger: Logger,
-    private val chapterAds: ChapterAdGateway,
-    private val chapterAdCooldown: ChapterAdCooldown,
-    private val chapterAdEligibility: ChapterAdEligibility,
+    private val chapterInterstitials: ChapterInterstitials,
     savedStateHandle: SavedStateHandle,
     @ApplicationContext private val context: Context,
+    private val chapterStatistics: ChapterStatistics = ChapterStatistics.None,
 ) : ViewModel() {
 
     private val gameId: String = checkNotNull(savedStateHandle["gameId"]) {
@@ -125,15 +118,15 @@ class GameEngineViewModel @Inject constructor(
 
     private val adTransition = ChapterAdTransition()
 
-    private val adEligible = chapterAdEligibility.observe(gameId)
-        .stateIn(viewModelScope, SharingStarted.Eagerly, false)
-
     private val nextChapter = NextChapterController(
         gameId = gameId,
         chapterRepository = chapterRepository,
         logger = logger,
         scope = viewModelScope,
-        updateState = ::updateState
+        updateState = ::updateState,
+        onAvailability = { nextCode,available ->
+            if(!isAutoPlay || chapterStatistics.qaEnabled.value) chapterStatistics.boundary("sms",gameId,statisticsLanguage,_uiState.value.chapterCode ?: chapterCode,nextCode,available)
+        }
     )
     val navigateToNextChapter: Flow<String> = nextChapter.navigateToNextChapter
 
@@ -175,21 +168,6 @@ class GameEngineViewModel @Inject constructor(
     }
 
     init {
-        viewModelScope.launch {
-            adEligible.collect { eligible -> if (eligible) chapterAds.preload() }
-        }
-        viewModelScope.launch {
-            combine(adEligible, chapterAds.availability) { eligible, availability ->
-                eligible && availability != ChapterAdAvailability.UNAVAILABLE
-            }.collectLatest { eligible ->
-                val remaining = chapterAdCooldown.remainingMillis()
-                updateState { it.copy(requiresChapterAd = eligible && remaining == 0L) }
-                if (eligible && remaining > 0L) {
-                    delay(remaining)
-                    updateState { it.copy(requiresChapterAd = true) }
-                }
-            }
-        }
         Trace.beginSection("GameEngineViewModel.init")
         // The scheduler is a process-wide @Singleton: never inherit a stale hold from a
         // previous session.
@@ -288,6 +266,7 @@ class GameEngineViewModel @Inject constructor(
                     },
                     onFailure = { error ->
                         logger.exception(error) { "Failed to load chapter $chapterCode" }
+                        chapterStatistics.failed("sms",gameId,Locale.getDefault().toLanguageTag(),chapterCode,"load_failed")
                         updateState { it.copy(hasLoadError = true) }
                         makeToastService(R.string.game_presentation_error_load_game)
                     }
@@ -328,6 +307,7 @@ class GameEngineViewModel @Inject constructor(
         graph: ChapterGraph,
     ) {
         resetForNewPlay()
+        reportedMilestone=0
         cinematic.onGraphLoaded(graph)
 
         updateState {
@@ -345,8 +325,13 @@ class GameEngineViewModel @Inject constructor(
 
         viewModelScope.launch {
             try {
-                gameEngine.initialize(gameId, graph)
+                gameEngine.initialize(gameId, graph, checkpointingEnabled = !isTrial && !isAutoPlay)
                 updateState { it.copy(isLoadingStoryUpdates = false) }
+                statisticsLanguage = graph.languageCode
+                if (!isAutoPlay || chapterStatistics.qaEnabled.value) {
+                    if(isTrial) chapterStatistics.enteredTrial("sms",gameId,statisticsLanguage,graph.chapterCode)
+                    else chapterStatistics.entered("sms",gameId,statisticsLanguage,graph.chapterCode)
+                }
                 gameEngine.start()
             } catch (e: CancellationException) {
                 throw e
@@ -387,7 +372,7 @@ class GameEngineViewModel @Inject constructor(
                 checkNotNull(graph.getNode(nodeId)) {
                     "Debug jump target not found in chapter ${graph.chapterCode}: $nodeId"
                 }
-                gameEngine.initialize(gameId, graph)
+                gameEngine.initialize(gameId, graph, checkpointingEnabled = false)
                 gameEngine.jumpToNode(nodeId)
             } catch (e: CancellationException) {
                 throw e
@@ -407,6 +392,12 @@ class GameEngineViewModel @Inject constructor(
         updateState { GameEngineStateUiMapper.map(it, engineState) }
     }
 
+    fun onReaderResumed() {
+        val currentChapter = _uiState.value.chapterCode ?: return
+        if (!isTrial && !isAutoPlay) chapterStatistics.active("sms",gameId,statisticsLanguage,currentChapter)
+    }
+
+    private var statisticsLanguage = ""
     private var lastLoggedFinishedChapter: String? = null
 
     /**
@@ -417,6 +408,10 @@ class GameEngineViewModel @Inject constructor(
     private fun logChapterFinished(finishedChapterCode: String) {
         if (lastLoggedFinishedChapter == finishedChapterCode) return
         lastLoggedFinishedChapter = finishedChapterCode
+        if (!isAutoPlay || chapterStatistics.qaEnabled.value) {
+            if(isTrial) chapterStatistics.completedTrial("sms",gameId,statisticsLanguage,finishedChapterCode)
+            else chapterStatistics.completed("sms",gameId,statisticsLanguage,finishedChapterCode)
+        }
         val event = if (isTrial) "trial_end" else "chapter_complete"
         analyticsTracker.logEvent(
             event,
@@ -424,7 +419,13 @@ class GameEngineViewModel @Inject constructor(
         )
     }
 
+    private var reportedMilestone=0
     private fun updateMessages(messages: List<GameMessage>) {
+        val milestone=if(messages.size>=50) 2 else if(messages.size>=10) 1 else 0
+        if(milestone>reportedMilestone && (!isAutoPlay || chapterStatistics.qaEnabled.value)) {
+            reportedMilestone=milestone
+            chapterStatistics.progress("sms",gameId,statisticsLanguage,_uiState.value.chapterCode ?: chapterCode,if(milestone==2) "sustained" else "engaged")
+        }
         updateState {
             it.copy(
                 messages = messages,
@@ -437,6 +438,9 @@ class GameEngineViewModel @Inject constructor(
      */
     private fun handleEffect(effect: HandlerEffect) {
         when (effect) {
+            is HandlerEffect.StoryFinished -> if(!isAutoPlay || chapterStatistics.qaEnabled.value) {
+                chapterStatistics.storyFinished("sms",gameId,statisticsLanguage,_uiState.value.chapterCode ?: chapterCode,isTrial)
+            }
 
             is HandlerEffect.ChangeScene -> handleChangeScene(effect)
 
@@ -537,49 +541,18 @@ class GameEngineViewModel @Inject constructor(
 
     fun onNextChapterClicked(activity: Activity? = null) {
         val state = _uiState.value
-        if (!state.isNextChapterAvailable || !state.isNextChapterAvailabilityResolved) return
-        if (!adTransition.begin()) return
+        if (!state.isNextChapterAvailable || !state.isNextChapterAvailabilityResolved || !adTransition.begin()) return
         updateState { it.copy(isChapterAdBusy = true) }
-        fun finish(result: ChapterAdResult) {
-            adTransition.finish(result, chapterAdCooldown::recordReward) {
-                analyticsTracker.logEvent("chapter_ad_continue", mapOf(
-                    "game_id" to gameId,
-                    "result" to result.name.lowercase(),
-                    "ad_required" to state.requiresChapterAd,
-                ))
+        fun continueReading() {
+            adTransition.finish {
+                updateState { it.copy(isChapterAdBusy = false) }
                 nextChapter.onNextChapterClicked(_uiState.value.isNextChapterAvailable)
             }
-            updateState { it.copy(isChapterAdBusy = false) }
-            if (result == ChapterAdResult.DISMISSED && adEligible.value) chapterAds.preload()
         }
-        if (!state.requiresChapterAd || !adEligible.value || activity == null ||
-            chapterAdCooldown.remainingMillis() > 0L) {
-            finish(ChapterAdResult.UNAVAILABLE)
-            return
-        }
-        viewModelScope.launch {
-            try {
-                if (!chapterAdEligibility.mayShow(gameId) || !adEligible.value ||
-                    activity.isFinishing || activity.isDestroyed) {
-                    finish(ChapterAdResult.UNAVAILABLE)
-                } else {
-                    val availability = withTimeoutOrNull(5_000L) {
-                        chapterAds.availability.first { it != ChapterAdAvailability.LOADING }
-                    }
-                    if (availability != ChapterAdAvailability.READY || !adEligible.value ||
-                        activity.isFinishing || activity.isDestroyed) {
-                        finish(ChapterAdResult.UNAVAILABLE)
-                    } else {
-                        audio.releaseSessionSounds()
-                        chapterAds.show(activity, ::finish)
-                    }
-                }
-            } catch (error: CancellationException) {
-                throw error
-            } catch (error: Exception) {
-                logger.exception(error) { "Chapter ad unavailable" }
-                finish(ChapterAdResult.UNAVAILABLE)
-            }
+        if (activity == null || isTrial || isAutoPlay) {
+            continueReading()
+        } else {
+            chapterInterstitials.atChapterBreak(activity, gameId, "sms", audio::releaseSessionSounds, ::continueReading)
         }
     }
 

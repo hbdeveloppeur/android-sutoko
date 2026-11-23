@@ -17,12 +17,13 @@ import com.purpletear.game.presentation.game_preview.fakes.FakeShopRepository
 import com.purpletear.game.presentation.game_preview.fakes.FakeToastService
 import com.purpletear.game.presentation.game_preview.fakes.FakeUserGameProgressRepository
 import com.purpletear.game.presentation.game_preview.fakes.FakeUserRepository
-import com.purpletear.game.presentation.game_preview.fakes.FakeUserRoleRepository
 import com.purpletear.game.presentation.game_preview.fakes.TestFixtures
 import com.purpletear.game.presentation.game_preview.handlers.GamePreviewPurchaseHandler
 import com.purpletear.sutoko.domain.model.User
 import com.purpletear.sutoko.game.usecase.DownloadGameUseCase
 import com.purpletear.sutoko.game.usecase.GetChaptersUseCase
+import com.purpletear.sutoko.game.usecase.RestartChapterUseCase
+import com.purpletear.sutoko.game.repository.GameProgressTransaction
 import com.purpletear.sutoko.game.usecase.RestartGameUseCase
 import com.purpletear.sutoko.game.usecase.PrepareGameLaunchUseCase
 import com.purpletear.sutoko.game.usecase.SaveUserNickNameUseCase
@@ -48,7 +49,6 @@ class GamePreviewViewModelTestFixture {
     val favoriteGamesRepository = FakeFavoriteGamesRepository()
     val mediaUrlResolver = FakeMediaUrlResolver()
     val userRepository = FakeUserRepository()
-    val userRoleRepository = FakeUserRoleRepository()
     val soundRepository = FakeGamePreviewSoundRepository()
     val userGameProgressRepository = FakeUserGameProgressRepository()
     val memoryRepository = FakeMemoryRepository()
@@ -108,10 +108,11 @@ class GamePreviewViewModelTestFixture {
             prepareGameLaunchUseCase = PrepareGameLaunchUseCase(userGameProgressRepository, friendzonedProgressRepository),
             toastService = toastService,
             restartGameUseCase = restartGameUseCase,
+            restartChapterUseCase = RestartChapterUseCase(userGameProgressRepository, memoryRepository, GameProgressTransaction { it() }),
             downloadGameUseCase = downloadGameUseCase,
             purchaseHandler = purchaseHandler,
             userRepository = userRepository,
-            userRoleRepository = userRoleRepository,
+
             soundRepository = soundRepository,
             entitlementRepository = entitlementRepository,
             shopRepository = shopRepository,

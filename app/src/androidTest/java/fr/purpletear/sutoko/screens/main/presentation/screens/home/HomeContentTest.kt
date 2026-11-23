@@ -17,6 +17,7 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performClick
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
@@ -37,6 +38,19 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class HomeContentTest {
     @get:Rule val compose = createComposeRule()
+
+    @Test
+    fun releaseScheduleIsVisibleWhileCatalogLoads() {
+        compose.setContent {
+            RenderHome(HomeCatalogState.fromGames(emptyList()), CatalogSyncStatus.Loading)
+        }
+        compose.waitUntil(timeoutMillis = 3_000) {
+            compose.onAllNodesWithTag("home_catalog_loading").fetchSemanticsNodes().isNotEmpty()
+        }
+        compose.onNodeWithText(string(R.string.sutoko_main_section_title_release_schedule))
+            .performScrollTo()
+            .assertIsDisplayed()
+    }
 
     @Test
     fun fourStoriesRenderEvenWithoutAdditionalBanners() {
@@ -141,7 +155,6 @@ class HomeContentTest {
             newChaptersSoonGameIds = emptySet(),
             coinsBalance = balance,
             isConnected = true,
-            onAccountButtonPressed = {},
             onSignInButtonPressed = {},
             onCoinsButtonPressed = {},
             onDiamondsButtonPressed = {},

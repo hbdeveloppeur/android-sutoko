@@ -75,14 +75,12 @@ class GameRepositoryImpl @Inject constructor(
         gameId: String,
         userId: String?,
         userToken: String?,
-        preview: Boolean,
     ): Result<String> {
         return try {
             val response = api.getDownloadLink(
                 gameId = gameId,
                 userId = userId,
                 userToken = userToken,
-                preview = if (preview) true else null,
             )
             val url = response.link
             Result.success(url)

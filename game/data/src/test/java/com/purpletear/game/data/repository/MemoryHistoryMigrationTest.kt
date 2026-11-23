@@ -37,10 +37,12 @@ class MemoryHistoryMigrationTest {
                     )
                 """.trimIndent())
                 db.execSQL("INSERT INTO game_memories VALUES ('story', 'trust', '1', 1)")
+                db.execSQL("DROP TABLE user_game_progress")
+                db.execSQL("CREATE TABLE user_game_progress (gameId TEXT NOT NULL PRIMARY KEY, currentChapterCode TEXT NOT NULL, normalizedChapterCode TEXT NOT NULL, heroName TEXT NOT NULL)")
                 db.version = 20
             }
             val migrated = Room.databaseBuilder(context, GameDatabase::class.java, name)
-                .addMigrations(GameDatabaseMigrations.MIGRATION_20_21)
+                .addMigrations(GameDatabaseMigrations.MIGRATION_20_21, GameDatabaseMigrations.MIGRATION_21_22)
                 .allowMainThreadQueries().build()
             try {
                 val dao = migrated.memoryDao()

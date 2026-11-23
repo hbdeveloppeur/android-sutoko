@@ -77,4 +77,13 @@
         android:visibility="invisible" />
 
 
+    <purpletear.fr.purpleteartools.CinematicProgressView
+        android:id="@+id/cinematic_progress"
+        android:layout_width="18dp"
+        android:layout_height="18dp"
+        android:layout_marginTop="17dp"
+        android:layout_marginEnd="20dp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

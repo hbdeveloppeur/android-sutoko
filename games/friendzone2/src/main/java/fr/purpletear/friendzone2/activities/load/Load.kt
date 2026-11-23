@@ -8,12 +8,13 @@
 
 package fr.purpletear.friendzone2.activities.load
 
+import com.purpletear.ads.ChapterBreakGate
+
 import android.content.Intent
 import android.os.Bundle
 import android.os.Parcelable
 import androidx.appcompat.app.AppCompatActivity
 import com.example.sharedelements.SutokoSharedElementsData
-import com.example.sharedelements.utils.ActivityTransitionHelper
 import fr.purpletear.friendzone2.R
 import fr.purpletear.friendzone2.configs.ChapterDetailsHandler
 import purpletear.fr.purpleteartools.GlobalData
@@ -27,15 +28,20 @@ class Load : AppCompatActivity() {
      * @see LoadModel
      */
     private lateinit var model: LoadModel
+    private lateinit var adGate: ChapterBreakGate
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_load)
         load()
+        adGate = ChapterBreakGate(this, savedInstanceState, 161,
+            intent.getBooleanExtra("granted", false) || SutokoSharedElementsData.SHOULD_FORCE_CHAPTER,
+            Runnable { navigate() })
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
+        adGate.save(outState)
         outState.putParcelable("symbols", model.symbols)
         outState.putBoolean("hasSeenTextCinematic", model.hasSeenTextCinematic)
         outState.putBoolean("isGranted", model.isGranted)
@@ -46,11 +52,6 @@ class Load : AppCompatActivity() {
         model.hasSeenTextCinematic = savedInstanceState.getBoolean("hasSeenTextCinematic")
         model.isGranted = savedInstanceState.getBoolean("isGranted")
         model.symbols = (savedInstanceState.getParcelable<Parcelable>("symbols") as TableOfSymbols)
-    }
-
-    override fun onResume() {
-        super.onResume()
-        navigate()
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -74,10 +75,12 @@ class Load : AppCompatActivity() {
         } else if (requestCode == NavigationHandler.Navigation.GAME.ordinal) {
             model.invalidate()
             if (data == null) {
+                adGate.childReturned(null, model.symbols.chapterNumber)
                 return
             }
             model.symbols = (data.getParcelableExtra<Parcelable>("symbols") as TableOfSymbols)
         }
+        adGate.childReturned(data, model.symbols.chapterNumber)
     }
 
     /**
@@ -118,11 +121,6 @@ class Load : AppCompatActivity() {
         startActivityForResult(
             i,
             model.navigationHandler.requestCode
-        )
-        ActivityTransitionHelper.overrideOpenTransition(
-            this,
-            com.example.sharedelements.R.anim.game_launch_fade_in,
-            com.example.sharedelements.R.anim.game_launch_fade_out,
         )
     }
 }

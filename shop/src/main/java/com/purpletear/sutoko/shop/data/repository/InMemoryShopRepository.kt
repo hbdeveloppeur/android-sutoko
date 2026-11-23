@@ -74,20 +74,20 @@ class InMemoryShopRepository @Inject constructor(
     override suspend fun getPacks(): Result<List<ShopPack>> {
         val list = listOf<ShopPack>(
             ShopPack(
-                coins = 550,
+                coins = 975,
                 diamonds = 550,
                 sku = "coins_pack_starter",
                 type = CoinsPackType.Low
             ),
             ShopPack(
-                coins = 1500,
+                coins = 2000,
                 diamonds = 1500,
                 sku = "coins_pack_treasure",
                 type = CoinsPackType.Medium
             ),
             ShopPack(
-                coins = 3000,
-                diamonds = 3000,
+                coins = 4000,
+                diamonds = 3200,
                 sku = "coins_pack_mega",
                 type = CoinsPackType.High
             ),

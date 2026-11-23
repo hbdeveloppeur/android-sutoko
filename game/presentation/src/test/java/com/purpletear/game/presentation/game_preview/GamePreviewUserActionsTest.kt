@@ -4,10 +4,7 @@ import app.cash.turbine.test
 import com.purpletear.game.presentation.game_preview.events.GamePreviewEvent
 import com.purpletear.game.presentation.game_preview.fakes.TestFixtures
 import com.purpletear.game.presentation.model.GameUiError
-import com.purpletear.sutoko.domain.model.User
-import com.purpletear.sutoko.game.exception.GameDownloadForbiddenException
 import com.purpletear.sutoko.game.model.Chapter
-import com.purpletear.sutoko.game.model.UserRole
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
@@ -26,8 +23,6 @@ class GamePreviewUserActionsTest {
     private val fixture = GamePreviewViewModelTestFixture()
     private val gameRepository get() = fixture.gameRepository
     private val chapterRepository get() = fixture.chapterRepository
-    private val userRepository get() = fixture.userRepository
-    private val userRoleRepository get() = fixture.userRoleRepository
     private val friendzonedProgressRepository get() = fixture.friendzonedProgressRepository
 
     @Before
@@ -45,103 +40,6 @@ class GamePreviewUserActionsTest {
         scope: CoroutineScope,
         viewModel: GamePreviewViewModel,
     ) = fixture.activateStateFlows(scope, viewModel)
-
-    @Test
-    fun `options entry point is visible only for the tester uid`() = runTest {
-        val viewModel = createViewModel()
-        backgroundScope.launch { viewModel.isOptionsVisible.collect { } }
-        advanceUntilIdle()
-        assertFalse(viewModel.isOptionsVisible.value)
-
-        userRepository.setUser(User(id = "user-1", token = "token-1"))
-        advanceUntilIdle()
-        assertFalse(viewModel.isOptionsVisible.value)
-
-        userRepository.setUser(User(id = "8be954c7a18f4e7cba9c", token = "token-2"))
-        advanceUntilIdle()
-        assertTrue(viewModel.isOptionsVisible.value)
-    }
-
-    @Test
-    fun `direct preview action cannot start a player download`() = runTest {
-        gameRepository.setGame(TestFixtures.GAME_ID, TestFixtures.gameCatalog())
-        val viewModel = createViewModel(connectedUser = true)
-        activateStateFlows(backgroundScope, viewModel)
-        advanceUntilIdle()
-        viewModel.onAction(GamePreviewAction.OnDownloadPreview)
-        advanceUntilIdle()
-        assertEquals(0, fixture.gameInstallRepository.downloadCalls)
-    }
-
-    @Test
-    fun `administrator role is exposed as isAdmin`() = runTest {
-        val viewModel = createViewModel()
-        backgroundScope.launch { viewModel.isAdmin.collect { } }
-        advanceUntilIdle()
-        assertFalse(viewModel.isAdmin.value)
-
-        userRoleRepository.set(UserRole.ADMINISTRATOR)
-        advanceUntilIdle()
-        assertTrue(viewModel.isAdmin.value)
-    }
-
-    @Test
-    fun `preview button is only visible for administrators`() = runTest {
-        val viewModel = createViewModel()
-        backgroundScope.launch { viewModel.isPreviewVisible.collect { } }
-        advanceUntilIdle()
-        assertFalse(viewModel.isPreviewVisible.value)
-
-        userRoleRepository.set(UserRole.ADMINISTRATOR)
-        advanceUntilIdle()
-        assertTrue(viewModel.isPreviewVisible.value)
-    }
-
-    @Test
-    fun `preview download forbidden hides the preview button definitively`() = runTest {
-        gameRepository.setGame(TestFixtures.GAME_ID, TestFixtures.gameCatalog())
-        gameRepository.setDownloadLink(
-            TestFixtures.GAME_ID,
-            Result.failure(GameDownloadForbiddenException()),
-        )
-        val viewModel = createViewModel(connectedUser = true)
-        userRepository.setUser(User(id = "8be954c7a18f4e7cba9c", token = "tester-token"))
-        backgroundScope.launch { viewModel.isPreviewVisible.collect { } }
-        backgroundScope.launch { viewModel.game.collect { } }
-        userRoleRepository.set(UserRole.ADMINISTRATOR)
-        advanceUntilIdle()
-        assertTrue(viewModel.isPreviewVisible.value)
-
-        viewModel.onAction(GamePreviewAction.OnDownloadPreview)
-        advanceUntilIdle()
-        assertFalse(viewModel.isPreviewVisible.value)
-    }
-
-    @Test
-    fun `transient preview download failure keeps the button visible and shows an error`() = runTest {
-        gameRepository.setGame(TestFixtures.GAME_ID, TestFixtures.gameCatalog())
-        gameRepository.setDownloadLink(
-            TestFixtures.GAME_ID,
-            Result.failure(IllegalStateException("access_denied")),
-        )
-        val viewModel = createViewModel(connectedUser = true)
-        userRepository.setUser(User(id = "8be954c7a18f4e7cba9c", token = "tester-token"))
-        backgroundScope.launch { viewModel.isPreviewVisible.collect { } }
-        backgroundScope.launch { viewModel.game.collect { } }
-        userRoleRepository.set(UserRole.ADMINISTRATOR)
-        advanceUntilIdle()
-        assertTrue(viewModel.isPreviewVisible.value)
-
-        viewModel.events.test {
-            viewModel.onAction(GamePreviewAction.OnDownloadPreview)
-            assertEquals(
-                GamePreviewEvent.ShowError(GameUiError.DownloadUnknown),
-                awaitItem(),
-            )
-        }
-        advanceUntilIdle()
-        assertTrue(viewModel.isPreviewVisible.value)
-    }
 
     @Test
     fun `onAction OnToggleMenuSound toggles persisted muted state`() = runTest {

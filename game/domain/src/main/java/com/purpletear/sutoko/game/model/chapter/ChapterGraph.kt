@@ -14,7 +14,9 @@ data class ChapterGraph(
      * Character ids whose messages render on the right side, declared by the chapter's
      * `layout.json` (`sides.right`). Empty when the archive declares no layout.
      */
-    val rightSideCharacterIds: List<Int> = emptyList()
+    val rightSideCharacterIds: List<Int> = emptyList(),
+    /** Actual archive language, not the device locale; blank when unavailable in fixtures. */
+    val languageCode: String = ""
 ) {
     fun getNode(id: String): Node? = nodes[id]
 

@@ -49,6 +49,7 @@ android {
 }
 
 dependencies {
+    implementation(project(":ads"))
     implementation(project(":game:domain"))
     implementation(project(":game:data"))
     implementation(project(":game:debug"))

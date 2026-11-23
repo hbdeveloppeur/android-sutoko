@@ -7,7 +7,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
-import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -15,8 +14,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.ime
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.only
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.sizeIn
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
@@ -42,7 +41,7 @@ import androidx.navigation.compose.rememberNavController
 import fr.purpletear.sutoko.R
 import fr.purpletear.sutoko.screens.create.CreatePageComposable
 import fr.purpletear.sutoko.screens.main.presentation.HomeScreenViewModel
-import fr.purpletear.sutoko.screens.main.presentation.MainEvents
+import fr.purpletear.sutoko.screens.main.presentation.screens.calendar.CalendarScreen
 import fr.purpletear.sutoko.screens.main.presentation.screens.components.navigation.BottomNavItem
 import fr.purpletear.sutoko.screens.main.presentation.screens.home.HomeScreen
 
@@ -50,11 +49,11 @@ import fr.purpletear.sutoko.screens.main.presentation.screens.home.HomeScreen
 fun MainScreen(
     viewModel: HomeScreenViewModel,
     mainNavController: NavHostController,
-    onAccountPressed: () -> Unit,
     onSignInPressed: () -> Unit,
     onOptionsPressed: () -> Unit,
     onCoinsPressed: () -> Unit,
     onDiamondsPressed: () -> Unit,
+    onShopPressed: () -> Unit,
     onGamePressed: (String) -> Unit,
     onCreateStoryPressed: () -> Unit,
     size: WindowWidthSizeClass
@@ -84,81 +83,96 @@ fun MainScreen(
                 .fillMaxHeight()
                 .fillMaxWidth(if (size != WindowWidthSizeClass.Compact) .5f else 1f)
         ) {
-            Background()
-
-
             val bottomNavigationController = rememberNavController()
-
-            // Reserve space for the overlaid bottom navigation, minus the keyboard:
-            // when the IME covers the nav bar, the reservation shrinks to zero.
+            val backdrop = rememberNavigationBackdrop()
             val density = LocalDensity.current
-            val imeBottom = WindowInsets.ime.getBottom(density)
-            val bottomPadding = with(density) {
-                (BottomNavigationHeight.toPx() + WindowInsets.navigationBars.getBottom(this) - imeBottom)
-                    .coerceAtLeast(0f)
-                    .toDp()
+            val imeVisible = WindowInsets.ime.getBottom(density) > WindowInsets.navigationBars.getBottom(density)
+            val bottomContentPadding = if (imeVisible) 16.dp else {
+                BottomNavigationHeight + BottomNavigationGap + 16.dp
             }
 
-            NavHost(
-                navController = bottomNavigationController,
-                startDestination = BottomNavItem.Home.route,
-                modifier = Modifier
-                    .fillMaxHeight()
-                    .sizeIn(maxWidth = 500.dp)
-                    .padding(
-                        WindowInsets.navigationBars
-                            .only(WindowInsetsSides.Horizontal)
-                            .asPaddingValues()
-                    )
-                    .padding(bottom = bottomPadding)
-                    .align(Alignment.Center)
+            Box(
+                Modifier.fillMaxSize().then(
+                    if (imeVisible) Modifier else backdrop?.capture() ?: Modifier
+                )
             ) {
-                composable(
-                    route = BottomNavItem.Home.route,
-                    enterTransition = { EnterTransition.None },
-                    exitTransition = { ExitTransition.None },
-                    popEnterTransition = { EnterTransition.None },
-                    popExitTransition = { ExitTransition.None }
+                Background()
+                NavHost(
+                    navController = bottomNavigationController,
+                    startDestination = BottomNavItem.Home.route,
+                    modifier = Modifier
+                        .fillMaxHeight()
+                        .sizeIn(maxWidth = 500.dp)
+                        .windowInsetsPadding(WindowInsets.navigationBars.only(WindowInsetsSides.Horizontal))
+                        .align(Alignment.Center)
                 ) {
-                    HomeScreen(
-                        mainNavController = mainNavController,
-                        onAccountPressed = onAccountPressed,
-                        onSignInPressed = onSignInPressed,
-                        onOptionsPressed = onOptionsPressed,
-                        onCoinsPressed = onCoinsPressed,
-                        onDiamondsPressed = onDiamondsPressed,
-                        viewModel = viewModel
-                    )
-                }
+                    composable(
+                        route = BottomNavItem.Home.route,
+                        enterTransition = { EnterTransition.None },
+                        exitTransition = { ExitTransition.None },
+                        popEnterTransition = { EnterTransition.None },
+                        popExitTransition = { ExitTransition.None }
+                    ) {
+                        HomeScreen(
+                            mainNavController = mainNavController,
+                            onSignInPressed = onSignInPressed,
+                            onOptionsPressed = onOptionsPressed,
+                            onCoinsPressed = onCoinsPressed,
+                            onDiamondsPressed = onDiamondsPressed,
+                            viewModel = viewModel,
+                            bottomContentPadding = bottomContentPadding,
+                        )
+                    }
 
-                composable(
-                    route = BottomNavItem.Create.route,
-                    enterTransition = { EnterTransition.None },
-                    exitTransition = { ExitTransition.None },
-                    popEnterTransition = { EnterTransition.None },
-                    popExitTransition = { ExitTransition.None }
-                ) {
-                    CreatePageComposable(
-                        onAccountPressed = onAccountPressed,
-                        onSignInPressed = onSignInPressed,
-                        onOptionsPressed = onOptionsPressed,
-                        onCoinsPressed = onCoinsPressed,
-                        onDiamondsPressed = onDiamondsPressed,
-                        onCreateStoryPressed = onCreateStoryPressed,
-                        openGame = { game ->
-                            onGamePressed(game.id)
-                        }
-                    )
-                }
+                    composable(
+                        route = BottomNavItem.Calendar.route,
+                        enterTransition = { EnterTransition.None },
+                        exitTransition = { ExitTransition.None },
+                        popEnterTransition = { EnterTransition.None },
+                        popExitTransition = { ExitTransition.None }
+                    ) {
+                        CalendarScreen(
+                            viewModel = viewModel,
+                            onSignInPressed = onSignInPressed,
+                            onOptionsPressed = onOptionsPressed,
+                            onCoinsPressed = onCoinsPressed,
+                            onDiamondsPressed = onDiamondsPressed,
+                            onGamePressed = onGamePressed,
+                            bottomContentPadding = bottomContentPadding,
+                        )
+                    }
 
+                    composable(
+                        route = BottomNavItem.Create.route,
+                        enterTransition = { EnterTransition.None },
+                        exitTransition = { ExitTransition.None },
+                        popEnterTransition = { EnterTransition.None },
+                        popExitTransition = { ExitTransition.None }
+                    ) {
+                        CreatePageComposable(
+                            onSignInPressed = onSignInPressed,
+                            onOptionsPressed = onOptionsPressed,
+                            onCoinsPressed = onCoinsPressed,
+                            onDiamondsPressed = onDiamondsPressed,
+                            onCreateStoryPressed = onCreateStoryPressed,
+                            bottomContentPadding = bottomContentPadding,
+                            openGame = { game ->
+                                onGamePressed(game.id)
+                            }
+                        )
+                    }
+
+                }
             }
 
-            BottomNavigation(
-                navController = bottomNavigationController,
-                onShopPressed = {
-                    viewModel.onEvent(MainEvents.TapShop)
-                }
-            )
+            if (!imeVisible) {
+                BottomNavigation(
+                    navController = bottomNavigationController,
+                    onShopPressed = onShopPressed,
+                    backdrop = backdrop,
+                    modifier = Modifier.align(Alignment.BottomCenter),
+                )
+            }
 
         }
     }

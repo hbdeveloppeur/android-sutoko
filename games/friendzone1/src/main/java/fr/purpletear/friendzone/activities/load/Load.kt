@@ -8,12 +8,13 @@
 
 package fr.purpletear.friendzone.activities.load
 
+import com.purpletear.ads.ChapterBreakGate
+
 import android.content.Intent
 import android.os.Bundle
 import android.os.Parcelable
 import androidx.appcompat.app.AppCompatActivity
 import com.example.sharedelements.SutokoSharedElementsData
-import com.example.sharedelements.utils.ActivityTransitionHelper
 import fr.purpletear.friendzone.R
 import fr.purpletear.friendzone.config.ChapterDetailsHandler
 import purpletear.fr.purpleteartools.GlobalData
@@ -27,16 +28,21 @@ class Load : AppCompatActivity() {
      * @see LoadModel
      */
     private lateinit var model: LoadModel
+    private lateinit var adGate: ChapterBreakGate
 
     override fun onCreate(savedInstanceState: Bundle?) {
         Std.debug("Load:onCreate")
         super.onCreate(savedInstanceState)
         setContentView(R.layout.friendzone1_activity_load)
         load()
+        adGate = ChapterBreakGate(this, savedInstanceState, 162,
+            intent.getBooleanExtra("granted", false) || SutokoSharedElementsData.SHOULD_FORCE_CHAPTER,
+            Runnable { navigate() })
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
+        adGate.save(outState)
         outState.putParcelable("symbols", model.symbols)
         outState.putBoolean("granted", model.granted)
     }
@@ -47,11 +53,6 @@ class Load : AppCompatActivity() {
         model.granted = savedInstanceState.getBoolean("granted")
         model.symbols =
             (savedInstanceState.getParcelable<TableOfSymbols>("symbols") as TableOfSymbols)
-    }
-
-    override fun onResume() {
-        super.onResume()
-        navigate()
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -68,10 +69,12 @@ class Load : AppCompatActivity() {
             }
         } else if (requestCode == NavigationHandler.Navigation.GAME.ordinal) {
             if (data == null) {
+                adGate.childReturned(null, model.symbols.chapterNumber)
                 return
             }
             model.symbols = (data.getParcelableExtra<Parcelable>("symbols") as TableOfSymbols)
         }
+        adGate.childReturned(data, model.symbols.chapterNumber)
     }
 
     /**
@@ -109,11 +112,6 @@ class Load : AppCompatActivity() {
         startActivityForResult(
             i,
             model.navigationHandler.requestCode
-        )
-        ActivityTransitionHelper.overrideOpenTransition(
-            this,
-            com.example.sharedelements.R.anim.game_launch_fade_in,
-            com.example.sharedelements.R.anim.game_launch_fade_out,
         )
     }
 }

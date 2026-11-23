@@ -37,7 +37,6 @@ data class GameUiState(
     val nextChapterReleaseDate: Long? = null,
     val gameLogoUrl: String? = null,
     val showNextChapterButton: Boolean = true,
-    val requiresChapterAd: Boolean = false,
     val isChapterAdBusy: Boolean = false,
     @StringRes val nextChapterTitleRes: Int? = null,
     val cinematicBody: List<Node> = emptyList(),

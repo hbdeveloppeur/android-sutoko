@@ -19,21 +19,10 @@ class ChapterAdButtonTest {
     val compose = createComposeRule()
 
     @Test
-    fun requiredAdShowsOnlyUnlockButton() {
-        var actions = 0
-        compose.setContent {
-            MessageNextChapter(requiresAd = true, onClick = { actions++ })
-        }
-        compose.onNodeWithTag("game_next_chapter_ads_button").assertIsDisplayed().performClick()
-        compose.onNodeWithTag("game_next_chapter_button").assertDoesNotExist()
-        compose.runOnIdle { assertEquals(1, actions) }
-    }
-
-    @Test
     fun noRequiredAdShowsOnlyContinueButton() {
         var actions = 0
         compose.setContent {
-            MessageNextChapter(requiresAd = false, onClick = { actions++ })
+            MessageNextChapter(onClick = { actions++ })
         }
         compose.onNodeWithTag("game_next_chapter_button").assertIsDisplayed().performClick()
         compose.onNodeWithTag("game_next_chapter_ads_button").assertDoesNotExist()
@@ -47,7 +36,6 @@ class ChapterAdButtonTest {
         compose.setContent {
             MessageNextChapter(
                 modifier = Modifier.testTag("chapter_end"),
-                requiresAd = true,
                 isBusy = busy.value,
                 onClick = {
                     actions++
@@ -55,7 +43,7 @@ class ChapterAdButtonTest {
                 },
             )
         }
-        compose.onNodeWithTag("game_next_chapter_ads_button").performClick()
+        compose.onNodeWithTag("game_next_chapter_button").performClick()
         compose.onNodeWithTag("game_next_chapter_ads_button").assertDoesNotExist()
         compose.onNodeWithTag("game_next_chapter_button").assertDoesNotExist()
         compose.onNodeWithTag("chapter_end").performTouchInput {

@@ -1,5 +1,7 @@
 package fr.purpletear.friendzone4.game.activities.textcinematic;
 
+import com.purpletear.sutoko.analytics.data.statistics.LegacyChapterReports;
+
 import static android.app.Activity.RESULT_OK;
 
 import android.app.Activity;
@@ -24,7 +26,9 @@ import fr.purpletear.friendzone4.game.tables.TableOfLinks;
 import fr.purpletear.friendzone4.game.tables.TableOfPhrases;
 import fr.purpletear.friendzone4.game.tables.Var;
 import fr.purpletear.friendzone4.purpleTearTools.Animation;
-import fr.purpletear.friendzone4.purpleTearTools.MemoryHandler;
+import purpletear.fr.purpleteartools.CinematicScheduler;
+import purpletear.fr.purpleteartools.CinematicTimeline;
+import purpletear.fr.purpleteartools.CinematicProgressView;
 import fr.purpletear.friendzone4.purpleTearTools.Runnable2;
 import fr.purpletear.friendzone4.purpleTearTools.SoundHandler;
 import purpletear.fr.purpleteartools.GlobalData;
@@ -64,11 +68,10 @@ class TextCinematicModel {
 
     private int csa;
 
-    MemoryHandler mh;
+    final CinematicScheduler scheduler = new CinematicScheduler();
 
     TextCinematicModel(Activity c, String code, int choicesecondsaverage, TableOfSymbols tableOfSymbols, Params params) throws IOException {
         isFirstStart = true;
-        mh = new MemoryHandler();
         sh = new SoundHandler();
         tableOfLinks = new TableOfLinks();
         tableOfLinks.read(c, code, tableOfSymbols.getStoryVersion(GlobalData.Game.FRIENDZONE4.getId()));
@@ -77,6 +80,43 @@ class TextCinematicModel {
         csa = choicesecondsaverage;
         this.tableOfSymbols = tableOfSymbols;
         this.params = params;
+    }
+
+    private void finish(Activity a) {
+        String code = params.getChapterCode().toLowerCase(java.util.Locale.ROOT);
+        if (!com.example.sharedelements.SutokoSharedElementsData.INSTANCE.getSHOULD_FORCE_CHAPTER() && (code.equals("10a") || code.equals("10b") || code.equals("10c"))) {
+            LegacyChapterReports.completed(a,163,purpletear.fr.purpleteartools.GameLanguage.Companion.determineLangDirectory(),tableOfSymbols.getChapterCode());
+            LegacyChapterReports.storyFinished(a,163,purpletear.fr.purpleteartools.GameLanguage.Companion.determineLangDirectory(),tableOfSymbols.getChapterCode());
+        }
+        ((CinematicProgressView) a.findViewById(R.id.cinematic_progress)).complete();
+        a.finish();
+    }
+
+    private Phrase conditionDestination(Phrase p) {
+        String[] values = p.getAnswerCondition();
+        String[] condition = values[0].replace("[", "").replace("]", "").replace(" ", "").split("==");
+        int id = tableOfSymbols.condition(GlobalData.Game.FRIENDZONE4.getId(), condition[0], condition[1])
+                ? Integer.parseInt(values[1]) : Integer.parseInt(values[2]);
+        return tableOfPhrases.getPhrase(id);
+    }
+
+    long cinematicDurationMillis(Activity a) {
+        int firstId = tableOfLinks.getDest(0).get(0);
+        long fade = android.view.animation.AnimationUtils.loadAnimation(a, android.R.anim.fade_out).getDuration();
+        return CinematicTimeline.duration(firstId, id -> {
+            Phrase p = tableOfPhrases.getPhrase(id);
+            if (p.is(Phrase.Type.condition)) {
+                return new CinematicTimeline.Cue(0, conditionDestination(p).getId());
+            }
+            if (p.isNextChapter()) return new CinematicTimeline.Cue(2500, null);
+            if (p.getSeen() < 0 || p.getWait() < 0) throw new IllegalArgumentException("Negative cinematic cue duration");
+            if (p.getSentence().replace(" ", "").equals("[TIMED_CHOICE]")) {
+                return new CinematicTimeline.Cue(p.getSeen() + 7000L + fade, null);
+            }
+            Integer nextId = tableOfLinks.hasAnswer(id) ? tableOfLinks.getDest(id).get(0) : null;
+            long duration = p.isTrophy() ? p.getSeen() : p.getSeen() + (long) p.getWait();
+            return new CinematicTimeline.Cue(duration + (!p.isTrophy() && nextId == null ? fade : 0), nextId);
+        });
     }
 
     void prepareSound(Activity a) {
@@ -103,18 +143,7 @@ class TextCinematicModel {
     private void discuss(final Activity a, final Phrase p) {
 
         if (DiscussionHandler.execute("Verification d'une condition", p.is(Phrase.Type.condition))) {
-            String values[] = p.getAnswerCondition();
-            String condition[] = values[0].replace("[", "").replace("]", "").replace(" ", "").split("==");
-            int mThen = Integer.parseInt(values[1]);
-            int mElse = Integer.parseInt(values[2]);
-
-            Var v = new Var(condition[0], condition[1], -1);
-            Phrase next;
-            if (tableOfSymbols.condition(GlobalData.Game.FRIENDZONE4.getId(), v.getName(), v.getValue())) {
-                next = tableOfPhrases.getPhrase(mThen);
-            } else {
-                next = tableOfPhrases.getPhrase(mElse);
-            }
+            Phrase next = conditionDestination(p);
             currentPhrase = next;
 
             discuss(a, next);
@@ -133,11 +162,10 @@ class TextCinematicModel {
                             .putExtra("params", (Parcelable) params)
                             .putExtra("symbols", (Parcelable) tableOfSymbols)
                     );
-                    a.finish();
+                    finish(a);
                 }
             };
-            mh.push(runnable);
-            mh.run(runnable);
+            scheduler.schedule(runnable.getDuration(), runnable);
             return;
         }
 
@@ -146,11 +174,14 @@ class TextCinematicModel {
             Runnable2 runnable = new Runnable2("Un personnage envoie une image", p.getSeen()) {
                 @Override
                 public void run() {
-                    discuss(a, p);
+                    if (tableOfLinks.hasAnswer(p.getId())) {
+                        discuss(a, currentPhrase = tableOfPhrases.getPhrase(tableOfLinks.getDest(p.getId()).get(0)));
+                    } else {
+                        finish(a);
+                    }
                 }
             };
-            mh.push(runnable);
-            mh.run(runnable);
+            scheduler.schedule(runnable.getDuration(), runnable);
             return;
         }
 
@@ -184,23 +215,20 @@ class TextCinematicModel {
                                 @Override
                                 public void run() {
                                     a.setResult(RESULT_OK);
-                                    a.finish();
+                                    finish(a);
 
                                 }
                             };
-                            mh.push(runnable);
-                            mh.run(runnable);
+                            scheduler.schedule(runnable.getDuration(), runnable);
                         }
                     }
                 };
 
-                mh.push(runnable);
-                mh.run(runnable);
+                scheduler.schedule(runnable.getDuration(), runnable);
             }
         };
 
-        mh.push(runnable);
-        mh.run(runnable);
+        scheduler.schedule(runnable.getDuration(), runnable);
     }
 
     /**
@@ -253,8 +281,7 @@ class TextCinematicModel {
             }
         };
 
-        mh.push(runnable);
-        mh.run(runnable);
+        scheduler.schedule(runnable.getDuration(), runnable);
     }
 
 
@@ -277,11 +304,10 @@ class TextCinematicModel {
                     @Override
                     public void run() {
                         a.setResult(RESULT_OK);
-                        a.finish();
+                        finish(a);
                     }
                 };
-                mh.push(runnable);
-                mh.run(runnable);
+                scheduler.schedule(runnable.getDuration(), runnable);
             }
 
             @Override
@@ -311,11 +337,10 @@ class TextCinematicModel {
                     @Override
                     public void run() {
                         a.setResult(RESULT_OK);
-                        a.finish();
+                        finish(a);
                     }
                 };
-                mh.push(runnable);
-                mh.run(runnable);
+                scheduler.schedule(runnable.getDuration(), runnable);
             }
 
             @Override

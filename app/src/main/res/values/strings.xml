@@ -19,7 +19,7 @@
     <string name="sutoko_confirm_game_reset">You will lose your progress</string>
     <string name="restart">Replay</string>
     <string name="sutoko_app_name">Sutoko</string>
-    <string name="sutoko_logo_content_description">Sutoko Halloween</string>
+    <string name="sutoko_logo_content_description">Sutoko Snowflake</string>
     <string name="sutoko_main_title_long_stories">Long Stories</string>
     <string name="sutoko_main_title_short_stories">Short Stories</string>
     <string name="story_creation_text">You want to write your own text stories? Let\'s get started!</string>
@@ -54,7 +54,6 @@
     <string name="sutoko_connect">Sign in</string>
     <string name="sutoko_deconnect">Log out</string>
     <string name="sutoko_my_trophies">My trophies</string>
-    <string name="sutoko_my_account">My Account</string>
     <string name="sutoko_my_trophies_description">You didn\'t unlock any trophies. Find them by venturing into Sutoko\'s stories.</string>
     <string name="sutoko_my_trophies_description_count_singular">You\'ve unlocked 1 trophy!</string>
     <string name="sutoko_my_trophies_description_count_plural">You\'ve unlocked %1$d worth of trophies!</string>
@@ -195,7 +194,7 @@
     <string name="sutoko_pass_premium">Pass Premium</string>
     <string name="sutoko_main_section_title_games">Official histories</string>
     <string name="sutoko_main_section_subtitle_games">%1$d Adventure stories</string>
-    <string name="sutoko_main_section_title_release_schedule">A chapter on Wednesday \nand Sunday at 9:00 PM</string>
+    <string name="sutoko_main_section_title_release_schedule">A chapter every Sunday at 6:00 PM</string>
     <string name="sutoko_community_section_title_games">Games created by players</string>
     <string name="sutoko_community_section_subtitle_games">Rank</string>
     <string name="sutoko_user_story_publisher_conditions">I have read and I accept <a href="https://sutoko.app/terms-of-use">the terms of use</a></string>
@@ -234,6 +233,7 @@
     <string name="sutoko_directives_connect_with_computer_description">Log in to <b>Sutoko.com</b> with a <b>computer</b>(Windows / Mac) and start creating your story</string>
     <string name="coming_soon">Coming soon</string>
     <string name="sutoko_calendar_title">Next chapters</string>
+    <string name="sutoko_calendar_empty">No upcoming chapters to show.</string>
     <string name="sutoko_calendar_subtitle">1 chapter on Wednesday and Saturday</string>
     <string name="instagram">Instagram</string>
     <string name="notified_when_releases">Be notified of releases?</string>
@@ -350,9 +350,6 @@ Enter your nickname for the leaderboard!</string>
     <string name="sutoko_menu_games">Games</string>
     <string name="sutoko_menu_free">Free</string>
     <string name="sutoko_menu_premium">Premium</string>
-    <string name="account_signin_description">Login to your account to save your progress and purchases. Browse the library of stories and join the community by writing your own script!</string>
-    <string name="account_connected_description">Welcome to your Sutoko account!</string>
-    <string name="sutoko_my_downloaded_games">My downloaded games</string>
     <string name="sutoko_options">Options</string>
     <string name="sutoko_count_diamonds">Your diamonds in game</string>
     <string name="sutoko_diamonds_congrats">Congratulations, with diamonds you can unlock secret choices in some stories.</string>

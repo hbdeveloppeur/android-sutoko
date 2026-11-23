@@ -6,6 +6,8 @@ import android.content.ContextWrapper
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -84,7 +86,7 @@ fun SutokoParamsScreen(
         onPrivacyOptions = {
             activity?.let { host ->
                 UserMessagingPlatform.showPrivacyOptionsForm(host) { error ->
-                    GdprConsentHelper.notifyConsentUpdated()
+                    GdprConsentHelper.notifyConsentUpdated(host)
                     if (error != null) {
                         android.widget.Toast.makeText(context, R.string.sutoko_ad_privacy_error, android.widget.Toast.LENGTH_SHORT).show()
                     }
@@ -97,7 +99,7 @@ fun SutokoParamsScreen(
 }
 
 @Composable
-private fun SutokoParamsContent(
+internal fun SutokoParamsContent(
     uiState: SutokoParamsUiState,
     onEvent: (SutokoParamsEvent) -> Unit,
     showPrivacyOptions: Boolean = false,
@@ -137,6 +139,7 @@ private fun SutokoParamsContent(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
+                .verticalScroll(rememberScrollState())
         ) {
             ParamsRow(
                 label = stringResource(R.string.sutoko_privacy_policy),

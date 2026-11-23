@@ -10,7 +10,6 @@ import com.purpletear.game.presentation.game_preview.fakes.FakeMediaUrlResolver
 import com.purpletear.game.presentation.game_preview.fakes.FakeMemoryRepository
 import com.purpletear.game.presentation.game_preview.fakes.FakeToastService
 import com.purpletear.game.presentation.game_preview.fakes.FakeUserGameProgressRepository
-import com.purpletear.game.presentation.game_preview.fakes.FakeUserRoleRepository
 import com.purpletear.game.presentation.game_preview.fakes.TestFixtures
 import com.purpletear.game.presentation.model.GameUiError
 import com.purpletear.sutoko.game.model.Chapter
@@ -71,7 +70,7 @@ class ChaptersNicknameNavigationTest {
             ),
             prepareGameLaunchUseCase = PrepareGameLaunchUseCase(progressRepository, friendzonedRepository),
             saveUserNickNameUseCase = SaveUserNickNameUseCase(progressRepository),
-            userRoleRepository = FakeUserRoleRepository(),
+
             toastService = toastService,
             logger = FakeLogger(),
         )

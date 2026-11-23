@@ -17,19 +17,22 @@ if (localPropertiesFile.exists()) {
 }
 
 
-def admobAppId = providers.gradleProperty("ADMOB_APP_ID").orNull ?: localProperties.getProperty("ADMOB_APP_ID", "")
-def admobChapterUnitId = providers.gradleProperty("ADMOB_REWARDED_CHAPTER_UNIT_ID").orNull ?: localProperties.getProperty("ADMOB_REWARDED_CHAPTER_UNIT_ID", "")
+def admobAppId = providers.gradleProperty("ADMOB_APP_ID").getOrElse(localProperties.getProperty("ADMOB_APP_ID", ""))
+def admobChapterUnitId = providers.gradleProperty("ADMOB_REWARDED_CHAPTER_UNIT_ID").getOrElse(localProperties.getProperty("ADMOB_REWARDED_CHAPTER_UNIT_ID", ""))
+def admobInterstitialUnitId = providers.gradleProperty("ADMOB_INTERSTITIAL_CHAPTER_UNIT_ID").getOrElse(localProperties.getProperty("ADMOB_INTERSTITIAL_CHAPTER_UNIT_ID", ""))
 
 android {
     compileSdk 36
 
     defaultConfig {
         applicationId "fr.purpletear.sutoko"
+        // UMP resolves the published consent message from the app ID, even for test ads.
+        manifestPlaceholders.admobAppId = admobAppId
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         minSdkVersion 24
         targetSdk 36
         versionCode rootProject.versionCode
-        versionName "Your New Turn"
+        versionName "Snowflake"
         vectorDrawables.useSupportLibrary true
         resourceConfigurations += ['fr', 'es', 'es-rES', 'en', 'de']
     }
@@ -57,8 +60,8 @@ android {
 
     buildTypes {
         release {
-            manifestPlaceholders.admobAppId = admobAppId
             buildConfigField("String", "ADMOB_REWARDED_CHAPTER_UNIT_ID", "\"${admobChapterUnitId}\"")
+            buildConfigField("String", "ADMOB_INTERSTITIAL_CHAPTER_UNIT_ID", "\"${admobInterstitialUnitId}\"")
             def releaseStoreFile = localProperties.get("storeFile")
             if (releaseStoreFile != null && !releaseStoreFile.isEmpty()) {
                 signingConfig signingConfigs.release
@@ -77,8 +80,8 @@ android {
         }
 
         debug {
-            manifestPlaceholders.admobAppId = "ca-app-pub-3940256099942544~3347511713"
             buildConfigField("String", "ADMOB_REWARDED_CHAPTER_UNIT_ID", '"ca-app-pub-3940256099942544/5224354917"')
+            buildConfigField("String", "ADMOB_INTERSTITIAL_CHAPTER_UNIT_ID", '"ca-app-pub-3940256099942544/1033173712"')
             minifyEnabled false
             shrinkResources false
             multiDexEnabled true
@@ -134,6 +137,7 @@ android {
 }
 
 dependencies {
+    implementation project(":ads")
     // Import the BoM for the Firebase platform
     implementation project(path: ':shared-elements')
     implementation platform(libs.firebase.bom)
@@ -273,6 +277,7 @@ dependencies {
     debugImplementation "androidx.compose.ui:ui-test-manifest:1.7.8"
     androidTestImplementation libs.androidx.junit
     androidTestImplementation "androidx.test:runner:1.6.1"
+    debugImplementation "androidx.datastore:datastore-preferences:1.0.0"
     androidTestImplementation "androidx.test.uiautomator:uiautomator:2.3.0"
 
     implementation project(path: ':games:friendzone1')
@@ -306,16 +311,27 @@ tasks.matching { it.name == 'minifyReleaseWithR8' }.configureEach {
     finalizedBy archiveReleaseMapping
 }
 
-// Missing production IDs must never silently ship Google test inventory.
-def validateReleaseAdMob = tasks.register("validateReleaseAdMob") {
+def validateAdMobAppId = tasks.register("validateAdMobAppId") {
     doLast {
-        if (!(admobAppId ==~ /ca-app-pub-\d{16}~\d{10}/) ||
-                !(admobChapterUnitId ==~ /ca-app-pub-\d{16}\/\d{10}/) ||
-                admobAppId.contains("3940256099942544") || admobChapterUnitId.contains("3940256099942544")) {
-            throw new GradleException("Set production ADMOB_APP_ID and ADMOB_REWARDED_CHAPTER_UNIT_ID in local.properties or Gradle properties before building release.")
+        if (!(admobAppId ==~ /ca-app-pub-\d{16}~\d{10}/) || admobAppId.contains("3940256099942544")) {
+            throw new GradleException("Set publisher ADMOB_APP_ID in local.properties or Gradle properties for every build. Google's sample app cannot load Sutoko's published UMP consent message.")
+        }
+    }
+}
+
+// Debug uses test ad units; release must never ship Google test inventory.
+def validateReleaseAdMob = tasks.register("validateReleaseAdMob") {
+    dependsOn(validateAdMobAppId)
+    doLast {
+        if (!(admobInterstitialUnitId ==~ /ca-app-pub-\d{16}\/\d{10}/) || admobInterstitialUnitId.contains("3940256099942544")) {
+            throw new GradleException("Set production ADMOB_INTERSTITIAL_CHAPTER_UNIT_ID before building release.")
+        }
+        if (!(admobChapterUnitId ==~ /ca-app-pub-\d{16}\/\d{10}/) || admobChapterUnitId.contains("3940256099942544")) {
+            throw new GradleException("Set production ADMOB_REWARDED_CHAPTER_UNIT_ID in local.properties or Gradle properties before building release.")
         }
     }
 }
 tasks.configureEach {
+    if (name == "preBuild") dependsOn(validateAdMobAppId)
     if (name == "preReleaseBuild") dependsOn(validateReleaseAdMob)
 }

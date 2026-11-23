@@ -1,6 +1,5 @@
 package fr.purpletear.sutoko.screens.params
 
-import com.example.sharedelements.utils.UiText
 import androidx.annotation.Keep
 
 @Keep

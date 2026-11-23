@@ -2,6 +2,9 @@ package fr.purpletear.sutoko.screens.splashscreen
 
 import android.content.Context
 import android.net.Uri
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.LocalActivity
+import androidx.annotation.OptIn
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Box
@@ -18,6 +21,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -28,10 +32,16 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.media3.common.MediaItem
+import androidx.media3.common.PlaybackException
+import androidx.media3.common.Player
+import androidx.media3.common.util.UnstableApi
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.ui.PlayerView
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import fr.purpletear.sutoko.R
+
+// Align the chime's accent with the bright logo at 2x video speed.
+private const val SPLASH_SOUND_POSITION_MS = 2_600L
 
 /**
  * Composable function for the splash screen.
@@ -45,7 +55,8 @@ import fr.purpletear.sutoko.R
 fun SplashScreen(
     onNavigateToMain: () -> Unit,
     modifier: Modifier = Modifier,
-    viewModel: SplashScreenViewModel = hiltViewModel()
+    viewModel: SplashScreenViewModel = hiltViewModel(),
+    shouldFinishSound: () -> Boolean = { true },
 ) {
     // Collect the states
     val isReadyToNavigate by viewModel.isReadyToNavigate.collectAsState()
@@ -87,12 +98,13 @@ fun SplashScreen(
                     .widthIn(max = 360.dp),
                 onAnimationFinished = {
                     viewModel.setAnimationsFinished()
-                }
+                },
+                shouldFinishSound = shouldFinishSound,
             )
 
             // Animate the alpha of the CircularProgressIndicator based on animation state
             val progressAlpha by animateFloatAsState(
-                targetValue = if (areAnimationsFinished) 1f else 0f,
+                targetValue = if (areAnimationsFinished && !isReadyToNavigate) 1f else 0f,
                 animationSpec = tween(durationMillis = 280),
                 label = "ProgressIndicatorAlpha"
             )
@@ -110,37 +122,69 @@ fun SplashScreen(
 }
 
 @Composable
-private fun VideoSplashScreen(
+@OptIn(UnstableApi::class)
+internal fun VideoSplashScreen(
     modifier: Modifier = Modifier,
-    onAnimationFinished: () -> Unit = {}
+    onAnimationFinished: () -> Unit = {},
+    shouldFinishSound: () -> Boolean = { true },
 ) {
     val context = LocalContext.current
+    val activity = LocalActivity.current as? ComponentActivity
 
-    // SAFETY: Keep player in rememberUpdatedState to ensure one instance per recomposition
-    val exoPlayer = remember(context) {
+    val currentOnAnimationFinished by rememberUpdatedState(onAnimationFinished)
+    val currentShouldFinishSound by rememberUpdatedState(shouldFinishSound)
+
+    val exoPlayer = remember(context, activity) {
         ExoPlayer.Builder(context).build().apply {
             repeatMode = ExoPlayer.REPEAT_MODE_OFF
 
-            playWhenReady = false
-            volume = 0f // No sound
-            val videoUri = rawResVideoUri(context, R.raw.dark_sutoko_purpletear_splashcreen)
+            // Keep the entire six-second reveal, but play it in about three seconds.
+            setPlaybackSpeed(2f)
+            volume = 0f
+            val videoUri = rawResourceUri(context, R.raw.dark_sutoko_purpletear_splashcreen)
             setMediaItem(MediaItem.fromUri(videoUri))
-            prepare()
         }
     }
 
-    LaunchedEffect(exoPlayer) {
-        kotlinx.coroutines.delay(1_000) // 1 second
-        exoPlayer.playWhenReady = true
+    DisposableEffect(exoPlayer) {
+        val splashSound = activity?.let(::SplashSound)
+        var finished = false
+        var videoEnded = false
+        fun finish() {
+            if (!finished) {
+                finished = true
+                currentOnAnimationFinished()
+            }
+        }
 
-        // The animation takes 5 seconds to complete as per requirements
-        kotlinx.coroutines.delay(5_000) // 5 seconds
-        onAnimationFinished()
-    }
+        val listener = object : Player.Listener {
+            override fun onPlaybackStateChanged(playbackState: Int) {
+                if (playbackState == Player.STATE_ENDED) {
+                    videoEnded = true
+                    finish()
+                }
+            }
 
-    DisposableEffect(Unit) {
+            override fun onPlayerError(error: PlaybackException) {
+                // A decoder failure must not leave the user stuck on the splash screen.
+                finish()
+            }
+        }
+        exoPlayer.addListener(listener)
+        val soundCue = exoPlayer.createMessage { _, _ ->
+            if (!finished) splashSound?.play()
+        }
+            .setLooper(exoPlayer.applicationLooper)
+            .setPosition(SPLASH_SOUND_POSITION_MS)
+            .send()
+        exoPlayer.prepare()
+        exoPlayer.play()
+
         onDispose {
-            exoPlayer.release() // Memory-leak free!
+            soundCue.cancel()
+            splashSound?.onVideoDisposed(finishPlaying = videoEnded && currentShouldFinishSound())
+            exoPlayer.removeListener(listener)
+            exoPlayer.release()
         }
     }
 
@@ -173,8 +217,5 @@ private fun VideoSplashScreen(
     }
 }
 
-/**
- * Helper to get a URI for a raw resource video.
- */
-fun rawResVideoUri(context: Context, @androidx.annotation.RawRes id: Int): Uri =
+internal fun rawResourceUri(context: Context, @androidx.annotation.RawRes id: Int): Uri =
     Uri.parse("android.resource://${context.packageName}/$id")

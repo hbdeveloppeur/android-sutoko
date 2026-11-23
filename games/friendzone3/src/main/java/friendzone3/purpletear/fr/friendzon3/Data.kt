@@ -2,6 +2,7 @@ package friendzone3.purpletear.fr.friendzon3
 
 import android.content.Context
 import android.content.res.AssetManager
+import android.media.MediaPlayer
 import com.example.sharedelements.OnlineAssetsManager
 import purpletear.fr.purpleteartools.GlobalData
 import java.io.File
@@ -17,7 +18,25 @@ object Data {
 
 
     fun selectSound(context: Context, name : String) : String {
-        return OnlineAssetsManager.getSoundFilePath(context, GlobalData.Game.FRIENDZONE3.id.toString(), name)
+        val direct = OnlineAssetsManager.getSoundFilePath(context, GlobalData.Game.FRIENDZONE3.id.toString(), name)
+        if (direct.isNotEmpty()) return direct
+        // Migrated archives prefix the cinematic music; legacy scripts still use the old names.
+        return if (name == "bg_cinematic" || name == "bg_cinematic_1a") {
+            OnlineAssetsManager.getSoundFilePath(context, GlobalData.Game.FRIENDZONE3.id.toString(), "fz3_$name")
+        } else ""
+    }
+
+    @Throws(IOException::class)
+    fun setSoundSource(context: Context, player: MediaPlayer, name: String) {
+        val path = selectSound(context, name)
+        if (path.isNotEmpty()) {
+            player.setDataSource(path)
+        } else {
+            val bundledName = name.removePrefix("fz3_")
+            context.assets.openFd("$assetsDirectoryName/sound/$bundledName.mp3").use { descriptor ->
+                player.setDataSource(descriptor.fileDescriptor, descriptor.startOffset, descriptor.length)
+            }
+        }
     }
 
     /**

@@ -227,7 +227,7 @@ class MainModel(activity: Activity, var symbols: TableOfSymbols, rm: RequestMana
      * @return Boolean
      */
     fun isSpectatorMode(p : Phrase) : Boolean {
-        return symbols.chapterNumber == 1 && p.id_author == 1
+        return symbols.chapterNumber == 1 && p.id_author == 47
     }
 
     /**

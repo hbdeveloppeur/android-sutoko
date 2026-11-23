@@ -40,6 +40,11 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.Snackbar
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
@@ -49,7 +54,9 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -93,11 +100,11 @@ import com.purpletear.game.presentation.game_preview.components.GamePreviewGradi
 import com.purpletear.game.presentation.game_preview.components.GamePreviewLabel
 import com.purpletear.game.presentation.game_preview.components.GamePreviewMenuSoundEffect
 import com.purpletear.game.presentation.game_preview.components.GamePreviewOptionsButton
+import com.purpletear.game.presentation.game_preview.components.GamePreviewOptionsSheet
 import com.purpletear.game.presentation.game_preview.components.GamePreviewShareButton
 import com.purpletear.game.presentation.game_preview.components.GamePreviewSoundButton
 import com.purpletear.game.presentation.game_preview.components.GamePreviewUnavailable
 import com.purpletear.game.presentation.game_preview.components.GamePreviewUnlockAnimation
-import com.purpletear.game.presentation.game_preview.components.GamePreviewVersionBadges
 import com.purpletear.game.presentation.game_preview.components.PremiumActiveLabelGradient
 import com.purpletear.game.presentation.game_preview.components.PremiumLabelGradient
 import com.purpletear.game.presentation.game_preview.components.UnlockedLabelGradient
@@ -110,6 +117,7 @@ import com.purpletear.sutoko.alert.presentation.SimpleAlertDialog
 import com.purpletear.sutoko.game.model.FriendzonedLegacyIds
 import com.purpletear.sutoko.game.model.game.GameDownloadState
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import com.example.sharedelements.R as SutokoSharedElementsR
 
 /**
@@ -125,7 +133,6 @@ fun GamePreview(
     onNavigateToChapters: (String) -> Unit = {},
     onOpenAccountConnection: () -> Unit = {},
     onOpenShop: () -> Unit = {},
-    onOpenOptions: (String) -> Unit = {},
 ) {
     // Get the game from the ViewModel
     val state by viewModel.game.collectAsStateWithLifecycle()
@@ -135,12 +142,13 @@ fun GamePreview(
     val isLoadingChapters by viewModel.isLoadingChapters.collectAsStateWithLifecycle()
     val isUserPremium by viewModel.isUserPremium.collectAsStateWithLifecycle()
     val isUserConnected by viewModel.isUserConnected.collectAsStateWithLifecycle()
-    val isOptionsVisible by viewModel.isOptionsVisible.collectAsStateWithLifecycle()
-    val isAdmin by viewModel.isAdmin.collectAsStateWithLifecycle()
-    val isPreviewVisible by viewModel.isPreviewVisible.collectAsStateWithLifecycle()
     val isMenuSoundMuted by viewModel.isMenuSoundMuted.collectAsStateWithLifecycle()
     val isPurchasing by viewModel.isPurchasing.collectAsStateWithLifecycle()
     val isPurchaseLoading by viewModel.isPurchaseLoading.collectAsStateWithLifecycle()
+    val isRestarting by viewModel.isRestarting.collectAsStateWithLifecycle()
+    val restartResult by viewModel.restartResult.collectAsStateWithLifecycle()
+    val snackbarHostState = remember { SnackbarHostState() }
+    val feedbackScope = rememberCoroutineScope()
     val isRefreshing by viewModel.isRefreshing.collectAsStateWithLifecycle()
     val releasedChaptersCount by viewModel.releasedChaptersCount.collectAsStateWithLifecycle()
 
@@ -291,7 +299,9 @@ fun GamePreview(
                 val unlockFeedbackPending by viewModel.unlockFeedbackPending.collectAsStateWithLifecycle()
                 val unlockAnimationIsVisible = unlockFeedbackPending &&
                     lifecycleState == Lifecycle.State.RESUMED && !isFadingToGame
-                var showRestartDialog by remember { mutableStateOf(false) }
+                var showOptions by rememberSaveable { mutableStateOf(false) }
+                var showRestartDialog by rememberSaveable { mutableStateOf(false) }
+                var showRestartChapterDialog by rememberSaveable { mutableStateOf(false) }
                 var showAlreadyBoughtDialog by remember { mutableStateOf(false) }
                 // Non-null => the nickname dialog is visible; the Boolean carries the trial
                 // intent (OnTry vs OnPlay) so it is echoed back to the VM on confirm.
@@ -343,6 +353,10 @@ fun GamePreview(
                                 showRestartDialog = true
                             }
 
+                            GamePreviewEvent.ShowRestartChapterDialog -> {
+                                showRestartChapterDialog = true
+                            }
+
                             GamePreviewEvent.OpenAccountConnection -> {
                                 onOpenAccountConnection()
                             }
@@ -380,6 +394,56 @@ fun GamePreview(
                         dialogTitle = stringResource(R.string.game_presentation_already_bought_alert_title),
                         dialogText = stringResource(R.string.game_presentation_already_bought_alert_description),
                         confirmButtonText = stringResource(R.string.game_presentation_already_bought_alert_button),
+                    )
+                }
+
+                if (showOptions && gameItem != null && !FriendzonedLegacyIds.isFriendzoned(gameItem.legacyId)) {
+                    GamePreviewOptionsSheet(
+                        storyTitle = gameItem.title,
+                        chapter = currentChapter,
+                        isLoadingChapters = isLoadingChapters,
+                        isRestarting = isRestarting,
+                        restartResult = restartResult,
+                        onDismiss = { showOptions = false },
+                        onClearResult = viewModel::clearRestartResult,
+                        onConfirm = { viewModel.onAction(GamePreviewAction.OnRestartFromOptions(it)) },
+                        onRestartFinished = { target ->
+                            showOptions = false
+                            val message = context.getString(
+                                if (target == GamePreviewRestartTarget.CHAPTER) R.string.game_presentation_options_chapter_restarted
+                                else R.string.game_presentation_options_game_restarted,
+                            )
+                            val canPlay = currentChapter?.available == true && gameItem.toGameActionState(
+                                isPurchasing = isPurchasing,
+                                isPurchaseLoading = isPurchaseLoading,
+                                currentChapter = currentChapter,
+                                isUserConnected = isUserConnected,
+                            ) is GameActionState.Play
+                            feedbackScope.launch {
+                                snackbarHostState.currentSnackbarData?.dismiss()
+                                val result = snackbarHostState.showSnackbar(
+                                    message = message,
+                                    actionLabel = if (canPlay) context.getString(R.string.game_presentation_game_menu_play) else null,
+                                    withDismissAction = true,
+                                    duration = SnackbarDuration.Long,
+                                )
+                                if (result == SnackbarResult.ActionPerformed) viewModel.onAction(GamePreviewAction.OnPlay)
+                            }
+                        },
+                    )
+                }
+
+                if (showRestartChapterDialog) {
+                    SimpleAlertDialog(
+                        onDismissRequest = { showRestartChapterDialog = false },
+                        onConfirmation = {
+                            showRestartChapterDialog = false
+                            viewModel.onAction(GamePreviewAction.OnRestartChapterConfirm)
+                        },
+                        dialogTitle = stringResource(R.string.game_presentation_chapter_restart_confirm_title),
+                        dialogText = stringResource(R.string.game_presentation_chapter_restart_confirm_description),
+                        confirmButtonText = stringResource(R.string.game_presentation_game_restart_confirm_button),
+                        dismissButtonText = stringResource(android.R.string.cancel),
                     )
                 }
 
@@ -449,7 +513,7 @@ fun GamePreview(
                                         ))
 
                                     val unavailableChapter =
-                                        currentChapter?.takeIf { !it.available && !isAdmin }
+                                        currentChapter?.takeIf { !it.available }
                                     if (unavailableChapter != null) {
                                         GamePreviewUnavailable(
                                             chapter = unavailableChapter
@@ -603,21 +667,6 @@ fun GamePreview(
                                         }
                                     }
 
-                                    // Admin-only: downloads the preview archive (all chapters
-                                    // incl. unreleased). Hidden permanently on any failure.
-                                    // Friendzoned games have no preview archive: never show it.
-                                    if (isPreviewVisible && !isFriendzoned) {
-                                        Spacer(Modifier.height(12.dp))
-                                        GamePreviewButton(
-                                            modifier = Modifier
-                                                .fillMaxWidth(),
-                                            title = stringResource(R.string.game_presentation_game_preview_download_preview),
-                                            onClick = {
-                                                viewModel.onAction(GamePreviewAction.OnDownloadPreview)
-                                            },
-                                            background = Background.Solid(Color.White.copy(alpha = 0.12f)),
-                                        )
-                                    }
                                 }
                             }
                         }
@@ -637,14 +686,6 @@ fun GamePreview(
                             onClick = onOpenAccountConnection,
                             modifier = Modifier.padding(start = 6.dp)
                         )
-                    }
-                    gameItem?.let { game ->
-                        if (isAdmin) {
-                            GamePreviewVersionBadges(
-                                currentVersion = game.localVersion,
-                                availableVersion = game.version,
-                            )
-                        }
                     }
                 }
                 gameItem?.let { game ->
@@ -668,12 +709,12 @@ fun GamePreview(
                             isFavorite = game.isFavorite,
                             onToggle = { viewModel.onAction(GamePreviewAction.OnToggleFavorite) },
                         )
-                        if (isOptionsVisible) {
-                            GamePreviewOptionsButton(
-                                onClick = {
-                                    if (lifecycleState == Lifecycle.State.RESUMED) onOpenOptions(game.id)
-                                },
-                            )
+                        if (!FriendzonedLegacyIds.isFriendzoned(game.legacyId)) {
+                            GamePreviewOptionsButton(onClick = {
+                                snackbarHostState.currentSnackbarData?.dismiss()
+                                viewModel.clearRestartResult()
+                                showOptions = true
+                            })
                         }
                     }
                 }
@@ -684,6 +725,14 @@ fun GamePreview(
                         imageModel = avatarUrl,
                         onDismiss = { showAuthorAvatar = false },
                     )
+                }
+
+                SnackbarHost(
+                    hostState = snackbarHostState,
+                    modifier = Modifier.align(Alignment.BottomCenter).navigationBarsPadding().padding(12.dp),
+                ) { data ->
+                    Snackbar(data, containerColor = Color(0xFF242A36), contentColor = Color.White,
+                        actionColor = Color(0xFFC7D6EF), dismissActionContentColor = Color.White)
                 }
 
                 if (isFadingToGame) {

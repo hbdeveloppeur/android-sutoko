@@ -22,6 +22,7 @@ class NextChapterController(
     private val chapterRepository: ChapterRepository,
     private val logger: Logger,
     private val scope: CoroutineScope,
+    private val onAvailability: (String,Boolean)->Unit = { _,_ -> },
     private val updateState: (transform: (GameUiState) -> GameUiState) -> Unit,
 ) {
     private val _navigateToNextChapter = Channel<String>(Channel.BUFFERED)
@@ -56,6 +57,7 @@ class NextChapterController(
                 }
                 .first()
                 .firstOrNull { it.normalizedCode == nextChapterCode.lowercase() }
+            onAvailability(nextChapterCode,next?.available==true)
             updateState {
                 it.copy(
                     isNextChapterAvailable = next?.available == true,

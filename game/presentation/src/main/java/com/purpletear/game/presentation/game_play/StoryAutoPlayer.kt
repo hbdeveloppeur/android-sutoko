@@ -124,7 +124,7 @@ internal class StoryAutoPlayer(
             delay(AUTO_PLAY_CHAPTER_DELAY_MS)
             viewModel.onNextChapterClicked()
         } else {
-            logKimi("STORY_COMPLETED chapterCode=${state.chapterCode.orEmpty()} nextChapterAvailable=false")
+            logKimi("PLAYTHROUGH_STOPPED chapterCode=${state.chapterCode.orEmpty()} nextChapterAvailable=false")
         }
     }
 

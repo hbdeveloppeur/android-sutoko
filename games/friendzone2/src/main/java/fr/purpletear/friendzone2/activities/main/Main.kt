@@ -8,14 +8,22 @@
 
 package fr.purpletear.friendzone2.activities.main
 
+import com.purpletear.sutoko.analytics.data.statistics.LegacyChapterReports
+
+import com.purpletear.ads.ReaderAds
+
 import android.app.Activity
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.os.Parcelable
 import android.view.View
+import android.view.ViewGroup
 import android.widget.VideoView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.updateLayoutParams
 import com.bumptech.glide.Glide
 import com.example.sharedelements.OnlineAssetsManager
 import com.example.sharedelements.SutokoSharedElementsData
@@ -50,11 +58,36 @@ class Main : AppCompatActivity(), MainInterface {
 
     private var killDiscussion : Boolean = false
 
+    override fun dispatchTouchEvent(event: android.view.MotionEvent): Boolean {
+        ReaderAds.onInput(this, event)
+        return super.dispatchTouchEvent(event)
+    }
+
+    override fun dispatchKeyEvent(event: android.view.KeyEvent): Boolean {
+        ReaderAds.onInput(this, event)
+        return super.dispatchKeyEvent(event)
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         Std.debug("[STATE] Main : onCreate")
         super.onCreate(savedInstanceState)
+        if (!SutokoSharedElementsData.SHOULD_FORCE_CHAPTER) ReaderAds.track(this, ReaderAds.legacyKey(161))
         setContentView(MainModel.getGameLayout())
+        val root = findViewById<View>(R.id.friendzone2_main_root)
+        ViewCompat.setOnApplyWindowInsetsListener(root) { view, windowInsets ->
+            val insets = windowInsets.getInsets(
+                WindowInsetsCompat.Type.systemBars() or WindowInsetsCompat.Type.displayCutout()
+            )
+            view.updateLayoutParams<ViewGroup.MarginLayoutParams> {
+                setMargins(insets.left, insets.top, insets.right, insets.bottom)
+            }
+            WindowInsetsCompat.CONSUMED
+        }
         load()
+        if (!com.example.sharedelements.SutokoSharedElementsData.SHOULD_FORCE_CHAPTER) {
+            LegacyChapterReports.entered(this,161,fr.purpletear.friendzone2.tables.Language.determineLangDirectory(),model.symbols.chapterCode)
+            LegacyChapterReports.observe(this,161,fr.purpletear.friendzone2.tables.Language.determineLangDirectory(),model.symbols.chapterCode)
+        }
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -145,11 +178,11 @@ class Main : AppCompatActivity(), MainInterface {
         if (hasFocus && model.isFirstStart()) {
             graphics()
             manageButtons()
+            graphics.fadeBlackFilter(this)
         }
         if (hasFocus && graphics.videoToReload != "") {
             switchVideo(graphics.videoToReload)
         }
-        graphics.fadeBlackFilter(this)
     }
 
     /**
@@ -602,6 +635,7 @@ class Main : AppCompatActivity(), MainInterface {
             }
 
             val chapter = p.nextChapter
+            if (!com.example.sharedelements.SutokoSharedElementsData.SHOULD_FORCE_CHAPTER) LegacyChapterReports.completed(this,161,fr.purpletear.friendzone2.tables.Language.determineLangDirectory(),model.symbols.chapterCode)
             insert(p, Phrase.Type.nextChapter)
             val runnable = object : Runnable2("Nouveau chapitre", Phrase.nextChapterDelay()) {
                 override fun run() {
@@ -616,6 +650,7 @@ class Main : AppCompatActivity(), MainInterface {
                             model.symbols.save(this@Main)
                             setResult(RESULT_OK, Intent()
                                     .putExtra("symbols", model.symbols as Parcelable)
+                                    .putExtra(ReaderAds.CHAPTER_TRANSITION, java.util.UUID.randomUUID().toString())
                             )
                             finish()
                         }

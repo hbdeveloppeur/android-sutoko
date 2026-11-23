@@ -1,5 +1,7 @@
 package fr.purpletear.friendzone2.activities.textcinematic
 
+import com.purpletear.sutoko.analytics.data.statistics.LegacyChapterReports
+
 import android.app.Activity
 import android.content.Intent
 import android.net.Uri
@@ -8,19 +10,24 @@ import androidx.appcompat.app.AppCompatActivity
 import fr.purpletear.friendzone2.R
 import fr.purpletear.friendzone2.configs.DiscussionHandler
 import fr.purpletear.friendzone2.configs.Phrase
-import fr.purpletear.friendzone2.configs.Var
 import purpletear.fr.purpleteartools.*
 
 class TextCinematic : AppCompatActivity() {
 
     private lateinit var model : TextCinematicModel
     private lateinit var graphics : TextCinematicGraphics
-    private var mh = MemoryHandler()
+    private val scheduler = CinematicScheduler()
+    private lateinit var progress: CinematicProgressView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_textcinematic)
         load()
+        if (!com.example.sharedelements.SutokoSharedElementsData.SHOULD_FORCE_CHAPTER) {
+            LegacyChapterReports.entered(this,161,fr.purpletear.friendzone2.tables.Language.determineLangDirectory(),model.symbols.chapterCode)
+            LegacyChapterReports.observe(this,161,fr.purpletear.friendzone2.tables.Language.determineLangDirectory(),model.symbols.chapterCode)
+        }
+        progress = findViewById(R.id.cinematic_progress)
     }
 
     override fun onWindowFocusChanged(hasFocus: Boolean) {
@@ -36,7 +43,10 @@ class TextCinematic : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
+        scheduler.resume()
+        progress.resume()
         if(model.isFirstStart()) {
+            progress.start(model.cinematicDurationMillis())
             TextCinematicGraphics.setImages(this@TextCinematic, model.requestManager)
             discuss(model.currentPhrase)
         }
@@ -48,14 +58,16 @@ class TextCinematic : AppCompatActivity() {
     }
 
     override fun onDestroy() {
-        mh.kill()
+        scheduler.clear()
+        progress.stop()
         model.pauseSound(this)
         super.onDestroy()
     }
 
     override fun onPause() {
         super.onPause()
-        graphics.mh.kill()
+        scheduler.pause()
+        progress.pause()
     }
 
     private fun load() {
@@ -64,7 +76,7 @@ class TextCinematic : AppCompatActivity() {
                 intent.getParcelableExtra("symbols") ?: TableOfSymbols(GlobalData.Game.FRIENDZONE2.id)
         )
 
-        graphics = TextCinematicGraphics()
+        graphics = TextCinematicGraphics(scheduler)
         TextCinematicGraphics.setStatsText(this@TextCinematic)
         Finger.registerListener(this, R.id.stats_button_continue, ::onContinueButtonPressed)
         Finger.registerListener(this, R.id.end_rate, ::onRateButtonPressed)
@@ -88,17 +100,7 @@ class TextCinematic : AppCompatActivity() {
         }
 
         if(DiscussionHandler.execute("Condition", phrase.`is`(Phrase.Type.condition))) {
-            val values = phrase.answerCondition
-            val condition = values[0]!!.replace("[", "").replace("]", "").replace(" ", "").split("==".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
-            val mThen = Integer.parseInt(values[1]!!)
-            val mElse = Integer.parseInt(values[2]!!)
-
-            val v = Var(condition[0], condition[1], model.symbols.chapterNumber)
-            val next: Phrase = if (model.symbols.condition(GlobalData.Game.FRIENDZONE2.id, v.name, v.value)) {
-                model.phrases.getPhrase(mThen)
-            } else {
-                model.phrases.getPhrase(mElse)
-            }
+            val next = model.conditionDestination(phrase)
             model.currentPhrase = next
 
             discuss(next)
@@ -117,8 +119,7 @@ class TextCinematic : AppCompatActivity() {
                     }
                 }
             }
-            mh.push(runnable)
-            mh.run(runnable)
+            scheduler.schedule(runnable.duration, runnable)
 
             return
         }
@@ -138,26 +139,27 @@ class TextCinematic : AppCompatActivity() {
                             }
                         }
 
-                        mh.push(runnable)
-                        mh.run(runnable)
+                        scheduler.schedule(runnable.duration, runnable)
                     }
                 }
             }
 
-            mh.push(runnable)
-            mh.run(runnable)
+            scheduler.schedule(runnable.duration, runnable)
         }
     }
 
     private fun onTellingFinished() {
+        if (!com.example.sharedelements.SutokoSharedElementsData.SHOULD_FORCE_CHAPTER && model.isEnd()) { LegacyChapterReports.completed(this,161,fr.purpletear.friendzone2.tables.Language.determineLangDirectory(),model.symbols.chapterCode); LegacyChapterReports.storyFinished(this,161,fr.purpletear.friendzone2.tables.Language.determineLangDirectory(),model.symbols.chapterCode) }
         graphics.fadeText(this@TextCinematic, false, 280)
 
         if(!model.isEnd()) {
             graphics.fadeOutImage(this@TextCinematic) {
+                progress.complete()
                 setResult(Activity.RESULT_OK)
                 finish()
             }
         } else {
+            progress.complete()
             TextCinematicGraphics.fadeStatsScreen(this@TextCinematic, true)
             TextCinematicGraphics.animateStatsBar(this@TextCinematic, 1)
             TextCinematicGraphics.animateStatsBar(this@TextCinematic, 2)

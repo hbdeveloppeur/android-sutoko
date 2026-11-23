@@ -1,9 +1,5 @@
 package com.purpletear.game.presentation.game_play.navigation
 
-import androidx.compose.animation.core.FastOutSlowInEasing
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -25,15 +21,15 @@ internal fun NavGraphBuilder.cinematicScreen(
     onExit: () -> Unit,
 ) = composable(
     route = SmsGameRoutes.CINEMATIC,
-    enterTransition = { fadeIn(tween(500, easing = FastOutSlowInEasing)) },
-    exitTransition = { fadeOut(tween(360, easing = FastOutSlowInEasing)) },
-    popEnterTransition = { fadeIn(tween(500, easing = FastOutSlowInEasing)) },
-    popExitTransition = { fadeOut(tween(360, easing = FastOutSlowInEasing)) },
+
 ) { backStackEntry ->
     val gameEntry = remember(backStackEntry) {
         navController.getBackStackEntry(SmsGameRoutes.GAME)
     }
     val viewModel: GameEngineViewModel = hiltViewModel(gameEntry)
+    androidx.lifecycle.compose.LifecycleEventEffect(androidx.lifecycle.Lifecycle.Event.ON_RESUME) {
+        viewModel.onReaderResumed()
+    }
     val state by viewModel.uiState.collectAsStateWithLifecycle()
 
     CinematicScreen(

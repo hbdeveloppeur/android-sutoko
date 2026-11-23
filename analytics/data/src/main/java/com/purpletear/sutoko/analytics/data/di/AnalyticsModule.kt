@@ -20,6 +20,10 @@ abstract class AnalyticsModule {
     @Singleton
     abstract fun bindAnalyticsTracker(impl: FirebaseAnalyticsTracker): AnalyticsTracker
 
+    @Binds
+    @Singleton
+    abstract fun bindChapterStatistics(impl: com.purpletear.sutoko.analytics.data.statistics.BatchedChapterStatistics): com.purpletear.sutoko.core.domain.analytics.ChapterStatistics
+
     companion object {
 
         @Provides

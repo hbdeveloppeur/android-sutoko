@@ -21,6 +21,8 @@ sealed interface GamePreviewEvent {
 
     data object ShowRestartDialog : GamePreviewEvent
 
+    data object ShowRestartChapterDialog : GamePreviewEvent
+
     data object OpenAccountConnection : GamePreviewEvent
 
     data object ShowAlreadyBoughtAlert : GamePreviewEvent

@@ -48,6 +48,7 @@ import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -68,11 +69,14 @@ private val ClearButtonColor = Color.White.copy(alpha = 0.5f)
 @Composable
 internal fun SearchBox(
     modifier: Modifier = Modifier,
+    initialText: String = "",
     placeholder: String = stringResource(R.string.create_page_search_hint),
     onSearch: (String) -> Unit = {},
     onValueChange: (String) -> Unit = {}
 ) {
-    var textState by remember { mutableStateOf(TextFieldValue("")) }
+    var textState by remember {
+        mutableStateOf(TextFieldValue(initialText, selection = TextRange(initialText.length)))
+    }
     val interactionSource = remember { MutableInteractionSource() }
     val isFocused by interactionSource.collectIsFocusedAsState()
     val isClearable = textState.text.isNotEmpty()

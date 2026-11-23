@@ -12,13 +12,11 @@ import com.bumptech.glide.request.target.Target.SIZE_ORIGINAL
 import friendzone3.purpletear.fr.friendzon3.R
 import friendzone3.purpletear.fr.friendzon3.custom.Character
 import purpletear.fr.purpleteartools.Animation
-import purpletear.fr.purpleteartools.MemoryHandler
+import purpletear.fr.purpleteartools.CinematicScheduler
 import purpletear.fr.purpleteartools.Runnable2
 import purpletear.fr.purpleteartools.Std
 
-class TextCinematicGraphics {
-    // Manages handlers
-    var mh = MemoryHandler()
+class TextCinematicGraphics(private val scheduler: CinematicScheduler) {
     private var isFirstImage : Boolean = true
     private var isFirstText : Boolean  = true
 
@@ -51,8 +49,7 @@ class TextCinematicGraphics {
             }
         }
 
-        mh.push(runnable)
-        mh.run(runnable)
+        scheduler.schedule(runnable.duration, runnable)
     }
 
     /**
@@ -71,8 +68,7 @@ class TextCinematicGraphics {
             }
         }
 
-        mh.push(runnable)
-        mh.run(runnable)
+        scheduler.schedule(runnable.duration, runnable)
     }
 
     /**
@@ -123,8 +119,7 @@ class TextCinematicGraphics {
             }
         }
 
-        mh.push(runnable)
-        mh.run(runnable)
+        scheduler.schedule(runnable.duration, runnable)
     }
 
     companion object {

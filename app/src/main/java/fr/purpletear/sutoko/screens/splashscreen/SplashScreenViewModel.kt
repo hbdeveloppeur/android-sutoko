@@ -22,7 +22,7 @@ class SplashScreenViewModel @Inject constructor(
     symbolsRepository: SymbolsRepository
 ) : ViewModel() {
 
-    // Flag to track if animations are finished (they take 5 seconds to complete)
+    // Flag to track when video playback has finished
     private val _areAnimationsFinished = MutableStateFlow(false)
     val areAnimationsFinished: StateFlow<Boolean> = _areAnimationsFinished.asStateFlow()
 

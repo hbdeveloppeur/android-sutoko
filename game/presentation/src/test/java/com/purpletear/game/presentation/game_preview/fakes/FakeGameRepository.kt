@@ -13,6 +13,7 @@ class FakeGameRepository : GameRepository {
     private val games = mutableMapOf<String, MutableStateFlow<GameCatalog?>>()
     private val errors = mutableMapOf<String, Throwable>()
     private val downloadLinks = mutableMapOf<String, Result<String>>()
+    val downloadLinkRequests = mutableListOf<Triple<String, String?, String?>>()
     var downloadLinkGate: CompletableDeferred<Unit>? = null
     var catalogGate: CompletableDeferred<Unit>? = null
 
@@ -40,8 +41,8 @@ class FakeGameRepository : GameRepository {
         gameId: String,
         userId: String?,
         userToken: String?,
-        preview: Boolean,
     ): Result<String> {
+        downloadLinkRequests += Triple(gameId, userId, userToken)
         downloadLinkGate?.await()
         return downloadLinks[gameId] ?: Result.failure(IllegalStateException("No download link set for $gameId"))
     }

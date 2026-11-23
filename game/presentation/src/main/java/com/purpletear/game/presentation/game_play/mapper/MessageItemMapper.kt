@@ -53,7 +53,6 @@ internal fun Message(
     onMangaClick: (imageUrl: String, overlays: List<GameMessageMangaPage.TextOverlay>) -> Unit = { _, _ -> },
     onNextChapterClick: () -> Unit = {},
     showNextChapterButton: Boolean = true,
-    requiresChapterAd: Boolean = false,
     isChapterAdBusy: Boolean = false,
     isNextChapterAvailable: Boolean = true,
     nextChapterReleaseDate: Long? = null,
@@ -123,7 +122,6 @@ internal fun Message(
                             MessageNextChapter(
                                 title = title,
                                 showButton = showNextChapterButton,
-                                requiresAd = requiresChapterAd,
                                 isBusy = isChapterAdBusy,
                                 onClick = onNextChapterClick
                             )

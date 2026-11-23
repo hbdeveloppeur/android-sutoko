@@ -193,7 +193,6 @@ internal fun SmsGameScreen(
                         },
                         onNextChapterClick = onNextChapterClick,
                         showNextChapterButton = state.showNextChapterButton,
-                        requiresChapterAd = state.requiresChapterAd,
                         isChapterAdBusy = state.isChapterAdBusy,
                         nextChapterTitleRes = state.nextChapterTitleRes,
                         isTrial = state.isTrial,
@@ -351,8 +350,12 @@ private fun Screen(
                 awaitEachGesture {
                     val down = awaitFirstDown(requireUnconsumed = false)
                     onHoldPauseChanged(true)
-                    val up = waitForUpOrCancellation()
-                    onHoldPauseChanged(false)
+                    val up = try {
+                        waitForUpOrCancellation()
+                    } finally {
+                        // Disposal/configuration changes cancel pointerInput before an up event.
+                        onHoldPauseChanged(false)
+                    }
                     if (up != null && !down.isConsumed) {
                         onAdvanceOnTap()
                     }

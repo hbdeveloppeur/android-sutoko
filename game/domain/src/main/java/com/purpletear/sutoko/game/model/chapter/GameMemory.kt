@@ -2,6 +2,8 @@ package com.purpletear.sutoko.game.model.chapter
 
 import androidx.annotation.Keep
 import com.purpletear.sutoko.game.engine.GameEngineLogger
+import com.purpletear.sutoko.game.engine.GameCheckpoint
+import com.purpletear.sutoko.game.repository.GameProgressTransaction
 import com.purpletear.sutoko.game.model.UserGameProgress
 import com.purpletear.sutoko.game.model.chapter.GameMemory.Companion.CONVERSATION_MODE_KEY
 import com.purpletear.sutoko.game.model.chapter.GameMemory.Companion.TYPING_ANIMATION_KEY
@@ -11,23 +13,24 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import javax.inject.Inject
-import javax.inject.Singleton
+import dagger.hilt.android.scopes.ViewModelScoped
 
 /**
  * In-memory store for game variables with persistence support.
  *
  * NOTE: Changes are in-memory only until save() is explicitly called.
- * This follows explicit persistence points (chapter end, pause) rather than
- * auto-save on every change for predictable behavior and simpler debugging.
+ * The engine commits snapshots at stable reading/choice gates and chapter transitions,
+ * never halfway through a script.
  *
- * Scoped as a singleton so that the game engine and the view model observe the same memory
- * state; load() resets in-memory state per game session.
+ * Scoped to the reader ViewModel so its engine and resolver share memory without
+ * another story or trial replacing the session beneath them.
  */
 @Keep
-@Singleton
+@ViewModelScoped
 class GameMemory @Inject constructor(
     private val repository: MemoryRepository,
     private val progressRepository: UserGameProgressRepository,
+    private val transaction: GameProgressTransaction = GameProgressTransaction { it() },
 ) {
     private val _state = MutableStateFlow<Map<String, String>>(emptyMap())
     val state: StateFlow<Map<String, String>> = _state.asStateFlow()
@@ -51,42 +54,64 @@ class GameMemory @Inject constructor(
      * Clears any existing in-memory state first.
      */
     suspend fun load(gameId: String, chapterNumber: Int) {
+        var loaded: Map<String, MemoryEntry> = emptyMap()
+        transaction.run {
+            loaded = repository.load(gameId, chapterNumber)
+            val progress = progressRepository.get(gameId)
+            if (progress.checkpoint != null) progressRepository.save(progress.copy(checkpoint = null))
+        }
+        restore(gameId, chapterNumber, loaded)
+        GameEngineLogger.d("MEM") { "Loaded for gameId=$gameId before chapter $chapterNumber — ${memory.size} entries" }
+    }
+
+    suspend fun getCheckpoint(gameId: String): GameCheckpoint? = progressRepository.get(gameId).checkpoint
+
+    suspend fun restore(gameId: String, chapterNumber: Int, entries: Map<String, MemoryEntry>) {
         currentGameId = gameId
         currentChapterNumber = chapterNumber
         memory.clear()
-        val memories = repository.load(gameId, chapterNumber)
-        memory.putAll(memories)
-
+        memory.putAll(entries)
         val heroName = progressRepository.get(gameId).heroName
-        if (heroName.isNotBlank()) {
-            memory[HERO_NAME_KEY] = MemoryEntry(heroName, chapterNumber)
-        }
-
+        if (heroName.isNotBlank()) memory[HERO_NAME_KEY] = MemoryEntry(heroName, chapterNumber)
         _state.value = memory.mapValues { it.value.value }
-        GameEngineLogger.d("MEM") { "Loaded for gameId=$gameId up to chapter $chapterNumber — ${memory.size} entries" }
     }
 
-    /**
-     * Saves current memories to repository.
-     * Must be called explicitly at save points (chapter end, pause).
-     */
+    fun entries(): Map<String, MemoryEntry> = memory.toMap()
+
+    /** Memory history and its reading gate must commit together, including on cancellation. */
+    suspend fun saveCheckpoint(checkpoint: GameCheckpoint) {
+        val gameId = checkNotNull(currentGameId)
+        check(checkpoint.chapterCode.equals(currentChapterCode, ignoreCase = true))
+        transaction.run {
+            repository.save(gameId, checkpoint.memories)
+            val progress = progressRepository.get(gameId)
+            progressRepository.save(progress.copy(
+                currentChapterCode = checkpoint.chapterCode,
+                normalizedChapterCode = checkpoint.chapterCode.lowercase(),
+                heroName = checkpoint.memories[HERO_NAME_KEY]?.value ?: progress.heroName,
+                checkpoint = checkpoint,
+            ))
+        }
+    }
+
+    /** Saves a chapter transition and clears the old chapter's reading gate atomically. */
     suspend fun save() {
-        currentGameId?.let { gameId ->
-            repository.save(gameId, memory.toMap())
-            GameEngineLogger.d("MEM") { "Saved for gameId=$gameId — ${memory.size} entries" }
-            currentChapterCode?.let { chapter ->
-                val heroName = memory[HERO_NAME_KEY]?.value
-                    ?: progressRepository.get(gameId).heroName
-                progressRepository.save(
-                    UserGameProgress(
-                        gameId = gameId,
-                        currentChapterCode = chapter,
-                        normalizedChapterCode = chapter.lowercase(),
-                        heroName = heroName,
-                    )
-                )
+        val gameId = currentGameId ?: return
+        val snapshot = entries()
+        val chapter = currentChapterCode
+        transaction.run {
+            repository.save(gameId, snapshot)
+            if (chapter != null) {
+                val progress = progressRepository.get(gameId)
+                progressRepository.save(progress.copy(
+                    currentChapterCode = chapter,
+                    normalizedChapterCode = chapter.lowercase(),
+                    heroName = snapshot[HERO_NAME_KEY]?.value ?: progress.heroName,
+                    checkpoint = null,
+                ))
             }
         }
+        GameEngineLogger.d("MEM") { "Saved for gameId=$gameId — ${snapshot.size} entries" }
     }
 
     /**
@@ -110,7 +135,11 @@ class GameMemory @Inject constructor(
      */
     suspend fun clear() {
         currentGameId?.let { gameId ->
-            repository.clear(gameId)
+            transaction.run {
+                repository.clear(gameId)
+                val progress = progressRepository.get(gameId)
+                if (progress.checkpoint != null) progressRepository.save(progress.copy(checkpoint = null))
+            }
         }
         memory.clear()
         currentChapterCode = null

@@ -53,7 +53,7 @@ class ChapterGraphRepositoryImplTest {
                 chapterCode = "2a", chapterDao = database.chapterDao(),
             )
 
-            val graph = repository.loadChapterGraph("game-layout", "2a", "en").first().getOrThrow()
+            val graph = repository.loadChapterGraph("game-layout", "2a", "fr-FR").first().getOrThrow()
             val memory = GameMemory(
                 MemoryRepositoryImpl(database.memoryDao()),
                 UserGameProgressRepositoryImpl(database.userGameProgressDao()),
@@ -62,6 +62,7 @@ class ChapterGraphRepositoryImplTest {
 
             assertEquals(2, graph.chapterNumber)
             assertEquals("2A", graph.chapterCode)
+            assertEquals("en", graph.languageCode)
             assertEquals("true", memory.state.value["trusted_friend"])
             assertEquals(listOf(decision), database.memoryDao().getAllForGameUpToChapter("game-layout", 2))
         } finally {
@@ -200,7 +201,6 @@ class ChapterGraphRepositoryImplTest {
             gameId: String,
             userId: String?,
             userToken: String?,
-            preview: Boolean,
         ): Result<String> = error("unused")
 
         override suspend fun syncOfficialGames(languageTag: String): Result<Unit> = error("unused")

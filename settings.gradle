@@ -67,3 +67,5 @@ project(":game:data").projectDir = new File(rootDir, "game/data")
 project(":game:presentation").projectDir = new File(rootDir, "game/presentation")
 project(":game:debug").projectDir = new File(rootDir, "game/debug")
 project(":logger:data").projectDir = new File(rootDir, "logger/data")
+
+include ":ads"

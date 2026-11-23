@@ -1,10 +1,8 @@
 package com.purpletear.game.presentation.game_play
 
 import android.util.Log
-import androidx.compose.animation.core.FastOutSlowInEasing
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -28,7 +26,7 @@ internal fun SmsGameNavHost(
     overlayAlpha: () -> Float,
     builder: NavGraphBuilder.() -> Unit,
 ) {
-    Box(Modifier.fillMaxSize()) {
+    Box(Modifier.fillMaxSize().background(Color.Black)) {
         val currentEntry by navController.currentBackStackEntryAsState()
         LaunchedEffect(currentEntry) {
             currentEntry?.destination?.route?.let { route ->
@@ -39,8 +37,11 @@ internal fun SmsGameNavHost(
             modifier = Modifier.fillMaxSize(),
             navController = navController,
             startDestination = startDestination,
-            enterTransition = { fadeIn(tween(500, easing = FastOutSlowInEasing)) },
-            exitTransition = { fadeOut(tween(500, easing = FastOutSlowInEasing)) },
+            // The activity overlay owns the entire fade-through-black transition.
+            enterTransition = { EnterTransition.None },
+            exitTransition = { ExitTransition.None },
+            popEnterTransition = { EnterTransition.None },
+            popExitTransition = { ExitTransition.None },
             builder = builder,
         )
         val isOverlayVisible by remember(overlayAlpha) {

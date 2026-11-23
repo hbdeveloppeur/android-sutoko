@@ -89,6 +89,7 @@ class CreateViewModel @Inject constructor(
     private val _searchPage = MutableStateFlow(1)
     private val _hasMoreSearchResults = MutableStateFlow(true)
 
+    val searchQuery: String get() = _searchQuery.value
     val isSearching: StateFlow<Boolean> = _isSearching
     val isLoadingMore: StateFlow<Boolean> = _isLoadingMore
     val hasMoreGames: StateFlow<Boolean> = combine(

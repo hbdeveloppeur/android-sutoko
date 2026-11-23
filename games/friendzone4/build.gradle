@@ -46,6 +46,8 @@ android {
 }
 
 dependencies {
+    implementation project(':analytics:data')
+    implementation project(":ads")
 
     implementation project(path: ':shared-elements')
     implementation project(path: ':tools')

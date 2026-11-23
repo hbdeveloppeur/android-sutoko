@@ -43,6 +43,8 @@ android {
 }
 
 dependencies {
+    implementation project(':analytics:data')
+    implementation project(":ads")
     implementation fileTree(include: ['*.jar'], dir: 'libs')
     implementation "androidx.appcompat:appcompat:$appcompat_version"
     implementation "androidx.core:core-ktx:$ktx_core_version"

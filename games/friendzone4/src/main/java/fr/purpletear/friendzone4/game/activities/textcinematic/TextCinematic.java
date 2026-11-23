@@ -1,5 +1,7 @@
 package fr.purpletear.friendzone4.game.activities.textcinematic;
 
+import com.purpletear.sutoko.analytics.data.statistics.LegacyChapterReports;
+
 import android.os.Bundle;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -12,6 +14,7 @@ import fr.purpletear.friendzone4.game.config.AverageTime;
 import fr.purpletear.friendzone4.game.config.Params;
 import fr.purpletear.friendzone4.purpleTearTools.SoundHandler;
 import purpletear.fr.purpleteartools.TableOfSymbols;
+import purpletear.fr.purpleteartools.CinematicProgressView;
 
 public class TextCinematic extends AppCompatActivity {
 
@@ -33,16 +36,24 @@ public class TextCinematic extends AppCompatActivity {
     private TableOfSymbols symbols;
 
     private SoundHandler sh;
+    private CinematicProgressView progress;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Std.hideBars(getWindow(), true, true);
         setContentView(R.layout.fz4_activity_text_cinematic);
+        progress = findViewById(R.id.cinematic_progress);
         try {
             load();
+            if (!com.example.sharedelements.SutokoSharedElementsData.INSTANCE.getSHOULD_FORCE_CHAPTER()) {
+                LegacyChapterReports.entered(this,163,purpletear.fr.purpleteartools.GameLanguage.Companion.determineLangDirectory(),symbols.getChapterCode());
+                LegacyChapterReports.observe(this,163,purpletear.fr.purpleteartools.GameLanguage.Companion.determineLangDirectory(),symbols.getChapterCode());
+            }
         } catch (IOException e) {
             e.printStackTrace();
+            setResult(RESULT_CANCELED);
+            finish();
         }
     }
 
@@ -66,20 +77,33 @@ public class TextCinematic extends AppCompatActivity {
 
     @Override
     protected void onResume() {
-        if(model.isFirstStart()) {
-            model.startDiscuss(this);
-        } else {
-            model.discuss(this);
-        }
         super.onResume();
+        if (model == null) return;
+        model.scheduler.resume();
+        progress.resume();
+        if (model.isFirstStart()) {
+            progress.start(model.cinematicDurationMillis(this));
+            model.startDiscuss(this);
+        }
     }
 
     @Override
-    protected void onStop() {
-        model.mh.kill();
-        sh.pause("bg_end");
-        sh.clear();
-        super.onStop();
+    protected void onPause() {
+        if (model != null) model.scheduler.pause();
+        progress.pause();
+        if (sh != null) sh.pause("bg_end");
+        super.onPause();
+    }
+
+    @Override
+    protected void onDestroy() {
+        if (model != null) {
+            model.scheduler.clear();
+            model.pauseSound();
+        }
+        progress.stop();
+        if (sh != null) sh.clear();
+        super.onDestroy();
     }
 
     private String filename() {

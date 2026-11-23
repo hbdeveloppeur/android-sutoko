@@ -160,7 +160,6 @@ fun ChaptersScreen(
                             ChapterList(
                                 chapters = state.chapters,
                                 currentChapterCode = state.currentChapterCode,
-                                isAdmin = state.isAdmin,
                                 onChapterClick = { chapter ->
                                     if (!isSelecting && nickNameChapter == null) {
                                         val isCurrent =
@@ -236,11 +235,10 @@ private fun ChaptersTopBar(onBack: () -> Unit) {
 private fun ChapterList(
     chapters: List<Chapter>,
     currentChapterCode: String?,
-    isAdmin: Boolean,
     onChapterClick: (Chapter) -> Unit,
 ) {
-    val (upcoming, released) = remember(chapters, isAdmin) {
-        chapters.partition { !it.available && !isAdmin }
+    val (upcoming, released) = remember(chapters) {
+        chapters.partition { !it.available }
             .let { (upcoming, released) ->
                 // Alternatives share the same chapter number: show each
                 // chapter only once.
@@ -286,7 +284,6 @@ private fun ChapterList(
             ChapterCard(
                 chapter = chapter,
                 isCurrent = chapter.normalizedCode == currentChapterCode,
-                forceAvailable = isAdmin,
                 onClick = { onChapterClick(chapter) },
             )
         }
@@ -392,9 +389,8 @@ private fun ChapterCard(
     isCurrent: Boolean,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
-    forceAvailable: Boolean = false,
 ) {
-    val isAvailable = chapter.available || forceAvailable
+    val isAvailable = chapter.available
     val contentAlpha = if (isAvailable) 1f else 0.45f
 
     // Flat dark card, identity carried by a thin accent bar on the left edge.

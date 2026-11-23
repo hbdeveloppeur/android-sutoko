@@ -40,27 +40,27 @@
             android:name=".game.activities.load.Load"
             android:launchMode="singleTop"
             android:screenOrientation="portrait"
-            android:theme="@style/SplashScreenTheme" />
+            android:theme="@style/Friendzoned4ChapterTheme" />
         <activity
             android:name=".game.activities.main.Main"
             android:launchMode="singleTop"
             android:screenOrientation="portrait"
-            android:theme="@style/SplashScreenTheme" />
+            android:theme="@style/Friendzoned4ChapterTheme" />
         <activity
             android:name=".game.activities.audiocinematic.AudioCinematic"
             android:launchMode="singleTop"
             android:screenOrientation="portrait"
-            android:theme="@style/SplashScreenTheme" />
+            android:theme="@style/Friendzoned4ChapterTheme" />
         <activity
             android:name=".game.activities.textcinematic.TextCinematic"
             android:launchMode="singleTop"
             android:screenOrientation="portrait"
-            android:theme="@style/SplashScreenTheme" />
+            android:theme="@style/Friendzoned4ChapterTheme" />
         <activity
             android:name=".game.activities.loading.Loading"
             android:launchMode="singleTop"
             android:screenOrientation="portrait"
-            android:theme="@style/SplashScreenTheme" />
+            android:theme="@style/Friendzoned4ChapterTheme" />
         <activity
             android:name=".game.activities.hacking.HackingGame"
             android:launchMode="singleTop"
@@ -77,12 +77,12 @@
             android:name=".game.activities.poetry.Poetry"
             android:launchMode="singleTop"
             android:screenOrientation="portrait"
-            android:theme="@style/SplashScreenTheme" />
+            android:theme="@style/Friendzoned4ChapterTheme" />
         <activity
             android:name=".game.activities.end.End"
             android:launchMode="singleTop"
             android:screenOrientation="portrait"
-            android:theme="@style/SplashScreenTheme" >
+            android:theme="@style/Friendzoned4ChapterTheme" >
         </activity>
     </application>
 

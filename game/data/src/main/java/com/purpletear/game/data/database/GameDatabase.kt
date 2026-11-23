@@ -25,10 +25,10 @@ import com.purpletear.game.data.local.entity.UserGameProgressEntity
         MemoryEntity::class,
         GameFavoriteEntity::class,
     ],
-    version = 21,
+    version = 22,
     exportSchema = false,
 )
-@TypeConverters(GameTypeConverters::class)
+@TypeConverters(GameTypeConverters::class, GameCheckpointConverters::class)
 abstract class GameDatabase : RoomDatabase() {
     abstract fun chapterDao(): ChapterDao
     abstract fun gameDao(): GameDao

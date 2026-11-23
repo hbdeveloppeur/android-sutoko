@@ -32,7 +32,6 @@ import com.purpletear.game.data.repository.MemoryRepositoryImpl
 import com.purpletear.game.data.repository.SceneRepositoryImpl
 import com.purpletear.game.data.repository.UserGameProgressRepositoryImpl
 import com.purpletear.game.data.repository.StoryAdvanceModeRepositoryImpl
-import com.purpletear.game.data.repository.UserRoleRepositoryImpl
 import com.purpletear.game.data.service.MediaUrlResolverImpl
 import com.purpletear.sutoko.game.engine.processing.TextProcessor
 import com.purpletear.sutoko.game.engine.processing.TextProcessorImpl
@@ -45,7 +44,6 @@ import com.purpletear.sutoko.game.repository.MemoryRepository
 import com.purpletear.sutoko.game.repository.SceneRepository
 import com.purpletear.sutoko.game.repository.UserGameProgressRepository
 import com.purpletear.sutoko.game.repository.StoryAdvanceModeRepository
-import com.purpletear.sutoko.game.repository.UserRoleRepository
 import com.purpletear.sutoko.game.repository.game.FavoriteGamesRepository
 import com.purpletear.sutoko.game.repository.game.GameInstallRepository
 import com.purpletear.sutoko.game.repository.game.GameRepository
@@ -257,7 +255,7 @@ object GameDataModule {
     }
 
     /**
-     * Provides the DataStore used for game-related user preferences (e.g. user role).
+     * Provides the DataStore used for game-related user preferences (sound and story advance mode).
      */
     @Provides
     @Singleton
@@ -337,10 +335,6 @@ abstract class RepositoryModule {
 
     @Binds
     abstract fun bindMediaUrlResolver(impl: MediaUrlResolverImpl): MediaUrlResolver
-
-    @Binds
-    @Singleton
-    abstract fun bindUserRoleRepository(impl: UserRoleRepositoryImpl): UserRoleRepository
 
     @Binds
     @Singleton

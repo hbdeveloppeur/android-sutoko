@@ -16,7 +16,8 @@ data class UserGameProgressEntity(
     val gameId: String = "",
     val currentChapterCode: String = "1A",
     val normalizedChapterCode: String = "1A",
-    val heroName: String = ""
+    val heroName: String = "",
+    val checkpoint: com.purpletear.sutoko.game.engine.GameCheckpoint? = null,
 )
 
 fun UserGameProgressEntity.toDomain() = UserGameProgress(
@@ -24,4 +25,5 @@ fun UserGameProgressEntity.toDomain() = UserGameProgress(
     currentChapterCode = currentChapterCode,
     normalizedChapterCode = normalizedChapterCode,
     heroName = heroName,
+    checkpoint = checkpoint,
 )

@@ -1,11 +1,5 @@
 package com.purpletear.game.presentation.game_play.navigation
 
-import androidx.compose.animation.EnterTransition
-import androidx.compose.animation.ExitTransition
-import androidx.compose.animation.core.FastOutSlowInEasing
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -34,16 +28,6 @@ internal fun NavGraphBuilder.gameScreen(
     onLoadError: (String) -> Unit = {},
 ) = composable(
     route = SmsGameRoutes.GAME,
-    enterTransition = {
-        if (initialState.destination.route == SmsGameRoutes.GAME) EnterTransition.None
-        else fadeIn(tween(500, easing = FastOutSlowInEasing))
-    },
-    exitTransition = {
-        if (targetState.destination.route == SmsGameRoutes.GAME) ExitTransition.None
-        else fadeOut(tween(360, easing = FastOutSlowInEasing))
-    },
-    popEnterTransition = { fadeIn(tween(500, easing = FastOutSlowInEasing)) },
-    popExitTransition = { fadeOut(tween(360, easing = FastOutSlowInEasing)) },
     arguments = listOf(
         navArgument("gameId") {
             type = NavType.StringType
@@ -64,6 +48,9 @@ internal fun NavGraphBuilder.gameScreen(
 ) { entry ->
     val chapterCode = requireNotNull(entry.arguments?.getString("chapterCode"))
     val viewModel: GameEngineViewModel = hiltViewModel()
+    androidx.lifecycle.compose.LifecycleEventEffect(androidx.lifecycle.Lifecycle.Event.ON_RESUME) {
+        viewModel.onReaderResumed()
+    }
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val context = androidx.compose.ui.platform.LocalContext.current
     val activity = remember(context) {

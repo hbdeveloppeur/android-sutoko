@@ -1,7 +1,9 @@
 package fr.purpletear.friendzone4.game.activities.audiocinematic;
 
 import android.os.Bundle;
-import android.util.Log;
+import android.os.Handler;
+import android.os.Looper;
+import purpletear.fr.purpleteartools.CinematicProgressView;
 import android.widget.TextView;
 
 import androidx.annotation.Nullable;
@@ -35,12 +37,22 @@ public class AudioCinematic extends AppCompatActivity {
      */
     private AudioState currentAudio = AudioState.STOPPED;
 
-    /**
-     * The Thread that updates the progressbar
-     *
-     * @see Thread
-     */
-    private Thread progressBarUpdate;
+    private final Handler progressHandler = new Handler(Looper.getMainLooper());
+    private CinematicProgressView progress;
+    private final Runnable updateProgress = new Runnable() {
+        @Override
+        public void run() {
+            if (currentAudio != AudioState.PLAYING || !model.getSp().isPlaying()) return;
+            int position = model.getSp().getTime();
+            int duration = model.getSp().getDuration();
+            if (duration > 0) progress.setProgress(position / (float) duration);
+            model.updateLine(position, new AudioCinematicListener() {
+                @Override public void onCompletion() { }
+                @Override public void onFoundLine(String text) { updateAudioTextDescription(text); }
+            });
+            progressHandler.postDelayed(this, 50);
+        }
+    };
 
     enum AudioState {
         PLAYING,
@@ -54,6 +66,7 @@ public class AudioCinematic extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         Std.hideBars(getWindow(), false, true);
         setContentView(R.layout.fz4_activity_audio_cinematic);
+        progress = findViewById(R.id.cinematic_progress);
         load();
     }
 
@@ -162,6 +175,7 @@ public class AudioCinematic extends AppCompatActivity {
             throw new IllegalStateException("Calling play when the audio is already playing");
         }
         currentAudio = AudioState.PLAYING;
+        progress.setProgress(0f);
         graphics.changeButton(
                 findViewById(R.id.fz4_audio_cinematic_button_play),
                 this,
@@ -170,7 +184,8 @@ public class AudioCinematic extends AppCompatActivity {
         model.play(this, new AudioCinematicListener() {
             @Override
             public void onCompletion() {
-                killThread();
+                stopProgressUpdates();
+                progress.setProgress(1f);
                 currentAudio = AudioState.FINISHED;
                 graphics.setNextButtonVisibility(
                         findViewById(R.id.fz4_audio_cinematic_button_next),
@@ -207,8 +222,9 @@ public class AudioCinematic extends AppCompatActivity {
         if (currentAudio == AudioState.STOPPED) {
             throw new IllegalStateException("Calling stop when the audio is already stopped");
         }
-        killThread();
+        stopProgressUpdates();
         currentAudio = AudioState.STOPPED;
+        progress.setProgress(0f);
         model.stop();
         graphics.changeButton(
                 findViewById(R.id.fz4_audio_cinematic_button_play),
@@ -224,82 +240,31 @@ public class AudioCinematic extends AppCompatActivity {
         if (currentAudio != AudioState.PLAYING) {
             return;
         }
+        stopProgressUpdates();
         currentAudio = AudioState.PAUSED;
         model.pause();
     }
 
-    /**
-     * Updates the progressbar
-     */
     private void progress() {
-        progressBarUpdate = new Thread(new Runnable() {
-            private long start = System.currentTimeMillis();
-
-            @Override
-            public void run() {
-                //noinspection InfiniteLoopStatement
-                for (; ; ) {
-                    try {
-                        Thread.sleep(280);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                        return;
-                    }
-
-                    model.updateLine(
-                            System.currentTimeMillis() - start,
-                            new AudioCinematicListener() {
-                                @Override
-                                public void onCompletion() {
-
-                                }
-
-                                @Override
-                                public void onFoundLine(final String text) {
-                                    runOnUiThread(new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            updateAudioTextDescription(text);
-                                        }
-                                    });
-                                }
-                            }
-                    );
-                    if (currentAudio != AudioState.PLAYING) {
-                        Std.debug("Stopping");
-                        return;
-                    }
-
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            try {
-                                graphics.updateProgressBar(
-                                        findViewById(R.id.fz4_audio_cinematic_progress_background),
-                                        findViewById(R.id.fz4_audio_cinematic_progress_bar),
-                                        model.getSp().getTime(),
-                                        model.getSp().getDuration()
-                                );
-                            } catch (Exception e) {
-                                Log.e("ppdebug", e.toString());
-                            }
-                        }
-                    });
-                }
-            }
-        });
-        progressBarUpdate.start();
+        stopProgressUpdates();
+        progressHandler.post(updateProgress);
     }
 
-    /**
-     * Kills the progressBarUpdate Thread
-     *
-     * @see Thread
-     */
-    private void killThread() {
-        Std.debug("Killing the Thread");
-        progressBarUpdate.interrupt();
-        progressBarUpdate = null;
+    private void stopProgressUpdates() {
+        progressHandler.removeCallbacks(updateProgress);
+    }
+
+    @Override
+    protected void onPause() {
+        pause();
+        super.onPause();
+    }
+
+    @Override
+    protected void onDestroy() {
+        stopProgressUpdates();
+        if (model != null) model.getSp().release();
+        super.onDestroy();
     }
 
     /**

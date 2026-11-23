@@ -1,6 +1,7 @@
 package friendzone3.purpletear.fr.friendzon3.textcinematic
 
 import android.app.Activity
+import purpletear.fr.purpleteartools.CinematicTimeline
 import android.content.Context
 import com.bumptech.glide.Glide
 import com.bumptech.glide.RequestManager
@@ -36,6 +37,35 @@ class TextCinematicModel(a : Activity) {
             "1a" -> "0a"
             else -> chapterCode
         }
+    }
+
+    fun cinematicDurationMillis(): Long {
+        var firstImage = true
+        var firstText = true
+        val fade = TextCinematicGraphics.fadeInDuration.toLong()
+        val duration = CinematicTimeline.duration(getFirstPhrase().id) { id ->
+            val phrase = phrases.getPhrase(id)
+
+            val nextId = if (hasNextPhrase(phrase)) getNextPhrase(phrase).id else null
+            val cueDuration = when {
+                phrase.isAnnouncement -> return@duration CinematicTimeline.Cue(0, null)
+                phrase.isBackgroundImage -> {
+                    val time = if (firstImage) fade else fade * 2
+                    if (!firstImage) firstText = true
+                    firstImage = false
+                    time
+                }
+                phrase.isTrophy -> 1280L
+                else -> {
+                    require(phrase.seen >= 0 && phrase.wait >= 0)
+                    val time = phrase.seen.toLong() + phrase.wait + if (firstText) fade else fade * 2
+                    firstText = false
+                    time
+                }
+            }
+            CinematicTimeline.Cue(cueDuration, nextId)
+        }
+        return duration
     }
 
     /**
@@ -130,7 +160,7 @@ class TextCinematicModel(a : Activity) {
      * @return String
      */
     private fun getSoundName() : String {
-        return "bg"
+        return if (symbols.chapterCode == "1a") "bg_cinematic_1a" else "bg_cinematic"
     }
 
     /**

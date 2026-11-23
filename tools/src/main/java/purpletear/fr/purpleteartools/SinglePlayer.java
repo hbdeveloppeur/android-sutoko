@@ -84,7 +84,7 @@ public class SinglePlayer {
                     isPlaying = false;
                     sound.name = "";
                     mp.release();
-                    new Handler().post(r);
+                    if (r != null) new Handler().post(r);
 
                 }
             });

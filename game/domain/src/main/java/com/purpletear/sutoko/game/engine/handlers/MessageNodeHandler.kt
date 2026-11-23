@@ -26,7 +26,8 @@ import kotlin.random.Random
  *
  * Text variables (e.g. [prenom]) are resolved using [TextProcessor] before the
  * message is emitted. Bracketed text that remains after substitution is treated as
- * a skip command and produces no message.
+ * a skip command and produces no message. A leading parenthesized action is removed
+ * from messages only; choice labels keep the action text.
  *
  * The handler is [PreviousNodeAwareNodeHandler] because the first message from the
  * main character must not have an initial seen delay.
@@ -48,7 +49,7 @@ class MessageNodeHandler @Inject constructor(
         val messageNode = node as? Node.Message ?: return HandlerScript()
 
         val variables = memory.state.value
-        val processedText = textProcessor.process(messageNode.text, variables)
+        val processedText = removeLeadingAction(textProcessor.process(messageNode.text, variables))
         val command = parseCommand(processedText)
 
         GameEngineLogger.d("HAND") {
@@ -84,15 +85,6 @@ class MessageNodeHandler @Inject constructor(
         if (processedText.isBlank()) {
             GameEngineLogger.d("MSG") {
                 "Skipping blank message ${node.id} from character ${node.characterId}"
-            }
-            return HandlerScript()
-        }
-
-        // A choice whose trimmed text is wrapped in parentheses — e.g. "(Ne rien dire)" —
-        // is an action, not a spoken message: skip the node and continue right after it.
-        if (isUserChoice && isAction(processedText)) {
-            GameEngineLogger.d("MSG") {
-                "Action choice ${node.id} (\"$processedText\") — ignoring node and continuing"
             }
             return HandlerScript()
         }
@@ -275,9 +267,14 @@ class MessageNodeHandler @Inject constructor(
         }
     }
 
-    private fun isAction(text: String): Boolean {
+    private fun removeLeadingAction(text: String): String {
         val trimmed = text.trim()
-        return trimmed.startsWith("(") && trimmed.endsWith(")")
+        if (!trimmed.startsWith("(")) return text
+
+        val actionEnd = trimmed.indexOf(')')
+        if (actionEnd == -1) return text
+
+        return trimmed.substring(actionEnd + 1).trim()
     }
 
     private sealed class Command {

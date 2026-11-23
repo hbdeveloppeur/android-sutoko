@@ -3,17 +3,14 @@ package fr.purpletear.sutoko.screens.main.presentation.screens
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Switch
 import androidx.compose.material.SwitchDefaults
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -31,24 +28,24 @@ fun TitleSwitch(
     text: String,
     onCheckedChange: (Boolean) -> Unit
 ) {
-    val checkedState = remember { mutableStateOf(isOn) }
     Box(
         modifier = Modifier
-            .padding(horizontal = 6.dp)
+            .padding(horizontal = 16.dp)
             .fillMaxWidth()
-            .clip(RoundedCornerShape(8.dp))
+            .clip(RoundedCornerShape(14.dp))
             .background(color = Color(0xFFD9D9D9).copy(0.04f))
     ) {
         Row(
             modifier = Modifier
-                .height(48.dp)
+                .heightIn(min = 48.dp)
                 .align(Alignment.Center)
                 .padding(horizontal = 16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
                 text = text,
-                textAlign = TextAlign.Center,
+                modifier = Modifier.weight(1f).padding(end = 8.dp),
+                textAlign = TextAlign.Start,
                 fontSize = 12.sp,
                 style = SutokoTypography.body1.copy(
                     letterSpacing = 0.5.sp,
@@ -57,19 +54,15 @@ fun TitleSwitch(
                     )
                 )
             )
-            Spacer(Modifier.weight(1f))
             Switch(
-                checked = checkedState.value,
+                checked = isOn,
                 colors = SwitchDefaults.colors(
                     checkedThumbColor = Pink,
                     checkedTrackColor = Pink,
                     uncheckedThumbColor = Color.White,
                     uncheckedTrackColor = Color.White,
                 ),
-                onCheckedChange = {
-                    checkedState.value = it
-                    onCheckedChange(it)
-                }
+                onCheckedChange = onCheckedChange,
             )
         }
     }

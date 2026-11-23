@@ -16,7 +16,7 @@ class AndroidGamePathProviderImpl(private val context: Context) : AndroidGamePat
     }
 
     override fun getStoryDirectoryPath(storyId: String, legacyId: Int?): String {
-        return getStoriesDirectoryPath() + File.separator + directoryNameFor(storyId, legacyId)
+        return getGameDirectory(storyId, legacyId).absolutePath
     }
 
     override fun getGamesDirectory(): File {
@@ -24,10 +24,13 @@ class AndroidGamePathProviderImpl(private val context: Context) : AndroidGamePat
     }
 
     override fun getGameDirectory(gameId: String, legacyId: Int?): File {
-        return File(getGamesDirectory(), directoryNameFor(gameId, legacyId))
-    }
-
-    private fun directoryNameFor(gameId: String, legacyId: Int?): String {
-        return legacyId?.toString() ?: gameId
+        val directoryName = legacyId?.toString() ?: gameId
+        require(directoryName.isNotBlank() && directoryName == File(directoryName).name) {
+            "Invalid game directory name"
+        }
+        val gamesDirectory = getGamesDirectory().canonicalFile
+        val gameDirectory = File(gamesDirectory, directoryName).canonicalFile
+        require(gameDirectory.parentFile == gamesDirectory) { "Game directory outside story storage" }
+        return gameDirectory
     }
 }

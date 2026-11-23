@@ -99,8 +99,6 @@ interface GameApi {
      * @param gameId The ID of the game to download
      * @param userId The ID of the user requesting the download
      * @param userToken The token of the user requesting the download
-     * @param preview Admin-only: download the preview archive (all chapters incl. unreleased).
-     * Requires a valid admin userToken; any error must be treated as "feature unavailable".
      * @return A Response containing a DownloadLinkResponseDto with the download link in the "link" field
      */
     @GET("api/story/{gameId}/download-link")
@@ -108,6 +106,5 @@ interface GameApi {
         @Path("gameId") gameId: String,
         @Query("userId") userId: String?,
         @Query("userToken") userToken: String?,
-        @Query("preview") preview: Boolean? = null,
     ): DownloadLinkResponseDto
 }

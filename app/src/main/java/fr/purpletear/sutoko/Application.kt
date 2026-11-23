@@ -66,6 +66,9 @@ class Application : MultiDexApplication(), DefaultLifecycleObserver {
     @Inject
     lateinit var symbolsRepository: SymbolsRepository
 
+    @Inject
+    lateinit var chapterStatistics: com.purpletear.sutoko.core.domain.analytics.ChapterStatistics
+
     private val appSyncScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
     override fun attachBaseContext(base: Context) {

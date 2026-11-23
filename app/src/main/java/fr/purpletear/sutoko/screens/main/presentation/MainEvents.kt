@@ -5,7 +5,6 @@ import androidx.annotation.Keep
 sealed class MainEvents {
 
     object OnFlavorModalDismissed : MainEvents()
-    data object TapShop : MainEvents()
 
     @Keep
     data class ToggleNotifications(val notificationsOn: Boolean) : MainEvents()

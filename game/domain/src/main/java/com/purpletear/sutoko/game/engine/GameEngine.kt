@@ -9,6 +9,7 @@ import com.purpletear.sutoko.game.model.chapter.ChapterGraph
 import com.purpletear.sutoko.game.model.chapter.GameMemory
 import com.purpletear.sutoko.game.model.chapter.Node
 import com.purpletear.sutoko.game.repository.CharacterRepository
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -51,6 +52,12 @@ class GameEngine @Inject constructor(
     private var previousNode: Node? = null
     private var parkedMangaNodeId: String? = null
     private var parkedVisualNovelNodeId: String? = null
+    private var checkpointingEnabled = true
+    private var graphFingerprint = ""
+    private var pendingCheckpoint: GameCheckpoint? = null
+    private var chapterTransitionPending = false
+    private var currentSceneId: Int? = null
+    private val loopingSounds = linkedMapOf<String, HandlerEffect.PlaySound>()
 
     /**
      * Resets the engine to a clean state.
@@ -65,6 +72,10 @@ class GameEngine @Inject constructor(
         previousNode = null
         parkedMangaNodeId = null
         parkedVisualNovelNodeId = null
+        pendingCheckpoint = null
+        chapterTransitionPending = false
+        currentSceneId = null
+        loopingSounds.clear()
         _state.value = GameEngineState.Idle
         _messages.value = emptyList()
         GameEngineLogger.d("GAME") { "Engine reset" }
@@ -99,7 +110,11 @@ class GameEngine @Inject constructor(
      * @param graph The chapter graph to execute
      * @throws IllegalStateException if already initialized with a different game
      */
-    suspend fun initialize(gameId: String, graph: ChapterGraph) {
+    suspend fun initialize(
+        gameId: String,
+        graph: ChapterGraph,
+        checkpointingEnabled: Boolean = true,
+    ) {
 
         if (currentGameId != null && currentGameId != gameId) {
             reset()
@@ -107,10 +122,24 @@ class GameEngine @Inject constructor(
 
         currentGameId = gameId
         currentGraph = graph
+        this.checkpointingEnabled = checkpointingEnabled
+        graphFingerprint = graph.checkpointFingerprint()
+        chapterTransitionPending = false
+        currentSceneId = null
+        loopingSounds.clear()
+        val saved = if (checkpointingEnabled) memory.getCheckpoint(gameId) else null
+        pendingCheckpoint = saved?.takeIf { it.isCompatible(graph, graphFingerprint) }
 
         memory.setCurrentChapterNumber(graph.chapterNumber)
         memory.setCurrentChapter(graph.chapterCode)
-        memory.load(gameId, graph.chapterNumber)
+        if (pendingCheckpoint != null) {
+            memory.restore(gameId, graph.chapterNumber, pendingCheckpoint!!.memories)
+        } else if (checkpointingEnabled) {
+            if (saved != null) GameEngineLogger.w("SAVE") { "Discarding incompatible checkpoint for ${graph.chapterCode}" }
+            memory.load(gameId, graph.chapterNumber)
+        } else {
+            memory.restore(gameId, graph.chapterNumber, emptyMap())
+        }
 
         characterRepository.preload(gameId)
         // Tolerate authoring mistakes: a story must stay playable even when its
@@ -151,6 +180,12 @@ class GameEngine @Inject constructor(
     suspend fun start() {
         val graph = checkNotNull(currentGraph) {
             "Precondition violation: initialize() must be called before start()"
+        }
+        val checkpoint = pendingCheckpoint
+        pendingCheckpoint = null
+        if (checkpoint != null) {
+            restoreCheckpoint(graph, checkpoint)
+            return
         }
         val currentNodeId = graph.startNodeId
 
@@ -410,7 +445,7 @@ class GameEngine @Inject constructor(
     /**
      * Handles the AwaitInput command: validates position, sets state, and pauses.
      */
-    private fun awaitPlayerInput(
+    private suspend fun awaitPlayerInput(
         command: HandlerCommand.AwaitInput,
         script: HandlerScript,
         context: ExecutionContext
@@ -430,7 +465,7 @@ class GameEngine @Inject constructor(
      * to advance, and exposes the auto-advance delay in the state so the driver can resume
      * on its own once the delay elapses. The next node is intentionally NOT resolved here.
      */
-    private fun awaitTap(
+    private suspend fun awaitTap(
         command: HandlerCommand.AwaitTap,
         script: HandlerScript,
         context: ExecutionContext
@@ -442,6 +477,8 @@ class GameEngine @Inject constructor(
                     "Found ${script.commands.size - commandIndex - 1} orphaned commands."
         }
 
+        persistCheckpoint(GameCheckpoint.Gate.TAP, context.nodeId,
+            autoAdvanceAfterMs = command.autoAdvanceAfterMs, requiresTap = command.requiresTap)
         _state.value = GameEngineState.AwaitingTap(
             chapterCode = context.graph.chapterCode,
             currentNodeId = context.nodeId,
@@ -458,7 +495,7 @@ class GameEngine @Inject constructor(
      * The manga message has already been emitted by a preceding AddMessage, so the bubble
      * is visible while the engine is parked; the next node is intentionally NOT resolved here.
      */
-    private fun awaitMangaDismissal(
+    private suspend fun awaitMangaDismissal(
         command: HandlerCommand.AwaitMangaDismissal,
         script: HandlerScript,
         context: ExecutionContext
@@ -470,6 +507,7 @@ class GameEngine @Inject constructor(
                     "Found ${script.commands.size - commandIndex - 1} orphaned commands."
         }
 
+        persistCheckpoint(GameCheckpoint.Gate.MANGA, context.nodeId)
         isPaused = true
         parkedMangaNodeId = context.nodeId
         _state.value = GameEngineState.AwaitingMangaDismissal(
@@ -563,7 +601,7 @@ class GameEngine @Inject constructor(
      * The overlay payload has already been emitted by a preceding ShowVisualNovel effect, so it
      * is visible while the engine is parked; the next node is intentionally NOT resolved here.
      */
-    private fun awaitVisualNovelDismissal(
+    private suspend fun awaitVisualNovelDismissal(
         command: HandlerCommand.AwaitVisualNovelDismissal,
         script: HandlerScript,
         context: ExecutionContext
@@ -575,6 +613,7 @@ class GameEngine @Inject constructor(
                     "Found ${script.commands.size - commandIndex - 1} orphaned commands."
         }
 
+        persistCheckpoint(GameCheckpoint.Gate.VISUAL_NOVEL, context.nodeId)
         isPaused = true
         parkedVisualNovelNodeId = context.nodeId
         _state.value = GameEngineState.AwaitingVisualNovelDismissal(
@@ -621,10 +660,11 @@ class GameEngine @Inject constructor(
         }
     }
 
-    private fun enterAwaitingInput(
+    private suspend fun enterAwaitingInput(
         context: ExecutionContext,
         choices: List<HandlerEffect.ShowChoices.Choice>
     ) {
+        persistCheckpoint(GameCheckpoint.Gate.CHOICE, context.nodeId, choices = choices)
         _state.value = GameEngineState.AwaitingInput(
             chapterCode = context.graph.chapterCode,
             currentNodeId = context.nodeId,
@@ -665,6 +705,7 @@ class GameEngine @Inject constructor(
             GameEngineLogger.d("INPT") { "Choice selected: $nextNodeId" }
             GameEngineLogger.kimi { "CHOICE_SUBMITTED nextNodeId=$nextNodeId" }
 
+            persistCheckpoint(GameCheckpoint.Gate.NODE, nextNodeId, selectedChoiceNodeId = nextNodeId)
             awaitingInput = false
             availableChoices = emptyList()
             executeNode(nextNodeId, ArrivalContext(selectedChoiceNodeId = nextNodeId))
@@ -672,6 +713,12 @@ class GameEngine @Inject constructor(
     }
 
     private suspend fun applyEffect(effect: HandlerEffect) {
+        when (effect) {
+            is HandlerEffect.ChangeScene -> currentSceneId = effect.sceneId
+            is HandlerEffect.PlaySound -> if (effect.loop) loopingSounds[effect.nodeId] = effect
+            is HandlerEffect.StopSound -> loopingSounds.remove(effect.targetNodeId)
+            else -> Unit
+        }
         when (effect) {
             is HandlerEffect.AddMessage -> {
                 GameEngineLogger.d("FX") { "Add ${effect.message::class.simpleName}" }
@@ -698,8 +745,9 @@ class GameEngine @Inject constructor(
             is HandlerEffect.ChangeChapter -> {
                 GameEngineLogger.d("FX") { "Change chapter: ${effect.chapterCode}" }
                 GameEngineLogger.kimi { "CHAPTER_CHANGE chapterCode=${effect.chapterCode}" }
+                chapterTransitionPending = true
                 memory.setCurrentChapter(effect.chapterCode)
-                memory.save()
+                if (checkpointingEnabled) memory.save()
                 _messages.value += GameMessageNextChapter()
                 val emitted = _effects.tryEmit(effect)
                 if (!emitted) {
@@ -711,10 +759,12 @@ class GameEngine @Inject constructor(
                 GameEngineLogger.i("FX") { "Story finished" }
                 GameEngineLogger.kimi { "STORY_FINISHED" }
                 _messages.value += GameMessageInfo("end_story", "Story finished!")
+                _effects.tryEmit(effect)
             }
 
             is HandlerEffect.EnterCinematic -> {
                 GameEngineLogger.d("FX") { "EnterCinematic ${effect.startNodeId} → ${effect.endNodeId}; parking engine" }
+                persistCheckpoint(GameCheckpoint.Gate.CINEMATIC, effect.startNodeId, cinematicEndNodeId = effect.endNodeId)
                 val emitted = _effects.tryEmit(effect)
                 if (!emitted) {
                     GameEngineLogger.w("FX") { "Effect dropped (buffer full): $effect" }
@@ -754,6 +804,7 @@ class GameEngine @Inject constructor(
             is NodeResolver.ResolutionResult.NodeNextChapter -> {
                 GameEngineLogger.d("NAV") { "Chapter ${graph.chapterCode} finished at ${context.node.id}" }
                 GameEngineLogger.kimi { "CHAPTER_FINISHED chapterCode=${graph.chapterCode} node=${context.node.id}" }
+                persistCheckpoint(GameCheckpoint.Gate.FINISHED, context.nodeId)
                 _state.value = GameEngineState.ChapterFinished(graph.chapterCode)
             }
 
@@ -786,6 +837,80 @@ class GameEngine @Inject constructor(
             chapterCode = chapterCode,
             currentNodeId = nodeId
         )
+    }
+
+    private suspend fun persistCheckpoint(
+        gate: GameCheckpoint.Gate,
+        nodeId: String,
+        choices: List<HandlerEffect.ShowChoices.Choice> = emptyList(),
+        autoAdvanceAfterMs: Long = 0,
+        requiresTap: Boolean = true,
+        cinematicEndNodeId: String? = null,
+        selectedChoiceNodeId: String? = null,
+    ) {
+        if (!checkpointingEnabled || chapterTransitionPending) return
+        val graph = currentGraph ?: return
+        val checkpoint = GameCheckpoint(
+            chapterCode = graph.chapterCode, graphFingerprint = graphFingerprint,
+            nodeId = nodeId, gate = gate, memories = memory.entries(),
+            messages = _messages.value.filter { it.type != GameMessageType.Typing },
+            previousNodeId = previousNode?.id, choices = choices,
+            autoAdvanceAfterMs = autoAdvanceAfterMs, requiresTap = requiresTap,
+            sceneId = currentSceneId, loopingSounds = loopingSounds.values.toList(),
+            cinematicEndNodeId = cinematicEndNodeId, selectedChoiceNodeId = selectedChoiceNodeId,
+        )
+        try {
+            memory.saveCheckpoint(checkpoint)
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            // Keep reading possible on a storage failure; the last committed gate is still consistent.
+            GameEngineLogger.e("SAVE", e) { "Could not save reading position at $nodeId" }
+        }
+    }
+
+    private suspend fun restoreCheckpoint(graph: ChapterGraph, checkpoint: GameCheckpoint) {
+        awaitingInput = false
+        availableChoices = emptyList()
+        isPaused = false
+        parkedMangaNodeId = null
+        parkedVisualNovelNodeId = null
+        _messages.value = checkpoint.messages
+        previousNode = checkpoint.previousNodeId?.let(graph::getNode)
+        checkpoint.sceneId?.let { applyEffect(HandlerEffect.ChangeScene(it)) }
+        checkpoint.loopingSounds.forEach { applyEffect(it.copy(delayMs = 0)) }
+        GameEngineLogger.d("SAVE") { "Resuming ${graph.chapterCode} at ${checkpoint.nodeId} (${checkpoint.gate})" }
+        when (checkpoint.gate) {
+            GameCheckpoint.Gate.NODE -> {
+                _state.value = GameEngineState.Playing(graph.chapterCode, checkpoint.nodeId)
+                executeNode(checkpoint.nodeId, ArrivalContext(selectedChoiceNodeId = checkpoint.selectedChoiceNodeId))
+            }
+            GameCheckpoint.Gate.TAP -> _state.value = GameEngineState.AwaitingTap(
+                graph.chapterCode, checkpoint.nodeId, checkpoint.autoAdvanceAfterMs, checkpoint.requiresTap)
+            GameCheckpoint.Gate.CHOICE -> {
+                awaitingInput = true
+                availableChoices = checkpoint.choices
+                _state.value = GameEngineState.AwaitingInput(graph.chapterCode, checkpoint.nodeId, checkpoint.choices)
+            }
+            GameCheckpoint.Gate.MANGA -> {
+                isPaused = true
+                parkedMangaNodeId = checkpoint.nodeId
+                _state.value = GameEngineState.AwaitingMangaDismissal(graph.chapterCode, checkpoint.nodeId)
+            }
+            GameCheckpoint.Gate.VISUAL_NOVEL -> {
+                isPaused = true
+                parkedVisualNovelNodeId = checkpoint.nodeId
+                val context = checkNotNull(prepareExecutionContext(checkpoint.nodeId))
+                buildScript(context)?.commands?.filterIsInstance<HandlerCommand.Emit>()?.forEach { applyEffect(it.effect) }
+                _state.value = GameEngineState.AwaitingVisualNovelDismissal(graph.chapterCode, checkpoint.nodeId)
+            }
+            GameCheckpoint.Gate.CINEMATIC -> {
+                isPaused = true
+                _state.value = GameEngineState.Playing(graph.chapterCode, checkpoint.nodeId)
+                _effects.emit(HandlerEffect.EnterCinematic(checkpoint.nodeId, checkNotNull(checkpoint.cinematicEndNodeId)))
+            }
+            GameCheckpoint.Gate.FINISHED -> _state.value = GameEngineState.ChapterFinished(graph.chapterCode)
+        }
     }
 
     private fun getHandler(node: Node): NodeHandler = when (node) {

@@ -43,7 +43,6 @@ internal fun MessageNextChapter(
     modifier: Modifier = Modifier,
     title: String = stringResource(R.string.game_presentation_message_next_chapter_title),
     showButton: Boolean = true,
-    requiresAd: Boolean = false,
     isBusy: Boolean = false,
     onClick: () -> Unit = {},
 ) {
@@ -67,11 +66,6 @@ internal fun MessageNextChapter(
         )
         if (showButton && isBusy) {
             androidx.compose.material3.CircularProgressIndicator(color = Color.White)
-        } else if (showButton && requiresAd) {
-            UnlockNextChapterButton(
-                modifier = Modifier.testTag("game_next_chapter_ads_button"),
-                onClick = hapticClick,
-            )
         } else if (showButton) {
             PlayNextChapterButton(
                 modifier = Modifier.testTag("game_next_chapter_button"),

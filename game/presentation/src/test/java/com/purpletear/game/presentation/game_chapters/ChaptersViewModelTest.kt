@@ -9,10 +9,8 @@ import com.purpletear.game.presentation.game_preview.fakes.FakeMediaUrlResolver
 import com.purpletear.game.presentation.game_preview.fakes.FakeMemoryRepository
 import com.purpletear.game.presentation.game_preview.fakes.FakeToastService
 import com.purpletear.game.presentation.game_preview.fakes.FakeUserGameProgressRepository
-import com.purpletear.game.presentation.game_preview.fakes.FakeUserRoleRepository
 import com.purpletear.game.presentation.game_preview.fakes.TestFixtures
 import com.purpletear.sutoko.game.model.Chapter
-import com.purpletear.sutoko.game.model.UserRole
 import com.purpletear.sutoko.game.model.UserGameProgress
 import com.purpletear.sutoko.game.model.chapter.MemoryEntry
 import com.purpletear.sutoko.game.usecase.GetChaptersUseCase
@@ -46,7 +44,6 @@ class ChaptersViewModelTest {
     private val memoryRepository = FakeMemoryRepository()
     private val mediaUrlResolver = FakeMediaUrlResolver()
     private val toastService = FakeToastService()
-    private val userRoleRepository = FakeUserRoleRepository()
     private val logger = FakeLogger()
 
     private val testDispatcher = StandardTestDispatcher()
@@ -72,7 +69,7 @@ class ChaptersViewModelTest {
             selectChapterUseCase = SelectChapterUseCase(progressRepository, GameProgressTransaction { it() }),
             prepareGameLaunchUseCase = PrepareGameLaunchUseCase(progressRepository, FakeFriendzonedProgressRepository()),
             saveUserNickNameUseCase = SaveUserNickNameUseCase(progressRepository),
-            userRoleRepository = userRoleRepository,
+
             toastService = toastService,
             logger = logger,
         )
@@ -248,27 +245,4 @@ class ChaptersViewModelTest {
         assertTrue(toastService.shownMessages.isEmpty())
     }
 
-    @Test
-    fun `administrator can select a locked chapter`() = runTest {
-        val locked = Chapter(
-            id = "chapter-2",
-            number = 2,
-            code = "CH2",
-            releaseDate = Long.MAX_VALUE,
-        )
-        chapterRepository.setChapters(TestFixtures.GAME_ID, Result.success(listOf(locked)))
-        userRoleRepository.set(UserRole.ADMINISTRATOR)
-
-        val viewModel = createViewModel()
-        backgroundScope.launch { viewModel.uiState.collect { } }
-        advanceUntilIdle()
-
-        assertTrue((viewModel.uiState.value as ChaptersUiState.Data).isAdmin)
-
-        viewModel.events.test {
-            viewModel.onChapterSelected(locked)
-            assertEquals(ChaptersEvent.OpenChapter("ch2"), awaitItem())
-        }
-        assertTrue(toastService.shownMessages.isEmpty())
-    }
 }

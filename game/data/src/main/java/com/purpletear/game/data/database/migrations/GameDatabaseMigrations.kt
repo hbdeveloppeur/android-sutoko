@@ -195,6 +195,12 @@ object GameDatabaseMigrations {
         }
     }
 
+    val MIGRATION_21_22 = object : Migration(21, 22) {
+        override fun migrate(db: SupportSQLiteDatabase) {
+            db.execSQL("ALTER TABLE user_game_progress ADD COLUMN checkpoint TEXT")
+        }
+    }
+
     val ALL: Array<Migration> = arrayOf(
         MIGRATION_6_7,
         MIGRATION_10_11,
@@ -206,5 +212,6 @@ object GameDatabaseMigrations {
         MIGRATION_18_19,
         MIGRATION_19_20,
         MIGRATION_20_21,
+        MIGRATION_21_22,
     )
 }

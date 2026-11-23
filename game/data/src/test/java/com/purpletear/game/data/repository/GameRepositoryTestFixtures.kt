@@ -98,7 +98,6 @@ internal open class FakeGameApi : GameApi {
         gameId: String,
         userId: String?,
         userToken: String?,
-        preview: Boolean?,
     ) = throw NotImplementedError()
 
     override suspend fun searchStories(

@@ -25,21 +25,21 @@
             android:name=".activities.load.Load"
             android:configChanges="orientation"
             android:screenOrientation="portrait"
-            android:theme="@style/MenuTheme" />
+            android:theme="@style/Friendzoned2ChapterTheme" />
         <activity
             android:name=".activities.chapterSwitcher.ChapterSwitcher"
             android:configChanges="orientation"
             android:screenOrientation="portrait"
-            android:theme="@style/MenuTheme" />
+            android:theme="@style/Friendzoned2ChapterTheme" />
         <activity
             android:name=".activities.textcinematic.TextCinematic"
             android:configChanges="orientation"
             android:screenOrientation="portrait"
-            android:theme="@style/MenuTheme" />
+            android:theme="@style/Friendzoned2ChapterTheme" />
         <activity
             android:name=".activities.main.Main"
             android:screenOrientation="portrait"
-            android:theme="@style/MenuTheme" />
+            android:theme="@style/Friendzoned2ChapterTheme" />
         <activity
             android:name=".activities.choice.Choice"
             android:screenOrientation="portrait"
@@ -63,7 +63,7 @@
         <activity
             android:name=".activities.poetry.Poetry"
             android:screenOrientation="portrait"
-            android:theme="@style/MenuTheme" />
+            android:theme="@style/Friendzoned2ChapterTheme" />
     </application>
 
 </manifest>

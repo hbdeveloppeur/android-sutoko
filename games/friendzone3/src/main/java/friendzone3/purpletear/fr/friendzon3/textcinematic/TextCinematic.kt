@@ -1,5 +1,7 @@
 package friendzone3.purpletear.fr.friendzon3.textcinematic
 
+import com.purpletear.sutoko.analytics.data.statistics.LegacyChapterReports
+
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
@@ -16,8 +18,9 @@ class TextCinematic : AppCompatActivity() {
 
     private lateinit var model: TextCinematicModel
     private lateinit var graphics: TextCinematicGraphics
-    private var sh = SoundHandler(Data.assetsDirectoryName)
-    private var mh = MemoryHandler()
+    private val sh = friendzone3.purpletear.fr.friendzon3.handlers.SoundHandler()
+    private val scheduler = CinematicScheduler()
+    private lateinit var progress: CinematicProgressView
     private var endResultCode : Int  = 999
     private var prevent : Boolean = false
 
@@ -25,6 +28,11 @@ class TextCinematic : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.fz3_activity_text_cinematic)
         load()
+        if (!com.example.sharedelements.SutokoSharedElementsData.SHOULD_FORCE_CHAPTER) {
+            LegacyChapterReports.entered(this,159,friendzone3.purpletear.fr.friendzon3.config.Language.determineLangDirectory(),model.symbols.chapterCode)
+            LegacyChapterReports.observe(this,159,friendzone3.purpletear.fr.friendzon3.config.Language.determineLangDirectory(),model.symbols.chapterCode)
+        }
+        progress = findViewById(R.id.cinematic_progress)
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -48,17 +56,21 @@ class TextCinematic : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
+        scheduler.resume()
+        progress.resume()
         if (!prevent && model.isFirstStart()) {
+            progress.start(model.cinematicDurationMillis())
             TextCinematicGraphics.setImages(this@TextCinematic, model.requestManager)
             discuss(model.currentPhrase)
         }
     }
 
     override fun onDestroy() {
-        mh.kill()
+        scheduler.clear()
+        progress.stop()
         model.sound.stop()
         model.sound.onDestroy()
-        graphics.mh.kill()
+        sh.clear()
         super.onDestroy()
     }
 
@@ -70,30 +82,25 @@ class TextCinematic : AppCompatActivity() {
     override fun onStart() {
         super.onStart()
 
-        if(model.symbols.chapterCode == "1a") {
-            sh.generateFromExternalStorage(Data.selectSound(this, "fz3_bg_cinematic_"+model.symbols.chapterCode), this, false)
-            sh.play(Data.selectSound(this, "fz3_bg_cinematic_"+model.symbols.chapterCode))
-        } else {
-            sh.generateFromExternalStorage(Data.selectSound(this, "fz3_bg_cinematic"), this, false)
-            sh.play(Data.selectSound(this, "fz3_bg_cinematic"))
-        }
+        val name = cinematicSoundName()
+        sh.generate(name, this, false).play(name)
     }
 
     override fun onPause() {
         super.onPause()
-
-        if(model.symbols.chapterCode == "1a") {
-            sh.pause(Data.selectSound(this, "fz3_bg_cinematic_"+model.symbols.chapterCode))
-        } else {
-            sh.pause(Data.selectSound(this, "fz3_bg_cinematic"))
-        }
+        scheduler.pause()
+        progress.pause()
+        sh.pause(cinematicSoundName())
     }
+
+    private fun cinematicSoundName(): String =
+        if (model.symbols.chapterCode == "1a") "bg_cinematic_1a" else "bg_cinematic"
 
     private fun load() {
         model = TextCinematicModel(
                 this
         )
-        graphics = TextCinematicGraphics()
+        graphics = TextCinematicGraphics(scheduler)
     }
 
     /**
@@ -102,6 +109,7 @@ class TextCinematic : AppCompatActivity() {
     private fun discuss(phrase: Phrase) {
 
         if (DiscussionHandler.execute("Ecran de fin", phrase.isAnnouncement)) {
+            progress.complete()
             setResult(Activity.RESULT_CANCELED)
             val i = Intent(this, End::class.java)
             i.flags = i.flags or Intent.FLAG_ACTIVITY_NO_HISTORY
@@ -133,8 +141,7 @@ class TextCinematic : AppCompatActivity() {
                     }
                 }
             }
-            mh.push(runnable)
-            mh.run(runnable)
+            scheduler.schedule(runnable.duration, runnable)
 
             return
         }
@@ -154,18 +161,18 @@ class TextCinematic : AppCompatActivity() {
                             }
                         }
 
-                        mh.push(runnable)
-                        mh.run(runnable)
+                        scheduler.schedule(runnable.duration, runnable)
                     }
                 }
             }
 
-            mh.push(runnable)
-            mh.run(runnable)
+            scheduler.schedule(runnable.duration, runnable)
         }
     }
 
     private fun onTellingFinished() {
+        if (!com.example.sharedelements.SutokoSharedElementsData.SHOULD_FORCE_CHAPTER && model.symbols.chapterCode.lowercase(java.util.Locale.ROOT) in setOf("9a", "9b", "9c", "9d")) { LegacyChapterReports.completed(this,159,friendzone3.purpletear.fr.friendzon3.config.Language.determineLangDirectory(),model.symbols.chapterCode); LegacyChapterReports.storyFinished(this,159,friendzone3.purpletear.fr.friendzon3.config.Language.determineLangDirectory(),model.symbols.chapterCode) }
+        progress.complete()
         graphics.fadeText(this@TextCinematic, false, 280)
         TextCinematicGraphics.fadeFilter(this, false)
         setResult(Activity.RESULT_OK)

@@ -182,4 +182,54 @@ class GameEngineChoiceTest {
         assertEquals("Salut Alex", showChoices.choices[0].text)
         assertEquals("Alex ?", showChoices.choices[1].text)
     }
+
+    @Test
+    fun `leading action remains in label but not in selected message`() = runBlocking {
+        val engine = createTestGameEngine()
+        engine.initialize("game-1", choiceGraph(choiceAText = "(mentir) je vais bien"))
+        engine.start()
+        val state = engine.state.value as GameEngineState.AwaitingInput
+        assertEquals("(mentir) je vais bien", state.choices.first().text)
+        engine.submitChoice("choiceA")
+        assertEquals("je vais bien", engine.messages.value.filterIsInstance<GameMessageText>().single().text)
+    }
+
+    @Test
+    fun `selected message trims whitespace around the action and spoken text`() = runBlocking {
+        val engine = createTestGameEngine()
+        val label = "  (mentir) \n\t je vais bien  "
+        engine.initialize("game-1", choiceGraph(choiceAText = label))
+        engine.start()
+
+        val state = engine.state.value as GameEngineState.AwaitingInput
+        assertEquals(label, state.choices.first().text)
+        engine.submitChoice("choiceA")
+
+        assertEquals("je vais bien", engine.messages.value.filterIsInstance<GameMessageText>().single().text)
+    }
+
+    @Test
+    fun `selected message preserves parentheses after the leading action`() = runBlocking {
+        val engine = createTestGameEngine()
+        engine.initialize("game-1", choiceGraph(choiceAText = "(mentir) je vais bien (vraiment)"))
+        engine.start()
+        engine.submitChoice("choiceA")
+
+        assertEquals("je vais bien (vraiment)", engine.messages.value.filterIsInstance<GameMessageText>().single().text)
+    }
+
+    @Test
+    fun `selected message still resolves variables after the action`() = runBlocking {
+        val memory = createFakeGameMemory()
+        val engine = createTestGameEngine(memory = memory)
+        engine.initialize("game-1", choiceGraph(choiceAText = "(mentir) Salut [prenom]"))
+        memory.set("heroName", "Alex")
+        engine.start()
+
+        val state = engine.state.value as GameEngineState.AwaitingInput
+        assertEquals("(mentir) Salut Alex", state.choices.first().text)
+        engine.submitChoice("choiceA")
+
+        assertEquals("Salut Alex", engine.messages.value.filterIsInstance<GameMessageText>().single().text)
+    }
 }

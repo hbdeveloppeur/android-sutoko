@@ -1,5 +1,8 @@
 package fr.purpletear.friendzone4.game.activities.load;
 
+import com.purpletear.ads.ChapterBreakGate;
+import com.example.sharedelements.SutokoSharedElementsData;
+
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Parcelable;
@@ -7,7 +10,6 @@ import android.os.Parcelable;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.example.sharedelements.utils.ActivityTransitionHelper;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -25,7 +27,7 @@ public class Load extends AppCompatActivity {
      */
     private LoadModel model;
 
-    private boolean stop = false;
+    private ChapterBreakGate adGate;
     private int hasSeenChapterNumber = -1;
 
     @Override
@@ -34,11 +36,14 @@ public class Load extends AppCompatActivity {
         setContentView(R.layout.fz4_activity_load);
 
         load();
+        adGate = new ChapterBreakGate(this, savedInstanceState, 163,
+                getIntent().getBooleanExtra("granted", false) || SutokoSharedElementsData.INSTANCE.getSHOULD_FORCE_CHAPTER(), this::navigate);
     }
 
     @Override
     protected void onSaveInstanceState(@NotNull Bundle outState) {
         super.onSaveInstanceState(outState);
+        adGate.save(outState);
         outState.putInt("hasSeenChapterNumber", this.hasSeenChapterNumber);
         outState.putParcelable("params", model.getParams());
         outState.putParcelable("symbols", model.getSymbols());
@@ -46,7 +51,6 @@ public class Load extends AppCompatActivity {
         outState.putBoolean("hasSeenLoading", model.hasSeenLoading);
         outState.putBoolean("hasSeenTextCinematic", model.hasSeenTextCinematic);
         outState.putBoolean("hasSeenPoetry", model.hasSeenPoetry);
-        outState.putBoolean("stop", stop);
     }
 
     @Override
@@ -57,23 +61,10 @@ public class Load extends AppCompatActivity {
         model.hasSeenLoading = savedInstanceState.getBoolean("hasSeenLoading");
         model.hasSeenTextCinematic = savedInstanceState.getBoolean("hasSeenTextCinematic");
         model.hasSeenPoetry = savedInstanceState.getBoolean("hasSeenPoetry");
-        stop = savedInstanceState.getBoolean("stop");
         model.setParams((Params) savedInstanceState.getParcelable("params"));
         model.setSymbols((TableOfSymbols) savedInstanceState.getParcelable("symbols"));
     }
 
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        if (stop) {
-            stop = false;
-            return;
-        }
-        this.hasSeenChapterNumber = model.getSymbols().getChapterNumber();
-        stop = true;
-        navigate();
-    }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
@@ -91,7 +82,6 @@ public class Load extends AppCompatActivity {
                         .putExtra("symbols", (Parcelable) model.getSymbols())
                 );
             }
-            stop = true;
             finish();
             return;
         }
@@ -100,35 +90,27 @@ public class Load extends AppCompatActivity {
             if (data != null && data.hasExtra("params")) {
                 model.setParams((Params) data.getParcelableExtra("params"));
             }
-            if (stop) {
-                navigate();
-            }
+
         } else if (requestCode == NavigationHandler.Navigation.AUDIOCINEMATIC.ordinal()) {
             model.hasSeenAudioCinematic = true;
-            if (stop) {
-                navigate();
-            }
+
         } else if (requestCode == NavigationHandler.Navigation.LOADING.ordinal()) {
             model.hasSeenLoading = true;
-            if (stop) {
-                navigate();
-            }
+
         } else if (requestCode == NavigationHandler.Navigation.GAME.ordinal()) {
             model.invalidate();
             if (data == null) {
+                adGate.childReturned(null, model.getSymbols().getChapterNumber());
                 return;
             }
             model.setParams((Params) data.getParcelableExtra("params"));
             model.setSymbols((TableOfSymbols) data.getParcelableExtra("symbols"));
-            if (stop) {
-                navigate();
-            }
+
         } else if (requestCode == NavigationHandler.Navigation.POETRY.ordinal()) {
             model.hasSeenPoetry = true;
-            if (stop) {
-                navigate();
-            }
+
         }
+        adGate.childReturned(data, model.getSymbols().getChapterNumber());
     }
 
     /**
@@ -155,7 +137,6 @@ public class Load extends AppCompatActivity {
         i.putExtra("symbols", (Parcelable) model.getSymbols());
         i.putExtra("chapter", ChapterDetailsHandler.getChapter(this, model.getSymbols(), model.getParams().getChapterCode()));
         startActivityForResult(i, model.getNavigationHandler().getRequestCode());
-        ActivityTransitionHelper.overrideOpenTransition(this, com.example.sharedelements.R.anim.game_launch_fade_in, com.example.sharedelements.R.anim.game_launch_fade_out);
     }
 
 }

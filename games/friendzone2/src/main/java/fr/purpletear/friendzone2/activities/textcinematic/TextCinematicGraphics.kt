@@ -16,9 +16,7 @@ import fr.purpletear.friendzone2.tables.Character
 import purpletear.fr.purpleteartools.*
 
 
-class TextCinematicGraphics {
-    // Manages handlers
-    var mh = MemoryHandler()
+class TextCinematicGraphics(private val scheduler: CinematicScheduler) {
     private var isFirstImage : Boolean = true
     private var isFirstText : Boolean  = true
 
@@ -51,8 +49,7 @@ class TextCinematicGraphics {
             }
         }
 
-        mh.push(runnable)
-        mh.run(runnable)
+        scheduler.schedule(runnable.duration, runnable)
     }
 
     /**
@@ -70,8 +67,7 @@ class TextCinematicGraphics {
             }
         }
 
-        mh.push(runnable)
-        mh.run(runnable)
+        scheduler.schedule(runnable.duration, runnable)
     }
 
     /**
@@ -90,8 +86,7 @@ class TextCinematicGraphics {
             }
         }
 
-        mh.push(runnable)
-        mh.run(runnable)
+        scheduler.schedule(runnable.duration, runnable)
     }
 
     /**
@@ -142,8 +137,7 @@ class TextCinematicGraphics {
             }
         }
 
-        mh.push(runnable)
-        mh.run(runnable)
+        scheduler.schedule(runnable.duration, runnable)
     }
 
     companion object {
